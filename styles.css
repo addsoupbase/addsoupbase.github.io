@@ -134,10 +134,40 @@ iframe {
     text-align: center;        /* Center the text inside */
     transition: transform 0.3s ease, background-color 0.3s ease;
 }
+.form {
+  display: grid;
+}
+input.cute-green {
+  background-color: #43b363;  /* Same soft pastel green */
+  opacity: 0.8;
+  border: 2px solid #399a3e;  /* Darker green border */
+  border-radius: 15px;        /* Rounded corners for a cute look */
+  padding: 10px 15px;         /* Padding for a comfortable feel */
+  font-family: 'Comic Sans MS', cursive, sans-serif; /* Playful font */
+  color: #000000;             /* Black text for contrast */
+  text-align: center;         /* Center the text inside */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow */
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  max-width: 300px;          /* Limit max width for aesthetic */
+}
+.input {
+  margin: 10px
+}
+/* Add some interaction styles */
+input.cute-green:focus {
+  background-color: #4ec367; /* Slightly lighter green on focus */
+  border-color: #5ab149;     /* Even darker border on focus */
+  transform: scale(1.02);    /* Slight scaling effect on focus */
+  outline: none;              /* Remove default outline */
+}
+
+input.cute-green::placeholder {
+  color: #000000;             /* Black placeholder text */
+  opacity: 0.6;              /* Slightly transparent placeholder */
+}
 
 .cute-green:hover {
     background-color: #67db71; 
-    transform: scale(1.01);  
 }
 .kanit-thin {
     font-family: "Kanit", sans-serif;

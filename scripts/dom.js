@@ -97,8 +97,95 @@ let abtme = new Elem({
             tag: 'div', children: [
                 new あ({ tag: 'p', text: 'IM GONNA PUT STUFF HERE SOON SO JUST YOU WAIT IM GONNA IMPROVE IT SOON DONT WORRY I LOVE YOU' })
             ]
-        })
+        }),
+        new あ({ tag: 'p', id: 'jeff', text: 'Send me something!! (goes directly to my discord)' }),
 
+        new あ({
+            tag: 'div', class: ['form'], id: 'formtab',children: [
+                new あ({
+                    tag: 'div', id: 'mainform', children: [
+                  
+                        new あ({ tag: 'input', class: ['cute-green'], id: 'formName', name: 'name', placeholder: 'Name goes here', value: 'anonymous' }),
+
+                        new あ({
+                            tag: 'input', class: ['cute-green'], id: 'formMessage', name: 'message', placeholder: 'Your message here...', events: {
+                                click() {
+                                    this.placeholder = `Your message here...`
+                                }
+                            }
+                        }),
+
+                    ]
+                }),
+            
+
+                /*     new あ({tag:'div',class:['hidden'],id:'loading',children:[
+                         new あ({tag:'img', class:['emoji'],src:'./media/yb.webp'}),
+                         new あ({tag:'img', class:['emoji'],src:'./media/tb.webp'})
+     
+     
+                     ]})*/
+            ]
+        }),
+        new あ({
+            styles: {padding:'10px',margin:'10px'},
+            tag: 'button', id: 'submitBtn', class: ['cute-green'], events: {
+                click() {
+                    if (!あ['#formMessage'].value) {
+                        あ['#formMessage'].placeholder = 'WRITE SOMETHING'
+                        あ['#formMessage'].anim({class: 'shake-top' })
+                        return
+                    }
+                    let t = gen()
+                    あ['#submitBtn'].noevent('click')
+                    あ['#submitBtn'].replaceWith(
+                        new Elem({tag:'div',class:['loader'],id:t})
+                    )
+                    あ['#formMessage'].disabled = あ['#formName'].disabled = true
+                    let NAME = あ['#formName'].value
+                    let MESSAGE = あ['#formMessage'].value
+                        ; (async () => {
+                            try {
+                                let x = await fetch(`https://formspree.io/f/mqakzlyo`, {
+                                    method: 'POST',
+                                    body: `name=${encodeURIComponent(NAME) || 'anonymous'}&message=${encodeURIComponent(MESSAGE)}`,
+                                    headers: {
+                                        'Content-Type': 'application/x-www-form-urlencoded',
+                                        'Accept': 'application/json'
+                                    }
+                                })
+                                if (x.ok) {
+                                    あ['#formtab'].anim({ class: 'rotate-out-2-ccw' }, function () {
+                                        this.kill()
+                                    })
+                                }
+                                else {
+                                    confirm(`Something went wrong... reload and try again?`) && location.reload()
+                                }
+                            } catch (e) {
+                                //  confirm(`For whatever reason i couldnt send your message :(! reload and try again`) && location.reload()
+                                
+                                あ['#mainform'].kill()
+                                あ['#jeff'].innerHTML = 'Your message could not be sent because: '
+                                new Elem({
+                                    tag: 'p',
+                                    class: ['shake-horizontal'],
+                                    styles: { 'font-size': '25px', color: 'black' },
+                                    text: e.message, parent: あ['#formtab']
+                                })
+                                throw e
+                            }
+                            finally {
+                                Elem['#'+t].kill()
+                                あ['#jeff'].kill()
+
+                            }
+
+                        })()
+                }
+            },
+            text: 'Send'
+        }),
     ]
 })
 abtme.hide()
