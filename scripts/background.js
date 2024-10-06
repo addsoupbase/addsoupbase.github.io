@@ -68,11 +68,7 @@ function update() {
                 m = new Elem({
                     id,
                     class: [pok],
-                    tag: 'div', styles: {
-                        'background-image': `url("${src}")`,
-                        'background-repeat': 'no-repeat',
-                        'background-size': 'contain',
-                    }
+                    tag: 'img', src
                 })
             ],
             x: loc,

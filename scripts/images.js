@@ -64,7 +64,8 @@ const media = new Set([
  'phione',
  'seadra',
  'sharpedo',
- 'wailord'    
+ 'wailord',
+ 'luvdisc'
 ])
 const mons = new Set
 const avatars = []

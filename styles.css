@@ -21,44 +21,48 @@ svg {
     opacity: 0.7
 }
 .kyogre {
-    width: 120px;
-    height: 120px;
+    width: 140px;
+    height: 140px;
 }
 
 .phione {
-    width: 60px;
+    width: 40px;
     height: 50px
 }
 .manaphy {
-    width: 80px;
+    width: 75px;
     height: 65px;
 }
 .huntail,.gorebyss {
-    width: 200px;
+    width: 85px;
     height: 100px;
 }
 .wailord {
-    width: 480px;
-    height: 300px;
+    width: 370px;
+    height: 370px;
 }
 .sharpedo {
-    width: 80px;
-    height: 80px;
+    width: 55px;
+    height: 90px;
 }
 .carvanha {
-    width: 60px;
+    width: 50px;
     height: 60px;
 }
 .lanturnshiny,.lanturn {
-    width: 80px;
+    width: 62px;
     height: 80px;
   }
+.luvdisc {
+  width: 30px;
+  height: 40px;
+}
 .corsola {
-    width: 40px;
+    width: 25px;
     height: 30px;
 }
 .seadra {
-    width: 80px;
+    width: 65px;
     height: 65px;
 }
 .name{
