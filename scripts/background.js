@@ -122,7 +122,7 @@ let background = new あ({
     parent: body,
     id: 'background'
 })
-Elem.logLevels.success = Elem.logLevels.info = true
+Elem.logLevels.success = true
 Elem.bulk((...src) => {
     src.forEach(o => {
         if (!o.includes('bubble')) {

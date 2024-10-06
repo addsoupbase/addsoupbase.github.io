@@ -2,7 +2,6 @@
 const outer = new Elem({ tag: 'div', id: 'main', class: ['cute-green'], parent: body })
 const aliases = ['misha', 'mimi', 'soup', 'muffy', 'soupy', 'TUlTSEE', 'addsoupbase']
 const あ = Elem
-あ.log()
 let ca = aliases.length - 1
 let content;
 const hideclick = {
@@ -24,11 +23,11 @@ const hideclick = {
                     music.hide()
                     projects.show()
                     break
-                    case 'music':
-                        abtme.hide()
-                        projects.hide()
-                        music.show()
-                        break
+                case 'music':
+                    abtme.hide()
+                    projects.hide()
+                    music.show()
+                    break
             }
             outer.anim({ class: 'slide-in-fwd-center' })
         })
@@ -103,29 +102,65 @@ let abtme = new Elem({
     ]
 })
 abtme.hide()
-let projects = new Elem({ class: ['hello'], tag: 'div', parent: content,children:[
-    new Elem({tag:'h1',message:'Most of these aren\'t done!'}),
-    new Elem({tag:'h3',message:'Newer stuff:'}),
+let projects = new Elem({
+    class: ['hello'], tag: 'div', parent: content, children: [
+        new Elem({ tag: 'h1', message: 'Most of these aren\'t done!' }),
+        new Elem({ tag: 'h3', message: 'Newer stuff:' }),
 
-] })
-let music = new Elem({class:['hello'],tag:'div',parent:content,text:'music will be here soon',children:[
-    new Elem({tag:'div',children: [
-        new Elem({tag:'img',src:'./media/catdance.webp',width:50,height:50}),
-        new Elem({tag:'img',src:'./media/catdance.webp',width:50,height:50}),
-    
-        new Elem({tag:'img',src:'./media/catdance.webp',width:50,height:50}),
-    
-    ]})
+    ]
+})
+let music = new Elem({
+    class: ['hello'], tag: 'div', parent: content, children: [
+        new Elem({tag:'i',text:'Please don\'t judge me :('})
+,
+        new Elem({
+            tag: 'div', class: ['hello'], styles: {
+                display: 'block'
+            }, children: [
+                new Elem({ tag: 'button', class: ['cute-green-button', 'small'],events:{
+                    click(){
+                        currentVideo--
+                        if (!videos[currentVideo]) {
+                            currentVideo = videos.length-1
+                        }
+                        youtube.src = videos[currentVideo]
+                        console.log(youtube.src)
+                    }
+                }, message: 'Previous' }),
+                new Elem({ tag: 'button', class: ['cute-green-button', 'small'], events:{
+                    click(){
+                        currentVideo++
+                        if (!videos[currentVideo]) {
+                            currentVideo = 0
+                        }
+                        youtube.src = videos[currentVideo]
+                        console.log(youtube.src)
+                    }
+                }, message: 'Next' }),
+                new Elem.youtube({ src: 'https://www.youtube.com/embed/BjYWwZYLYEs', id:'yt' }),
 
-]})
+                /*    new Elem({tag:'img',src:'./media/catdance.webp',width:50,height:50}),
+                    new Elem({tag:'img',src:'./media/catdance.webp',width:50,height:50}),
+                
+                    new Elem({tag:'img',src:'./media/catdance.webp',width:50,height:50}),*/
+            ]
+        })
+
+    ]
+})
 music.hide()
-for (let url of ['https://addsoupbase.github.io/favourites','https://addsoupbase.github.io/marbles?level=testt', 'https://addsoupbase.github.io/whatever/','https://addsoupbase.github.io/twehg','https://addsoupbase.github.io/dataurl']) {
+for (let url of ['https://addsoupbase.github.io/favourites', 'https://addsoupbase.github.io/marbles?level=testt', 'https://addsoupbase.github.io/whatever/', 'https://addsoupbase.github.io/twehg', 'https://addsoupbase.github.io/dataurl']) {
     new Elem({ tag: 'a', href: url, parent: projects, text: url, target: "_blank", rel: "noopener noreferrer" })
 }
-new Elem({tag:'h3',message:'Older stuff (bad):',parent:projects})
-for (let url of ['https://addsoupbase.github.io/textshortener','https://addsoupbase.github.io/intro/sizes','https://addsoupbase.github.io/intro/','https://magnificent-cream-beginner.glitch.me/','https://sepia-intermediate-taste.glitch.me/','https://dusty-flax-fukuiraptor.glitch.me/','https://eastern-verbena-van.glitch.me/','https://deeply-chlorinated-calendula.glitch.me/']) {
+new Elem({ tag: 'h3', message: 'Older stuff (bad):', parent: projects })
+for (let url of ['https://addsoupbase.github.io/textshortener', 'https://addsoupbase.github.io/intro/sizes', 'https://addsoupbase.github.io/intro/', 'https://magnificent-cream-beginner.glitch.me/', 'https://sepia-intermediate-taste.glitch.me/', 'https://dusty-flax-fukuiraptor.glitch.me/', 'https://eastern-verbena-van.glitch.me/', 'https://deeply-chlorinated-calendula.glitch.me/']) {
     new Elem({ tag: 'a', href: url, parent: projects, text: url, target: "_blank", rel: "noopener noreferrer" })
 
 }
 projects.hide()
 outer.anim({ class: 'puff-in-center' })
+const youtube = Elem['#yt']
+let videos = ['BjYWwZYLYEs','Jd45THQSI2A','rfFEhd7mk7c','LaKaCP55EvY','iNzrwh2Z2hQ','tBPsDHJpZAo','YOtUQFXhmwA','8mGBaXPlri8','QR_qa3Ohwls','d_HlPboLRL8','K17df81RL9Y','wMriLxUe_4']
+.map(o=>`https://www.youtube.com/embed/${o}`);
+
+let currentVideo = 0
