@@ -308,3 +308,6 @@ body {
         height: 100%;
         }
 }
+a {
+  font-family: 'Courier New', Courier, monospace;
+}
