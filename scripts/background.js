@@ -16,7 +16,7 @@ function update() {
         spawnAvatarBubbles()
 
     }
-    if (f < 50 || !(f % 60)) {
+    if (f < 30 || !(f % 60)) {
         let x = 15 + ran.range(0, 10)
         let bubble = new SceneryElem({
             parent: background,
@@ -25,6 +25,7 @@ function update() {
             class: ['bubble'],
             events: {
                 click() {
+                    this.noevent('click')
                     this.styleMe({
                         top: this.position.y + 'px',
                         left: this.position.x + 'px',
@@ -166,6 +167,8 @@ function n() {
         id: gen(),
         events: {
             click() {
+                this.noevent('click')
+
                 let f = new SceneryElem({
                     parent: background,
                     children: [
