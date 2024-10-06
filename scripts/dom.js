@@ -160,7 +160,7 @@ for (let url of ['https://addsoupbase.github.io/textshortener', 'https://addsoup
 projects.hide()
 outer.anim({ class: 'puff-in-center' })
 const youtube = Elem['#yt']
-let videos = ['BjYWwZYLYEs','Jd45THQSI2A','rfFEhd7mk7c','LaKaCP55EvY','iNzrwh2Z2hQ','tBPsDHJpZAo','YOtUQFXhmwA','8mGBaXPlri8','QR_qa3Ohwls','d_HlPboLRL8','K17df81RL9Y','wMriLxUe_4']
+let videos = ['BjYWwZYLYEs','Jd45THQSI2A','rfFEhd7mk7c','LaKaCP55EvY','iNzrwh2Z2hQ','tBPsDHJpZAo','YOtUQFXhmwA','8mGBaXPlri8','QR_qa3Ohwls','d_HlPboLRL8','K17df81RL9Y','-wMriLxUe_4']
 .map(o=>`https://www.youtube.com/embed/${o}`);
 
 let currentVideo = 0
