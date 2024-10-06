@@ -138,6 +138,7 @@ Elem.bulk((...src) => {
         avatarsources.push({ nickname: l.nickname, url: l.url })
     }
     spawnAvatarBubbles = n
+    pfps = new Cycle(...avatarsources)
 }, ...avatars.map(o => o.url))
 /*mons.forEach(o => {
     new あ({ tag: 'img', src: o, parent: body })
@@ -153,8 +154,9 @@ addEventListener('click', o => {
         }
     }
 })
+let pfps
 function n() {
-    let choice = avatarsources.pick()
+    let choice = pfps.next().value
     let nickname = choice.nickname.split('.').shift() || choice.url
     choice = choice.url
     let x = 50 + ran.range(0, 10)

@@ -137,7 +137,7 @@ let music = new Elem({
                         console.log(youtube.src)
                     }
                 }, message: 'Next' }),
-                new Elem.youtube({ src: 'https://www.youtube.com/embed/BjYWwZYLYEs', id:'yt' }),
+                new Elem.youtube({ src: 'https://www.youtube.com/embed/BjYWwZYLYEs', id:'yt',loading:'lazy' }),
 
                 /*    new Elem({tag:'img',src:'./media/catdance.webp',width:50,height:50}),
                     new Elem({tag:'img',src:'./media/catdance.webp',width:50,height:50}),
