@@ -110,10 +110,10 @@ let projects = new Elem({ class: ['hello'], tag: 'div', parent: content,children
 ] })
 let music = new Elem({class:['hello'],tag:'div',parent:content,text:'music will be here soon',children:[
     new Elem({tag:'div',children: [
-        new Elem({tag:'img',src:'./media/catdance.gif',width:50,height:50}),
-        new Elem({tag:'img',src:'./media/catdance.gif',width:50,height:50}),
+        new Elem({tag:'img',src:'./media/catdance.webp',width:50,height:50}),
+        new Elem({tag:'img',src:'./media/catdance.webp',width:50,height:50}),
     
-        new Elem({tag:'img',src:'./media/catdance.gif',width:50,height:50}),
+        new Elem({tag:'img',src:'./media/catdance.webp',width:50,height:50}),
     
     ]})
 

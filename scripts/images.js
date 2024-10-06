@@ -70,7 +70,7 @@ const mons = new Set
 const avatars = []
 media.forEach(o=>{
     //Elem.preload(`../media/${o}.gif`)
-    mons.add(`../media/${o}.gif`)
+    mons.add(`../media/${o}.webp`)
 
 })
 _avatars.forEach(o=> {
