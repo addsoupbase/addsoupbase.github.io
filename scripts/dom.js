@@ -123,7 +123,7 @@ for (let url of ['https://addsoupbase.github.io/favourites','https://addsoupbase
     new Elem({ tag: 'a', href: url, parent: projects, text: url, target: "_blank", rel: "noopener noreferrer" })
 }
 new Elem({tag:'h3',message:'Older stuff (bad):',parent:projects})
-for (let url of ['https://addsoupbase.github.io/textshortener','https://addsoupbase.github.io/intro/sizes','https://addsoupbase.github.io/intro/','https://magnificent-cream-beginner.glitch.me/','https://sepia-intermediate-taste.glitch.me/','https://dusty-flax-fukuiraptor.glitch.me/','https://eastern-verbena-van.glitch.me/','deeply-chlorinated-calendula  ']) {
+for (let url of ['https://addsoupbase.github.io/textshortener','https://addsoupbase.github.io/intro/sizes','https://addsoupbase.github.io/intro/','https://magnificent-cream-beginner.glitch.me/','https://sepia-intermediate-taste.glitch.me/','https://dusty-flax-fukuiraptor.glitch.me/','https://eastern-verbena-van.glitch.me/','https://deeply-chlorinated-calendula.glitch.me/']) {
     new Elem({ tag: 'a', href: url, parent: projects, text: url, target: "_blank", rel: "noopener noreferrer" })
 
 }
