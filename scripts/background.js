@@ -1,6 +1,5 @@
 import { avatars, mons } from './images.js'
 import './dom.js'
-console.log(avatars)
 const あ = Elem
 let spawnAvatarBubbles = () => { }
 let avatarsources = []
@@ -55,7 +54,7 @@ function update() {
         }
     }
     if (!(f % 100)) {
-        let src = pokémons.pick()
+        let src = ran.choose(...pokémons)
         let pok = src.slice(src.lastIndexOf('/') + 1, src.lastIndexOf('.'))
         let speed = 1.2
 
@@ -100,7 +99,7 @@ function update() {
 
         }
         if (loc === innerWidth + 300) {
-            Elem['#' + id].styleMe({ transform: 'scale(-1,1)' })
+            Elem.$(id).styleMe({ transform: 'scale(-1,1)' })
             poke.velocity.set(-speed, 0)
         }
         else {
@@ -182,7 +181,7 @@ function n() {
 
                             }
                         }),
-                        new Elem({ tag: 'span', message: nickname.upper(), class: ['name', 'kanit-regular'] })
+                        new Elem({ tag: 'span', message: upper(nickname), class: ['name', 'kanit-regular'] })
                     ],
                     styles: {
 

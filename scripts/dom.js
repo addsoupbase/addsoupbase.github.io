@@ -9,7 +9,7 @@ const hideclick = {
         outer.anim({ class: 'slide-out-bck-center' }, () => {
             hide?.fadeOut?.(hide.kill)
                 ;['greet', 'love', 'soup'].forEach(o => {
-                    あ['#' + o]?.kill?.()
+                    あ.$('#' + o)?.kill?.()
                 })
             switch (type) {
                 case 'abtme':
@@ -131,19 +131,19 @@ let abtme = new Elem({
             styles: {padding:'10px',margin:'10px'},
             tag: 'button', id: 'submitBtn', class: ['cute-green'], events: {
                 click() {
-                    if (!あ['#formMessage'].value) {
-                        あ['#formMessage'].placeholder = 'WRITE SOMETHING'
-                        あ['#formMessage'].anim({class: 'shake-top' })
+                    if (!あ.$('#formMessage').value) {
+                        あ.$('#formMessage').placeholder = 'WRITE SOMETHING'
+                        あ.$('#formMessage').anim({class: 'shake-top' })
                         return
                     }
                     let t = gen()
-                    あ['#submitBtn'].noevent('click')
-                    あ['#submitBtn'].replaceWith(
+                    あ.$('#submitBtn').noevent('click')
+                    あ.$('#submitBtn').replaceWith(
                         new Elem({tag:'div',class:['loader'],id:t})
                     )
-                    あ['#formMessage'].disabled = あ['#formName'].disabled = true
-                    let NAME = あ['#formName'].value
-                    let MESSAGE = あ['#formMessage'].value
+                    あ.$('#formMessage').disabled = あ.$('#formName').disabled = true
+                    let NAME = あ.$('#formName').value
+                    let MESSAGE = あ.$('#formMessage').value
                         ; (async () => {
                             try {
                                 let x = await fetch(`https://formspree.io/f/mqakzlyo`, {
@@ -155,7 +155,7 @@ let abtme = new Elem({
                                     }
                                 })
                                 if (x.ok) {
-                                    あ['#formtab'].anim({ class: 'rotate-out-2-ccw' }, function () {
+                                    あ.$('#formtab').anim({ class: 'rotate-out-2-ccw' }, function () {
                                         this.kill()
                                     })
                                 }
@@ -165,19 +165,19 @@ let abtme = new Elem({
                             } catch (e) {
                                 //  confirm(`For whatever reason i couldnt send your message :(! reload and try again`) && location.reload()
                                 
-                                あ['#mainform'].kill()
-                                あ['#jeff'].innerHTML = 'Your message could not be sent because: '
+                                あ.$('#mainform').kill()
+                                あ.$('#jeff').innerHTML = 'Your message could not be sent because: '
                                 new Elem({
                                     tag: 'p',
                                     class: ['shake-horizontal'],
                                     styles: { 'font-size': '25px', color: 'black' },
-                                    text: e.message, parent: あ['#formtab']
+                                    text: e.message, parent: あ.$('#formtab')
                                 })
                                 throw e
                             }
                             finally {
-                                Elem['#'+t].kill()
-                                あ['#jeff'].kill()
+                                Elem.$(t).kill()
+                                あ.$('#jeff').kill()
 
                             }
 
@@ -211,7 +211,6 @@ let music = new Elem({
                             currentVideo = videos.length-1
                         }
                         youtube.src = videos[currentVideo]
-                        console.log(youtube.src)
                     }
                 }, message: 'Previous' }),
                 new Elem({ tag: 'button', class: ['cute-green-button', 'small'], events:{
@@ -221,7 +220,6 @@ let music = new Elem({
                             currentVideo = 0
                         }
                         youtube.src = videos[currentVideo]
-                        console.log(youtube.src)
                     }
                 }, message: 'Next' }),
                 new Elem.youtube({ src: 'https://www.youtube.com/embed/BjYWwZYLYEs', id:'yt',loading:'lazy' }),
@@ -246,7 +244,7 @@ for (let url of ['https://addsoupbase.github.io/textshortener', 'https://addsoup
 }
 projects.hide()
 outer.anim({ class: 'puff-in-center' })
-const youtube = Elem['#yt']
+const youtube = Elem.$('#yt')
 let videos = ['BjYWwZYLYEs','Jd45THQSI2A','rfFEhd7mk7c','LaKaCP55EvY','iNzrwh2Z2hQ','tBPsDHJpZAo','YOtUQFXhmwA','8mGBaXPlri8','QR_qa3Ohwls','d_HlPboLRL8','K17df81RL9Y','-wMriLxUe_4']
 .map(o=>`https://www.youtube.com/embed/${o}`);
 

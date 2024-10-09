@@ -78,6 +78,5 @@ _avatars.forEach(o=> {
 let filename = `./media/avatars/${o[0]}.webp`,
 nickname = o[1]??o[0]
 avatars.push({url: filename, nickname})
-console.log(avatars)
 })
 export {avatars, mons}
