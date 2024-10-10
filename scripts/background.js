@@ -59,7 +59,7 @@ function update() {
         let speed = 1.2
 
         let loc = ran.choose(innerWidth + 300, -300)
-        let id = gen()
+        let id = ran.gen()
         let m;
         let poke = new SceneryElem({
             parent: background,
@@ -133,7 +133,7 @@ Elem.bulk((...src) => {
         avatarsources.push({ nickname: l.nickname, url: l.url })
     }
     spawnAvatarBubbles = n
-    pfps = new Cycle(...avatarsources)
+    pfps = new utilMath.Cycle(...avatarsources)
 }, ...avatars.map(o => o.url))
 /*mons.forEach(o => {
     new あ({ tag: 'img', src: o, parent: body })
@@ -161,7 +161,7 @@ function n() {
         x: loc,
         y: Math.random() * innerHeight,
         class: ['bubble'],
-        id: gen(),
+        id: ran.gen(),
         events: {
             click() {
                 this.noevent('click')
@@ -181,7 +181,7 @@ function n() {
 
                             }
                         }),
-                        new Elem({ tag: 'span', message: upper(nickname), class: ['name', 'kanit-regular'] })
+                        new Elem({ tag: 'span', message: utilString.upper(nickname), class: ['name', 'kanit-regular'] })
                     ],
                     styles: {
 

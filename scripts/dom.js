@@ -136,7 +136,7 @@ let abtme = new Elem({
                         あ.$('#formMessage').anim({class: 'shake-top' })
                         return
                     }
-                    let t = gen()
+                    let t = ran.gen()
                     あ.$('#submitBtn').noevent('click')
                     あ.$('#submitBtn').replaceWith(
                         new Elem({tag:'div',class:['loader'],id:t})
