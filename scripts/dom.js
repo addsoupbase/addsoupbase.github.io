@@ -40,6 +40,7 @@ let bo = new Elem({
         new Elem({
             tag: 'h1', message: 'addsoupbase',
             id: 'greet',
+            styles:{cursor:'pointer'},
             events: {
                 click() {
                     ca++
@@ -94,17 +95,24 @@ let abtme = new Elem({
         }),
         new あ({ tag: 'h3', message: 'HELLO HELLO' }),
         new あ({
-            tag: 'div', children: [
-                new あ({ tag: 'p', text: 'IM GONNA PUT STUFF HERE SOON SO JUST YOU WAIT IM GONNA IMPROVE IT SOON DONT WORRY I LOVE YOU' })
+            tag: 'div', styles: {
+                'align-items': 'center',
+                'justify-items': 'center',
+                'justify-content': 'center',
+                display: 'contents',
+
+            }, children: [
+                new あ({ tag: 'p', text: 'IM GONNA PUT STUFF HERE SOON SO JUST YOU WAIT IM GONNA IMPROVE IT SOON DONT WORRY I LOVE YOU' }),
+                new あ({ tag: 'div', id: 'mis', styles: {cursor:'pointer', margin: '10px', overflow: 'hidden', width: '150px', height: '30px', position: 'relative' } })
             ]
         }),
         new あ({ tag: 'p', id: 'jeff', text: 'Send me something!! (goes directly to my discord)' }),
 
         new あ({
-            tag: 'div', class: ['form'], id: 'formtab',children: [
+            tag: 'div', class: ['form'], id: 'formtab', children: [
                 new あ({
                     tag: 'div', id: 'mainform', children: [
-                  
+
                         new あ({ tag: 'input', class: ['cute-green'], id: 'formName', name: 'name', placeholder: 'Name goes here', value: 'anonymous' }),
 
                         new あ({
@@ -117,7 +125,7 @@ let abtme = new Elem({
 
                     ]
                 }),
-            
+
 
                 /*     new あ({tag:'div',class:['hidden'],id:'loading',children:[
                          new あ({tag:'img', class:['emoji'],src:'./media/yb.webp'}),
@@ -128,18 +136,18 @@ let abtme = new Elem({
             ]
         }),
         new あ({
-            styles: {padding:'10px',margin:'10px'},
+            styles: { padding: '10px', margin: '10px' },
             tag: 'button', id: 'submitBtn', class: ['cute-green'], events: {
                 click() {
                     if (!あ.$('#formMessage').value) {
                         あ.$('#formMessage').placeholder = 'WRITE SOMETHING'
-                        あ.$('#formMessage').anim({class: 'shake-top' })
+                        あ.$('#formMessage').anim({ class: 'shake-top' })
                         return
                     }
                     let t = ran.gen()
                     あ.$('#submitBtn').noevent('click')
                     あ.$('#submitBtn').replaceWith(
-                        new Elem({tag:'div',class:['loader'],id:t})
+                        new Elem({ tag: 'div', class: ['loader'], id: t })
                     )
                     あ.$('#formMessage').disabled = あ.$('#formName').disabled = true
                     let NAME = あ.$('#formName').value
@@ -164,7 +172,7 @@ let abtme = new Elem({
                                 }
                             } catch (e) {
                                 //  confirm(`For whatever reason i couldnt send your message :(! reload and try again`) && location.reload()
-                                
+
                                 あ.$('#mainform').kill()
                                 あ.$('#jeff').innerHTML = 'Your message could not be sent because: '
                                 new Elem({
@@ -198,31 +206,35 @@ let projects = new Elem({
 })
 let music = new Elem({
     class: ['hello'], tag: 'div', parent: content, children: [
-        new Elem({tag:'i',text:'Please don\'t judge me :('})
-,
+        new Elem({ tag: 'i', text: 'Please don\'t judge me :(' })
+        ,
         new Elem({
             tag: 'div', class: ['hello'], styles: {
                 display: 'block'
             }, children: [
-                new Elem({ tag: 'button', class: ['cute-green-button', 'small'],events:{
-                    click(){
-                        currentVideo--
-                        if (!videos[currentVideo]) {
-                            currentVideo = videos.length-1
+                new Elem({
+                    tag: 'button', class: ['cute-green-button', 'small'], events: {
+                        click() {
+                            currentVideo--
+                            if (!videos[currentVideo]) {
+                                currentVideo = videos.length - 1
+                            }
+                            youtube.src = videos[currentVideo]
                         }
-                        youtube.src = videos[currentVideo]
-                    }
-                }, message: 'Previous' }),
-                new Elem({ tag: 'button', class: ['cute-green-button', 'small'], events:{
-                    click(){
-                        currentVideo++
-                        if (!videos[currentVideo]) {
-                            currentVideo = 0
+                    }, message: 'Previous'
+                }),
+                new Elem({
+                    tag: 'button', class: ['cute-green-button', 'small'], events: {
+                        click() {
+                            currentVideo++
+                            if (!videos[currentVideo]) {
+                                currentVideo = 0
+                            }
+                            youtube.src = videos[currentVideo]
                         }
-                        youtube.src = videos[currentVideo]
-                    }
-                }, message: 'Next' }),
-                new Elem.youtube({ src: 'https://www.youtube.com/embed/BjYWwZYLYEs', id:'yt',loading:'lazy' }),
+                    }, message: 'Next'
+                }),
+                new Elem.youtube({ src: 'https://www.youtube.com/embed/BjYWwZYLYEs', id: 'yt', loading: 'lazy' }),
 
                 /*    new Elem({tag:'img',src:'./media/catdance.webp',width:50,height:50}),
                     new Elem({tag:'img',src:'./media/catdance.webp',width:50,height:50}),
@@ -245,7 +257,29 @@ for (let url of ['https://addsoupbase.github.io/textshortener', 'https://addsoup
 projects.hide()
 outer.anim({ class: 'puff-in-center' })
 const youtube = Elem.$('#yt')
-let videos = ['BjYWwZYLYEs','Jd45THQSI2A','rfFEhd7mk7c','LaKaCP55EvY','iNzrwh2Z2hQ','tBPsDHJpZAo','YOtUQFXhmwA','8mGBaXPlri8','QR_qa3Ohwls','d_HlPboLRL8','K17df81RL9Y','-wMriLxUe_4']
-.map(o=>`https://www.youtube.com/embed/${o}`);
+let videos = ['BjYWwZYLYEs', 'Jd45THQSI2A', 'rfFEhd7mk7c', 'LaKaCP55EvY', 'iNzrwh2Z2hQ', 'tBPsDHJpZAo', 'YOtUQFXhmwA', '8mGBaXPlri8', 'QR_qa3Ohwls', 'd_HlPboLRL8', 'K17df81RL9Y', '-wMriLxUe_4']
+    .map(o => `https://www.youtube.com/embed/${o}`);
 
 let currentVideo = 0
+Elem.preload('./media/misdreavus.gif', f => {
+_('mis').addevent({click(){
+    this.disableEvent('click')
+    setTimeout(()=>this.enableEvent('click'),400)
+    let m;
+    let source = f;
+    if (ran.frange(1, 1000) === 2) {
+        source = './media/misdreavusshiny.gif'
+    }
+    m = new SceneryElem({
+        class: ['pok'], parent: _('mis'), children: [
+            new Elem({ tag: 'img', src: source, styles: { top: '0px', position: 'absolute' } })
+        ]
+    })
+    m.velocity.add(1, 0)
+    m.position.set(-20, 0)
+
+
+}})
+  
+
+})

@@ -289,7 +289,6 @@ input.cute-green::placeholder {
 }
 h1,p,h3 {
     font-family: 'Choco';
-    cursor: pointer;
     width:200px
 }
 a{
