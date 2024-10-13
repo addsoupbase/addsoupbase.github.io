@@ -38,7 +38,7 @@ svg {
     height: 90px;
 }
 .wailord {
-    width: 350px;
+    width: 320px;
     height: 370px;
 }
 .sharpedo {
@@ -63,7 +63,7 @@ svg {
 }
 .seadra {
     width: 65px;
-    height: 65px;
+    height: 75px;
 }
 .name{
 position: relative;
@@ -290,6 +290,9 @@ input.cute-green::placeholder {
 h1,p,h3 {
     font-family: 'Choco';
     width:200px
+}
+#mainform {
+  display: contents;
 }
 a{
     font-size: 15px;
