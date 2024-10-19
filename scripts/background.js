@@ -22,7 +22,7 @@ function update() {
             x: Math.random() * innerWidth,
             y: innerHeight,
             class: ['bubble'],
-            events: {
+          /*  events: {
                 click() {
                     this.noevent('click')
                     this.styleMe({
@@ -33,7 +33,7 @@ function update() {
                     this.anim({ class: 'puff-out-center' }, function () { this.kill(); })
 
                 }
-            },
+            },*/
             styles: {
                 width: `${x}px`,
                 height: `${x}px`
@@ -66,7 +66,7 @@ function update() {
             children: [
                 m = new Elem({
                     id,
-                    class: [pok],
+                    class: [pok,'pok'],
                     tag: 'img', src
                 })
             ],

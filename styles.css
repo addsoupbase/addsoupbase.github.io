@@ -304,6 +304,8 @@ body {
 ::-webkit-scrollbar {
     display: none;
 }
+.pok {
+  image-rendering: crisp-edges;}
 .cute-green-button {
     background-color: #b0e57c; /* Match the div's background */
     border: 2px solid #8bc34a; /* Match the div's border */

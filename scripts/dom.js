@@ -113,7 +113,7 @@ let abtme = new Elem({
                 new あ({
                     tag: 'div', id: 'mainform', children: [
 
-                        new あ({ tag: 'input', class: ['cute-green'], id: 'formName', name: 'name', placeholder: 'Name goes here', value: 'anonymous' }),
+                        new あ({ tag: 'input', class: ['cute-green'], id: 'formName', name: 'name', placeholder: 'Name (optional)', }),
 
                         new あ({
                             tag: 'input', class: ['cute-green'], id: 'formMessage', name: 'message', placeholder: 'Your message here...', events: {
