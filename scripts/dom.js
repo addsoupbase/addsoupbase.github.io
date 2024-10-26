@@ -103,7 +103,9 @@ let abtme = new Elem({
 
             }, children: [
                 new あ({ tag: 'p', text: 'IM GONNA PUT STUFF HERE SOON SO JUST YOU WAIT IM GONNA IMPROVE IT SOON DONT WORRY I LOVE YOU' }),
-                new あ({ tag: 'div', id: 'mis', styles: {cursor:'pointer', margin: '10px', overflow: 'hidden', width: '150px', height: '30px', position: 'relative' } })
+                new あ({ tag: 'div', id: 'mis', styles: {
+                    display:'none',
+                    cursor:'pointer', margin: '10px', overflow: 'hidden', width: '150px', height: '30px', position: 'relative' } })
             ]
         }),
         new あ({ tag: 'p', id: 'jeff', text: 'Send me something!! (goes directly to my discord)' }),
@@ -271,7 +273,7 @@ _('mis').addevent({click(){
         source = './media/misdreavusshiny.gif'
     }
     m = new SceneryElem({
-        class: ['pok'], parent: _('mis'), children: [
+        class: ['pok'], parent: _('mis'),children: [
             new Elem({ tag: 'img', src: source, styles: { top: '0px', position: 'absolute' } })
         ]
     })
