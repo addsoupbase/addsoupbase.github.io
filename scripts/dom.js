@@ -248,7 +248,7 @@ let music = new Elem({
     ]
 })
 music.hide()
-for (let url of ['https://addsoupbase.github.io/favourites', 'https://addsoupbase.github.io/marbles?level=testt', 'https://addsoupbase.github.io/whatever/', 'https://addsoupbase.github.io/twehg', 'https://addsoupbase.github.io/dataurl']) {
+for (let url of ['https://addsoupbase.github.io/cute-emojis','https://addsoupbase.github.io/favourites', 'https://addsoupbase.github.io/marbles?level=testt', 'https://addsoupbase.github.io/whatever/', 'https://addsoupbase.github.io/twehg', 'https://addsoupbase.github.io/dataurl']) {
     new Elem({ tag: 'a', href: url, parent: projects, text: url, target: "_blank", rel: "noopener noreferrer" })
 }
 new Elem({ tag: 'h3', message: 'Older stuff (bad):', parent: projects })
