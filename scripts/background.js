@@ -221,7 +221,7 @@ function n() {
             height: `${x}px`
         }
     })
-    if (nickname.match(/gib|indie|random\_userlol|mila|lemmy|zoozi|neboola|vio|cunder|lorex|rogue|lexi/)) {
+    if (nickname.match(/gib|indie|random\_userlol|lemmy|zoozi|neboola|vio|cunder|lorex|rogue|lexi/)) {
         new Elem({
             tag: 'img', src: './media/ghost.png', parent: bubble, styles: {
                 position: 'absolute',
