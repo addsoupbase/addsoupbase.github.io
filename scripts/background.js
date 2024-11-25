@@ -138,17 +138,7 @@ Elem.bulk((...src) => {
 /*mons.forEach(o => {
     new あ({ tag: 'img', src: o, parent: body })
 })*/
-addEventListener('click', o => {
-    for (let bubble of SceneryElem.all) {
-        if (bubble.content.classList.contains('bubble')) {
-            let { x, y } = o
-            let s = getNodeSize(bubble.content)
-            if (Vector2.distance([x, y], bubble.position) < Math.min(s.width, s.height) / 1.15) {
-                bubble.eventNames.trigger('click')
-            }
-        }
-    }
-})
+
 let pfps
 function n() {
     let choice = pfps.next().value

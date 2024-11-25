@@ -11,21 +11,15 @@ const hideclick = {
                 ;['greet', 'love', 'soup'].forEach(o => {
                     あ.$('#' + o)?.kill?.()
                 })
+            uhh.forEach(o=>o.hide())
             switch (type) {
                 case 'abtme':
-                    projects.hide()
                     abtme.show()
-                    music.hide()
-
                     break;
                 case 'projects':
-                    abtme.hide()
-                    music.hide()
                     projects.show()
                     break
                 case 'music':
-                    abtme.hide()
-                    projects.hide()
                     music.show()
                     break
             }
@@ -61,7 +55,7 @@ let bo = new Elem({
                 margin: '10px',
             }
         }),
-        new Elem({ tag: 'p', message: 'WELCOME I LOVE YOu', id: 'love' }),
+        new Elem({ tag: 'p', message: 'WELCOME I LOVE YOU', id: 'love' }),
         content = new Elem({ tag: 'div' })
     ]
 })
@@ -102,7 +96,7 @@ let abtme = new Elem({
                 display: 'contents',
 
             }, children: [
-                new あ({ tag: 'p', text: 'IM GONNA PUT STUFF HERE SOON SO JUST YOU WAIT IM GONNA IMPROVE IT SOON DONT WORRY I LOVE YOU' }),
+                new あ({class:['Name'], tag: 'p', text: 'NAME=Misha' }),
                 new あ({ tag: 'div', id: 'mis', styles: {
                     display:'none',
                     cursor:'pointer', margin: '10px', overflow: 'hidden', width: '150px', height: '30px', position: 'relative' } })
@@ -236,7 +230,9 @@ let music = new Elem({
                         }
                     }, message: 'Next'
                 }),
-                new Elem.youtube({ src: 'https://www.youtube.com/embed/BjYWwZYLYEs', id: 'yt', loading: 'lazy' }),
+                new Elem.youtube({
+                    start(){if (!location.hostname.includes('addsoupbase'))this.kill()},
+                    src: 'https://www.youtube.com/embed/BjYWwZYLYEs', id: 'yt', loading: 'lazy' }),
 
                 /*    new Elem({tag:'img',src:'./media/catdance.webp',width:50,height:50}),
                     new Elem({tag:'img',src:'./media/catdance.webp',width:50,height:50}),
@@ -285,3 +281,4 @@ _('mis').addevent({click(){
   
 
 })
+let uhh = new Set([projects,abtme,music])
