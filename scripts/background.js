@@ -141,7 +141,7 @@ Elem.bulk((...src) => {
 
 let pfps
 function n() {
-    let choice = pfps.next().value
+    let choice = pfps.val
     let nickname = choice.nickname.split('.').shift() || choice.url
     choice = choice.url
     let x = 50 + ran.range(0, 10)
@@ -221,6 +221,7 @@ function n() {
             }
         })
     }
+
     bubble.offset = Math.random() * 4000
     if (loc !== innerWidth + 100) {
         bubble.velocity.set(2, 0)
