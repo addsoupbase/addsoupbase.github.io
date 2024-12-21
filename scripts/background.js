@@ -118,7 +118,7 @@ let background = new あ({
     id: 'background'
 })
 Elem.logLevels.success = true
-await preload('./media/',...mons,'bubble.png');
+await preload('',...mons,'./media/bubble.png');
 [...mons,'bubble.png'].forEach(o => {
     if (!o.includes('bubble')) {
         pokémons.push(o)
