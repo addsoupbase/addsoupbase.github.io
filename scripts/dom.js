@@ -259,7 +259,7 @@ let videos = ['BjYWwZYLYEs', 'Jd45THQSI2A', 'rfFEhd7mk7c', 'LaKaCP55EvY', 'iNzrw
     .map(o => `https://www.youtube.com/embed/${o}`);
 
 let currentVideo = 0
-Elem.preload('./media/misdreavus.gif', f => {
+preload('./media/misdreavus.gif', f => {
 _('mis').addevent({click(){
     this.disableEvent('click')
     setTimeout(()=>this.enableEvent('click'),400)

@@ -118,27 +118,19 @@ let background = new あ({
     id: 'background'
 })
 Elem.logLevels.success = true
-Elem.bulk((...src) => {
-    src.forEach(o => {
-        if (!o.includes('bubble')) {
-            pokémons.push(o)
-        }
-        //   new SceneryElem({ tag: 'img', src: o, parent: background })
-    })
-    //MAKE SURE WE ONLY UPDATE WHEN ALL THE SPRITES ARE LOADED
-    update()
-}, ...mons, './media/bubble.png')
-Elem.bulk((...src) => {
-    for (let l of avatars) {
-        avatarsources.push({ nickname: l.nickname, url: l.url })
+await preload('./media/',...mons,'bubble.png');
+[...mons,'bubble.png'].forEach(o => {
+    if (!o.includes('bubble')) {
+        pokémons.push(o)
     }
-    spawnAvatarBubbles = n
-    pfps = new utilMath.Cycle(...avatarsources)
-}, ...avatars.map(o => o.url))
+    //   new SceneryElem({ tag: 'img', src: o, parent: background })
+})
+//MAKE SURE WE ONLY UPDATE WHEN ALL THE SPRITES ARE LOADED
+update()
+
 /*mons.forEach(o => {
     new あ({ tag: 'img', src: o, parent: body })
 })*/
-
 let pfps
 function n() {
     let choice = pfps.val
@@ -247,4 +239,9 @@ function n() {
 
     }
 }
-name 
+await preload('',...avatars.map(o => o.url))
+for (let l of avatars) {
+    avatarsources.push({ nickname: l.nickname, url: l.url })
+}
+spawnAvatarBubbles = n
+pfps = new utilMath.Cycle(...avatarsources)
