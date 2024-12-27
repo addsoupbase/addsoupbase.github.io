@@ -9,11 +9,11 @@ class RANDOM {
     choose(...deck) {
         return deck[floor(random() * deck.length)]
     }
-    range(_min, _max) {
-        return random() * (_max - _min) + _min
+    range(MIN, MAX) {
+        return random() * (MAX - MIN) + MIN
     }
-    frange(_min, _max) {
-        return floor(this.range(_min, _max))
+    frange(MIN, MAX) {
+        return floor(this.range(MIN, MAX))
     }
     pseudo() {
         return performance.now() % 1
@@ -35,9 +35,9 @@ class RANDOM {
         return fromCodePoint(floor(random() * 0x110000))
     }
     randomizer(charCount = 6) {
-        return new Proxy({ __chars__: charCount }, { get: this.#randomizer_get })
+        return new Proxy({ __chars__: charCount }, { get: this.#randomizer })
     }
-    #randomizer_get(target, prop) {
+    #randomizer(target, prop) {
         return target[prop] ??= gen(target.__chars__)
     }
 }
@@ -49,7 +49,7 @@ class MATH {
         return num === +num && num != null && isFinite(num)
     }
     equality(first, ...rest) {
-        return rest.every(o => is(o, first))
+        return rest.every(function (o) { return is(o, first) })
     }
     toRad(deg) {
         return deg * PI / 180
@@ -60,8 +60,8 @@ class MATH {
     diff(a, b) {
         return abs(a - b)
     }
-    clamp(val, _min, _max) {
-        return min(_max, max(_min, val))
+    clamp(val, MIN, MAX) {
+        return min(MAX, max(MIN, val))
     }
     cycle(...wheel) {
         return new MATH.#cycle(wheel)
@@ -161,15 +161,59 @@ class ARR {
 }
 
 export class Vector2 {
-    #min
-    #max
-    x = 0
-    y = 0
-    get value() { return [this.x, this.y] }
+    get [Symbol.toStringTag]() { return 'Vector2' }
+    toString() { return '(' + this.x + ', ' + this.y + ')' }
+    constructor(x = 0, y = 0, MIN = MIN_SAFE_INTEGER, MAX = MAX_SAFE_INTEGER) {
+        if (y == null) {
+            y = v.y(x)
+            x = v.x(x)
+        }
+        Object.seal(this)
+        this.#min = MIN
+        this.#max = MAX
+        this.set(x, y)
+    }
+    #min = NaN
+    #max = NaN
+    x = NaN
+    y = NaN
+    //get #value() { return [this.x, this.y] }
     get 0() { return this.x }
+    set 0(x) { this.x = x }
     get 1() { return this.y }
-    set 0(val) { this.x = val }
-    set 1(val) { this.y = val }
+    set 1(y) { this.y = y }
+    get normalized() {
+        const mag = this.magnitude
+        return new v(this.x / mag || 0, this.y / mag || 0)
+    }
+    normalize() {
+        return this.set(this.normalized)
+    }
+    get magnitude() {
+        return abs(this.x + this.y)
+    }
+    get angle() {
+        return atan2(this.y, this.x)
+    }
+    get isValid() {
+        const { x, y } = this
+        return x === +x && y === +y
+    }
+    get inverse() {
+        const { x, y } = this
+        return new v(x ** -1, y ** -1)
+    }
+    get negated() {
+        const { x, y } = this
+        return new v(-x, -y)
+    }
+    get length() {
+        return hypot(this.x, this.y)
+    }
+    static random(minX, maxX, minY, maxY) {
+        const { range } = ran
+        return new v(range(minX, maxX), range(minY, maxY))
+    }
     static x(vectorLike) {
         return vectorLike.x ?? vectorLike[0] ?? values(vectorLike)[0]
     }
@@ -189,9 +233,10 @@ export class Vector2 {
             y1 = v.y(x1)
             x1 = v.x(x1)
         }
-        return new v(math.diff(x1, x2), math.diff(y1, y2))
+        const { diff } = math
+        return new v(diff(x1, x2), diff(y1, y2))
     }
-    distance(x1, x2, y1, y2) {
+    static distance(x1, x2, y1, y2) {
         if (x2 == null && y2 == null) {
             x2 = v.x(y1)
             y2 = v.y(y1)
@@ -200,23 +245,26 @@ export class Vector2 {
         }
         return hypot(x1 - x2, y1 - y2)
     }
-    constructor(x = 0, y = 0, _min = MIN_SAFE_INTEGER, _max = MAX_SAFE_INTEGER) {
-        if (arguments.length === 1) {
-            y = v.y(x)
-            x = v.x(x)
+    static equals(x1, x2, y1, y2) {
+        if (x2 == null && y2 == null) {
+            x2 = v.x(y1)
+            y2 = v.y(y1)
+            y1 = v.y(x1)
+            x1 = v.x(x1)
         }
-        Object.seal(this)
-        this.#min = _min
-        this.#max = _max
-        this.set(x, y)
+        return (x1 === x2) && (y1 === y2)
+    }
+    lerp({ to, time = 0.1 }) {
+        return this.subtract((this.minus(to)).multiply(time, time))
     }
     set(x, y) {
         if (y == null) {
             y = v.y(x)
             x = v.x(x)
         }
-        this.x = x
-        this.y = y
+        const { clamp } = math
+        this.x = clamp(+x, this.#min, this.#max)
+        this.y = clamp(+y, this.#min, this.#max)
         return this
     }
     add(x, y) {
@@ -227,6 +275,22 @@ export class Vector2 {
         this.set(this.x + x, this.y + y)
         return this
     }
+    subtract(x, y) {
+        if (y == null) {
+            y = v.y(x)
+            x = v.x(x)
+        }
+        this.set(this.x - x, this.y - y)
+        return this
+    }
+    divide(x, y) {
+        if (y == null) {
+            y = v.y(x)
+            x = v.x(x)
+        }
+        this.set(this.x / x, this.y / y)
+        return this
+    }
     multiply(x, y) {
         if (y == null) {
             y = v.y(x)
@@ -235,8 +299,18 @@ export class Vector2 {
         this.set(this.x * x, this.y * y)
         return this
     }
-
-
+    pow(x, y) {
+        if (y == null) {
+            y = v.y(x)
+            x = v.x(x)
+        }
+        this.set(this.x ** x, this.y ** y)
+        return this
+    }
+    *[Symbol.iterator]() {
+        yield this.x
+        yield this.y
+    }
 }
 const v = Vector2
 class COLOR_MANAGER {
@@ -247,10 +321,11 @@ class COLOR_MANAGER {
                 COLOR_MANAGER.#canvas.strokeStyle = prop
                 return COLOR_MANAGER.#canvas.strokeStyle
             }
-            if (prop in target) return target[prop];
+            if (prop in target) return target[prop]
             throw TypeError('CSS does not support the color "' + prop + '"')
         }
     }
+    //Darken hex color
     dhk(e, f = 40) {
         let { clamp } = math, $ = parseInt((e = ('' + e).replace(/^#/, "")).substring(0, 2), 16), a = parseInt(e.substring(2, 4), 16), r = parseInt(e.substring(4, 6), 16); return $ = round($ * (1 - f / 100)), a = round(a * (1 - f / 100)), r = round(r * (1 - f / 100)), $ = clamp($, 255, 0), a = clamp(a, 255, 0), r = clamp(r, 255, 0), "#" + [$, a, r].map(e => { let f = e.toString(16); return 1 === f.length ? "0" + f : f }).join('')
     }
@@ -270,9 +345,9 @@ class COLOR_MANAGER {
         new.target.#canvas = new OffscreenCanvas(0, 0).getContext('2d')
     }
 }
-export const color = new Proxy(new COLOR_MANAGER, COLOR_MANAGER.handler)
-export const arr = new ARR
-export const string = new STRING
-export const math = new MATH
-export const ran = new RANDOM
-console.log(import.meta.url+' imported')
+export const color = new Proxy(new COLOR_MANAGER, COLOR_MANAGER.handler),
+    arr = new ARR,
+    string = new STRING,
+    math = new MATH,
+    ran = new RANDOM
+console.debug('📥 '+import.meta.url + ' imported')
