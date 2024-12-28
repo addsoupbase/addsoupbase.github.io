@@ -305,7 +305,7 @@ class Vector2 {
         return (x1 === x2) && (y1 === y2)
     }
     lerp([x,y], time = 0.1) {
-        return this.subtract((this.minus([x,y])).multiply(time / 1000, time / 1000))
+        return this.subtract((this.minus(x,y)).multiply(time / 1000, time / 1000))
     }
     moveTowards([x, y], maxDistance = 1) {
         const target = vect(x, y),
