@@ -7,8 +7,8 @@ class RANDOM {
     get coin() {
         return this.chance(50)
     }
-    get invert(){
-        return this.choose(1,-1)
+    get invert() {
+        return this.choose(1, -1)
     }
     choose(...deck) {
         return deck[floor(random() * deck.length)]
@@ -130,7 +130,7 @@ class STRING {
     replace(string, ...subs) {
         if (subs.length !== string.match(/\$/g)?.length) throw RangeError("Invalid input")
         let newstring = string
-        subs.forEach(function(char){newstring = newstring.replace('$', char)})
+        subs.forEach(function (char) { newstring = newstring.replace('$', char) })
         return newstring
     }
     formatWord(str) {
@@ -152,9 +152,9 @@ class STRING {
     }
     #map = new Map(Object.entries({ 1: 'st', 2: 'nd', 3: 'rd' }))
     toOrdinal(o) {
-        const lastTwoDigits = o % 100, me = (o + "").at(-1);
+        const lastTwoDigits = o % 100, me = (o + "").at(-1)
         if ((lastTwoDigits >= 11 && lastTwoDigits <= 13) || !this.#map.has(me))
-            return o + "th";
+            return o + "th"
         return o + this.#map.get(me)
     }
 }
@@ -192,24 +192,34 @@ class ARR {
         throw RangeError("Index out of range")
     }
 }
-export class Vector2 {
+class Vector2 {
     get [Symbol.toStringTag]() { return 'Vector2' }
+    static get up() {
+        return v(0, 1)
+    }
+    static get down() {
+        return v(0, -1)
+    }
+    static get left() {
+        return v(-1, 0)
+    }
+    static get right() {
+        return v(1, 0)
+    }
+    static dotProduct([x1, y1], [x2, y2]) {
+        return x1 * x2 + y1 * y2
+    }
     toString() { return '(' + this.x + ', ' + this.y + ')' }
-    constructor(x = 0, y = 0, MIN = MIN_SAFE_INTEGER, MAX = MAX_SAFE_INTEGER) {
-        if (x instanceof Vector2) {
-            ({ x, y } = x)
-        }
-        if (y == null) {
-            y = v.y(x)
-            x = v.x(x)
-        }
+    constructor(x = 0, y = 0,
+        [minX = MIN_SAFE_INTEGER, minY = MIN_SAFE_INTEGER] = [],
+        [maxX = MAX_SAFE_INTEGER, maxY = MAX_SAFE_INTEGER] = []) {
         Object.seal(this)
-        this.#min = MIN
-        this.#max = MAX
+        this.#min = { x: minX, y: minY }
+        this.#max = { x: maxX, y: maxY }
         this.set(x, y)
     }
-    #min = NaN
-    #max = NaN
+    #min
+    #max
     x = NaN
     y = NaN
     //get #value() { return [this.x, this.y] }
@@ -219,13 +229,16 @@ export class Vector2 {
     set 1(y) { this.y = y }
     get normalized() {
         const mag = this.magnitude
-        return new v(this.x / mag || 0, this.y / mag || 0)
+        return v(this.x / mag || 0, this.y / mag || 0)
     }
     normalize() {
         return this.set(this.normalized)
     }
     get magnitude() {
         return abs(this.x + this.y)
+    }
+    get clone() {
+        return v(...this)
     }
     get angle() {
         return atan2(this.y, this.x)
@@ -236,18 +249,36 @@ export class Vector2 {
     }
     get inverse() {
         const { x, y } = this
-        return new v(x ** -1, y ** -1)
+        return v(x ** -1, y ** -1)
     }
     get negated() {
         const { x, y } = this
-        return new v(-x, -y)
+        return v(-x, -y)
     }
     get length() {
         return hypot(this.x, this.y)
     }
-    static random(minX, maxX, minY, maxY) {
+    clampX(min, max) {
+        if (min instanceof v && max == null)
+            [min, max] = min
+        this.#min.x = +min
+        this.#max.x = +max
+        return this.set(this)
+    }
+    clampY(min, max) {
+        if (min instanceof v && max == null)
+            [min, max] = min
+        this.#min.y = +min
+        this.#max.y = +max
+        return this.set(this)
+    }
+    clamp([minX = MIN_SAFE_INTEGER, minY = MIN_SAFE_INTEGER] = [], [maxX = MAX_SAFE_INTEGER, maxY = MAX_SAFE_INTEGER] = []) {
+        this.clampX(minX, maxX)
+        return this.clampY(minY, maxY)
+    }
+    static random([minX, minY], [maxX, maxY]) {
         const { range } = ran
-        return new v(range(minX, maxX), range(minY, maxY))
+        return v(range(minX, maxX), range(minY, maxY))
     }
     static x(vectorLike) {
         return +(vectorLike.x ?? vectorLike[0] ?? values(vectorLike)[0] ?? vectorLike)
@@ -255,96 +286,83 @@ export class Vector2 {
     static y(vectorLike) {
         return +(vectorLike.y ?? vectorLike[1] ?? values(vectorLike)[1] ?? vectorLike)
     }
-    static angle(first, second) {
-        const firstAngle = atan2(v.y(first), v.x(first)),
-            secondAngle = atan2(v.y(second), v.x(second)),
+    static angle([x1, y1], [x2, y2]) {
+        const firstAngle = atan2(y1, x1),
+            secondAngle = atan2(y2, x2),
             angle = secondAngle - firstAngle
-        return abs(angle)
+        return angle
     }
-    static difference(x1, y1, x2, y2) {
-        if (x2 == null && y2 == null) {
-            x2 = v.x(y1)
-            y2 = v.y(y1)
-            y1 = v.y(x1)
-            x1 = v.x(x1)
-        }
+    static difference([x1, y1], [x2, y2]) {
         const { diff } = math
-        return new v(diff(x1, x2), diff(y1, y2))
+        return v(diff(x1, x2), diff(y1, y2))
     }
-    static distance(x1, x2, y1, y2) {
-        if (y1 == null && y2 == null) {
-            [x1,x2,y1,y2] = [v.x(x1),v.x(x2),v.y(x1),v.y(x2)]
-        }
+    static distance([x1, y1], [x2, y2]) {
         return hypot(x1 - x2, y1 - y2)
     }
-    static equals(x1, x2, y1, y2) {
-        if (y1 == null && y2 == null) {
-            [x1,x2,y1,y2] = [v.x(x1),v.x(x2),v.y(x1),v.y(x2)]
-        }
+    static equals([x1, y1], [x2, y2]) {
         return (x1 === x2) && (y1 === y2)
     }
-    lerp({ to, time = 0.1 }) {
-        return this.subtract((this.minus(to)).multiply(time/1000, time/1000))
+    lerp(to, time = 0.1) {
+        return this.subtract((this.minus(to)).multiply(time / 1000, time / 1000))
+    }
+    moveTowards([x, y], maxDistance = 1) {
+        const target = vect(x, y),
+            div = target.minus(this),
+            mag = div.magnitude
+        if (mag <= maxDistance || !mag) return target
+        return this.add(div) / mag * maxDistance
     }
     set(x, y) {
-        if (y == null) {
-            y = v.y(x)
-            x = v.x(x)
-        }
+        if (x instanceof v && y == null)
+            [x, y] = x
         const { clamp } = math
-        this.x = clamp(+x, this.#min, this.#max)
-        this.y = clamp(+y, this.#min, this.#max)
+        this.x = clamp(+x, this.#min.x, this.#max.x)
+        this.y = clamp(+y, this.#min.y, this.#max.y)
         return this
     }
     add(x, y) {
-        if (y == null) {
-            y = v.y(x)
-            x = v.x(x)
-        }
+        if (x instanceof v && y == null)
+            [x, y] = x
         this.set(this.x + x, this.y + y)
         return this
     }
     subtract(x, y) {
-        if (y == null) {
-            y = v.y(x)
-            x = v.x(x)
-        }
-        this.set(this.x - x, this.y - y)
-        return this
+        if (x instanceof v && y == null)
+            [x, y] = x
+        return this.set(this.x - x, this.y - y)
     }
     divide(x, y) {
-        if (y == null) {
-            y = v.y(x)
-            x = v.x(x)
-        }
-        this.set(this.x / x, this.y / y)
-        return this
+        if (x instanceof v && y == null)
+            [x, y] = x
+        return this.set(this.x / x, this.y / y)
     }
-    minus(x,y) {
-        return new v(this).subtract(x,y)
+    dividedBy(x, y) {
+        return v(this).divide(x, y)
+    }
+    minus(x, y) {
+        if (x instanceof v && y == null)
+            [x, y] = x
+        return v(this).subtract(x, y)
     }
     multiply(x, y) {
-        if (y == null) {
-            y = v.y(x)
-            x = v.x(x)
-        }
-        this.set(this.x * x, this.y * y)
-        return this
+        if (x instanceof v && y == null)
+            [x, y] = x
+        return this.set(this.x * x, this.y * y)
     }
     pow(x, y) {
-        if (y == null) {
-            y = v.y(x)
-            x = v.x(x)
-        }
-        this.set(this.x ** x, this.y ** y)
-        return this
+        if (x instanceof v && y == null)
+            [x, y] = x
+        return this.set(this.x ** x, this.y ** y)
     }
     *[Symbol.iterator]() {
         yield this.x
         yield this.y
     }
 }
-const v = Vector2
+export const vect = new Proxy(Vector2, {
+    apply(target, thisArg, args) { return new target(...args) }
+})
+const v = vect
 class COLOR_MANAGER {
     static #canvas
     static handler = {
@@ -377,7 +395,6 @@ class COLOR_MANAGER {
         new.target.#canvas = new OffscreenCanvas(0, 0).getContext('2d')
     }
 }
-
 export const color = new Proxy(new COLOR_MANAGER, COLOR_MANAGER.handler),
     arr = new ARR,
     string = new STRING,

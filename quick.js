@@ -11,7 +11,7 @@ const __eventGarbageCollection = new FinalizationRegistry(function ([key, set]) 
 function verifyEventName(target, name) {
     name = name?.toLowerCase?.()
     if (name === 'domcontentloaded' && target === document ||
-        name === 'animationcancel' && 'onanimationiteration' in target
+        name.match(/^(animation(cancel|end|remove))$/) && 'onremove' in target
     ) return
     //Some events like the one above don't have a handler
     if (!(`on${name}` in target)) throw TypeError(`Cannot listen for '${name}' events`)
@@ -100,11 +100,11 @@ export function until(target, eventName, timeout/* = 600000*/) {
     })
 }
 
-const cont = Symbol('⛓'), //Access the HTMLElement instance from elem
-    core = Symbol('🧿'),  //The opposite
-    frag = document.createDocumentFragment.bind(document),
-    deprecatedTags = /^(tt|acronym|big|center|dir|font|frame|frameset|marquee|nobr|noembed|noframes|param|plaintext|rb|rtc|strike|tt|xmp)$/i,
-    svgTags = /^(animate|animateMotion|animateTransform|circle|clipPath|defs|desc|ellipse|feBlend|feColorMatrix|feComponentTransfer|feComposite|feConvolveMatrix|feDiffuseLighting|feDisplacementMap|feDistantLight|feDropShadow|feFlood|feFuncA|feFuncB|feFuncG|feFuncR|feGaussianBlur|feImage|feMerge|feMergeNode|feMorphology|feOffset|fePointLight|feSpecularLighting|feSpotLight|feTile|feTurbulence|filter|foreignObject|g|glyph|glyphRef|hkern|image|line|linearGradient|marker|mask|metadata|missing-glyph|mpath|path|pattern|polygon|polyline|radialGradient|rect|set|stop|svg|switch|symbol|text|textPath|tref|tspan|use|view|vkern)$/i
+    const cont = Symbol('⛓'), //Access the HTMLElement instance from elem
+        core = Symbol('🧿'),  //The opposite
+        frag =typeof document !== 'undefined'? document.createDocumentFragment.bind(document) : null,
+        deprecatedTags = /^(tt|acronym|big|center|dir|font|frame|frameset|marquee|nobr|noembed|noframes|param|plaintext|rb|rtc|strike|tt|xmp)$/i,
+        svgTags = /^(animate|animateMotion|animateTransform|circle|clipPath|defs|desc|ellipse|feBlend|feColorMatrix|feComponentTransfer|feComposite|feConvolveMatrix|feDiffuseLighting|feDisplacementMap|feDistantLight|feDropShadow|feFlood|feFuncA|feFuncB|feFuncG|feFuncR|feGaussianBlur|feImage|feMerge|feMergeNode|feMorphology|feOffset|fePointLight|feSpecularLighting|feSpotLight|feTile|feTurbulence|filter|foreignObject|g|glyph|glyphRef|hkern|image|line|linearGradient|marker|mask|metadata|missing-glyph|mpath|path|pattern|polygon|polyline|radialGradient|rect|set|stop|svg|switch|symbol|text|textPath|tref|tspan|use|view|vkern)$/i
 //These SVG tags have to be treated differently
 export class elem {
     [cont] = null
@@ -158,7 +158,7 @@ export class elem {
     show() {
         this.styleMe({ display: '' })
     }
-    
+
     async animationFinished() {
         await until(this[cont], 'animationend')
     }
@@ -405,9 +405,11 @@ export function registerCSS(selector, rule) {
         addedStyleRules ??= $('style', { parent: document.head })
     sheet.insertRule(`${selector}{${extractCSSFromObject(rule)}}`)
 }
-registerCSS('dialog', {
-    transition: 'opacity 1s linear',
-    "font-family": "Arial", "text-align": "center", width: "300px", height: "150px", "word-break": "break-word"
+if (typeof document !== 'undefined') {
+
+    registerCSS('dialog', {
+        transition: 'opacity 1s linear',
+        "font-family": "Arial", "text-align": "center", width: "300px", height: "150px", "word-break": "break-word"
 })
 registerCSS('.centerx,.center', {
     'justify-self': 'center'
@@ -417,6 +419,7 @@ registerCSS('.centery,.center', {
     inset: '0px',
     position: 'fixed'
 })
+}
 export const CSSSyntax = {
     boxShadow({ offsetX = '0px', offsetY = '0px', blurRadius = '', spreadRadius = '', color = '#000000' }) {
         return `${color} ${offsetX} ${offsetY} ${blurRadius} ${spreadRadius}`.replaceAll('  ', '')
