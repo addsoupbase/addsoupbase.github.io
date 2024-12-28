@@ -124,18 +124,13 @@ class STRING {
     numbers = '0123456789'
     months = 'January February March April May June July August September October November December'.split(' ')
     days = 'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.split(' ')
-    #placeholder
-    set placeholder(val) {
-        this.#placeholder = RegExp('\\'+val,'g')
-    }
-    get placeholder() {
-        return this.#placeholder
-    }
+    placeholder = '$'
     formatNumber(num) {
         return (+num).toLocaleString()
     }
     replace(string, ...subs) {
-        if (subs.length !== string.match(this.placeholder)?.length) throw RangeError("Invalid input")
+        let allMatches = RegExp(this.placeholder,'g')
+        if (subs.length !== allMatches?.length) throw RangeError("Invalid input")
         let newstring = string
         subs.forEach(char=>{ newstring = newstring.replace(this.placeholder, char) })
         return newstring
@@ -407,5 +402,4 @@ export const color = new Proxy(new COLOR_MANAGER, COLOR_MANAGER.handler),
     string = new STRING,
     math = new MATH,
     ran = new RANDOM
-    string.placeholder = '$'
 console.debug('📥 ' + import.meta.url + ' imported')
