@@ -126,7 +126,7 @@ class STRING {
     days = 'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.split(' ')
     #placeholder
     set placeholder(val) {
-        this.#placeholder = RegExp('\\'+val)
+        this.#placeholder = RegExp('\\'+val,'g')
     }
     get placeholder() {
         return this.#placeholder
@@ -135,7 +135,7 @@ class STRING {
         return (+num).toLocaleString()
     }
     replace(string, ...subs) {
-        if (subs.length !== string.match(this.placeholder)?.length+1) throw RangeError("Invalid input")
+        if (subs.length !== string.match(this.placeholder)?.length) throw RangeError("Invalid input")
         let newstring = string
         subs.forEach(char=>{ newstring = newstring.replace(this.placeholder, char) })
         return newstring
