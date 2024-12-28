@@ -129,10 +129,10 @@ class STRING {
         return (+num).toLocaleString()
     }
     replace(string, ...subs) {
-        let allMatches = string.match(RegExp('\\'+this.placeholder,'g'))
+        let allMatches = string.match(RegExp('\\' + this.placeholder, 'g'))
         if (subs.length !== allMatches?.length) throw RangeError("Invalid input")
         let newstring = string
-        subs.forEach(char=>{ newstring = newstring.replace(this.placeholder, char) })
+        subs.forEach(char => { newstring = newstring.replace(this.placeholder, char) })
         return newstring
     }
     formatWord(str) {
@@ -211,7 +211,7 @@ class Vector2 {
     static dotProduct([x1, y1], [x2, y2]) {
         return x1 * x2 + y1 * y2
     }
-    toString() { return '(' + this.x + ', ' + this.y + ')' }
+    toString(unit = '') { return '(' + this.x + unit + ', ' + this.y + unit + ')' }
     constructor(x = 0, y = 0,
         [minX = MIN_SAFE_INTEGER, minY = MIN_SAFE_INTEGER] = [],
         [maxX = MAX_SAFE_INTEGER, maxY = MAX_SAFE_INTEGER] = []) {
