@@ -339,12 +339,12 @@ class Vector2 {
         return this.set(this.x / x, this.y / y)
     }
     dividedBy(x, y) {
-        return v(this).divide(x, y)
+        return this.clone.divide(x, y)
     }
     minus(x, y) {
         if (x instanceof v && y == null)
             [x, y] = x
-        return v(this).subtract(x, y)
+        return this.clone.subtract(x, y)
     }
     multiply(x, y) {
         if (x instanceof v && y == null)
