@@ -129,7 +129,7 @@ class STRING {
         return (+num).toLocaleString()
     }
     replace(string, ...subs) {
-        let allMatches = RegExp(this.placeholder,'g')
+        let allMatches = RegExp(this.placeholder,'g').exec(string)
         if (subs.length !== allMatches?.length) throw RangeError("Invalid input")
         let newstring = string
         subs.forEach(char=>{ newstring = newstring.replace(this.placeholder, char) })
