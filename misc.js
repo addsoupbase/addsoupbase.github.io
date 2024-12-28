@@ -233,6 +233,10 @@ class Vector2 {
         const mag = this.magnitude
         return v(this.x / mag || 0, this.y / mag || 0)
     }
+    [Symbol.toPrimitive](hint) {
+        if (hint === 'number') throw TypeError("Vector2 cannot be converted to a number")
+        return this.toString()
+    }
     normalize() {
         return this.set(this.normalized)
     }
@@ -312,7 +316,7 @@ class Vector2 {
             div = target.minus(this),
             mag = div.magnitude
         if (mag <= maxDistance || !mag) return target
-        return this.add(div) / mag * maxDistance
+        return this.add(div).multiply(mag / maxDistance)
     }
     set(x, y) {
         if (x instanceof v && y == null)
