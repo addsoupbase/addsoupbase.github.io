@@ -1,13 +1,23 @@
-const { floor, random, min, max, PI, abs, atan2, hypot, round } = Math,
+const { floor, random, min, max, sign, PI, abs, atan2, hypot, round } = Math,
     { is, values } = Object,
+    { from } = Array,
     { isInteger, isFinite, MIN_SAFE_INTEGER, MAX_SAFE_INTEGER } = Number,
     { fromCodePoint } = String
 class RANDOM {
     get coin() {
-        return this.choose(true, false)
+        return this.chance(50)
+    }
+    get invert(){
+        return this.choose(1,-1)
     }
     choose(...deck) {
         return deck[floor(random() * deck.length)]
+    }
+    jackpot(range) {
+        return !this.frange(0, range)
+    }
+    chance(odds) {
+        return this.jackpot(100 / odds)
     }
     range(MIN, MAX) {
         return random() * (MAX - MIN) + MIN
@@ -22,14 +32,14 @@ class RANDOM {
         return crypto.getRandomValues(new Uint32Array(1))[0] / 0xffffffff
     }
     shuffle(...item) {
-        for (let a = 0, { length } = item; a < length; ++a) {
-            const pick = floor(random() * (a + 1));
-            [item[a], item[pick]] = [item[pick], item[a]]
+        for (let i = 0, { length } = item; i < length; ++i) {
+            const pick = floor(random() * (i + 1));
+            [item[i], item[pick]] = [item[pick], item[i]]
         }
         return item
     }
     gen(length = 6) {
-        return Array.from({ length }, this.#gen).join('');
+        return from({ length }, this.#gen).join('');
     }
     #gen() {
         return fromCodePoint(floor(random() * 0x110000))
@@ -44,6 +54,14 @@ class RANDOM {
 class MATH {
     isInt(num) {
         return isInteger(num)
+    }
+    sqrt(num) {
+        const sIgn = sign(num),
+            absolute = abs(num)
+        return absolute ** .5 * sIgn
+    }
+    isWithinRange(val, floor, ceiling) {
+        return this.clamp(val, floor, ceiling) === val
     }
     sanitize(num) {
         return num === +num && num != null && isFinite(num)
@@ -78,7 +96,7 @@ class MATH {
         return a - b
     }
     static #cycle = class {
-        #wheel
+        #wheel = null
         move(step = 1) {
             this.old = this.current
             this.current += (step | 0) || 1
@@ -99,7 +117,6 @@ class MATH {
             this.#wheel = items
         }
     }
-
 }
 class STRING {
     alphabet = 'abcdefghijklmnopqrstuvwxyz'
@@ -109,6 +126,15 @@ class STRING {
     days = 'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.split(' ')
     formatNumber(num) {
         return (+num).toLocaleString()
+    }
+    replace(string, ...subs) {
+        if (subs.length !== string.match(/\$/g)?.length) throw RangeError("Invalid input")
+        let newstring = string
+        subs.forEach(function(char){newstring = newstring.replace('$', char)})
+        return newstring
+    }
+    formatWord(str) {
+        return /[aeiou]/i.test(str[0]) ? 'an ' + str : 'a ' + str
     }
     shorten(str, length, tail) {
         if (!length) throw RangeError('Length must be present')
@@ -128,7 +154,8 @@ class STRING {
     toOrdinal(o) {
         const lastTwoDigits = o % 100, me = (o + "").at(-1);
         if ((lastTwoDigits >= 11 && lastTwoDigits <= 13) || !this.#map.has(me))
-            return o + "th"; return o + this.#map.get(me)
+            return o + "th";
+        return o + this.#map.get(me)
     }
 }
 class ARR {
@@ -136,6 +163,12 @@ class ARR {
         const out = []
         for (let { length } = sequence, i = 0; i < length; ++i) out.push(arrayLike.at(sequence[i]));
         return out
+    }
+    with(length = 0, filler) {
+        return typeof filler === 'function' ? from({ length }, filler) : Array(length).fill(filler)
+    }
+    *backwards(arrayLike) {
+        for (let { length } = arrayLike; length--;) yield arrayLike[length]
     }
     center(array) {
         return array[(array.length / 2) | 0]
@@ -153,17 +186,19 @@ class ARR {
         return item
     }
     swapInside(item, firstIndex, secondIndex) {
-        const slot = item.indexOf(firstIndex), slot2 = item.indexOf(secondIndex);
+        const slot = item.indexOf(firstIndex),
+            slot2 = item.indexOf(secondIndex)
         if (slot !== -1 && slot2 !== -1) return item.swap(slot, slot2);
         throw RangeError("Index out of range")
     }
-
 }
-
 export class Vector2 {
     get [Symbol.toStringTag]() { return 'Vector2' }
     toString() { return '(' + this.x + ', ' + this.y + ')' }
     constructor(x = 0, y = 0, MIN = MIN_SAFE_INTEGER, MAX = MAX_SAFE_INTEGER) {
+        if (x instanceof Vector2) {
+            ({ x, y } = x)
+        }
         if (y == null) {
             y = v.y(x)
             x = v.x(x)
@@ -215,10 +250,10 @@ export class Vector2 {
         return new v(range(minX, maxX), range(minY, maxY))
     }
     static x(vectorLike) {
-        return vectorLike.x ?? vectorLike[0] ?? values(vectorLike)[0]
+        return +(vectorLike.x ?? vectorLike[0] ?? values(vectorLike)[0] ?? vectorLike)
     }
     static y(vectorLike) {
-        return vectorLike.y ?? vectorLike[1] ?? values(vectorLike)[1]
+        return +(vectorLike.y ?? vectorLike[1] ?? values(vectorLike)[1] ?? vectorLike)
     }
     static angle(first, second) {
         const firstAngle = atan2(v.y(first), v.x(first)),
@@ -237,25 +272,19 @@ export class Vector2 {
         return new v(diff(x1, x2), diff(y1, y2))
     }
     static distance(x1, x2, y1, y2) {
-        if (x2 == null && y2 == null) {
-            x2 = v.x(y1)
-            y2 = v.y(y1)
-            y1 = v.y(x1)
-            x1 = v.x(x1)
+        if (y1 == null && y2 == null) {
+            [x1,x2,y1,y2] = [v.x(x1),v.x(x2),v.y(x1),v.y(x2)]
         }
         return hypot(x1 - x2, y1 - y2)
     }
     static equals(x1, x2, y1, y2) {
-        if (x2 == null && y2 == null) {
-            x2 = v.x(y1)
-            y2 = v.y(y1)
-            y1 = v.y(x1)
-            x1 = v.x(x1)
+        if (y1 == null && y2 == null) {
+            [x1,x2,y1,y2] = [v.x(x1),v.x(x2),v.y(x1),v.y(x2)]
         }
         return (x1 === x2) && (y1 === y2)
     }
     lerp({ to, time = 0.1 }) {
-        return this.subtract((this.minus(to)).multiply(time, time))
+        return this.subtract((this.minus(to)).multiply(time/1000, time/1000))
     }
     set(x, y) {
         if (y == null) {
@@ -291,6 +320,9 @@ export class Vector2 {
         this.set(this.x / x, this.y / y)
         return this
     }
+    minus(x,y) {
+        return new v(this).subtract(x,y)
+    }
     multiply(x, y) {
         if (y == null) {
             y = v.y(x)
@@ -322,7 +354,7 @@ class COLOR_MANAGER {
                 return COLOR_MANAGER.#canvas.strokeStyle
             }
             if (prop in target) return target[prop]
-            throw TypeError('CSS does not support the color "' + prop + '"')
+            throw TypeError('CSS does not support the color \'' + prop + '\'')
         }
     }
     //Darken hex color
@@ -333,7 +365,7 @@ class COLOR_MANAGER {
         return '#' + ran.frange(0, 0x1000000).toString(16).padStart(6, 0)
     }
     opposite(colour) {
-        if (0 === colour.indexOf("#") && (colour = colour.slice(1)), 3 === colour.length && (colour = colour[0] + colour[0] + colour[1] + colour[1] + colour[2] + colour[2]), 6 !== colour.length) throw Error('Invalid HEX color.')
+        if (0 === colour.indexOf("#") && (colour = colour.slice(1)), 3 === colour.length && (colour = colour[0] + colour[0] + colour[1] + colour[1] + colour[2] + colour[2]), 6 !== colour.length) throw TypeError('Invalid HEX color.')
         let f = (255 - parseInt(colour.slice(0, 2), 16)).toString(16), $ = (255 - parseInt(colour.slice(2, 4), 16)).toString(16), a = (255 - parseInt(colour.slice(4, 6), 16)).toString(16)
         return "#" + ('' + f).padStart(0, 2) + ('' + $).padStart(0, 2) + ('' + a).padStart(0, 2)
     }
@@ -345,9 +377,10 @@ class COLOR_MANAGER {
         new.target.#canvas = new OffscreenCanvas(0, 0).getContext('2d')
     }
 }
+
 export const color = new Proxy(new COLOR_MANAGER, COLOR_MANAGER.handler),
     arr = new ARR,
     string = new STRING,
     math = new MATH,
     ran = new RANDOM
-console.debug('📥 '+import.meta.url + ' imported')
+console.debug('📥 ' + import.meta.url + ' imported')

@@ -10,7 +10,9 @@ export const allEvents = new WeakMap
 const __eventGarbageCollection = new FinalizationRegistry(function ([key, set]) { set.delete(key) })
 function verifyEventName(target, name) {
     name = name?.toLowerCase?.()
-    if (name === 'domcontentloaded' && target === document) return
+    if (name === 'domcontentloaded' && target === document ||
+        name === 'animationcancel' && 'onanimationiteration' in target
+    ) return
     //Some events like the one above don't have a handler
     if (!(`on${name}` in target)) throw TypeError(`Cannot listen for '${name}' events`)
     //Check if handler with name exists
@@ -103,7 +105,7 @@ const cont = Symbol('⛓'), //Access the HTMLElement instance from elem
     frag = document.createDocumentFragment.bind(document),
     deprecatedTags = /^(tt|acronym|big|center|dir|font|frame|frameset|marquee|nobr|noembed|noframes|param|plaintext|rb|rtc|strike|tt|xmp)$/i,
     svgTags = /^(animate|animateMotion|animateTransform|circle|clipPath|defs|desc|ellipse|feBlend|feColorMatrix|feComponentTransfer|feComposite|feConvolveMatrix|feDiffuseLighting|feDisplacementMap|feDistantLight|feDropShadow|feFlood|feFuncA|feFuncB|feFuncG|feFuncR|feGaussianBlur|feImage|feMerge|feMergeNode|feMorphology|feOffset|fePointLight|feSpecularLighting|feSpotLight|feTile|feTurbulence|filter|foreignObject|g|glyph|glyphRef|hkern|image|line|linearGradient|marker|mask|metadata|missing-glyph|mpath|path|pattern|polygon|polyline|radialGradient|rect|set|stop|svg|switch|symbol|text|textPath|tref|tspan|use|view|vkern)$/i
-//These have to be treated differently
+//These SVG tags have to be treated differently
 export class elem {
     [cont] = null
     toString() {
@@ -156,15 +158,20 @@ export class elem {
     show() {
         this.styleMe({ display: '' })
     }
+    
+    async animationFinished() {
+        await until(this[cont], 'animationend')
+    }
     styleMe(styles) {
         if (!Array.isArray(styles)) styles = Object.entries(styles)
         for (let { length } = styles; length--;) {
-            const [prop, val] = styles[length]
+            let [prop, val] = styles[length]
+            val += ''
             this.styles.set(prop, val)
             if (!val.trim()) this.styles.delete(prop)
             if (val && !CSS.supports(prop, val)) warn(`⛓️‍💥 Unrecognized CSS in '${prop}: ${val}'`)
         }
-        const final = extractCSSFromObject([...this.styles.entries()])
+        const final = extractCSSFromObject(Array.from(this.styles.entries()))
         return this[cont].style.cssText = final
     }
     constructor(seed = 'div') {
@@ -226,7 +233,6 @@ export class elem {
             else if (me.hasAttribute(prop)) {
                 me.setAttribute(prop, seed[prop])
             }
-
         }
         if ('events' in seed) on(me, seed.events)
         if ('styles' in seed) this.styleMe(seed.styles)
@@ -235,7 +241,6 @@ export class elem {
 
         if ('offsprings' in seed && 'os' in seed) warn('🚼 Child was overwritten')
         elem.all.add(this)
-
     }
     on(events) {
         return on(this[cont], events)
@@ -302,6 +307,9 @@ export class elem {
     set __logLevel__(val) {
         this.#logLevel = val
     }
+    get firstChild() {
+        return this[cont].firstElementChild
+    }
     __createProperty__(prop, val) {
         if (this.__hasProperty__(prop)) {
             error(prop)
@@ -344,6 +352,12 @@ export class elem {
         return this.__properties__.clear()
     }
 }
+export function querySelector(selector) {
+    return elem.verifyTarget(document.querySelector(selector))
+}
+export function querySelectorAll(selector) {
+    return elem.verifyTarget(document.querySelectorAll(selector))
+}
 /**
  * > New element
  * @param {String} tag An HTML element tag 
@@ -352,9 +366,9 @@ export class elem {
  */
 function $(tag, seed) {
     if (seed instanceof HTMLElement || seed instanceof elem) seed = { parent: seed }
-    return new elem({ ...seed, tag })
+    seed.tag = tag
+    return new elem(seed)
 }
-
 export default $
 export const SYMBOLS = [cont, core, sym]
     , setup = {
@@ -391,6 +405,26 @@ export function registerCSS(selector, rule) {
         addedStyleRules ??= $('style', { parent: document.head })
     sheet.insertRule(`${selector}{${extractCSSFromObject(rule)}}`)
 }
+registerCSS('dialog', {
+    transition: 'opacity 1s linear',
+    "font-family": "Arial", "text-align": "center", width: "300px", height: "150px", "word-break": "break-word"
+})
+registerCSS('.centerx,.center', {
+    'justify-self': 'center'
+})
+registerCSS('.centery,.center', {
+    'align-self': 'center',
+    inset: '0px',
+    position: 'fixed'
+})
+export const CSSSyntax = {
+    boxShadow({ offsetX = '0px', offsetY = '0px', blurRadius = '', spreadRadius = '', color = '#000000' }) {
+        return `${color} ${offsetX} ${offsetY} ${blurRadius} ${spreadRadius}`.replaceAll('  ', '')
+    },
+    dropShadow({ color = '#000000', offsetX = '0px', offsetY = '0px', standardDeviation = '' }) {
+        return `${color} ${offsetX} ${offsetY} ${standardDeviation}`
+    }
+}
 /*class Dialog {
     constructor(parent,children) {
         return $('dialog',{
@@ -399,20 +433,28 @@ export function registerCSS(selector, rule) {
         })
     }
 }*/
-export function Alert(t,e) {
-    let old = document.querySelector('dialog')
+export function Alert(t, e) {
+    const old = document.querySelector('dialog')
     old?.close()
     old?.[core].destroy()
-    return new Promise((o=>{function n(t){o(t),r.destroy()}let r=$("dialog",{events:{close(){n(t)}},styles:{"font-family":"Arial","text-align":"center",width:"300px",height:"150px","word-break":"break-word"},parent:document.body,os:[$("h1",{txt:t}),$("p",{txt:e}),$("form",{events:{submit(){n("OK")}},method:"dialog",os:[$("button",{styles:{width:"200px",height:"30px"},txt:"OK"})]})]});r.showModal()}))}
-export const disabled = true,
-    resize = null,
-    multiple = true,
-    required = true,
-    readonly = true,
-    inert = true,
-    hidden = 'hidden',
-    open = true,
-    autofocus = true
+    return new Promise((o => { function n(t) { o(t), r.destroy() } let r = $("dialog", { events: { close() { n(t) } }, parent: document.body, os: [$("h1", { txt: t }), $("p", { txt: e }), $("form", { events: { submit() { n("OK") } }, method: "dialog", os: [$("button", { styles: { width: "200px", height: "30px" }, txt: "OK" })] })] }); r.showModal() }))
+}
+function declareToAll(value) {
+    return new Proxy({}, {
+        get(t, prop) {
+            return typeof value === 'function' ? value(prop) : value
+        }
+    })
+}
+export const { disabled,
+    resize,
+    multiple,
+    required,
+    readonly,
+    inert,
+    hidden,
+    open,
+    autofocus } = declareToAll(true)
 export function FormDataManager(FormDataInstance) {
     if (!(FormDataInstance instanceof FormData)) FormDataInstance = new FormData(FormDataInstance)
     return new Proxy(FormDataInstance, {
