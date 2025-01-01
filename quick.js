@@ -1,30 +1,27 @@
-const sym = Symbol("🔑"), //For keeping track of events
-    { warn, error } = console
-/*function warn(message) {
-    console.warn(`%c${message}`,'font-size:13px;')
-}
-function error(message) {
-    console.error(`%c${message}`,'font-size:13px;')
-}*/
+const sym = Symbol("🔔"), //For keeping track of events
+    //But to also not potentially collide with existing keys
+    { warn, error } = console,
+    {isArray} = Array
 export const allEvents = new WeakMap
-const __eventGarbageCollection = new FinalizationRegistry(function ([key, set]) { set.delete(key) })
+const eventGarbageCollectionCallback = 
+new FinalizationRegistry(function ([key, set]) { set.delete(key) })
 function verifyEventName(target, name) {
     name = name?.toLowerCase?.()
-    if (name === 'domcontentloaded' && target === document ||
+    if (name === 'domcontentloaded' && target instanceof Document ||
         name.match(/^(animation(cancel|end|remove))$/) && 'onremove' in target
     ) return
     //Some events like the one above don't have a handler
-    if (!(`on${name}` in target)) throw TypeError(`Cannot listen for '${name}' events`)
+    if (!(`on${name}` in target)) throw TypeError(`🔇 Cannot listen for '${name}' events`)
     //Check if handler with name exists
 }
 export function on(target, events) {
-    if (!(target instanceof EventTarget)) throw TypeError("Invalid event target")
+    if (!(target instanceof EventTarget)) throw TypeError("🚫 Invalid event target")
     if (!(target[sym] instanceof Set))
         //This will hold the NAMES of the events
         Object.defineProperty(target, sym, { value: new Set })
 
     const myEvents = target[sym]
-    if (!Array.isArray(events)) events = Object.entries(events)
+    if (!isArray(events)) events = Object.entries(events)
 
     for (let [eventName, func] of events) {
         const options = {
@@ -37,7 +34,7 @@ export function on(target, events) {
             warn(`🔕 Duplicate '${eventName}' listener`)
             continue
         }
-        const corn = target[core]
+        const corn = elem.all.get(target)
         func = func.bind(corn instanceof elem ? corn : target)
         if (eventName.includes('_')) {
             //Make an event that only triggers once,
@@ -59,7 +56,7 @@ export function on(target, events) {
         }
         verifyEventName(target, eventName)
         //event.target will be the proxy if it exists
-        __eventGarbageCollection.register(func, [eventName, myEvents])
+        eventGarbageCollectionCallback.register(func, [eventName, myEvents])
         target.addEventListener(eventName, func, options)
         if (!allEvents.has(target)) allEvents.set(target, new Map)
         //A Map to hold the names & events
@@ -71,7 +68,7 @@ export function on(target, events) {
 }
 export function off(target, ...eventNames) {
     if (!(target instanceof EventTarget) || !(target[sym] instanceof Set) || !allEvents.has(target))
-        throw TypeError("Invalid event target")
+        throw TypeError("🚫 Invalid event target")
 
     const map = allEvents.get(target),
         mySet = target[sym]
@@ -100,37 +97,37 @@ export function until(target, eventName, timeout/* = 600000*/) {
     })
 }
 
-    const cont = Symbol('⛓'), //Access the HTMLElement instance from elem
-        core = Symbol('🧿'),  //The opposite
-        frag =typeof document !== 'undefined'? document.createDocumentFragment.bind(document) : null,
-        deprecatedTags = /^(tt|acronym|big|center|dir|font|frame|frameset|marquee|nobr|noembed|noframes|param|plaintext|rb|rtc|strike|tt|xmp)$/i,
-        svgTags = /^(animate|animateMotion|animateTransform|circle|clipPath|defs|desc|ellipse|feBlend|feColorMatrix|feComponentTransfer|feComposite|feConvolveMatrix|feDiffuseLighting|feDisplacementMap|feDistantLight|feDropShadow|feFlood|feFuncA|feFuncB|feFuncG|feFuncR|feGaussianBlur|feImage|feMerge|feMergeNode|feMorphology|feOffset|fePointLight|feSpecularLighting|feSpotLight|feTile|feTurbulence|filter|foreignObject|g|glyph|glyphRef|hkern|image|line|linearGradient|marker|mask|metadata|missing-glyph|mpath|path|pattern|polygon|polyline|radialGradient|rect|set|stop|svg|switch|symbol|text|textPath|tref|tspan|use|view|vkern)$/i
+const
+    frag = typeof document !== 'undefined' ? document.createDocumentFragment.bind(document) : null,
+    deprecatedTags = /^(tt|acronym|big|center|dir|font|frame|frameset|marquee|nobr|noembed|noframes|param|plaintext|rb|rtc|strike|tt|xmp)$/i,
+    svgTags = /^(animate|animateMotion|animateTransform|circle|clipPath|defs|desc|ellipse|feBlend|feColorMatrix|feComponentTransfer|feComposite|feConvolveMatrix|feDiffuseLighting|feDisplacementMap|feDistantLight|feDropShadow|feFlood|feFuncA|feFuncB|feFuncG|feFuncR|feGaussianBlur|feImage|feMerge|feMergeNode|feMorphology|feOffset|fePointLight|feSpecularLighting|feSpotLight|feTile|feTurbulence|filter|foreignObject|g|glyph|glyphRef|hkern|image|line|linearGradient|marker|mask|metadata|missing-glyph|mpath|path|pattern|polygon|polyline|radialGradient|rect|set|stop|svg|switch|symbol|text|textPath|tref|tspan|use|view|vkern)$/i
 //These SVG tags have to be treated differently
 export class elem {
-    [cont] = null
+    cont = null
     toString() {
-        return this[cont].outerHTML
+        return this.cont.outerHTML
     }
     static verifyTarget(element) {
         //Okay this is really confusing but it works so
+        let exists = elem.all.get(element)
         if (element instanceof elem) return element
-        else if (element?.[core] instanceof elem) return element[core]
-        else if (element?.[cont] instanceof elem) return element[cont]
-        else return element ? elem.select(element) : element
+        if (exists instanceof elem) return exists
+        return element ? elem.select(element) : element
     }
     static deverifyTarget(Elem) {
         //The opposite
-        if (!(Elem[core] instanceof elem)) return Elem[core]
-        return Elem[cont]
+        if (!(Elem.cont instanceof elem)) return Elem.cont
+        return elem.all.get(Elem)
     }
     static select(element) {
         return elem.all.has(element) || new elem({ from: element })
     }
-    static all = new WeakSet
     //Store every instance
+    static all = new WeakMap
     static #HANDLER = {
         get(target, prop) {
-            const content = target[cont]
+            const content = target.cont
+            if (prop === 'cont') return content
             if (prop in target) return target[prop]
             if (typeof prop === 'string' && content.hasAttribute(prop)) return content.getAttribute(prop)
             let out = content[prop]
@@ -138,17 +135,22 @@ export class elem {
             return out
         },
         set(target, prop, value) {
-            const content = target[cont]
-            if (prop in target) {
-                target[prop] = value
-                return true
-            }
+            const content = target.cont
+            if (prop in target)
+                return Reflect.set(target, prop, value)
             if (typeof prop === 'string' && content.hasAttribute(prop)) {
-                content.setAttribute(prop, value)
-                return true
+                let worked = 1
+                try {
+                    content.setAttribute(prop, value)
+                }
+                catch {
+                    --worked
+                }
+                finally {
+                    return worked
+                }
             }
-            content[prop] = value
-            return true
+            return Reflect.set(content, prop, value)
         }
     }
     styles = new Map
@@ -158,12 +160,26 @@ export class elem {
     show() {
         this.styleMe({ display: '' })
     }
-
-    async animationFinished() {
-        await until(this[cont], 'animationend')
+    fadeout(duration = 500) {
+        return this.animate([
+            { opacity: 1 },
+            { opacity: 0 }
+        ], { easing: 'ease', duration, fill: 'forwards' })
+        .finished
+    }
+    async fadeAndDestroy(duration = 500) {
+        await this.fadeout(duration)
+        this.destroy()
+    }
+    fadein(duration = 500) {
+        return this.animate([
+            { opacity: 0 },
+            { opacity: 1 }
+        ], { easing: 'ease', duration, fill: 'forwards' })
+        .finished
     }
     styleMe(styles) {
-        if (!Array.isArray(styles)) styles = Object.entries(styles)
+        if (!isArray(styles)) styles = Object.entries(styles)
         for (let { length } = styles; length--;) {
             let [prop, val] = styles[length]
             val += ''
@@ -172,10 +188,10 @@ export class elem {
             if (val && !CSS.supports(prop, val)) warn(`⛓️‍💥 Unrecognized CSS in '${prop}: ${val}'`)
         }
         const final = extractCSSFromObject(Array.from(this.styles.entries()))
-        return this[cont].style.cssText = final
+        return this.cont.style.cssText = final
     }
     constructor(seed = 'div') {
-        if (elem.all.has(this)) throw ReferenceError('Duplicate element')
+        if (elem.all.has(this)) throw ReferenceError('🔍 Duplicate element detected')
         if (typeof seed === 'string') seed = { tag: seed }
         let { from, tag = 'div', parent, offsprings, os } = seed,
             kids = offsprings ?? os,
@@ -188,12 +204,12 @@ export class elem {
             [tag, seed.type] = tag.split(':')
         }
         if (tag.match(svgTags))
-            this[cont] = from ?? document.createElementNS('http://www.w3.org/2000/svg', tag)
-        else this[cont] = from ?? document.createElement(tag)
+            this.cont = from ?? document.createElementNS('http://www.w3.org/2000/svg', tag)
+        else this.cont = from ?? document.createElement(tag)
         if (deprecatedTags.test(tag)) warn(`♿️ Deprecated '${seed.tag}' tag usage`)
         this.__properties__ = new Map
         const out = new Proxy(this, elem.#HANDLER)
-        this[cont][core] = out
+        elem.all.set(this.cont, out)
         if (kids) out.offsprings = kids
         if (parent) out.parent = parent
         for (let { length } = classes; length--;) out.classList.add(classes[length])
@@ -206,76 +222,78 @@ export class elem {
             const kid = offsprings[length]
             while (kid.parent) kid.destroy()
         }
-        this[cont].remove()
+        this.cont.remove()
     }
     #start(seed) {
         let keys = Object.keys(seed),
-            me = this[cont]
+            me = this.cont
         for (let { length } = keys; length--;) {
             const prop = keys[length]
-            if (prop === 'resize') {
+            if (prop === 'resize')
                 this.styleMe({ resize: seed.resize ?? 'both' })
-            }
-            else if (prop === 'readonly') {
+
+            else if (prop === 'readonly')
                 me.setAttribute('readonly', true)
-            }
-            else if (prop === 'hidden') {
+
+            else if (prop === 'hidden')
                 me.toggleAttribute('hidden', true)
-            }
-            else if (prop === 'open') {
+
+            else if (prop === 'open')
                 me.toggleAttribute('open', true)
-            }
+
             else if (prop === 'autofocus')
                 setTimeout(function () { me.focus() })
             else if (prop in me)
                 try { me[prop] = seed[prop] }
                 catch { me.setAttribute(prop, seed[prop]) }
-            else if (me.hasAttribute(prop)) {
+            else if (me.hasAttribute(prop))
                 me.setAttribute(prop, seed[prop])
-            }
         }
         if ('events' in seed) on(me, seed.events)
         if ('styles' in seed) this.styleMe(seed.styles)
         if ('txt' in seed) this.txt = seed.txt
         if (seed.tag === 'button' || seed.type === 'button') this.styleMe({ cursor: 'pointer' })
-
         if ('offsprings' in seed && 'os' in seed) warn('🚼 Child was overwritten')
-        elem.all.add(this)
     }
     on(events) {
-        return on(this[cont], events)
+        return on(this.cont, events)
     }
     off(...names) {
-        off.apply(this[cont], names)
+        off.apply(this.cont, names)
+    }
+    setAttributes(attributes) {
+        if (!isArray(attributes)) attributes = Object.entries(attributes)
+        for (let [attr, val] of attributes) this.cont.setAttribute(attr, val)
     }
     set parent(element) {
-        element = elem.verifyTarget(element)
-        element.appendChild(this[cont])
+        element = getProxy(element)
+        if (typeof element.appendChild !== 'function') debugger
+        element.appendChild(this.cont)
     }
     get parent() {
-        return elem.verifyTarget(this[cont].parentElement)
+        return getProxy(this.cont.parentElement)
     }
     get offsprings() {
-        return Array.from(this[cont].children, elem.verifyTarget)
+        return Array.from(this.cont.children, getProxy)
     }
     get txt() {
-        return this[cont].textContent
+        return this.cont.textContent
     }
     set txt(val) {
-        if (this[cont].childElementCount) throw TypeError('Cannot set textContent of a parent element')
-        this[cont].textContent = val
+        if (this.cont.childElementCount) throw TypeError('🔏 Cannot set textContent of a parent element')
+        this.cont.textContent = val
     }
     empty() {
         const fragment = frag()
-        this.offsprings.forEach(function (child) {
-            child = elem.deverifyTarget(child)
+        this.offsprings.forEach(child => {
+            child = child.cont
             this.removeChild(child)
             fragment.appendChild(child)
         })
         return fragment
     }
     destroyChildren() {
-        let { offsprings } = this
+        const { offsprings } = this
         for (let { length } = offsprings; length--;)
             offsprings[length].destroy()
     }
@@ -285,21 +303,14 @@ export class elem {
             let kid = elem.deverifyTarget(children[i])
             fragment.appendChild(kid)
         }
-        this[cont].appendChild(fragment)
+        this.cont.appendChild(fragment)
     }
-
     /*get properties() {
         return this.__properties__
     } */
     #logLevel = null
-    set size({ width, height }) {
-        if (width)
-            this[cont].setAttribute('width', width)
-        if (height)
-            this[cont].setAttribute('height', height)
-    }
     get tagname() {
-        return this[cont].tagName
+        return this.cont.tagName
     }
     get __logLevel__() {
         return this.#logLevel
@@ -308,7 +319,7 @@ export class elem {
         this.#logLevel = val
     }
     get firstChild() {
-        return this[cont].firstElementChild
+        return this.cont.firstElementChild
     }
     __createProperty__(prop, val) {
         if (this.__hasProperty__(prop)) {
@@ -325,21 +336,21 @@ export class elem {
         return this.__properties__.set(prop, val)
     }
     get __element__() {
-        return this[cont]
+        return this.cont
     }
     __deleteProperty__(prop) {
         if (!this.__hasProperty__(prop)) {
             error(prop)
             throw TypeError('The property above does not exist in this object')
         }
-        return this.__properties__.delete(prop)
+        this.__properties__.delete(prop)
     }
     __hasProperty__(prop) {
         return this.__properties__.has(prop)
     }
     __set__(prop, val) {
         if (this.__hasProperty__(prop)) return this.__setProperty__(prop, val)
-        return this.__createProperty__(prop, val)
+        this.__createProperty__(prop, val)
     }
     __getProperty__(prop) {
         if (!this.__hasProperty__(prop)) {
@@ -349,14 +360,33 @@ export class elem {
         return this.__properties__.get(prop)
     }
     __deleteProperties__() {
-        return this.__properties__.clear()
+        this.__properties__.clear()
     }
 }
+const {from} = Array
+export function getElementsByTagName(tag) {
+    return from(document.getElementsByTagName(tag), getProxy)
+}
+export function getElementsByClassName(CLASS) {
+    return from(document.getElementsByClassName(CLASS), getProxy)
+}
+export function getElementsByName(name) {
+    return from(document.getElementsByName(name), getProxy)
+}
+export function getElementsByTagNameNS(name) {
+    return from(document.getElementsByTagNameNS(name), getProxy)
+}
+export function getElementById(id) {
+    return getProxy(document.getElementById(id))
+}
 export function querySelector(selector) {
-    return elem.verifyTarget(document.querySelector(selector))
+    return getProxy(document.querySelector(selector))
 }
 export function querySelectorAll(selector) {
-    return elem.verifyTarget(document.querySelectorAll(selector))
+    return from(document.querySelectorAll(selector), getProxy)
+}
+export function getProxy(element) {
+    return elem.verifyTarget(element)
 }
 /**
  * > New element
@@ -370,14 +400,13 @@ function $(tag, seed) {
     return new elem(seed)
 }
 export default $
-export const SYMBOLS = [cont, core, sym]
-    , setup = {
-        get body() {
-            return $('body', { parent: document.documentElement, from: document.body ?? document.createElement('body') })
-        }
+export const SYMBOLS = [sym], setup = {
+    get body() {
+        return $('body', { parent: document.documentElement, from: document.body ?? document.createElement('body') })
     }
+}
 export async function importFont(name, src) {
-    if (!name || !src) throw TypeError('More arguments needed')
+    if (!name || !src) throw TypeError('❔ More arguments needed')
     const font = new FontFace(name, `url(${src})`)
     await font.load()
     document.fonts.add(font)
@@ -390,13 +419,13 @@ let addedStyleRules = null
  */
 function extractCSSFromObject(obj) {
     const arr = []
-    if (!Array.isArray(obj)) obj = Object.entries(obj)
+    if (!isArray(obj)) obj = Object.entries(obj)
     for (let [prop, val] of obj)
         arr.push(`${prop}:${val}`)
     return arr.join(';') + ';'
 }
 /** 
- *  ⚠️ Should only be used for dynamic CSS
+ *  ⚠️ Should only be used for dynamic/default CSS
  * @param {String} selector A valid CSS selector (something like . or #)
  * @param {Object} rule An object which describes the selector 
  */
@@ -406,25 +435,29 @@ export function registerCSS(selector, rule) {
     sheet.insertRule(`${selector}{${extractCSSFromObject(rule)}}`)
 }
 if (typeof document !== 'undefined') {
-
     registerCSS('dialog', {
         transition: 'opacity 1s linear',
-        "font-family": "Arial", "text-align": "center", width: "300px", height: "150px", "word-break": "break-word"
-})
-registerCSS('.centerx,.center', {
-    'justify-self': 'center'
-})
-registerCSS('.centery,.center', {
-    'align-self': 'center',
-    inset: '0px',
-    position: 'fixed'
-})
+        "font-family": "Arial",
+        "text-align": "center",
+        width: "300px",
+        height: "150px",
+        "word-break": "break-word"
+    })
+    registerCSS('.centerx,.center', {
+        'justify-self': 'center'
+    })
+    registerCSS('.centery,.center', {
+        'align-self': 'center',
+        inset: 0,
+        position: 'fixed'
+    })
 }
-export const CSSSyntax = {
-    boxShadow({ offsetX = '0px', offsetY = '0px', blurRadius = '', spreadRadius = '', color = '#000000' }) {
+export class CSSSyntax {
+    constructor(){throw TypeError("Illegal constructor")}
+    static boxShadow({ offsetX = '0px', offsetY = '0px', blurRadius = '', spreadRadius = '', color = '#000000' }) {
         return `${color} ${offsetX} ${offsetY} ${blurRadius} ${spreadRadius}`.replaceAll('  ', '')
-    },
-    dropShadow({ color = '#000000', offsetX = '0px', offsetY = '0px', standardDeviation = '' }) {
+    }
+    static dropShadow({ color = '#000000', offsetX = '0px', offsetY = '0px', standardDeviation = '' }) {
         return `${color} ${offsetX} ${offsetY} ${standardDeviation}`
     }
 }
@@ -437,19 +470,21 @@ export const CSSSyntax = {
     }
 }*/
 export function Alert(t, e) {
-    const old = document.querySelector('dialog')
+    const old = querySelector('dialog')
     old?.close()
-    old?.[core].destroy()
+    old?.destroy()
     return new Promise((o => { function n(t) { o(t), r.destroy() } let r = $("dialog", { events: { close() { n(t) } }, parent: document.body, os: [$("h1", { txt: t }), $("p", { txt: e }), $("form", { events: { submit() { n("OK") } }, method: "dialog", os: [$("button", { styles: { width: "200px", height: "30px" }, txt: "OK" })] })] }); r.showModal() }))
 }
 function declareToAll(value) {
     return new Proxy({}, {
-        get(t, prop) {
+        get(_, prop) {
             return typeof value === 'function' ? value(prop) : value
         }
     })
 }
-export const { disabled,
+export 
+const { 
+    disabled,
     resize,
     multiple,
     required,
@@ -457,7 +492,8 @@ export const { disabled,
     inert,
     hidden,
     open,
-    autofocus } = declareToAll(true)
+    autofocus 
+} = declareToAll(true)
 export function FormDataManager(FormDataInstance) {
     if (!(FormDataInstance instanceof FormData)) FormDataInstance = new FormData(FormDataInstance)
     return new Proxy(FormDataInstance, {
@@ -477,3 +513,4 @@ export function FormDataManager(FormDataInstance) {
         }
     })
 }
+declareToAll = null

@@ -25,10 +25,16 @@ class RANDOM {
     frange(MIN, MAX) {
         return floor(this.range(MIN, MAX))
     }
-    pseudo() {
-        return performance.now() % 1
+    get ran() {
+        return random()
     }
-    truly() {
+    get pseudo() {
+        return performance.now() % 1e3 / 1e3
+    }
+    get pseudo2() {
+        return Date.now() % 1e3 / 1e3
+    }
+    crypto() {
         return crypto.getRandomValues(new Uint32Array(1))[0] / 0xffffffff
     }
     shuffle(...item) {
@@ -45,15 +51,35 @@ class RANDOM {
         return fromCodePoint(floor(random() * 0x110000))
     }
     randomizer(charCount = 6) {
-        return new Proxy({ __chars__: charCount }, { get: this.#randomizer })
+        return new Proxy({ charCount }, { get: this.#randomizer })
     }
     #randomizer(target, prop) {
-        return target[prop] ??= gen(target.__chars__)
+        return target[prop] ??= gen(target.charCount)
     }
 }
 class MATH {
     isInt(num) {
         return isInteger(num)
+    }
+    maxBigInt(bigInt, ...bigInts) {
+        if (bigInt == null) throw TypeError('More arguments needed')
+        let maximum = bigInt
+        for (let { length } = bigInts; length--;) {
+            const num = bigInts[length]
+            if (typeof num !== typeof bigInt) throw TypeError("Cannot mix types")
+            if (num > maximum) maximum = num
+        }
+        return maximum
+    }
+    minBigInt(bigInt, ...bigInts) {
+        if (bigInt == null) throw TypeError('More arguments needed')
+        let minimum = bigInt
+        for (let { length } = bigInts; length--;) {
+            const num = bigInts[length]
+            if (typeof num !== typeof bigInt) throw TypeError("Cannot mix types")
+            if (num < minimum) minimum = num
+        }
+        return minimum
     }
     sqrt(num) {
         const sIgn = sign(num),
@@ -67,7 +93,8 @@ class MATH {
         return num === +num && num != null && isFinite(num)
     }
     equality(first, ...rest) {
-        return rest.every(function (o) { return is(o, first) })
+        return rest.every(n)
+        function n(o) { return is(o, first) }
     }
     toRad(deg) {
         return deg * PI / 180
@@ -166,7 +193,7 @@ class ARR {
         for (let { length } = sequence, i = 0; i < length; ++i) out.push(arrayLike.at(sequence[i]));
         return out
     }
-    with(length = 0, filler) {
+    with(length, filler) {
         return typeof filler === 'function' ? from({ length }, filler) : Array(length).fill(filler)
     }
     *backwards(arrayLike) {
@@ -190,7 +217,7 @@ class ARR {
     swapInside(item, firstIndex, secondIndex) {
         const slot = item.indexOf(firstIndex),
             slot2 = item.indexOf(secondIndex)
-        if (slot !== -1 && slot2 !== -1) return item.swap(slot, slot2);
+        if (slot !== -1 && slot2 !== -1) return item.swap(slot, slot2)
         throw RangeError("Index out of range")
     }
 }
@@ -210,6 +237,12 @@ class Vector2 {
     }
     static dotProduct([x1, y1], [x2, y2]) {
         return x1 * x2 + y1 * y2
+    }
+    flip() {
+        return this.set(this.flipped)
+    }
+    get flipped() {
+        return v(this.y,this.x)
     }
     toString(unit = '') { return '(' + this.x + unit + ', ' + this.y + unit + ')' }
     constructor(x = 0, y = 0,
@@ -240,6 +273,9 @@ class Vector2 {
     normalize() {
         return this.set(this.normalized)
     }
+    scale(mult = 0) {
+        return this.multiply(mult, mult)
+    }
     get magnitude() {
         return abs(this.x + this.y)
     }
@@ -264,6 +300,9 @@ class Vector2 {
     get length() {
         return hypot(this.x, this.y)
     }
+    nullify() {
+        return this.scale(0)
+    }
     clampX(min, max) {
         if (min instanceof v && max == null)
             [min, max] = min
@@ -277,10 +316,6 @@ class Vector2 {
         this.#min.y = +min
         this.#max.y = +max
         return this.set(this)
-    }
-    clamp([minX = MIN_SAFE_INTEGER, minY = MIN_SAFE_INTEGER] = [], [maxX = MAX_SAFE_INTEGER, maxY = MAX_SAFE_INTEGER] = []) {
-        this.clampX(minX, maxX)
-        return this.clampY(minY, maxY)
     }
     static random([minX, minY], [maxX, maxY]) {
         const { range } = ran
@@ -308,15 +343,19 @@ class Vector2 {
     static equals([x1, y1], [x2, y2]) {
         return (x1 === x2) && (y1 === y2)
     }
-    lerp([x,y], time = 0.1) {
-        return this.subtract((this.minus(x,y)).multiply(time / 1000, time / 1000))
+    lerp([x = y, y = x], time = 0.1, delta = 1) {
+        return this.subtract((this.minus(x, y)).scale((time) * delta))
     }
-    moveTowards([x, y], maxDistance = 1) {
-        const target = vect(x, y),
-            div = target.minus(this),
-            mag = div.magnitude
-        if (mag <= maxDistance || !mag) return target
-        return this.add(div).multiply(mag / maxDistance)
+    clamp([minX = MIN_SAFE_INTEGER, minY = MIN_SAFE_INTEGER] = [], [maxX = MAX_SAFE_INTEGER, maxY = MAX_SAFE_INTEGER] = []) {
+        this.clampX(minX, maxX)
+        return this.clampY(minY, maxY)
+    }
+    moveTowards([x, y], maxDistance = 1, delta = 1) {
+        const target = vect(x, y)
+            , direction = target.minus(this)
+            , magnitude = direction.magnitude
+        if (magnitude <= maxDistance || !magnitude) return target
+        return magnitude < step.magnitude ? this.set(target) : this.add(step)
     }
     set(x, y) {
         if (x instanceof v && y == null)
@@ -382,9 +421,7 @@ class COLOR_MANAGER {
         }
     }
     //Darken hex color
-    dhk(e, f = 40) {
-        let { clamp } = math, $ = parseInt((e = ('' + e).replace(/^#/, "")).substring(0, 2), 16), a = parseInt(e.substring(2, 4), 16), r = parseInt(e.substring(4, 6), 16); return $ = round($ * (1 - f / 100)), a = round(a * (1 - f / 100)), r = round(r * (1 - f / 100)), $ = clamp($, 255, 0), a = clamp(a, 255, 0), r = clamp(r, 255, 0), "#" + [$, a, r].map(e => { let f = e.toString(16); return 1 === f.length ? "0" + f : f }).join('')
-    }
+    dhk(e, f = 40) { let $ = parseInt((e = ('' + e).replace(/^#/, "")).substring(0, 2), 16), a = parseInt(e.substring(2, 4), 16), r = parseInt(e.substring(4, 6), 16); return $ = round($ * (1 - f / 100)), a = round(a * (1 - f / 100)), r = round(r * (1 - f / 100)), $ = min(255, max(0, $)), a = min(255, max(0, a)), r = min(255, max(0, r)), "#" + [$, a, r].map(function (e) { let f = e.toString(16); return 1 === f.length ? "0" + f : f }).join('') }
     choose() {
         return '#' + ran.frange(0, 0x1000000).toString(16).padStart(6, 0)
     }
