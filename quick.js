@@ -72,7 +72,7 @@ export function off(target, ...eventNames) {
 
     const map = allEvents.get(target),
         mySet = target[sym]
-    for ({ length } = eventNames; length--;) {
+    for (let{ length } = eventNames; length--;) {
         const name = eventNames[length],
             func = map.get(name)
         target.removeEventListener(name, func)
@@ -268,7 +268,7 @@ export class elem {
         return on(this.cont, events)
     }
     off(...names) {
-        off.apply(this.cont, names)
+        off(this.cont, ...names)
     }
     setAttributes(attributes) {
         if (!isArray(attributes)) attributes = Object.entries(attributes)
