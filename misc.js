@@ -14,7 +14,7 @@ class RANDOM {
         return deck[floor(random() * deck.length)]
     }
     jackpot(range) {
-        return !this.frange(0, range)
+        return!this.frange(0, range)
     }
     chance(odds) {
         return this.jackpot(100 / odds)
@@ -34,7 +34,7 @@ class RANDOM {
     get pseudo2() {
         return Date.now() % 1e3 / 1e3
     }
-    crypto() {
+    get crypto() {
         return crypto.getRandomValues(new Uint32Array(1))[0] / 0xffffffff
     }
     shuffle(...item) {
@@ -82,9 +82,9 @@ class MATH {
         return minimum
     }
     sqrt(num) {
-        const sIgn = sign(num),
+        const SIGN = sign(num),
             absolute = abs(num)
-        return absolute ** .5 * sIgn
+        return absolute ** .5 * SIGN
     }
     isWithinRange(val, floor, ceiling) {
         return this.clamp(val, floor, ceiling) === val
@@ -92,7 +92,7 @@ class MATH {
     sanitize(num) {
         return num === +num && num != null && isFinite(num)
     }
-    equality(first, ...rest) {
+    compare(first, ...rest) {
         return rest.every(n)
         function n(o) { return is(o, first) }
     }
@@ -194,7 +194,9 @@ class ARR {
         return out
     }
     with(length, filler) {
-        return typeof filler === 'function' ? from({ length }, filler) : Array(length).fill(filler)
+        return typeof filler === 'function'? 
+        from({ length }, filler): 
+        Array(length).fill(filler)
     }
     *backwards(arrayLike) {
         for (let { length } = arrayLike; length--;) yield arrayLike[length]
@@ -242,12 +244,13 @@ class Vector2 {
         return this.set(this.flipped)
     }
     get flipped() {
-        return v(this.y,this.x)
+        return v(this.#y, this.#x)
     }
-    toString(unit = '') { return '(' + this.x + unit + ', ' + this.y + unit + ')' }
+    toString(unit = '') { return '(' + this.#x + unit + ', ' + this.#y + unit + ')' }
     constructor(x = 0, y = 0,
         [minX = MIN_SAFE_INTEGER, minY = MIN_SAFE_INTEGER] = [],
         [maxX = MAX_SAFE_INTEGER, maxY = MAX_SAFE_INTEGER] = []) {
+        Object.defineProperties(this, { x: { get() { return this.#x }, set(x) { this.set(x, this.#y) }, enumerable: 1 }, y: { get() { return this.#y }, set(y) { this.set(this.#x, y) }, enumerable: 1 } })
         Object.seal(this)
         this.#min = { x: minX, y: minY }
         this.#max = { x: maxX, y: maxY }
@@ -255,19 +258,19 @@ class Vector2 {
     }
     #min
     #max
-    x = NaN
-    y = NaN
+    #x = NaN
+    #y = NaN
     //get #value() { return [this.x, this.y] }
-    get 0() { return this.x }
+    get 0() { return this.#x }
     set 0(x) { this.x = x }
-    get 1() { return this.y }
+    get 1() { return this.#y }
     set 1(y) { this.y = y }
     get normalized() {
         const mag = this.magnitude
-        return v(this.x / mag || 0, this.y / mag || 0)
+        return v(this.#x / mag || 0, this.#y / mag || 0)
     }
     [Symbol.toPrimitive](hint) {
-        if (hint === 'number') throw TypeError("Vector2 cannot be converted to a number")
+        if (hint === 'number') throw TypeError("Cannot convert Vector2 to number")
         return this.toString()
     }
     normalize() {
@@ -277,13 +280,13 @@ class Vector2 {
         return this.multiply(mult, mult)
     }
     get magnitude() {
-        return abs(this.x + this.y)
+        return abs(this.#x + this.#y)
     }
     get clone() {
         return v(...this)
     }
     get angle() {
-        return atan2(this.y, this.x)
+        return atan2(this.#y, this.#x)
     }
     get isValid() {
         const { x, y } = this
@@ -298,7 +301,7 @@ class Vector2 {
         return v(-x, -y)
     }
     get length() {
-        return hypot(this.x, this.y)
+        return hypot(this.#x, this.#y)
     }
     nullify() {
         return this.scale(0)
@@ -361,25 +364,25 @@ class Vector2 {
         if (x instanceof v && y == null)
             [x, y] = x
         const { clamp } = math
-        this.x = clamp(+x, this.#min.x, this.#max.x)
-        this.y = clamp(+y, this.#min.y, this.#max.y)
+        this.#x = clamp(+x, this.#min.x, this.#max.x)
+        this.#y = clamp(+y, this.#min.y, this.#max.y)
         return this
     }
     add(x, y) {
         if (x instanceof v && y == null)
             [x, y] = x
-        this.set(this.x + x, this.y + y)
+        this.set(this.#x + x, this.#y + y)
         return this
     }
     subtract(x, y) {
         if (x instanceof v && y == null)
             [x, y] = x
-        return this.set(this.x - x, this.y - y)
+        return this.set(this.#x - x, this.#y - y)
     }
     divide(x, y) {
         if (x instanceof v && y == null)
             [x, y] = x
-        return this.set(this.x / x, this.y / y)
+        return this.set(this.#x / x, this.#y / y)
     }
     dividedBy(x, y) {
         return this.clone.divide(x, y)
@@ -392,20 +395,20 @@ class Vector2 {
     multiply(x, y) {
         if (x instanceof v && y == null)
             [x, y] = x
-        return this.set(this.x * x, this.y * y)
+        return this.set(this.#x * x, this.#y * y)
     }
     pow(x, y) {
         if (x instanceof v && y == null)
             [x, y] = x
-        return this.set(this.x ** x, this.y ** y)
+        return this.set(this.#x ** x, this.#y ** y)
     }
     *[Symbol.iterator]() {
-        yield this.x
-        yield this.y
+        yield this.#x
+        yield this.#y
     }
 }
 export const vect = new Proxy(Vector2, {
-    apply(target, thisArg, args) { return new target(...args) }
+    apply(target, _, args) { return new target(...args) }
 })
 const v = vect
 class COLOR_MANAGER {
@@ -413,8 +416,9 @@ class COLOR_MANAGER {
     static handler = {
         get(target, prop) {
             if (CSS.supports('color', prop)) {
-                COLOR_MANAGER.#canvas.strokeStyle = prop
-                return COLOR_MANAGER.#canvas.strokeStyle
+                const canvas = COLOR_MANAGER.#canvas
+                canvas.strokeStyle = prop
+                return canvas.strokeStyle
             }
             if (prop in target) return target[prop]
             throw TypeError('CSS does not support the color \'' + prop + '\'')

@@ -1,10 +1,10 @@
 const sym = Symbol("🔔"), //For keeping track of events
     //But to also not potentially collide with existing keys
     { warn, error } = console,
-    {isArray} = Array
+    { isArray } = Array
 export const allEvents = new WeakMap
-const eventGarbageCollectionCallback = 
-new FinalizationRegistry(function ([key, set]) { set.delete(key) })
+const eventGarbageCollectionCallback =
+    new FinalizationRegistry(function ([key, set]) { set.delete(key) })
 function verifyEventName(target, name) {
     name = name?.toLowerCase?.()
     if (name === 'domcontentloaded' && target instanceof Document ||
@@ -35,24 +35,25 @@ export function on(target, events) {
             continue
         }
         const corn = elem.all.get(target)
-        func = func.bind(corn instanceof elem ? corn : target)
+        let once = false,
+            prevents = false
+        func = new Proxy(func.bind(corn instanceof elem ? corn : target), {
+            apply(targ,_, argArray) {
+                once && off(target, eventName)
+                prevents && argArray[0].preventDefault?.()
+                return targ.apply(null, argArray)
+            }
+        })
         if (eventName.includes('_')) {
-            //Make an event that only triggers once,
+            //Event that only triggers once,
             //and then is discarded
             eventName = eventName.replace('_', '')
-            const oldFunc = func
-            func = (...args) => {
-                oldFunc.apply(null, args)
-                off(target, eventName)
-            }
+            once = true
         }
         if (eventName.includes('$')) {
-            const oldFunc = func
+            //Automatically calls prevent default
             eventName = eventName.replace('$', '')
-            func = (...args) => {
-                args[0]?.preventDefault()
-                oldFunc.apply(null, args)
-            }
+            prevents = true
         }
         verifyEventName(target, eventName)
         //event.target will be the proxy if it exists
@@ -106,6 +107,14 @@ export class elem {
     cont = null
     toString() {
         return this.cont.outerHTML
+    }
+    static {
+        Object.defineProperty(this.prototype, Symbol.iterator, {
+            *value() { const out = getElementsByTagName.call(this,'*'); yield* out },
+            writable: 1,
+            configurable: 1,
+            enumerable: 0
+        })
     }
     static verifyTarget(element) {
         //Okay this is really confusing but it works so
@@ -165,7 +174,7 @@ export class elem {
             { opacity: 1 },
             { opacity: 0 }
         ], { easing: 'ease', duration, fill: 'forwards' })
-        .finished
+            .finished
     }
     async fadeAndDestroy(duration = 500) {
         await this.fadeout(duration)
@@ -176,7 +185,7 @@ export class elem {
             { opacity: 0 },
             { opacity: 1 }
         ], { easing: 'ease', duration, fill: 'forwards' })
-        .finished
+            .finished
     }
     styleMe(styles) {
         if (!isArray(styles)) styles = Object.entries(styles)
@@ -185,7 +194,7 @@ export class elem {
             val += ''
             this.styles.set(prop, val)
             if (!val.trim()) this.styles.delete(prop)
-            if (val && !CSS.supports(prop, val)) warn(`⛓️‍💥 Unrecognized CSS in '${prop}: ${val}'`)
+            else if (!CSS.supports(prop, val)) warn(`⛓️‍💥 Unrecognized CSS in '${prop}: ${val}'`)
         }
         const final = extractCSSFromObject(Array.from(this.styles.entries()))
         return this.cont.style.cssText = final
@@ -222,6 +231,7 @@ export class elem {
             const kid = offsprings[length]
             while (kid.parent) kid.destroy()
         }
+        this.cont[sym]?.size && off(this.cont,...this.cont[sym])
         this.cont.remove()
     }
     #start(seed) {
@@ -285,10 +295,9 @@ export class elem {
     }
     empty() {
         const fragment = frag()
-        this.offsprings.forEach(child => {
-            child = child.cont
-            this.removeChild(child)
-            fragment.appendChild(child)
+        this.offsprings.forEach(({ cont }) => {
+            this.removeChild(cont)
+            fragment.appendChild(cont)
         })
         return fragment
     }
@@ -309,6 +318,9 @@ export class elem {
         return this.__properties__
     } */
     #logLevel = null
+    eval(code) {
+        return Function(`with(this)void class{static{${code}}}`).call(this)
+    }
     get tagname() {
         return this.cont.tagName
     }
@@ -319,7 +331,10 @@ export class elem {
         this.#logLevel = val
     }
     get firstChild() {
-        return this.cont.firstElementChild
+        return getProxy(this.cont.firstElementChild)
+    }
+    set firstChild(element) {
+        this.cont.insertBefore(elem.deverifyTarget(element),this.cont.firstElementChild)
     }
     __createProperty__(prop, val) {
         if (this.__hasProperty__(prop)) {
@@ -336,6 +351,7 @@ export class elem {
         return this.__properties__.set(prop, val)
     }
     get __element__() {
+        debugger
         return this.cont
     }
     __deleteProperty__(prop) {
@@ -363,33 +379,33 @@ export class elem {
         this.__properties__.clear()
     }
 }
-const {from} = Array
+const { from } = Array
 export function getElementsByTagName(tag) {
-    return from(document.getElementsByTagName(tag), getProxy)
+    return from((this??document).getElementsByTagName(tag), getProxy)
 }
 export function getElementsByClassName(CLASS) {
-    return from(document.getElementsByClassName(CLASS), getProxy)
+    return from((this??document).getElementsByClassName(CLASS), getProxy)
 }
 export function getElementsByName(name) {
-    return from(document.getElementsByName(name), getProxy)
+    return from((this??document).getElementsByName(name), getProxy)
 }
 export function getElementsByTagNameNS(name) {
-    return from(document.getElementsByTagNameNS(name), getProxy)
+    return from((this??document).getElementsByTagNameNS(name), getProxy)
 }
 export function getElementById(id) {
-    return getProxy(document.getElementById(id))
+return getProxy((this??document).getElementById(id))
 }
 export function querySelector(selector) {
-    return getProxy(document.querySelector(selector))
+return getProxy((this??document).querySelector(selector))
 }
 export function querySelectorAll(selector) {
-    return from(document.querySelectorAll(selector), getProxy)
+    return from((this??document).querySelectorAll(selector), getProxy)
 }
 export function getProxy(element) {
     return elem.verifyTarget(element)
 }
 /**
- * > New element
+ * New element
  * @param {String} tag An HTML element tag 
  * @param {Object} seed Object that describes the element
  * @returns Proxy instance
@@ -434,7 +450,7 @@ export function registerCSS(selector, rule) {
         addedStyleRules ??= $('style', { parent: document.head })
     sheet.insertRule(`${selector}{${extractCSSFromObject(rule)}}`)
 }
-if (typeof document !== 'undefined') {
+if (frag) {
     registerCSS('dialog', {
         transition: 'opacity 1s linear',
         "font-family": "Arial",
@@ -453,7 +469,7 @@ if (typeof document !== 'undefined') {
     })
 }
 export class CSSSyntax {
-    constructor(){throw TypeError("Illegal constructor")}
+    constructor() { throw TypeError("Illegal constructor") }
     static boxShadow({ offsetX = '0px', offsetY = '0px', blurRadius = '', spreadRadius = '', color = '#000000' }) {
         return `${color} ${offsetX} ${offsetY} ${blurRadius} ${spreadRadius}`.replaceAll('  ', '')
     }
@@ -471,7 +487,7 @@ export class CSSSyntax {
 }*/
 export function Alert(t, e) {
     const old = querySelector('dialog')
-    old?.close()
+    old?.close(),
     old?.destroy()
     return new Promise((o => { function n(t) { o(t), r.destroy() } let r = $("dialog", { events: { close() { n(t) } }, parent: document.body, os: [$("h1", { txt: t }), $("p", { txt: e }), $("form", { events: { submit() { n("OK") } }, method: "dialog", os: [$("button", { styles: { width: "200px", height: "30px" }, txt: "OK" })] })] }); r.showModal() }))
 }
@@ -482,18 +498,18 @@ function declareToAll(value) {
         }
     })
 }
-export 
-const { 
-    disabled,
-    resize,
-    multiple,
-    required,
-    readonly,
-    inert,
-    hidden,
-    open,
-    autofocus 
-} = declareToAll(true)
+export
+    const {
+        disabled,
+        resize,
+        multiple,
+        required,
+        readonly,
+        inert,
+        hidden,
+        open,
+        autofocus
+    } = declareToAll(true)
 export function FormDataManager(FormDataInstance) {
     if (!(FormDataInstance instanceof FormData)) FormDataInstance = new FormData(FormDataInstance)
     return new Proxy(FormDataInstance, {
