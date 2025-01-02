@@ -29,11 +29,6 @@ export function on(target, events) {
             once: false,
             passive: false,
         }
-
-        if (myEvents.has(eventName)) {
-            warn(`🔕 Duplicate '${eventName}' listener`)
-            continue
-        }
         const corn = elem.all.get(target)
         let once = false,
             prevents = false
@@ -54,6 +49,10 @@ export function on(target, events) {
             //Automatically calls prevent default
             eventName = eventName.replace('$', '')
             prevents = true
+        }
+        if (myEvents.has(eventName)) {
+            warn(`🔕 Duplicate '${eventName}' listener`)
+            continue
         }
         verifyEventName(target, eventName)
         //event.target will be the proxy if it exists
