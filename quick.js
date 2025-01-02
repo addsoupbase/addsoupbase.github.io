@@ -29,16 +29,9 @@ export function on(target, events) {
             once: false,
             passive: false,
         }
-        const corn = elem.all.get(target)
+        const corn = HTMLElementWrapper.all.get(target)
         let once = false,
             prevents = false
-        func = new Proxy(func.bind(corn instanceof elem ? corn : target), {
-            apply(targ,_, argArray) {
-                once && off(target, eventName)
-                prevents && argArray[0].preventDefault?.()
-                return targ.apply(null, argArray)
-            }
-        })
         if (eventName.includes('_')) {
             //Event that only triggers once,
             //and then is discarded
@@ -56,6 +49,13 @@ export function on(target, events) {
         }
         verifyEventName(target, eventName)
         //event.target will be the proxy if it exists
+        func = new Proxy(func.bind(corn instanceof HTMLElementWrapper ? corn : target), {
+            apply(targ, _, argArray) {
+                once && off(target, eventName)
+                prevents && argArray[0].preventDefault?.()
+                return targ.apply(null, argArray)
+            }
+        })
         eventGarbageCollectionCallback.register(func, [eventName, myEvents])
         target.addEventListener(eventName, func, options)
         if (!allEvents.has(target)) allEvents.set(target, new Map)
@@ -72,7 +72,7 @@ export function off(target, ...eventNames) {
 
     const map = allEvents.get(target),
         mySet = target[sym]
-    for (let{ length } = eventNames; length--;) {
+    for (let { length } = eventNames; length--;) {
         const name = eventNames[length],
             func = map.get(name)
         target.removeEventListener(name, func)
@@ -102,33 +102,47 @@ const
     deprecatedTags = /^(tt|acronym|big|center|dir|font|frame|frameset|marquee|nobr|noembed|noframes|param|plaintext|rb|rtc|strike|tt|xmp)$/i,
     svgTags = /^(animate|animateMotion|animateTransform|circle|clipPath|defs|desc|ellipse|feBlend|feColorMatrix|feComponentTransfer|feComposite|feConvolveMatrix|feDiffuseLighting|feDisplacementMap|feDistantLight|feDropShadow|feFlood|feFuncA|feFuncB|feFuncG|feFuncR|feGaussianBlur|feImage|feMerge|feMergeNode|feMorphology|feOffset|fePointLight|feSpecularLighting|feSpotLight|feTile|feTurbulence|filter|foreignObject|g|glyph|glyphRef|hkern|image|line|linearGradient|marker|mask|metadata|missing-glyph|mpath|path|pattern|polygon|polyline|radialGradient|rect|set|stop|svg|switch|symbol|text|textPath|tref|tspan|use|view|vkern)$/i
 //These SVG tags have to be treated differently
-export class elem {
+export class HTMLElementWrapper {
     cont = null
     toString() {
         return this.cont.outerHTML
     }
-    static {
-        Object.defineProperty(this.prototype, Symbol.iterator, {
-            *value() { const out = getElementsByTagName.call(this,'*'); yield* out },
-            writable: 1,
-            configurable: 1,
-            enumerable: 0
-        })
+    getElementById(id) {
+        return getElementById.call(this, id)
+    }
+    getElementsByClassName(classs) {
+        return getElementsByClassName.call(this, classs)
+    }
+    getElementsByTagName(name) {
+        return getElementsByName.call(this, name)
+    }
+    getElementsByName(name) {
+        return getElementsByName.call(this, name)
+    }
+    querySelector(selector) {
+        return querySelector.call(this, selector)
+    }
+    querySelectorAll(selector) {
+        return querySelectorAll.call(this, selector)
+    }
+    *[Symbol.iterator]() {
+        const out = getElementsByTagName.call(this, '*')
+        yield* out
     }
     static verifyTarget(element) {
         //Okay this is really confusing but it works so
-        let exists = elem.all.get(element)
-        if (element instanceof elem) return element
-        if (exists instanceof elem) return exists
-        return element ? elem.select(element) : element
+        let exists = HTMLElementWrapper.all.get(element)
+        if (element instanceof HTMLElementWrapper) return element
+        if (exists instanceof HTMLElementWrapper) return exists
+        return element ? HTMLElementWrapper.select(element) : element
     }
-    static deverifyTarget(Elem) {
+    static deverifyTarget(elemInstance) {
         //The opposite
-        if (!(Elem.cont instanceof elem)) return Elem.cont
-        return elem.all.get(Elem)
+        if (!(elemInstance.cont instanceof HTMLElementWrapper)) return elemInstance.cont
+        return HTMLElementWrapper.all.get(elemInstance)
     }
     static select(element) {
-        return elem.all.has(element) || new elem({ from: element })
+        return HTMLElementWrapper.all.has(element) || new HTMLElementWrapper({ from: element })
     }
     //Store every instance
     static all = new WeakMap
@@ -140,6 +154,7 @@ export class elem {
             if (typeof prop === 'string' && content.hasAttribute(prop)) return content.getAttribute(prop)
             let out = content[prop]
             if (typeof out === 'function') out = out.bind(content)
+            else if (out instanceof HTMLElement) out = getProxy(out)
             return out
         },
         set(target, prop, value) {
@@ -199,7 +214,7 @@ export class elem {
         return this.cont.style.cssText = final
     }
     constructor(seed = 'div') {
-        if (elem.all.has(this)) throw ReferenceError('🔍 Duplicate element detected')
+        if (HTMLElementWrapper.all.has(this)) throw ReferenceError('🔍 Duplicate element detected')
         if (typeof seed === 'string') seed = { tag: seed }
         let { from, tag = 'div', parent, offsprings, os } = seed,
             kids = offsprings ?? os,
@@ -216,8 +231,8 @@ export class elem {
         else this.cont = from ?? document.createElement(tag)
         if (deprecatedTags.test(tag)) warn(`♿️ Deprecated '${seed.tag}' tag usage`)
         this.__properties__ = new Map
-        const out = new Proxy(this, elem.#HANDLER)
-        elem.all.set(this.cont, out)
+        const out = new Proxy(this, HTMLElementWrapper.#HANDLER)
+        HTMLElementWrapper.all.set(this.cont, out)
         if (kids) out.offsprings = kids
         if (parent) out.parent = parent
         for (let { length } = classes; length--;) out.classList.add(classes[length])
@@ -230,7 +245,7 @@ export class elem {
             const kid = offsprings[length]
             while (kid.parent) kid.destroy()
         }
-        this.cont[sym]?.size && off(this.cont,...this.cont[sym])
+        this.cont[sym]?.size && off(this.cont, ...this.cont[sym])
         this.cont.remove()
     }
     #start(seed) {
@@ -308,7 +323,7 @@ export class elem {
     set offsprings(children) {
         const fragment = frag()
         for (let i = 0, { length } = children; i < length; ++i) {
-            let kid = elem.deverifyTarget(children[i])
+            let kid = HTMLElementWrapper.deverifyTarget(children[i])
             fragment.appendChild(kid)
         }
         this.cont.appendChild(fragment)
@@ -333,7 +348,7 @@ export class elem {
         return getProxy(this.cont.firstElementChild)
     }
     set firstChild(element) {
-        this.cont.insertBefore(elem.deverifyTarget(element),this.cont.firstElementChild)
+        this.cont.insertBefore(HTMLElementWrapper.deverifyTarget(element), this.cont.firstElementChild)
     }
     __createProperty__(prop, val) {
         if (this.__hasProperty__(prop)) {
@@ -380,28 +395,28 @@ export class elem {
 }
 const { from } = Array
 export function getElementsByTagName(tag) {
-    return from((this??document).getElementsByTagName(tag), getProxy)
+    return from((this ?? document).getElementsByTagName(tag), getProxy)
 }
 export function getElementsByClassName(CLASS) {
-    return from((this??document).getElementsByClassName(CLASS), getProxy)
+    return from((this ?? document).getElementsByClassName(CLASS), getProxy)
 }
 export function getElementsByName(name) {
-    return from((this??document).getElementsByName(name), getProxy)
+    return from((this ?? document).getElementsByName(name), getProxy)
 }
 export function getElementsByTagNameNS(name) {
-    return from((this??document).getElementsByTagNameNS(name), getProxy)
+    return from((this ?? document).getElementsByTagNameNS(name), getProxy)
 }
 export function getElementById(id) {
-return getProxy((this??document).getElementById(id))
+    return getProxy((this ?? document).getElementById(id))
 }
 export function querySelector(selector) {
-return getProxy((this??document).querySelector(selector))
+    return getProxy((this ?? document).querySelector(selector))
 }
 export function querySelectorAll(selector) {
-    return from((this??document).querySelectorAll(selector), getProxy)
+    return from((this ?? document).querySelectorAll(selector), getProxy)
 }
 export function getProxy(element) {
-    return elem.verifyTarget(element)
+    return HTMLElementWrapper.verifyTarget(element)
 }
 /**
  * New element
@@ -410,9 +425,9 @@ export function getProxy(element) {
  * @returns Proxy instance
  */
 function $(tag, seed) {
-    if (seed instanceof HTMLElement || seed instanceof elem) seed = { parent: seed }
+    if (seed instanceof HTMLElement || seed instanceof HTMLElementWrapper) seed = { parent: seed }
     seed.tag = tag
-    return new elem(seed)
+    return new HTMLElementWrapper(seed)
 }
 export default $
 export const SYMBOLS = [sym], setup = {
@@ -487,7 +502,7 @@ export class CSSSyntax {
 export function Alert(t, e) {
     const old = querySelector('dialog')
     old?.close(),
-    old?.destroy()
+        old?.destroy()
     return new Promise((o => { function n(t) { o(t), r.destroy() } let r = $("dialog", { events: { close() { n(t) } }, parent: document.body, os: [$("h1", { txt: t }), $("p", { txt: e }), $("form", { events: { submit() { n("OK") } }, method: "dialog", os: [$("button", { styles: { width: "200px", height: "30px" }, txt: "OK" })] })] }); r.showModal() }))
 }
 function declareToAll(value) {
