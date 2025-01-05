@@ -45,7 +45,7 @@ class RANDOM {
         return item
     }
     gen(length = 6) {
-        return from({ length }, this.#gen).join('');
+        return from({ length }, this.#gen).join('')
     }
     #gen() {
         return fromCodePoint(floor(random() * 0x110000))
@@ -54,7 +54,7 @@ class RANDOM {
         return new Proxy({ charCount }, { get: this.#randomizer })
     }
     #randomizer(target, prop) {
-        return target[prop] ??= gen(target.charCount)
+        return target[prop] ??= this.gen(target.charCount)
     }
 }
 class MATH {
@@ -347,7 +347,7 @@ class Vector2 {
         return (x1 === x2) && (y1 === y2)
     }
     lerp([x = y, y = x], time = 0.1, delta = 1) {
-        return this.subtract((this.minus(x, y)).scale((time) * delta))
+        return this.subtract((this.minus(x, y)).scale(time * delta))
     }
     clamp([minX = MIN_SAFE_INTEGER, minY = MIN_SAFE_INTEGER] = [], [maxX = MAX_SAFE_INTEGER, maxY = MAX_SAFE_INTEGER] = []) {
         this.clampX(minX, maxX)
@@ -371,8 +371,7 @@ class Vector2 {
     add(x, y) {
         if (x instanceof v && y == null)
             [x, y] = x
-        this.set(this.#x + x, this.#y + y)
-        return this
+        return this.set(this.#x + x, this.#y + y)
     }
     subtract(x, y) {
         if (x instanceof v && y == null)
@@ -408,7 +407,7 @@ class Vector2 {
     }
 }
 export const vect = new Proxy(Vector2, {
-    apply(target, _, args) { return new target(...args) }
+    apply(target, useless, args) { return new target(...args) }
 })
 const v = vect
 class COLOR_MANAGER {
