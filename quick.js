@@ -69,7 +69,6 @@ export function on(target, events) {
 export function off(target, ...eventNames) {
     if (!(target instanceof EventTarget) || !(target[sym] instanceof Set) || !allEvents.has(target))
         throw TypeError("🚫 Invalid event target")
-
     const map = allEvents.get(target),
         mySet = target[sym]
     for (let { length } = eventNames; length--;) {
@@ -82,9 +81,25 @@ export function off(target, ...eventNames) {
     }
 }
 export function until(target, eventName, timeout/* = 600000*/) {
-    return new Promise(function (resolve, reject) {
+    return new Promise(un)
+    /*                  */
+    function un(resolve, reject) {
         const id = timeout && setTimeout(reject, timeout, RangeError(`⏰ Promise for '${eventName}' expired after ${timeout} ms`))
-        on(target, {
+        const handleName = `on${eventName}`
+        if (target[handleName] === null) {
+            //Use the handler property if we can
+            target[handleName] = handler
+            function handler(event) {
+                try { resolve(event) }
+                catch (e) { reject(e) }
+                finally {
+                    target[handleName] = null
+                    timeout && clearTimeout(id)
+                }
+            }
+        }
+        else on(target, {
+            //Use the addEventListener
             [eventName](event) {
                 try { resolve(event) }
                 catch (e) { reject(e) }
@@ -94,7 +109,7 @@ export function until(target, eventName, timeout/* = 600000*/) {
                 }
             }
         })
-    })
+    }
 }
 
 const
@@ -103,9 +118,13 @@ const
     svgTags = /^(animate|animateMotion|animateTransform|circle|clipPath|defs|desc|ellipse|feBlend|feColorMatrix|feComponentTransfer|feComposite|feConvolveMatrix|feDiffuseLighting|feDisplacementMap|feDistantLight|feDropShadow|feFlood|feFuncA|feFuncB|feFuncG|feFuncR|feGaussianBlur|feImage|feMerge|feMergeNode|feMorphology|feOffset|fePointLight|feSpecularLighting|feSpotLight|feTile|feTurbulence|filter|foreignObject|g|glyph|glyphRef|hkern|image|line|linearGradient|marker|mask|metadata|missing-glyph|mpath|path|pattern|polygon|polyline|radialGradient|rect|set|stop|svg|switch|symbol|text|textPath|tref|tspan|use|view|vkern)$/i
 //These SVG tags have to be treated differently
 export class HTMLElementWrapper {
-    cont = null
-    toString() {
+    cont = null;
+    [Symbol.toPrimitive]() {
         return this.cont.outerHTML
+    }
+    *[Symbol.iterator]() {
+        const out = this.getElementsByTagName("*")
+        yield* out
     }
     getElementById(id) {
         return getElementById.call(this, id)
@@ -125,13 +144,9 @@ export class HTMLElementWrapper {
     querySelectorAll(selector) {
         return querySelectorAll.call(this, selector)
     }
-    *[Symbol.iterator]() {
-        const out = getElementsByTagName.call(this, '*')
-        yield* out
-    }
     static verifyTarget(element) {
         //Okay this is really confusing but it works so
-        let exists = HTMLElementWrapper.all.get(element)
+        const exists = HTMLElementWrapper.all.get(element)
         if (element instanceof HTMLElementWrapper) return element
         if (exists instanceof HTMLElementWrapper) return exists
         return element ? HTMLElementWrapper.select(element) : element
@@ -148,32 +163,29 @@ export class HTMLElementWrapper {
     static all = new WeakMap
     static #HANDLER = {
         get(target, prop) {
-            const content = target.cont
-            if (prop === 'cont') return content
+            const { cont } = target
+            if (prop === 'cont') return cont
             if (prop in target) return target[prop]
-            if (typeof prop === 'string' && content.hasAttribute(prop)) return content.getAttribute(prop)
-            let out = content[prop]
-            if (typeof out === 'function') out = out.bind(content)
+            if (typeof prop === 'string' && cont.hasAttribute(prop)) return cont.getAttribute(prop)
+            let out = cont[prop]
+            if (typeof out === 'function') out = out.bind(cont)
             else if (out instanceof HTMLElement) out = getProxy(out)
             return out
         },
         set(target, prop, value) {
-            const content = target.cont
+            const { cont } = target
             if (prop in target)
                 return Reflect.set(target, prop, value)
-            if (typeof prop === 'string' && content.hasAttribute(prop)) {
+            if (typeof prop === 'string' && cont.hasAttribute(prop)) {
                 let worked = 1
-                try {
-                    content.setAttribute(prop, value)
-                }
+                try { cont.setAttribute(prop, value) }
                 catch {
-                    --worked
+                    try { cont.attributeStyleMap.set(prop, value) }
+                    catch { --worked }
                 }
-                finally {
-                    return worked
-                }
+                finally { return worked }
             }
-            return Reflect.set(content, prop, value)
+            return Reflect.set(cont, prop, value)
         }
     }
     styles = new Map
@@ -205,7 +217,7 @@ export class HTMLElementWrapper {
         if (!isArray(styles)) styles = Object.entries(styles)
         for (let { length } = styles; length--;) {
             let [prop, val] = styles[length]
-            val += ''
+            val = `${val}`
             this.styles.set(prop, val)
             if (!val.trim()) this.styles.delete(prop)
             else if (!CSS.supports(prop, val)) warn(`⛓️‍💥 Unrecognized CSS in '${prop}: ${val}'`)
@@ -214,7 +226,7 @@ export class HTMLElementWrapper {
         return this.cont.style.cssText = final
     }
     constructor(seed = 'div') {
-        if (HTMLElementWrapper.all.has(this)) throw ReferenceError('🔍 Duplicate element detected')
+        if (new.target.all.has(this)) throw ReferenceError('🔍 Duplicate element detected')
         if (typeof seed === 'string') seed = { tag: seed }
         let { from, tag = 'div', parent, offsprings, os } = seed,
             kids = offsprings ?? os,
@@ -230,9 +242,9 @@ export class HTMLElementWrapper {
             this.cont = from ?? document.createElementNS('http://www.w3.org/2000/svg', tag)
         else this.cont = from ?? document.createElement(tag)
         if (deprecatedTags.test(tag)) warn(`♿️ Deprecated '${seed.tag}' tag usage`)
-        this.__properties__ = new Map
-        const out = new Proxy(this, HTMLElementWrapper.#HANDLER)
-        HTMLElementWrapper.all.set(this.cont, out)
+        //  this.__properties__ = new Map
+        const out = new Proxy(this, new.target.#HANDLER)
+        new.target.all.set(this.cont, out)
         if (kids) out.offsprings = kids
         if (parent) out.parent = parent
         for (let { length } = classes; length--;) out.classList.add(classes[length])
@@ -247,6 +259,10 @@ export class HTMLElementWrapper {
         }
         this.cont[sym]?.size && off(this.cont, ...this.cont[sym])
         this.cont.remove()
+        this.cont.getAnimations({ subtree: true }).forEach(removeAnimations)
+        function removeAnimations(anim) {
+            anim.cancel()
+        }
     }
     #start(seed) {
         let keys = Object.keys(seed),
@@ -278,6 +294,11 @@ export class HTMLElementWrapper {
         if ('txt' in seed) this.txt = seed.txt
         if (seed.tag === 'button' || seed.type === 'button') this.styleMe({ cursor: 'pointer' })
         if ('offsprings' in seed && 'os' in seed) warn('🚼 Child was overwritten')
+        if ('attributes' in seed) {
+            if (!Array.isArray(seed.attributes)) seed.attributes = Object.entries(seed.attributes)
+            for (let [attr, value] of seed.attributes)
+                this.cont.setAttribute(attr, value)
+        }
     }
     on(events) {
         return on(this.cont, events)
@@ -301,11 +322,56 @@ export class HTMLElementWrapper {
         return Array.from(this.cont.children, getProxy)
     }
     get txt() {
-        return this.cont.textContent
+        return this.textContent
     }
     set txt(val) {
-        if (this.cont.childElementCount) throw TypeError('🔏 Cannot set textContent of a parent element')
-        this.cont.textContent = val
+        this.textContent = val
+    }
+    static {
+        const { prototype } = this;
+        //Safeguards
+        ['innerHTML', 'innerText', 'textContent'].forEach(go)
+        function go(name) {
+            Object.defineProperty(prototype, name, {
+                get() {
+                    return this.cont[name]
+                },
+                set(value) {
+                    if (this.cont.childElementCount) throw TypeError(`🔏 Cannot set '${name}' of a parent element`)
+                    this.cont[name] = value
+                }
+            })
+        }
+    }
+    pop() {
+        const { lastElementChild } = this.cont
+        if (lastElementChild) {
+            this.cont.removeChild(lastElementChild)
+            return getProxy(lastElementChild)
+        }
+    }
+    push(...children) {
+        return children.length && this.cont.appendChild.apply(this.cont, children)
+    }
+    unshift(...children) {
+        return children.length && this.cont.prepend.apply(this.cont, children)
+    }
+    shift() {
+        const { firstChild } = this
+        this.cont.removeChild(firstChild)
+        return firstChild
+    }
+    at(index) {
+        return this.offsprings.at(index)
+    }
+    forEach(func, thisArg) {
+        this.offsprings.forEach(func, thisArg)
+    }
+    every(testFunc) {
+        return this.offsprings.every(testFunc)
+    }
+    find(testFunc) {
+        return this.offsprings.find(testFunc)
     }
     empty() {
         const fragment = frag()
@@ -328,70 +394,67 @@ export class HTMLElementWrapper {
         }
         this.cont.appendChild(fragment)
     }
-    /*get properties() {
-        return this.__properties__
-    } */
-    #logLevel = null
+    // #logLevel = null
     eval(code) {
         return Function(`with(this)void class{static{${code}}}`).call(this)
     }
     get tagname() {
         return this.cont.tagName
     }
-    get __logLevel__() {
-        return this.#logLevel
-    }
-    set __logLevel__(val) {
-        this.#logLevel = val
-    }
+    /* get __logLevel__() {
+         return this.#logLevel
+     }
+     set __logLevel__(val) {
+         this.#logLevel = val
+     }*/
     get firstChild() {
         return getProxy(this.cont.firstElementChild)
     }
     set firstChild(element) {
         this.cont.insertBefore(HTMLElementWrapper.deverifyTarget(element), this.cont.firstElementChild)
     }
-    __createProperty__(prop, val) {
-        if (this.__hasProperty__(prop)) {
-            error(prop)
-            throw TypeError('The property above already exists in this object')
-        }
-        return this.__properties__.set(prop, val)
-    }
-    __setProperty__(prop, val) {
-        if (!this.__hasProperty__(prop)) {
-            error(prop)
-            throw TypeError('The property above does not exist in this object')
-        }
-        return this.__properties__.set(prop, val)
-    }
-    get __element__() {
-        debugger
-        return this.cont
-    }
-    __deleteProperty__(prop) {
-        if (!this.__hasProperty__(prop)) {
-            error(prop)
-            throw TypeError('The property above does not exist in this object')
-        }
-        this.__properties__.delete(prop)
-    }
-    __hasProperty__(prop) {
-        return this.__properties__.has(prop)
-    }
-    __set__(prop, val) {
-        if (this.__hasProperty__(prop)) return this.__setProperty__(prop, val)
-        this.__createProperty__(prop, val)
-    }
-    __getProperty__(prop) {
-        if (!this.__hasProperty__(prop)) {
-            error('Property: ', prop)
-            throw TypeError('The property above does not exist in this object')
-        }
-        return this.__properties__.get(prop)
-    }
-    __deleteProperties__() {
-        this.__properties__.clear()
-    }
+    /* __createProperty__(prop, val) {
+         if (this.__hasProperty__(prop)) {
+             error(prop)
+             throw TypeError('The property above already exists in this object')
+         }
+         return this.__properties__.set(prop, val)
+     }
+     __setProperty__(prop, val) {
+         if (!this.__hasProperty__(prop)) {
+             error(prop)
+             throw TypeError('The property above does not exist in this object')
+         }
+         return this.__properties__.set(prop, val)
+     }
+     get __element__() {
+         debugger
+         return this.cont
+     }
+     __deleteProperty__(prop) {
+         if (!this.__hasProperty__(prop)) {
+             error(prop)
+             throw TypeError('The property above does not exist in this object')
+         }
+         this.__properties__.delete(prop)
+     }
+     __hasProperty__(prop) {
+         return this.__properties__.has(prop)
+     }
+     __set__(prop, val) {
+         if (this.__hasProperty__(prop)) return this.__setProperty__(prop, val)
+         this.__createProperty__(prop, val)
+     }
+     __getProperty__(prop) {
+         if (!this.__hasProperty__(prop)) {
+             error('Property: ', prop)
+             throw TypeError('The property above does not exist in this object')
+         }
+         return this.__properties__.get(prop)
+     }
+     __deleteProperties__() {
+         this.__properties__.clear()
+     }*/
 }
 const { from } = Array
 export function getElementsByTagName(tag) {
@@ -452,7 +515,7 @@ function extractCSSFromObject(obj) {
     if (!isArray(obj)) obj = Object.entries(obj)
     for (let [prop, val] of obj)
         arr.push(`${prop}:${val}`)
-    return arr.join(';') + ';'
+    return `${arr.join(';')};`
 }
 /** 
  *  ⚠️ Should only be used for dynamic/default CSS

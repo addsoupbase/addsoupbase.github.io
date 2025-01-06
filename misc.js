@@ -155,6 +155,9 @@ class STRING {
     formatNumber(num) {
         return (+num).toLocaleString()
     }
+    upper(string) {
+        return string[0].toUpperCase() + string.slice(1)
+    }
     replace(string, ...subs) {
         let allMatches = string.match(RegExp('\\' + this.placeholder, 'g'))
         if (subs.length !== allMatches?.length) throw RangeError("Invalid input")
@@ -190,7 +193,7 @@ class STRING {
 class ARR {
     assemble(arrayLike, ...sequence) {
         const out = []
-        for (let { length } = sequence, i = 0; i < length; ++i) out.push(arrayLike.at(sequence[i]));
+        for (let { length } = sequence, i = 0; i < length; ++i) out.push(arrayLike.at(sequence[i]))
         return out
     }
     with(length, filler) {
