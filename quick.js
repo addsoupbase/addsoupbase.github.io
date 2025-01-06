@@ -133,7 +133,7 @@ export class HTMLElementWrapper {
         return getElementsByClassName.call(this, classs)
     }
     getElementsByTagName(name) {
-        return getElementsByName.call(this, name)
+        return getElementsByTagName.call(this, name)
     }
     getElementsByName(name) {
         return getElementsByName.call(this, name)
