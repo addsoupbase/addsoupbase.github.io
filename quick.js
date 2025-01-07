@@ -14,7 +14,7 @@ function verifyEventName(target, name) {
     if (!(`on${name}` in target)) throw TypeError(`🔇 Cannot listen for '${name}' events`)
     //Check if handler with name exists
 }
-export function on(target, events) {
+export function on(target, events, useHandler) {
     if (!(target instanceof EventTarget)) throw TypeError("🚫 Invalid event target")
     if (!(target[sym] instanceof Set))
         //This will hold the NAMES of the events
@@ -54,20 +54,23 @@ export function on(target, events) {
                 once && off(target, eventName)
                 if (prevents) {
                     const [event] = argArray
-                    event.cancelable? 
-                    event.preventDefault(): 
-                    warn(`🔊 '${eventName}' events are not cancelable`)
+                    event.cancelable ?
+                        event.preventDefault() :
+                        warn(`🔊 '${eventName}' events are not cancelable`)
                 }
                 return targ.apply(null, argArray)
             }
         })
         eventGarbageCollectionCallback.register(func, [eventName, myEvents])
-        target.addEventListener(eventName, func, options)
-        if (!allEvents.has(target)) allEvents.set(target, new Map)
-        //A Map to hold the names & events
-        const myGlobalEventMap = allEvents.get(target)
-        myGlobalEventMap.set(eventName, func)
-        myEvents.add(eventName)
+        if (useHandler) target[`on${eventName}`] = func
+        else {
+            target.addEventListener(eventName, func, options)
+            if (!allEvents.has(target)) allEvents.set(target, new Map)
+            //A Map to hold the names & events
+            const myGlobalEventMap = allEvents.get(target)
+            myGlobalEventMap.set(eventName, func)
+            myEvents.add(eventName)
+        }
     }
     return target
 }
@@ -82,7 +85,7 @@ export function off(target, ...eventNames) {
         target.removeEventListener(name, func)
         map.delete(name)
         mySet.delete(name)
-        if (!map.size) allEvents.delete(target)
+        map.size || allEvents.delete(target)
     }
 }
 export function until(target, eventName, timeout/* = 600000*/) {
@@ -128,8 +131,7 @@ export class HTMLElementWrapper {
         return this.cont.outerHTML
     }
     *[Symbol.iterator]() {
-        const out = this.getElementsByTagName("*")
-        yield* out
+        yield* this.getElementsByTagName("*")
     }
     getElementById(id) {
         return getElementById.call(this, id)
@@ -533,7 +535,7 @@ export function registerCSS(selector, rule) {
         addedStyleRules ??= $('style', { parent: document.head })
     sheet.insertRule(`${selector}{${extractCSSFromObject(rule)}}`)
 }
-if (frag) 
+if (frag)
     registerCSS('dialog', {
         transition: 'opacity 1s linear',
         "font-family": "Arial",
@@ -542,14 +544,14 @@ if (frag)
         height: "150px",
         "word-break": "break-word"
     }),
-    registerCSS('.centerx,.center', {
-        'justify-self': 'center'
-    }),
-    registerCSS('.centery,.center', {
-        'align-self': 'center',
-        inset: 0,
-        position: 'fixed'
-    })
+        registerCSS('.centerx,.center', {
+            'justify-self': 'center'
+        }),
+        registerCSS('.centery,.center', {
+            'align-self': 'center',
+            inset: 0,
+            position: 'fixed'
+        })
 
 export class CSSSyntax {
     constructor() { throw TypeError("Illegal constructor") }
@@ -570,7 +572,7 @@ export class CSSSyntax {
 }*/
 export function Alert(t, e) {
     const old = querySelector('dialog')
-    old?.close() , old?.destroy()
+    old?.close(), old?.destroy()
     return new Promise((o => { function n(t) { o(t), r.destroy() } let r = $("dialog", { events: { close() { n(t) } }, parent: document.body, os: [$("h1", { txt: t }), $("p", { txt: e }), $("form", { events: { submit() { n("OK") } }, method: "dialog", os: [$("button", { styles: { width: "200px", height: "30px" }, txt: "OK" })] })] }); r.showModal() }))
 }
 function declareToAll(value) {
@@ -611,4 +613,13 @@ export function FormDataManager(FormDataInstance) {
         }
     })
 }
+on(window, {
+    offline() {
+        reportError(new DOMException(`⛓️‍💥 Disconnected at ${new Date().toLocaleTimeString()}`, 'NetworkError'))
+    },
+    online() {
+        console.log(`🛜 Reconnected at ${new Date().toLocaleTimeString()}`, navigator.connection)
+    }
+}, true)
+
 declareToAll = null
