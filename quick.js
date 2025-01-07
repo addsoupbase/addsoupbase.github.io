@@ -52,7 +52,12 @@ export function on(target, events) {
         func = new Proxy(func.bind(corn instanceof HTMLElementWrapper ? corn : target), {
             apply(targ, _, argArray) {
                 once && off(target, eventName)
-                prevents && argArray[0].preventDefault?.()
+                if (prevents) {
+                    const [event] = argArray
+                    event.cancelable? 
+                    event.preventDefault(): 
+                    warn(`🔊 '${eventName}' events are not cancelable`)
+                }
                 return targ.apply(null, argArray)
             }
         })
@@ -64,7 +69,7 @@ export function on(target, events) {
         myGlobalEventMap.set(eventName, func)
         myEvents.add(eventName)
     }
-    return events
+    return target
 }
 export function off(target, ...eventNames) {
     if (!(target instanceof EventTarget) || !(target[sym] instanceof Set) || !allEvents.has(target))
@@ -93,7 +98,7 @@ export function until(target, eventName, timeout/* = 600000*/) {
                 try { resolve(event) }
                 catch (e) { reject(e) }
                 finally {
-                    target[handleName] = null
+                    delete target[handleName]
                     timeout && clearTimeout(id)
                 }
             }
@@ -295,7 +300,7 @@ export class HTMLElementWrapper {
         if (seed.tag === 'button' || seed.type === 'button') this.styleMe({ cursor: 'pointer' })
         if ('offsprings' in seed && 'os' in seed) warn('🚼 Child was overwritten')
         if ('attributes' in seed) {
-            if (!Array.isArray(seed.attributes)) seed.attributes = Object.entries(seed.attributes)
+            if (!isArray(seed.attributes)) seed.attributes = Object.entries(seed.attributes)
             for (let [attr, value] of seed.attributes)
                 this.cont.setAttribute(attr, value)
         }
@@ -311,6 +316,7 @@ export class HTMLElementWrapper {
         for (let [attr, val] of attributes) this.cont.setAttribute(attr, val)
     }
     set parent(element) {
+        if (element == null) return this.cont.remove()
         element = getProxy(element)
         if (typeof element.appendChild !== 'function') debugger
         element.appendChild(this.cont)
@@ -493,11 +499,11 @@ function $(tag, seed) {
     return new HTMLElementWrapper(seed)
 }
 export default $
-export const SYMBOLS = [sym], setup = {
+/*export const SYMBOLS = [sym], setup = {
     get body() {
         return $('body', { parent: document.documentElement, from: document.body ?? document.createElement('body') })
     }
-}
+}*/
 export async function importFont(name, src) {
     if (!name || !src) throw TypeError('❔ More arguments needed')
     const font = new FontFace(name, `url(${src})`)
@@ -527,7 +533,7 @@ export function registerCSS(selector, rule) {
         addedStyleRules ??= $('style', { parent: document.head })
     sheet.insertRule(`${selector}{${extractCSSFromObject(rule)}}`)
 }
-if (frag) {
+if (frag) 
     registerCSS('dialog', {
         transition: 'opacity 1s linear',
         "font-family": "Arial",
@@ -535,16 +541,16 @@ if (frag) {
         width: "300px",
         height: "150px",
         "word-break": "break-word"
-    })
+    }),
     registerCSS('.centerx,.center', {
         'justify-self': 'center'
-    })
+    }),
     registerCSS('.centery,.center', {
         'align-self': 'center',
         inset: 0,
         position: 'fixed'
     })
-}
+
 export class CSSSyntax {
     constructor() { throw TypeError("Illegal constructor") }
     static boxShadow({ offsetX = '0px', offsetY = '0px', blurRadius = '', spreadRadius = '', color = '#000000' }) {
@@ -564,8 +570,7 @@ export class CSSSyntax {
 }*/
 export function Alert(t, e) {
     const old = querySelector('dialog')
-    old?.close(),
-        old?.destroy()
+    old?.close() , old?.destroy()
     return new Promise((o => { function n(t) { o(t), r.destroy() } let r = $("dialog", { events: { close() { n(t) } }, parent: document.body, os: [$("h1", { txt: t }), $("p", { txt: e }), $("form", { events: { submit() { n("OK") } }, method: "dialog", os: [$("button", { styles: { width: "200px", height: "30px" }, txt: "OK" })] })] }); r.showModal() }))
 }
 function declareToAll(value) {
