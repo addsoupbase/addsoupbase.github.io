@@ -495,11 +495,25 @@ export function getProxy(element) {
  * @param {Object} seed Object that describes the element
  * @returns Proxy instance
  */
-function $(tag, seed) {
+const $ = new Proxy(HTMLElementWrapper, {
+    get(target, prop) {
+        return target[prop]
+    },
+    set(target, prop, value) {
+        return Reflect.set(target, prop, value)
+    },
+    apply(target, _, args) {
+        let [tag, seed] = args
+        if (seed instanceof target || seed instanceof target) seed = { parent: seed }
+        seed.tag = tag
+        return new target(seed)
+    }
+})
+/*function $(tag, seed) {
     if (seed instanceof HTMLElement || seed instanceof HTMLElementWrapper) seed = { parent: seed }
     seed.tag = tag
     return new HTMLElementWrapper(seed)
-}
+}*/
 export default $
 /*export const SYMBOLS = [sym], setup = {
     get body() {
@@ -570,6 +584,43 @@ export class CSSSyntax {
         })
     }
 }*/
+class StorageProxy {
+    static #handler = Object.assign(function () { }, {
+        get(target, prop) {
+            if (!isNaN(prop)) 
+                return target.key(prop)
+            
+            return target.getItem(prop)
+        },
+        has(target,prop) {
+            return target.getItem(prop) != null
+        },
+        deleteProperty(target,prop) {
+            target.removeItem(prop)
+            return true
+        },
+        apply(target) {
+            target.clear()
+        },
+        set(target,prop,value) {
+            try {
+                return target.setItem(prop,value),true
+            }
+            catch {
+                return false
+            }
+        }
+    })
+    constructor(storage) {
+        if (storage instanceof Storage)
+            return new Proxy(storage, StorageProxy.#handler)
+        throw TypeError("Illegal constructor")
+    }
+}
+export const lstorage = typeof localStorage !== 'undefined' && 
+new StorageProxy(localStorage),
+sstorage = typeof sessionStorage !== 'undefined' && 
+new StorageProxy(sessionStorage)
 export function Alert(t, e) {
     const old = querySelector('dialog')
     old?.close(), old?.destroy()
