@@ -58,9 +58,9 @@ class RANDOM {
     }
 }
 class MATH {
-    isInt(num) {
+   /* isInt(num) {
         return isInteger(num)
-    }
+    }*/
     maxBigInt(bigInt, ...bigInts) {
         if (bigInt == null) throw TypeError('More arguments needed')
         let maximum = bigInt

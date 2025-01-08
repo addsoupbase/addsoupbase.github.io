@@ -585,7 +585,7 @@ export class CSSSyntax {
     }
 }*/
 class StorageProxy {
-    static #handler = Object.assign(function () { }, {
+    static #handler = Object.assign(()=>{}, {
         get(target, prop) {
             if (!isNaN(prop)) 
                 return target.key(prop)
