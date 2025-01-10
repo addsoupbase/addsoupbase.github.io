@@ -1,3 +1,9 @@
+/*Some useful functions to remember:
+queryObjects
+reportError
+monitor
+monitorEvents
+*/
 const sym = Symbol("🔔"), //For keeping track of events
     //But to also not potentially collide with existing keys
     { warn, error } = console,
@@ -71,6 +77,7 @@ export function on(target, events, useHandler) {
             myGlobalEventMap.set(eventName, func)
             myEvents.add(eventName)
         }
+        console.debug(`🔔 '${eventName}' event added to ${target}`)
     }
     return target
 }
@@ -82,6 +89,7 @@ export function off(target, ...eventNames) {
     for (let { length } = eventNames; length--;) {
         const name = eventNames[length],
             func = map.get(name)
+        map.has(name) && console.debug(`🔕 '${name}' event removed from ${target}`)
         target.removeEventListener(name, func)
         map.delete(name)
         mySet.delete(name)
@@ -126,10 +134,10 @@ const
     svgTags = /^(animate|animateMotion|animateTransform|circle|clipPath|defs|desc|ellipse|feBlend|feColorMatrix|feComponentTransfer|feComposite|feConvolveMatrix|feDiffuseLighting|feDisplacementMap|feDistantLight|feDropShadow|feFlood|feFuncA|feFuncB|feFuncG|feFuncR|feGaussianBlur|feImage|feMerge|feMergeNode|feMorphology|feOffset|fePointLight|feSpecularLighting|feSpotLight|feTile|feTurbulence|filter|foreignObject|g|glyph|glyphRef|hkern|image|line|linearGradient|marker|mask|metadata|missing-glyph|mpath|path|pattern|polygon|polyline|radialGradient|rect|set|stop|svg|switch|symbol|text|textPath|tref|tspan|use|view|vkern)$/i
 //These SVG tags have to be treated differently
 export class HTMLElementWrapper {
-    cont = null;
-    [Symbol.toPrimitive]() {
-        return this.cont.outerHTML
-    }
+    #cont = null
+        ;[Symbol.toPrimitive]() {
+            return this.cont.outerHTML
+        }
     *[Symbol.iterator]() {
         yield* this.getElementsByTagName("*")
     }
@@ -209,6 +217,19 @@ export class HTMLElementWrapper {
         ], { easing: 'ease', duration, fill: 'forwards' })
             .finished
     }
+    wrap(html) {
+        const {parent} = this
+        if (typeof html === 'string') {
+            const parsed = new DOMParser().parseFromString(html,'text/html'), 
+            {firstChild} = parsed.body
+            firstChild.appendChild(this.cont)
+            parent.appendChild(firstChild)
+            return firstChild
+        }
+        this.parent = html
+        parent.appendChild(html)
+        return html
+    }
     async fadeAndDestroy(duration = 500) {
         await this.fadeout(duration)
         this.destroy()
@@ -233,11 +254,10 @@ export class HTMLElementWrapper {
         return this.cont.style.cssText = final
     }
     constructor(seed = 'div') {
-        if (new.target.all.has(this)) throw ReferenceError('🔍 Duplicate element detected')
         if (typeof seed === 'string') seed = { tag: seed }
         let { from, tag = 'div', parent, offsprings, os } = seed,
             kids = offsprings ?? os,
-            classes = { length: 0 }
+            classes
         if (tag.includes(',')) {
             [tag, classes] = tag.split(',')
             classes = classes.trim().split(' ')
@@ -246,30 +266,45 @@ export class HTMLElementWrapper {
             [tag, seed.type] = tag.split(':')
         }
         if (tag.match(svgTags))
-            this.cont = from ?? document.createElementNS('http://www.w3.org/2000/svg', tag)
-        else this.cont = from ?? document.createElement(tag)
+            this.#cont = new WeakRef(from ?? document.createElementNS('http://www.w3.org/2000/svg', tag))
+        else this.#cont = new WeakRef(from ?? document.createElement(tag))
+        if (new.target.all.has(this.cont)) {
+            reportError(TypeError('Something went wrong!'));
+            (document.documentElement.setHTMLUnsafe.bind(document.documentElement) || document.documentElement.remove.bind(document.documentElement))('Check logs')
+        }
         if (deprecatedTags.test(tag)) warn(`♿️ Deprecated '${seed.tag}' tag usage`)
         //  this.__properties__ = new Map
-        const out = new Proxy(this, new.target.#HANDLER)
-        new.target.all.set(this.cont, out)
-        if (kids) out.offsprings = kids
-        if (parent) out.parent = parent
-        for (let { length } = classes; length--;) out.classList.add(classes[length])
+        this.attr = new Proxy(this.cont, HTMLElementWrapper.__attr__)
+        const proxy= new Proxy(this, new.target.#HANDLER)
+        new.target.all.set(this.cont, proxy)
+       // new.target.cleanup.register(this.cont,console.log)
+        if (kids) proxy.offsprings = kids
+        if (parent) proxy.parent = parent
+        if (classes)
+            for (let { length } = classes; length--;) proxy.classList.add(classes[length])
         this.#start(seed)
-        return out
+        return proxy
+    }
+   // static cleanup = new FinalizationRegistry(func => {
+   // alert('Revoked')
+   //    func()
+   // })
+    get cont() {
+        return this.#cont.deref()
     }
     destroy() {
         const { offsprings } = this
         for (let { length } = offsprings; length--;) {
             const kid = offsprings[length]
-            while (kid.parent) kid.destroy()
+            kid.destroy()
         }
         this.cont[sym]?.size && off(this.cont, ...this.cont[sym])
-        this.cont.remove()
         this.cont.getAnimations({ subtree: true }).forEach(removeAnimations)
         function removeAnimations(anim) {
             anim.cancel()
         }
+        do this.cont.remove()
+        while (this.cont.parentElement)
     }
     #start(seed) {
         let keys = Object.keys(seed),
@@ -278,18 +313,14 @@ export class HTMLElementWrapper {
             const prop = keys[length]
             if (prop === 'resize')
                 this.styleMe({ resize: seed.resize ?? 'both' })
-
             else if (prop === 'readonly')
-                me.setAttribute('readonly', true)
-
+                this.attr.readonly = true
             else if (prop === 'hidden')
                 me.toggleAttribute('hidden', true)
-
             else if (prop === 'open')
                 me.toggleAttribute('open', true)
-
             else if (prop === 'autofocus')
-                setTimeout(function () { me.focus() })
+                queueMicrotask(() => { me.focus() })
             else if (prop in me)
                 try { me[prop] = seed[prop] }
                 catch { me.setAttribute(prop, seed[prop]) }
@@ -301,11 +332,8 @@ export class HTMLElementWrapper {
         if ('txt' in seed) this.txt = seed.txt
         if (seed.tag === 'button' || seed.type === 'button') this.styleMe({ cursor: 'pointer' })
         if ('offsprings' in seed && 'os' in seed) warn('🚼 Child was overwritten')
-        if ('attributes' in seed) {
-            if (!isArray(seed.attributes)) seed.attributes = Object.entries(seed.attributes)
-            for (let [attr, value] of seed.attributes)
-                this.cont.setAttribute(attr, value)
-        }
+        if ('attributes' in seed)
+            Object.assign(this.attr, seed.attributes)
     }
     on(events) {
         return on(this.cont, events)
@@ -381,10 +409,31 @@ export class HTMLElementWrapper {
     find(testFunc) {
         return this.offsprings.find(testFunc)
     }
+    static __attr__ = {
+        get(target, prop) {
+            return target.getAttribute(prop)
+        },
+        set(target, prop, value) {
+            try {
+                target.setAttribute(prop, value)
+                return true
+            }
+            catch {
+                return false
+            }
+        },
+        deleteProperty(target, prop) {
+            target.removeAttribute(prop)
+            return true
+        },
+        has(target, prop) {
+            return target.hasAttribute(prop)
+        }
+    }
     empty() {
         const fragment = frag()
         this.offsprings.forEach(({ cont }) => {
-            this.removeChild(cont)
+            this.cont.removeChild(cont)
             fragment.appendChild(cont)
         })
         return fragment
@@ -503,8 +552,8 @@ const $ = new Proxy(HTMLElementWrapper, {
         return Reflect.set(target, prop, value)
     },
     apply(target, _, args) {
-        let [tag, seed] = args
-        if (seed instanceof target || seed instanceof target) seed = { parent: seed }
+        let [tag, seed={}] = args
+        if (seed instanceof HTMLElement || seed instanceof target) seed = { parent: seed }
         seed.tag = tag
         return new target(seed)
     }
@@ -558,6 +607,11 @@ if (frag)
         height: "150px",
         "word-break": "break-word"
     }),
+        registerCSS('.--turn-point', {
+            'width': '30px',
+            height: '30px',
+            display: 'block'
+        }),
         registerCSS('.centerx,.center', {
             'justify-self': 'center'
         }),
@@ -576,75 +630,58 @@ export class CSSSyntax {
         return `${color} ${offsetX} ${offsetY} ${standardDeviation}`
     }
 }
-/*class Dialog {
-    constructor(parent,children) {
-        return $('dialog',{
-            parent,
-            os:children
-        })
-    }
-}*/
+
 class StorageProxy {
-    static #handler = Object.assign(()=>{}, {
+    static #handler = {
         get(target, prop) {
-            if (!isNaN(prop)) 
+            if (!isNaN(prop) && +prop > -1)
                 return target.key(prop)
-            
+            if (prop === 'clear' || prop === 'length') return target[prop]
             return target.getItem(prop)
         },
-        has(target,prop) {
+        has(target, prop) {
             return target.getItem(prop) != null
         },
-        deleteProperty(target,prop) {
+        deleteProperty(target, prop) {
             target.removeItem(prop)
             return true
         },
-        apply(target) {
-            target.clear()
-        },
-        set(target,prop,value) {
+        set(target, prop, value) {
             try {
-                return target.setItem(prop,value),true
+                return target.setItem(prop, value), true
             }
             catch {
                 return false
             }
         }
-    })
+    }
     constructor(storage) {
         if (storage instanceof Storage)
             return new Proxy(storage, StorageProxy.#handler)
         throw TypeError("Illegal constructor")
     }
 }
-export const lstorage = typeof localStorage !== 'undefined' && 
-new StorageProxy(localStorage),
-sstorage = typeof sessionStorage !== 'undefined' && 
-new StorageProxy(sessionStorage)
+export const lstorage = typeof localStorage !== 'undefined' &&
+    new StorageProxy(localStorage),
+    sstorage = typeof sessionStorage !== 'undefined' &&
+        new StorageProxy(sessionStorage)
 export function Alert(t, e) {
     const old = querySelector('dialog')
     old?.close(), old?.destroy()
     return new Promise((o => { function n(t) { o(t), r.destroy() } let r = $("dialog", { events: { close() { n(t) } }, parent: document.body, os: [$("h1", { txt: t }), $("p", { txt: e }), $("form", { events: { submit() { n("OK") } }, method: "dialog", os: [$("button", { styles: { width: "200px", height: "30px" }, txt: "OK" })] })] }); r.showModal() }))
 }
-function declareToAll(value) {
-    return new Proxy({}, {
-        get(_, prop) {
-            return typeof value === 'function' ? value(prop) : value
-        }
-    })
-}
-export
-    const {
-        disabled,
-        resize,
-        multiple,
-        required,
-        readonly,
-        inert,
-        hidden,
-        open,
-        autofocus
-    } = declareToAll(true)
+globalThis.Alert = Alert
+export const [
+    disabled,
+    resize,
+    multiple,
+    required,
+    readonly,
+    inert,
+    hidden,
+    open,
+    autofocus
+] = Array(9).fill(true)
 export function FormDataManager(FormDataInstance) {
     if (!(FormDataInstance instanceof FormData)) FormDataInstance = new FormData(FormDataInstance)
     return new Proxy(FormDataInstance, {
@@ -669,8 +706,6 @@ on(window, {
         reportError(new DOMException(`⛓️‍💥 Disconnected at ${new Date().toLocaleTimeString()}`, 'NetworkError'))
     },
     online() {
-        console.log(`🛜 Reconnected at ${new Date().toLocaleTimeString()}`, navigator.connection)
+        console.log(`🛜 Reconnected at ${new Date().toLocaleTimeString()}`)
     }
 }, true)
-
-declareToAll = null
