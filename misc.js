@@ -145,82 +145,87 @@ class MATH {
         }
     }
 }
-class STRING {
-    alphabet = 'abcdefghijklmnopqrstuvwxyz'
-    ALPHABET = this.alphabet.toUpperCase()
-    numbers = '0123456789'
-    months = 'January February March April May June July August September October November December'
-    .split(' ')
-    days = 'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'
-    .split(' ')
-    placeholder = '$'
+export const string = {
+    __proto__: null,
+    ALPHABET: 'abcdefghijklmnopqrstuvwxyz'.toUpperCase(),
+    alphabet: 'abcdefghijklmnopqrstuvwxyz',
+    numbers: '0123456789',
+    months: 'January February March April May June July August September October November December'
+        .split(' '),
+    days: 'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'
+        .split(' '),
+    placeholder: '$',
     formatNumber(num) {
         return (+num).toLocaleString()
-    }
+    },
     upper(string) {
         return string[0].toUpperCase() + string.slice(1)
-    }
+    },
     replace(string, ...subs) {
         let allMatches = string.match(RegExp('\\' + this.placeholder, 'g'))
         if (subs.length !== allMatches?.length) throw RangeError("Invalid input")
         let newstring = string
         subs.forEach(char => { newstring = newstring.replace(this.placeholder, char) })
         return newstring
-    }
+    },
     formatWord(str) {
         return /[aeiou]/i.test(str[0]) ? 'an ' + str : 'a ' + str
-    }
+    },
     shorten(str, length, tail) {
         if (!length) throw RangeError('Length must be present')
         let out = str.slice(0, length)
         return str.length > length ? out += tail || '' : out
-    }
+    },
     clip(str, length) {
         return str.slice(length, str.length - length)
-    }
+    },
     reverse(str) {
         return str.split('').toReversed().join('')
-    }
+    },
     cap(str) {
         return str[0].toUpperCase() + str.slice(1)
-    }
-    #map = new Map(Object.entries({ 1: 'st', 2: 'nd', 3: 'rd' }))
+    },
     toOrdinal(o) {
         const lastTwoDigits = o % 100, me = (o + "").at(-1)
-        if ((lastTwoDigits >= 11 && lastTwoDigits <= 13) || !this.#map.has(me))
+        if ((lastTwoDigits >= 11 && lastTwoDigits <= 13) || !this.map.has(me))
             return o + "th"
-        return o + this.#map.get(me)
-    }
+        return o + this.map.get(me)
+    },
 }
-class ARR {
+Object.defineProperty(string, 'map', {
+    value: new Map(Object.entries({ 1: 'st', 2: 'nd', 3: 'rd' }))
+})
+
+export const arr = {
+    __proto__: null,
     assemble(arrayLike, ...sequence) {
         const out = []
         for (let { length } = sequence, i = 0; i < length; ++i) out.push(arrayLike.at(sequence[i]))
         return out
-    }
+    },
     with(length, filler) {
         return typeof filler === 'function' ?
             from({ length }, filler) :
             Array(length).fill(filler)
-    }
+    },
     *backwards(arrayLike) {
         for (let { length } = arrayLike; length--;) yield arrayLike[length]
-    }
+    },
     center(array) {
         return array[(array.length / 2) | 0]
-    }
+    },
     insert(array, item, index) {
         return array.splice(index, 0, item)
-    }
+    },
     remove(item, index) {
         return typeof item === 'string' ?
             item.slice(0, index) + item.slice(index + 1) :
             item.splice(index, 1)
-    }
+    },
     swap(item, first, second) {
         [item[first], item[second]] = [item[second], item[first]]
         return item
-    }
+    },
     swapInside(item, firstIndex, secondIndex) {
         const slot = item.indexOf(firstIndex),
             slot2 = item.indexOf(secondIndex)
@@ -228,6 +233,7 @@ class ARR {
         throw RangeError("Index out of range")
     }
 }
+
 class Vector2 {
     get [Symbol.toStringTag]() { return 'Vector2' }
     static get up() {
@@ -411,6 +417,7 @@ class Vector2 {
         yield this.#y
     }
 }
+
 export const vect = new Proxy(Vector2, {
     apply(target, useless, args) { return new target(...args) }
 })
@@ -447,8 +454,6 @@ class COLOR_MANAGER {
     }
 }
 export const color = new Proxy(new COLOR_MANAGER, COLOR_MANAGER.handler),
-    arr = new ARR,
-    string = new STRING,
     math = new MATH,
     ran = new RANDOM
 console.debug('📥 ' + import.meta.url + ' imported')

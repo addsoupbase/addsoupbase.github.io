@@ -25,7 +25,7 @@ export function on(target, events, useHandler) {
     if (!(target[sym] instanceof Set))
         //This will hold the NAMES of the events
         Object.defineProperty(target, sym, { value: new Set })
-    console.groupCollapsed(`on(${target})`)
+    console.groupCollapsed(`on(${target[Symbol.toStringTag]})`)
     const myEvents = target[sym]
     if (!isArray(events)) events = Object.entries(events)
 
@@ -50,7 +50,7 @@ export function on(target, events, useHandler) {
             prevents = true
         }
         if (myEvents.has(eventName)) {
-            warn(`🔕 Duplicate '${eventName}' listener on `,target)
+            warn(`🔕 Duplicate '${eventName}' listener on `, target)
             continue
         }
         verifyEventName(target, eventName)
@@ -79,13 +79,13 @@ export function on(target, events, useHandler) {
         }
         console.debug(`🔔 '${eventName}' event added to `, target)
     }
-    console.groupEnd("on()")
+    console.groupEnd()
     return target
 }
 export function off(target, ...eventNames) {
     if (!(target instanceof EventTarget) || !(target[sym] instanceof Set) || !allEvents.has(target))
         throw TypeError("🚫 Invalid event target")
-    console.groupCollapsed(`off(${target})`)
+    console.groupCollapsed(`off(${target[Symbol.toStringTag] || target})`)
     const map = allEvents.get(target),
         mySet = target[sym]
     for (let { length } = eventNames; length--;) {
@@ -97,7 +97,7 @@ export function off(target, ...eventNames) {
         mySet.delete(name)
         map.size || allEvents.delete(target)
     }
-    console.groupEnd("off()")
+    console.groupEnd()
 }
 export function until(target, eventName, timeout/* = 600000*/) {
     return new Promise(un)
@@ -139,8 +139,8 @@ const
 export class HTMLElementWrapper {
     #cont = null
     ;[Symbol.toPrimitive]() {
-            return this.cont.outerHTML
-        }
+        return this.cont.outerHTML
+    }
     *[Symbol.iterator]() {
         yield* this.getElementsByTagName("*")
     }
@@ -278,7 +278,7 @@ export class HTMLElementWrapper {
         }
         if (deprecatedTags.test(tag)) warn(`♿️ Deprecated '${seed.tag}' tag usage`)
         //  this.__properties__ = new Map
-        this.attr = new Proxy(this.cont, HTMLElementWrapper.#attr)
+        this.attr = new Proxy(this.cont, new.target.#attr)
         const proxy = new Proxy(this, new.target.#HANDLER)
         new.target.all.set(this.cont, proxy)
         // new.target.cleanup.register(this.cont,console.log)
@@ -304,15 +304,12 @@ export class HTMLElementWrapper {
         }
         cont[sym]?.size && off(cont, ...cont[sym])
         cont.getAnimations({ subtree: true }).forEach(removeAnimations)
-        function removeAnimations(anim) {
-            anim.cancel()
-        }
         do cont.remove()
-        while (cont.parentElement)
+        while (cont.parentElement)function removeAnimations(anim){anim.cancel()}
     }
     #start(seed) {
         let keys = Object.keys(seed),
-            {cont} = this
+            { cont } = this
         for (let { length } = keys; length--;) {
             const prop = keys[length]
             if (prop === 'resize')
@@ -324,7 +321,7 @@ export class HTMLElementWrapper {
             else if (prop === 'open')
                 cont.toggleAttribute('open', true)
             else if (prop === 'autofocus')
-                queueMicrotask(() => cont.focus() )
+                queueMicrotask(() => cont.focus())
             else if (prop in cont)
                 try { cont[prop] = seed[prop] }
                 catch { cont.setAttribute(prop, seed[prop]) }
@@ -352,7 +349,6 @@ export class HTMLElementWrapper {
     set parent(element) {
         if (element == null) return this.cont.remove()
         element = getProxy(element)
-        if (typeof element.appendChild !== 'function') debugger
         element.appendChild(this.cont)
     }
     get parent() {
@@ -443,73 +439,18 @@ export class HTMLElementWrapper {
             offsprings[length].destroy()
     }
     set offsprings(children) {
-        const fragment = frag()
-        for (let i = 0, { length } = children; i < length; ++i) 
-            fragment.appendChild(HTMLElementWrapper.deverifyTarget(children[i]))
-        
-        this.cont.appendChild(fragment)
+        let fragment
+        if (children.length <= 1) [fragment] = children
+        else for (let i = 0, { length } = children; i < length; ++i)
+            (fragment??=frag()).appendChild(HTMLElementWrapper.deverifyTarget(children[i]))
+        fragment && this.cont.appendChild(fragment)
     }
-    // #logLevel = null
     eval(code) {
-        return Function(`with(this)void class{static{${code}}}`).call(this)
+        Function(`with(this)void class{static{${code}}}`).call(this)
     }
     get tagname() {
         return this.cont.tagName
     }
-    /* get __logLevel__() {
-         return this.#logLevel
-     }
-     set __logLevel__(val) {
-         this.#logLevel = val
-     }*/
-    get firstChild() {
-        return getProxy(this.cont.firstElementChild)
-    }
-    set firstChild(element) {
-        this.cont.insertBefore(HTMLElementWrapper.deverifyTarget(element), this.cont.firstElementChild)
-    }
-    /* __createProperty__(prop, val) {
-         if (this.__hasProperty__(prop)) {
-             error(prop)
-             throw TypeError('The property above already exists in this object')
-         }
-         return this.__properties__.set(prop, val)
-     }
-     __setProperty__(prop, val) {
-         if (!this.__hasProperty__(prop)) {
-             error(prop)
-             throw TypeError('The property above does not exist in this object')
-         }
-         return this.__properties__.set(prop, val)
-     }
-     get __element__() {
-         debugger
-         return this.cont
-     }
-     __deleteProperty__(prop) {
-         if (!this.__hasProperty__(prop)) {
-             error(prop)
-             throw TypeError('The property above does not exist in this object')
-         }
-         this.__properties__.delete(prop)
-     }
-     __hasProperty__(prop) {
-         return this.__properties__.has(prop)
-     }
-     __set__(prop, val) {
-         if (this.__hasProperty__(prop)) return this.__setProperty__(prop, val)
-         this.__createProperty__(prop, val)
-     }
-     __getProperty__(prop) {
-         if (!this.__hasProperty__(prop)) {
-             error('Property: ', prop)
-             throw TypeError('The property above does not exist in this object')
-         }
-         return this.__properties__.get(prop)
-     }
-     __deleteProperties__() {
-         this.__properties__.clear()
-     }*/
 }
 const { from } = Array
 export function getElementsByTagName(tag) {
@@ -549,6 +490,9 @@ const $ = new Proxy(HTMLElementWrapper, {
         if (seed instanceof HTMLElement || seed instanceof target) seed = { parent: seed }
         seed.tag = tag
         return new target(seed)
+    },
+    construct(_,args) {
+        return $(...args)
     }
 })
 /*function $(tag, seed) {
@@ -591,7 +535,7 @@ export function registerCSS(selector, rule) {
         addedStyleRules ??= $('style', { parent: document.head })
     sheet.insertRule(`${selector}{${extractCSSFromObject(rule)}}`)
 }
-if (frag) requestIdleCallback(() =>
+if (frag) queueMicrotask(() => {
     registerCSS('dialog', {
         transition: 'opacity 1s linear',
         "font-family": "Arial",
@@ -599,22 +543,22 @@ if (frag) requestIdleCallback(() =>
         width: "300px",
         height: "150px",
         "word-break": "break-word"
-    }),
+    })
     registerCSS('.centerx,.center', {
         'justify-self': 'center'
-    }),
+    })
     registerCSS('.centery,.center', {
         'align-self': 'center',
         inset: 0,
         position: 'fixed'
-    }))
-
-export class CSSSyntax {
-    constructor() { throw TypeError("Illegal constructor") }
-    static boxShadow({ offsetX = '0px', offsetY = '0px', blurRadius = '', spreadRadius = '', color = '#000000' }) {
+    })
+})
+export const CSSSyntax = {
+    __proto__:null,
+    boxShadow({ offsetX = '0px', offsetY = '0px', blurRadius = '', spreadRadius = '', color = '#000000' }) {
         return `${color} ${offsetX} ${offsetY} ${blurRadius} ${spreadRadius}`.replaceAll('  ', '')
-    }
-    static dropShadow({ color = '#000000', offsetX = '0px', offsetY = '0px', standardDeviation = '' }) {
+    },
+    dropShadow({ color = '#000000', offsetX = '0px', offsetY = '0px', standardDeviation = '' }) {
         return `${color} ${offsetX} ${offsetY} ${standardDeviation}`
     }
 }
