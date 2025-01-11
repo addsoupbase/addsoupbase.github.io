@@ -25,7 +25,7 @@ export function on(target, events, useHandler) {
     if (!(target[sym] instanceof Set))
         //This will hold the NAMES of the events
         Object.defineProperty(target, sym, { value: new Set })
-
+    console.groupCollapsed(`on(${target})`)
     const myEvents = target[sym]
     if (!isArray(events)) events = Object.entries(events)
 
@@ -50,7 +50,7 @@ export function on(target, events, useHandler) {
             prevents = true
         }
         if (myEvents.has(eventName)) {
-            warn(`🔕 Duplicate '${eventName}' listener`)
+            warn(`🔕 Duplicate '${eventName}' listener on `,target)
             continue
         }
         verifyEventName(target, eventName)
@@ -77,24 +77,27 @@ export function on(target, events, useHandler) {
             myGlobalEventMap.set(eventName, func)
             myEvents.add(eventName)
         }
-        console.debug(`🔔 '${eventName}' event added to ${target}`)
+        console.debug(`🔔 '${eventName}' event added to `, target)
     }
+    console.groupEnd("on()")
     return target
 }
 export function off(target, ...eventNames) {
     if (!(target instanceof EventTarget) || !(target[sym] instanceof Set) || !allEvents.has(target))
         throw TypeError("🚫 Invalid event target")
+    console.groupCollapsed(`off(${target})`)
     const map = allEvents.get(target),
         mySet = target[sym]
     for (let { length } = eventNames; length--;) {
         const name = eventNames[length],
             func = map.get(name)
-        map.has(name) && console.debug(`🔕 '${name}' event removed from ${target}`)
+        map.has(name) && console.debug(`🔕 '${name}' event removed from `, target)
         target.removeEventListener(name, func)
         map.delete(name)
         mySet.delete(name)
         map.size || allEvents.delete(target)
     }
+    console.groupEnd("off()")
 }
 export function until(target, eventName, timeout/* = 600000*/) {
     return new Promise(un)
@@ -135,7 +138,7 @@ const
 //These SVG tags have to be treated differently
 export class HTMLElementWrapper {
     #cont = null
-        ;[Symbol.toPrimitive]() {
+    ;[Symbol.toPrimitive]() {
             return this.cont.outerHTML
         }
     *[Symbol.iterator]() {
@@ -218,10 +221,10 @@ export class HTMLElementWrapper {
             .finished
     }
     wrap(html) {
-        const {parent} = this
+        const { parent } = this
         if (typeof html === 'string') {
-            const parsed = new DOMParser().parseFromString(html,'text/html'), 
-            {firstChild} = parsed.body
+            const parsed = new DOMParser().parseFromString(html, 'text/html'),
+                { firstChild } = parsed.body
             firstChild.appendChild(this.cont)
             parent.appendChild(firstChild)
             return firstChild
@@ -266,49 +269,50 @@ export class HTMLElementWrapper {
             [tag, seed.type] = tag.split(':')
         }
         if (tag.match(svgTags))
-            this.#cont = new WeakRef(from ?? document.createElementNS('http://www.w3.org/2000/svg', tag))
-        else this.#cont = new WeakRef(from ?? document.createElement(tag))
+            this.#cont = from ?? document.createElementNS('http://www.w3.org/2000/svg', tag)
+        else this.#cont = from ?? document.createElement(tag)
+        this.#cont = new WeakRef(this.#cont)
         if (new.target.all.has(this.cont)) {
             reportError(TypeError('Something went wrong!'));
-            (document.documentElement.setHTMLUnsafe.bind(document.documentElement) || document.documentElement.remove.bind(document.documentElement))('Check logs')
+            (document.documentElement.setHTMLUnsafe?.bind(document.documentElement) ?? document.documentElement.remove.bind(document.documentElement))('Check logs')
         }
         if (deprecatedTags.test(tag)) warn(`♿️ Deprecated '${seed.tag}' tag usage`)
         //  this.__properties__ = new Map
-        this.attr = new Proxy(this.cont, HTMLElementWrapper.__attr__)
-        const proxy= new Proxy(this, new.target.#HANDLER)
+        this.attr = new Proxy(this.cont, HTMLElementWrapper.#attr)
+        const proxy = new Proxy(this, new.target.#HANDLER)
         new.target.all.set(this.cont, proxy)
-       // new.target.cleanup.register(this.cont,console.log)
+        // new.target.cleanup.register(this.cont,console.log)
         if (kids) proxy.offsprings = kids
         if (parent) proxy.parent = parent
         if (classes)
-            for (let { length } = classes; length--;) proxy.classList.add(classes[length])
+            proxy.classList.add.apply(proxy.classList, classes)
         this.#start(seed)
         return proxy
     }
-   // static cleanup = new FinalizationRegistry(func => {
-   // alert('Revoked')
-   //    func()
-   // })
+    // static cleanup = new FinalizationRegistry(func => {
+    // alert('Revoked')
+    //    func()
+    // })
     get cont() {
         return this.#cont.deref()
     }
     destroy() {
-        const { offsprings } = this
+        const { offsprings, cont } = this
         for (let { length } = offsprings; length--;) {
             const kid = offsprings[length]
             kid.destroy()
         }
-        this.cont[sym]?.size && off(this.cont, ...this.cont[sym])
-        this.cont.getAnimations({ subtree: true }).forEach(removeAnimations)
+        cont[sym]?.size && off(cont, ...cont[sym])
+        cont.getAnimations({ subtree: true }).forEach(removeAnimations)
         function removeAnimations(anim) {
             anim.cancel()
         }
-        do this.cont.remove()
-        while (this.cont.parentElement)
+        do cont.remove()
+        while (cont.parentElement)
     }
     #start(seed) {
         let keys = Object.keys(seed),
-            me = this.cont
+            {cont} = this
         for (let { length } = keys; length--;) {
             const prop = keys[length]
             if (prop === 'resize')
@@ -316,18 +320,18 @@ export class HTMLElementWrapper {
             else if (prop === 'readonly')
                 this.attr.readonly = true
             else if (prop === 'hidden')
-                me.toggleAttribute('hidden', true)
+                cont.toggleAttribute('hidden', true)
             else if (prop === 'open')
-                me.toggleAttribute('open', true)
+                cont.toggleAttribute('open', true)
             else if (prop === 'autofocus')
-                queueMicrotask(() => { me.focus() })
-            else if (prop in me)
-                try { me[prop] = seed[prop] }
-                catch { me.setAttribute(prop, seed[prop]) }
-            else if (me.hasAttribute(prop))
-                me.setAttribute(prop, seed[prop])
+                queueMicrotask(() => cont.focus() )
+            else if (prop in cont)
+                try { cont[prop] = seed[prop] }
+                catch { cont.setAttribute(prop, seed[prop]) }
+            else if (cont.hasAttribute(prop))
+                cont.setAttribute(prop, seed[prop])
         }
-        if ('events' in seed) on(me, seed.events)
+        if ('events' in seed) on(cont, seed.events)
         if ('styles' in seed) this.styleMe(seed.styles)
         if ('txt' in seed) this.txt = seed.txt
         if (seed.tag === 'button' || seed.type === 'button') this.styleMe({ cursor: 'pointer' })
@@ -364,7 +368,7 @@ export class HTMLElementWrapper {
         this.textContent = val
     }
     static {
-        const { prototype } = this;
+        const { prototype, } = this;
         //Safeguards
         ['innerHTML', 'innerText', 'textContent'].forEach(go)
         function go(name) {
@@ -409,18 +413,13 @@ export class HTMLElementWrapper {
     find(testFunc) {
         return this.offsprings.find(testFunc)
     }
-    static __attr__ = {
+    static #attr = {
         get(target, prop) {
             return target.getAttribute(prop)
         },
         set(target, prop, value) {
-            try {
-                target.setAttribute(prop, value)
-                return true
-            }
-            catch {
-                return false
-            }
+            target.setAttribute(prop, value)
+            return true
         },
         deleteProperty(target, prop) {
             target.removeAttribute(prop)
@@ -445,10 +444,9 @@ export class HTMLElementWrapper {
     }
     set offsprings(children) {
         const fragment = frag()
-        for (let i = 0, { length } = children; i < length; ++i) {
-            let kid = HTMLElementWrapper.deverifyTarget(children[i])
-            fragment.appendChild(kid)
-        }
+        for (let i = 0, { length } = children; i < length; ++i) 
+            fragment.appendChild(HTMLElementWrapper.deverifyTarget(children[i]))
+        
         this.cont.appendChild(fragment)
     }
     // #logLevel = null
@@ -538,21 +536,16 @@ export function querySelectorAll(selector) {
 export function getProxy(element) {
     return HTMLElementWrapper.verifyTarget(element)
 }
-/**
+
+const $ = new Proxy(HTMLElementWrapper, {
+    /**
  * New element
  * @param {String} tag An HTML element tag 
  * @param {Object} seed Object that describes the element
  * @returns Proxy instance
  */
-const $ = new Proxy(HTMLElementWrapper, {
-    get(target, prop) {
-        return target[prop]
-    },
-    set(target, prop, value) {
-        return Reflect.set(target, prop, value)
-    },
     apply(target, _, args) {
-        let [tag, seed={}] = args
+        let [tag, seed = {}] = args
         if (seed instanceof HTMLElement || seed instanceof target) seed = { parent: seed }
         seed.tag = tag
         return new target(seed)
@@ -598,7 +591,7 @@ export function registerCSS(selector, rule) {
         addedStyleRules ??= $('style', { parent: document.head })
     sheet.insertRule(`${selector}{${extractCSSFromObject(rule)}}`)
 }
-if (frag)
+if (frag) requestIdleCallback(() =>
     registerCSS('dialog', {
         transition: 'opacity 1s linear',
         "font-family": "Arial",
@@ -607,19 +600,14 @@ if (frag)
         height: "150px",
         "word-break": "break-word"
     }),
-        registerCSS('.--turn-point', {
-            'width': '30px',
-            height: '30px',
-            display: 'block'
-        }),
-        registerCSS('.centerx,.center', {
-            'justify-self': 'center'
-        }),
-        registerCSS('.centery,.center', {
-            'align-self': 'center',
-            inset: 0,
-            position: 'fixed'
-        })
+    registerCSS('.centerx,.center', {
+        'justify-self': 'center'
+    }),
+    registerCSS('.centery,.center', {
+        'align-self': 'center',
+        inset: 0,
+        position: 'fixed'
+    }))
 
 export class CSSSyntax {
     constructor() { throw TypeError("Illegal constructor") }
@@ -647,12 +635,8 @@ class StorageProxy {
             return true
         },
         set(target, prop, value) {
-            try {
-                return target.setItem(prop, value), true
-            }
-            catch {
-                return false
-            }
+            target.setItem(prop, value)
+            return true
         }
     }
     constructor(storage) {

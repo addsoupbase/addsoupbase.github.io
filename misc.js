@@ -14,7 +14,7 @@ class RANDOM {
         return deck[floor(random() * deck.length)]
     }
     jackpot(range) {
-        return!this.frange(0, range)
+        return !this.frange(0, range)
     }
     chance(odds) {
         return this.jackpot(100 / odds)
@@ -58,9 +58,9 @@ class RANDOM {
     }
 }
 class MATH {
-   /* isInt(num) {
-        return isInteger(num)
-    }*/
+    /* isInt(num) {
+         return isInteger(num)
+     }*/
     maxBigInt(bigInt, ...bigInts) {
         if (bigInt == null) throw TypeError('More arguments needed')
         let maximum = bigInt
@@ -149,8 +149,10 @@ class STRING {
     alphabet = 'abcdefghijklmnopqrstuvwxyz'
     ALPHABET = this.alphabet.toUpperCase()
     numbers = '0123456789'
-    months = 'January February March April May June July August September October November December'.split(' ')
-    days = 'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.split(' ')
+    months = 'January February March April May June July August September October November December'
+    .split(' ')
+    days = 'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'
+    .split(' ')
     placeholder = '$'
     formatNumber(num) {
         return (+num).toLocaleString()
@@ -197,9 +199,9 @@ class ARR {
         return out
     }
     with(length, filler) {
-        return typeof filler === 'function'? 
-        from({ length }, filler): 
-        Array(length).fill(filler)
+        return typeof filler === 'function' ?
+            from({ length }, filler) :
+            Array(length).fill(filler)
     }
     *backwards(arrayLike) {
         for (let { length } = arrayLike; length--;) yield arrayLike[length]
