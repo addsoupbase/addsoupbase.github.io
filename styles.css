@@ -101,7 +101,7 @@
   z-index: 3;
   zoom: 0.85;
   height:500px;
-  background-image: url(./media/flowers.gif), url(./media/topdecor.gif), url(./media/roses.gif);
+  background-image: url(./media/flowers.webp), url(./media/topdecor.webp), url(./media/roses.webp);
   background-repeat: no-repeat, no-repeat, no-repeat;
   background-size: contain, 130px, 13%;
   background-position-y: bottom, top;

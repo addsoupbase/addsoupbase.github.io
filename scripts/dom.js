@@ -52,7 +52,7 @@ let form = $('form', {
             name ||= 'Anonymous'
             await form.fadeout()
             form.hide()
-            let loading = $('img,delibird', { parent: section, src: './media/loading.gif' })
+            let loading = $('img,delibird', { parent: section, src: './media/loading.webp' })
             let req = await fetch(`https://formspree.io/f/mqakzlyo`, {
                 method: 'POST',
                 body: `name=${encodeURIComponent(name)}&message=${encodeURIComponent(message)}`,
@@ -62,7 +62,7 @@ let form = $('form', {
                 }
             })
             if (req.ok) {
-                loading.src = './media/yay.gif'
+                loading.src = './media/yay.webp'
                 await wait(1000)
                 await loading.fadeAndDestroy()
                 let f = $('h1', { txt: 'Message sent!!' })

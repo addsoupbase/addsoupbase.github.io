@@ -18,6 +18,7 @@ async function click({ x, y }) {
         styles: {
             'background-image': `url(${this.firstElementChild.src})`
         },
+        alt: name,
         parent: bg,
         os: [$('p,displayName', { txt: '@' + string.upper(name) })]
     })
@@ -41,6 +42,7 @@ function bubbleWithAva(image = cycle.next) {
     const out = $('img,ava', {
         parent: n,
         src,
+        alt: src,
         width: 50,
         height: 50,
         draggable: false
