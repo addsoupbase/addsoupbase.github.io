@@ -14,7 +14,7 @@ let desc = $('div', { parent: div, id: 'maindesc' })
 main.styleMe({opacity:0})
 await wait(600)
 main.fadein()
-main.styleMe({opacity:''})
+main.styleMe({opacity:.95})
 
 $('div,descrHolder', {
     parent: desc,

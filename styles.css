@@ -14,8 +14,8 @@
 
 #avatar {
   border-radius: 100%;
-  width:80px;
-  height:80px;
+  width:60px;
+  height:60px;
   left: 10px;
   top: 10px;
   position: absolute;
@@ -39,9 +39,9 @@
 .tar {
   background-repeat: no-repeat;
   background-size: contain;
-  width: 70px;
+  width: 50px;
   pointer-events: none;
-  height: 70px;
+  height: 50px;
   position: absolute;
   display: flex;
   transform-origin: center;

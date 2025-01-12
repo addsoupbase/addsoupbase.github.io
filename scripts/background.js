@@ -90,7 +90,7 @@ async function spawnPkmn() {
 setInterval(bubbleWithAva, 1000)
 spawnPkmn()
 async function tinyBubbles(again = true) {
-    again && setTimeout(tinyBubbles, ran.range(200, 500))
+    again && setTimeout(tinyBubbles, ran.range(500, 600))
     let bubbl = $('div,bubble', parent)
     let num = ran.range(17, 28)
     bubbl.styleMe({ width: `${num}px`, height: `${num}px`, left: `${ran.range(0, innerWidth)}px`, top: '100%' })
