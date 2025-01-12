@@ -1,11 +1,8 @@
+
 import $, { FormDataManager, required, until, wait } from '../quick.js'
 const main = $('main,center cute-green', { parent: document.body, id: 'main', style: 'opacity:0' })
-const bg = $('div', {
-    id: 'background', parent: document.body
-})
-export default bg
 
-await wait(1000)
+await wait(300)
 main.styleMe({ opacity: 0.95 })
 main.animate([{ filter: 'blur(2px)', opacity: 0, scale: '0.8 0.8', translate: '0 -40px' }, { filter: '', easing: 'ease-in' }], { duration: 700 })
 
@@ -19,28 +16,31 @@ let content = $('section,centerx', {
     id: 'content',
 })
 $('h4', { parent: content, txt: 'thank you so much for looking at this i love you' })
-$('h5', { parent: content, txt: 'im re-doing this again so just wait for the content it will be here  ' })
 $('button,cute-green-button', {
     parent: content, txt: 'View Background', events: {
-        click() {
-            main.fadeAndDestroy()
+        async _click() {
+            await main.fadeout()
+            let topWindow = parent.document.querySelector('iframe')
+            topWindow.remove()
         }
     }
 })
 let section = $('div,lol', content)
-/*
-$('button,cute-green-button', {
-    parent: section,
+let buttonholder = $("div",section)
+$('a,cute-green-button', {
+    parent: buttonholder,
     txt: 'About',
+    href:'./about.html',
     title: 'about me'
 })
+/*
 $('button,cute-green-button', {
-    parent: section,
+    parent: buttonholder,
     txt: 'Stuff',
     title: 'stuff i made'
 })
 $('button,cute-green-button', {
-    parent: section,
+    parent: buttonholder,
     txt: 'Music',
     title: 'music'
 })*/

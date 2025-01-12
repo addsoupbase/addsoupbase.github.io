@@ -2,9 +2,17 @@
 import { avatars, mons } from './images.js'
 import $, { getProxy, } from '../quick.js'
 import { math, ran, string } from '../misc.js'
-import parent from './dom.js'
-import bg from './dom.js'
-const frameDuration = 160
+const iframe = $('iframe,center', {
+    parent:document.body,
+    id:'frame',
+    src:'./main.html'
+})
+
+const parent = $('div', {
+    id: 'background', parent: document.body
+})
+let bg = parent
+const frameDuration = 150
 const duration = 12_000
 const cycle = math.cycle(...ran.shuffle(...avatars))
 async function click({ x, y }) {

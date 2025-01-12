@@ -94,13 +94,8 @@
   background-repeat: no-repeat
 }
 #main {
-  max-width: 70%;
-  min-width: 60%;
-  max-height: 85%;
-  position: fixed;
-  z-index: 3;
-  zoom: 0.85;
-  height:500px;
+  width:85%;
+  height:90%;
   background-image: url(./media/flowers.webp), url(./media/topdecor.webp), url(./media/roses.webp);
   background-repeat: no-repeat, no-repeat, no-repeat;
   background-size: contain, 130px, 13%;
@@ -149,13 +144,6 @@ body,html {
   overflow: hidden;
 }
 
-iframe {
-  border-radius: 1%;
-  border-color: #9d3a9b;
-  border-style: solid;
-  border-width: 3px;
-}
-
 
 
 .cute-green {
@@ -189,6 +177,20 @@ iframe {
 }
 .username {
   z-index: 40;
+} 
+
+#frame {
+  position:fixed;
+  z-index:3;
+  max-width: 75%;
+  min-width: 65%;
+  zoom: 0.85;
+  max-height: 90%;
+  position: fixed;
+  z-index: 3;
+  height:620px;
+  border:none;
+  margin:auto;
 }
 input.cute-green {
   background-color: #43b363;
@@ -385,20 +387,38 @@ body {
   display: none;
 }
 
-
-
+#maindesc {
+  justify-content: center;
+  display: flex;
+}
+.descrHolder {
+  margin: 10px;
+  margin-top: 30px;
+  display: flow-root;
+}
+.pkm {
+  scale: 1.3 1.3;
+  margin:10px
+}
+#list {
+  display: inline-block;
+}
 .pok {
   image-rendering: crisp-edges;
 }
-
+.small {
+  font-size: 12px;
+}
 .cute-green-button {
   background-color: #b0e57c;
   /* Match the div's background */
+  text-decoration: none;
   border: 2px solid #8bc34a;
   /* Match the div's border */
   border-radius: 15px;
   /* Rounded corners */
   padding: 10px 20px;
+  display: inline-block;
   /* Button padding */
   font-family: 'Choco', cursive, sans-serif;
   /* Playful font */
@@ -413,17 +433,22 @@ body {
   /* Smooth transitions */
 }
 
+
+.cute-green-button:hover {
+  background-color: #96c15d;
+}
+
 .cute-green-button:active {
   background-color: #a8db67;
   /* Darker green on hover */
   scale: .9 .9
   /* Slight scale effect */
 }
-.cute-green-button:hover {
-  background-color: #96c15d;
+.back {
+  position: absolute;
+  top: 20px;
+  left: 20px;
 }
-
-
 .hello {
   justify-items: center;
   justify-content: center;
