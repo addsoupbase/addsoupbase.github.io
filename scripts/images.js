@@ -1,85 +1,42 @@
- const _avatars = new Set( [  
-    ["aya", "Aya"],
-    ["ghostie"],
-    ["cunder"],
-    ["lorex"],
-    ["fourche", 'fourche7'],
-    ["rogue"],
-    ["indie"],
-    ["casey"],
-    ["chlo"],
-    ["crazy"],
-    ["drifter"],
-    ["gilly"],
-    ["ilikebugs2", "i_likebugs2"],
-    ["lunza"],
-    ["may"],
+import { registerCSS, until } from "../quick.js"
 
-                        ["katie"],
-    ["mothmaddie"],
-    ["neboola"],
-    ["znsxxe"],
-    ["vio"],
-    ["khaotic", "khaotic good"],
-    ["kae"],
-    ["rohan"],
-    ["rainmint"],
-    ["rue"],
-    ["copy", "CopyID"],
-    ["valerie"],
-    ["nova", "supernova"],
-    ["mr_clownette"],
-    ["stu", "Stuella"],
-    ["stu2", "Stu"],
-    ["ashley"],
-    ["lexi"],
-    ["babs"],
-    ["elipoopsrainbows"],
-    ["birdie"],
-    ["elenfnf1"],
-    ["luna"],
-    ['mephistopheles73', 'God ruheub'],
-    ['lazy'],
-    ['zoozi'],
-    ['glente'],
-    ['morrfie'],
-    ['random', "random_userlol"],
-    ["gib"],
-    ["rurikuu"],
-    ['Regs', 'Regs_s'],
-    ["lemmy"],
-    ['mila'],
-    ["na22","N/A22"],
-    ["frannie4u"],
-    ["schpun"],
-    ['son_yukio']])
-
-
-const media = new Set([
- 'carvanha',
- 'corsola',
- 'gorebyss',
- 'huntail',
- 'kyogre',
- 'lanturn',
- 'lanturnshiny',
- 'manaphy',
- 'phione',
- 'seadra',
- 'sharpedo',
- 'wailord',
- 'luvdisc'
-])
-const mons = new Set
-const avatars = []
-media.forEach(o=>{
-    //Elem.preload(`../media/${o}.gif`)
-    mons.add(`media/${o}.webp`)
-
+const avatars = await Promise.all((await (await fetch('./scripts/allava.json')).json()).map(
+    async function (o) {
+        let n = new Image
+        n.src = `./media/avatars/${o}`
+        await until(n, 'load')
+        return n
+    }
+))
+console.debug("All avatars loaded")
+const mons = await Promise.all([
+    'carvanha:4',
+    'corsola:4',
+    'gorebyss:9',
+    'huntail:4',
+    'kyogre:10',
+    'lanturn:4',
+    'manaphy:8',
+    'luvdisc:12',
+    'phione:10',
+    'seadra:5',
+    'sharpedo:8',
+    'wailord:12',
+].map(async function (o) {
+    let img = new Image
+    let [src, width] = o.split(":")
+    img.src = `./media/${src}.png`
+    img.__width = +width
+    img.__name = src
+    await until(img, 'load')
+    return img
+}))
+mons.forEach((image) => {
+    registerCSS(`.${image.__name}`, {
+        'background-image': `url(${image.src})`,
+        width: `${image.width / image.__width}px`,
+        height: `${image.width / image.__width}px`
+    })
 })
-_avatars.forEach(o=> {
-let filename = `./media/avatars/${o[0]}.webp`,
-nickname = o[1]??o[0]
-avatars.push({url: filename, nickname})
-})
-export {avatars, mons}
+console.debug("All sprites loaded")
+export { avatars, mons }

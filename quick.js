@@ -20,6 +20,9 @@ function verifyEventName(target, name) {
     if (!(`on${name}` in target)) throw TypeError(`🔇 Cannot listen for '${name}' events`)
     //Check if handler with name exists
 }
+export function wait(ms) {
+    return new Promise(resolve=>setTimeout(resolve,ms))
+}
 export function on(target, events, useHandler) {
     if (!(target instanceof EventTarget)) throw TypeError("🚫 Invalid event target")
     if (!(target[sym] instanceof Set))
@@ -215,7 +218,7 @@ export class HTMLElementWrapper {
     }
     fadeout(duration = 500) {
         return this.animate([
-            { opacity: 1 },
+            { opacity: '' },
             { opacity: 0 }
         ], { easing: 'ease', duration, fill: 'forwards' })
             .finished
@@ -240,7 +243,7 @@ export class HTMLElementWrapper {
     fadein(duration = 500) {
         return this.animate([
             { opacity: 0 },
-            { opacity: 1 }
+            { opacity: '' }
         ], { easing: 'ease', duration, fill: 'forwards' })
             .finished
     }
@@ -440,7 +443,7 @@ export class HTMLElementWrapper {
     }
     set offsprings(children) {
         let fragment
-        if (children.length <= 1) [fragment] = children
+        if (children.length <= 1) fragment = HTMLElementWrapper.deverifyTarget(children[0])
         else for (let i = 0, { length } = children; i < length; ++i)
             (fragment??=frag()).appendChild(HTMLElementWrapper.deverifyTarget(children[i]))
         fragment && this.cont.appendChild(fragment)
@@ -482,7 +485,7 @@ const $ = new Proxy(HTMLElementWrapper, {
     /**
  * New element
  * @param {String} tag An HTML element tag 
- * @param {Object} seed Object that describes the element
+ * @param {Object | String} seed Object that describes the element
  * @returns Proxy instance
  */
     apply(target, _, args) {
@@ -545,7 +548,8 @@ if (frag) queueMicrotask(() => {
         "word-break": "break-word"
     })
     registerCSS('.centerx,.center', {
-        'justify-self': 'center'
+        'justify-self': 'center',
+        margin:'auto'
     })
     registerCSS('.centery,.center', {
         'align-self': 'center',

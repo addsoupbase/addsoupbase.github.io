@@ -1,284 +1,82 @@
-'use strict';
-const outer = new Elem({ tag: 'div', id: 'main', class: ['cute-green'], parent: body })
-const aliases = ['misha', 'mimi', 'soup', 'muffy', 'soupy', 'TUlTSEE', 'addsoupbase']
-const あ = Elem
-let ca = aliases.length - 1
-let content;
-const hideclick = {
-    click(type) {
-        outer.anim({ class: 'slide-out-bck-center' }, () => {
-            hide?.fadeOut?.(hide.kill)
-                ;['greet', 'love', 'soup'].forEach(o => {
-                    あ.$('#' + o)?.kill?.()
-                })
-            uhh.forEach(o=>o.hide())
-            switch (type) {
-                case 'abtme':
-                    abtme.show()
-                    break;
-                case 'projects':
-                    projects.show()
-                    break
-                case 'music':
-                    music.show()
-                    break
-            }
-            outer.anim({ class: 'slide-in-fwd-center' })
-        })
-    }
-}
-let bo = new Elem({
-    id: 'hello',
-    class: ['hello'],
-    tag: 'div', parent: outer, children: [
-        new Elem({
-            tag: 'h1', message: 'addsoupbase',
-            id: 'greet',
-            styles:{cursor:'pointer'},
-            events: {
-                click() {
-                    ca++
-                    if (ca >= aliases.length) {
-                        ca = 0
-                    }
-                    this.innerText = aliases[ca]
-                    document.title = `${this.innerText}🍜`
-                }
-            },
-            title: 'Please don\'t make fun of me I just like the font🥲'
-        }),
-        new Elem({
-            alt: 'This is not my art',
-            title: 'This is not my art',
-            id: 'soup',
-            tag: 'img', src: './media/soup.webp', width: 70, styles: {
-                margin: '10px',
-            }
-        }),
-        new Elem({ tag: 'p', message: 'WELCOME I LOVE YOU', id: 'love' }),
-        content = new Elem({ tag: 'div' })
-    ]
+import $, { FormDataManager, required, until, wait } from '../quick.js'
+const main = $('main,center cute-green', { parent: document.body, id: 'main', style: 'opacity:0' })
+const bg = $('div', {
+    id: 'background', parent: document.body
 })
+export default bg
 
-let hide = new Elem({
-    tag: 'button', message: 'Hide', class: ['cute-green-button', 'hidebutton'], events: {
+await until(document, 'DOMContentLoaded')
+await wait(1000)
+main.styleMe({ opacity: 0.95 })
+main.animate([{ filter: 'blur(2px)', opacity: 0, scale: '0.8 0.8', translate: '0 -40px' }, { filter: '', easing: 'ease-in' }], { duration: 700 })
+
+let avatarPreview = $('div,holdavatar', main)
+$('img', { parent: avatarPreview, src: './media/art.webp', id: 'avatar', title: 'misdreavus', alt: 'avatar' })
+$('h1,centerx', { txt: 'addsoupbase', parent: main, style: 'margin:auto;' }).animate([
+    { scale: '' }, { scale: '1.1 1.1' },
+], { duration: 500, iterations: 4, direction: 'alternate', easing: 'ease-in-out' })
+let content = $('section,centerx', {
+    parent: main,
+    id: 'content',
+})
+$('h4', { parent: content, txt: 'thank you so much for looking at this i love you' })
+$('h5', { parent: content, txt: 'im re-doing this again so just wait for the content it will be here  ' })
+$('button,cute-green-button', {
+    parent: content, txt: 'View Background', events: {
         click() {
-            this.fadeOut(this.kill)
-            outer.anim({ class: 'slide-out-blurred-top', 'keep class': true })
+            main.fadeAndDestroy()
         }
-    }, parent: body
-})
-new Elem({
-    tag: 'div', parent: outer, children: [
-        new Elem({
-            tag: 'button', message: 'About Me', class: ['cute-green-button'], events: { click() { hideclick.click('abtme') } },
-        }),
-        new Elem({ tag: 'button', message: 'Projects', class: ['cute-green-button'], events: { click() { hideclick.click('projects') } }, }),
-        new Elem({ tag: 'button', message: 'Music', class: ['cute-green-button'], events: { click() { hideclick.click('music') } }, }),
-
-    ]
-})
-let abtme = new Elem({
-    class: ['hello'],
-    tag: 'div', parent: content, children: [
-        new Elem({
-            tag: 'img', src: './media/art.webp', width: '100', height: '100', styles: {
-                margin: '20px',
-                'border-radius': '100%'
-            }
-        }),
-        new あ({ tag: 'h3', message: 'HELLO HELLO' }),
-        new あ({
-            tag: 'div', styles: {
-                'align-items': 'center',
-                'justify-items': 'center',
-                'justify-content': 'center',
-                display: 'contents',
-
-            }, children: [
-                new あ({class:['Name'], tag: 'p', text: 'NAME=Misha' }),
-                new あ({ tag: 'div', id: 'mis', styles: {
-                    display:'none',
-                    cursor:'pointer', margin: '10px', overflow: 'hidden', width: '150px', height: '30px', position: 'relative' } })
-            ]
-        }),
-        new あ({ tag: 'p', id: 'jeff', text: 'Send me something!! (goes directly to my discord)' }),
-
-        new あ({
-            tag: 'div', class: ['form'], id: 'formtab', children: [
-                new あ({
-                    tag: 'div', id: 'mainform', children: [
-
-                        new あ({ tag: 'input', class: ['cute-green'], id: 'formName', name: 'name', placeholder: 'Name (optional)', }),
-
-                        new あ({
-                            tag: 'input', class: ['cute-green'], id: 'formMessage', name: 'message', placeholder: 'Your message here...', events: {
-                                click() {
-                                    this.placeholder = `Your message here...`
-                                }
-                            }
-                        }),
-
-                    ]
-                }),
-
-
-                /*     new あ({tag:'div',class:['hidden'],id:'loading',children:[
-                         new あ({tag:'img', class:['emoji'],src:'./media/yb.webp'}),
-                         new あ({tag:'img', class:['emoji'],src:'./media/tb.webp'})
-     
-     
-                     ]})*/
-            ]
-        }),
-        new あ({
-            styles: { padding: '10px', margin: '10px' },
-            tag: 'button', id: 'submitBtn', class: ['cute-green'], events: {
-                click() {
-                    if (!あ.$('#formMessage').value) {
-                        あ.$('#formMessage').placeholder = 'WRITE SOMETHING'
-                        あ.$('#formMessage').anim({ class: 'shake-top' })
-                        return
-                    }
-                    let t = ran.gen()
-                    あ.$('#submitBtn').noevent('click')
-                    あ.$('#submitBtn').replaceWith(
-                        new Elem({ tag: 'div', class: ['loader'], id: t })
-                    )
-                    あ.$('#formMessage').disabled = あ.$('#formName').disabled = true
-                    let NAME = あ.$('#formName').value
-                    let MESSAGE = あ.$('#formMessage').value
-                        ; (async () => {
-                            try {
-                                let x = await fetch(`https://formspree.io/f/mqakzlyo`, {
-                                    method: 'POST',
-                                    body: `name=${encodeURIComponent(NAME) || 'anonymous'}&message=${encodeURIComponent(MESSAGE)}`,
-                                    headers: {
-                                        'Content-Type': 'application/x-www-form-urlencoded',
-                                        'Accept': 'application/json'
-                                    }
-                                })
-                                if (x.ok) {
-                                    あ.$('#formtab').anim({ class: 'rotate-out-2-ccw' }, function () {
-                                        this.kill()
-                                    })
-                                }
-                                else {
-                                    confirm(`Something went wrong... reload and try again?`) && location.reload()
-                                }
-                            } catch (e) {
-                                //  confirm(`For whatever reason i couldnt send your message :(! reload and try again`) && location.reload()
-
-                                あ.$('#mainform').kill()
-                                あ.$('#jeff').innerHTML = 'Your message could not be sent because: '
-                                new Elem({
-                                    tag: 'p',
-                                    class: ['shake-horizontal'],
-                                    styles: { 'font-size': '25px', color: 'black' },
-                                    text: e.message, parent: あ.$('#formtab')
-                                })
-                                throw e
-                            }
-                            finally {
-                                Elem.$(t).kill()
-                                あ.$('#jeff').kill()
-
-                            }
-
-                        })()
-                }
-            },
-            text: 'Send'
-        }),
-    ]
-})
-abtme.hide()
-let projects = new Elem({
-    class: ['hello'], tag: 'div', parent: content, children: [
-        new Elem({ tag: 'h1', message: 'Most of these aren\'t done!' }),
-        new Elem({ tag: 'h3', message: 'Newer stuff:' }),
-
-    ]
-})
-let music = new Elem({
-    class: ['hello'], tag: 'div', parent: content, children: [
-        new Elem({ tag: 'i', text: 'Please don\'t judge me :(' })
-        ,
-        new Elem({
-            tag: 'div', class: ['hello'], styles: {
-                display: 'block'
-            }, children: [
-                new Elem({
-                    tag: 'button', class: ['cute-green-button', 'small'], events: {
-                        click() {
-                            currentVideo--
-                            if (!videos[currentVideo]) {
-                                currentVideo = videos.length - 1
-                            }
-                            youtube.src = videos[currentVideo]
-                        }
-                    }, message: 'Previous'
-                }),
-                new Elem({
-                    tag: 'button', class: ['cute-green-button', 'small'], events: {
-                        click() {
-                            currentVideo++
-                            if (!videos[currentVideo]) {
-                                currentVideo = 0
-                            }
-                            youtube.src = videos[currentVideo]
-                        }
-                    }, message: 'Next'
-                }),
-                new Elem.youtube({
-                    start(){if (!location.hostname.includes('addsoupbase'))this.kill()},
-                    src: 'https://www.youtube.com/embed/BjYWwZYLYEs', id: 'yt', loading: 'lazy' }),
-
-                /*    new Elem({tag:'img',src:'./media/catdance.webp',width:50,height:50}),
-                    new Elem({tag:'img',src:'./media/catdance.webp',width:50,height:50}),
-                
-                    new Elem({tag:'img',src:'./media/catdance.webp',width:50,height:50}),*/
-            ]
-        })
-
-    ]
-})
-music.hide()
-for (let url of ['https://addsoupbase.github.io/cute-emojis','https://addsoupbase.github.io/favourites', 'https://addsoupbase.github.io/marbles?level=testt', 'https://addsoupbase.github.io/whatever/', 'https://addsoupbase.github.io/twehg', 'https://addsoupbase.github.io/dataurl']) {
-    new Elem({ tag: 'a', href: url, parent: projects, text: url, target: "_blank", rel: "noopener noreferrer" })
-}
-new Elem({ tag: 'h3', message: 'Older stuff (bad):', parent: projects })
-for (let url of ['https://addsoupbase.github.io/textshortener', 'https://addsoupbase.github.io/intro/sizes', 'https://addsoupbase.github.io/intro/', 'https://magnificent-cream-beginner.glitch.me/', 'https://sepia-intermediate-taste.glitch.me/', 'https://dusty-flax-fukuiraptor.glitch.me/', 'https://eastern-verbena-van.glitch.me/', 'https://deeply-chlorinated-calendula.glitch.me/']) {
-    new Elem({ tag: 'a', href: url, parent: projects, text: url, target: "_blank", rel: "noopener noreferrer" })
-
-}
-projects.hide()
-outer.anim({ class: 'puff-in-center' })
-const youtube = Elem.$('#yt')
-let videos = ['BjYWwZYLYEs', 'Jd45THQSI2A', 'rfFEhd7mk7c', 'LaKaCP55EvY', 'iNzrwh2Z2hQ', 'tBPsDHJpZAo', 'YOtUQFXhmwA', '8mGBaXPlri8', 'QR_qa3Ohwls', 'd_HlPboLRL8', 'K17df81RL9Y', '-wMriLxUe_4']
-    .map(o => `https://www.youtube.com/embed/${o}`);
-
-let currentVideo = 0
-preload('./media/misdreavus.gif', f => {
-_('mis').addevent({click(){
-    this.disableEvent('click')
-    setTimeout(()=>this.enableEvent('click'),400)
-    let m;
-    let source = f;
-    if (ran.frange(1, 1000) === 2) {
-        source = './media/misdreavusshiny.gif'
     }
-    m = new SceneryElem({
-        class: ['pok'], parent: _('mis'),children: [
-            new Elem({ tag: 'img', src: source, styles: { top: '0px', position: 'absolute' } })
-        ]
-    })
-    m.velocity.add(1, 0)
-    m.position.set(-20, 0)
-
-
-}})
-  
-
 })
-let uhh = new Set([projects,abtme,music])
+let section = $('div', content)
+/*
+$('button,cute-green-button', {
+    parent: section,
+    txt: 'About',
+    title: 'about me'
+})
+$('button,cute-green-button', {
+    parent: section,
+    txt: 'Stuff',
+    title: 'stuff i made'
+})
+$('button,cute-green-button', {
+    parent: section,
+    txt: 'Music',
+    title: 'music'
+})*/
+$('p', { parent: section, txt: 'Send a message to my discord if you want' })
+let form = $('form', {
+    id: 'submit', parent: section, events: {
+        async $submit({ target }) {
+            let { name, message } = FormDataManager(target)
+            name ||= 'Anonymous'
+            await form.fadeout()
+            form.hide()
+            let loading = $('img,delibird', { parent: section, src: './media/loading.gif' })
+            let req = await fetch(`https://formspree.io/f/mqakzlyo`, {
+                method: 'POST',
+                body: `name=${encodeURIComponent(name)}&message=${encodeURIComponent(message)}`,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Accept': 'application/json'
+                }
+            })
+            if (req.ok) {
+                loading.src = './media/yay.gif'
+                await wait(1000)
+                await loading.fadeAndDestroy()
+                let f = $('h1', { txt: 'Message sent!!' })
+                form.replaceWith(f.cont)
+                f.fadein()
+            } else {
+                Alert("for some reason, your message could not be sent :(")
+            }
+            form.destroy()
+        }
+    }
+})
+let outer = $('div', { id: 'formholder', parent: form })
+let NAME = $('input,cute-green', { name: 'name', placeholder: 'Name', parent: outer })
+let MSG = $('input,cute-green', { name: 'message', placeholder: 'Message', required, parent: outer })
+let submitbutton = $('button,cute-green-button', { parent: form, txt: 'Send' })
