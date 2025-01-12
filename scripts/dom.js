@@ -11,7 +11,7 @@ main.animate([{ filter: 'blur(2px)', opacity: 0, scale: '0.8 0.8', translate: '0
 
 let avatarPreview = $('div,holdavatar', main)
 $('img', { parent: avatarPreview, src: './media/art.webp', id: 'avatar', title: 'misdreavus', alt: 'avatar' })
-$('h1,centerx', { txt: 'addsoupbase', parent: main, style: 'margin:auto;' }).animate([
+$('h1,centerx', { txt: 'addsoupbase', parent: main, style: 'margin:auto;z-index:3;position:relative;' }).animate([
     { scale: '' }, { scale: '1.1 1.1' },
 ], { duration: 500, iterations: 4, direction: 'alternate', easing: 'ease-in-out' })
 let content = $('section,centerx', {
@@ -27,7 +27,7 @@ $('button,cute-green-button', {
         }
     }
 })
-let section = $('div', content)
+let section = $('div,lol', content)
 /*
 $('button,cute-green-button', {
     parent: section,

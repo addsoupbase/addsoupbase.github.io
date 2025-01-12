@@ -99,6 +99,7 @@
   max-height: 85%;
   position: fixed;
   z-index: 3;
+  zoom: 0.85;
   height:500px;
   background-image: url(./media/flowers.gif), url(./media/topdecor.gif), url(./media/roses.gif);
   background-repeat: no-repeat, no-repeat, no-repeat;
@@ -177,10 +178,17 @@ iframe {
 }
 
 #submit {
-  display: inline-flex;
+  display: inline-block;
 }
 #formholder {
   display: grid;
+}
+.lol {
+  justify-content: center;
+  display: grid;
+}
+.username {
+  z-index: 40;
 }
 input.cute-green {
   background-color: #43b363;
@@ -201,7 +209,7 @@ input.cute-green {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   /* Soft shadow */
   transition: transform 0.3s ease, background-color 0.3s ease;
-  max-width: 300px;
+  max-width: 100%;
   /* Limit max width for aesthetic */
 }
 
