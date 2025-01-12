@@ -29,7 +29,7 @@ $('h3', {
     parent:main
 })
 let pokemonholder = $('div',{id:'pokemonholder',parent:main, 
-os: ['spinda','misdreavus','mawile','delcatty','masquerain','shedinja','clamperl','swoobat','gourgeist','minior','pheromosa'].map(o=>$('img,pkm',{alt:o,title:o,src:`./media/${o}_.webp`}))
+os: ['spinda','misdreavus','mawile','delcatty','masquerain','shedinja','clamperl','swoobat','gourgeist','minior',"trapinch",'pheromosa'].map(o=>$('img,pkm',{alt:o,title:o,src:`./media/${o}_.webp`}))
 });
 
 /*$("h2", {
