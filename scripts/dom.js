@@ -5,7 +5,6 @@ const bg = $('div', {
 })
 export default bg
 
-await until(document, 'DOMContentLoaded')
 await wait(1000)
 main.styleMe({ opacity: 0.95 })
 main.animate([{ filter: 'blur(2px)', opacity: 0, scale: '0.8 0.8', translate: '0 -40px' }, { filter: '', easing: 'ease-in' }], { duration: 700 })
