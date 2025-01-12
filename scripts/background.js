@@ -59,6 +59,7 @@ function createAnimationForSpritesheet(image) {
     return me
 }
 async function spawnPkmn() {
+    setTimeout(spawnPkmn,ran.range(1000,1600))
     let pick = ran.choose(...mons)
     const element = createAnimationForSpritesheet(pick)
     element.fadein()
@@ -77,7 +78,7 @@ async function spawnPkmn() {
     element.destroy()
 }
 setInterval(bubbleWithAva, 1000)
-setInterval(spawnPkmn, 1600)
+spawnPkmn()
 async function tinyBubbles(again = true) {
     again && setTimeout(tinyBubbles, ran.range(200, 500))
     let bubbl = $('div,bubble', parent)
