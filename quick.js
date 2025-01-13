@@ -6,22 +6,22 @@ monitorEvents
 */
 const sym = Symbol("🔔"), //For keeping track of events
     //But to also not potentially collide with existing keys
-    { warn, error } = console,
+    { warn } = console,
     { isArray } = Array
 export const allEvents = new WeakMap
-const eventGarbageCollectionCallback =
-    new FinalizationRegistry(function ([key, set]) { set.delete(key) })
+const eventGarbageCollectionCallback = new FinalizationRegistry(function ([key, set]) { set.delete(key) })
+
 function verifyEventName(target, name) {
-    name = name?.toLowerCase?.()
-    if (name === 'domcontentloaded' && target instanceof Document ||
-        name.match(/^(animation(cancel|end|remove))$/) && 'onremove' in target
+
+    if (name.match(/^domcontentloaded$/i) && target instanceof Document ||
+        name.match(/^(animation(cancel|end|remove))$/i) && 'onremove' in target
     ) return
     //Some events like the one above don't have a handler
-    if (!(`on${name}` in target)) throw TypeError(`🔇 Cannot listen for '${name}' events`)
+    if (!(`on${name.toLowerCase()}` in target)) throw TypeError(`🔇 Cannot listen for '${name}' events`)
     //Check if handler with name exists
 }
 export function wait(ms) {
-    return new Promise(resolve=>setTimeout(resolve,ms))
+    return new Promise(resolve => setTimeout(resolve, ms))
 }
 export function on(target, events, useHandler) {
     if (!(target instanceof EventTarget)) throw TypeError("🚫 Invalid event target")
@@ -141,9 +141,9 @@ const
 //These SVG tags have to be treated differently
 export class HTMLElementWrapper {
     #cont = null
-    ;[Symbol.toPrimitive]() {
-        return this.cont.outerHTML
-    }
+        ;[Symbol.toPrimitive]() {
+            return this.cont.outerHTML
+        }
     *[Symbol.iterator]() {
         yield* this.getElementsByTagName("*")
     }
@@ -252,13 +252,19 @@ export class HTMLElementWrapper {
         for (let { length } = styles; length--;) {
             let [prop, val] = styles[length]
             val = `${val}`
-            this.styles.set(prop, val)
             if (!val.trim()) this.styles.delete(prop)
             else if (!CSS.supports(prop, val)) warn(`⛓️‍💥 Unrecognized CSS in '${prop}: ${val}'`)
+            else this.styles.set(prop, val)
         }
         const final = extractCSSFromObject(Array.from(this.styles.entries()))
         return this.cont.style.cssText = final
     }
+    /**
+* New element
+* @param {String} tag An HTML element tag 
+* @param {Object | String} seed Object that describes the element
+* @returns Proxy instance
+*/
     constructor(seed = 'div') {
         if (typeof seed === 'string') seed = { tag: seed }
         let { from, tag = 'div', parent, offsprings, os } = seed,
@@ -280,15 +286,13 @@ export class HTMLElementWrapper {
             (document.documentElement.setHTMLUnsafe?.bind(document.documentElement) ?? document.documentElement.remove.bind(document.documentElement))('Check logs')
         }
         if (deprecatedTags.test(tag)) warn(`♿️ Deprecated '${seed.tag}' tag usage`)
-        //  this.__properties__ = new Map
         this.attr = new Proxy(this.cont, new.target.#attr)
         const proxy = new Proxy(this, new.target.#HANDLER)
         new.target.all.set(this.cont, proxy)
         // new.target.cleanup.register(this.cont,console.log)
         if (kids) proxy.offsprings = kids
         if (parent) proxy.parent = parent
-        classes&&
-            proxy.classList.add.apply(proxy.classList, classes)
+        classes && proxy.classList.add.apply(proxy.classList, classes)
         this.#start(seed)
         return proxy
     }
@@ -308,7 +312,7 @@ export class HTMLElementWrapper {
         cont[sym]?.size && off(cont, ...cont[sym])
         cont.getAnimations({ subtree: true }).forEach(removeAnimations)
         do cont.remove()
-        while (cont.parentElement)function removeAnimations(anim){anim.cancel()}
+        while (cont.parentElement) function removeAnimations(anim) { anim.cancel() }
     }
     #start(seed) {
         let keys = Object.keys(seed),
@@ -445,7 +449,7 @@ export class HTMLElementWrapper {
         let fragment
         if (children.length <= 1) fragment = HTMLElementWrapper.deverifyTarget(children[0])
         else for (let i = 0, { length } = children; i < length; ++i)
-            (fragment??=frag()).appendChild(HTMLElementWrapper.deverifyTarget(children[i]))
+            (fragment ??= frag()).appendChild(HTMLElementWrapper.deverifyTarget(children[i]))
         fragment && this.cont.appendChild(fragment)
     }
     eval(code) {
@@ -481,36 +485,21 @@ export function getProxy(element) {
     return HTMLElementWrapper.verifyTarget(element)
 }
 
-const $ = new Proxy(HTMLElementWrapper, {
-    /**
- * New element
- * @param {String} tag An HTML element tag 
- * @param {Object | String} seed Object that describes the element
- * @returns Proxy instance
- */
+HTMLElementWrapper = new Proxy(HTMLElementWrapper, {
+
     apply(target, _, args) {
         let [tag, seed = {}] = args
         if (seed instanceof HTMLElement || seed instanceof target) seed = { parent: seed }
         seed.tag = tag
         return new target(seed)
     },
-    construct(_,args) {
-        return $(...args)
+    construct(_, args) {
+        return HTMLElementWrapper(...args)
     }
 })
-/*function $(tag, seed) {
-    if (seed instanceof HTMLElement || seed instanceof HTMLElementWrapper) seed = { parent: seed }
-    seed.tag = tag
-    return new HTMLElementWrapper(seed)
-}*/
-export default $
-/*export const SYMBOLS = [sym], setup = {
-    get body() {
-        return $('body', { parent: document.documentElement, from: document.body ?? document.createElement('body') })
-    }
-}*/
+export default HTMLElementWrapper
 export async function importFont(name, src) {
-    if (!name || !src) throw TypeError('❔ More arguments needed')
+    if (!name || !src) throw TypeError('More arguments needed')
     const font = new FontFace(name, `url(${src})`)
     await font.load()
     document.fonts.add(font)
@@ -535,7 +524,7 @@ function extractCSSFromObject(obj) {
  */
 export function registerCSS(selector, rule) {
     const { sheet } =
-        addedStyleRules ??= $('style', { parent: document.head })
+        addedStyleRules ??= HTMLElementWrapper('style', { parent: document.head })
     sheet.insertRule(`${selector}{${extractCSSFromObject(rule)}}`)
 }
 if (frag) queueMicrotask(() => {
@@ -549,7 +538,7 @@ if (frag) queueMicrotask(() => {
     })
     registerCSS('.centerx,.center', {
         'justify-self': 'center',
-        margin:'auto'
+        margin: 'auto'
     })
     registerCSS('.centery,.center', {
         'align-self': 'center',
@@ -558,7 +547,7 @@ if (frag) queueMicrotask(() => {
     })
 })
 export const CSSSyntax = {
-    __proto__:null,
+    __proto__: null,
     boxShadow({ offsetX = '0px', offsetY = '0px', blurRadius = '', spreadRadius = '', color = '#000000' }) {
         return `${color} ${offsetX} ${offsetY} ${blurRadius} ${spreadRadius}`.replaceAll('  ', '')
     },
@@ -600,7 +589,7 @@ export const lstorage = typeof localStorage !== 'undefined' &&
 export function Alert(t, e) {
     const old = querySelector('dialog')
     old?.close(), old?.destroy()
-    return new Promise((o => { function n(t) { o(t), r.destroy() } let r = $("dialog", { events: { close() { n(t) } }, parent: document.body, os: [$("h1", { txt: t }), $("p", { txt: e }), $("form", { events: { submit() { n("OK") } }, method: "dialog", os: [$("button", { styles: { width: "200px", height: "30px" }, txt: "OK" })] })] }); r.showModal() }))
+    return new Promise((o => { function n(t) { o(t), r.destroy() } let r = HTMLElementWrapper("dialog", { events: { close() { n(t) } }, parent: document.body, os: [HTMLElementWrapper("h1", { txt: t }), HTMLElementWrapper("p", { txt: e }), HTMLElementWrapper("form", { events: { submit() { n("OK") } }, method: "dialog", os: [HTMLElementWrapper("button", { styles: { width: "200px", height: "30px" }, txt: "OK" })] })] }); r.showModal() }))
 }
 globalThis.Alert = Alert
 export const [
@@ -635,9 +624,9 @@ export function FormDataManager(FormDataInstance) {
 }
 on(window, {
     offline() {
-        reportError(new DOMException(`⛓️‍💥 Disconnected at ${new Date().toLocaleTimeString()}`, 'NetworkError'))
+        reportError(new DOMException(`⛓️‍💥 Disconnected at ${Date().toLocaleTimeString()}`, 'NetworkError'))
     },
     online() {
-        console.log(`🛜 Reconnected at ${new Date().toLocaleTimeString()}`)
+        console.log(`🛜 Reconnected at ${Date().toLocaleTimeString()}`)
     }
 }, true)

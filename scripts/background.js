@@ -1,18 +1,18 @@
 
 import { avatars, mons } from './images.js'
-import $, { getProxy, } from '../quick.js'
+import HTMLElementWrapper, { getProxy, } from '../quick.js'
 import { math, ran, string } from '../misc.js'
-const iframe = $('iframe,center', {
+const iframe = HTMLElementWrapper('iframe,center', {
     parent:document.body,
     id:'frame',
     src:'./main.html'
 })
 
-const parent = $('div', {
+const parent = HTMLElementWrapper('div', {
     id: 'background', parent: document.body
 })
 let bg = parent
-const frameDuration = 150
+const frameDuration = 135
 const duration = 12_000
 const cycle = math.cycle(...ran.shuffle(...avatars))
 async function click({ x, y }) {
@@ -22,13 +22,13 @@ async function click({ x, y }) {
     await this.animate([{ transform: '' }, { transform: 'scaleX(2) scaleY(2)', }], { duration: 300, easing: 'ease-in-out', composite: 'add' }).finished
     let name =
         new URL(this.firstElementChild.src, location).pathname.split('/').at(-1).split('.')[0]
-    let me = $('div,ava tar', {
+    let me = HTMLElementWrapper('div,ava tar', {
         styles: {
             'background-image': `url(${this.firstElementChild.src})`
         },
         alt: name,
         parent: bg,
-        os: [$('p,displayName', { txt: '@' + string.upper(name) })]
+        os: [HTMLElementWrapper('p,displayName', { txt: '@' + string.upper(name) })]
     })
     this.remove()
     me.fadein()
@@ -38,16 +38,16 @@ async function click({ x, y }) {
 }
 function bubbleWithAva(image = cycle.next) {
     const { src } = image
-    let n = $('div,bubble', { width: 50, height: 50, parent })
+    let n = HTMLElementWrapper('div,bubble', { width: 50, height: 50, parent })
     let settings = ran.coin
-        ? [{ transform: `translateX(100vw)` }, { transform: `translateX(-10vw)` },]
-        : [{ transform: `translateX(-10vw)` }, { transform: `translateX(100vw)` }]
+        ? [{ transform: `translateX(calc(100vw + ${n.offsetWidth}px))` }, { transform: `translateX(calc(-10vw - ${n.offsetWidth}px))` },]
+        : [{ transform: `translateX(calc(-10vw - ${n.offsetWidth}px))` }, { transform: `translateX(calc(100vw + ${n.offsetWidth}px))` }]
     n.animate(settings, { duration }).finished.then(() => n.destroy())
     const c = ran.range(0, innerHeight)
     n.animate([{ translate: `0 ${c}px` }, { translate: `0 ${c - 200}px` }], { easing: 'ease-in-out', duration: ran.range(2000, 3000), iterations: 1 / 0, direction: 'alternate' })
 
     n.onclick = click
-    const out = $('img,ava', {
+    const out = HTMLElementWrapper('img,ava', {
         parent: n,
         src,
         alt: src,
@@ -58,7 +58,7 @@ function bubbleWithAva(image = cycle.next) {
     out.animate([{ rotate: '' }, { rotate: `${ran.choose(360, -360)}deg` }], { duration: 80000, iterations: 1 / 0, easing: 'linear' })
 }
 function createAnimationForSpritesheet(image) {
-    let me = $(`div,${image.__name} sprite`, { parent, })
+    let me = HTMLElementWrapper(`div,${image.__name} sprite`, { parent, })
     me.animate([{
         'backgroundPositionX': '0px'
     },
@@ -77,22 +77,24 @@ async function spawnPkmn() {
     element.styleMe({ transform: `translateY(${ran.range(0, innerHeight)}px) scaleX(${coin ? '-1' : '1'})`, })
 
     let settings = coin
-        ? [{ translate: `100vw 0` }, { translate: `-10vw 0` },]
-        : [{ translate: `-10vw 0` }, { translate: `100vw 0` }],
+        ? [{ translate: `calc(100vw + ${element.offsetWidth}px) 0` }, { translate: `calc(-10vw - ${element.offsetWidth}px) 0` },]
+        : [{ translate: `calc(-10vw - ${element.offsetWidth}px) 0` }, { translate: `calc(100vw + ${element.offsetWidth}px) 0` }],
         duration = 15000
     switch (pick.__name) {
-        case 'wailord': duration = 24400; break
-        case 'sharpedo': case 'carvanha': duration = 10000; break
+        case 'wailord': duration = 30400; break
+        case 'sharpedo': case 'carvanha': duration = 8300; break
+//        case 'corsola': element.animate([{transform: 'rotateZ(0deg)'}, {transform: `rotateZ(360deg)`}], {composite:'add',easing:'linear',duration:5000, iterations:1/0,direction:coin?'reverse':'normal'})
     }
+    duration *= 0.9
     await element.animate(settings, { easing: 'linear', duration, composite: 'add' }).finished
     element.destroy()
 }
-setInterval(bubbleWithAva, 1000)
+setInterval(bubbleWithAva, 2000)
 spawnPkmn()
 async function tinyBubbles(again = true) {
     again && setTimeout(tinyBubbles, ran.range(500, 600))
-    let bubbl = $('div,bubble', parent)
-    let num = ran.range(17, 28)
+    let bubbl = HTMLElementWrapper('div,bubble', parent)
+    let num = ran.range(13, 23)
     bubbl.styleMe({ width: `${num}px`, height: `${num}px`, left: `${ran.range(0, innerWidth)}px`, top: '100%' })
     bubbl.animate([{ transform: `translateX(-10px)` }, { transform: 'translateX(10px)' }], { iterations: 1 / 0, duration: 200, direction: 'alternate', easing: 'ease-in-out', composite: 'add' })
     await bubbl.animate([{ transform: `translateY(0px)`, }, { transform: `translateY(-110vh)` }], { easing: 'ease-in', duration: 8000, composite: 'add' }).finished

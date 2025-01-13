@@ -1,35 +1,37 @@
-import $, { wait } from './quick.js'
-const main = $('main,center cute-green', { parent: document.body, id: 'main', })
+import HTMLElementWrapper, { wait } from './quick.js'
+const main = HTMLElementWrapper('main,center cute-green', { parent: document.body, id: 'main', })
 main.fadein()
-let div = $("section", {
+const bday = new Date(2007, 5, 17)
+
+let div = HTMLElementWrapper("section", {
     parent: main
 })
-$('a,cute-green-button back', {
+HTMLElementWrapper('a,cute-green-button back', {
     parent: main,
     txt: 'Back',
     href: 'main.html',
 })
 
-let desc = $('div', { parent: div, id: 'maindesc' })
+let desc = HTMLElementWrapper('div', { parent: div, id: 'maindesc' })
 main.styleMe({opacity:0})
 await wait(600)
 main.fadein()
 main.styleMe({opacity:.95})
 
-$('div,descrHolder', {
+HTMLElementWrapper('div,descrHolder', {
     parent: desc,
-    os: [$("p", { txt: 'My name is...' }), $("h1", { txt: 'Misha' }), $('i,small', {txt:'Миша'})]
+    os: [HTMLElementWrapper("p", { txt: 'My name is...' }), HTMLElementWrapper("h1", { txt: 'Misha' }), HTMLElementWrapper('i,small', {txt:'Миша'})]
 })
-$('div,descrHolder', {
+HTMLElementWrapper('div,descrHolder', {
     parent: desc,
-    os: [$("p", { txt: 'I am...' }), $("h1", { txt: '17 years old' }),$('i,small',{txt:'June 17, 2007'})]
+    os: [HTMLElementWrapper("p", { txt: 'I am...' }), HTMLElementWrapper("h1", { txt: `${Math.floor(new Date().getFullYear() - bday.getFullYear() - (bday.getMonth()/12))} years old` }),HTMLElementWrapper('i,small',{txt:'June 17 2007'})]
 })
-$('h3', {
+HTMLElementWrapper('h3', {
     txt:'Fav pokemon:',
     parent:main
 })
-let pokemonholder = $('div',{id:'pokemonholder',parent:main, 
-os: ['spinda','misdreavus','mawile','delcatty','masquerain','shedinja','clamperl','swoobat','gourgeist','minior',"trapinch",'pheromosa'].map(o=>$('img,pkm',{alt:o,title:o,src:`./media/${o}_.webp`}))
+let pokemonholder = HTMLElementWrapper('div',{id:'pokemonholder',parent:main, 
+os: ['spinda','misdreavus','mawile','delcatty','masquerain','shedinja','clamperl','swoobat','gourgeist','minior',"trapinch",'pheromosa'].map(o=>HTMLElementWrapper('img,pkm',{alt:o,title:o,src:`./media/${o}_.webp`}))
 });
 
 /*$("h2", {
