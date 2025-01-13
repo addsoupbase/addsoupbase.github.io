@@ -287,7 +287,7 @@ export class HTMLElementWrapper {
         // new.target.cleanup.register(this.cont,console.log)
         if (kids) proxy.offsprings = kids
         if (parent) proxy.parent = parent
-        if (classes)
+        classes&&
             proxy.classList.add.apply(proxy.classList, classes)
         this.#start(seed)
         return proxy
