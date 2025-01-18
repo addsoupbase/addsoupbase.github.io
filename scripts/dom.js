@@ -1,5 +1,6 @@
 
-import HTMLElementWrapper, { FormDataManager, required, until, wait } from '../quick.js'
+import HTMLElementWrapper, { FormDataManager, required } from '../quick.js'
+import {wait} from "../handle.js"
 const main = HTMLElementWrapper('main,center cute-green', { parent: document.body, id: 'main', style: 'opacity:0' })
 await wait(300)
 main.styleMe({ opacity: 0.95 })

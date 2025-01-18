@@ -96,6 +96,7 @@
 #main {
   width:85%;
   height:90%;
+  image-rendering: pixelated;
   background-image: url(./media/flowers.webp), url(./media/topdecor.webp), url(./media/roses.webp);
   background-repeat: no-repeat, no-repeat, no-repeat;
   background-size: contain, 130px, 13%;
@@ -116,14 +117,22 @@ svg {
 
 #background {
   z-index: 2;
-
+  position: fixed;
+  width:100vw;
+  height:100vh;
+  margin: 0;
+  padding: 0;
+  top:0;
+  left:0;
 }
 
 #background::after {
   content: '';
-  position: absolute;
+  position: fixed;
   width:100vw;
   height:100vh;
+  margin: 0;
+  padding: 0;
   top: 0;
   left: 0;
   right: 0;

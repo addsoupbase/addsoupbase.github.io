@@ -1,13 +1,13 @@
 
 import { avatars, mons } from './images.js'
 import HTMLElementWrapper, { getProxy, } from '../quick.js'
-import { math, ran, string } from '../misc.js'
+import { math, ran, string, vect } from '../misc.js'
 const iframe = HTMLElementWrapper('iframe,center', {
     parent:document.body,
     id:'frame',
     src:'./main.html'
 })
-
+console.log('Sprites credit: https://sprites.pmdcollab.org/')
 const parent = HTMLElementWrapper('div', {
     id: 'background', parent: document.body
 })

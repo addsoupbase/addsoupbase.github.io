@@ -1,4 +1,5 @@
-import HTMLElementWrapper, { wait } from './quick.js'
+import HTMLElementWrapper from './quick.js'
+import {wait} from './handle.js'
 const main = HTMLElementWrapper('main,center cute-green', { parent: document.body, id: 'main', })
 main.fadein()
 const bday = new Date(2007, 5, 17)

@@ -4,149 +4,22 @@ reportError
 monitor
 monitorEvents
 */
-const sym = Symbol("🔔"), //For keeping track of events
-    //But to also not potentially collide with existing keys
-    { warn } = console,
-    { isArray } = Array
-export const allEvents = new WeakMap
-const eventGarbageCollectionCallback = new FinalizationRegistry(function ([key, set]) { set.delete(key) })
-
-function verifyEventName(target, name) {
-
-    if (name.match(/^domcontentloaded$/i) && target instanceof Document ||
-        name.match(/^(animation(cancel|end|remove))$/i) && 'onremove' in target
-    ) return
-    //Some events like the one above don't have a handler
-    if (!(`on${name.toLowerCase()}` in target)) throw TypeError(`🔇 Cannot listen for '${name}' events`)
-    //Check if handler with name exists
-}
-export function wait(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms))
-}
-export function on(target, events, useHandler) {
-    if (!(target instanceof EventTarget)) throw TypeError("🚫 Invalid event target")
-    if (!(target[sym] instanceof Set))
-        //This will hold the NAMES of the events
-        Object.defineProperty(target, sym, { value: new Set })
-    console.groupCollapsed(`on(${target[Symbol.toStringTag]})`)
-    const myEvents = target[sym]
-    if (!isArray(events)) events = Object.entries(events)
-
-    for (let [eventName, func] of events) {
-        const options = {
-            capture: false,
-            once: false,
-            passive: false,
-        }
-        const corn = HTMLElementWrapper.all.get(target)
-        let once = false,
-            prevents = false
-        if (eventName.includes('_')) {
-            //Event that only triggers once,
-            //and then is discarded
-            eventName = eventName.replace('_', '')
-            once = true
-        }
-        if (eventName.includes('$')) {
-            //Automatically calls prevent default
-            eventName = eventName.replace('$', '')
-            prevents = true
-        }
-        if (myEvents.has(eventName)) {
-            warn(`🔕 Duplicate '${eventName}' listener on `, target)
-            continue
-        }
-        verifyEventName(target, eventName)
-        //event.target will be the proxy if it exists
-        func = new Proxy(func.bind(corn instanceof HTMLElementWrapper ? corn : target), {
-            apply(targ, _, argArray) {
-                once && off(target, eventName)
-                if (prevents) {
-                    const [event] = argArray
-                    event.cancelable ?
-                        event.preventDefault() :
-                        warn(`🔊 '${eventName}' events are not cancelable`)
-                }
-                return targ.apply(null, argArray)
-            }
-        })
-        eventGarbageCollectionCallback.register(func, [eventName, myEvents])
-        if (useHandler) target[`on${eventName}`] = func
-        else {
-            target.addEventListener(eventName, func, options)
-            if (!allEvents.has(target)) allEvents.set(target, new Map)
-            //A Map to hold the names & events
-            const myGlobalEventMap = allEvents.get(target)
-            myGlobalEventMap.set(eventName, func)
-            myEvents.add(eventName)
-        }
-        console.debug(`🔔 '${eventName}' event added to `, target)
-    }
-    console.groupEnd()
-    return target
-}
-export function off(target, ...eventNames) {
-    if (!(target instanceof EventTarget) || !(target[sym] instanceof Set) || !allEvents.has(target))
-        throw TypeError("🚫 Invalid event target")
-    console.groupCollapsed(`off(${target[Symbol.toStringTag] || target})`)
-    const map = allEvents.get(target),
-        mySet = target[sym]
-    for (let { length } = eventNames; length--;) {
-        const name = eventNames[length],
-            func = map.get(name)
-        map.has(name) && console.debug(`🔕 '${name}' event removed from `, target)
-        target.removeEventListener(name, func)
-        map.delete(name)
-        mySet.delete(name)
-        map.size || allEvents.delete(target)
-    }
-    console.groupEnd()
-}
-export function until(target, eventName, timeout/* = 600000*/) {
-    return new Promise(un)
-    /*                  */
-    function un(resolve, reject) {
-        const id = timeout && setTimeout(reject, timeout, RangeError(`⏰ Promise for '${eventName}' expired after ${timeout} ms`))
-        const handleName = `on${eventName}`
-        if (target[handleName] === null) {
-            //Use the handler property if we can
-            target[handleName] = handler
-            function handler(event) {
-                try { resolve(event) }
-                catch (e) { reject(e) }
-                finally {
-                    delete target[handleName]
-                    timeout && clearTimeout(id)
-                }
-            }
-        }
-        else on(target, {
-            //Use the addEventListener
-            [eventName](event) {
-                try { resolve(event) }
-                catch (e) { reject(e) }
-                finally {
-                    off(target, eventName)
-                    timeout && clearTimeout(id)
-                }
-            }
-        })
-    }
-}
-
+import sym, { on, off } from './handle.js'
 const
+    { isArray } = Array,
+    { warn } = console,
     frag = typeof document !== 'undefined' ? document.createDocumentFragment.bind(document) : null,
     deprecatedTags = /^(tt|acronym|big|center|dir|font|frame|frameset|marquee|nobr|noembed|noframes|param|plaintext|rb|rtc|strike|tt|xmp)$/i,
     svgTags = /^(animate|animateMotion|animateTransform|circle|clipPath|defs|desc|ellipse|feBlend|feColorMatrix|feComponentTransfer|feComposite|feConvolveMatrix|feDiffuseLighting|feDisplacementMap|feDistantLight|feDropShadow|feFlood|feFuncA|feFuncB|feFuncG|feFuncR|feGaussianBlur|feImage|feMerge|feMergeNode|feMorphology|feOffset|fePointLight|feSpecularLighting|feSpotLight|feTile|feTurbulence|filter|foreignObject|g|glyph|glyphRef|hkern|image|line|linearGradient|marker|mask|metadata|missing-glyph|mpath|path|pattern|polygon|polyline|radialGradient|rect|set|stop|svg|switch|symbol|text|textPath|tref|tspan|use|view|vkern)$/i
 //These SVG tags have to be treated differently
 export class HTMLElementWrapper {
-    #cont = null
-        ;[Symbol.toPrimitive]() {
-            return this.cont.outerHTML
-        }
+    [Symbol.toPrimitive]() {
+        return this.cont.outerHTML
+    }
     *[Symbol.iterator]() {
         yield* this.getElementsByTagName("*")
     }
+    #cont = null
     getElementById(id) {
         return getElementById.call(this, id)
     }
@@ -189,7 +62,7 @@ export class HTMLElementWrapper {
             if (prop in target) return target[prop]
             if (typeof prop === 'string' && cont.hasAttribute(prop)) return cont.getAttribute(prop)
             let out = cont[prop]
-            if (typeof out === 'function') out = out.bind(cont)
+            if (typeof out === 'function') target[prop] = out = out.bind(cont)
             else if (out instanceof HTMLElement) out = getProxy(out)
             return out
         },
@@ -283,7 +156,6 @@ export class HTMLElementWrapper {
         this.#cont = new WeakRef(this.#cont)
         if (new.target.all.has(this.cont)) {
             reportError(TypeError('Something went wrong!'));
-            (document.documentElement.setHTMLUnsafe?.bind(document.documentElement) ?? document.documentElement.remove.bind(document.documentElement))('Check logs')
         }
         if (deprecatedTags.test(tag)) warn(`♿️ Deprecated '${seed.tag}' tag usage`)
         this.attr = new Proxy(this.cont, new.target.#attr)
@@ -335,7 +207,7 @@ export class HTMLElementWrapper {
             else if (cont.hasAttribute(prop))
                 cont.setAttribute(prop, seed[prop])
         }
-        if ('events' in seed) on(cont, seed.events)
+        if ('events' in seed) this.on(seed.events)
         if ('styles' in seed) this.styleMe(seed.styles)
         if ('txt' in seed) this.txt = seed.txt
         if (seed.tag === 'button' || seed.type === 'button') this.styleMe({ cursor: 'pointer' })
@@ -344,6 +216,10 @@ export class HTMLElementWrapper {
             Object.assign(this.attr, seed.attributes)
     }
     on(events) {
+        let k = this
+        events = (isArray(events) ? events : Object.entries(events)).map(function ([name, event]) {
+            return [name, event.bind(k)]
+        })
         return on(this.cont, events)
     }
     off(...names) {
@@ -452,7 +328,7 @@ export class HTMLElementWrapper {
             (fragment ??= frag()).appendChild(HTMLElementWrapper.deverifyTarget(children[i]))
         fragment && this.cont.appendChild(fragment)
     }
-    eval(code) {
+    #eval(code) {
         Function(`with(this)void class{static{${code}}}`).call(this)
     }
     get tagname() {
@@ -484,9 +360,7 @@ export function querySelectorAll(selector) {
 export function getProxy(element) {
     return HTMLElementWrapper.verifyTarget(element)
 }
-
-HTMLElementWrapper = new Proxy(HTMLElementWrapper, {
-
+export default HTMLElementWrapper = new Proxy(HTMLElementWrapper, {
     apply(target, _, args) {
         let [tag, seed = {}] = args
         if (seed instanceof HTMLElement || seed instanceof target) seed = { parent: seed }
@@ -497,7 +371,6 @@ HTMLElementWrapper = new Proxy(HTMLElementWrapper, {
         return HTMLElementWrapper(...args)
     }
 })
-export default HTMLElementWrapper
 export async function importFont(name, src) {
     if (!name || !src) throw TypeError('More arguments needed')
     const font = new FontFace(name, `url(${src})`)
@@ -591,7 +464,6 @@ export function Alert(t, e) {
     old?.close(), old?.destroy()
     return new Promise((o => { function n(t) { o(t), r.destroy() } let r = HTMLElementWrapper("dialog", { events: { close() { n(t) } }, parent: document.body, os: [HTMLElementWrapper("h1", { txt: t }), HTMLElementWrapper("p", { txt: e }), HTMLElementWrapper("form", { events: { submit() { n("OK") } }, method: "dialog", os: [HTMLElementWrapper("button", { styles: { width: "200px", height: "30px" }, txt: "OK" })] })] }); r.showModal() }))
 }
-globalThis.Alert = Alert
 export const [
     disabled,
     resize,

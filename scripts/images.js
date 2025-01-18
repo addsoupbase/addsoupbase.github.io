@@ -1,5 +1,5 @@
-import { registerCSS, until } from "../quick.js"
-
+import { registerCSS, } from "../quick.js"
+import {until} from "../handle.js"
 const avatars = await Promise.all((await (await fetch('./scripts/allava.json')).json()).map(
     async function (o) {
         let n = new Image
