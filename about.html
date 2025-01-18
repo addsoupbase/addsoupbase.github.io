@@ -1,12 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Me</title>
     <link rel="stylesheet" href="./styles.css">
 </head>
+
 <body>
-    <script type="module" src="aboutme.js"></script>
+    <script type="module">
+        import HTMLElementWrapper from './quick.js'
+        import { wait } from './handle.js'
+        const main = HTMLElementWrapper('main,center cute-green', { parent: document.body, id: 'main', })
+        main.fadein()
+        const bday = new Date(2007, 5, 17)
+
+        let div = HTMLElementWrapper("section", {
+            parent: main
+        })
+        HTMLElementWrapper('a,cute-green-button back', {
+            parent: main,
+            txt: 'Back',
+            href: 'main.html',
+        })
+
+        let desc = HTMLElementWrapper('div', { parent: div, id: 'maindesc' })
+        main.styleMe({ opacity: 0 })
+        await wait(600)
+        main.fadein()
+        main.styleMe({ opacity: .95 })
+
+        HTMLElementWrapper('div,descrHolder', {
+            parent: desc,
+            os: [HTMLElementWrapper("p", { txt: 'My name is...' }), HTMLElementWrapper("h1", { txt: 'Misha' }), HTMLElementWrapper('i,small', { txt: 'Миша' })]
+        })
+        HTMLElementWrapper('div,descrHolder', {
+            parent: desc,
+            os: [HTMLElementWrapper("p", { txt: 'I am...' }), HTMLElementWrapper("h1", { txt: `${Math.floor(new Date().getFullYear() - bday.getFullYear() - (bday.getMonth() / 12))} years old` }), HTMLElementWrapper('i,small', { txt: 'June 17 2007' })]
+        })
+        HTMLElementWrapper('h3', {
+            txt: 'Fav pokemon:',
+            parent: main
+        })
+        let pokemonholder = HTMLElementWrapper('div', {
+            id: 'pokemonholder', parent: main,
+            os: ['spinda', 'misdreavus', 'mawile', 'delcatty', 'masquerain', 'shedinja', 'clamperl', 'swoobat', 'gourgeist', 'minior', "trapinch", 'pheromosa'].map(o => HTMLElementWrapper('img,pkm', { alt: o, title: o, src: `./media/${o}_.webp` }))
+        });
+
+        /*$("h2", {
+            parent:main,
+            txt:'Things I like'
+        })
+        $('ul', {
+            id: 'list',
+            parent:main,
+            os: ['pokémon', 'HYPER PEOPLE','sparkly stuff'].map(o=>$('li', {
+                txt: o,
+                id: o.replaceAll(' ','')
+            }))
+        })*/
+    </script>
 </body>
+
 </html>

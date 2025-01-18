@@ -201,7 +201,7 @@ export class HTMLElementWrapper {
                 cont.toggleAttribute('open', true)
             else if (prop === 'autofocus')
                 queueMicrotask(() => cont.focus())
-            else if (prop in cont)
+            else if (prop in cont) 
                 try { cont[prop] = seed[prop] }
                 catch { cont.setAttribute(prop, seed[prop]) }
             else if (cont.hasAttribute(prop))
@@ -496,9 +496,9 @@ export function FormDataManager(FormDataInstance) {
 }
 on(window, {
     offline() {
-        reportError(new DOMException(`⛓️‍💥 Disconnected at ${Date().toLocaleTimeString()}`, 'NetworkError'))
+        reportError(new DOMException(`⛓️‍💥 Disconnected at ${new Date().toLocaleTimeString()}`, 'NetworkError'))
     },
     online() {
-        console.log(`🛜 Reconnected at ${Date().toLocaleTimeString()}`)
+        console.log(`🛜 Reconnected at ${new Date().toLocaleTimeString()}`)
     }
 }, true)
