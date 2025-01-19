@@ -1,17 +1,6 @@
 
-import { avatars, mons } from './images.js'
-import HTMLElementWrapper, { getProxy, } from '../quick.js'
-import { math, ran, string, vect } from '../misc.js'
-const iframe = HTMLElementWrapper('iframe,center', {
-    parent:document.body,
-    id:'frame',
-    src:'./main.html'
-})
-console.log('Sprites credit: https://sprites.pmdcollab.org/')
-const parent = HTMLElementWrapper('div', {
-    id: 'background', parent: document.body
-})
-let bg = parent
+function images({avatars,mons}) {
+    let bg = parent
 const frameDuration = 135
 const duration = 12_000
 const cycle = math.cycle(...ran.shuffle(...avatars))
@@ -101,3 +90,17 @@ async function tinyBubbles(again = true) {
     bubbl.destroy()
 }
 tinyBubbles()
+}
+import HTMLElementWrapper, { getProxy, } from '../quick.js'
+import { math, ran, string } from '../misc.js'
+const iframe = HTMLElementWrapper('iframe,center', {
+    parent:document.body,
+    id:'frame',
+    src:'./main.html'
+})
+console.log('Sprites credit: https://sprites.pmdcollab.org/')
+const parent = HTMLElementWrapper('div', {
+    id: 'background', parent: document.body
+})
+window.requestIdleCallback ??= queueMicrotask
+requestIdleCallback(()=>import('./images.js').then(images), {timeout: 2000})
