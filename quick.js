@@ -41,6 +41,17 @@ export class HTMLElementWrapper {
     batch(...children) {
         return this.offsprings = children
     }
+    get children() {
+        return Array.from(this.cont.children, getProxy)
+    }
+    set children(children) {
+        children ??= []
+        isArray(children) || (children = [children])
+        children = children.map(HTMLElementWrapper.deverifyTarget)
+        let fragment = frag()
+        fragment.appendChild(...children)
+        this.cont.replaceChildren(fragment)
+    }
     static verifyTarget(element) {
         //Okay this is really confusing but it works so
         const exists = HTMLElementWrapper.all.get(element)
