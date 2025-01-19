@@ -38,6 +38,9 @@ export class HTMLElementWrapper {
     querySelectorAll(selector) {
         return querySelectorAll.call(this, selector)
     }
+    batch(...children) {
+        return this.offsprings = children
+    }
     static verifyTarget(element) {
         //Okay this is really confusing but it works so
         const exists = HTMLElementWrapper.all.get(element)
@@ -60,7 +63,10 @@ export class HTMLElementWrapper {
             const { cont } = target
             if (prop === 'cont') return cont
             if (prop in target) return target[prop]
-            if (typeof prop === 'string' && cont.hasAttribute(prop)) return cont.getAttribute(prop)
+            if (typeof prop === 'string' && cont.hasAttribute(prop)) {
+                debugger
+                return cont.getAttribute(prop)
+            }
             let out = cont[prop]
             if (typeof out === 'function') target[prop] = out = out.bind(cont)
             else if (out instanceof HTMLElement) out = getProxy(out)
@@ -201,9 +207,11 @@ export class HTMLElementWrapper {
                 cont.toggleAttribute('open', true)
             else if (prop === 'autofocus')
                 queueMicrotask(() => cont.focus())
-            else if (prop in cont) 
+            else if (prop in cont && prop !== 'attributes') {
+                debugger //You should not use this anymore
                 try { cont[prop] = seed[prop] }
                 catch { cont.setAttribute(prop, seed[prop]) }
+            }
             else if (cont.hasAttribute(prop))
                 cont.setAttribute(prop, seed[prop])
         }
@@ -212,11 +220,10 @@ export class HTMLElementWrapper {
         if ('txt' in seed) this.txt = seed.txt
         if (seed.tag === 'button' || seed.type === 'button') this.styleMe({ cursor: 'pointer' })
         if ('offsprings' in seed && 'os' in seed) warn('🚼 Child was overwritten')
-        if ('attributes' in seed)
-            Object.assign(this.attr, seed.attributes)
+        if ('attributes' in seed || 'attr' in seed) this.setAttributes(seed.attributes || seed.attr)
     }
     on(events) {
-        let k = this
+        let k = getProxy(this.cont)
         events = (isArray(events) ? events : Object.entries(events)).map(function ([name, event]) {
             return [name, event.bind(k)]
         })
@@ -337,6 +344,12 @@ export class HTMLElementWrapper {
 }
 const { from } = Array
 export function getElementsByTagName(tag) {
+    if (!this) {
+        if (tag === 'img') return from(document.images, getProxy)
+        if (tag === 'a') return from(document.links, getProxy)
+        if (tag === 'embed') return from(document.embeds, getProxy)
+        if (tag === 'script') return from(document.scripts, getProxy)
+    }
     return from((this ?? document).getElementsByTagName(tag), getProxy)
 }
 export function getElementsByClassName(CLASS) {
@@ -363,6 +376,7 @@ export function getProxy(element) {
 export default HTMLElementWrapper = new Proxy(HTMLElementWrapper, {
     apply(target, _, args) {
         let [tag, seed = {}] = args
+        if (tag instanceof HTMLElement) return getProxy(tag)
         if (seed instanceof HTMLElement || seed instanceof target) seed = { parent: seed }
         seed.tag = tag
         return new target(seed)
