@@ -23,10 +23,10 @@ export function on(target, events, useHandler) {
     if (!(target[sym] instanceof Set))
         //This will hold the NAMES of the events
         Object.defineProperty(target, sym, { value: new Set })
-    console.groupCollapsed(`on(${target[Symbol.toStringTag]})`)
+    console.groupCollapsed(`on(${target[Symbol.toStringTag] ?? 'Unknown'})`)
+    console.log(`Target: `,target)
     const myEvents = target[sym]
     if (!isArray(events)) events = Object.entries(events)
-
     for (let [eventName, func] of events) {
         const options = {
             capture: false,
@@ -64,7 +64,7 @@ export function on(target, events, useHandler) {
             myGlobalEventMap.set(eventName, func)
             myEvents.add(eventName)
         }
-        console.debug(`🔔 '${eventName}' event added to `, target)
+        console.debug(`🔔 '${eventName}' event added`)
     }
     console.groupEnd()
     return target
@@ -73,12 +73,13 @@ export function off(target, ...eventNames) {
     if (!(target instanceof EventTarget) || !(target[sym] instanceof Set) || !allEvents.has(target))
         throw TypeError("🚫 Invalid event target")
     console.groupCollapsed(`off(${target[Symbol.toStringTag] || target})`)
+    console.log(`Target: `,target)
     const map = allEvents.get(target),
         mySet = target[sym]
     for (let { length } = eventNames; length--;) {
         const name = eventNames[length],
             func = map.get(name)
-        map.has(name) && console.debug(`🔕 '${name}' event removed from `, target)
+        map.has(name) && console.debug(`🔕 '${name}' event removed`)
         target.removeEventListener(name, func)
         map.delete(name)
         mySet.delete(name)
