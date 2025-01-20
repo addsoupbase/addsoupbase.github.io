@@ -101,10 +101,10 @@ export class HTMLElementWrapper {
     }
     styles = new Map
     hide() {
-        this.styleMe({ display: 'none' })
+        this.cont.toggleAttribute('hidden','true')
     }
     show() {
-        this.styleMe({ display: '' })
+        this.cont.toggleAttribute('hidden','false')
     }
     fadeout(duration = 500) {
         return this.animate([
