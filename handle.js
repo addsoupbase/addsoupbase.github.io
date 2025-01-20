@@ -23,7 +23,7 @@ export function on(target, events, useHandler) {
     if (!(target[sym] instanceof Set))
         //This will hold the NAMES of the events
         Object.defineProperty(target, sym, { value: new Set })
-    console.groupCollapsed(`on(${target[Symbol.toStringTag] ?? 'Unknown'})`)
+    console.groupCollapsed(`on(${target[Symbol.toStringTag] || target.constructor?.name || target})`)
     console.log(`Target: `,target)
     const myEvents = target[sym]
     if (!isArray(events)) events = Object.entries(events)
@@ -72,7 +72,7 @@ export function on(target, events, useHandler) {
 export function off(target, ...eventNames) {
     if (!(target instanceof EventTarget) || !(target[sym] instanceof Set) || !allEvents.has(target))
         throw TypeError("🚫 Invalid event target")
-    console.groupCollapsed(`off(${target[Symbol.toStringTag] || target})`)
+    console.groupCollapsed(`off(${target[Symbol.toStringTag] || target.constructor?.name || target})`)
     console.log(`Target: `,target)
     const map = allEvents.get(target),
         mySet = target[sym]
