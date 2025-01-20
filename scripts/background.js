@@ -105,6 +105,7 @@ const iframe = HTMLElementWrapper('iframe,center', {
     }
 })
 window.final = function () {
+    window.final = () => {}
         import('./images.js').then(images);
         console.log("Loading the bg now...")
 }
