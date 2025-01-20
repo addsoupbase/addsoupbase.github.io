@@ -90,7 +90,7 @@ let form = $('form', {
             await form.fadeout()
             form.hide()
             let loading = $('img,delibird', {src: './media/loading.webp' })
-            form.before(loading.cont)
+            form.before(loading)
             let req = await fetch(`https://formspree.io/f/mqakzlyo`, {
                 method: 'POST',
                 body: `name=${encodeURIComponent(name)}&message=${encodeURIComponent(message)}`,

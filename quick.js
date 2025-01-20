@@ -52,6 +52,12 @@ export class HTMLElementWrapper {
         fragment.appendChild(...children)
         this.cont.replaceChildren(fragment)
     }
+    before(elem) {
+        return this.cont.before(elem.cont ?? elem)
+    }
+    after(elem) {
+        return this.cont.after(elem.cont ?? elem)
+    }
     static verifyTarget(element) {
         //Okay this is really confusing but it works so
         const exists = HTMLElementWrapper.all.get(element)
