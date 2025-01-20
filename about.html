@@ -12,7 +12,10 @@
     <script type="module">
         import HTMLElementWrapper from './quick.js'
         import { wait } from './handle.js'
-        const main = HTMLElementWrapper('main,center cute-green', { parent: document.body, id: 'main', })
+        const main = HTMLElementWrapper('main,center cute-green', {
+            parent: document.body,
+            attr: { id: 'main', }
+        })
         main.fadein()
         const bday = new Date(2007, 5, 17)
 
@@ -22,10 +25,10 @@
         HTMLElementWrapper('a,cute-green-button back', {
             parent: main,
             txt: 'Back',
-            href: 'main.html',
+            attr: { href: 'main.html', }
         })
 
-        let desc = HTMLElementWrapper('div', { parent: div, id: 'maindesc' })
+        let desc = HTMLElementWrapper('div', { parent: div, attr:{id: 'maindesc'} })
         main.styleMe({ opacity: 0 })
         await wait(600)
         main.fadein()
@@ -44,8 +47,9 @@
             parent: main
         })
         let pokemonholder = HTMLElementWrapper('div', {
-            id: 'pokemonholder', parent: main,
-            os: ['spinda', 'misdreavus', 'mawile', 'delcatty', 'masquerain', 'shedinja', 'clamperl', 'swoobat', 'gourgeist', 'minior', "trapinch", 'pheromosa'].map(o => HTMLElementWrapper('img,pkm', { alt: o, title: o, src: `./media/${o}_.webp` }))
+            attr: { id: 'pokemonholder' },
+            parent: main,
+            os: ['spinda', 'misdreavus', 'mawile', 'delcatty', 'masquerain', 'shedinja', 'clamperl', 'swoobat', 'gourgeist', 'minior', "trapinch", 'pheromosa'].map(o => HTMLElementWrapper('img,pkm', { attr: { alt: o, title: o, src: `./media/${o}_.webp` } }))
         });
 
         /*$("h2", {

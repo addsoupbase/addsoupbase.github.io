@@ -15,7 +15,9 @@ async function click({ x, y }) {
         styles: {
             'background-image': `url(${this.firstElementChild.src})`
         },
-        alt: name,
+        attr: {
+            alt: name,
+        },
         parent: bg,
         os: [HTMLElementWrapper('p,displayName', { txt: '@' + string.upper(name) })]
     })
@@ -38,11 +40,13 @@ function bubbleWithAva(image = cycle.next) {
     n.onclick = click
     const out = HTMLElementWrapper('img,ava', {
         parent: n,
-        src,
-        alt: src,
-        width: 50,
-        height: 50,
-        draggable: false
+        attr: {
+            src,
+            alt: src,
+            width: 50,
+            height: 50,
+            draggable: false
+        }
     })
     out.animate([{ rotate: '' }, { rotate: `${ran.choose(360, -360)}deg` }], { duration: 80000, iterations: 1 / 0, easing: 'linear' })
 }
@@ -95,12 +99,17 @@ import HTMLElementWrapper, { getProxy, } from '../quick.js'
 import { math, ran, string } from '../misc.js'
 const iframe = HTMLElementWrapper('iframe,center', {
     parent:document.body,
-    id:'frame',
-    src:'./main.html'
+    attr: {
+        id:'frame',
+        src:'./main.html'
+    }
 })
 console.log('Sprites credit: https://sprites.pmdcollab.org/')
 const parent = HTMLElementWrapper('div', {
-    id: 'background', parent: document.body
+    attr:{
+        id: 'background', 
+    },
+    parent: document.body
 })
 window.requestIdleCallback ??= queueMicrotask
 requestIdleCallback(()=>import('./images.js').then(images), {timeout: 2000})

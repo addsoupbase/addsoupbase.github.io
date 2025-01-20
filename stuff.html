@@ -16,31 +16,35 @@
 <body>
     <script type="module">
         import $ from './quick.js'
-        const main = $('main,center cute-green', { parent: document.body, id: 'main', })
+        const main = $('main,center cute-green', { parent: document.body, attr:{id: 'main',} })
         main.fadein()
 
         let all = $("section", {
             parent: main,
-            style:'margin-top:50px;'
+            attr:{
+                style:'margin-top:50px;'
+            }
         })
         $('h1',{parent:all, txt:'Random stuff I made'})
         $('h3', {
             parent:all,
             txt:'Some of it might be broken 😭'
         })
-        let linkholder = $('ul',{parent:all,style:'display:inline-grid;word-break:break-word;'})
+        let linkholder = $('ul',{parent:all,attr:{style:'display:inline-grid;word-break:break-word;'}})
         $('a,cute-green-button back', {
             parent: main,
             txt: 'Back',
-            href: 'main.html',
+            attr:{
+                href: 'main.html',
+            }
         })
         linkholder.offsprings = ['cute-emojis','dataurl',`https://magnificent-cream-beginner.glitch.me/`].map(o=>{
             let url = new URL(o,`https://addsoupbase.github.io/`)
             return $('li', {
                 os: [$('a,tiny', {
-                href: url,
-                txt: url,
-                attributes: {
+                    txt: url,
+                    attr: {
+                    href: url,
                     target: '_blank'
                 }
             })]
@@ -50,13 +54,14 @@
             parent:all,
             txt:'Old stuff'
         })
-        $('ul',{parent:all,style:'display:inline-grid;word-break:break-word;',os: [`./whatever`,`./twehg`,`./intro`].map(o=> {
+        $('ul',{parent:all,
+            attr:{style:'display:inline-grid;word-break:break-word;'},os: [`./whatever`,`./twehg`,`./intro`].map(o=> {
             let url = new URL(o,`https://addsoupbase.github.io/`)
             return $('li', {
                 os: [$('a,tiny', {
-                href: url,
-                txt: url,
-                attributes: {
+                    txt: url,
+                    attr: {
+                    href: url,
                     target: '_blank'
                 }
             })]
