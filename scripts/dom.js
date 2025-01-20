@@ -1,12 +1,19 @@
 
 import $, { FormDataManager, required } from '../quick.js'
-import { wait } from "../handle.js"
+import { on, wait } from "../handle.js"
 const main = $('main,center cute-green', {
     parent: document.body,
     attr: {
         id: 'main', style: 'opacity:0'
     }
 })
+on(window, {
+    load() {
+        requestIdleCallback(()=>top.final(),{timeout:20000})
+
+    }
+})
+window.requestIdleCallback??=queueMicrotask
 await wait(300)
 main.styleMe({ opacity: 0.95 })
 main.animate([{ filter: 'blur(2px)', opacity: 0, scale: '0.8 0.8', translate: '0 -40px' }, { filter: '', easing: 'ease-in' }], { duration: 700 })
