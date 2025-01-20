@@ -155,7 +155,6 @@ body,html {
 }
 
 
-
 .cute-green {
   background-color: #4dcd71;
   /* Soft pastel green */
@@ -184,6 +183,8 @@ body,html {
 .lol {
   justify-content: center;
   display: grid;
+  text-align: center;
+  justify-items: center;
 }
 .username {
   z-index: 40;
@@ -221,8 +222,9 @@ input.cute-green {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   /* Soft shadow */
   transition: transform 0.3s ease, background-color 0.3s ease;
-  max-width: 100%;
+  /* max-width: 80%; */
   /* Limit max width for aesthetic */
+  margin: auto;
 }
 
 .input {

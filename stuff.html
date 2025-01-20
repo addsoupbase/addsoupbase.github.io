@@ -10,64 +10,71 @@
         .tiny {
             font-size: 13px;
         }
+
+        .lholder>a::before, .lholder > a::after {
+            background-image: url(https://addsoupbase.github.io/cute-emojis/emojis/1319312204704776285.gif);
+            content: '';
+            alt:'';
+            display: inline-block;
+            vertical-align: middle;
+            width: 30px;
+            height: 30px;
+            background-size: contain;
+        }
     </style>
 </head>
 
 <body>
     <script type="module">
         import $ from './quick.js'
-        const main = $('main,center cute-green', { parent: document.body, attr:{id: 'main',} })
+        const main = $('main,center cute-green', { parent: document.body, attr: { id: 'main', } })
         main.fadein()
 
         let all = $("section", {
             parent: main,
-            attr:{
-                style:'margin-top:50px;'
+            attr: {
+                style: 'margin-top:50px;'
             }
         })
-        $('h1',{parent:all, txt:'Random stuff I made'})
+        $('h1', { parent: all, txt: 'Random stuff I made' })
         $('h3', {
-            parent:all,
-            txt:'Some of it might be broken 😭'
+            parent: all,
+            txt: 'Some of it might be broken 😭'
         })
-        let linkholder = $('ul',{parent:all,attr:{style:'display:inline-grid;word-break:break-word;'}})
+        let linkholder = $('div,lholder', { parent: all, attr: { style: 'display:inline-grid;word-break:break-word;' } })
         $('a,cute-green-button back', {
             parent: main,
             txt: 'Back',
-            attr:{
+            attr: {
                 href: 'main.html',
             }
         })
-        linkholder.offsprings = ['cute-emojis','dataurl',`https://magnificent-cream-beginner.glitch.me/`].map(o=>{
-            let url = new URL(o,`https://addsoupbase.github.io/`)
-            return $('li', {
-                os: [$('a,tiny', {
-                    txt: url,
-                    attr: {
+        linkholder.offsprings = ['cute-emojis', 'dataurl', `https://magnificent-cream-beginner.glitch.me/`].map(o => {
+            let url = new URL(o, `https://addsoupbase.github.io/`)
+            return $('a,tiny', {
+                txt: o,
+                attr: {
                     href: url,
                     target: '_blank'
                 }
-            })]
             })
         })
-        $('h2',{
-            parent:all,
-            txt:'Old stuff'
+        $('h2', {
+            parent: all,
+            txt: 'Old stuff'
         })
-        $('ul',{parent:all,
-            attr:{style:'display:inline-grid;word-break:break-word;'},os: [`./whatever`,`./twehg`,`./intro`].map(o=> {
-            let url = new URL(o,`https://addsoupbase.github.io/`)
-            return $('li', {
-                os: [$('a,tiny', {
-                    txt: url,
+        let di = $('div,lholder', { parent: all, attr: { style: 'display:inline-grid;word-break:break-word;' } })
+            ;[`./whatever`, `./twehg`, `./intro`].forEach(o => {
+                let url = new URL(o, `https://addsoupbase.github.io/`)
+                $('a,tiny', {
+                    parent: di,
+                    txt: o,
                     attr: {
-                    href: url,
-                    target: '_blank'
-                }
-            })]
+                        href: url,
+                        target: '_blank'
+                    }
+                })
             })
-        })})
-
     </script>
 </body>
 

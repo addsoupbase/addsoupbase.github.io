@@ -7,7 +7,7 @@ monitorEvents
 import sym, { on, off } from './handle.js'
 const
     { isArray } = Array,
-    { warn } = console,
+    { warn,log } = console,
     frag = typeof document !== 'undefined' ? document.createDocumentFragment.bind(document) : null,
     deprecatedTags = /^(tt|acronym|big|center|dir|font|frame|frameset|marquee|nobr|noembed|noframes|param|plaintext|rb|rtc|strike|tt|xmp)$/i,
     svgTags = /^(animate|animateMotion|animateTransform|circle|clipPath|defs|desc|ellipse|feBlend|feColorMatrix|feComponentTransfer|feComposite|feConvolveMatrix|feDiffuseLighting|feDisplacementMap|feDistantLight|feDropShadow|feFlood|feFuncA|feFuncB|feFuncG|feFuncR|feGaussianBlur|feImage|feMerge|feMergeNode|feMorphology|feOffset|fePointLight|feSpecularLighting|feSpotLight|feTile|feTurbulence|filter|foreignObject|g|glyph|glyphRef|hkern|image|line|linearGradient|marker|mask|metadata|missing-glyph|mpath|path|pattern|polygon|polyline|radialGradient|rect|set|stop|svg|switch|symbol|text|textPath|tref|tspan|use|view|vkern)$/i
@@ -487,7 +487,7 @@ export const lstorage = typeof localStorage !== 'undefined' &&
 export function Alert(t, e) {
     const old = querySelector('dialog')
     old?.close(), old?.destroy()
-    return new Promise((o => { function n(t) { o(t), r.destroy() } let r = HTMLElementWrapper("dialog", { events: { close() { n(t) } }, parent: document.body, os: [HTMLElementWrapper("h1", { txt: t }), HTMLElementWrapper("p", { txt: e }), HTMLElementWrapper("form", { events: { submit() { n("OK") } }, method: "dialog", os: [HTMLElementWrapper("button", { styles: { width: "200px", height: "30px" }, txt: "OK" })] })] }); r.showModal() }))
+    return new Promise((o => { function n(t) { o(t), r.destroy() } let r = HTMLElementWrapper("dialog", { events: { close() { n(t) } }, parent: document.body, os: [HTMLElementWrapper("h3", { txt: t }), HTMLElementWrapper("p", { txt: e }), HTMLElementWrapper("form", { events: { submit() { n("OK") } }, method: "dialog", os: [HTMLElementWrapper("button", { styles: { width: "200px", height: "30px" }, txt: "OK" })] })] }); r.showModal() }))
 }
 export const [
     disabled,
@@ -524,6 +524,6 @@ on(window, {
         reportError(new DOMException(`⛓️‍💥 Disconnected at ${new Date().toLocaleTimeString()}`, 'NetworkError'))
     },
     online() {
-        console.log(`🛜 Reconnected at ${new Date().toLocaleTimeString()}`)
+        log(`🛜 Reconnected at ${new Date().toLocaleTimeString()}`)
     }
 }, true)

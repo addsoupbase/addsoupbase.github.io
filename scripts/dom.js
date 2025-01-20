@@ -1,5 +1,5 @@
 
-import $, { FormDataManager, required } from '../quick.js'
+import $, { Alert, FormDataManager, required } from '../quick.js'
 import { on, wait } from "../handle.js"
 const main = $('main,center cute-green', {
     parent: document.body,
@@ -73,6 +73,15 @@ $('a,cute-green-button', {
 })*/
 $('p', { parent: section, txt: 'Send a message to my discord if you want' })
 let form = $('form', {
+    os:[$('img', {
+        attr: {
+            width:40,
+            height:40,
+            alt:'mail.gif',
+            title:'Send some mail!',
+            src:'https://addsoupbase.github.io/cute-emojis/emojis/1175963968284663900.gif'
+        }
+    })],
     attr: { id: 'submit', },
     parent: section, events: {
         async $submit({ target }) {
@@ -80,7 +89,8 @@ let form = $('form', {
             name ||= 'Anonymous'
             await form.fadeout()
             form.hide()
-            let loading = $('img,delibird', { parent: section, src: './media/loading.webp' })
+            let loading = $('img,delibird', {src: './media/loading.webp' })
+            form.before(loading.cont)
             let req = await fetch(`https://formspree.io/f/mqakzlyo`, {
                 method: 'POST',
                 body: `name=${encodeURIComponent(name)}&message=${encodeURIComponent(message)}`,

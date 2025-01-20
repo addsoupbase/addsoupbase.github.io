@@ -1,11 +1,10 @@
 const sym = Symbol("🔔"), //For keeping track of events
     //But to also not potentially collide with existing keys
-    { warn } = console,
+    { warn, groupCollapsed, groupEnd, debug, log } = console,
     { isArray } = Array
 export default sym
 export const allEvents = new WeakMap
-const eventGarbageCollectionCallback = new FinalizationRegistry(function ([key, set]) { set.delete(key) })
-
+const eventRegistry = new FinalizationRegistry(function ([key, set]) { set.delete(key) })
 function verifyEventName(target, name) {
 
     if (name.match(/^domcontentloaded$/i) && target instanceof Document ||
@@ -23,69 +22,76 @@ export function on(target, events, useHandler) {
     if (!(target[sym] instanceof Set))
         //This will hold the NAMES of the events
         Object.defineProperty(target, sym, { value: new Set })
-    console.groupCollapsed(`on(${target[Symbol.toStringTag] || target.constructor?.name || target})`)
-    console.log(`🎯 `,target)
-    const myEvents = target[sym]
-    if (!isArray(events)) events = Object.entries(events)
-    for (let [eventName, func] of events) {
-        const options = {
-            capture: false,
-            once: false,
-            passive: false,
-        }
-        let once = eventName.includes('_'),
-            prevents = eventName.includes('$')
-            eventName = eventName.replace(/[_$]/g, '')
-        
-        if (myEvents.has(eventName)) {
-            warn(`🔕 Duplicate '${eventName}' listener on `, target)
-            continue
-        }
-        verifyEventName(target, eventName)
-        func = new Proxy(func, {
-            apply(targ, _, argArray) {
-                once && off(target, eventName)
-                if (prevents) {
-                    const [event] = argArray
-                    event.cancelable ?
-                        event.preventDefault() :
-                        warn(`🔊 '${eventName}' events are not cancelable`)
-                }
-                return targ.apply(null, argArray)
+    try {
+        groupCollapsed(`on(${target[Symbol.toStringTag] || target.constructor?.name || target})`)
+        log(`🎯 `, target)
+        const myEvents = target[sym]
+        if (!isArray(events)) events = Object.entries(events)
+        for (let [eventName, func] of events) {
+            const once = eventName.includes('_'),
+                prevents = eventName.includes('$'),
+                passive = eventName.includes('^'),
+                capture = eventName.includes('%'),
+                options = {
+                capture,
+                //once: false,
+                passive,
             }
-        })
-        eventGarbageCollectionCallback.register(func, [eventName, myEvents])
-        if (useHandler) target[`on${eventName}`] = func
-        else {
-            target.addEventListener(eventName, func, options)
-            if (!allEvents.has(target)) allEvents.set(target, new Map)
-            //A Map to hold the names & events
-            const myGlobalEventMap = allEvents.get(target)
-            myGlobalEventMap.set(eventName, func)
-            myEvents.add(eventName)
+            eventName = eventName.replace(/[_$^%]/g, '')
+            if (myEvents.has(eventName)) {
+                warn(`🔕 Duplicate '${eventName}' listener on `, target)
+                continue
+            }
+            verifyEventName(target, eventName)
+            func = new Proxy(func, {
+                apply(targ, _, argArray) {
+                    once && off(target, eventName)
+                    if (prevents) {
+                        const [event] = argArray
+                        event.cancelable ?
+                            event.preventDefault() :
+                            warn(`🔊 '${eventName}' events are not cancelable`)
+                    }
+                    return targ.apply(null, argArray)
+                }
+            })
+            eventRegistry.register(func, [eventName, myEvents])
+            if (useHandler) target[`on${eventName}`] = func
+            else {
+                target.addEventListener(eventName, func, options)
+                if (!allEvents.has(target)) allEvents.set(target, new Map)
+                //A Map to hold the names & events
+                const myGlobalEventMap = allEvents.get(target)
+                myGlobalEventMap.set(eventName, func)
+                myEvents.add(eventName)
+            }
+            debug(`🔔 '${eventName}' event added`)
         }
-        console.debug(`🔔 '${eventName}' event added`)
+    } finally {
+        groupEnd()
     }
-    console.groupEnd()
     return target
 }
 export function off(target, ...eventNames) {
     if (!(target instanceof EventTarget) || !(target[sym] instanceof Set) || !allEvents.has(target))
         throw TypeError("🚫 Invalid event target")
-    console.groupCollapsed(`off(${target[Symbol.toStringTag] || target.constructor?.name || target})`)
-    console.log(`🎯 `,target)
-    const map = allEvents.get(target),
-        mySet = target[sym]
-    for (let { length } = eventNames; length--;) {
-        const name = eventNames[length],
-            func = map.get(name)
-        map.has(name) && console.debug(`🔕 '${name}' event removed`)
-        target.removeEventListener(name, func)
-        map.delete(name)
-        mySet.delete(name)
-        map.size || allEvents.delete(target)
+    try {
+        groupCollapsed(`off(${target[Symbol.toStringTag] || target.constructor?.name || target})`)
+        log(`🎯 `, target)
+        const map = allEvents.get(target),
+            mySet = target[sym]
+        for (let { length } = eventNames; length--;) {
+            const name = eventNames[length],
+                func = map.get(name)
+            map.has(name) && debug(`🔕 '${name}' event removed`)
+            target.removeEventListener(name, func)
+            map.delete(name)
+            mySet.delete(name)
+            map.size || allEvents.delete(target)
+        }
+    } finally {
+        groupEnd()
     }
-    console.groupEnd()
 }
 export function until(target, eventName, timeout/* = 600000*/) {
     return new Promise(un)
