@@ -17,7 +17,7 @@ export class HTMLElementWrapper {
         return this.cont.outerHTML
     }
     *[Symbol.iterator]() {
-        yield*this.getElementsByTagName("*")
+        yield* this.getElementsByTagName("*")
     }
     #cont = null
     getElementById(id) {
@@ -156,7 +156,12 @@ export class HTMLElementWrapper {
             val = `${val}`
             if (!val.trim()) this.styles.delete(prop)
             else if (!CSS.supports(prop, val)) warn(`⛓️‍💥 Unrecognized CSS in '${prop}: ${val}'`)
-            else this.styles.set(prop, val)
+            else {
+                let c = parseFloat(val)
+                let n = val.split(c).at(-1)
+                if (n === '%' || n in CSS) val = convertToCSSMethod(val)
+                this.styles.set(prop, val)
+            }
         }
         const final = extractCSSFromObject(Array.from(this.styles.entries()))
         return this.cont.style.cssText = final
@@ -453,7 +458,7 @@ export function registerCSS(selector, rule) {
         addedStyleRules ??= HTMLElementWrapper('style', { parent: document.head })
     sheet.insertRule(`${selector}{${extractCSSFromObject(rule)}}`)
 }
-if (frag) queueMicrotask(() => {
+queueMicrotask(() => {
     registerCSS('dialog', {
         transition: 'opacity 1s linear',
         "font-family": "Arial",
@@ -481,7 +486,14 @@ export const CSSSyntax = {
         return `${color} ${offsetX} ${offsetY} ${standardDeviation}`
     }
 }
-
+function convertToCSSMethod(value) {
+    let val = parseFloat(value),
+        unit = value.split(val).at(-1)
+    if (unit === '%') unit = 'percent'
+    if (isNaN(val)) throw TypeError('Invalid number')
+    if (!(unit in CSS)) throw SyntaxError(`Unrecognised unit '${unit}'`)
+    return CSS[unit](val)
+}
 class StorageProxy {
     static #handler = {
         get(target, prop) {
