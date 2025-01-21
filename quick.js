@@ -7,7 +7,7 @@ monitorEvents
 import sym, { on, off } from './handle.js'
 const
     { isArray } = Array,
-    { warn,log } = console,
+    { warn, log } = console,
     frag = typeof document !== 'undefined' ? document.createDocumentFragment.bind(document) : null,
     deprecatedTags = /^(tt|acronym|big|center|dir|font|frame|frameset|marquee|nobr|noembed|noframes|param|plaintext|rb|rtc|strike|tt|xmp)$/i,
     svgTags = /^(animate|animateMotion|animateTransform|circle|clipPath|defs|desc|ellipse|feBlend|feColorMatrix|feComponentTransfer|feComposite|feConvolveMatrix|feDiffuseLighting|feDisplacementMap|feDistantLight|feDropShadow|feFlood|feFuncA|feFuncB|feFuncG|feFuncR|feGaussianBlur|feImage|feMerge|feMergeNode|feMorphology|feOffset|fePointLight|feSpecularLighting|feSpotLight|feTile|feTurbulence|filter|foreignObject|g|glyph|glyphRef|hkern|image|line|linearGradient|marker|mask|metadata|missing-glyph|mpath|path|pattern|polygon|polyline|radialGradient|rect|set|stop|svg|switch|symbol|text|textPath|tref|tspan|use|view|vkern)$/i
@@ -105,12 +105,18 @@ export class HTMLElementWrapper {
             return Reflect.set(cont, prop, value)
         }
     }
-    styles = new Map
+    get styles() {
+        Object.defineProperty(this, 'styles', {
+            value: new Map,
+            enumerable: 1
+        })
+        return this.styles
+    }
     hide() {
-        this.cont.toggleAttribute('hidden','true')
+        this.cont.toggleAttribute('hidden', 'true')
     }
     show() {
-        this.cont.toggleAttribute('hidden','false')
+        this.cont.toggleAttribute('hidden', 'false')
     }
     fadeout(duration = 500) {
         return this.animate([
@@ -181,9 +187,15 @@ export class HTMLElementWrapper {
             reportError(TypeError('Something went wrong!'));
         }
         if (deprecatedTags.test(tag)) warn(`♿️ Deprecated '${seed.tag}' tag usage`)
-        this.attr = new Proxy(this.cont, new.target.#attr)
-        const proxy = new Proxy(this, new.target.#HANDLER)
+        Object.defineProperty(this, 'attr', {
+            get() {
+                delete this.attr
+                return this.attr = new Proxy(this, HTMLElementWrapper.#attr)
+            }, configurable: 1, enumerable: 1
+        })
+        const { proxy, revoke } = Proxy.revocable(this, new.target.#HANDLER)
         new.target.all.set(this.cont, proxy)
+        new.target.#expiry.register(this.cont, revoke)
         // new.target.cleanup.register(this.cont,console.log)
         if (kids) proxy.offsprings = kids
         if (parent) proxy.parent = parent
@@ -195,6 +207,9 @@ export class HTMLElementWrapper {
     // alert('Revoked')
     //    func()
     // })
+    static #expiry = new FinalizationRegistry(revoke => {
+        revoke()
+    })
     get cont() {
         return this.#cont.deref()
     }
@@ -318,18 +333,18 @@ export class HTMLElementWrapper {
     }
     static #attr = {
         get(target, prop) {
-            return target.getAttribute(prop)
+            return target.cont.getAttribute(prop)
         },
         set(target, prop, value) {
-            target.setAttribute(prop, value)
+            target.cont.setAttribute(prop, value)
             return true
         },
         deleteProperty(target, prop) {
-            target.removeAttribute(prop)
+            target.cont.removeAttribute(prop)
             return true
         },
         has(target, prop) {
-            return target.hasAttribute(prop)
+            return target.cont.hasAttribute(prop)
         }
     }
     empty() {
