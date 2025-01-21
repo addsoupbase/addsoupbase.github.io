@@ -71,7 +71,7 @@ $('a,cute-green-button', {
     title: 'music',
     href: './music.html'
 })*/
-$('p', { parent: section, txt: 'Send a message to my discord if you want' })
+$('p', { parent: section, txt: 'Send a message to me if you want' })
 let form = $('form', {
     os:[$('img', {
         attr: {
