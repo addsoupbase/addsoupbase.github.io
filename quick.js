@@ -17,26 +17,26 @@ export class HTMLElementWrapper {
         return this.cont.outerHTML
     }
     *[Symbol.iterator]() {
-        yield* this.getElementsByTagName("*")
+        yield*this.getElementsByTagName("*")
     }
     #cont = null
     getElementById(id) {
-        return getElementById.call(this, id)
+        return getElementById.call(this.cont, id)
     }
     getElementsByClassName(classs) {
-        return getElementsByClassName.call(this, classs)
+        return getElementsByClassName.call(this.cont, classs)
     }
     getElementsByTagName(name) {
-        return getElementsByTagName.call(this, name)
+        return getElementsByTagName.call(this.cont, name)
     }
     getElementsByName(name) {
-        return getElementsByName.call(this, name)
+        return getElementsByName.call(this.cont, name)
     }
     querySelector(selector) {
-        return querySelector.call(this, selector)
+        return querySelector.call(this.cont, selector)
     }
     querySelectorAll(selector) {
-        return querySelectorAll.call(this, selector)
+        return querySelectorAll.call(this.cont, selector)
     }
     batch(...children) {
         return this.offsprings = children
@@ -404,6 +404,13 @@ export function querySelectorAll(selector) {
 }
 export function getProxy(element) {
     return HTMLElementWrapper.verifyTarget(element)
+}
+for (let func of new Set([getElementsByClassName, getElementsByTagName, getElementsByName, getElementsByTagNameNS, getElementById, querySelector, querySelectorAll, getProxy])) {
+    Object.defineProperty(HTMLElementWrapper, func.name, {
+        get() {
+            return func.bind(null)
+        }
+    })
 }
 export default HTMLElementWrapper = new Proxy(HTMLElementWrapper, {
     apply(target, _, args) {
