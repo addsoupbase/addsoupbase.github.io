@@ -264,7 +264,7 @@ export class HTMLElementWrapper {
         events = (isArray(events) ? events : Object.entries(events)).map(function ([name, event]) {
             return [name, event.bind(k)]
         })
-        return on(this.cont, events)
+        return events.length && on(this.cont, events)
     }
     off(...names) {
         off(this.cont, ...names)
