@@ -24,7 +24,7 @@ export function on(target, events, useHandler) {
         Object.defineProperty(target, sym, { value: new Set })
     try {
         groupCollapsed(`on(${target[Symbol.toStringTag] || target.constructor?.name || target})`)
-        log(target)
+        console.dirxml(target)
         const myEvents = target[sym]
        
         if (!isArray(events)) events = Object.entries(events)
@@ -78,7 +78,7 @@ export function off(target, ...eventNames) {
         throw TypeError("🚫 Invalid event target")
     try {
         groupCollapsed(`off(${target[Symbol.toStringTag] || target.constructor?.name || target})`)
-        log(target)
+        console.dirxml(target)
         const map = allEvents.get(target),
             mySet = target[sym]
         for (let { length } = eventNames; length--;) {

@@ -8,7 +8,7 @@ import sym, { on, off } from './handle.js'
 const
     { isArray } = Array,
     { warn, log } = console,
-    frag = typeof document !== 'undefined' ? document.createDocumentFragment.bind(document) : null,
+    frag = document.createDocumentFragment.bind(document),
     deprecatedTags = /^(tt|acronym|big|center|dir|font|frame|frameset|marquee|nobr|noembed|noframes|param|plaintext|rb|rtc|strike|tt|xmp)$/i,
     svgTags = /^(animate|animateMotion|animateTransform|circle|clipPath|defs|desc|ellipse|feBlend|feColorMatrix|feComponentTransfer|feComposite|feConvolveMatrix|feDiffuseLighting|feDisplacementMap|feDistantLight|feDropShadow|feFlood|feFuncA|feFuncB|feFuncG|feFuncR|feGaussianBlur|feImage|feMerge|feMergeNode|feMorphology|feOffset|fePointLight|feSpecularLighting|feSpotLight|feTile|feTurbulence|filter|foreignObject|g|glyph|glyphRef|hkern|image|line|linearGradient|marker|mask|metadata|missing-glyph|mpath|path|pattern|polygon|polyline|radialGradient|rect|set|stop|svg|switch|symbol|text|textPath|tref|tspan|use|view|vkern)$/i
 //These SVG tags have to be treated differently
@@ -112,11 +112,21 @@ export class HTMLElementWrapper {
         })
         return this.styles
     }
+    displayNone() {
+        this.styleMe('display', 'none' )
+    }
+    conceal() {
+        this.styleMe('visibility', 'hidden')
+    }
+    reveal() {
+        this.styleMe('visibility', 'visible')
+    }
     hide() {
-        this.cont.toggleAttribute('hidden', 'true')
+        //  important to note that this does NOT hide children
+        this.attr.hidden = true
     }
     show() {
-        this.cont.toggleAttribute('hidden', 'false')
+        this.attr.hidden = false
     }
     fadeout(duration = 500) {
         return this.animate([
@@ -149,7 +159,11 @@ export class HTMLElementWrapper {
         ], { easing: 'ease', duration, fill: 'forwards' })
             .finished
     }
-    styleMe(styles) {
+    styleMe(styles, _) {
+        if (typeof styles === 'string' && _ !== null) {
+            styles = { [styles]: _ }
+            _ = undefined
+        }
         if (!isArray(styles)) styles = Object.entries(styles)
         for (let { length } = styles; length--;) {
             let [prop, val] = styles[length]
@@ -157,9 +171,9 @@ export class HTMLElementWrapper {
             if (!val.trim()) this.styles.delete(prop)
             else if (!CSS.supports(prop, val)) warn(`⛓️‍💥 Unrecognized CSS in '${prop}: ${val}'`)
             else {
-                let c = parseFloat(val)
-                let n = val.split(c).at(-1)
-                if (n === '%' || n in CSS) val = convertToCSSMethod(val)
+                let parsedValue = parseFloat(val)
+                let lastSegment = val.split(parsedValue).at(-1)
+                if (lastSegment === '%' || lastSegment in CSS) val = convertToCSSMethod(val)
                 this.styles.set(prop, val)
             }
         }
@@ -201,17 +215,12 @@ export class HTMLElementWrapper {
         const { proxy, revoke } = Proxy.revocable(this, new.target.#HANDLER)
         new.target.all.set(this.cont, proxy)
         new.target.#expiry.register(this.cont, revoke)
-        // new.target.cleanup.register(this.cont,console.log)
         if (kids) proxy.offsprings = kids
         if (parent) proxy.parent = parent
         classes && proxy.classList.add.apply(proxy.classList, classes)
         this.#start(seed)
         return proxy
     }
-    // static cleanup = new FinalizationRegistry(func => {
-    // alert('Revoked')
-    //    func()
-    // })
     static #expiry = new FinalizationRegistry(revoke => {
         revoke()
     })
@@ -227,42 +236,57 @@ export class HTMLElementWrapper {
         cont[sym]?.size && off(cont, ...cont[sym])
         cont.getAnimations({ subtree: true }).forEach(removeAnimations)
         do cont.remove()
-        while (cont.parentElement) function removeAnimations(anim) { anim.cancel() }
+        while (cont.parentElement)
+        function removeAnimations(anim) { anim.cancel() }
     }
     #start(seed) {
         let keys = Object.keys(seed),
             { cont } = this
         for (let { length } = keys; length--;) {
+            //  Debugger statements because i suck at this and it shouldnt be used anymore
+            //  so basically i just annoy myself until i fix it everywhere
             const prop = keys[length]
-            if (prop === 'resize')
-                this.styleMe({ resize: seed.resize ?? 'both' })
-            else if (prop === 'readonly')
+            if (prop === 'resize') {
+                debugger
+                this.styleMe('resize', seed.resize ?? 'both' )
+            }
+            else if (prop === 'readonly') {
+                debugger
                 this.attr.readonly = true
-            else if (prop === 'hidden')
+            }
+            else if (prop === 'hidden') {
+                debugger
                 cont.toggleAttribute('hidden', true)
-            else if (prop === 'open')
+            }
+            else if (prop === 'open') {
+                debugger
                 cont.toggleAttribute('open', true)
-            else if (prop === 'autofocus')
+            }
+            else if (prop === 'autofocus') {
+                debugger
                 queueMicrotask(() => cont.focus())
+            }
             else if (prop in cont && prop !== 'attributes') {
-                debugger //You should not use this anymore
+                debugger
                 try { cont[prop] = seed[prop] }
                 catch { cont.setAttribute(prop, seed[prop]) }
             }
-            else if (cont.hasAttribute(prop))
+            else if (cont.hasAttribute(prop)) {
+                debugger
                 cont.setAttribute(prop, seed[prop])
+            }
         }
         if ('events' in seed) this.on(seed.events)
         if ('styles' in seed) this.styleMe(seed.styles)
         if ('txt' in seed) this.txt = seed.txt
-        if (seed.tag === 'button' || seed.type === 'button') this.styleMe({ cursor: 'pointer' })
+        if (seed.tag === 'button' || seed.type === 'button') this.styleMe('cursor',  'pointer' )
         if ('offsprings' in seed && 'os' in seed) warn('🚼 Child was overwritten')
         if ('attributes' in seed || 'attr' in seed) this.setAttributes(seed.attributes || seed.attr)
     }
-    on(events,useHandler) {
+    on(events, useHandler) {
         let k = getProxy(this.cont)
         if (typeof events === 'string' && typeof useHandler === 'function') {
-            events = [[events,useHandler]]
+            events = [[events, useHandler]]
             useHandler = false
         }
         events = (isArray(events) ? events : Object.entries(events)).map(function ([name, event]) {
@@ -279,8 +303,7 @@ export class HTMLElementWrapper {
     }
     set parent(element) {
         if (element == null) return this.cont.remove()
-        element = getProxy(element)
-        element.appendChild(this.cont)
+        getProxy(element).appendChild(this.cont)
     }
     get parent() {
         return getProxy(this.cont.parentElement)
@@ -345,7 +368,10 @@ export class HTMLElementWrapper {
             return target.cont.getAttribute(prop)
         },
         set(target, prop, value) {
-            target.cont.setAttribute(prop, value)
+            if (value == null) this.deleteProperty(target, prop)
+            else if (typeof value === 'boolean') target.cont.toggleAttribute(prop, value)
+            else target.cont.setAttribute(prop, value)
+            if (prop === 'autofocus') queueMicrotask(() => target.cont.focus())
             return true
         },
         deleteProperty(target, prop) {
@@ -394,6 +420,7 @@ export function getElementsByTagName(tag) {
         if (tag === 'script') return from(document.scripts, getProxy)
     }
     return from((this ?? document).getElementsByTagName(tag), getProxy)
+        .concat(from((this ?? document).getElementsByTagNameNS('http://www.w3.org/2000/svg', tag), getProxy))
 }
 export function getElementsByClassName(CLASS) {
     return from((this ?? document).getElementsByClassName(CLASS), getProxy)
@@ -514,7 +541,7 @@ class StorageProxy {
             return target.getItem(prop)
         },
         has(target, prop) {
-            return target.getItem(prop) != null
+            return target.getItem(prop) !== null
         },
         deleteProperty(target, prop) {
             target.removeItem(prop)
@@ -531,9 +558,9 @@ class StorageProxy {
         throw TypeError("Illegal constructor")
     }
 }
-export const lstorage = typeof localStorage !== 'undefined' &&
+export const lstorage = globalThis.localStorage &&
     new StorageProxy(localStorage),
-    sstorage = typeof sessionStorage !== 'undefined' &&
+    sstorage = globalThis.sessionStorage &&
         new StorageProxy(sessionStorage)
 export function Alert(t, e) {
     const old = querySelector('dialog')

@@ -25,7 +25,7 @@ const mons = await Promise.all([
 ].map(async function (o) {
     let img = new Image
     let [src, width] = o.split(":")
-    img.src = `./media/${src}.png`
+    img.src = `./media/${src}.webp`
     img.__width = +width
     img.__name = src
     await until(img, 'load')
