@@ -28,6 +28,7 @@ function images({ avatars, mons }) {
         me.destroy()
     }
     function bubbleWithAva(image = cycle.next) {
+        if (document.hidden) return
         const { src } = image
         let n = $('div,bubble', { width: 50, height: 50, parent })
         let settings = ran.coin
@@ -63,6 +64,7 @@ function images({ avatars, mons }) {
     }
     async function spawnPkmn() {
         setTimeout(spawnPkmn, ran.range(1000, 1600))
+        if (document.hidden) return
         let pick = ran.choose(...mons)
         const element = createAnimationForSpritesheet(pick)
         element.fadein()
