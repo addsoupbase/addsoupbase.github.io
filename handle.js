@@ -26,6 +26,7 @@ export function on(target, events, useHandler) {
         groupCollapsed(`on(${target[Symbol.toStringTag] || target.constructor?.name || target})`)
         log(target)
         const myEvents = target[sym]
+       
         if (!isArray(events)) events = Object.entries(events)
         for (let [eventName, func] of events) {
             const once = eventName.includes('_'),
@@ -39,7 +40,7 @@ export function on(target, events, useHandler) {
             }
             eventName = eventName.replace(/[_$^%]/g, '')
             if (myEvents.has(eventName)) {
-                warn(`🔕 Duplicate '${eventName}' listener on `, target)
+                warn(`🔕 Duplicate '${eventName}' listener!`)
                 continue
             }
             verifyEventName(target, eventName)

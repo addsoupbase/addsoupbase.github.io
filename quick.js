@@ -259,8 +259,12 @@ export class HTMLElementWrapper {
         if ('offsprings' in seed && 'os' in seed) warn('🚼 Child was overwritten')
         if ('attributes' in seed || 'attr' in seed) this.setAttributes(seed.attributes || seed.attr)
     }
-    on(events) {
+    on(events,useHandler) {
         let k = getProxy(this.cont)
+        if (typeof events === 'string' && typeof useHandler === 'function') {
+            events = [[events,useHandler]]
+            useHandler = false
+        }
         events = (isArray(events) ? events : Object.entries(events)).map(function ([name, event]) {
             return [name, event.bind(k)]
         })
