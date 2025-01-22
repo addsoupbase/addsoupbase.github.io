@@ -371,9 +371,11 @@ export class HTMLElementWrapper {
         else for (let i = 0, { length } = children; i < length; ++i)
             (fragment ??= frag()).appendChild(HTMLElementWrapper.deverifyTarget(children[i]))
         fragment && this.cont.appendChild(fragment)
+        // this.cont.append(...children.map(HTMLElementWrapper.deverifyTarget))
     }
-    #eval(code) {
-        Function(`with(this)void class{static{${code}}}`).call(this)
+    eval() {
+        //Function(`with(this)void class{static{${code}}}`).call(this)
+        return eval(arguments[0])
     }
     get tagname() {
         return this.cont.tagName
@@ -487,12 +489,17 @@ export const CSSSyntax = {
     }
 }
 function convertToCSSMethod(value) {
-    let val = parseFloat(value),
-        unit = value.split(val).at(-1)
-    if (unit === '%') unit = 'percent'
-    if (isNaN(val)) throw TypeError('Invalid number')
-    if (!(unit in CSS)) throw SyntaxError(`Unrecognised unit '${unit}'`)
-    return CSS[unit](val)
+    try {
+        let val = parseFloat(value),
+            unit = value.split(val).at(-1)
+        if (unit === '%') unit = 'percent'
+        if (isNaN(val)) throw TypeError('Invalid number')
+        if (!(unit in CSS)) throw SyntaxError(`Unrecognised unit '${unit}'`)
+        return CSS[unit](val)
+    }
+    catch {
+        return value
+    }
 }
 class StorageProxy {
     static #handler = {
