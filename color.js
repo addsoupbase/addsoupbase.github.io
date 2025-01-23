@@ -146,6 +146,5 @@ Object.defineProperties(Color.prototype, {
         }
     }
 })
-window.c = Color
 const color = new Proxy(new COLOR_MANAGER, COLOR_MANAGER.handler)
 export default color
