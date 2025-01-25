@@ -100,12 +100,9 @@ function images({ avatars, mons }) {
 }
 import $, { getProxy, } from '../quick.js'
 import { math, ran, string } from '../misc.js'
-const iframe = $('iframe.center #frame', {
-    parent: document.body,
-    attr: {
-        src: './main.html'
-    }
-})
+const iframe = $('iframe.center #frame', 
+    document.body,
+)
 window.$=$
 window.final = function () {
     window.final = () => {}

@@ -264,8 +264,8 @@ export class HTMLElementWrapper {
             text = raw.match(/<.*>/)?.[0].replace(/[<>]/g, ''),
             type = raw.match(/!\w+/)?.[0].replace('!', '')
         if (tag.match(svgTags))
-            this.#cont = from ?? document.createElementNS('http://www.w3.org/2000/svg', tag)
-        else this.#cont = from ?? document.createElement(tag)
+            this.#cont = (id && document.getElementById(id)) ?? from ?? document.createElementNS('http://www.w3.org/2000/svg', tag)
+        else this.#cont = (id && document.getElementById(id)) ?? from ?? document.createElement(tag)
         if (type) this.#cont.type = type
         if (id) this.#cont.id = id
         if (text) this.#cont.textContent = text
