@@ -104,7 +104,7 @@ export class HTMLElementWrapper {
                 cont
             } = target
             if (prop === 'cont') return cont
-            if (!isNaN(prop)) return target.children[prop]
+            if (typeof prop !== 'symbol' && !isNaN(prop)) return target.children[prop]
             if (prop in target) return target[prop]
             let out = cont[prop]
             if (typeof out === 'function') {
