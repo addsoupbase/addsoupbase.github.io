@@ -71,10 +71,10 @@ export class HTMLElementWrapper {
         }
     }
     before(elem) {
-        return this.cont.before(elem.cont ?? elem)
+        return this.cont.before(HTMLElementWrapper.deverifyTarget(elem))
     }
     after(elem) {
-        return this.cont.after(elem.cont ?? elem)
+        return this.cont.after(HTMLElementWrapper.deverifyTarget(elem))
     }
     static verifyTarget(element) {
         //Okay this is really confusing but it works so
@@ -88,9 +88,9 @@ export class HTMLElementWrapper {
         if (!(elemInstance.cont instanceof HTMLElementWrapper)) return elemInstance.cont
         return HTMLElementWrapper.all.get(elemInstance)
     }
-    static select(element) {
-        return HTMLElementWrapper.all.has(element) || new HTMLElementWrapper({
-            from: element
+    static select(from) {
+        return HTMLElementWrapper.all.has(from) || new HTMLElementWrapper({
+            from
         })
     }
     //Store every instance
@@ -103,10 +103,6 @@ export class HTMLElementWrapper {
             if (prop === 'cont') return cont
             if (!isNaN(prop)) return target.children[prop]
             if (prop in target) return target[prop]
-            if (typeof prop === 'string' && cont.hasAttribute(prop)) {
-                debugger
-                return cont.getAttribute(prop)
-            }
             let out = cont[prop]
             if (typeof out === 'function') {
                 out = out.bind(cont)
@@ -119,22 +115,8 @@ export class HTMLElementWrapper {
             const {
                 cont
             } = target
-            if (prop in target)
-                return Reflect.set(target, prop, value)
-            if (typeof prop === 'string' && cont.hasAttribute(prop)) {
-                let worked = 1
-                try {
-                    cont.setAttribute(prop, value)
-                } catch {
-                    try {
-                        cont.attributeStyleMap.set(prop, value)
-                    } catch {
-                        --worked
-                    }
-                } finally {
-                    return worked
-                }
-            }
+            if (prop in target) 
+            return Reflect.set(target, prop, value)
             return Reflect.set(cont, prop, value)
         }
     }
@@ -155,11 +137,6 @@ export class HTMLElementWrapper {
     reveal() {
         this.styleMe('visibility', 'visible')
     }
-    $(tag, opts) {
-        let out = new HTMLElementWrapper(tag, opts)
-        out.parent = this
-        return out
-    }
     hide() {
         //  important to note that this does NOT hide children
         this.attr.hidden = true
@@ -169,7 +146,6 @@ export class HTMLElementWrapper {
     }
     fadeout(duration = 500) {
         return this.animate([{
-            opacity: ''
         },
         {
             opacity: 0
@@ -207,7 +183,6 @@ export class HTMLElementWrapper {
             opacity: 0
         },
         {
-            opacity: ''
         }
         ], {
             easing: 'ease',
@@ -216,8 +191,12 @@ export class HTMLElementWrapper {
         })
             .finished
     }
+    resetStyles() {
+        this.styles.clear()
+        this.cont.style.cssText = ''
+    }
     styleMe(styles, _) {
-        if (typeof styles === 'string' && _ !== null) {
+        if (typeof styles === 'string' && _ != null) {
             styles = {
                 [styles]: _
             }
@@ -228,6 +207,7 @@ export class HTMLElementWrapper {
             length
         } = styles; length--;) {
             let [prop, val] = styles[length]
+            prop = unformatCSS(prop)
             val = `${val}`
             try {
                 prop = supportedVendor(prop, val)
@@ -239,14 +219,15 @@ export class HTMLElementWrapper {
                 this.styles.delete(prop)
                 continue
             }
-            let parsedValue = parseFloat(val)
-            let lastSegment = val.split(parsedValue).at(-1)
+            let parsedValue = parseFloat(val), 
+                 lastSegment = val.split(parsedValue).at(-1)
             if (lastSegment === '%' || lastSegment in CSS) val = convertToCSSMethod(val)
             this.styles.set(prop, val)
 
         }
         const final = extractCSSFromObject(Array.from(this.styles.entries()))
-        return this.cont.style.cssText = final
+        this.cont.style.cssText = final
+        return this.styles
     }
     /**
      * New element
@@ -310,40 +291,6 @@ export class HTMLElementWrapper {
         return proxy
     }
     #start(seed) {
-        let
-            {
-                cont
-            } = this
-        for (let prop in seed) {
-            //  Debugger statements because i suck at this and it shouldnt be used anymore
-            //  so basically i just annoy myself until i fix it everywhere
-            if (prop === 'resize') {
-                debugger
-                this.styleMe('resize', seed.resize ?? 'both')
-            } else if (prop === 'readonly') {
-                debugger
-                this.attr.readonly = true
-            } else if (prop === 'hidden') {
-                debugger
-                cont.toggleAttribute('hidden', true)
-            } else if (prop === 'open') {
-                debugger
-                cont.toggleAttribute('open', true)
-            } else if (prop === 'autofocus') {
-                debugger
-                queueMicrotask(() => cont.focus())
-            } else if (prop in cont && prop !== 'attributes') {
-                debugger
-                try {
-                    cont[prop] = seed[prop]
-                } catch {
-                    cont.setAttribute(prop, seed[prop])
-                }
-            } else if (cont.hasAttribute(prop)) {
-                debugger
-                cont.setAttribute(prop, seed[prop])
-            }
-        }
         if ('events' in seed) this.on(seed.events)
         if ('styles' in seed) this.styleMe(seed.styles)
         if ('txt' in seed) this.txt = seed.txt
@@ -377,15 +324,16 @@ export class HTMLElementWrapper {
     }
 
     on(events, useHandler) {
-        let k = getProxy(this.cont)
+        let me = this
         if (typeof events === 'string' && typeof useHandler === 'function') {
             events = [[events, useHandler]]
             useHandler = false
         }
-        events = (isArray(events) ? events : Object.entries(events)).map(function ([name, event]) {
-            return [name, event.bind(k)]
-        })
+        events = (isArray(events) ? events : Object.entries(events)).map(map)
         return events.length && on(this.cont, events)
+        function map([name, event]) {
+            return [name, event.bind(me)]
+        }
     }
     off(...names) {
         off(this.cont, ...names)
@@ -395,8 +343,9 @@ export class HTMLElementWrapper {
         for (let [attr, val] of attributes) this.cont.setAttribute(attr, val)
     }
     set parent(element) {
-        if (element == null) return this.cont.remove()
-        getProxy(element).appendChild(this.cont)
+        return element == null 
+        ?this.cont.remove() 
+        :getProxy(element).appendChild(this.cont)
     }
     get parent() {
         return getProxy(this.cont.parentElement)

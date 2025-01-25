@@ -1,5 +1,4 @@
-import Color from '../color.js'
-window.color=Color
+
 function images({ avatars, mons }) {
     let bg = parent
     const frameDuration = 135
