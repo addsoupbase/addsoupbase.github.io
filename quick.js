@@ -532,6 +532,8 @@ function supportedVendor(prop, val) {
         let prefix = `-webkit-${prop}`
         if (CSS.supports(prefix, val))
             return prefix
+        if (CSS.supports(prefix = prefix.replace(/-(moz|o|ms|webkit)-/,'')))
+            return prefix
         if (CSS.supports((prefix = `-moz-${prop}`), val))
             return prefix
         if (CSS.supports((prefix = `-o-${prop}`), val))
@@ -665,34 +667,7 @@ function convertToCSSMethod(value) {
         return value
     }
 }
-class StorageProxy {
-    static #handler = {
-        get(target, prop) {
-            if (!isNaN(prop) && +prop > -1)
-                return target.key(prop)
-            if (prop === 'clear' || prop === 'length') return target[prop]
-            return target.getItem(prop)
-        },
-        has(target, prop) {
-            return target.getItem(prop) !== null
-        },
-        deleteProperty(target, prop) {
-            return !target.removeItem(prop)
-        },
-        set(target, prop, value) {
-            return !target.setItem(prop, value)
-        }
-    }
-    constructor(storage) {
-        if (storage instanceof Storage)
-            return new Proxy(storage, StorageProxy.#handler)
-        throw TypeError("Illegal constructor")
-    }
-}
-export const lstorage = globalThis.localStorage &&
-    new StorageProxy(localStorage),
-    sstorage = globalThis.sessionStorage &&
-        new StorageProxy(sessionStorage)
+
 export function Alert(t, e) {
     const old = querySelector('dialog')
     old?.close(), old?.destroy()
