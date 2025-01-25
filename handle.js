@@ -6,16 +6,18 @@ export default sym
 export const allEvents = new WeakMap
 const eventRegistry = new FinalizationRegistry(function ([key, set]) { set.delete(key) })
 function verifyEventName(target, name) {
-
-    if (name.match(/^domcontentloaded$/i) && target instanceof Document ||
-        name.match(/^(animation(cancel|end|remove))$/i) && 'onremove' in target
-    ) return
+    if(name.match(/^domcontentloaded$/i) && target instanceof Document ||
+        name.match(/^(animation(cancel|end|remove))$/i) && 'onremove' in target) 
+        return
     //Some events like the one above don't have a handler
     if (!(`on${name.toLowerCase()}` in target)) throw TypeError(`🔇 Cannot listen for '${name}' events`)
     //Check if handler with name exists
 }
 export function wait(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms))
+    return new Promise(res)
+    function res(resolve) {
+        setTimeout(resolve, ms)
+    }
 }
 export function on(target, events, useHandler) {
     if (!(target instanceof EventTarget)) throw TypeError("🚫 Invalid event target")
@@ -26,7 +28,7 @@ export function on(target, events, useHandler) {
         groupCollapsed(`on(${target[Symbol.toStringTag] || target.constructor?.name || target})`)
         console.dirxml(target)
         const myEvents = target[sym]
-       
+
         if (!isArray(events)) events = Object.entries(events)
         for (let [eventName, func] of events) {
             const once = eventName.includes('_'),
@@ -34,10 +36,10 @@ export function on(target, events, useHandler) {
                 passive = eventName.includes('^'),
                 capture = eventName.includes('%'),
                 options = {
-                capture,
-                //once: false,
-                passive,
-            }
+                    capture,
+                    //once: false,
+                    passive,
+                }
             eventName = eventName.replace(/[_$^%]/g, '')
             if (myEvents.has(eventName)) {
                 warn(`🔕 Duplicate '${eventName}' listener!`)
@@ -45,15 +47,15 @@ export function on(target, events, useHandler) {
             }
             verifyEventName(target, eventName)
             func = new Proxy(func, {
-                apply(targ, _, argArray) {
+                apply(targ, _, args) {
                     once && off(target, eventName)
                     if (prevents) {
-                        const [event] = argArray
+                        let [event] = args
                         event.cancelable ?
                             event.preventDefault() :
                             warn(`🔊 '${eventName}' events are not cancelable`)
                     }
-                    return targ.apply(null, argArray)
+                    return targ.apply(null, args)
                 }
             })
             eventRegistry.register(func, [eventName, myEvents])

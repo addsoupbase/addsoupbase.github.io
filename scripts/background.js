@@ -1,4 +1,5 @@
-
+import Color from '../color.js'
+window.color=Color
 function images({ avatars, mons }) {
     let bg = parent
     const frameDuration = 135
@@ -11,7 +12,7 @@ function images({ avatars, mons }) {
         await this.animate([{ transform: '' }, { transform: 'scaleX(2) scaleY(2)', }], { duration: 300, easing: 'ease-in-out', composite: 'add' }).finished
         let name =
             new URL(this.firstElementChild.src, location).pathname.split('/').at(-1).split('.')[0]
-        let me = $('div,ava tar', {
+        let me = $('div.ava .tar', {
             styles: {
                 'background-image': `url(${this.firstElementChild.src})`
             },
@@ -19,7 +20,7 @@ function images({ avatars, mons }) {
                 alt: name,
             },
             parent: bg,
-            os: [$('p,displayName', { txt: '@' + string.upper(name) })]
+            os: [$('p.displayName', { txt: '@' + string.upper(name) })]
         })
         this.remove()
         me.fadein()
@@ -30,7 +31,7 @@ function images({ avatars, mons }) {
     function bubbleWithAva(image = cycle.next) {
         if (document.hidden) return
         const { src } = image
-        let n = $('div,bubble', { width: 50, height: 50, parent })
+        let n = $('div.bubble', { width: 50, height: 50, parent })
         let settings = ran.coin
             ? [{ transform: `translateX(calc(100vw + ${n.offsetWidth}px))` }, { transform: `translateX(calc(-10vw - ${n.offsetWidth}px))` },]
             : [{ transform: `translateX(calc(-10vw - ${n.offsetWidth}px))` }, { transform: `translateX(calc(100vw + ${n.offsetWidth}px))` }]
@@ -39,7 +40,7 @@ function images({ avatars, mons }) {
         n.animate([{ translate: `0 ${c}px` }, { translate: `0 ${c - 200}px` }], { easing: 'ease-in-out', duration: ran.range(2000, 3000), iterations: 1 / 0, direction: 'alternate' })
 
         n.onclick = click
-        const out = $('img,ava', {
+        const out = $('img.ava', {
             parent: n,
             attr: {
                 src,
@@ -52,7 +53,7 @@ function images({ avatars, mons }) {
         out.animate([{ rotate: '' }, { rotate: `${ran.choose(360, -360)}deg` }], { duration: 80000, iterations: 1 / 0, easing: 'linear' })
     }
     function createAnimationForSpritesheet(image) {
-        let me = $(`div,${image.__name} sprite`, { parent, })
+        let me = $(`div.${image.__name}.sprite`, { parent, })
         me.animate([{
             'backgroundPositionX': '0px'
         },
@@ -81,14 +82,15 @@ function images({ avatars, mons }) {
             //        case 'corsola': element.animate([{transform: 'rotateZ(0deg)'}, {transform: `rotateZ(360deg)`}], {composite:'add',easing:'linear',duration:5000, iterations:1/0,direction:coin?'reverse':'normal'})
         }
         duration *= 0.9
-        await element.animate(settings, { easing: 'linear', duration, composite: 'add' }).finished
+        await element.animate(settings, { easing: 'linear', duration, composite: 'add',fill:'forwards' }).finished
+        await element.fadeout()
         element.destroy()
     }
     setInterval(bubbleWithAva, 2000)
     spawnPkmn()
     async function tinyBubbles(again = true) {
         again && setTimeout(tinyBubbles, ran.range(500, 600))
-        let bubbl = $('div,bubble', parent)
+        let bubbl = $('div.bubble', parent)
         let num = ran.range(13, 23)
         bubbl.styleMe({ width: `${num}px`, height: `${num}px`, left: `${ran.range(0, innerWidth)}px`, top: '100%' })
         bubbl.animate([{ transform: `translateX(-10px)` }, { transform: 'translateX(10px)' }], { iterations: 1 / 0, duration: 200, direction: 'alternate', easing: 'ease-in-out', composite: 'add' })
@@ -99,10 +101,9 @@ function images({ avatars, mons }) {
 }
 import $, { getProxy, } from '../quick.js'
 import { math, ran, string } from '../misc.js'
-const iframe = $('iframe,center', {
+const iframe = $('iframe.center #frame', {
     parent: document.body,
     attr: {
-        id: 'frame',
         src: './main.html'
     }
 })
@@ -113,9 +114,6 @@ window.final = function () {
         console.log("Loading the bg now...")
 }
 console.log('Sprites credit: https://sprites.pmdcollab.org/')
-const parent = $('div', {
-    attr: {
-        id: 'background',
-    },
+const parent = $('div #background', {   
     parent: document.body
 })

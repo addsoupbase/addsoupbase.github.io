@@ -14,7 +14,7 @@ const {
     warn,
     log
 } = console,
-frag = document.createDocumentFragment.bind(document),
+    frag = document.createDocumentFragment.bind(document),
     deprecatedTags = /^(tt|acronym|big|center|dir|font|frame|frameset|marquee|nobr|noembed|noframes|param|plaintext|rb|rtc|strike|tt|xmp)$/i,
     svgTags = /^(animate|animateMotion|animateTransform|circle|clipPath|defs|desc|ellipse|feBlend|feColorMatrix|feComponentTransfer|feComposite|feConvolveMatrix|feDiffuseLighting|feDisplacementMap|feDistantLight|feDropShadow|feFlood|feFuncA|feFuncB|feFuncG|feFuncR|feGaussianBlur|feImage|feMerge|feMergeNode|feMorphology|feOffset|fePointLight|feSpecularLighting|feSpotLight|feTile|feTurbulence|filter|foreignObject|g|glyph|glyphRef|hkern|image|line|linearGradient|marker|mask|metadata|missing-glyph|mpath|path|pattern|polygon|polyline|radialGradient|rect|set|stop|svg|switch|symbol|text|textPath|tref|tspan|use|view|vkern)$/i
 //These SVG tags have to be treated differently
@@ -45,18 +45,30 @@ export class HTMLElementWrapper {
         return querySelectorAll.call(this.cont, selector)
     }
     batch(...children) {
-        return this.offsprings = children
+        let fragment
+        children = children.flat(1 / 0)
+        if (children.length <= 1) fragment = HTMLElementWrapper.deverifyTarget(children[0])
+        else for (let i = 0, {
+            length
+        } = children; i < length; ++i)
+            (fragment ??= frag()).appendChild(HTMLElementWrapper.deverifyTarget(children[i]))
+        fragment && this.cont.appendChild(fragment)
+        // this.cont.append(...children.map(HTMLElementWrapper.deverifyTarget))
     }
-    get children() {
-        return Array.from(this.cont.children, getProxy)
-    }
-    set children(children) {
-        children ??= []
-        isArray(children) || (children = [children])
-        children = children.map(HTMLElementWrapper.deverifyTarget)
-        let fragment = frag()
-        fragment.appendChild(...children)
-        this.cont.replaceChildren(fragment)
+    static #childHandler = {
+        get(target, prop) {
+            let out = Reflect.get(target, prop)
+            if (out instanceof HTMLElement) out = getProxy(out)
+            return out
+        },
+        set(target, prop, value) {
+            let n = target[prop]
+            if (n instanceof HTMLElement) {
+                getProxy(n).replaceWith(value)
+                return true
+            }
+            return Reflect.set(target, prop, value)
+        }
     }
     before(elem) {
         return this.cont.before(elem.cont ?? elem)
@@ -89,6 +101,7 @@ export class HTMLElementWrapper {
                 cont
             } = target
             if (prop === 'cont') return cont
+            if (!isNaN(prop)) return target.children[prop]
             if (prop in target) return target[prop]
             if (typeof prop === 'string' && cont.hasAttribute(prop)) {
                 debugger
@@ -97,8 +110,8 @@ export class HTMLElementWrapper {
             let out = cont[prop]
             if (typeof out === 'function') {
                 out = out.bind(cont)
-                Object.defineProperty(target,prop,{value:out,configurable:1,writable:1})
-            } 
+                Object.defineProperty(target, prop, { value: out, configurable: 1, writable: 1 })
+            }
             else if (out instanceof HTMLElement) out = getProxy(out)
             return out
         },
@@ -126,6 +139,7 @@ export class HTMLElementWrapper {
         }
     }
     get styles() {
+        if (!this.cont) throw TypeError("Illegal invocation")
         Object.defineProperty(this, 'styles', {
             value: new Map,
             enumerable: 1
@@ -141,6 +155,11 @@ export class HTMLElementWrapper {
     reveal() {
         this.styleMe('visibility', 'visible')
     }
+    $(tag, opts) {
+        let out = new HTMLElementWrapper(tag, opts)
+        out.parent = this
+        return out
+    }
     hide() {
         //  important to note that this does NOT hide children
         this.attr.hidden = true
@@ -150,16 +169,16 @@ export class HTMLElementWrapper {
     }
     fadeout(duration = 500) {
         return this.animate([{
-                    opacity: ''
-                },
-                {
-                    opacity: 0
-                }
-            ], {
-                easing: 'ease',
-                duration,
-                fill: 'forwards'
-            })
+            opacity: ''
+        },
+        {
+            opacity: 0
+        }
+        ], {
+            easing: 'ease',
+            duration,
+            fill: 'forwards'
+        })
             .finished
     }
     wrap(html) {
@@ -185,16 +204,16 @@ export class HTMLElementWrapper {
     }
     fadein(duration = 500) {
         return this.animate([{
-                    opacity: 0
-                },
-                {
-                    opacity: ''
-                }
-            ], {
-                easing: 'ease',
-                duration,
-                fill: 'forwards'
-            })
+            opacity: 0
+        },
+        {
+            opacity: ''
+        }
+        ], {
+            easing: 'ease',
+            duration,
+            fill: 'forwards'
+        })
             .finished
     }
     styleMe(styles, _) {
@@ -206,8 +225,8 @@ export class HTMLElementWrapper {
         }
         if (!isArray(styles)) styles = Object.entries(styles)
         for (let {
-                length
-            } = styles; length--;) {
+            length
+        } = styles; length--;) {
             let [prop, val] = styles[length]
             val = `${val}`
             try {
@@ -235,29 +254,32 @@ export class HTMLElementWrapper {
      * @param {Object | String} seed Object that describes the element
      * @returns Proxy instance
      */
-    constructor(seed = 'div') {
+    constructor(seed) {
         if (typeof seed === 'string') seed = {
-            tag: seed
+            raw: seed
         }
         let {
             from,
-            tag = 'div',
+            raw = 'div',
             parent,
             offsprings,
             os
         } = seed,
-        kids = offsprings ?? os,
-            classes
-        if (tag.includes(',')) {
-            [tag, classes] = tag.split(',')
-            classes = classes.trim().split(' ')
-        }
-        if (tag.includes(':')) {
-            [tag, seed.type] = tag.split(':')
-        }
+            kids = offsprings ?? os,
+
+            tag = raw.match(/\w+/)[0],
+            id = raw.match(/#\w+/)?.[0].replace('#', ''),
+            classs = raw.match(/\.[-\w]+/g)?.map(o => o.replace('.', '')),
+            text = raw.match(/<.*>/)?.[0].replace(/[<>]/g, ''),
+            type = raw.match(/!\w+/)?.[0].replace('!', '')
+
+
         if (tag.match(svgTags))
             this.#cont = from ?? document.createElementNS('http://www.w3.org/2000/svg', tag)
         else this.#cont = from ?? document.createElement(tag)
+        if (type) this.#cont.type = type
+        if (id) this.#cont.id = id
+        if (text) this.#cont.textContent = text
         this.#cont = new WeakRef(this.#cont)
         if (new.target.all.has(this.cont)) {
             reportError(TypeError('Something went wrong!'));
@@ -276,52 +298,25 @@ export class HTMLElementWrapper {
             revoke
         } = Proxy.revocable(this, new.target.#HANDLER)
         new.target.all.set(this.cont, proxy)
+        Object.defineProperty(this, '__revoke__', {
+            value: revoke
+        })
         new.target.#expiry.register(this.cont, revoke)
-        if (kids) proxy.offsprings = kids
         if (parent) proxy.parent = parent
-        classes && proxy.classList.add.apply(proxy.classList, classes)
+        if (kids) proxy.batch(kids)
+        classs && proxy.classList.add.apply(proxy.classList, classs)
+        this.children = new Proxy(this.cont.children, HTMLElementWrapper.#childHandler)
         this.#start(seed)
         return proxy
     }
-    static #expiry = new FinalizationRegistry(revoke => {
-        revoke()
-    })
-    get cont() {
-        return this.#cont.deref()
-    }
-    destroy() {
-        const {
-            offsprings,
-            cont
-        } = this
-        for (let {
-                length
-            } = offsprings; length--;) {
-            const kid = offsprings[length]
-            kid.destroy()
-        }
-        cont[sym]?.size && off(cont, ...cont[sym])
-        cont.getAnimations({
-            subtree: true
-        }).forEach(removeAnimations)
-        do cont.remove()
-        while (cont.parentElement)
-
-        function removeAnimations(anim) {
-            anim.cancel()
-        }
-    }
     #start(seed) {
-        let keys = Object.keys(seed),
+        let
             {
                 cont
             } = this
-        for (let {
-                length
-            } = keys; length--;) {
+        for (let prop in seed) {
             //  Debugger statements because i suck at this and it shouldnt be used anymore
             //  so basically i just annoy myself until i fix it everywhere
-            const prop = keys[length]
             if (prop === 'resize') {
                 debugger
                 this.styleMe('resize', seed.resize ?? 'both')
@@ -356,15 +351,38 @@ export class HTMLElementWrapper {
         if ('offsprings' in seed && 'os' in seed) warn('🚼 Child was overwritten')
         if ('attributes' in seed || 'attr' in seed) this.setAttributes(seed.attributes || seed.attr)
     }
+    static #expiry = new FinalizationRegistry(revoke => {
+        revoke()
+    })
+    get cont() {
+        return this.#cont.deref()
+    }
+    destroy() {
+        const {
+            children,
+            cont
+        } = this
+        while (children.length) children[0].destroy()
+        let t = cont[sym]
+        t?.size && this.off(...t)
+        cont.getAnimations({
+            subtree: true
+        }).forEach(removeAnimations)
+        do cont.remove()
+        while (cont.parentElement)
+        function removeAnimations(anim) {
+            anim.cancel()
+        }
+        this.__revoke__()
+    }
+
     on(events, useHandler) {
         let k = getProxy(this.cont)
         if (typeof events === 'string' && typeof useHandler === 'function') {
-            events = [
-                [events, useHandler]
-            ]
+            events = [[events, useHandler]]
             useHandler = false
         }
-        events = (isArray(events) ? events : Object.entries(events)).map(function([name, event]) {
+        events = (isArray(events) ? events : Object.entries(events)).map(function ([name, event]) {
             return [name, event.bind(k)]
         })
         return events.length && on(this.cont, events)
@@ -382,9 +400,6 @@ export class HTMLElementWrapper {
     }
     get parent() {
         return getProxy(this.cont.parentElement)
-    }
-    get offsprings() {
-        return Array.from(this.cont.children, getProxy)
     }
     get txt() {
         return this.textContent
@@ -419,31 +434,7 @@ export class HTMLElementWrapper {
             this.cont.removeChild(lastElementChild)
             return getProxy(lastElementChild)
         }
-    }
-    push(...children) {
-        return children.length && this.cont.appendChild.apply(this.cont, children)
-    }
-    unshift(...children) {
-        return children.length && this.cont.prepend.apply(this.cont, children)
-    }
-    shift() {
-        const {
-            firstChild
-        } = this
-        this.cont.removeChild(firstChild)
-        return firstChild
-    }
-    at(index) {
-        return this.offsprings.at(index)
-    }
-    forEach(func, thisArg) {
-        this.offsprings.forEach(func, thisArg)
-    }
-    every(testFunc) {
-        return this.offsprings.every(testFunc)
-    }
-    find(testFunc) {
-        return this.offsprings.find(testFunc)
+        return null
     }
     static #attr = {
         get(target, prop) {
@@ -465,50 +456,41 @@ export class HTMLElementWrapper {
         }
     }
     empty() {
-        const fragment = frag()
-        this.offsprings.forEach(({
-            cont
-        }) => {
-            this.cont.removeChild(cont)
+        const fragment = frag(),
+            { children } = this
+        while (children.length) {
+            let { cont } = children[0]
+            this.removeChild(cont)
             fragment.appendChild(cont)
-        })
+        }
         return fragment
     }
     destroyChildren() {
         const {
-            offsprings
+            children
         } = this
-        for (let {
-                length
-            } = offsprings; length--;)
-            offsprings[length].destroy()
+        while (children.length) children[0].destroy()
     }
-   /* animate(keyframes,options) {
-        for (let {length} = keyframes; length--;) {
-            let fr = keyframes[length]
-            for(let [prop, val] of Object.entries(fr)) {
-                delete fr[prop]
-                fr[formatCSS(supportedVendor(prop,val))] = val
+    animate(keyframes, options) {
+        for (let { length } = keyframes; length--;) {
+            let frame = keyframes[length]
+            for (let [prop, val] of Object.entries(frame)) {
+                try {
+                    let hasValue = frame[prop].trim()
+                    delete frame[prop]
+                    if (hasValue) frame[formatCSS(supportedVendor(unformatCSS(prop), val))] = val
+                }
+                finally {
+                    continue
+                }
             }
         }
-        return this.cont.animate(keyframes,options)
-    }*/
-    set offsprings(children) {
-        let fragment
-        if (children.length <= 1) fragment = HTMLElementWrapper.deverifyTarget(children[0])
-        else for (let i = 0, {
-                    length
-                } = children; i < length; ++i)
-                (fragment ??= frag()).appendChild(HTMLElementWrapper.deverifyTarget(children[i]))
-        fragment && this.cont.appendChild(fragment)
-        // this.cont.append(...children.map(HTMLElementWrapper.deverifyTarget))
+        return this.cont.animate(keyframes, options)
     }
+
     eval() {
         //Function(`with(this)void class{static{${code}}}`).call(this)
         return eval(arguments[0])
-    }
-    get tagname() {
-        return this.cont.tagName
     }
 }
 const {
@@ -548,40 +530,49 @@ export function getProxy(element) {
 function supportedVendor(prop, val) {
     if (val && !CSS.supports(prop, val)) {
         let prefix = `-webkit-${prop}`
-        if (CSS.supports(prefix, val)) 
+        if (CSS.supports(prefix, val))
             return prefix
-        if (CSS.supports((prefix = `-moz-${prop}`), val))    
+        if (CSS.supports((prefix = `-moz-${prop}`), val))
             return prefix
-        if (CSS.supports((prefix = `-o-${prop}`), val))      
+        if (CSS.supports((prefix = `-o-${prop}`), val))
             return prefix
-        if (CSS.supports((prefix = `-ms-${prop}`), val))     
+        if (CSS.supports((prefix = `-ms-${prop}`), val))
             return prefix
         throw SyntaxError('Invalid CSS')
     }
     return prop
 }
 function formatCSS(prop) {
-  if (prop.includes('-')) {
-    if (prop[0]==='-') prop = prop.slice(1)  
-    return prop.split('-').map((o,index)=>index?o[0].toUpperCase() + o.slice(1) : o).join('')
-  } 
-  return prop
+    if (prop.includes('-')) {
+        if (prop[0] === '-') prop = prop.slice(1)
+        return prop.replace(/-./g, tuc)
+        function tuc(o) {
+            return o[1].toUpperCase()
+        }
+    }
+    return prop
+}
+function unformatCSS(prop) {
+    return prop.replace(/[A-Z]/g, tlc)
+    function tlc(o) {
+        return `-${o.toLowerCase()}`
+    }
 }
 for (let func of new Set([getElementsByClassName, getElementsByTagName, getElementsByName, getElementsByTagNameNS, getElementById, querySelector, querySelectorAll, getProxy])) {
     Object.defineProperty(HTMLElementWrapper, func.name, {
-        get() {
-            return func.bind(null)
-        }
+        value: func.bind(null)
     })
 }
 export default HTMLElementWrapper = new Proxy(HTMLElementWrapper, {
     apply(target, _, args) {
-        let [tag, seed = {}] = args
-        if (tag instanceof HTMLElement) return getProxy(tag)
+        let [raw, seed, ...children] = args
+        seed ??= {}
+        if (raw instanceof HTMLElement) return getProxy(raw)
         if (seed instanceof HTMLElement || seed instanceof target) seed = {
             parent: seed
         }
-        seed.tag = tag
+        seed.raw = raw
+        if (children.length) seed.os = children
         return new target(seed)
     },
     construct(_, args) {
@@ -616,9 +607,9 @@ export function registerCSS(selector, rule) {
     const {
         sheet
     } =
-    addedStyleRules ??= HTMLElementWrapper('style', {
-        parent: document.head
-    })
+        addedStyleRules ??= HTMLElementWrapper('style', {
+            parent: document.head
+        })
     sheet.insertRule(`${selector}{${extractCSSFromObject(rule)}}`)
 }
 queueMicrotask(() => {
@@ -686,12 +677,10 @@ class StorageProxy {
             return target.getItem(prop) !== null
         },
         deleteProperty(target, prop) {
-            target.removeItem(prop)
-            return true
+            return !target.removeItem(prop)
         },
         set(target, prop, value) {
-            target.setItem(prop, value)
-            return true
+            return !target.setItem(prop, value)
         }
     }
     constructor(storage) {
@@ -703,7 +692,7 @@ class StorageProxy {
 export const lstorage = globalThis.localStorage &&
     new StorageProxy(localStorage),
     sstorage = globalThis.sessionStorage &&
-    new StorageProxy(sessionStorage)
+        new StorageProxy(sessionStorage)
 export function Alert(t, e) {
     const old = querySelector('dialog')
     old?.close(), old?.destroy()
@@ -738,6 +727,7 @@ export function Alert(t, e) {
                 })]
             })]
         });
+        r.fadein()
         r.showModal()
     }))
 }
@@ -759,15 +749,13 @@ export function FormDataManager(FormDataInstance) {
             return target.get(prop)
         },
         set(target, prop, val) {
-            target.set(prop, val)
-            return true
+            return !target.set(prop, val)
         },
         has(target, prop) {
             return target.has(prop)
         },
         deleteProperty(target, prop) {
-            target.delete(prop)
-            return true
+            return !target.delete(prop)
         }
     })
 }

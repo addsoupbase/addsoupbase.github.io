@@ -1,8 +1,7 @@
-import ran from './random.js'
 import math from './math.js'
 const { min, max, round } = Math,
-colors = new Map,
-    canvas = new OffscreenCanvas(0,0).getContext('2d'),
+    colors = new Map,
+    canvas = new OffscreenCanvas(0, 0).getContext('2d'),
     handler = {
         get(target, prop) {
             if (CSS.supports('color', prop)) {
@@ -15,65 +14,85 @@ colors = new Map,
             if (prop in target) return target[prop]
             throw TypeError(`Invalid color '${prop}'`)
         },
-        apply(target,_,args) {
+        apply(target, _, args) {
             return new target(...args)
         }
     }
 const Color = new Proxy(class {
+    //Darken Hex Colour
     static dhk(e, f = 40) { let $ = parseInt((e = ('' + e).replace(/^#/, "")).substring(0, 2), 16), a = parseInt(e.substring(2, 4), 16), r = parseInt(e.substring(4, 6), 16); return $ = round($ * (1 - f / 100)), a = round(a * (1 - f / 100)), r = round(r * (1 - f / 100)), $ = min(255, max(0, $)), a = min(255, max(0, a)), r = min(255, max(0, r)), "#" + [$, a, r].map(function (e) { let f = e.toString(16); return 1 === f.length ? "0" + f : f }).join('') }
     static choose() {
-        return `#${ran.frange(0, 0x1000000).toString(16).padStart(6, 0)}`
+        return `#${(Math.floor(Math.random() * 0x1000000)).toString(16).padStart(6, 0)}`
     }
     static opposite(colour) {
-        if (0 === colour.indexOf("#") && (colour = colour.slice(1)), 3 === colour.length && (colour = colour[0] + colour[0] + colour[1] + colour[1] + colour[2] + colour[2]), 6 !== colour.length) throw TypeError('Invalid HEX color.')
+        if (0 === colour.indexOf("#") && (colour = colour.slice(1)), 3 === colour.length && (colour = colour[0] + colour[0] + colour[1] + colour[1] + colour[2] + colour[2]), 6 !== colour.length) throw SyntaxError('Invalid HEX color.')
         let f = (255 - parseInt(colour.slice(0, 2), 16)).toString(16),
             $ = (255 - parseInt(colour.slice(2, 4), 16)).toString(16),
             a = (255 - parseInt(colour.slice(4, 6), 16)).toString(16)
-        return `#${f.padStart(0, 2)}${$.padStart(0, 2)}${a.padStart(0, 2)}`
+        return `#${[f, $, a].map(o => o.padStart(0, 2)).join('')}`
+
     }
     static log(colour) {
         console.log(`%c ${colour}`, `color:${colour};font-size:100px;background-color:${colour}`)
     }
-    #r=255
-    #g=255
-    #b=255
-    #a=1
-    set r(r) {
-        this.#r = math.clamp(r,0,255) || 0
-    }
-    get r() {
-        return this.#r
-    }
-    set g(g) {
-        this.#g = math.clamp(g,0,255) || 0
-    }
-    get g() {
-        return this.#g
-    }
-    set b(b) {
-        this.#b = math.clamp(b,0,255) || 0
-    }
-    get b() {
-        return this.#b
-    }
-    set a(a) {
-        this.#a = math.clamp(a,0,1) || 0
-    }
-    get a() {
-        return this.#a
-    }
-    constructor(r,g,b,a) {
-        if (typeof r === 'string' && r[0] !== '#') 
-           try {
-               [r,g,b,a] = Color[r]
-           }
-            catch {
-                  r??=255
-                  g??=255
-                  b??=255
-                  a??=1
+    #r = 255
+    #g = 255
+    #b = 255
+    #a = 1
+    static {
+        let enumerable = 1
+        Object.defineProperties(this.prototype, {
+            r: {
+                enumerable,
+                get() {
+                    return this.#r
+                },
+                set(r) {
+                    this.#r = math.clamp(r, 0, 255) || 0
+                }
+            },
+            g: {
+                enumerable,
+                get() {
+                    return this.#g
+                },
+                set(g) {
+                    this.#g = math.clamp(g, 0, 255) || 0
+                }
+            },
+            b: {
+                enumerable,
+                get() {
+                    return this.#b
+                },
+                set(b) {
+                    this.#b = math.clamp(b, 0, 255) || 0
+                }
+            },
+            a: {
+                enumerable,
+                get() {
+                    return this.#a
+                },
+                set(a) {
+                    this.#a = math.clamp(a, 0, 1)
+                    if (!this.#a && this.#a !== 0) this.#a = 1
+                }
             }
-        
+        })
+    }
+    constructor(r, g, b, a) {
+        if (typeof r === 'string' && r[0] !== '#')
+            try {
+                [r, g, b, a] = Color[r]
+            }
+            catch {
+                r ??= 255
+                g ??= 255
+                b ??= 255
+                a ??= 1
+            }
+
         else if (typeof r === 'string' && r.startsWith('#')) {
             let hex = r.slice(1)
             if (hex.length === 3) hex = hex.split('').map(c => `${c}${c}`).join('')
@@ -83,29 +102,32 @@ const Color = new Proxy(class {
                 a = 1
         }
         Object.assign(this, { r, g, b, a })
-}
+    }
     toString(format) {
         function map(o) {
-        return (o|0).toString(16).padStart(2, 0)
+            return (o | 0).toString(16).padStart(2, 0)
         }
         switch (format) {
-            default    : return `#${[this.r,this.g,this.b].map(map).join('')}`
-            case 'rgb' : return `rgb(${this.r},${this.g},${this.b})`
+            default: return `#${[this.r, this.g, this.b].map(map).join('')}`
+            case 'rgb': return `rgb(${this.r},${this.g},${this.b})`
             case 'rgba': return `rgba(${this.r},${this.g},${this.b},${this.a})`
-            case 'hex2': return `#${[this.r,this.g,this.b,this.a*255].map(map).join('')}`
-            case 'hsl' : {
-                let [h,s,l] = this.hsl
+            case 'hex2': return `#${[this.r, this.g, this.b, this.a * 255].map(map).join('')}`
+            case 'hsl': {
+                let [h, s, l] = this.hsl
                 return `hsl(${h},${s}%,${l}%)`
             }
             case 'hsla': {
-                let [h,s,l] = this.hsl
+                let [h, s, l] = this.hsl
                 return `hsla(${h},${s}%,${l}%,${this.#a})`
             }
-          }
+        }
+    }
+    #copy(c) {
+        let { r, g, b, a } = c
+        return Object.assign(this, { r, g, b, a })
     }
     invert() {
-       let {r,g,b,a} = Color(Color.opposite(`${this}`))
-        Object.assign(this, { r, g, b, a })
+        return this.#copy(Color(Color.opposite(`${this}`)))
     }
     get 0() {
         return this.r
@@ -129,37 +151,38 @@ const Color = new Proxy(class {
         return this.#a
     }
     get hsl() {
-        let r = this.#r /255,
-            g = this.#g /255,
-            b = this.#b /255
-        let max = Math.max(r,g,b),
-            min = Math.min(r,g,b)
+        let r = this.#r / 255,
+            g = this.#g / 255,
+            b = this.#b / 255
+        let max = Math.max(r, g, b),
+            min = Math.min(r, g, b)
         let c = max - min
-        let hue,shift,segment
+        let hue, shift, segment
         let luminance = (max + min) / 2
-        let saturation = luminance <= 0.5 ? ((max-min)/(max+min)) :
-            ((max-min)/(2 - max - min))
+        let saturation = luminance <= 0.5 ? ((max - min) / (max + min)) :
+            ((max - min) / (2 - max - min))
         if (!c) hue = 0
-        else  {switch(max) {
-              case r:
-                segment = (g - b) / c;
-                shift   = 0 / 60;       // R° / (360° / hex sides)
-                if (segment < 0) {          // hue > 180, full rotation
-                  shift = 360 / 60;         // R° / (360° / hex sides)
-                }
-                break;
-              case g:
-                segment = (b - r) / c;
-                shift   = 120 / 60;     // G° / (360° / hex sides)
-                break;
-              case b:
-                segment = (r - g) / c;
-                shift   = 240 / 60;     // B° / (360° / hex sides)
-                break;
+        else {
+            switch (max) {
+                case r:
+                    segment = (g - b) / c;
+                    shift = 0 / 60;       // R° / (360° / hex sides)
+                    if (segment < 0) {          // hue > 180, full rotation
+                        shift = 360 / 60;         // R° / (360° / hex sides)
+                    }
+                    break;
+                case g:
+                    segment = (b - r) / c;
+                    shift = 120 / 60;     // G° / (360° / hex sides)
+                    break;
+                case b:
+                    segment = (r - g) / c;
+                    shift = 240 / 60;     // B° / (360° / hex sides)
+                    break;
             }
-                hue = segment + shift;
-              }
-        return [hue * 60,saturation*100,luminance*100]
+            hue = segment + shift;
+        }
+        return [hue * 60, saturation * 100, luminance * 100]
     }
     get h() {
         return `${this.hsl[0]}`
@@ -177,7 +200,7 @@ const Color = new Proxy(class {
         return this.#a
     }
     set opacity(a) {
-        this.a=a
+        this.a = a
     }
     get opposite() {
         let out = Color(`${this}`)
@@ -185,17 +208,14 @@ const Color = new Proxy(class {
         return out
     }
     darkenBy(amount) {
-        let o = Color(Color.dhk(`${this}`, amount))
-        this.r = o.r
-        this.g = o.g
-        this.b = o.b
-        this.a = o.a
+        return this.#copy(Color(Color.dhk(`${this}`, amount)))
+
     }
-    *[Symbol.iterator](){
+    *[Symbol.iterator]() {
         yield this.r
         yield this.g
         yield this.b
         yield this.a
     }
-},handler)
+}, handler)
 export default Color

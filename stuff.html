@@ -27,7 +27,7 @@
 <body>
     <script type="module">
         import $ from './quick.js'
-        const main = $('main,center cute-green', { parent: document.body, attr: { id: 'main', } })
+        const main = $('main.center .cute-green #main', { parent: document.body, })
         main.fadein()
 
         let all = $("section", {
@@ -36,37 +36,34 @@
                 style: 'margin-top:50px;'
             }
         })
-        $('h1', { parent: all, txt: 'Random stuff I made' })
-        $('h3', {
+        $('h1<Random stuff I made>', { parent: all })
+        $('h3<Some of it might be broken 😭>', {
             parent: all,
-            txt: 'Some of it might be broken 😭'
         })
-        let linkholder = $('div,lholder', { parent: all, attr: { style: 'display:inline-grid;word-break:break-word;' } })
-        $('a,cute-green-button back', {
+        let linkholder = $('div .lholder', { parent: all, attr: { style: 'display:inline-grid;word-break:break-word;' } })
+        $('a.cute-green-button .back', {
             parent: main,
             txt: 'Back',
             attr: {
                 href: 'main.html',
             }
         })
-        linkholder.offsprings = ['cute-emojis', 'dataurl', `https://magnificent-cream-beginner.glitch.me/`].map(o => {
+        linkholder.batch(['cute-emojis', 'dataurl', `https://magnificent-cream-beginner.glitch.me/`].map(o => {
             let url = new URL(o, `https://addsoupbase.github.io/`)
-            return $('a,tiny', {
-                txt: o,
+            return $(`a.tiny <${o}>`, {
                 attr: {
                     href: url,
                     target: '_blank'
                 }
             })
-        })
-        $('h2', {
+        }))
+        $('h2 <Old stuff>', {
             parent: all,
-            txt: 'Old stuff'
         })
-        let di = $('div,lholder', { parent: all, attr: { style: 'display:inline-grid;word-break:break-word;' } })
+        let di = $('div.lholder', { parent: all, attr: { style: 'display:inline-grid;word-break:break-word;' } })
             ;[`./whatever`, `./twehg`, `./intro`].forEach(o => {
                 let url = new URL(o, `https://addsoupbase.github.io/`)
-                $('a,tiny', {
+                $(`a.tiny <${o}>`, {
                     parent: di,
                     txt: o,
                     attr: {
