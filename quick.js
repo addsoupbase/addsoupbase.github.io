@@ -759,7 +759,8 @@ export function FormDataManager(FormDataInstance) {
         }
     })
 }
-on(window, {
+
+location.href.includes('localhost') && on(window, {
     offline() {
         reportError(new DOMException(`⛓️‍💥 Disconnected at ${new Date().toLocaleTimeString()}`, 'NetworkError'))
     },
