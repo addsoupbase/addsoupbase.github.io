@@ -48,7 +48,7 @@
                 href: 'main.html',
             }
         })
-        linkholder.batch(['cute-emojis', 'dataurl', `https://magnificent-cream-beginner.glitch.me/`].map(o => {
+        linkholder.batch(['cute-emojis', 'dataurl'].map(o => {
             let url = new URL(o, `https://addsoupbase.github.io/`)
             return $(`a.tiny <${o}>`, {
                 attr: {
@@ -63,9 +63,8 @@
         let di = $('div.lholder', { parent: all, attr: { style: 'display:inline-grid;word-break:break-word;' } })
             ;[`./whatever`, `./twehg`, `./intro`].forEach(o => {
                 let url = new URL(o, `https://addsoupbase.github.io/`)
-                $(`a.tiny <${o}>`, {
+                $(`a.tiny <${o.match(/\w+/)}>`, {
                     parent: di,
-                    txt: o,
                     attr: {
                         href: url,
                         target: '_blank'
