@@ -4,10 +4,7 @@ reportError
 monitor
 monitorEvents
 */
-import sym, {
-    on,
-    off
-} from './handle.js'
+import sym, { on, off} from './handle.js'
 const {
     isArray
 } = Array, {
@@ -48,9 +45,7 @@ export class HTMLElementWrapper {
         let fragment
         children = children.flat(1 / 0)
         if (children.length <= 1) fragment = HTMLElementWrapper.deverifyTarget(children[0])
-        else for (let i = 0, {
-            length
-        } = children; i < length; ++i)
+        else for (let i = 0, {length} = children; i < length; ++i)
             (fragment ??= frag()).appendChild(HTMLElementWrapper.deverifyTarget(children[i]))
         fragment && this.cont.appendChild(fragment)
         return this
@@ -58,7 +53,7 @@ export class HTMLElementWrapper {
     }
     static #childHandler = {
         get(target, prop) {
-            let out = Reflect.get(target, prop)
+            let out = target[prop]
             if (out instanceof HTMLElement) out = getProxy(out)
             return out
         },
@@ -72,12 +67,12 @@ export class HTMLElementWrapper {
         }
     }
     before(elem) {
-         this.cont.before(HTMLElementWrapper.deverifyTarget(elem))
-         return this
+        this.cont.before(HTMLElementWrapper.deverifyTarget(elem))
+        return this
     }
     after(elem) {
-         this.cont.after(HTMLElementWrapper.deverifyTarget(elem))
-         return this
+        this.cont.after(HTMLElementWrapper.deverifyTarget(elem))
+        return this
     }
     static verifyTarget(element) {
         //Okay this is really confusing but it works so
@@ -92,9 +87,7 @@ export class HTMLElementWrapper {
         return HTMLElementWrapper.all.get(elemInstance)
     }
     static select(from) {
-        return HTMLElementWrapper.all.has(from) || new HTMLElementWrapper({
-            from
-        })
+        return HTMLElementWrapper.all.has(from) || new HTMLElementWrapper({from})
     }
     //Store every instance
     static all = new WeakMap
@@ -107,29 +100,23 @@ export class HTMLElementWrapper {
             if (typeof prop !== 'symbol' && !isNaN(prop)) return target.children[prop]
             if (prop in target) return target[prop]
             let out = cont[prop]
-            if (typeof out === 'function') {
-                out = out.bind(cont)
-                Object.defineProperty(target, prop, { value: out, configurable: 1, writable: 1 })
-            }
+            if (typeof out === 'function') Object.defineProperty(target, prop, { value: out = out.bind(cont), configurable: 1, writable: 1 })
             else if (out instanceof HTMLElement) out = getProxy(out)
             return out
         },
         set(target, prop, value) {
-            const {
-                cont
-            } = target
-            if (prop in target) 
-            return Reflect.set(target, prop, value)
+            const {cont} = target
+            if (prop in target)
+                return Reflect.set(target, prop, value)
             return Reflect.set(cont, prop, value)
         }
     }
     get styles() {
         if (!this.cont) throw TypeError("Illegal invocation")
-        Object.defineProperty(this, 'styles', {
+        return Object.defineProperty(this, 'styles', {
             value: new Map,
             enumerable: 1
-        })
-        return this.styles
+        }).styles
     }
     displayNone() {
         this.styleMe('display', 'none')
@@ -199,7 +186,7 @@ export class HTMLElementWrapper {
         })
             .finished
     }
-    
+
     resetStyles() {
         this.styles.clear()
         this.cont.style.cssText = ''
@@ -226,12 +213,12 @@ export class HTMLElementWrapper {
                 continue
             }
             if (!val.trim()) {
-                this.styles.delete(supportedVendor(prop,'inherit'))
+                this.styles.delete(supportedVendor(prop, 'inherit'))
                 console.log(prop)
                 continue
             }
-            let parsedValue = parseFloat(val), 
-                 lastSegment = val.split(parsedValue).at(-1)
+            let parsedValue = parseFloat(val),
+                lastSegment = val.split(parsedValue).at(-1)
             if (lastSegment === '%' || lastSegment in CSS) val = convertToCSSMethod(val)
             this.styles.set(prop, val)
         }
@@ -264,23 +251,18 @@ export class HTMLElementWrapper {
             text = raw.match(/<.*>/)?.[0].replace(/[<>]/g, ''),
             type = raw.match(/!\w+/)?.[0].replace('!', '')
         if (tag.match(svgTags))
-            this.#cont = (id && document.getElementById(id)) ?? from ?? document.createElementNS('http://www.w3.org/2000/svg', tag)
-        else this.#cont = (id && document.getElementById(id)) ?? from ?? document.createElement(tag)
+            this.#cont = (id && document.getElementById(id)) || from || document.createElementNS('http://www.w3.org/2000/svg', tag)
+        else this.#cont = (id && document.getElementById(id)) || from || document.createElement(tag)
         if (type) this.#cont.type = type
         if (id) this.#cont.id = id
         if (text) this.#cont.textContent = text
         this.#cont = new WeakRef(this.#cont)
-        if (new.target.all.has(this.cont)) 
+        if (new.target.all.has(this.cont))
             reportError(TypeError('Something went wrong!'))
-        if (deprecatedTags.test(tag)) warn(`♿️ Deprecated '${seed.tag}' tag usage`)
-        const {
-            proxy,
-            revoke
-        } = Proxy.revocable(this, new.target.#HANDLER)
+        if (deprecatedTags.test(tag)) warn(`♿️ Deprecated '${tag}' tag usage`)
+        const {proxy,revoke} = Proxy.revocable(this, new.target.#HANDLER)
         new.target.all.set(this.cont, proxy)
-        Object.defineProperty(this, '__revoke__', {
-            value: revoke
-        })
+        Object.defineProperty(this, '__revoke__', {value: revoke})
         new.target.#expiry.register(this.cont, revoke)
         if (parent) proxy.parent = parent
         if (kids) proxy.batch(kids)
@@ -290,12 +272,11 @@ export class HTMLElementWrapper {
         return proxy
     }
     get attr() {
-        Object.defineProperty(this, 'attr', {
+       return Object.defineProperty(this, 'attr', {
             value: new Proxy(this, HTMLElementWrapper.#attr),
             configurable: 1,
             enumerable: 1
-        })
-        return this.attr
+        }).attr
     }
     #start(seed) {
         if ('events' in seed) this.on(seed.events)
@@ -352,9 +333,9 @@ export class HTMLElementWrapper {
         return this
     }
     set parent(element) {
-        return element == null 
-        ?this.cont.remove() 
-        :getProxy(element).appendChild(this.cont)
+        return element == null
+            ? this.cont.remove()
+            : getProxy(element).appendChild(this.cont)
     }
     get parent() {
         return getProxy(this.cont.parentElement)
@@ -448,9 +429,7 @@ export class HTMLElementWrapper {
         return eval(arguments[0])
     }
 }
-const {
-    from
-} = Array
+const {from} = Array
 export function getElementsByTagName(tag) {
     if (!this) {
         if (tag === 'img') return from(document.images, getProxy)
@@ -487,7 +466,7 @@ function supportedVendor(prop, val) {
         let prefix = `-webkit-${prop}`
         if (CSS.supports(prefix, val))
             return prefix
-        if (CSS.supports(prefix = prop.replace(/-(moz|o|ms|webkit)-/,''),val))
+        if (CSS.supports(prefix = prop.replace(/-(moz|o|ms|webkit)-/, ''), val))
             return prefix
         if (CSS.supports((prefix = `-moz-${prop}`), val))
             return prefix
@@ -512,7 +491,7 @@ function formatCSS(prop) {
 function unformatCSS(prop) {
     return prop.replace(/[A-Z]/g, tlc)
     function tlc(o) {
-        return `-${o.toLowerCase()}`
+        return`-${o.toLowerCase()}`
     }
 }
 for (let func of new Set([getElementsByClassName, getElementsByTagName, getElementsByName, getElementsByTagNameNS, getElementById, querySelector, querySelectorAll, getProxy])) {
@@ -552,8 +531,9 @@ function extractCSSFromObject(obj) {
     const arr = []
     if (!isArray(obj)) obj = Object.entries(obj)
     for (let [prop, val] of obj)
-        arr.push(`${prop}:${val}`)
-    return `${arr.join(';')};`
+        try { arr.push(`${supportedVendor(unformatCSS(prop), val)}:${val}`) }
+        finally { continue }
+    return arr.join(';')
 }
 /** 
  *  ⚠️ Should only be used for dynamic/default CSS
@@ -561,31 +541,34 @@ function extractCSSFromObject(obj) {
  * @param {Object} rule An object which describes the selector 
  */
 export function registerCSS(selector, rule) {
-    const {
-        sheet
-    } =
-        addedStyleRules ??= HTMLElementWrapper('style', {
-            parent: document.head
-        })
-    sheet.insertRule(`${selector}{${extractCSSFromObject(rule)}}`)
+    const { sheet } = addedStyleRules ??= HTMLElementWrapper('style<Check sheet property for rules>', document.head)
+    return sheet.insertRule(`${selector}{${extractCSSFromObject(rule)}}`)
+}
+export function registerCSSAll(rules) {
+    let out = new Set
+    for (let rule in rules) out.add(registerCSS(rule, rules[rule]))
+    return out
 }
 queueMicrotask(() => {
-    registerCSS('dialog', {
-        transition: 'opacity 1s linear',
-        "font-family": "Arial",
-        "text-align": "center",
-        width: "300px",
-        height: "150px",
-        "word-break": "break-word"
-    })
-    registerCSS('.centerx,.center', {
-        'justify-self': 'center',
-        margin: 'auto'
-    })
-    registerCSS('.centery,.center', {
-        'align-self': 'center',
-        inset: 0,
-        position: 'fixed'
+//    Some default CSS...
+    registerCSSAll({
+        dialog: {
+            transition: 'opacity 1s linear',
+            "font-family": "Arial",
+            "text-align": "center",
+            width: "300px",
+            height: "150px",
+            "word-break": "break-word"
+        },
+        '.centerx,.center': {
+            'justify-self': 'center',
+            margin: 'auto'
+        },
+        '.centery,.center': {
+            'align-self': 'center',
+            inset: 0,
+            position: 'fixed'
+        }
     })
 })
 export const CSSSyntax = {
