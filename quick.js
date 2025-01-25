@@ -53,6 +53,7 @@ export class HTMLElementWrapper {
         } = children; i < length; ++i)
             (fragment ??= frag()).appendChild(HTMLElementWrapper.deverifyTarget(children[i]))
         fragment && this.cont.appendChild(fragment)
+        return this
         // this.cont.append(...children.map(HTMLElementWrapper.deverifyTarget))
     }
     static #childHandler = {
@@ -71,10 +72,12 @@ export class HTMLElementWrapper {
         }
     }
     before(elem) {
-        return this.cont.before(HTMLElementWrapper.deverifyTarget(elem))
+         this.cont.before(HTMLElementWrapper.deverifyTarget(elem))
+         return this
     }
     after(elem) {
-        return this.cont.after(HTMLElementWrapper.deverifyTarget(elem))
+         this.cont.after(HTMLElementWrapper.deverifyTarget(elem))
+         return this
     }
     static verifyTarget(element) {
         //Okay this is really confusing but it works so
@@ -130,19 +133,24 @@ export class HTMLElementWrapper {
     }
     displayNone() {
         this.styleMe('display', 'none')
+        return this
     }
     conceal() {
         this.styleMe('visibility', 'hidden')
+        return this
     }
     reveal() {
         this.styleMe('visibility', 'visible')
+        return this
     }
     hide() {
         //  important to note that this does NOT hide children
         this.attr.hidden = true
+        return this
     }
     show() {
         this.attr.hidden = false
+        return this
     }
     fadeout(duration = 500) {
         return this.animate([{
@@ -191,9 +199,11 @@ export class HTMLElementWrapper {
         })
             .finished
     }
+    
     resetStyles() {
         this.styles.clear()
         this.cont.style.cssText = ''
+        return this
     }
     styleMe(styles, _) {
         if (typeof styles === 'string' && _ != null) {
@@ -216,14 +226,14 @@ export class HTMLElementWrapper {
                 continue
             }
             if (!val.trim()) {
-                this.styles.delete(prop)
+                this.styles.delete(supportedVendor(prop,'inherit'))
+                console.log(prop)
                 continue
             }
             let parsedValue = parseFloat(val), 
                  lastSegment = val.split(parsedValue).at(-1)
             if (lastSegment === '%' || lastSegment in CSS) val = convertToCSSMethod(val)
             this.styles.set(prop, val)
-
         }
         const final = extractCSSFromObject(Array.from(this.styles.entries()))
         this.cont.style.cssText = final
@@ -253,8 +263,6 @@ export class HTMLElementWrapper {
             classs = raw.match(/\.[-\w]+/g)?.map(o => o.replace('.', '')),
             text = raw.match(/<.*>/)?.[0].replace(/[<>]/g, ''),
             type = raw.match(/!\w+/)?.[0].replace('!', '')
-
-
         if (tag.match(svgTags))
             this.#cont = from ?? document.createElementNS('http://www.w3.org/2000/svg', tag)
         else this.#cont = from ?? document.createElement(tag)
@@ -262,18 +270,9 @@ export class HTMLElementWrapper {
         if (id) this.#cont.id = id
         if (text) this.#cont.textContent = text
         this.#cont = new WeakRef(this.#cont)
-        if (new.target.all.has(this.cont)) {
-            reportError(TypeError('Something went wrong!'));
-        }
+        if (new.target.all.has(this.cont)) 
+            reportError(TypeError('Something went wrong!'))
         if (deprecatedTags.test(tag)) warn(`♿️ Deprecated '${seed.tag}' tag usage`)
-        Object.defineProperty(this, 'attr', {
-            get() {
-                delete this.attr
-                return this.attr = new Proxy(this, HTMLElementWrapper.#attr)
-            },
-            configurable: 1,
-            enumerable: 1
-        })
         const {
             proxy,
             revoke
@@ -289,6 +288,14 @@ export class HTMLElementWrapper {
         this.children = new Proxy(this.cont.children, HTMLElementWrapper.#childHandler)
         this.#start(seed)
         return proxy
+    }
+    get attr() {
+        Object.defineProperty(this, 'attr', {
+            value: new Proxy(this, HTMLElementWrapper.#attr),
+            configurable: 1,
+            enumerable: 1
+        })
+        return this.attr
     }
     #start(seed) {
         if ('events' in seed) this.on(seed.events)
@@ -321,8 +328,8 @@ export class HTMLElementWrapper {
             anim.cancel()
         }
         this.__revoke__()
+        return null
     }
-
     on(events, useHandler) {
         let me = this
         if (typeof events === 'string' && typeof useHandler === 'function') {
@@ -334,13 +341,16 @@ export class HTMLElementWrapper {
         function map([name, event]) {
             return [name, event.bind(me)]
         }
+        return this
     }
     off(...names) {
         off(this.cont, ...names)
+        return this
     }
     setAttributes(attributes) {
         if (!isArray(attributes)) attributes = Object.entries(attributes)
         for (let [attr, val] of attributes) this.cont.setAttribute(attr, val)
+        return this
     }
     set parent(element) {
         return element == null 
@@ -362,7 +372,6 @@ export class HTMLElementWrapper {
         } = this;
         //Safeguards
         ['innerHTML', 'innerText', 'textContent'].forEach(go)
-
         function go(name) {
             Object.defineProperty(prototype, name, {
                 get() {
@@ -419,6 +428,7 @@ export class HTMLElementWrapper {
             children
         } = this
         while (children.length) children[0].destroy()
+        return this
     }
     animate(keyframes, options) {
         for (let { length } = keyframes; length--;) {
@@ -429,14 +439,11 @@ export class HTMLElementWrapper {
                     delete frame[prop]
                     if (hasValue) frame[formatCSS(supportedVendor(unformatCSS(prop), val))] = val
                 }
-                finally {
-                    continue
-                }
+                finally { continue }
             }
         }
         return this.cont.animate(keyframes, options)
     }
-
     eval() {
         //Function(`with(this)void class{static{${code}}}`).call(this)
         return eval(arguments[0])
@@ -602,7 +609,6 @@ export const CSSSyntax = {
         return `${color} ${offsetX} ${offsetY} ${standardDeviation}`
     }
 }
-
 function convertToCSSMethod(value) {
     try {
         let val = parseFloat(value),
@@ -616,7 +622,6 @@ function convertToCSSMethod(value) {
         return value
     }
 }
-
 export function Alert(t, e) {
     const old = querySelector('dialog')
     old?.close(), old?.destroy()
@@ -683,12 +688,14 @@ export function FormDataManager(FormDataInstance) {
         }
     })
 }
-
-location.href.includes('localhost') && on(window, {
+location.href.startsWith('http://localhost') && on(window, {
     offline() {
         reportError(new DOMException(`⛓️‍💥 Disconnected at ${new Date().toLocaleTimeString()}`, 'NetworkError'))
     },
     online() {
         log(`🛜 Reconnected at ${new Date().toLocaleTimeString()}`)
+    },
+    error() {
+        console.debug(`Something happened @ ${new Date().toLocaleTimeString()}:`)
     }
 }, true)
