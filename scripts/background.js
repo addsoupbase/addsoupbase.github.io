@@ -52,7 +52,7 @@ function images({ avatars, mons }) {
         out.animate([{ rotate: '' }, { rotate: `${ran.choose(360, -360)}deg` }], { duration: 80000, iterations: 1 / 0, easing: 'linear' })
     }
     function createAnimationForSpritesheet(image) {
-        let me = $(`div.${image.__name}.sprite`, { parent, })
+        let me = $(`div.${image.__name}.sprite`,parent)
         me.animate([{
             'backgroundPositionX': '0px'
         },
@@ -88,7 +88,8 @@ function images({ avatars, mons }) {
     setInterval(bubbleWithAva, 2000)
     spawnPkmn()
     async function tinyBubbles(again = true) {
-        again && setTimeout(tinyBubbles, ran.range(500, 600))
+        again && setTimeout(tinyBubbles, ran.range(1000, 1200))
+        if (document.hidden) return
         let bubbl = $('div.bubble', parent)
         let num = ran.range(13, 23)
         bubbl.styleMe({ width: `${num}px`, height: `${num}px`, left: `${ran.range(0, innerWidth)}px`, top: '100%' })

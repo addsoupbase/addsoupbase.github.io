@@ -341,7 +341,6 @@ export class HTMLElementWrapper {
         function map([name, event]) {
             return [name, event.bind(me)]
         }
-        return this
     }
     off(...names) {
         off(this.cont, ...names)

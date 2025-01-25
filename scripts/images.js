@@ -20,6 +20,7 @@ const mons = await Promise.all([
     'luvdisc:12',
     'phione:10',
     'seadra:5',
+    'mantyke:10',
     'sharpedo:8',
     'wailord:12',
 ].map(async function (o) {
@@ -35,7 +36,7 @@ mons.forEach((image) => {
     registerCSS(`.${image.__name}`, {
         'background-image': `url(${image.src})`,
         width: `${image.width / image.__width}px`,
-        height: `${image.width / image.__width}px`
+        height: `${image.height}px`
     })
 })
 console.debug("All sprites loaded")
