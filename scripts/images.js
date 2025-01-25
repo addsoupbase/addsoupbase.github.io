@@ -9,6 +9,7 @@ const avatars = await Promise.all((await (await fetch('./scripts/allava.json')).
     }
 ))
 console.debug("All avatars loaded")
+let internetSpeed = navigator.connection?.effectiveType || '4g'
 const mons = await Promise.all([
     'carvanha:4',
     'corsola:4',
@@ -26,7 +27,8 @@ const mons = await Promise.all([
 ].map(async function (o) {
     let img = new Image
     let [src, width] = o.split(":")
-    img.src = `./media/${src}.png`
+    if (internetSpeed !== '4g') img.src = `./media/${src}.webp`
+    else img.src = `./media/${src}.png`
     img.__width = +width
     img.__name = src
     await until(img, 'load')

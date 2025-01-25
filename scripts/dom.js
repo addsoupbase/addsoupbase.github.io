@@ -73,9 +73,9 @@ let form = $('form #submit', {
         attr: {
             width:40,
             height:40,
-            alt:'mail.gif',
+            alt:'mail icon',
             title:'Send some mail!',
-            src:'https://addsoupbase.github.io/cute-emojis/emojis/1175963968284663900.gif'
+            src:'./media/mail.webp'
         }
     })],
     parent: section, events: {
