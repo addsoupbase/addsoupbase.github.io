@@ -532,7 +532,7 @@ function supportedVendor(prop, val) {
         let prefix = `-webkit-${prop}`
         if (CSS.supports(prefix, val))
             return prefix
-        if (CSS.supports(prefix = prefix.replace(/-(moz|o|ms|webkit)-/,'')))
+        if (CSS.supports(prefix = prop.replace(/-(moz|o|ms|webkit)-/,'')))
             return prefix
         if (CSS.supports((prefix = `-moz-${prop}`), val))
             return prefix
