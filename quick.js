@@ -9,12 +9,12 @@ const {
     isArray
 } = Array, {
     warn,
-    log
 } = console,
     frag = document.createDocumentFragment.bind(document),
     deprecatedTags = /^(tt|acronym|big|center|dir|font|frame|frameset|marquee|nobr|noembed|noframes|param|plaintext|rb|rtc|strike|tt|xmp)$/i,
     svgTags = /^(animate|animateMotion|animateTransform|circle|clipPath|defs|desc|ellipse|feBlend|feColorMatrix|feComponentTransfer|feComposite|feConvolveMatrix|feDiffuseLighting|feDisplacementMap|feDistantLight|feDropShadow|feFlood|feFuncA|feFuncB|feFuncG|feFuncR|feGaussianBlur|feImage|feMerge|feMergeNode|feMorphology|feOffset|fePointLight|feSpecularLighting|feSpotLight|feTile|feTurbulence|filter|foreignObject|g|glyph|glyphRef|hkern|image|line|linearGradient|marker|mask|metadata|missing-glyph|mpath|path|pattern|polygon|polyline|radialGradient|rect|set|stop|svg|switch|symbol|text|textPath|tref|tspan|use|view|vkern)$/i
 //These SVG tags have to be treated differently
+, __revoke__ = Symbol('revoke')
 export class HTMLElementWrapper {
     [Symbol.toPrimitive]() {
         return this.cont.outerHTML
@@ -22,7 +22,7 @@ export class HTMLElementWrapper {
     *[Symbol.iterator]() {
         yield* this.getElementsByTagName("*")
     }
-    #cont = null
+   #cont = null
     getElementById(id) {
         return getElementById.call(this.cont, id)
     }
@@ -51,7 +51,7 @@ export class HTMLElementWrapper {
         return this
         // this.cont.append(...children.map(HTMLElementWrapper.deverifyTarget))
     }
-    static #childHandler = {
+    static#childHandler = {
         get(target, prop) {
             let out = target[prop]
             if (out instanceof HTMLElement) out = getProxy(out)
@@ -59,10 +59,7 @@ export class HTMLElementWrapper {
         },
         set(target, prop, value) {
             let n = target[prop]
-            if (n instanceof HTMLElement) {
-                getProxy(n).replaceWith(value)
-                return true
-            }
+            if (n instanceof HTMLElement) return!getProxy(n).replaceWith(value)
             return Reflect.set(target, prop, value)
         }
     }
@@ -91,7 +88,7 @@ export class HTMLElementWrapper {
     }
     //Store every instance
     static all = new WeakMap
-    static #HANDLER = {
+    static#HANDLER = {
         get(target, prop) {
             const {
                 cont
@@ -112,11 +109,12 @@ export class HTMLElementWrapper {
         }
     }
     get styles() {
-        if (!this.cont) throw TypeError("Illegal invocation")
+        if (this.cont) 
         return Object.defineProperty(this, 'styles', {
             value: new Map,
             enumerable: 1
         }).styles
+        throw TypeError("Illegal invocation")
     }
     displayNone() {
         this.styleMe('display', 'none')
@@ -214,7 +212,6 @@ export class HTMLElementWrapper {
             }
             if (!val.trim()) {
                 this.styles.delete(supportedVendor(prop, 'inherit'))
-                console.log(prop)
                 continue
             }
             let parsedValue = parseFloat(val),
@@ -245,11 +242,11 @@ export class HTMLElementWrapper {
         } = seed,
             kids = offsprings ?? os,
 
-            tag = raw.match(/\w+/)[0],
-            id = raw.match(/#\w+/)?.[0].replace('#', ''),
-            classs = raw.match(/\.[-\w]+/g)?.map(o => o.replace('.', '')),
+            [tag] = raw.match(/\w+/),
+            id = raw.match(/#\w+/)?.[0].slice(1),
+            classs = raw.match(/\.[-\w]+/g)?.map(o => o.slice(1)),
             text = raw.match(/<.*>/)?.[0].replace(/[<>]/g, ''),
-            type = raw.match(/!\w+/)?.[0].replace('!', '')
+            type = raw.match(/!\w+/)?.[0].slice(1)
         if (tag.match(svgTags))
             this.#cont = (id && document.getElementById(id)) || from || document.createElementNS('http://www.w3.org/2000/svg', tag)
         else this.#cont = (id && document.getElementById(id)) || from || document.createElement(tag)
@@ -262,7 +259,7 @@ export class HTMLElementWrapper {
         if (deprecatedTags.test(tag)) warn(`♿️ Deprecated '${tag}' tag usage`)
         const {proxy,revoke} = Proxy.revocable(this, new.target.#HANDLER)
         new.target.all.set(this.cont, proxy)
-        Object.defineProperty(this, '__revoke__', {value: revoke})
+        Object.defineProperty(this, __revoke__, {value: revoke})
         new.target.#expiry.register(this.cont, revoke)
         if (parent) proxy.parent = parent
         if (kids) proxy.batch(kids)
@@ -278,17 +275,15 @@ export class HTMLElementWrapper {
             enumerable: 1
         }).attr
     }
-    #start(seed) {
-        if ('events' in seed) this.on(seed.events)
-        if ('styles' in seed) this.styleMe(seed.styles)
-        if ('txt' in seed) this.txt = seed.txt
+   #start(seed) {
+        if ('events'in seed) this.on(seed.events)
+        if ('styles'in seed) this.styleMe(seed.styles)
+        if ('txt'in seed) this.txt = seed.txt
         if (seed.tag === 'button' || seed.type === 'button') this.styleMe('cursor', 'pointer')
-        if ('offsprings' in seed && 'os' in seed) warn('🚼 Child was overwritten')
-        if ('attributes' in seed || 'attr' in seed) this.setAttributes(seed.attributes || seed.attr)
+        if ('offsprings'in seed && 'os'in seed) warn('🚼 Child was overwritten')
+        if ('attributes'in seed || 'attr'in seed) this.setAttributes(seed.attributes || seed.attr)
     }
-    static #expiry = new FinalizationRegistry(revoke => {
-        revoke()
-    })
+    static#expiry = new FinalizationRegistry(r)
     get cont() {
         return this.#cont.deref()
     }
@@ -297,18 +292,18 @@ export class HTMLElementWrapper {
             children,
             cont
         } = this
-        while (children.length) children[0].destroy()
         let t = cont[sym]
         t?.size && this.off(...t)
         cont.getAnimations({
             subtree: true
         }).forEach(removeAnimations)
+        while (children.length) children[0].destroy()
         do cont.remove()
         while (cont.parentElement)
         function removeAnimations(anim) {
             anim.cancel()
         }
-        this.__revoke__()
+        this[__revoke__]()
         return null
     }
     on(events, useHandler) {
@@ -374,7 +369,7 @@ export class HTMLElementWrapper {
         }
         return null
     }
-    static #attr = {
+    static#attr = {
         get(target, prop) {
             return target.cont.getAttribute(prop)
         },
@@ -383,11 +378,10 @@ export class HTMLElementWrapper {
             else if (typeof value === 'boolean') target.cont.toggleAttribute(prop, value)
             else target.cont.setAttribute(prop, value)
             if (prop === 'autofocus') queueMicrotask(() => target.cont.focus())
-            return true
+            return 8
         },
         deleteProperty(target, prop) {
-            target.cont.removeAttribute(prop)
-            return true
+            return!target.cont.removeAttribute(prop)
         },
         has(target, prop) {
             return target.cont.hasAttribute(prop)
@@ -537,19 +531,23 @@ function extractCSSFromObject(obj) {
 }
 /** 
  *  ⚠️ Should only be used for dynamic/default CSS
- * @param {String} selector A valid CSS selector (something like . or #)
+ * @param {String} selector A valid CSS selector (something like . or#)
  * @param {Object} rule An object which describes the selector 
  */
 
 export async function registerCSS(selector, rule) {
     const { sheet } = addedStyleRules ??= HTMLElementWrapper('style<Check sheet property for rules>', document.head)
-    return new Promise(resolve=> {
-        requestAnimationFrame(()=>resolve(sheet.insertRule(`${selector}{${extractCSSFromObject(rule)}}`)))
-    })
+    return new Promise(res)
+    function res(resolve)  {
+        requestAnimationFrame(res)
+        function res() {
+            return resolve(sheet.insertRule(`${selector}{${extractCSSFromObject(rule)}}`))
+        }
+    }
 }
 export function registerCSSAll(rules) {
-    let out = new Set
-    for (let rule in rules) out.add(registerCSS(rule, rules[rule]))
+    let out = []
+    for (let rule in rules) out.push(registerCSS(rule, rules[rule]))
     return out
 }
 queueMicrotask(() => {
@@ -673,14 +671,19 @@ export function FormDataManager(FormDataInstance) {
         }
     })
 }
-location.href.startsWith('http://localhost') && on(window, {
+location.href.startsWith('http://localhost')
+&& top  === window 
+&& on(window, {
     offline() {
         reportError(new DOMException(`⛓️‍💥 Disconnected at ${new Date().toLocaleTimeString()}`, 'NetworkError'))
     },
     online() {
-        log(`🛜 Reconnected at ${new Date().toLocaleTimeString()}`)
+        console.debug(`🛜 Reconnected at ${new Date().toLocaleTimeString()}`)
     },
     error() {
         console.debug(`Something happened @ ${new Date().toLocaleTimeString()}:`)
     }
 }, true)
+function r(revoke) {
+    revoke()
+}
