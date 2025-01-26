@@ -24,7 +24,7 @@ function images({ avatars, mons }) {
         this.remove()
         me.fadein()
         me.styleMe({ transform: `translate(${x - 25}px, ${y - 25}px)` })
-        await me.animate([{ filter: '' }, { opacity: 0, filter: 'blur(20px) brightness(-100%)' }], { duration: 1000, delay: 2000 }).finished
+        await me.animate([{  }, { opacity: 0, filter: 'blur(20px) brightness(-100%)' }], { duration: 1000, delay: 2000 }).finished
         me.destroy()
     }
     function bubbleWithAva(image = cycle.next) {
