@@ -102,7 +102,7 @@ function images({ avatars, mons }) {
 import $, { getProxy, } from '../quick.js'
 import { math, ran, string } from '../misc.js'
 const iframe = $('iframe.center #frame', 
-    document.body,
+    null
 )
 
 window.$=$
