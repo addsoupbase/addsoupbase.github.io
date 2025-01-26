@@ -104,6 +104,7 @@ import { math, ran, string } from '../misc.js'
 const iframe = $('iframe.center #frame', 
     document.body,
 )
+
 window.$=$
 window.final = function () {
     window.final = () => {}

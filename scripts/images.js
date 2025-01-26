@@ -32,7 +32,7 @@ const mons = await Promise.all([
     await until(img, 'load')
     return img
 }))
-mons.forEach((image) => {
+mons.forEach(image => {
     registerCSS(`.${image.__name}`, {
         'background-image': `url(${image.src})`,
         width: `${image.width / image.__width}px`,
