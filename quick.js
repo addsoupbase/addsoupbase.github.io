@@ -540,9 +540,12 @@ function extractCSSFromObject(obj) {
  * @param {String} selector A valid CSS selector (something like . or #)
  * @param {Object} rule An object which describes the selector 
  */
-export function registerCSS(selector, rule) {
+
+export async function registerCSS(selector, rule) {
     const { sheet } = addedStyleRules ??= HTMLElementWrapper('style<Check sheet property for rules>', document.head)
-    return sheet.insertRule(`${selector}{${extractCSSFromObject(rule)}}`)
+    return new Promise(resolve=> {
+        requestAnimationFrame(()=>resolve(sheet.insertRule(`${selector}{${extractCSSFromObject(rule)}}`)))
+    })
 }
 export function registerCSSAll(rules) {
     let out = new Set
