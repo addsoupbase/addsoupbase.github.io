@@ -253,10 +253,11 @@ export class HTMLElementWrapper {
         if (type) this.#cont.type = type
         if (id) this.#cont.id = id
         if (text) this.#cont.textContent = text
+        if (this.#cont instanceof HTMLUnknownElement) warn(`Unsupported element '${tag}'`)
         this.#cont = new WeakRef(this.#cont)
         if (new.target.all.has(this.cont))
             reportError(TypeError('Something went wrong!'))
-        if (deprecatedTags.test(tag)) warn(`♿️ Deprecated '${tag}' tag usage`)
+        if (deprecatedTags.test(tag)) warn(`♿️ Deprecated '${tag}' element usage`)
         const {proxy,revoke} = Proxy.revocable(this, new.target.#HANDLER)
         new.target.all.set(this.cont, proxy)
         Object.defineProperty(this, __revoke__, {value: revoke})
@@ -283,7 +284,7 @@ export class HTMLElementWrapper {
         if ('offsprings'in seed && 'os'in seed) warn('🚼 Child was overwritten')
         if ('attributes'in seed || 'attr'in seed) this.setAttributes(seed.attributes || seed.attr)
     }
-    static#expiry = new FinalizationRegistry(r)
+    static#expiry = new FinalizationRegistry(regi)
     get cont() {
         return this.#cont.deref()
     }
@@ -684,6 +685,6 @@ location.href.startsWith('http://localhost')
         console.debug(`Something happened @ ${new Date().toLocaleTimeString()}:`)
     }
 }, true)
-function r(revoke) {
+function regi(revoke) {
     revoke()
 }
