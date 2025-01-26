@@ -104,7 +104,7 @@ import { math, ran, string } from '../misc.js'
 const iframe = $('iframe.center #frame', 
     null
 )
-
+document.body.scrollLeft = innerHeight/2
 window.$=$
 window.final = function () {
     window.final = () => {}
