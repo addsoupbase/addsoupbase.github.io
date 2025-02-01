@@ -4,6 +4,7 @@ const { min, max, round } = Math,
     canvas = new OffscreenCanvas(0, 0).getContext('2d'),
     handler = {
         get(target, prop) {
+            'use strict'
             if (CSS.supports('color', prop)) {
                 if (!colors.has(prop)) {
                     canvas.fillStyle = prop
@@ -15,6 +16,7 @@ const { min, max, round } = Math,
             throw TypeError(`Invalid color '${prop}'`)
         },
         apply(target, _, args) {
+            'use strict'
             return new target(...args)
         }
     }
@@ -30,10 +32,9 @@ const Color = new Proxy(class {
             $ = (255 - parseInt(colour.slice(2, 4), 16)).toString(16),
             a = (255 - parseInt(colour.slice(4, 6), 16)).toString(16)
         return `#${[f, $, a].map(o => o.padStart(0, 2)).join('')}`
-
     }
     static log(colour) {
-        console.log(`%c ${colour}`, `color:${colour};font-size:100px;background-color:${colour}`)
+        console.log(`%c${colour}`, `color:${colour};font-size:100px;background-color:${colour}`)
     }
     #r = 255
     #g = 255
@@ -84,15 +85,14 @@ const Color = new Proxy(class {
     constructor(r, g, b, a) {
         if (typeof r === 'string' && r[0] !== '#')
             try {
-                [r, g, b, a] = Color[r]
+                ({r, g, b, a} = Color[r])
             }
             catch {
-                r ??= 255
+                r = 255
                 g ??= 255
                 b ??= 255
                 a ??= 1
             }
-
         else if (typeof r === 'string' && r.startsWith('#')) {
             let hex = r.slice(1)
             if (hex.length === 3) hex = hex.split('').map(c => `${c}${c}`).join('')
@@ -209,7 +209,6 @@ const Color = new Proxy(class {
     }
     darkenBy(amount) {
         return this.#copy(Color(Color.dhk(`${this}`, amount)))
-
     }
     *[Symbol.iterator]() {
         yield this.r

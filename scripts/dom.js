@@ -10,19 +10,20 @@ const main = $('main.center.cute-green #main', {
 })
 on(window, {
     load() {
-        requestIdleCallback(()=>{
-            main.styleMe({opacity:.95})
-            top.final(),{timeout:20000} 
+        requestIdleCallback(() => {
+            main.styleMe({ opacity: .95 })
+            top.final(), { timeout: 20000 }
         })
     }
 })
-window.requestIdleCallback??=queueMicrotask
-main.animate([{ filter: 'blur(2px)', opacity: 0, scale: '0.8 0.8', translate: '0 -40px' }, { filter: '', easing: 'ease-in' }], { duration: 700 })
+window.requestIdleCallback ??= queueMicrotask
+main.animate([{ filter: 'blur(2px)', opacity: 0, scale: '0.8 0.8', translate: '0 -40px' }, { filter: '', }], { duration: 700, easing: 'ease-in' })
 
 let avatarPreview = $('div.holdavatar', main)
-$('img #avatar', { parent: avatarPreview, 
-    attr:{src: './media/art.webp', title: 'misdreavus', alt: 'avatar'}
- })
+$('img #avatar', {
+    parent: avatarPreview,
+    attr: { src: './media/art.webp', title: 'misdreavus', alt: 'avatar' }
+})
 $('h2.centerx', {
     txt: 'addsoupbase', parent: main,
     attr: { style: 'margin:auto;z-index:3;position:relative;' }
@@ -70,13 +71,13 @@ $('a.cute-green-button', {
 })*/
 $('p', { parent: section, txt: 'Send a message to me if you want' })
 let form = $('form #submit', {
-    os:[$('img', {
+    os: [$('img', {
         attr: {
-            width:40,
-            height:40,
-            alt:'mail icon',
-            title:'Send some mail!',
-            src:'./media/mail.webp'
+            width: 40,
+            height: 40,
+            alt: 'mail icon',
+            title: 'Send some mail!',
+            src: './media/mail.webp'
         }
     })],
     parent: section, events: {
@@ -85,7 +86,7 @@ let form = $('form #submit', {
             name ||= 'Anonymous'
             await form.fadeout()
             form.hide()
-            let loading = $('img.delibird', {src: './media/loading.webp' })
+            let loading = $('img.delibird', { src: './media/loading.webp' })
             form.before(loading)
             let req = await fetch(`https://formspree.io/f/mqakzlyo`, {
                 method: 'POST',
@@ -109,7 +110,7 @@ let form = $('form #submit', {
         }
     }
 })
-let outer = $('div #formholder', {  parent: form })
+let outer = $('div #formholder', { parent: form })
 let NAME = $('input.cute-green', { attr: { name: 'name', placeholder: 'Name', }, parent: outer })
 let MSG = $('input.cute-green', { attr: { name: 'message', required, placeholder: 'Message', }, parent: outer })
 let submitbutton = $('button.cute-green-button', { parent: form, txt: 'Send' })

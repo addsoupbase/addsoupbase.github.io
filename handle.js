@@ -2,7 +2,7 @@ const sym = Symbol("🔔"), //For keeping track of events
     //But to also not potentially collide with existing keys
     { warn, groupCollapsed, groupEnd, debug, log } = console,
     { isArray } = Array
-export default sym
+//export default sym
 export const allEvents = new WeakMap
 const eventRegistry = new FinalizationRegistry(function ([key, set]) { set.delete(key) })
 function verifyEventName(target, name) {
@@ -19,6 +19,13 @@ export function wait(ms) {
         setTimeout(resolve, ms)
     }
 }
+export function getEventNames(target) { 
+    if (!(sym in target)) Object.defineProperty(target, sym, { value: new Set })
+    return target[sym]
+}
+export function hasEvent(target, eventName) {
+    return target[sym]?.has(eventName)
+}
 export function on(target, events, useHandler) {
     if (!(target instanceof EventTarget)) throw TypeError("🚫 Invalid event target")
     if (!(target[sym] instanceof Set))
@@ -28,9 +35,10 @@ export function on(target, events, useHandler) {
         groupCollapsed(`on(${target[Symbol.toStringTag] || target.constructor?.name || target})`)
         console.dirxml(target)
         const myEvents = target[sym]
-
-        if (!isArray(events)) events = Object.entries(events)
+        if (typeof events === 'function') events = [[events.name, events]]
+        else if (!isArray(events)) events = Object.entries(events)
         for (let [eventName, func] of events) {
+            eventName = eventName.replace(/bound /g,'')
             const once = eventName.includes('_'),
                 prevents = eventName.includes('$'),
                 passive = eventName.includes('^'),
@@ -78,6 +86,7 @@ export function on(target, events, useHandler) {
 export function off(target, ...eventNames) {
     if (!(target instanceof EventTarget) || !(target[sym] instanceof Set) || !allEvents.has(target))
         throw TypeError("🚫 Invalid event target")
+    if (!eventNames.length) return
     try {
         groupCollapsed(`off(${target[Symbol.toStringTag] || target.constructor?.name || target})`)
         console.dirxml(target)

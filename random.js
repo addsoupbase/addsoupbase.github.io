@@ -3,7 +3,7 @@ const {random,floor} = Math,
 { fromCodePoint } = String
 class Random {
     get coin() {
-        return this.chance(50)
+        return !this.choose(0,1)
     }
     get invert() {
         return this.choose(1, -1)

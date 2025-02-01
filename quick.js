@@ -4,7 +4,8 @@ reportError
 monitor
 monitorEvents
 */
-import sym, { on, off} from './handle.js'
+import { on, off, getEventNames} from './handle.js'
+import { unformatCSS, formatCSS, extractCSSFromObject, supportedVendor, convertToCSSMethod } from './csshelper.js'
 const {
     isArray
 } = Array, {
@@ -204,12 +205,8 @@ export class HTMLElementWrapper {
             let [prop, val] = styles[length]
             prop = unformatCSS(prop)
             val = `${val}`
-            try {
                 prop = supportedVendor(prop, val)
-            } catch {
-                warn(`⛓️‍💥 Unrecognized CSS in '${prop}: ${val}'`)
-                continue
-            }
+         
             if (!val.trim()) {
                 this.styles.delete(supportedVendor(prop, 'inherit'))
                 continue
@@ -293,7 +290,7 @@ export class HTMLElementWrapper {
             children,
             cont
         } = this
-        let t = cont[sym]
+        let t = getEventNames(cont)
         t?.size && this.off(...t)
         cont.getAnimations({
             subtree: true
@@ -456,39 +453,6 @@ export function querySelectorAll(selector) {
 export function getProxy(element) {
     return HTMLElementWrapper.verifyTarget(element)
 }
-function supportedVendor(prop, val) {
-    if (val && !CSS.supports(prop, val)) {
-        let prefix = `-webkit-${prop}`
-        if (CSS.supports(prefix, val))
-            return prefix
-        if (CSS.supports(prefix = prop.replace(/-(moz|o|ms|webkit)-/, ''), val))
-            return prefix
-        if (CSS.supports((prefix = `-moz-${prop}`), val))
-            return prefix
-        if (CSS.supports((prefix = `-o-${prop}`), val))
-            return prefix
-        if (CSS.supports((prefix = `-ms-${prop}`), val))
-            return prefix
-        throw SyntaxError('Invalid CSS')
-    }
-    return prop
-}
-function formatCSS(prop) {
-    if (prop.includes('-')) {
-        if (prop[0] === '-') prop = prop.slice(1)
-        return prop.replace(/-./g, tuc)
-        function tuc(o) {
-            return o[1].toUpperCase()
-        }
-    }
-    return prop
-}
-function unformatCSS(prop) {
-    return prop.replace(/[A-Z]/g, tlc)
-    function tlc(o) {
-        return`-${o.toLowerCase()}`
-    }
-}
 for (let func of new Set([getElementsByClassName, getElementsByTagName, getElementsByName, getElementsByTagNameNS, getElementById, querySelector, querySelectorAll, getProxy])) {
     Object.defineProperty(HTMLElementWrapper, func.name, {
         value: func.bind(null)
@@ -510,102 +474,7 @@ export default HTMLElementWrapper = new Proxy(HTMLElementWrapper, {
         return HTMLElementWrapper(...args)
     }
 })
-export async function importFont(name, src) {
-    if (!name || !src) throw TypeError('More arguments needed')
-    const font = new FontFace(name, `url(${src})`)
-    await font.load()
-    document.fonts.add(font)
-    return font
-}
-let addedStyleRules = null
-/**
- * @param {Object} obj key/value pairs that match CSS
- * @returns {String}
- */
-function extractCSSFromObject(obj) {
-    const arr = []
-    if (!isArray(obj)) obj = Object.entries(obj)
-    for (let [prop, val] of obj)
-        try { arr.push(`${supportedVendor(unformatCSS(prop), val)}:${val}`) }
-        finally { continue }
-    return arr.join(';')
-}
-/** 
- *  ⚠️ Should only be used for dynamic/default CSS
- * @param {String} selector A valid CSS selector (something like . or#)
- * @param {Object} rule An object which describes the selector 
- */
 
-export async function registerCSS(selector, rule) {
-    const { sheet } = addedStyleRules ??= HTMLElementWrapper('style<Check sheet property for rules>', document.head)
-    return new Promise(res)
-    function res(resolve)  {
-        requestAnimationFrame(res)
-        function res() {
-            return resolve(sheet.insertRule(`${selector}{${extractCSSFromObject(rule)}}`))
-        }
-    }
-}
-export function registerCSSAll(rules) {
-    let out = []
-    for (let rule in rules) out.push(registerCSS(rule, rules[rule]))
-    return out
-}
-queueMicrotask(() => {
-//    Some default CSS...
-    registerCSSAll({
-        dialog: {
-            transition: 'opacity 1s linear',
-            "font-family": "Arial",
-            "text-align": "center",
-            width: "300px",
-            height: "150px",
-            "word-break": "break-word"
-        },
-        '.centerx,.center': {
-            'justify-self': 'center',
-            margin: 'auto'
-        },
-        '.centery,.center': {
-            'align-self': 'center',
-            inset: 0,
-            position: 'fixed'
-        }
-    })
-})
-export const CSSSyntax = {
-    __proto__: null,
-    boxShadow({
-        offsetX = '0px',
-        offsetY = '0px',
-        blurRadius = '',
-        spreadRadius = '',
-        color = '#000000'
-    }) {
-        return `${color} ${offsetX} ${offsetY} ${blurRadius} ${spreadRadius}`.replaceAll('  ', '')
-    },
-    dropShadow({
-        color = '#000000',
-        offsetX = '0px',
-        offsetY = '0px',
-        standardDeviation = ''
-    }) {
-        return `${color} ${offsetX} ${offsetY} ${standardDeviation}`
-    }
-}
-function convertToCSSMethod(value) {
-    try {
-        let val = parseFloat(value),
-            unit = value.split(val).at(-1)
-        if (unit === '%') unit = 'percent'
-        if (isNaN(val)) throw TypeError('Invalid number')
-        if (!isNaN(+value)) return CSS.number(value)
-        if (!(unit in CSS)) throw SyntaxError(`Unrecognised unit '${unit}'`)
-        return CSS[unit](val)
-    } catch {
-        return value
-    }
-}
 export function Alert(t, e) {
     const old = querySelector('dialog')
     old?.close(), old?.destroy()

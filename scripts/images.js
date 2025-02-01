@@ -1,4 +1,4 @@
-import { registerCSS, } from "../quick.js"
+import { registerCSS, } from "../csshelper.js"
 import {until} from "../handle.js"
 const avatars = await Promise.all((await (await fetch('./scripts/allava.json')).json()).map(
     async function (o) {

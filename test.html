@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0 user-scalable=no">
     <meta name="twitter:creator" content="addsoupbase">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="en_US">
-    <meta property="og:url" content="your url here.com" />
-    <meta property="og:description" content="your description here" />
-    <meta property="og:title" content="your title here" />
-    <meta property="og:image" content="your icon here.png" />
-    <meta name="description" content="your longer description here" <meta name="twitter:card" content="summary">
+    <meta property="og:url" content="your url here.com"/>
+    <meta property="og:description" content="your description here"/>
+    <meta property="og:title" content="your title here"/>
+    <meta property="og:image" content="your icon here.png"/>
+    <meta name="description" content="your longer description here"
+    <meta name="twitter:card" content="summary">
     <meta name="twitter:url" content="Page url here.com">
     <meta name="twitter:title" content="Page title here">
     <meta name="twitter:description" content="Another description">
@@ -21,134 +21,12 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" type="image/x-icon" href="favicon.ico" defer>
     <title>Document</title>
-    <noscript>function intermediary(base) {
-        let secrets = new WeakMap
-        let handler = {
-        get(t, p) {
-        if (p in t) {
-        return t[p]
-        }
-        if (p in base) {
-        let {
-        get,
-        //set,
-        enumerable,
-        writable,
-        configurable,
-        value
-        } = Object.getOwnPropertyDescriptor(base, p)
-        if () {
-        return value.bind(t)
-        } else {
-        return get.call(t)
-        }
-        }
-        },
-        set(t, prop, value) {
-        if (prop in t) {
-        return Reflect.set(t,p,value)
-        }
-        if (prop in base) {
-        return Reflect.set()
-        }
-        }
-        }
-        return function (target) {
-        if (!secrets.has(target)) {
-        let out = new Proxy(target,handler)
-        secrets.set(target,out)
-        return out
-        }
-        return secrets.get(target)
-        }
-        }
-        let p = intermediary({__proto__:null,get a(){return Math.random()},toString(){return 3}})
-        let e = document.createElement('p')
-        let elem = p(e)
-        console.log(elem.a)</noscript>
-    <script
-        type="importmap">{"imports":{"misc":"https://addsoupbase.github.io/misc.js","quick":"https://addsoupbase.github.io/quick.js","math":"https://addsoupbase.github.io/math.js","handle":"https://addsoupbase.github.io/handle.js","string":"https://addsoupbase.github.io/strings.js","ran":"https://addsoupbase.github.io/random.js","color":"https://addsoupbase.github.io/color.js","str":"https://addsoupbase.github.io/storage.js"}}</script>
-
+    <script type="importmap">{"imports":{"misc":"https://addsoupbase.github.io/misc.js","quick":"https://addsoupbase.github.io/quick.js","math":"https://addsoupbase.github.io/math.js","handle":"https://addsoupbase.github.io/handle.js","string":"https://addsoupbase.github.io/strings.js","ran":"https://addsoupbase.github.io/random.js","color":"https://addsoupbase.github.io/color.js","str":"https://addsoupbase.github.io/storage.js"}}</script>
+    
 </head>
-
 <body>
-    <script>
-        function getSym(prop) {
-            return Symbol[prop.description?.replace('Symbol.', '')]  ?? Symbol.for(`%${prop.description ?? prop}%`)
-        }
-        let myMap = Symbol('🗺️')
-        function Prox(prototype) {
-            const priv = new WeakMap
-            for (let prop in Object.getOwnPropertyDescriptors(prototype)) {
-                let name = Object.getOwnPropertyDescriptor(prototype, prop)
-                Object.defineProperty(prototype, getSym(prop), name)
-                delete prototype[prop]
-            }
-            console.log(prototype)
-            let handler = {
-                /* has(target, prop) {
-                     if ( prop in target) return true 
-                     return  Object.hasOwn(prototype, getSym(prop))
-                 },*/
-                get(targ, prop) {
-                    let sym = getSym(prop)
-                    if (sym in prototype) {
-                        let { value, get } = Object.getOwnPropertyDescriptor(prototype, sym)
-                        if (get) {
-                            let o = get.call(targ)
-                            return o instanceof HTMLElement ? pr(o) : o
-                        }
-                        if (typeof value === 'function') return (...args) => value.apply(targ, args/*.map(o=>o.valueOf())*/)
-                        return value
-                    }
-                    let out = targ[prop]
-                    if (typeof out === 'function') {
-                        targ[myMap].has(targ[prop]) || targ[myMap].set(targ[prop], (...args) => targ[prop].apply(targ, args.map(o => o.valueOf())))
-                        out = targ[myMap].get(targ[prop])
-                    }
-                    else if (out instanceof HTMLElement) out = pr(out)
-                    return out
-                },
-                set(targ, prop, val) {
-                    let sym = getSym(prop)
-                    if (sym in prototype) {
-                        let { set } = Object.getOwnPropertyDescriptor(prototype, sym)
-                        if (set) {
-                            set.call(targ, val instanceof HTMLElement ? val.valueOf() : val)
-                            return true
-                        }
-                    }
-                    return targ[prop] = val, true
-                }
-            }
-            return function (target) {
-                if (!priv.has(target)) {
-                    Object.defineProperty(target, myMap, {
-                        value: new WeakMap
-                    })
-                    priv.set(target, new Proxy(target, handler))
-                }
-                return priv.get(target)
-            }
-        }
-        let pr = Prox({
-            __proto__: null,
-            get parent() {
-                return this.parentElement
-            },
-            set parent(val) {
-                this.appendChild(val)
-            },
-            destroy(a) {
-                console.log(a)
-            },
-            [Symbol.toPrimitive]() {
-                return this.outerHTML
-            }
-        })
-        let me = pr(document.createElement('div'))
-        let body = pr(document.body)
+    <script type="module" defer src="yay.js">
+
     </script>
 </body>
-
 </html>

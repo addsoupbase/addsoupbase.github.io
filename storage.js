@@ -1,18 +1,22 @@
 class StorageProxy {
     static #handler = {
         get(target, prop) {
-            if (!isNaN(prop) && +prop > -1)
+            'use strict'
+            if (!isNaN(prop) && +prop > -1 && Number.isInteger(+prop))
                 return target.key(prop)
             if (prop === 'clear' || prop === 'length') return target[prop]
             return target.getItem(prop)
         },
         has(target, prop) {
+            'use strict'
             return target.getItem(prop) !== null
         },
         deleteProperty(target, prop) {
+            'use strict'
             return !target.removeItem(prop)
         },
         set(target, prop, value) {
+            'use strict'
             return !target.setItem(prop, value)
         }
     }
