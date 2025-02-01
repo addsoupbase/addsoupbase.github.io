@@ -1,8 +1,8 @@
 import { on, off, getEventNames } from './handle.js'
 import { supportedVendor as fix, /*formatCSS as format,*/ unformatCSS as unformat } from './csshelper.js'
 const all = new WeakMap
-const me = Symbol()
-const __revoke__ = Symbol()
+const me = Symbol('base')
+const __revoke__ = Symbol('revoke')
 function badCSS(prop, value) {
     console.warn(`😵‍💫 Unrecognized CSS at '${prop}: ${value}'`)
 }
@@ -17,6 +17,8 @@ function badCSS(prop, value) {
 }*/
 let bounded = new WeakMap
 function bind(maybeFunc, to) {
+    // ♻️ Make sure we just re-use the same function
+    // ♻️ instead of making a new one every time
     if (typeof maybeFunc === 'function') {
         if (!bounded.has(maybeFunc)) {
             let bound = maybeFunc.bind(to)
@@ -36,6 +38,7 @@ function genericGet(t, prop) {
     return bind(out, t)
 }
 const handlers = {
+    // 🚮 Replacements because these interfaces aren't very good...
     CSSStyleDeclaration: {
         get(target, prop) {
             if (prop in target) return target[prop]
@@ -105,12 +108,12 @@ const handlers = {
         },
     }
 }
+// ❗️ Main [[Prototype]] is on this class
+// 🖨 properties are copied over
 let props = Object.getOwnPropertyDescriptors(class {
-    // I just like the class syntax better
+    // 🖋 Class syntax is easier to use
     destroy() {
         for (let { animations } = this, { length } = animations; length--;) animations[length].cancel()
-        // let desc = [...this]
-        // for (let { length } = desc; length--;)desc[length].destroy()
         let { lastElementChild } = this
         while (lastElementChild) {
             prox(lastElementChild).destroy();
@@ -195,7 +198,7 @@ let props = Object.getOwnPropertyDescriptors(class {
     }
     get [Symbol.toPrimitive]() {
         throw TypeError('Cannot convert Element to a primitive value')
-        //Don't want to accidentally convert to a string for stuff like
+        // 🔏 Don't want to accidentally convert to a string for stuff like
         //append, prepend, etc.
     }
     query(selector) {
@@ -245,14 +248,23 @@ for (let set of ['beforebegin', 'afterbegin', 'beforeend', 'afterend']) {
     })
 }
 for (let i of Reflect.ownKeys(props)) {
+    // 🖨 Copy everything
     if (typeof i === 'string' && i.match(/^constructor|prototype|name|length|caller|arguments$/)) continue
     Object.defineProperty(prototype, i, props[i])
 }
 function base(element) {
+    // 🌱 Get the root element
     return element[me] ?? prox(element)[me]
 }
 function prox(target) {
-    if (target == null || typeof target !== 'object') throw TypeError(`😠 Invalid target: ${target}`)
+    if (!(target instanceof HTMLElement)) throw TypeError(`😠 Invalid target: ${target}`) // get out
+
+    // 🥅 Goal:
+    // 🪪 Make an object with a [[Prototype]] being the target element
+    // 🪤 Also put a proxy around said object
+    // 🚫 I can't use class ... extends ..., 
+    // ❌ or 'setPrototypeOf' since it's bad i guess?
+    // ✅ Only option is 'Object.create' or { __proto__: ... }
     if (!all.has(target)) {
         let { proxy, revoke } = Proxy.revocable(
             Object.create(target, {
@@ -260,6 +272,7 @@ function prox(target) {
                 [me]: {
                     value: target
                 },
+                // 📜 Those interfaces from before...
                 children: {
                     value: new Proxy(target.children, handlers.HTMLCollection)
                 },
@@ -274,6 +287,7 @@ function prox(target) {
                 if (Object.hasOwn(targ, prop)) return targ[prop]
                 let out = target[prop]
                 return bind(out, target)
+                // ⛓️‍💥 'Illegal invocation' if function is not bound
             },
             set(targ, prop, value) {
                 if (Object.hasOwn(targ, prop)) return !void (targ[prop] = value)
@@ -281,6 +295,7 @@ function prox(target) {
             },
         })
         if (target instanceof HTMLUnknownElement) {
+            // ⏰ I will add the SVG elements later
             console.warn(`🤨 Unrecognized element '${target.tagName}'`)
         }
         Object.defineProperty(proxy, __revoke__, { value: revoke })
@@ -288,6 +303,63 @@ function prox(target) {
     }
     return all.get(target)
 }
+function $(html, props = {}, ...children) {
+    if (html instanceof HTMLElement) return prox(html) // Redirect
+    let element,
+        classes = [],
+        id = '',
+        type = ''
+    if (!html.startsWith('<')) {
+        element = prox(document.createElement(html.match(/\w+/)[0]))
+        classes = html.match(/\.\w+/g)?.map(o => o.slice(1))
+        id = html.match(/#\w+/)?.[0].slice(1)
+        type = html.match(/%\w+/)?.[0].slice(1)
+        element.setAttributes({ class: classes && classes.join(' '), id, type })
+    }
+    else element = prox(document.adoptNode(new DOMParser().parseFromString(html, 'text/html').body.firstElementChild))
+    /*
+                   <!-- beforebegin -->
+                           <element>
+                    <!-- afterbegin -->
+                           <new element>
+                    <!-- beforeend -->
+                           </element>
+                   <!-- afterend -->
+    */
+    'events' in props && element.on(props.events)
+
+    if ('innerHTML' in props)
+        element.innerHTML = props.innerHTML
+    if ('textContent' in props || 'txt' in props)
+        element.textContent = props.textContent ?? props.txt
+    if ('innerText' in props)
+        element.innerText = props.innerText
+
+    // 🛑 Make sure we add elements AFTER the textContent/innerText/innerHTML
+    if ('beforebegin' in props)
+        element.beforebegin = props.beforebegin
+    if ('afterbegin' in props)
+        element.afterbegin = props.afterbegin
+    if ('beforeend' in props)
+        element.beforeend = props.beforeend
+    if ('afterend' in props)
+        element.afterend = props.afterend
+
+    children.length && element.appendChild(children)
+    return element
+}
+// 🔧 Test use
+$(document.body)
+    .write(`<div><p>hello <i>there</i></p></div>`, {
+        events: function domcontentloaded() {
+            console.log(this)
+        },
+        innerHTML: 'heylo',
+        afterbegin: $("video")
+    })
+
+//These were failed attempts, but I'm keeping them just in case 🤫
+// 1. Tried to use tagged templates but realised it was useless
 /*function init({ raw: strings }, ...subs) {
     let str = ''
     let attributes = new Map
@@ -342,6 +414,10 @@ element.setAttribute(key, value)
 }
 console.log(attributes)
 }*/
+
+// 2. Tried redoing templates with regex patterns
+// but that failed
+
 /*function init2(tag, desc) {
     let out = prox(document.createElement(tag))
     if (desc.attr) out.setAttributes(desc.attr)
@@ -403,60 +479,3 @@ return element
     }
     return element
 }*/
-function $(html, props = {}, ...children) {
-    if (typeof html !== 'string') return prox(html)
-    let element
-    let classes = []
-    let id = ''
-    let type = ''
-    if (!html.startsWith('<')) {
-        element = prox(document.createElement(html.match(/\w+/)[0]))
-        classes = html.match(/\.\w+/g)?.map(o => o.slice(1))
-        id = html.match(/#\w+/)?.[0].slice(1)
-        type = html.match(/%\w+/)?.[0].slice(1)
-        element.setAttributes({ class: classes && classes.join(' '), id, type })
-    }
-    else element = prox(document.adoptNode(new DOMParser().parseFromString(html, 'text/html').body.firstElementChild))
-    /*
-               <!-- beforebegin -->
-                       <element>
-                <!-- afterbegin -->
-                       <new element>
-                <!-- beforeend -->
-                       </element>
-               <!-- afterend -->
-   */
-    'events' in props && element.on(props.events)
-    if ('beforebegin' in props)
-        element.beforebegin = props.beforebegin
-    if ('afterbegin' in props)
-        element.afterbegin = props.afterbegin
-    if ('beforeend' in props)
-        element.beforeend = props.beforeend
-    if ('afterend' in props)
-        element.afterend = props.afterend
-    if ('innerHTML' in props)
-        element.innerHTML = props.innerHTML
-    if ('textContent' in props || 'txt' in props)
-        element.textContent = props.textContent ?? props.txt
-    if ('innerText' in props)
-        element.innerText = props.innerText
-    children.length && element.appendChild(children)
-    return element
-}
-let mee = $(`<div><p>hello <i>there</i></p></div>`, {
-    events: function domcontentloaded() {
-        console.log(this)
-    },
-    afterbegin: $("video")
-})
-mee.parent = $(document.body)
-window.$ = $
-console.log(mee)
-/*let body = prox(document.body)
-window.img = init
-`<img src="${Date.now()}.png">`
-img.parent = body
-Object.assign(window, {
-$:init,    format, unformat, fix
-})*/
