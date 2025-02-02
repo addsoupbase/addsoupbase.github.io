@@ -10,43 +10,43 @@
 
 <body>
     <script type="module">
-        import HTMLElementWrapper from './quick.js'
+        import $ from './quick.js'
         import { wait } from './handle.js'
-        const main = HTMLElementWrapper('main.center .cute-green #main', {
+        const main = $('main.center .cute-green #main', {
             parent: document.body,
         })
         main.fadein()
         const bday = new Date(2007, 5, 17)
 
-        let div = HTMLElementWrapper("section", {
+        let div = $("section", {
             parent: main
         })
-        HTMLElementWrapper('a.cute-green-button .back', {
+        $('a.cute-green-button .back', {
             parent: main,
             txt: 'Back',
             attr: { href: 'main.html', }
         })
 
-        let desc = HTMLElementWrapper('div #maindesc', { parent: div })
+        let desc = $('div #maindesc', { parent: div })
         main.styleMe({ opacity: 0 })
         await wait(600)
         main.fadein()
         main.styleMe({ opacity: .95 })
 
-        HTMLElementWrapper('div.descrHolder', {
+        $('div.descrHolder', {
             parent: desc,
-            os: [HTMLElementWrapper("p", { txt: 'My name is...' }), HTMLElementWrapper("h1<Misha>"), HTMLElementWrapper('i,small<Миша>')]
+            os: [$("p", { txt: 'My name is...' }), $("h1<Misha>"), $('i,small<Миша>')]
         })
-        HTMLElementWrapper('div.descrHolder', {
+        $('div.descrHolder', {
             parent: desc,
-            os: [HTMLElementWrapper("p<I am...>",), HTMLElementWrapper(`h1< ${Math.floor(new Date().getFullYear() - bday.getFullYear() - (bday.getMonth() / 12))} years old>`), HTMLElementWrapper('i.small', { txt: 'June 17 2007' })]
+            os: [$("p<I am...>",), $(`h1< ${Math.floor(new Date().getFullYear() - bday.getFullYear() - (bday.getMonth() / 12))} years old>`), $('i.small', { txt: 'June 17 2007' })]
         })
-        HTMLElementWrapper('h3<Fav pokemon>', {
+        $('h3<Fav pokemon>', {
             parent: main
         })
-        let pokemonholder = HTMLElementWrapper('div #pokemonholder', {
+        let pokemonholder = $('div #pokemonholder', {
             parent: main,
-            os: ['spinda', 'misdreavus', 'mawile', 'delcatty', 'masquerain', 'shedinja', 'clamperl', 'swoobat', 'gourgeist', 'minior', "trapinch", 'pheromosa'].map(o => HTMLElementWrapper('img,pkm', { attr: { alt: o, title: o, src: `./media/${o}_.webp` } }))
+            os: ['spinda', 'misdreavus', 'mawile', 'delcatty', 'masquerain', 'shedinja', 'clamperl', 'swoobat', 'gourgeist', 'minior', "trapinch", 'pheromosa'].map(o => $('img.pkm', { attr: { alt: o, title: o, src: `./media/${o}_.webp` } }))
         });
 
         /*$("h2", {
