@@ -102,7 +102,7 @@ export function off(target, ...eventNames) {
         const map = allEvents.get(target),
             mySet = target[sym]
         for (let { length } = eventNames; length--;) {
-            const name = verifyEventName(eventNames[length]),
+            const name = verifyEventName(eventNames[length],target),
                 func = map.get(name)
                 target.removeEventListener(name, func)
             map.has(name) && debug(`🔕 '${name}' event removed`)
