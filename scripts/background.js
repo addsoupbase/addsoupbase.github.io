@@ -69,10 +69,10 @@ function images({ avatars, mons }) {
         element.fadein()
         let { coin } = ran
         element.styleMe({ transform: `translateY(${ran.range(0, innerHeight)}px) scaleX(${coin ? '-1' : '1'})`, })
-
+        let {offsetWidth} = element
         let settings = coin
-            ? [{ translate: `calc(100vw + ${element.offsetWidth}px) 0` }, { translate: `calc(-10vw - ${element.offsetWidth}px) 0` },]
-            : [{ translate: `calc(-10vw - ${element.offsetWidth}px) 0` }, { translate: `calc(100vw + ${element.offsetWidth}px) 0` }],
+            ? [{ translate: `calc(100vw + ${offsetWidth}px) 0` }, { translate: `calc(-10vw - ${offsetWidth}px) 0` },]
+            : [{ translate: `calc(-10vw - ${offsetWidth}px) 0` }, { translate: `calc(100vw + ${offsetWidth}px) 0` }],
             duration = 15000
         switch (pick[Symbol.for('name')]) {
             case 'wailord': duration = 30400; break
@@ -100,17 +100,16 @@ function images({ avatars, mons }) {
 }
 import $, { getProxy, } from '../quick.js'
 import { math, ran, string } from '../misc.js'
-const iframe = $('iframe.center #frame', 
-    null
-)
+const iframe = $('iframe.center #frame', null)
 //document.body.scrollLeft = innerHeight/2
+
 window.$=$
 window.final = function () {
     window.final = () => {}
-        import('./images.js').then(images);
-        console.log("Loading the bg now...")
+        import('./images.js').then(images)
+        console.debug("🐟 Loading the bg now...")
 }
-console.log('Sprites credit: https://sprites.pmdcollab.org/')
+console.log('%c🆓 Sprites credit: https://sprites.pmdcollab.org/','font-size:2em')
 const parent = $('div #background', {   
     parent: document.body
 })

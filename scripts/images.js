@@ -9,7 +9,7 @@ const avatars = await Promise.all((await (await fetch('./scripts/allava.json')).
         return n
     }
 ))
-console.debug("All avatars loaded")
+console.debug("🪪 All avatars loaded")
 const mons = await Promise.all([
     'carvanha:4',
     'corsola:4',
@@ -40,5 +40,5 @@ mons.forEach(image => {
         height: `${image.height}px`
     })
 })
-console.debug("All sprites loaded")
+console.debug("🐠 All sprites loaded")
 export { avatars, mons }
