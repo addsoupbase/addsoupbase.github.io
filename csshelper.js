@@ -15,6 +15,9 @@ export function vendor(prop, val) {
         if (CSS.supports((prefix = `-ms-${prop}`), val))
             // Microsoft
             return prefix
+        if (CSS.supports((prefix = `-apple-${prop}`), val))
+            // Other webkit thing idk
+            return prefix
 
         // The rest of these are in no particular order.
         if (CSS.supports((prefix = `mso-${prop}`), val))
@@ -34,9 +37,6 @@ export function vendor(prop, val) {
             return prefix
         if (CSS.supports((prefix = `-konq-${prop}`), val))
             // Konqueror
-            return prefix
-        if (CSS.supports((prefix = `-apple-${prop}`), val))
-            // Other webkit thing idk
             return prefix
         if (CSS.supports((prefix = `prince-${prop}`), val))
             // YesLogic
@@ -64,7 +64,6 @@ export function vendor(prop, val) {
             return prefix
         console.warn(`⛓️‍💥 Unrecognized CSS at '${prop}: ${val}'`)
         // Sorry!
-        return prefix
     }
     return prop
 }
@@ -86,6 +85,7 @@ export function toCaps(prop) {
     return prop
 }
 export function toDash(prop) {
+    if (prop.startsWith('--')) return prop
     return prop.replace(/[A-Z]/g, tlc)
     function tlc(o) {
         return `-${o.toLowerCase()}`

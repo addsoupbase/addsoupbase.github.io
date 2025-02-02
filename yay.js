@@ -1,5 +1,6 @@
 import { on, off, getEventNames } from './handle.js'
-import { supportedVendor as fix, /*formatCSS as format,*/ unformatCSS as unformat } from './csshelper.js'
+import * as css from './csshelper.js'
+window.t = css.vendor
 const all = new WeakMap
 const me = Symbol('base')
 const __revoke__ = Symbol('revoke')
@@ -43,7 +44,7 @@ const handlers = {
         get(target, prop) {
             if (prop in target) return target[prop]
             let out = target[prop]
-            let fixedProp = fix(unformat(prop), 'inherit')
+            let fixedProp = css.vendor(css.toCaps(prop), 'inherit')
             let maybe = target[fixedProp]
             if (typeof prop === 'string' && CSS.supports(fixedProp, 'inherit')) {
                 if (maybe === '') return null
@@ -52,7 +53,7 @@ const handlers = {
             return bind(out, target)
         },
         set(t, prop, value) {
-            let p = fix(unformat(prop), value)
+            let p = css.vendor(css.toCaps(prop), value)
             if (CSS.supports(p, value)) {
                 t[p] = value
             }
@@ -63,7 +64,7 @@ const handlers = {
             return true
         },
         deleteProperty(t, prop) {
-            let fixed = fix(unformat(prop), 'inherit')
+            let fixed = css.vendor(css.toCaps(prop), 'inherit')
             if (CSS.supports(fixed, 'inherit')) {
                 t.removeProperty(fixed)
             }
@@ -150,7 +151,7 @@ let props = Object.getOwnPropertyDescriptors(class {
         for (let i in styles) {
             passed ??= true
             let val = styles[i]
-            let fixed = fix(unformat(i), val)
+            let fixed = css.vendor(css.toCaps(i), val)
             let text = `${fixed}: ${val}`
             if (val) {
                 passed &&= CSS.supports(fixed, val)
