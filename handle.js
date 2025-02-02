@@ -6,12 +6,19 @@ const sym = Symbol("🔔"), //For keeping track of events
 export const allEvents = new WeakMap
 //const eventRegistry = new FinalizationRegistry(function ([key, set]) { set.delete(key) })
 function verifyEventName(target, name) {
+    name = name.toLowerCase()
+    if (`on${name}` in target) return name
+    //Fallback if we can
+    if (`onwebkit${name}` in target) return `webkit${name}`
+    if (`onmoz${name}` in target) return `moz${name}`
+    if (`onms${name}` in target) return `ms${name}`
     if (name.match(/^domcontentloaded$/i) && target instanceof Document ||
-        name.match(/^(animation(cancel|end|remove))$/i) && 'onremove' in target)
-        return
+    name.match(/^(animation(cancel|remove))$/i) && 'onremove' in target)
+    return name
     //Some events like the one above don't have a handler
-    if (!(`on${name.toLowerCase()}` in target)) throw TypeError(`🔇 Cannot listen for '${name}' events`)
-    //Check if handler with name exists
+
+    // Ooops!
+    throw TypeError(`🔇 Cannot listen for '${name}' events`)
 }
 export function wait(ms) {
     return new Promise(res)
@@ -49,11 +56,11 @@ export function on(target, events, useHandler) {
                     passive,
                 }
             eventName = eventName.replace(/[_$^%]|bound /g, '')
+            eventName = verifyEventName(target, eventName)
             if (myEvents.has(eventName)) {
                 warn(`🔕 Duplicate '${eventName}' listener!`)
                 continue
             }
-            verifyEventName(target, eventName)
             func = new Proxy(func, {
                 apply(targ, _, args) {
                     once && off(target, eventName)
@@ -79,7 +86,7 @@ export function on(target, events, useHandler) {
             debug(`🔔 '${eventName}' event added`)
         }
     } catch (e) {
-        reportError(e)
+        queueMicrotask(()=>reportError(e))
     } finally {
         groupEnd()
     }
@@ -95,7 +102,7 @@ export function off(target, ...eventNames) {
         const map = allEvents.get(target),
             mySet = target[sym]
         for (let { length } = eventNames; length--;) {
-            const name = eventNames[length],
+            const name = verifyEventName(eventNames[length]),
                 func = map.get(name)
                 target.removeEventListener(name, func)
             map.has(name) && debug(`🔕 '${name}' event removed`)

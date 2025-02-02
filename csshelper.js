@@ -2,7 +2,7 @@ export function vendor(prop, val) {
     if (val?.trim() && !CSS.supports(prop, val)) {
         prop = prop.replace(/-(moz|o|ms|webkit|xv|atsc|wap|khtml|konq|apple|ah|hp|ro|rim|tc|fso|icab)-/, '')
         if (prop.startsWith('prince-') || prop.startsWith('mso-')) prop = prop.replace(/(prince|mso)-/, '')
-        let prefix = prop
+        let prefix = prop   
         if (CSS.supports(prefix, val)) // Maybe you dont need a prefix?
             return prefix
         if (CSS.supports(prefix = `-webkit-${prop}`, val))
