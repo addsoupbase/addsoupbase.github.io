@@ -151,7 +151,7 @@ let props = Object.getOwnPropertyDescriptors(class {
             passed ??= true
             let val = styles[i]
             let fixed = fix(unformat(i), val)
-            let text = `${fixed}: ${val};`
+            let text = `${fixed}: ${val}`
             if (val) {
                 passed &&= CSS.supports(fixed, val)
                 out.push(text)
