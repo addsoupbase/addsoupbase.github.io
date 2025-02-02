@@ -5,7 +5,7 @@ monitor
 monitorEvents
 */
 import { on, off, getEventNames} from './handle.js'
-import { unformatCSS, formatCSS, extractCSSFromObject, supportedVendor, convertToCSSMethod } from './csshelper.js'
+import * as css from './csshelper.js'
 const {
     isArray
 } = Array, {
@@ -203,20 +203,20 @@ export class HTMLElementWrapper {
             length
         } = styles; length--;) {
             let [prop, val] = styles[length]
-            prop = unformatCSS(prop)
+            prop = css.toDash(prop)
             val = `${val}`
-                prop = supportedVendor(prop, val)
+                prop = css.vendor(prop, val)
          
             if (!val.trim()) {
-                this.styles.delete(supportedVendor(prop, 'inherit'))
+                this.styles.delete(css.vendor(prop, 'inherit'))
                 continue
             }
             let parsedValue = parseFloat(val),
                 lastSegment = val.split(parsedValue).at(-1)
-            if (lastSegment === '%' || lastSegment in CSS) val = convertToCSSMethod(val)
+            if (lastSegment === '%' || lastSegment in CSS) val = css.convertToCSSMethod(val)
             this.styles.set(prop, val)
         }
-        const final = extractCSSFromObject(Array.from(this.styles.entries()))
+        const final = css.toCSS(Array.from(this.styles.entries()))
         this.cont.style.cssText = final
         return this.styles
     }
@@ -409,7 +409,7 @@ export class HTMLElementWrapper {
                 try {
                     let hasValue = frame[prop].trim()
                     delete frame[prop]
-                    if (hasValue) frame[formatCSS(supportedVendor(unformatCSS(prop), val))] = val
+                    if (hasValue) frame[css.toCaps(css.vendor(css.toDash(prop), val))] = val
                 }
                 finally { continue }
             }

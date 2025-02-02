@@ -1,13 +1,13 @@
 const sym = Symbol("🔔"), //For keeping track of events
     //But to also not potentially collide with existing keys
-    { warn, groupCollapsed, groupEnd, debug, log } = console,
+    { warn, groupCollapsed, groupEnd, debug } = console,
     { isArray } = Array
 //export default sym
 export const allEvents = new WeakMap
-const eventRegistry = new FinalizationRegistry(function ([key, set]) { set.delete(key) })
+//const eventRegistry = new FinalizationRegistry(function ([key, set]) { set.delete(key) })
 function verifyEventName(target, name) {
-    if(name.match(/^domcontentloaded$/i) && target instanceof Document ||
-        name.match(/^(animation(cancel|end|remove))$/i) && 'onremove' in target) 
+    if (name.match(/^domcontentloaded$/i) && target instanceof Document ||
+        name.match(/^(animation(cancel|end|remove))$/i) && 'onremove' in target)
         return
     //Some events like the one above don't have a handler
     if (!(`on${name.toLowerCase()}` in target)) throw TypeError(`🔇 Cannot listen for '${name}' events`)
@@ -19,8 +19,8 @@ export function wait(ms) {
         setTimeout(resolve, ms)
     }
 }
-export function getEventNames(target) { 
-    if (!(sym in target)) Object.defineProperty(target, sym, { value: new Set })
+export function getEventNames(target) {
+    (sym in target) || Object.defineProperty(target, sym, { value: new Set })
     return target[sym]
 }
 export function hasEvent(target, eventName) {
@@ -36,9 +36,9 @@ export function on(target, events, useHandler) {
         console.dirxml(target)
         const myEvents = target[sym]
         if (typeof events === 'function') events = [[events.name, events]]
-        else if (!isArray(events)) events = Object.entries(events)
-        for (let [eventName, func] of events) {
-            eventName = eventName.replace(/bound /g,'')
+        else if (isArray(events)) events = Object.fromEntries(events)
+        for (let eventName in events) {
+            let func = events[eventName]
             const once = eventName.includes('_'),
                 prevents = eventName.includes('$'),
                 passive = eventName.includes('^'),
@@ -48,7 +48,7 @@ export function on(target, events, useHandler) {
                     //once: false,
                     passive,
                 }
-            eventName = eventName.replace(/[_$^%]/g, '')
+            eventName = eventName.replace(/[_$^%]|bound /g, '')
             if (myEvents.has(eventName)) {
                 warn(`🔕 Duplicate '${eventName}' listener!`)
                 continue
@@ -66,11 +66,11 @@ export function on(target, events, useHandler) {
                     return targ.apply(null, args)
                 }
             })
-            eventRegistry.register(func, [eventName, myEvents])
+        //    eventRegistry.register(func, [eventName, myEvents])
             if (useHandler) target[`on${eventName}`] = func
             else {
                 target.addEventListener(eventName, func, options)
-                if (!allEvents.has(target)) allEvents.set(target, new Map)
+                allEvents.has(target) || allEvents.set(target, new Map)
                 //A Map to hold the names & events
                 const myGlobalEventMap = allEvents.get(target)
                 myGlobalEventMap.set(eventName, func)
@@ -78,6 +78,8 @@ export function on(target, events, useHandler) {
             }
             debug(`🔔 '${eventName}' event added`)
         }
+    } catch (e) {
+        reportError(e)
     } finally {
         groupEnd()
     }
@@ -86,7 +88,7 @@ export function on(target, events, useHandler) {
 export function off(target, ...eventNames) {
     if (!(target instanceof EventTarget) || !(target[sym] instanceof Set) || !allEvents.has(target))
         throw TypeError("🚫 Invalid event target")
-    if (!eventNames.length) return
+    if (!eventNames.length) return null
     try {
         groupCollapsed(`off(${target[Symbol.toStringTag] || target.constructor?.name || target})`)
         console.dirxml(target)
@@ -95,19 +97,20 @@ export function off(target, ...eventNames) {
         for (let { length } = eventNames; length--;) {
             const name = eventNames[length],
                 func = map.get(name)
+                target.removeEventListener(name, func)
             map.has(name) && debug(`🔕 '${name}' event removed`)
-            target.removeEventListener(name, func)
             map.delete(name)
             mySet.delete(name)
             map.size || allEvents.delete(target)
         }
+    } catch (e) {
+        reportError(e)
     } finally {
         groupEnd()
     }
 }
 export function until(target, eventName, timeout/* = 600000*/) {
     return new Promise(un)
-    /*                  */
     function un(resolve, reject) {
         const id = timeout && setTimeout(reject, timeout, RangeError(`⏰ Promise for '${eventName}' expired after ${timeout} ms`))
         const handleName = `on${eventName}`
@@ -118,7 +121,8 @@ export function until(target, eventName, timeout/* = 600000*/) {
                 try { resolve(event) }
                 catch (e) { reject(e) }
                 finally {
-                    delete target[handleName]
+                    // This is an accessor so you cannot use 'delete'
+                    target[handleName] = null
                     timeout && clearTimeout(id)
                 }
             }
@@ -135,4 +139,7 @@ export function until(target, eventName, timeout/* = 600000*/) {
             }
         })
     }
+}
+export function namedFunction(name, func) {
+    return { [name]: func }[name]
 }

@@ -1,4 +1,4 @@
-export function supportedVendor(prop, val) {
+export function vendor(prop, val) {
     if (val && !CSS.supports(prop, val)) {
         let prefix = `-webkit-${prop}`
         if (CSS.supports(prefix, val))
@@ -13,7 +13,7 @@ export function supportedVendor(prop, val) {
             return prefix
         console.warn(`⛓️‍💥 Unrecognized CSS at '${prop}: ${val}'`)
         return prefix
-       // throw SyntaxError('Invalid CSS')
+        // throw SyntaxError('Invalid CSS')
     }
     return prop
 }
@@ -24,7 +24,7 @@ export async function importFont(name, src) {
     document.fonts.add(font)
     return font
 }
-export function formatCSS(prop) {
+export function toCaps(prop) {
     if (prop.includes('-')) {
         if (prop[0] === '-') prop = prop.slice(1)
         return prop.replace(/-./g, tuc)
@@ -34,10 +34,10 @@ export function formatCSS(prop) {
     }
     return prop
 }
-export function unformatCSS(prop) {
+export function toDash(prop) {
     return prop.replace(/[A-Z]/g, tlc)
     function tlc(o) {
-        return`-${o.toLowerCase()}`
+        return `-${o.toLowerCase()}`
     }
 }
 let addedStyleRules = null
@@ -45,11 +45,11 @@ let addedStyleRules = null
  * @param {Object} obj key/value pairs that match CSS
  * @returns {String}
  */
-export function extractCSSFromObject(obj) {
+export function toCSS(obj) {
     const arr = []
     if (!Array.isArray(obj)) obj = Object.entries(obj)
     for (let [prop, val] of obj)
-        try { arr.push(`${supportedVendor(unformatCSS(prop), val)}:${val}`) }
+        try { arr.push(`${vendor(toDash(prop), val)}:${val}`) }
         finally { continue }
     return arr.join(';')
 }
@@ -60,17 +60,17 @@ export function extractCSSFromObject(obj) {
  */
 
 export async function registerCSS(selector, rule) {
-    const { sheet } = addedStyleRules ??= function(){
+    const { sheet } = addedStyleRules ??= function () {
         let out = document.createElement('style')
         document.head.appendChild(out)
         out.textContent = 'Check your browser for CSS rules'
         return out
     }()
     return new Promise(res)
-    function res(resolve)  {
+    function res(resolve) {
         requestAnimationFrame(res)
         function res() {
-            return resolve(sheet.insertRule(`${selector}{${extractCSSFromObject(rule)}}`))
+            return resolve(sheet.insertRule(`${selector}{${toCSS(rule)}}`))
         }
     }
 }
@@ -80,7 +80,7 @@ export function registerCSSAll(rules) {
     return out
 }
 queueMicrotask(() => {
-//    Some default CSS...
+    //    Some default CSS...
     registerCSSAll({
         dialog: {
             transition: 'opacity 1s linear',
@@ -101,25 +101,22 @@ queueMicrotask(() => {
         }
     })
 })
-export const CSSSyntax = {
-    __proto__: null,
-    boxShadow({
-        offsetX = '0px',
-        offsetY = '0px',
-        blurRadius = '',
-        spreadRadius = '',
-        color = '#000000'
-    }) {
-        return `${color} ${offsetX} ${offsetY} ${blurRadius} ${spreadRadius}`.replaceAll('  ', '')
-    },
-    dropShadow({
-        color = '#000000',
-        offsetX = '0px',
-        offsetY = '0px',
-        standardDeviation = ''
-    }) {
-        return `${color} ${offsetX} ${offsetY} ${standardDeviation}`
-    }
+export function dropShadow({
+    color = '#000000',
+    offsetX = '0px',
+    offsetY = '0px',
+    standardDeviation = ''
+}) {
+    return `${color} ${offsetX} ${offsetY} ${standardDeviation}`
+}
+export function boxShadow({
+    offsetX = '0px',
+    offsetY = '0px',
+    blurRadius = '',
+    spreadRadius = '',
+    color = '#000000'
+}) {
+    return `${color} ${offsetX} ${offsetY} ${blurRadius} ${spreadRadius}`.replaceAll('  ', '')
 }
 export function convertToCSSMethod(value) {
     try {

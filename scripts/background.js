@@ -1,4 +1,4 @@
-
+let regex = /[\w\.]+\.(webp|png|gif|jpe*g)/
 function images({ avatars, mons }) {
     let bg = parent
     const frameDuration = 135
@@ -9,8 +9,7 @@ function images({ avatars, mons }) {
         getProxy(this).fadeout(300)
         this.onclick = null
         await this.animate([{ transform: '' }, { transform: 'scaleX(2) scaleY(2)', }], { duration: 300, easing: 'ease-in-out', composite: 'add' }).finished
-        let name =
-            new URL(this.firstElementChild.src, location).pathname.split('/').at(-1).split('.')[0]
+        let [name] = this.firstElementChild.src.match(regex)[0].split(/\.(webp|png|gif|jpe*g)/)
         let me = $('div.ava .tar', {
             styles: {
                 'background-image': `url(${this.firstElementChild.src})`
@@ -52,14 +51,14 @@ function images({ avatars, mons }) {
         out.animate([{ rotate: '' }, { rotate: `${ran.choose(360, -360)}deg` }], { duration: 80000, iterations: 1 / 0, easing: 'linear' })
     }
     function createAnimationForSpritesheet(image) {
-        let me = $(`div.${image.__name}.sprite`,parent)
+        let me = $(`div.${image[Symbol.for('name')]}.sprite`,parent)
         me.animate([{
             'backgroundPositionX': '0px'
         },
         {
             'backgroundPositionX': `-${image.width}px`
         }
-        ], { easing: `steps(${image.__width},end)`, duration: frameDuration * image.__width, iterations: 1 / 0 })
+        ], { easing: `steps(${image[Symbol.for('width')]},end)`, duration: frameDuration * image[Symbol.for('width')], iterations: 1 / 0 })
         return me
     }
     async function spawnPkmn() {
@@ -75,7 +74,7 @@ function images({ avatars, mons }) {
             ? [{ translate: `calc(100vw + ${element.offsetWidth}px) 0` }, { translate: `calc(-10vw - ${element.offsetWidth}px) 0` },]
             : [{ translate: `calc(-10vw - ${element.offsetWidth}px) 0` }, { translate: `calc(100vw + ${element.offsetWidth}px) 0` }],
             duration = 15000
-        switch (pick.__name) {
+        switch (pick[Symbol.for('name')]) {
             case 'wailord': duration = 30400; break
             case 'sharpedo': case 'carvanha': duration = 8300; break
             //        case 'corsola': element.animate([{transform: 'rotateZ(0deg)'}, {transform: `rotateZ(360deg)`}], {composite:'add',easing:'linear',duration:5000, iterations:1/0,direction:coin?'reverse':'normal'})
@@ -104,7 +103,7 @@ import { math, ran, string } from '../misc.js'
 const iframe = $('iframe.center #frame', 
     null
 )
-document.body.scrollLeft = innerHeight/2
+//document.body.scrollLeft = innerHeight/2
 window.$=$
 window.final = function () {
     window.final = () => {}

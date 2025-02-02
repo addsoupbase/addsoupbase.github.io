@@ -1,4 +1,5 @@
-import { registerCSS, } from "../csshelper.js"
+import { registerCSS} from "../csshelper.js"
+
 import {until} from "../handle.js"
 const avatars = await Promise.all((await (await fetch('./scripts/allava.json')).json()).map(
     async function (o) {
@@ -27,15 +28,15 @@ const mons = await Promise.all([
     let img = new Image
     let [src, width] = o.split(":")
     img.src = `./media/${src}.png`
-    img.__width = +width
-    img.__name = src
+    img[Symbol.for('width')] = +width
+    img[Symbol.for('name')] = src
     await until(img, 'load')
     return img
 }))
 mons.forEach(image => {
-    registerCSS(`.${image.__name}`, {
+    registerCSS(`.${image[Symbol.for('name')]}`, {
         'background-image': `url(${image.src})`,
-        width: `${image.width / image.__width}px`,
+        width: `${image.width / image[Symbol.for('width')]}px`,
         height: `${image.height}px`
     })
 })
