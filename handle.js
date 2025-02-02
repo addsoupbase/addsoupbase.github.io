@@ -111,7 +111,7 @@ export function off(target, ...eventNames) {
             map.size || allEvents.delete(target)
         }
     } catch (e) {
-        reportError(e)
+        queueMicrotask(()=>reportError(e))
     } finally {
         groupEnd()
     }
