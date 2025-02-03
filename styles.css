@@ -211,6 +211,7 @@ body,html {
   z-index:3;
   /* padding: 30px; */
   position: relative;
+  user-select: none;
   /* min-width: 100vw; */
   /* min-width: 65%; */
   /* max-height: 100vh; */
