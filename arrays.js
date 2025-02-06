@@ -34,6 +34,12 @@ arr = {
             slot2 = item.indexOf(secondIndex)
         if (slot !== -1 && slot2 !== -1) return item.swap(slot, slot2)
         throw RangeError("Index out of range")
+    },
+    rotate(arr,rotation = 1) {
+        let sign = Math.sign(rotation),
+        r = Math.abs(rotation|0)
+        while(r--) sign > 0 ? arr.unshift(arr.pop()) : arr.push(arr.shift())
+        return arr
     }
 }
 export default arr

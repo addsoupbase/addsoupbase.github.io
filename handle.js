@@ -13,8 +13,8 @@ function verifyEventName(target, name) {
     if (`onmoz${name}` in target) return `moz${name}`
     if (`onms${name}` in target) return `ms${name}`
     if (name.match(/^domcontentloaded$/i) && target instanceof Document ||
-    name.match(/^(animation(cancel|remove))$/i) && 'onremove' in target)
-    return name
+        name.match(/^(animation(cancel|remove))$/i) && 'onremove' in target)
+        return name
     //Some events like the one above don't have a handler
 
     // Ooops!
@@ -73,7 +73,7 @@ export function on(target, events, useHandler) {
                     return targ.apply(null, args)
                 }
             })
-        //    eventRegistry.register(func, [eventName, myEvents])
+            //    eventRegistry.register(func, [eventName, myEvents])
             if (useHandler) target[`on${eventName}`] = func
             else {
                 target.addEventListener(eventName, func, options)
@@ -86,11 +86,16 @@ export function on(target, events, useHandler) {
             debug(`🔔 '${eventName}' event added`)
         }
     } catch (e) {
-        queueMicrotask(()=>reportError(e))
+        queueMicrotask(() => reportError(e))
     } finally {
         groupEnd()
     }
     return target
+}
+on.once = function once(target, events, useHandler) {
+    if (Array.isArray(events)) events = events.map(function ([event, name]) { return [event, `${name}_`] })
+    else for (let n in events) events[n].name += '_'
+    return on(target, events, useHandler)
 }
 export function off(target, ...eventNames) {
     if (!(target instanceof EventTarget) || !(target[sym] instanceof Set) || !allEvents.has(target))
@@ -102,16 +107,16 @@ export function off(target, ...eventNames) {
         const map = allEvents.get(target),
             mySet = target[sym]
         for (let { length } = eventNames; length--;) {
-            const name = verifyEventName(eventNames[length],target),
+            const name = verifyEventName(eventNames[length], target),
                 func = map.get(name)
-                target.removeEventListener(name, func)
+            target.removeEventListener(name, func)
             map.has(name) && debug(`🔕 '${name}' event removed`)
             map.delete(name)
             mySet.delete(name)
             map.size || allEvents.delete(target)
         }
     } catch (e) {
-        queueMicrotask(()=>reportError(e))
+        queueMicrotask(() => reportError(e))
     } finally {
         groupEnd()
     }
