@@ -2,8 +2,8 @@ const sym = Symbol("🔔"), //For keeping track of events
     //But to also not potentially collide with existing keys
     { warn, groupCollapsed, groupEnd, debug } = console,
     { isArray } = Array
-//export default sym
-export const allEvents = new WeakMap
+export
+ const allEvents = new WeakMap
 //const eventRegistry = new FinalizationRegistry(function ([key, set]) { set.delete(key) })
 function verifyEventName(target, name) {
     name = name.toLowerCase()
@@ -20,20 +20,24 @@ function verifyEventName(target, name) {
     // Ooops!
     throw TypeError(`🔇 Cannot listen for '${name}' events`)
 }
-export function wait(ms) {
+export
+ function wait(ms) {
     return new Promise(res)
     function res(resolve) {
         setTimeout(resolve, ms)
     }
 }
-export function getEventNames(target) {
+export
+ function getEventNames(target) {
     (sym in target) || Object.defineProperty(target, sym, { value: new Set })
     return target[sym]
 }
-export function hasEvent(target, eventName) {
+export
+ function hasEvent(target, eventName) {
     return target[sym]?.has(eventName)
 }
-export function on(target, events, useHandler) {
+export
+ function on(target, events, useHandler) {
     if (!(target instanceof EventTarget)) throw TypeError("🚫 Invalid event target")
     if (!(target[sym] instanceof Set))
         //This will hold the NAMES of the events
@@ -58,7 +62,7 @@ export function on(target, events, useHandler) {
             eventName = eventName.replace(/[_$^%]|bound /g, '')
             eventName = verifyEventName(target, eventName)
             if (myEvents.has(eventName)) {
-                warn(`🔕 Duplicate '${eventName}' listener!`)
+                queueMicrotask(()=>warn(`🔕 Duplicate '${eventName}' listener!`))
                 continue
             }
             func = new Proxy(func, {
@@ -68,7 +72,7 @@ export function on(target, events, useHandler) {
                         let [event] = args
                         event.cancelable ?
                             event.preventDefault() :
-                            warn(`🔊 '${eventName}' events are not cancelable`)
+                            queueMicrotask(()=>warn(`🔊 '${eventName}' events are not cancelable`))
                     }
                     return targ.apply(null, args)
                 }
@@ -94,10 +98,15 @@ export function on(target, events, useHandler) {
 }
 on.once = function once(target, events, useHandler) {
     if (Array.isArray(events)) events = events.map(function ([event, name]) { return [event, `${name}_`] })
-    else for (let n in events) events[n].name += '_'
+    else for (let n in events) {
+      let {name} = events[n]
+      events[`_${n}`] = events[n] 
+  delete events[n]
+    } 
     return on(target, events, useHandler)
 }
-export function off(target, ...eventNames) {
+export
+ function off(target, ...eventNames) {
     if (!(target instanceof EventTarget) || !(target[sym] instanceof Set) || !allEvents.has(target))
         throw TypeError("🚫 Invalid event target")
     if (!eventNames.length) return null
@@ -121,7 +130,8 @@ export function off(target, ...eventNames) {
         groupEnd()
     }
 }
-export function until(target, eventName, timeout/* = 600000*/) {
+export
+ function until(target, eventName, timeout/* = 600000*/) {
     return new Promise(un)
     function un(resolve, reject) {
         const id = timeout && setTimeout(reject, timeout, RangeError(`⏰ Promise for '${eventName}' expired after ${timeout} ms`))
@@ -152,6 +162,7 @@ export function until(target, eventName, timeout/* = 600000*/) {
         })
     }
 }
-export function namedFunction(name, func) {
+export
+ function namedFunction(name, func) {
     return { [name]: func }[name]
 }

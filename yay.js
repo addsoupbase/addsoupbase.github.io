@@ -7,15 +7,6 @@ const __revoke__ = Symbol('revoke')
 function badCSS(prop, value) {
     console.warn(`😵‍💫 Unrecognized CSS at '${prop}: ${value}'`)
 }
-/*function escapeHTML(str) {
-    return str
-        .replace(/=/g, "&#61;")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}*/
 let bounded = new WeakMap
 function bind(maybeFunc, to) {
     // ♻️ Make sure we just re-use the same function
@@ -54,20 +45,17 @@ const handlers = {
         },
         set(t, prop, value) {
             let p = css.vendor(css.toCaps(prop), value)
-            if (CSS.supports(p, value)) {
+            if (CSS.supports(p, value)) 
                 t[p] = value
-            }
-            else if (prop in t) {
+            else if (prop in t) 
                 t[prop] = value
-            }
             else badCSS(prop, value)
             return true
         },
         deleteProperty(t, prop) {
             let fixed = css.vendor(css.toCaps(prop), 'inherit')
-            if (CSS.supports(fixed, 'inherit')) {
+            if (CSS.supports(fixed, 'inherit')) 
                 t.removeProperty(fixed)
-            }
             else delete t[prop]
             return true
         }
@@ -127,9 +115,8 @@ let props = Object.getOwnPropertyDescriptors(class {
         myevents.size && this.off(...myevents)
         this[__revoke__]()
     }
-    write(html) {
-        $(html).parent = this
-        return this
+    $(html) {
+        return $(html).parent = this
     }
     on(events, useHandler) {
         if (typeof events === 'function') events = events.bind(this)
@@ -208,6 +195,14 @@ let props = Object.getOwnPropertyDescriptors(class {
     queryAll(selector) {
         return Array.from(this.treeWalker(function (node) { return node.matches(selector) }))
     }
+    animate(keyframes, options) {
+        for (let frame of keyframes) for (let prop in frame) {
+            let p = frame[prop]
+            if (p)  frame[css.toCaps(css.vendor(css.toDash(prop), p))] = p
+            delete frame[prop]
+        }
+        return base(this).animate(keyframes, options)
+    }
     set after(val) {
         base(this).after(base(val))
     }
@@ -243,14 +238,15 @@ for (let txt of ['textContent', 'innerText', 'innerHTML']) {
 for (let set of ['beforebegin', 'afterbegin', 'beforeend', 'afterend']) {
     Object.defineProperty(prototype, set, {
         set(val) {
-            if (typeof val !== 'object') base(this).insertAdjacentHTML(set, val)
-            else base(this).insertAdjacentElement(set, base(val))
+            typeof val === 'object' 
+            ? base(this).insertAdjacentElement(set, base(val))
+            : base(this).insertAdjacentHTML(set, val)
         }
     })
 }
 for (let i of Reflect.ownKeys(props)) {
     // 🖨 Copy everything
-    if (typeof i === 'string' && i.match(/^constructor|prototype|name|length|caller|arguments$/)) continue
+    if (i.match?.(/^constructor|prototype|name|length|caller|arguments$/)) continue
     Object.defineProperty(prototype, i, props[i])
 }
 function base(element) {
@@ -327,6 +323,7 @@ function $(html, props = {}, ...children) {
                            </element>
                    <!-- afterend -->
     */
+   if ('parent'in props) element.parent = props.parent
     'events' in props && element.on(props.events)
 
     if ('innerHTML' in props)
@@ -349,134 +346,4 @@ function $(html, props = {}, ...children) {
     children.length && element.appendChild(children)
     return element
 }
-// 🔧 Test use
-$(document.body)
-    .write(`<div><p>hello <i>there</i></p></div>`, {
-        events: function domcontentloaded() {
-            console.log(this)
-        },
-        innerHTML: 'heylo',
-        afterbegin: $("video")
-    })
-
-//These were failed attempts, but I'm keeping them just in case 🤫
-// 1. Tried to use tagged templates but realised it was useless
-/*function init({ raw: strings }, ...subs) {
-    let str = ''
-    let attributes = new Map
-    let full = new Set(subs)
-    strings.forEach((st, i) => {
-        let bit = subs[i]
-        let txt = `${st}${bit || ''}`
-
-        if (!((typeof bit).match(/object|function|symbol/))) {
-            str = `${str}${txt}`
-        }
-        else {
-            // console.log(bit.toString())
-            //     console.log(str.match(RegExp(`\\w+\\s?\\=\\s?['"]\\s?${bit.toString().split('').map(i => i === '\\' ? '\\\\' : i).join('')}\\s?['"]`)))
-            let match = txt.match(/\w+/g)
-            i ? match = match[0] : match = match[1]
-            attributes.set(match, bit)
-            //while (txt && txt.startsWith('"')) txt = txt.slice(1)
-            if (i) {
-                str = `${str}${txt}`
-            }
-            else {
-                str = `${txt}${str}`
-            }
-        }
-    })
-    let matches = str.match(/\w+\s*=\s*["'](.*?)["']/g)
-    let index = 0
-    for (let match of matches) {
-        let name = match.match(/\w+\s*=\s*//*)[0].replace(/\s*=\s*//*, '')
-if (subs[index]?.toString() || '' != match) str=str.replace(subs[index],'')
-attributes.has(name) || attributes.set(name, match.match(/"(.*?)"/)[0].match(/\w+/)[0])
-index++
-}
-let element = prox(document.adoptNode(new DOMParser().parseFromString(str, 'text/html').body.firstElementChild))
-for (let n of element.getAttributeNames()) {
-if (full.has(element.getAttribute(n))) element.removeAttribute(n)
-}
-for (let [key, value] of attributes) {
-element.removeAttribute(key)
-console.log(key, value)
-if (key === 'events' && typeof value.match(/function|object/)) {
-element.on(value)
-continue
-}
-if (key === 'parent' && typeof value === 'object') {
-console.log(value)
-element.parent = value
-continue
-}
-element.setAttribute(key, value)
-}
-console.log(attributes)
-}*/
-
-// 2. Tried redoing templates with regex patterns
-// but that failed
-
-/*function init2(tag, desc) {
-    let out = prox(document.createElement(tag))
-    if (desc.attr) out.setAttributes(desc.attr)
-    return out
-}
-function init(obj, ...strings) {
-    let { raw } = obj
-    if (raw == null) {
-        return init2(obj.tag, obj)
-    }
-    let attrmap = new Map
-    let plainText = raw.map(function (str, index) {
-        let bit = strings[index]
-        if (typeof bit === 'object' || typeof bit === 'function') {
-            let name = raw[index].match(/\w+=/)[0].replace('=', '')
-            attrmap.set(name, bit)
-            return ''
-        }
-        return `${str}${bit || ''}`
-    }).join('')
-    console.log(plainText)
-    let plain_attributes = plainText.match(/\w+\s*=\s*["'](.*?)["']/g)?.map(o => o.split('='))
-    if (plain_attributes) for (let [name, ...value] of plain_attributes) {
-        [value] = value.join('').match(/"(.*?)"/)[0].match(/[\w;&#=\.]+/)
-        attrmap.set(name, value)
-    }
-    let virtual = new DOMParser().parseFromString(plainText, 'text/html')
-    let element = prox(document.adoptNode(virtual.body.firstElementChild))
-    for (let [key, value] of attrmap) {
-        element.removeAttribute(key)
-        if (key === 'events' && (typeof value).match(/function|object/)) {
-            element.on(value)
-            continue
-        }
-        /*if (key === 'parent' && typeof value === 'object') {
-            element.parent = value
-            continue
-        }*//*
-element.setAttribute(key, value)
-}
-return element
-}*/
-/*function $({ raw }, ...subs) {
-    raw = raw.join('<div class="__placeholder__"></div>')
-    subs = subs.flat(1 / 0)
-    let element = prox(document.adoptNode(new DOMParser().parseFromString(raw, 'text/html').body.firstElementChild))
-    for (let node of [...element.queryAll('.__placeholder__')]) {
-       let current = subs.shift()
-       if (typeof current === 'object') {
-            element.replaceChild(base(current), base(node))
-        }
-        else {
-            let text = document.createTextNode(current.toString())
-            console.log(current)
-            base(node).remove()
-            element.appendChild(text)
-        }
-        console.log(base(current))
-    }
-    return element
-}*/
+export default $

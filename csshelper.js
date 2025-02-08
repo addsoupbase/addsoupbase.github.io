@@ -103,7 +103,7 @@ export function toCSS(obj) {
     if (!Array.isArray(obj)) obj = Object.entries(obj)
     for (let [prop, val] of obj)
         try { arr.push(`${vendor(toDash(prop), val)}:${val}`) }
-        finally { continue }
+        catch { continue }
     return arr.join(';')
 }
 /** 
