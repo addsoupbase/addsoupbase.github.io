@@ -115,7 +115,7 @@ export async function registerCSS(selector, rule) {
     const { sheet } = addedStyleRules ??= function () {
         let out = document.createElement('style');
         (document.head ?? document.body ?? document.documentElement).appendChild(out)
-        out.textContent = 'Check your browser for CSS rules'
+        out.textContent = '/*Check your browser for CSS rules*/'
         return out
     }()
     return new Promise(res)
