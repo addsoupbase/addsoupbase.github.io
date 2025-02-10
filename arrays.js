@@ -1,6 +1,6 @@
 export function assemble(arrayLike, ...sequence) {
     const out = []
-    for (let { length } = sequence, i = 0; i < length; ++i) out.push(arrayLike.at(sequence[i]))
+    for (let { length } = sequence, i = 0; i < length;) out.push(arrayLike.at(sequence[i++]))
     return out
 }
 export function forKeys(obj, callback) {

@@ -67,6 +67,7 @@ export
             }
             func = new Proxy(func, {
                 apply(targ, _, args) {
+                    let out = targ.apply(null, args)
                     once && off(target, eventName)
                     if (prevents) {
                         let [event] = args
@@ -74,7 +75,7 @@ export
                             event.preventDefault() :
                             queueMicrotask(()=>warn(`🔊 '${eventName}' events are not cancelable`))
                     }
-                    return targ.apply(null, args)
+                    return out
                 }
             })
             //    eventRegistry.register(func, [eventName, myEvents])
@@ -87,7 +88,7 @@ export
                 myGlobalEventMap.set(eventName, func)
                 myEvents.add(eventName)
             }
-            debug(`🔔 '${eventName}' event added`)
+            console.info(`🔔 '${eventName}' event added`)
         }
     } catch (e) {
         queueMicrotask(() => reportError(e))
@@ -119,7 +120,7 @@ export
             const name = verifyEventName(eventNames[length], target),
                 func = map.get(name)
             target.removeEventListener(name, func)
-            map.has(name) && debug(`🔕 '${name}' event removed`)
+            map.has(name) && console.info(`🔕 '${name}' event removed`)
             map.delete(name)
             mySet.delete(name)
             map.size || allEvents.delete(target)

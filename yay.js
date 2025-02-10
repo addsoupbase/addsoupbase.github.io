@@ -12,10 +12,8 @@ function bind(maybeFunc, to) {
     // ♻️ Make sure we just re-use the same function
     // ♻️ instead of making a new one every time
     if (typeof maybeFunc === 'function') {
-        if (!bounded.has(maybeFunc)) {
-            let bound = maybeFunc.bind(to)
-            bounded.set(maybeFunc, bound)
-        }
+        if (!bounded.has(maybeFunc)) 
+            bounded.set(maybeFunc, maybeFunc.bind(to))
         return bounded.get(maybeFunc)
     }
     return maybeFunc
