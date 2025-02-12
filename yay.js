@@ -344,3 +344,4 @@ function $(html, props = {}, ...children) {
     return element
 }
 export default $
+document.querySelectorAll('noscript').forEach(o=>o.remove())
