@@ -2,8 +2,7 @@ const sym = Symbol("🔔"), //For keeping track of events
     //But to also not potentially collide with existing keys
     { warn, groupCollapsed, groupEnd, debug } = console,
     { isArray } = Array
-export
- const allEvents = new WeakMap
+export const allEvents = new WeakMap
 //const eventRegistry = new FinalizationRegistry(function ([key, set]) { set.delete(key) })
 function verifyEventName(target, name) {
     name = name.toLowerCase()
@@ -20,24 +19,20 @@ function verifyEventName(target, name) {
     // Ooops!
     throw TypeError(`🔇 Cannot listen for '${name}' events`)
 }
-export
- function wait(ms) {
+export function wait(ms) {
     return new Promise(res)
     function res(resolve) {
         setTimeout(resolve, ms)
     }
 }
-export
- function getEventNames(target) {
+export function getEventNames(target) {
     (sym in target) || Object.defineProperty(target, sym, { value: new Set })
     return target[sym]
 }
-export
- function hasEvent(target, eventName) {
+export function hasEvent(target, eventName) {
     return target[sym]?.has(eventName)
 }
-export
- function on(target, events, useHandler) {
+export function on(target, events, useHandler) {
     if (!(target instanceof EventTarget)) throw TypeError("🚫 Invalid event target")
     if (!(target[sym] instanceof Set))
         //This will hold the NAMES of the events
@@ -106,8 +101,7 @@ on.once = function once(target, events, useHandler) {
     } 
     return on(target, events, useHandler)
 }
-export
- function off(target, ...eventNames) {
+export function off(target, ...eventNames) {
     if (!(target instanceof EventTarget) || !(target[sym] instanceof Set) || !allEvents.has(target))
         throw TypeError("🚫 Invalid event target")
     if (!eventNames.length) return null
@@ -131,8 +125,7 @@ export
         groupEnd()
     }
 }
-export
- function until(target, eventName, timeout/* = 600000*/) {
+export function until(target, eventName, timeout/* = 600000*/) {
     return new Promise(un)
     function un(resolve, reject) {
         const id = timeout && setTimeout(reject, timeout, RangeError(`⏰ Promise for '${eventName}' expired after ${timeout} ms`))
@@ -163,7 +156,6 @@ export
         })
     }
 }
-export
- function namedFunction(name, func) {
+export function namedFunction(name, func) {
     return { [name]: func }[name]
 }

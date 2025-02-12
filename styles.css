@@ -3,8 +3,7 @@
   height:100vh;
   position: fixed;
 
-background: rgb(2,101,226);
-background: linear-gradient(0deg, rgba(2,101,226,1) 0%, rgba(0,212,255,1) 100%);
+
   z-index: -1;
   margin: 0px;
   position: relative;
@@ -428,7 +427,7 @@ body {
   display: flow-root;
 }
 .pkm {
-  scale: 1.3 1.3;
+  scale: 1.5 1.5;
   margin:10px;
 image-rendering: pixelated;
 }

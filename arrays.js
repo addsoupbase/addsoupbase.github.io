@@ -40,7 +40,7 @@ export function rotate(arr, rotation = 1) {
     if (arr.length < 2) return arr
     let sign = Math.sign(rotation),
         r = Math.abs(rotation | 0)
-    while (r--) sign > 0? 
-    arr.unshift(arr.pop()): arr.push(arr.shift())
+    if (sign > 0) while(r--) arr.unshift(arr.pop())
+    else while(r--) arr.push(arr.shift())
     return arr
 }

@@ -24,7 +24,7 @@ $('img #avatar', {
     parent: avatarPreview,
     attr: { src: './media/art.webp', title: 'misdreavus', alt: 'avatar' }
 })
-$('h2.centerx', {
+$('h1.centerx', {
     txt: 'addsoupbase', parent: main,
     attr: { style: 'margin:auto;z-index:3;position:relative;' }
 }).animate([
@@ -33,7 +33,7 @@ $('h2.centerx', {
 let content = $('section.centerx #content', {
     parent: main,
 })
-$('h4', { parent: content, txt: 'thank you so much for looking at this i love you' })
+$('h2', { parent: content, txt: 'thank you so much for looking at this i love you' })
 $('button.cute-green-button', {
     parent: content, txt: 'View Background', events: {
         async _click() {
