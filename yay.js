@@ -1,6 +1,5 @@
 import { on, off, getEventNames } from './handle.js'
 import * as css from './csshelper.js'
-window.t = css.vendor
 const all = new WeakMap
 const me = Symbol('base')
 const __revoke__ = Symbol('revoke')
