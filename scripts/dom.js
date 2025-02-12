@@ -12,8 +12,8 @@ on(window, {
     load() {
         requestIdleCallback(() => {
             main.styleMe({ opacity: .95 })
-            top.final(), { timeout: 20000 }
-        })
+            top.final()
+        }, { timeout: 20000 })
     }
 })
 window.requestIdleCallback ??= queueMicrotask
