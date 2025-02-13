@@ -2,7 +2,7 @@ import { on, off, getEventNames } from './handle.js'
 import * as css from './csshelper.js'
 const all = new WeakMap
 const me = Symbol('base')
-const __revoke__ = Symbol('revoke')
+const revokes = new WeakMap
 function badCSS(prop, value) {
     console.warn(`😵‍💫 Unrecognized CSS at '${prop}: ${value}'`)
 }
@@ -96,21 +96,26 @@ const handlers = {
 }
 // ❗️ Main [[Prototype]] is on this class
 // 🖨 properties are copied over
-let props = Object.getOwnPropertyDescriptors(class {
+let props = Object.getOwnPropertyDescriptors(class _ {
     // 🖋 Class syntax is easier to use
+    static cancel(o) { o.cancel() }
+    static pause(o) { o.pause() }
+    static play(o) { o.play }
+    static finish(o) { o.finish() }
+    static restart(o) { o.currentTime = 0 }
     destroy() {
         for (let { animations } = this, { length } = animations; length--;) animations[length].cancel()
         let { lastElementChild } = this
-        while (lastElementChild) {
-            prox(lastElementChild).destroy();
-            ({ lastElementChild } = this)
-        }
+        while (lastElementChild)
+            prox(lastElementChild).destroy(),
+                { lastElementChild } = this
         let my = base(this)
         do my.remove()
         while (document.contains(my))
         let myevents = getEventNames(my)
         myevents.size && this.off(...myevents)
-        this[__revoke__]()
+        all.delete(base(this))
+        revoke(this)
     }
     $(html, props, ...children) {
         return $(html, props, ...children).parent = this
@@ -173,6 +178,21 @@ let props = Object.getOwnPropertyDescriptors(class {
     get allAnimations() {
         return base(this).getAnimations({ subtree: true })
     }
+    cancelAnims() {
+        this.allAnimations.forEach(_.cancel)
+    }
+    resumeAnims() {
+        this.allAnimations.forEach(_.play)
+    }
+    pauseAnims() {
+        this.allAnimations.forEach(_.pause)
+    }
+    finishAnims() {
+        this.allAnimations.forEach(_.finish)
+    }
+    restartAnims() {
+        this.allAnimations.forEach(_.restart)
+    }
     appendChild(...args) {
         let frag = document.createDocumentFragment()
         args.flat(1 / 0).forEach(child => {
@@ -209,11 +229,10 @@ let props = Object.getOwnPropertyDescriptors(class {
         function func(node) { return node.matches(selector) }
     }
     animate(keyframes, options) {
-        for (let frame of keyframes) for (let prop in frame) {
-            let p = frame[prop]
-            if (p) frame[css.toCaps(css.vendor(css.toDash(prop), p))] = p
-            delete frame[prop]
-        }
+        for (let frame of keyframes)
+            for (let prop in frame) {
+                frame[css.toCaps(css.vendor(prop, frame[prop]))] ??= frame[prop]
+            }
         return base(this).animate(keyframes, options)
     }
     set after(val) {
@@ -237,7 +256,7 @@ let props = Object.getOwnPropertyDescriptors(class {
     }
 }.prototype)
 const prototype = Object.create(null)
-for (let txt of ['textContent', 'innerText', 'innerHTML']) {
+'textContent innerText innerHTML'.split(' ').forEach(txt =>
     Object.defineProperty(prototype, txt, {
         get() {
             return base(this)[txt]
@@ -247,8 +266,8 @@ for (let txt of ['textContent', 'innerText', 'innerHTML']) {
             base(this)[txt] = val
         }
     })
-}
-for (let set of ['beforebegin', 'afterbegin', 'beforeend', 'afterend']) {
+)
+'beforebegin afterbegin beforeend afterend'.split(' ').forEach(set =>
     Object.defineProperty(prototype, set, {
         set(val) {
             typeof val === 'object'
@@ -256,12 +275,11 @@ for (let set of ['beforebegin', 'afterbegin', 'beforeend', 'afterend']) {
                 : base(this).insertAdjacentHTML(set, val)
         }
     })
-}
-for (let i of Reflect.ownKeys(props)) {
+)
+Reflect.ownKeys(props).forEach(i =>
     // 🖨 Copy everything
-    if (i.match?.(/^constructor|prototype|name|length|caller|arguments$/)) continue
-    Object.defineProperty(prototype, i, props[i])
-}
+    i.match?.(/^constructor|prototype|name|length$/) ?? Object.defineProperty(prototype, i, props[i])
+)
 function base(element) {
     // 🌱 Get the root element
     return element[me] ?? prox(element)[me]
@@ -308,7 +326,7 @@ function prox(target) {
             // ⏰ I will add the SVG elements later
             console.warn(`🤨 Unrecognized element '${target.tagName}'`)
         }
-        Object.defineProperty(proxy, __revoke__, { value: revoke })
+        revokes.set(proxy, revoke)
         all.set(target, proxy)
     }
     return all.get(target)
@@ -344,20 +362,42 @@ function $(html, props = {}, ...children) {
     children.length && element.appendChild(children)
     return element
 }
+function revoke(targ) {
+    revokes.get(targ)?.()
+    revokes.delete(targ)
+}
 export default $
 let doc = $(document.documentElement)
-Object.assign($, {
-    qs(selector) {
-        return doc.query(selector)
+
+Object.defineProperties($, {
+    qs: {
+        value(selector) {
+            return doc.query(selector)
+        }
     },
-    qsa(selector) {
-        return doc.queryAll(selector)
+    qsa: {
+        value(selector) {
+            return doc.queryAll(selector)
+        }
     },
-    gid(id) {
-        return document.getElementById(id)
+    gid: {
+        value(id) {
+            return document.getElementById(id)
+        }
     },
-    filter(filter) {
-        return this.qsa('*').filter(filter)
+    filter: {
+        value(filter) {
+            return this.qsa('*').filter(filter)
+        }
+    },
+    body: {
+        get() { return prox(document.body) }
+    },
+    head: {
+        get() { return prox(document.head) }
+    },
+    doc: {
+        get() { return prox(document.documentElement) }
     }
 })
 document.querySelectorAll('noscript').forEach(o => o.remove())

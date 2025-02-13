@@ -23,7 +23,7 @@ export function insert(array, item, index) {
 }
 export function remove(item, index) {
     return typeof item === 'string' ?
-        item.slice(0, index) + item.slice(index + 1) :
+        `${item.slice(0, index)}${item.slice(index + 1)}` :
         item.splice(index, 1)
 }
 export function swap(item, first, second) {
