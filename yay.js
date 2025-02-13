@@ -406,7 +406,7 @@ function $(html, props, ...children) {
                 element = prox(document.adoptNode(n.body.firstElementChild))
             }
                 break
-            case 'createRange': 
+            case 'createRange':
                 //  Def the slowest
                 element = prox(document.adoptNode(document.createRange().createContextualFragment(html).firstElementChild))
                 break
@@ -415,6 +415,10 @@ function $(html, props, ...children) {
                 let temp = document.createElement('template')
                 temp.innerHTML = html
                 element = prox(document.adoptNode(temp.content.firstElementChild))
+            }
+                break
+            case 'parseHTMLUnsafe': {
+                element = prox(document.adoptNode(Document.parseHTMLUnsafe(html).body.firstElementChild))
             }
                 break
         }
