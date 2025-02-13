@@ -384,7 +384,6 @@ function prox(target) {
     }
     return all.get(target)
 }
-const parseMode = 'default'
 function $(html, props, ...children) {
     if (html instanceof HTMLElement) return prox(html) // Redirect
     let element
@@ -491,9 +490,24 @@ Object.defineProperties($, {
     }
 })
 Array.from(document.getElementsByTagName('noscript'), o => o.remove())
-/*window.test = function (count = 1000) {
-    console.time('html')
+let parseMode = 'mozInnerScreenY' in window ? 'createRange' : 'default'
+//  createRange seems to be *slightly* faster on firefox
+
+/*if (location.href.startsWith('http://localhost')) window.test = function (count = 1000, mode=parseMode) {
+    parseMode = mode
+    let time = performance.now()
+  //  console.time(parseMode)
     while (count--) $('<div><p>hello</p></div>').destroy()
-    console.timeEnd('html')
+   // console.timeEnd(parseMode)
+    return performance.now() - time
 }
-for(let i = 30; i--;)test(3000)*/
+let obj = {}
+import a from './math.js'
+for(let n of `template createRange createHTMLDocument innerHTML parseHTMLUnsafe default`.split(' ')) {
+    obj[n] = []
+    for(let i = 4; i--;) {
+        obj[n].push(test(3000,n))
+    }
+    obj[n] = a.average(...obj[n])
+}
+console.log(obj)*/
