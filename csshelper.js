@@ -1,4 +1,5 @@
 export function vendor(prop, val) {
+    val = `${val}`
     if (val?.trim() && !CSS.supports(prop, val)) {
         prop = prop.replace(/-(moz|o|ms|webkit|xv|atsc|wap|khtml|konq|apple|ah|hp|ro|rim|tc|fso|icab)-/, '')
         if (prop.startsWith('prince-') || prop.startsWith('mso-')) prop = prop.replace(/(prince|mso)-/, '')

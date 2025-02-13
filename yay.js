@@ -1,8 +1,8 @@
 import { on, off, getEventNames } from './handle.js'
 import * as css from './csshelper.js'
 const all = new WeakMap
-const me = Symbol('base')
-const revokes = new WeakMap
+    , me = Symbol('base')
+    , revokes = new WeakMap
 function badCSS(prop, value) {
     console.warn(`😵‍💫 Unrecognized CSS at '${prop}: ${value}'`)
 }
@@ -32,17 +32,15 @@ const handlers = {
         get(target, prop) {
             if (prop in target) return target[prop]
             let out = target[prop]
-            let fixedProp = css.vendor(css.toCaps(prop), 'inherit')
-            let maybe = target[fixedProp]
-            if (typeof prop === 'string' && CSS.supports(fixedProp, 'inherit')) {
-                if (maybe === '') return null
-                return maybe/*maybe && window.CSSStyleValue?.parse(p, maybe) ||*/
-            }
+                , fixedProp = css.vendor(css.toCaps(prop), 'inherit')
+                , maybe = target[fixedProp]
+            if (typeof prop === 'string' && CSS.supports(fixedProp, 'inherit'))
+                return maybe === '' ? null : maybe // && window.CSSStyleValue?.parse(p, maybe) || maybe
             return bind(out, target)
         },
         set(t, prop, value) {
-            let p = css.vendor(css.toCaps(prop), value)
-            if (CSS.supports(p, value))
+            let p = css.toCaps(css.vendor(css.toDash(prop), value))
+            if (CSS.supports(css.toDash(p), value))
                 t[p] = value
             else if (prop in t)
                 t[prop] = value
@@ -50,9 +48,9 @@ const handlers = {
             return true
         },
         deleteProperty(t, prop) {
-            let fixed = css.vendor(css.toCaps(prop), 'inherit')
+            let fixed = css.vendor(css.toDash(prop), 'inherit')
             if (CSS.supports(fixed, 'inherit'))
-                t.removeProperty(fixed)
+                t.removeProperty(css.toCaps(fixed))
             else delete t[prop]
             return true
         }
@@ -104,7 +102,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     static finish(o) { o.finish() }
     static restart(o) { o.currentTime = 0; o.play() }
     destroy() {
-        for (let { animations } = this, { length } = animations; length--;) animations[length].cancel()
+        this.cancelAnims()
         let { lastElementChild } = this
         while (lastElementChild)
             prox(lastElementChild).destroy(),
@@ -118,7 +116,9 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         revoke(this)
     }
     $(html, props, ...children) {
-        return $(html, props, ...children).parent = this
+        let out = $(html, props, ...children)
+        out.parent = this
+        return out
     }
     on(events, useHandler) {
         if (typeof events === 'function') events = events.bind(this)
@@ -137,31 +137,26 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             let old = events[i]
             events[i] = func
             function func(...args) {
-                let { target } = args[0];
+                let { target } = args[0]
+                target = prox(target);
                 (me !== target || includeSelf) && (filter?.(target) ?? 1) &&
-                    old.apply(prox(target), args)
+                    old.apply(target, args)
             }
         }
         this.on(events)
+        return this
     }
     get events() {
         return getEventNames(base(this))
     }
     setStyles(styles) {
-        let out = []
-        let passed = null
-        for (let i in styles) {
-            passed ??= true
-            let val = styles[i]
-            let fixed = css.vendor(css.toCaps(i), val)
-            let text = `${fixed}: ${val}`
-            if (val) {
-                passed &&= CSS.supports(fixed, val)
-                out.push(text)
-            } else delete this.style[i]
+        for (let prop in styles) {
+            let ogValue = styles[prop]
+            let fixedProp = css.toCaps(css.vendor(css.toDash(prop), ogValue))
+            if (ogValue) this.style[fixedProp] = ogValue //out.push(`${fixedProp}: ${ogValue}`)
+            else delete this.style[fixedProp]
         }
-        base(this).style.cssText = out.join(';')
-        return passed
+        //base(this).style.cssText = out.join(';')
     }
     setAttributes(attr) {
         let me = base(this)
@@ -171,33 +166,75 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             else if (val === '' || val == null) me.removeAttribute(i)
             else me.setAttribute(i, val)
         }
+        return this
     }
-    get animations() {
+    get anims() {
         return base(this).getAnimations()
     }
-    get allAnimations() {
+    get allAnims() {
         return base(this).getAnimations({ subtree: true })
     }
     cancelAnims() {
-        this.allAnimations.forEach(_.cancel)
+        this.allAnims.forEach(_.cancel)
+        return this
     }
     resumeAnims() {
-        this.allAnimations.forEach(_.play)
+        this.allAnims.forEach(_.play)
+        return this
     }
     pauseAnims() {
-        this.allAnimations.forEach(_.pause)
+        this.allAnims.forEach(_.pause)
+        return this
     }
     finishAnims() {
-        this.allAnimations.forEach(_.finish)
+        this.allAnims.forEach(_.finish)
+        return this
     }
     restartAnims() {
-        this.allAnimations.forEach(_.restart)
+        this.allAnims.forEach(_.restart)
+        return this
+    }
+    fadeOut(duration = 500) {
+        return this.animate([{}, { opacity: 0 }], { duration, easing: 'ease', iterations: 1 }).finished.then(() => this.hide3())
+    }
+    fadeIn(duration = 500) {
+        this.show3()
+        return this.animate([{ opacity: 0 }, { opacity: 1 }], { duration, easing: 'ease', iterations: 1 }).finished
+    }
+    replaceWith(...elements) {
+        base(this).replaceWith(...elements.map(base))
+    }
+    hide() {
+        return this.setAttributes({ hidden: true })
+    }
+    show() {
+        return this.setAttributes({ hidden: false })
+    }
+    hide2() {
+        this.setStyles({ visibility: 'hidden' })
+        return this
+    }
+    show2() {
+        this.setStyles({ visibility: 'visible' })
+        return this
+    }
+    hide3() {
+        this.setStyles({ display: 'none' })
+        return this
+    }
+    show3() {
+        this.setStyles({ display: '' })
+        return this
+    }
+    equals(other) {
+        let temp = $(other)
+        let out = base(temp).isEqualNode(base(this))
+        typeof other === 'object' && temp.destroy()
+        return out
     }
     appendChild(...args) {
         let frag = document.createDocumentFragment()
-        args.flat(1 / 0).forEach(child => {
-            frag.appendChild(base(child))
-        }, frag)
+        args.flat(1 / 0).forEach(child => frag.appendChild(base(child)))
         base(this).appendChild(frag)
         return this
     }
@@ -225,14 +262,15 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         function func(node) { return node.matches(selector) }
     }
     queryAll(selector) {
-        return Array.from(this.treeWalker(func))
+        return [...this.treeWalker(func)]
         function func(node) { return node.matches(selector) }
     }
     animate(keyframes, options) {
+        options.timing ??= 'ease'
+        options.iterations ??= 1
         for (let frame of keyframes)
-            for (let prop in frame) {
-                frame[css.toCaps(css.vendor(prop, frame[prop]))] ??= frame[prop]
-            }
+            for (let prop in frame)
+                frame[css.toCaps(css.vendor(css.toDash(prop), `${frame[prop]}`))] ??= `${frame[prop]}`
         return base(this).animate(keyframes, options)
     }
     set after(val) {
@@ -242,10 +280,12 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         base(this).before(base(val))
     }
     get after() {
-        return prox(base(this).nextElementSibling)
+        let { nextElementSibling } = base(this)
+        return nextElementSibling && prox(nextElementSibling)
     }
     get before() {
-        return prox(base(this).previousElementSibling)
+        let { previousElementSibling } = base(this)
+        return previousElementSibling && prox(previousElementSibling)
     }
     set parent(parent) {
         parent ? base(parent).appendChild(base(this)) : base(this).remove()
@@ -253,6 +293,14 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     get parent() {
         let parent = base(this).parentElement
         return parent && prox(parent)
+    }
+    get first() {
+        let { firstElementChild } = base(this)
+        return firstElementChild && prox(firstElementChild)
+    }
+    get last() {
+        let { lastElementChild } = base(this)
+        return lastElementChild && prox(lastElementChild)
     }
 }.prototype)
 const prototype = Object.create(null)
@@ -280,6 +328,7 @@ Reflect.ownKeys(props).forEach(i =>
     // 🖨 Copy everything
     i.match?.(/^constructor|prototype|name|length$/) ?? Object.defineProperty(prototype, i, props[i])
 )
+const prototypeDescriptors = Object.getOwnPropertyDescriptors(prototype)
 function base(element) {
     // 🌱 Get the root element
     return element[me] ?? prox(element)[me]
@@ -296,9 +345,14 @@ function prox(target) {
     if (!all.has(target)) {
         let { proxy, revoke } = Proxy.revocable(
             Object.create(target, {
-                ...Object.getOwnPropertyDescriptors(prototype),
+                ...prototypeDescriptors,
                 [me]: {
                     value: target
+                },
+                flags: {
+                    //  General Purpose binary flag
+                    value: 0,
+                    writable: 1,
                 },
                 // 📜 Those interfaces from before...
                 children: {
@@ -312,32 +366,62 @@ function prox(target) {
                 }
             }), {
             get(targ, prop) {
-                if (Object.hasOwn(targ, prop)) return targ[prop]
+                if (targ.hasOwnProperty(prop)) return targ[prop]
                 let out = target[prop]
                 return bind(out, target)
                 // ⛓️‍💥 'Illegal invocation' if function is not bound
             },
             set(targ, prop, value) {
-                if (Object.hasOwn(targ, prop)) return targ[prop] = value, 1
+                if (targ.hasOwnProperty(prop)) return targ[prop] = value, 1
                 if (prop in target) return target[prop] = value, 1
             },
         })
-        if (target instanceof HTMLUnknownElement) {
+        if (target instanceof HTMLUnknownElement)
             // ⏰ I will add the SVG elements later
             console.warn(`🤨 Unrecognized element '${target.tagName}'`)
-        }
         revokes.set(proxy, revoke)
         all.set(target, proxy)
     }
     return all.get(target)
 }
-function $(html, props = {}, ...children) {
+const parseMode = 'default'
+function $(html, props, ...children) {
     if (html instanceof HTMLElement) return prox(html) // Redirect
     let element
-    if (html[0] === '<' && html.at(-1) === '>') element = prox(document.adoptNode(new DOMParser().parseFromString(html, 'text/html').body.firstElementChild))
+    if (html[0] === '<' && html.at(-1) === '>')
+        switch (parseMode) {
+            //  This one seems to be the fastest by a tad
+            //  but it's hard to tell...
+            default: element = prox(document.adoptNode(new DOMParser().parseFromString(html, 'text/html').body.firstElementChild))
+                break
+            case 'innerHTML': {
+                let n = document.createElement('div')
+                n.innerHTML = html
+                element = prox(n.removeChild(n.firstElementChild))
+            }
+                break
+            case 'createHTMLDocument': {
+                let n = document.implementation.createHTMLDocument('')
+                n.body.innerHTML = html
+                element = prox(document.adoptNode(n.body.firstElementChild))
+            }
+                break
+            case 'createRange': 
+                //  Def the slowest
+                element = prox(document.adoptNode(document.createRange().createContextualFragment(html).firstElementChild))
+                break
+            case 'template': {
+                //  Contender
+                let temp = document.createElement('template')
+                temp.innerHTML = html
+                element = prox(document.adoptNode(temp.content.firstElementChild))
+            }
+                break
+        }
+
     else {
         element = prox(document.createElement(html.match(/\w+/)[0]))
-        let classes = html.match(/\.\w+/g)?.map(slice),
+        let classes = html.match(/\.[\w-]+/g)?.map(slice),
             id = html.match(/#\w+/)?.[0].slice(1),
             type = html.match(/%\w+/)?.[0].slice(1)
         element.setAttributes({ class: classes && classes.join(' '), id, type })
@@ -351,14 +435,18 @@ function $(html, props = {}, ...children) {
                     <!-- beforeend -->
                            </element>
                    <!-- afterend -->
-                   */
-    function reuse(p) { if (p in props) element[p] = props[p] }
-    if ('parent' in props) element.parent = props.parent
-    'events' in props && element.on(props.events)
-    'innerHTML innerText textContent'.split(' ').forEach(reuse)
-    if ('txt' in props) element.textContent = props.txt
-    // 🛑 Make sure we add elements AFTER the textContent/innerText/innerHTML
-    'beforebegin afterbegin beforeend afterend'.split(' ').forEach(reuse)
+    */
+    if (props) {
+        function reuse(p) { if (p in props) element[p] = props[p] }
+        if ('parent' in props) element.parent = props.parent
+        'events' in props && element.on(props.events)
+        'innerHTML innerText textContent'.split(' ').forEach(reuse)
+        if ('txt' in props) element.textContent = props.txt
+        // 🛑 Make sure we add elements AFTER the textContent/innerText/innerHTML
+        'beforebegin afterbegin beforeend afterend'.split(' ').forEach(reuse)
+        if ('attributes' in props) element.setAttributes(props.attributes)
+        if ('styles' in props) element.setStyles(props.styles)
+    }
     children.length && element.appendChild(children)
     return element
 }
@@ -398,4 +486,10 @@ Object.defineProperties($, {
         get() { return prox(document.documentElement) }
     }
 })
-document.getElementsByTagName('noscript').forEach(o => o.remove())
+Array.from(document.getElementsByTagName('noscript'), o => o.remove())
+/*window.test = function (count = 1000) {
+    console.time('html')
+    while (count--) $('<div><p>hello</p></div>').destroy()
+    console.timeEnd('html')
+}
+for(let i = 30; i--;)test(3000)*/

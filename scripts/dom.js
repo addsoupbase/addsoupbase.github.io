@@ -1,17 +1,16 @@
 
-import $, { Alert, FormDataManager, required } from '../quick.js'
+import $ from '../yay.js'
+import { FormDataManager } from '../proxies.js'
 import { on, wait } from "../handle.js"
 
 const main = $('main.center.cute-green #main', {
     parent: document.body,
-    attr: {
-        style: 'opacity:0'
-    }
 })
+main.setStyles({ opacity: 0 })
 on(window, {
     load() {
         requestIdleCallback(() => {
-            main.styleMe({ opacity: .95 })
+            main.setStyles({ opacity: .95 })
             top.final()
         }, { timeout: 20000 })
     }
@@ -19,14 +18,15 @@ on(window, {
 window.requestIdleCallback ??= queueMicrotask
 main.animate([{ filter: 'blur(2px)', opacity: 0, scale: '0.8 0.8', translate: '0 -40px' }, { filter: '', }], { duration: 700, easing: 'ease-in' })
 
-let avatarPreview = $('div.holdavatar', main)
+let avatarPreview = $('div.holdavatar')
+avatarPreview.parent = main
 $('img #avatar', {
     parent: avatarPreview,
-    attr: { src: './media/art.webp', title: 'misdreavus', alt: 'avatar' }
+    attributes: { src: './media/art.webp', title: 'misdreavus', alt: 'avatar' }
 })
 $('h1.centerx', {
     txt: 'addsoupbase', parent: main,
-    attr: { style: 'margin:auto;z-index:3;position:relative;' }
+    attributes: { style: 'margin:auto;z-index:3;position:relative;' }
 }).animate([
     { scale: '' }, { scale: '1.1 1.1' },
 ], { duration: 500, iterations: 4, direction: 'alternate', easing: 'ease-in-out' })
@@ -37,27 +37,22 @@ $('h2', { parent: content, txt: 'thank you so much for looking at this i love yo
 $('button.cute-green-button', {
     parent: content, txt: 'View Background', events: {
         async _click() {
-            await main.fadeout()
+            await main.fadeOut()
             let topWindow = parent.document.querySelector('iframe')
             topWindow.remove()
         }
     }
 })
-let section = $('div.lol', content)
-let buttonholder = $("div", section)
-$('a.cute-green-button', {
+let section = content.$('div.lol')
+let buttonholder = section.$("div")
+$('<a class="cute-green-button" href="./about.html" title="about me">About</a>', {
     parent: buttonholder,
-    txt: 'About',
-    attr: {
-        href: './about.html',
-        title: 'about me'
-    }
 })
 
-$('a.cute-green-button', {
+$('<a class="cute-green-button"></a>', {
     parent: buttonholder,
     txt: 'Stuff',
-    attr: {
+    attributes: {
         title: 'stuff i made',
         href: './stuff.html'
     }
@@ -68,40 +63,31 @@ $('a.cute-green-button', {
     title: 'music',
     href: './music.html'
 })*/
-$('p', { parent: section, txt: 'Send a message to me if you want' })
-let form = $('form #submit', {
-    os: [$('img', {
-        attr: {
-            width: 40,
-            height: 40,
-            alt: 'mail icon',
-            title: 'Send some mail!',
-            src: './media/mail.webp'
-        }
-    })],
+section.$('<p>Send a message to me if you wanna</p>')
+let form = $('<form id="submit"><img width=40 height=40 alt="Mail Icon" title="Send me some mail" src="./media/mail.webp"></form>', {
     parent: section, events: {
         async $submit({ target }) {
             let { name, message } = FormDataManager(target)
             name ||= 'Anonymous'
-            await form.fadeout()
-            form.hide()
-            let loading = $('img.delibird', { src: './media/loading.webp' })
-            form.before(loading)
-            let req = await fetch(`https://formspree.io/f/mqakzlyo`, {
+            await form.fadeOut()
+            let loading = $('<img class="delibird" src="./media/loading.webp">')
+            form.before = loading
+            let req = !location.href.startsWith('http://localhost') ? await fetch(`https://formspree.io/f/mqakzlyo`, {
                 method: 'POST',
                 body: `name=${encodeURIComponent(name)}&message=${encodeURIComponent(message)}`,
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                     'Accept': 'application/json'
                 }
-            })
+            }) : { ok: 1 }
             if (req.ok) {
                 loading.src = './media/yay.webp'
                 await wait(1000)
-                await loading.fadeAndDestroy()
-                let f = $('h1 <Message sent :)>',)
-                form.replaceWith(f.cont)
-                f.fadein()
+                await loading.fadeOut()
+                loading.destroy()
+                let f = $('<h1>Message sent :)</h1>',)
+                form.replaceWith(f)
+                f.fadeIn()
             } else {
                 Alert("for some reason, your message could not be sent :(")
             }
@@ -109,7 +95,7 @@ let form = $('form #submit', {
         }
     }
 })
-let outer = $('div #formholder', { parent: form })
-let NAME = $('input.cute-green', { attr: { name: 'name', placeholder: 'Name', }, parent: outer })
-let MSG = $('input.cute-green', { attr: { name: 'message', required, placeholder: 'Message', }, parent: outer })
-let submitbutton = $('button.cute-green-button', { parent: form, txt: 'Send' })
+let outer = form.$('<div id="formholder"></div>', null,
+    $('<input class="cute-green" name="name" placeholder="Name">'),
+    $('<input class="cute-green" name="message" placeholder="Message" required>'))
+let submitbutton = form.$('<button class="cute-green-button">Send</button>')

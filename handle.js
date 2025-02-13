@@ -60,6 +60,17 @@ export function on(target, events, useHandler) {
                 queueMicrotask(()=>warn(`🔕 Duplicate '${eventName}' listener!`))
                 continue
             }
+            function Func(...args)   {
+                func.apply(null, args)
+                once && off(this, eventName)
+                if (prevents) {
+                    let [event] = args
+                    event.cancelable ?
+                        event.preventDefault() :
+                        queueMicrotask(()=>warn(`🔊 '${eventName}' events are not cancelable`))
+                }
+            }
+            /*
             func = new Proxy(func, {
                 apply(targ, _, args) {
                     let out = targ.apply(null, args)
@@ -72,15 +83,15 @@ export function on(target, events, useHandler) {
                     }
                     return out
                 }
-            })
+            })*/
             //    eventRegistry.register(func, [eventName, myEvents])
-            if (useHandler) target[`on${eventName}`] = func
+            if (useHandler) target[`on${eventName}`] = Func
             else {
-                target.addEventListener(eventName, func, options)
+                target.addEventListener(eventName, Func, options)
                 allEvents.has(target) || allEvents.set(target, new Map)
                 //A Map to hold the names & events
                 const myGlobalEventMap = allEvents.get(target)
-                myGlobalEventMap.set(eventName, func)
+                myGlobalEventMap.set(eventName, Func)
                 myEvents.add(eventName)
             }
             console.info(`🔔 '${eventName}' event added`)

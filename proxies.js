@@ -26,7 +26,24 @@ class StorageProxy {
         throw TypeError("Illegal constructor")
     }
 }
-export default globalThis.localStorage &&
-    new StorageProxy(localStorage)
-   export const sstorage = globalThis.sessionStorage &&
+export let lstorage = globalThis.localStorage &&
+    new StorageProxy(localStorage),
+    sstorage = globalThis.sessionStorage &&
         new StorageProxy(sessionStorage)
+export function FormDataManager(FormDataInstance) {
+    if (!(FormDataInstance instanceof FormData)) FormDataInstance = new FormData(FormDataInstance)
+    return new Proxy(FormDataInstance, {
+        get(target, prop) {
+            return target.get(prop)
+        },
+        set(target, prop, val) {
+            return !target.set(prop, val)
+        },
+        has(target, prop) {
+            return target.has(prop)
+        },
+        deleteProperty(target, prop) {
+            return !target.delete(prop)
+        }
+    })
+}
