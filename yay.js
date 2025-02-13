@@ -11,7 +11,7 @@ function bind(maybeFunc, to) {
     // ♻️ Make sure we just re-use the same function
     // ♻️ instead of making a new one every time
     if (typeof maybeFunc === 'function') {
-        if (!bounded.has(maybeFunc)) 
+        if (!bounded.has(maybeFunc))
             bounded.set(maybeFunc, maybeFunc.bind(to))
         return bounded.get(maybeFunc)
     }
@@ -42,16 +42,16 @@ const handlers = {
         },
         set(t, prop, value) {
             let p = css.vendor(css.toCaps(prop), value)
-            if (CSS.supports(p, value)) 
+            if (CSS.supports(p, value))
                 t[p] = value
-            else if (prop in t) 
+            else if (prop in t)
                 t[prop] = value
             else badCSS(prop, value)
             return true
         },
         deleteProperty(t, prop) {
             let fixed = css.vendor(css.toCaps(prop), 'inherit')
-            if (CSS.supports(fixed, 'inherit')) 
+            if (CSS.supports(fixed, 'inherit'))
                 t.removeProperty(fixed)
             else delete t[prop]
             return true
@@ -112,8 +112,8 @@ let props = Object.getOwnPropertyDescriptors(class {
         myevents.size && this.off(...myevents)
         this[__revoke__]()
     }
-    $(html) {
-        return $(html).parent = this
+    $(html, props, ...children) {
+        return $(html, props, ...children).parent = this
     }
     on(events, useHandler) {
         if (typeof events === 'function') events = events.bind(this)
@@ -125,6 +125,19 @@ let props = Object.getOwnPropertyDescriptors(class {
     off(...events) {
         off(base(this), ...events)
         return this
+    }
+    delegate(events, filter, includeSelf) {
+        let me = base(this)
+        for (let i in events) {
+            let old = events[i]
+            events[i] = func
+            function func(...args) {
+                let { target } = args[0]
+                me !== target && !includeSelf && (filter?.(target) ?? 1) &&
+                    old.apply(prox(target), args)
+            }
+        }
+        this.on(events)
     }
     get events() {
         return getEventNames(base(this))
@@ -165,7 +178,8 @@ let props = Object.getOwnPropertyDescriptors(class {
         args.flat(1 / 0).forEach(child => {
             frag.appendChild(base(child))
         }, frag)
-        return base(this).appendChild(frag), this
+        base(this).appendChild(frag)
+        return this
     }
     treeWalker(filter, whatToShow = NodeFilter.SHOW_ELEMENT) {
         let walker = document.createTreeWalker(base(this), whatToShow, filter_func)
@@ -175,7 +189,7 @@ let props = Object.getOwnPropertyDescriptors(class {
             while (current = walker.nextNode()) yield current instanceof HTMLElement ? prox(current) : current
         }
         function filter_func(node) {
-            return filter?.(node) ?? true ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
+            return (filter?.(node) ?? true) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
         }
     }
     *[Symbol.iterator]() {
@@ -187,15 +201,17 @@ let props = Object.getOwnPropertyDescriptors(class {
         //append, prepend, etc.
     }
     query(selector) {
-        return this.treeWalker(function (node) { return node.matches(selector) }).next().value
+        return this.treeWalker(func).next().value
+        function func(node) { return node.matches(selector) }
     }
     queryAll(selector) {
-        return Array.from(this.treeWalker(function (node) { return node.matches(selector) }))
+        return Array.from(this.treeWalker(func))
+        function func(node) { return node.matches(selector) }
     }
     animate(keyframes, options) {
         for (let frame of keyframes) for (let prop in frame) {
             let p = frame[prop]
-            if (p)  frame[css.toCaps(css.vendor(css.toDash(prop), p))] = p
+            if (p) frame[css.toCaps(css.vendor(css.toDash(prop), p))] = p
             delete frame[prop]
         }
         return base(this).animate(keyframes, options)
@@ -235,9 +251,9 @@ for (let txt of ['textContent', 'innerText', 'innerHTML']) {
 for (let set of ['beforebegin', 'afterbegin', 'beforeend', 'afterend']) {
     Object.defineProperty(prototype, set, {
         set(val) {
-            typeof val === 'object' 
-            ? base(this).insertAdjacentElement(set, base(val))
-            : base(this).insertAdjacentHTML(set, val)
+            typeof val === 'object'
+                ? base(this).insertAdjacentElement(set, base(val))
+                : base(this).insertAdjacentHTML(set, val)
         }
     })
 }
@@ -284,8 +300,8 @@ function prox(target) {
                 // ⛓️‍💥 'Illegal invocation' if function is not bound
             },
             set(targ, prop, value) {
-                if (Object.hasOwn(targ, prop)) return !void (targ[prop] = value)
-                if (prop in target) return !void (target[prop] = value)
+                if (Object.hasOwn(targ, prop)) return targ[prop] = value, 1
+                if (prop in target) return target[prop] = value, 1
             },
         })
         if (target instanceof HTMLUnknownElement) {
@@ -299,18 +315,16 @@ function prox(target) {
 }
 function $(html, props = {}, ...children) {
     if (html instanceof HTMLElement) return prox(html) // Redirect
-    let element,
-        classes = [],
-        id = '',
-        type = ''
-    if (!html.startsWith('<')) {
+    let element
+    if (html[0] === '<' && html.at(-1) === '>') element = prox(document.adoptNode(new DOMParser().parseFromString(html, 'text/html').body.firstElementChild))
+    else {
         element = prox(document.createElement(html.match(/\w+/)[0]))
-        classes = html.match(/\.\w+/g)?.map(o => o.slice(1))
-        id = html.match(/#\w+/)?.[0].slice(1)
-        type = html.match(/%\w+/)?.[0].slice(1)
+        let classes = html.match(/\.\w+/g)?.map(slice),
+            id = html.match(/#\w+/)?.[0].slice(1),
+            type = html.match(/%\w+/)?.[0].slice(1)
         element.setAttributes({ class: classes && classes.join(' '), id, type })
+        function slice(o) { return o.slice(1) }
     }
-    else element = prox(document.adoptNode(new DOMParser().parseFromString(html, 'text/html').body.firstElementChild))
     /*
                    <!-- beforebegin -->
                            <element>
@@ -319,29 +333,31 @@ function $(html, props = {}, ...children) {
                     <!-- beforeend -->
                            </element>
                    <!-- afterend -->
-    */
-   if ('parent'in props) element.parent = props.parent
+                   */
+    function reuse(p) { if (p in props) element[p] = props[p] }
+    if ('parent' in props) element.parent = props.parent
     'events' in props && element.on(props.events)
-
-    if ('innerHTML' in props)
-        element.innerHTML = props.innerHTML
-    if ('textContent' in props || 'txt' in props)
-        element.textContent = props.textContent ?? props.txt
-    if ('innerText' in props)
-        element.innerText = props.innerText
-
+    'innerHTML innerText textContent'.split(' ').forEach(reuse)
+    if ('txt' in props) element.textContent = props.txt
     // 🛑 Make sure we add elements AFTER the textContent/innerText/innerHTML
-    if ('beforebegin' in props)
-        element.beforebegin = props.beforebegin
-    if ('afterbegin' in props)
-        element.afterbegin = props.afterbegin
-    if ('beforeend' in props)
-        element.beforeend = props.beforeend
-    if ('afterend' in props)
-        element.afterend = props.afterend
-
+    'beforebegin afterbegin beforeend afterend'.split(' ').forEach(reuse)
     children.length && element.appendChild(children)
     return element
 }
 export default $
-document.querySelectorAll('noscript').forEach(o=>o.remove())
+let doc = $(document.documentElement)
+Object.assign($, {
+    qs(selector) {
+        return doc.query(selector)
+    },
+    qsa(selector) {
+        return doc.queryAll(selector)
+    },
+    gid(id) {
+        return document.getElementById(id)
+    },
+    filter(filter) {
+        return this.qsa('*').filter(filter)
+    }
+})
+document.querySelectorAll('noscript').forEach(o => o.remove())

@@ -9,7 +9,7 @@
             "request": "launch",
             "name": "Start Project",
             "url": "http://localhost:3000/${fileWorkspaceFolderBasename}",
-            "webRoot": "${workspaceFolder}"
+            "webRoot": "http://localhost:3000/${fileWorkspaceFolderBasename}"
         }
     ]
 }

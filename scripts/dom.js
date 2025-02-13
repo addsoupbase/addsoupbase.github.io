@@ -62,7 +62,6 @@ $('a.cute-green-button', {
         href: './stuff.html'
     }
 })
-
 /*$('a,cute-green-button', {
     parent: buttonholder,
     txt: 'Music',
