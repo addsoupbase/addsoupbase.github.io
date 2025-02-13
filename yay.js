@@ -132,8 +132,8 @@ let props = Object.getOwnPropertyDescriptors(class {
             let old = events[i]
             events[i] = func
             function func(...args) {
-                let { target } = args[0];
-                (me !== target || includeSelf) && (filter?.(target) ?? 1) &&
+                let { target } = args[0]
+                me !== target && !includeSelf && (filter?.(target) ?? 1) &&
                     old.apply(prox(target), args)
             }
         }
