@@ -387,41 +387,44 @@ function prox(target) {
 function $(html, props, ...children) {
     if (html instanceof HTMLElement) return prox(html) // Redirect
     let element
-    if (html[0] === '<' && html.at(-1) === '>')
+    if (html[0] === '<' && html.at(-1) === '>') {
+
         switch (parseMode) {
             //  This one seems to be the fastest by a tad
             //  but it's hard to tell...
             default: element = document.adoptNode(new DOMParser().parseFromString(html, 'text/html').body.firstElementChild)
-                break
+            break
             case 'innerHTML': {
                 let n = document.createElement('div')
                 n.innerHTML = html
                 element = n.removeChild(n.firstElementChild)
             }
                 break
-            case 'createHTMLDocument': {
+                case 'createHTMLDocument': {
                 let n = document.implementation.createHTMLDocument('')
                 n.body.innerHTML = html
                 element = document.adoptNode(n.body.firstElementChild)
             }
-                break
+            break
             case 'createRange':
                 //  Def the slowest
                 element = document.adoptNode(document.createRange().createContextualFragment(html).firstElementChild)
                 break
-            case 'template': {
-                //  Contender
-                let temp = document.createElement('template')
-                temp.innerHTML = html
-                element = document.adoptNode(temp.content.firstElementChild)
-            }
+                case 'template': {
+                    //  Contender
+                    let temp = document.createElement('template')
+                    temp.innerHTML = html
+                    element = document.adoptNode(temp.content.firstElementChild)
+                }
                 break
-            case 'parseHTMLUnsafe': 
+                case 'parseHTMLUnsafe': 
                 element = document.adoptNode(Document.parseHTMLUnsafe(html).body.firstElementChild)
                 break
-        }
+            }
+            element = prox(element)
 
-    else {
+        }
+            else {
         element = prox(document.createElement(html.match(/\w+/)[0]))
         let classes = html.match(/\.[\w-]+/g)?.map(slice),
             id = html.match(/#\w+/)?.[0].slice(1),
@@ -429,7 +432,6 @@ function $(html, props, ...children) {
         element.setAttributes({ class: classes && classes.join(' '), id, type })
         function slice(o) { return o.slice(1) }
     }
-    element = prox(element)
     /*
                    <!-- beforebegin -->
                            <element>
