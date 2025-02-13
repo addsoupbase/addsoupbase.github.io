@@ -100,9 +100,9 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     // 🖋 Class syntax is easier to use
     static cancel(o) { o.cancel() }
     static pause(o) { o.pause() }
-    static play(o) { o.play }
+    static play(o) { o.play() }
     static finish(o) { o.finish() }
-    static restart(o) { o.currentTime = 0 }
+    static restart(o) { o.currentTime = 0; o.play() }
     destroy() {
         for (let { animations } = this, { length } = animations; length--;) animations[length].cancel()
         let { lastElementChild } = this
@@ -367,17 +367,15 @@ function revoke(targ) {
     revokes.delete(targ)
 }
 export default $
-let doc = $(document.documentElement)
-
 Object.defineProperties($, {
     qs: {
         value(selector) {
-            return doc.query(selector)
+            return $.doc.query(selector)
         }
     },
     qsa: {
         value(selector) {
-            return doc.queryAll(selector)
+            return $.doc.queryAll(selector)
         }
     },
     gid: {
@@ -400,4 +398,4 @@ Object.defineProperties($, {
         get() { return prox(document.documentElement) }
     }
 })
-document.querySelectorAll('noscript').forEach(o => o.remove())
+document.getElementsByTagName('noscript').forEach(o => o.remove())
