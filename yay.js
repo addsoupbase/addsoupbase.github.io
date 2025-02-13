@@ -391,34 +391,33 @@ function $(html, props, ...children) {
         switch (parseMode) {
             //  This one seems to be the fastest by a tad
             //  but it's hard to tell...
-            default: element = prox(document.adoptNode(new DOMParser().parseFromString(html, 'text/html').body.firstElementChild))
+            default: element = document.adoptNode(new DOMParser().parseFromString(html, 'text/html').body.firstElementChild)
                 break
             case 'innerHTML': {
                 let n = document.createElement('div')
                 n.innerHTML = html
-                element = prox(n.removeChild(n.firstElementChild))
+                element = n.removeChild(n.firstElementChild)
             }
                 break
             case 'createHTMLDocument': {
                 let n = document.implementation.createHTMLDocument('')
                 n.body.innerHTML = html
-                element = prox(document.adoptNode(n.body.firstElementChild))
+                element = document.adoptNode(n.body.firstElementChild)
             }
                 break
             case 'createRange':
                 //  Def the slowest
-                element = prox(document.adoptNode(document.createRange().createContextualFragment(html).firstElementChild))
+                element = document.adoptNode(document.createRange().createContextualFragment(html).firstElementChild)
                 break
             case 'template': {
                 //  Contender
                 let temp = document.createElement('template')
                 temp.innerHTML = html
-                element = prox(document.adoptNode(temp.content.firstElementChild))
+                element = document.adoptNode(temp.content.firstElementChild)
             }
                 break
-            case 'parseHTMLUnsafe': {
-                element = prox(document.adoptNode(Document.parseHTMLUnsafe(html).body.firstElementChild))
-            }
+            case 'parseHTMLUnsafe': 
+                element = document.adoptNode(Document.parseHTMLUnsafe(html).body.firstElementChild)
                 break
         }
 
@@ -430,6 +429,7 @@ function $(html, props, ...children) {
         element.setAttributes({ class: classes && classes.join(' '), id, type })
         function slice(o) { return o.slice(1) }
     }
+    element = prox(element)
     /*
                    <!-- beforebegin -->
                            <element>
