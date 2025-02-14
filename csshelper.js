@@ -1,72 +1,53 @@
 export function vendor(prop, val) {
     val = `${val}`
-    if (val?.trim() && !CSS.supports(prop, val)) {
-        prop = prop.replace(/-(moz|o|ms|webkit|xv|atsc|wap|khtml|konq|apple|ah|hp|ro|rim|tc|fso|icab)-/, '')
-        if (prop.startsWith('prince-') || prop.startsWith('mso-')) prop = prop.replace(/(prince|mso)-/, '')
-        let prefix = prop   
-        if (CSS.supports(prefix, val)) // Maybe you dont need a prefix?
-            return prefix
-        if (CSS.supports(prefix = `-webkit-${prop}`, val))
+    if (val.trim() && !CSS.supports(prop, val)) {
+        let prefix = prop = prop
+            .replace(/-(moz|o|ms|webkit|xv|atsc|wap|khtml|konq|apple|ah|hp|ro|rim|tc|fso|icab)-/, '')
+            .replace(/(prince|mso)-/, '')
+        return (
+            CSS.supports(prefix, val) ||
+            // Maybe you dont need a prefix?
+            CSS.supports(prefix = `-webkit-${prop}`, val) ||
             // Most likely (Chrome, Safari)
-            return prefix
-        if (CSS.supports((prefix = `-moz-${prop}`), val))
+            CSS.supports(prefix = `-moz-${prop}`, val) ||
             // Firefox
-            return prefix
-        if (CSS.supports((prefix = `-o-${prop}`), val))
+            CSS.supports(prefix = `-o-${prop}`, val) ||
             // Opera
-            return prefix
-        if (CSS.supports((prefix = `-ms-${prop}`), val))
-            // Microsoft
-            return prefix
-        if (CSS.supports((prefix = `-apple-${prop}`), val))
+            CSS.supports(prefix = `-apple-${prop}`, val) ||
             // Other webkit thing idk
-            return prefix
-
-        // The rest of these are in no particular order.
-        if (CSS.supports((prefix = `mso-${prop}`), val))
+            CSS.supports(prefix = `-ms-${prop}`, val) ||
+            // Microsoft
+            CSS.supports(prefix = `mso-${prop}`, val) ||
             // Microsoft Office
-            return prefix
-        if (CSS.supports((prefix = `-xv-${prop}`), val))
+            CSS.supports(prefix = `-xv-${prop}`, val) ||
             // Opera
-            return prefix
-        if (CSS.supports((prefix = `-atsc-${prop}`), val))
+            CSS.supports(prefix = `-atsc-${prop}`, val) ||
             // Advanced Television Standards Committee
-            return prefix
-        if (CSS.supports((prefix = `-wap-${prop}`), val))
+            CSS.supports(prefix = `-wap-${prop}`, val) ||
             // The WAP Forum
-            return prefix
-        if (CSS.supports((prefix = `-khtml-${prop}`), val))
+            CSS.supports(prefix = `-khtml-${prop}`, val) ||
             // Konqueror
-            return prefix
-        if (CSS.supports((prefix = `-konq-${prop}`), val))
+            CSS.supports(prefix = `-konq-${prop}`, val) ||
             // Konqueror
-            return prefix
-        if (CSS.supports((prefix = `prince-${prop}`), val))
+            CSS.supports(prefix = `prince-${prop}`, val) ||
             // YesLogic
-            return prefix
-        if (CSS.supports((prefix = `-ah-${prop}`), val))
+            CSS.supports(prefix = `-ah-${prop}`, val) ||
             // Antenna House
-            return prefix
-        if (CSS.supports((prefix = `-hp-${prop}`), val))
+            CSS.supports(prefix = `-hp-${prop}`, val) ||
             // Hewlett Packard
-            return prefix
-        if (CSS.supports((prefix = `-ro-${prop}`), val))
+            CSS.supports(prefix = `-ro-${prop}`, val) ||
             // Real Objects
-            return prefix
-        if (CSS.supports((prefix = `-rim-${prop}`), val))
+            CSS.supports(prefix = `-rim-${prop}`, val) ||
             // Research In Motion
-            return prefix
-        if (CSS.supports((prefix = `-tc-${prop}`), val))
+            CSS.supports(prefix = `-tc-${prop}`, val) ||
             // Tall Components
-            return prefix
-        if (CSS.supports((prefix = `-fso-${prop}`), val))
+            CSS.supports(prefix = `-fso-${prop}`, val) ||
             // IDK
-            return prefix
-        if (CSS.supports((prefix = `-icab-${prop}`), val))
+            CSS.supports(prefix = `-icab-${prop}`, val) ||
             // IDK
-            return prefix
-        console.warn(`⛓️‍💥 Unrecognized CSS at '${prop}: ${val}'`)
-        // Sorry!
+            console.warn(`⛓️‍💥 Unrecognized CSS at '${prefix = prop}: ${val}'`)),
+            // Sorry!
+            prefix
     }
     return prop
 }
@@ -88,8 +69,8 @@ export function toCaps(prop) {
     return prop
 }
 export function toDash(prop) {
-    if (prop.startsWith('--')) return prop
-    return prop.replace(/[A-Z]/g, tlc)
+    return prop.startsWith('--') ? prop :
+        prop.replace(/[A-Z]/g, tlc)
     function tlc(o) {
         return `-${o.toLowerCase()}`
     }
@@ -115,7 +96,7 @@ export function toCSS(obj) {
 export async function registerCSS(selector, rule) {
     const { sheet } = addedStyleRules ??= function () {
         let out = document.createElement('style');
-        (document.head ?? document.body ?? document.documentElement).appendChild(out)
+        (document.head ?? document.body ?? document.documentElement ?? document.querySelector('*')).appendChild(out)
         out.textContent = '/*Check your browser for CSS rules*/'
         return out
     }()

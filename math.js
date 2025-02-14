@@ -2,6 +2,7 @@ const { sign, PI, abs, min, max, atan2, hypot } = Math,
     { is } = Object,
     { isFinite, MIN_SAFE_INTEGER, MAX_SAFE_INTEGER, } = Number
 class MATH {
+    
     maxBigInt(bigInt, ...bigInts) {
         if (bigInt == null) throw TypeError('More arguments needed')
         let maximum = bigInt
@@ -190,7 +191,7 @@ class Vector2 {
         this.#max.y = +max
         return this.set(this)
     }
-    static random({0: minX, 1: minY}, {0: maxX, 1: maxY}) {
+    static random({ 0: minX, 1: minY }, { 0: maxX, 1: maxY }) {
         const { range } = ran
         return v(range(minX, maxX), range(minY, maxY))
     }
@@ -215,14 +216,14 @@ class Vector2 {
     static equals({ 0: x1, 1: y1 }, { 0: x2, 1: y2 }) {
         return (x1 === x2) && (y1 === y2)
     }
-    lerp({0: x = y, 1: y = x}, time = 0.1, delta = 1) {
+    lerp({ 0: x = y, 1: y = x }, time = 0.1, delta = 1) {
         return this.subtract((this.minus(x, y)).scale(time * delta))
     }
-    clamp({0: minX = MIN_SAFE_INTEGER, 1: minY = MIN_SAFE_INTEGER} = {}, {0: maxX = MAX_SAFE_INTEGER, 1: maxY = MAX_SAFE_INTEGER} = {}) {
+    clamp({ 0: minX = MIN_SAFE_INTEGER, 1: minY = MIN_SAFE_INTEGER } = {}, { 0: maxX = MAX_SAFE_INTEGER, 1: maxY = MAX_SAFE_INTEGER } = {}) {
         this.clampX(minX, maxX)
         return this.clampY(minY, maxY)
     }
-    moveTowards({0: x, 1: y}, maxDistance = 1, delta = 1) {
+    moveTowards({ 0: x, 1: y }, maxDistance = 1, delta = 1) {
         const target = vect(x, y)
             , direction = target.minus(this)
             , magnitude = direction.magnitude
