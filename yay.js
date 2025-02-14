@@ -98,7 +98,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     // 🖋 Class syntax is easier to use
     static cancel(o) { o.cancel() }
     static pause(o) { o.pause() }
-    static play(o) { o.play() }
+    static play(o) { o.playState === 'paused' && o.play() }
     static finish(o) { o.finish() }
     static restart(o) { o.currentTime = 0; o.play() }
     destroy() {
@@ -386,46 +386,43 @@ function prox(target) {
 }
 function $(html, props, ...children) {
     if (html instanceof HTMLElement) return prox(html) // Redirect
-    let element
     if (html[0] === '<' && html.at(-1) === '>') {
-
         switch (parseMode) {
             //  This one seems to be the fastest by a tad
             //  but it's hard to tell...
-            default: element = document.adoptNode(new DOMParser().parseFromString(html, 'text/html').body.firstElementChild)
-            break
+            default: var element = document.adoptNode(new DOMParser().parseFromString(html, 'text/html').body.firstElementChild)
+                break
             case 'innerHTML': {
                 let n = document.createElement('div')
                 n.innerHTML = html
                 element = n.removeChild(n.firstElementChild)
             }
                 break
-                case 'createHTMLDocument': {
+            case 'createHTMLDocument': {
                 let n = document.implementation.createHTMLDocument('')
                 n.body.innerHTML = html
-                element = document.adoptNode(n.body.firstElementChild)
+                var element = document.adoptNode(n.body.firstElementChild)
             }
-            break
+                break
             case 'createRange':
                 //  Def the slowest
-                element = document.adoptNode(document.createRange().createContextualFragment(html).firstElementChild)
+                var element = document.adoptNode(document.createRange().createContextualFragment(html).firstElementChild)
                 break
-                case 'template': {
-                    //  Contender
-                    let temp = document.createElement('template')
-                    temp.innerHTML = html
-                    element = document.adoptNode(temp.content.firstElementChild)
-                }
-                break
-                case 'parseHTMLUnsafe': 
-                element = document.adoptNode(Document.parseHTMLUnsafe(html).body.firstElementChild)
-                break
+            case 'template': {
+                //  Contender
+                let temp = document.createElement('template')
+                temp.innerHTML = html
+                var element = document.adoptNode(temp.content.firstElementChild)
             }
-            element = prox(element)
-
+                break
+            case 'parseHTMLUnsafe':
+                var element = document.adoptNode(Document.parseHTMLUnsafe(html).body.firstElementChild)
+                break
         }
-            else {
-        element = prox(document.createElement(html.match(/\w+/)[0]))
+        element = prox(element)
+    }
+    else {
+        var element = prox(document.createElement(html.match(/\w+/)[0]))
         let classes = html.match(/\.[\w-]+/g)?.map(slice),
             id = html.match(/#\w+/)?.[0].slice(1),
             type = html.match(/%\w+/)?.[0].slice(1)
@@ -491,7 +488,7 @@ Object.defineProperties($, {
         get() { return prox(document.documentElement) }
     }
 })
-Array.from(document.getElementsByTagName('noscript'), o => o.remove())
+Array.from(document.getElementsByTagName('noscript'), o=>o.remove())
 let parseMode = 'mozInnerScreenY' in window ? 'createRange' : 'default'
 //  createRange seems to be *slightly* faster on firefox
 

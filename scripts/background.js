@@ -1,6 +1,12 @@
 let regex = /[\w\.]+\.(webp|png|gif|jpe*g)/
-
+import { on } from '../handle.js'
 function images({ avatars, mons }) {
+    on(document, {
+        visibilitychange() {
+            let func = document.hidden ? o => o.pauseAnims() : o => o.resumeAnims()
+            $.qsa('*').forEach(func)
+        }
+    })
     let bg = parent
     const frameDuration = 135
     const duration = 12_000

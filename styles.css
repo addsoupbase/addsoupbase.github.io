@@ -1,13 +1,10 @@
 #background {
-  width:100vw;
-  height:100vh;
+  width: 100vw;
+  height: 100vh;
   position: fixed;
-
-
   z-index: -1;
   margin: 0px;
   position: relative;
-
   user-select: none;
   padding: 0px;
   overflow: hidden;
@@ -17,16 +14,15 @@
 }
 #avatar {
   border-radius: 100%;
-  width:60px;
-  height:60px;
+  width: 60px;
+  height: 60px;
   image-rendering: auto;
   left: 10px;
   top: 10px;
   position: absolute;
-  left:20px;
-  top:20px;
+  left: 20px;
+  top: 20px;
 }
-
 .ava {
   border-radius: 100%;
   transform: scale(.75, .75);
@@ -35,11 +31,13 @@
 
   pointer-events: none;
 }
+
 .displayName {
   position: absolute;
-  top:80%;
+  top: 80%;
   text-align: center;
 }
+
 .tar {
   background-repeat: no-repeat;
   background-size: contain;
@@ -51,34 +49,41 @@
   transform-origin: center;
 
   justify-content: center;
-  image-rendering:optimizeQuality;
+  image-rendering: optimizeQuality;
   background-position: center;
 }
-.sprite{
+
+.sprite {
   position: absolute;
   background-repeat: no-repeat;
-  image-rendering:pixelated;
+  image-rendering: pixelated;
   scale: 1.5 1.5
 }
+
 .delibird {
   scale: 1.6 1.6;
   margin: 5px;
   image-rendering: pixelated;
 }
+
 .wailord {
   scale: 3.3 3
 }
+
 .carvanha,
 .seadra {
   scale: 1.25 1.25
 }
+
 .luvdisc,
 .corsola {
   scale: 1 1
 }
+
 .kyogre {
   scale: 2 2
 }
+
 .name {
   position: relative;
   text-align: center;
@@ -97,6 +102,7 @@
   background-image: url('./media/bubble.png');
   background-repeat: no-repeat
 }
+
 #wrapper {
   display: flex;
   width: 100%;
@@ -107,6 +113,7 @@
   margin: auto;
   text-align: center;
 }
+
 #main {
   width: 100vw;
   position: relative;
@@ -118,13 +125,15 @@
   background-repeat: no-repeat, no-repeat, no-repeat;
   background-size: contain, 130px, 13%;
   background-position-y: bottom, top;
-  background-position-x: center,right,80px;
+  background-position-x: center, right, 80px;
 }
+
 #content {
   text-align: center;
-  word-break:normal;
+  word-break: normal;
   max-width: 50%;
 }
+
 svg {
   background-color: rgb(49, 55, 231, 0.7);
   border-color: rgba(37, 41, 169, 0.7);
@@ -135,19 +144,19 @@ svg {
 #background {
   z-index: 2;
   position: fixed;
-  width:100vw;
-  height:100vh;
+  width: 100vw;
+  height: 100vh;
   margin: 0;
   padding: 0;
-  top:0;
-  left:0;
+  top: 0;
+  left: 0;
 }
 
 #background::after {
   content: '';
   position: fixed;
-  width:100vw;
-  height:100vh;
+  width: 100vw;
+  height: 100vh;
   margin: 0;
   padding: 0;
   top: 0;
@@ -164,7 +173,8 @@ img {
   border: none;
 }
 
-body,html {
+body,
+html {
   padding: 0;
   margin: 0;
   overflow: scroll;
@@ -193,21 +203,24 @@ body,html {
 #submit {
   display: inline-block;
 }
+
 #formholder {
   display: grid;
 }
+
 .lol {
   justify-content: center;
   display: grid;
   text-align: center;
   justify-items: center;
 }
+
 .username {
   z-index: 40;
-} 
+}
 
 #frame {
-  z-index:3;
+  z-index: 3;
   /* padding: 30px; */
   position: relative;
   user-select: none;
@@ -216,10 +229,11 @@ body,html {
   /* max-height: 100vh; */
   z-index: 3;
   height: 600px;
-  border:none;
+  border: none;
   width: 700px;
-  margin:auto;
+  margin: auto;
 }
+
 input.cute-green {
   background-color: #43b363;
   /* Same soft pastel green */
@@ -381,9 +395,9 @@ input.cute-green::placeholder {
 
 @font-face {
   font-family: 'Choco';
-  src: url('./media/Chococooky.ttf') format('woff2'),
+  src: url('./media/Chococooky.woff2') format('woff2'),
     /* Super Modern Browsers */
-    url('/media/Chococooky.ttf') format('woff');
+    url('/media/Chococooky.woff2') format('woff');
   /* Pretty Modern Browsers */
   font-weight: normal;
   font-style: normal;
@@ -394,9 +408,11 @@ p,
 h3 {
   font-family: 'Choco';
 }
+
 :root {
   font-family: 'Choco';
 }
+
 #mainform {
   display: contents;
 }
@@ -421,25 +437,31 @@ body {
   justify-content: center;
   display: flex;
 }
+
 .descrHolder {
   margin: 10px;
   margin-top: 30px;
   display: flow-root;
 }
+
 .pkm {
   scale: 1.5 1.5;
-  margin:10px;
-image-rendering: pixelated;
+  margin: 10px;
+  image-rendering: pixelated;
 }
+
 #list {
   display: inline-block;
 }
+
 .pok {
   image-rendering: crisp-edges;
 }
+
 .small {
   font-size: 12px;
 }
+
 .cute-green-button {
   background-color: #b0e57c;
   /* Match the div's background */
@@ -473,13 +495,15 @@ image-rendering: pixelated;
   background-color: #a8db67;
   /* Darker green on hover */
   scale: .9 .9
-  /* Slight scale effect */
+    /* Slight scale effect */
 }
+
 .back {
   position: absolute;
   top: 20px;
   left: 20px;
 }
+
 .hello {
   justify-items: center;
   justify-content: center;
