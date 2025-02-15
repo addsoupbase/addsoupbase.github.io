@@ -1,4 +1,4 @@
-const sym = Symbol.for(Date.now()),
+const sym = Symbol.for("🔔"),
     //  Don't collide, and make sure its usable across realms!!
     { warn, groupCollapsed, groupEnd } = console,
     { isArray } = Array
