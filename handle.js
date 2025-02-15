@@ -8,9 +8,9 @@ function isValidET(target) {
     let props = 'dispatchEvent removeEventListener addEventListener'.split(' ')
     for (let { length } = props; length--;) {
         let prop = props[length]
-        let val = target[prop]
+        , val = target[prop]
         //  Be extra careful...
-        if (propertyIsEnumerable.call(target, prop) || Object.hasOwn(target, prop) || typeof val !== 'function' || val.toString() !== `function ${prop}() { [native code] }` || Object.hasOwn(val, 'toString')) return false
+        if (propertyIsEnumerable.call(target, prop) || Object.hasOwn(target, prop) || typeof val !== 'function' || /*val.toString() !== `function ${prop}() { [native code] }` ||*/ Object.hasOwn(val, 'toString')) return false
     }
     return true
 }
@@ -49,7 +49,9 @@ export function on(target, events, useHandler) {
         groupCollapsed(`on(${target[Symbol.toStringTag] || target.constructor?.name || target})`)
         console.dirxml(target)
         const myEvents = target[sym]
-        if (typeof events === 'function') events = [[events.name, events]]
+        if (typeof events === 'function') events = {
+            [events.name]: events
+        }
         else if (isArray(events)) events = Object.fromEntries(events)
         for (let eventName in events) {
             let func = events[eventName]
@@ -64,7 +66,8 @@ export function on(target, events, useHandler) {
                 }
             eventName = verifyEventName(target, eventName.replace(/[_$^%]|bound /g, ''))
             if (myEvents.has(eventName)) {
-                queueMicrotask(() => warn(`🔕 Duplicate '${eventName}' listener!`))
+                queueMicrotask(w)
+                function w(){warn(`🔕 Duplicate '${eventName}' listener!`)}
                 continue
             }
             function Func(...args) {
@@ -74,7 +77,8 @@ export function on(target, events, useHandler) {
                     let [event] = args
                     event.cancelable ?
                         event.preventDefault() :
-                        queueMicrotask(() => warn(`🔊 '${eventName}' events are not cancelable`))
+                        queueMicrotask(w)
+                        function w(){warn(`🔊 '${eventName}' events are not cancelable`)}
                 }
             }
             /*
@@ -104,15 +108,19 @@ export function on(target, events, useHandler) {
             console.info(`🔔 '${eventName}' event added`)
         }
     } catch (e) {
-        queueMicrotask(() => reportError(e))
+        queueMicrotask(r)
+        function r(){reportError(e)}
     } finally {
         groupEnd()
     }
     return target
 }
 on.once = function once(target, events, useHandler) {
-    if (Array.isArray(events)) events = events.map(function ([event, name]) { return [event, `${name}_`] })
-    else for (let n in events) {
+    if (Array.isArray(events)) {
+        events = events.map(f)
+        function f([event, name]) { return [event, `${name}_`] }
+    } 
+        else for (let n in events) {
         let { name } = events[n]
         events[`_${n}`] = events[n]
         delete events[n]
@@ -137,7 +145,8 @@ export function off(target, ...eventNames) {
             map.size || allEvents.delete(target)
         }
     } catch (e) {
-        queueMicrotask(() => reportError(e))
+        queueMicrotask(r)
+        function r(){reportError(e)}
     } finally {
         groupEnd()
     }
