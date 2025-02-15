@@ -1,4 +1,4 @@
-const sym = Symbol.for("EventListeners"),
+const sym = Symbol.for("🔔"),
     //  Don't collide, and make sure its usable across realms!!
     { warn, groupCollapsed, groupEnd } = console,
     { isArray } = Array
@@ -15,9 +15,8 @@ function verifyEventName(target, name) {
         name.match(/^(animation(cancel|remove))$/i) && 'onremove' in target)
         return name
     //Some events like the one above don't have a handler
-
-    // Ooops!
     throw TypeError(`🔇 Cannot listen for '${name}' events`)
+    // Ooops!
 }
 export function wait(ms) {
     return new Promise(res)
@@ -36,9 +35,10 @@ export function on(target, events, useHandler) {
     if (typeof target.addEventListener !== 'function'
         || typeof target.removeEventListener !== 'function'
         || typeof target.dispatchEvent !== 'function')
-        throw TypeError("🚫 Invalid event target");
+        //  Avoid 'instanceof' since it won't work on different realms
+        throw TypeError("🚫 Invalid event target")
 
-        target.hasOwnProperty(sym) ||
+    target.hasOwnProperty(sym) ||
         //This will hold the NAMES of the events
         Object.defineProperty(target, sym, { value: new Set })
     try {
@@ -116,10 +116,10 @@ on.once = function once(target, events, useHandler) {
     return on(target, events, useHandler)
 }
 export function off(target, ...eventNames) {
-    //    if (!(target instanceof EventTarget)/* || !(target[sym] instanceof Set) || !allEvents.has(target)*/)
     if (typeof target.addEventListener !== 'function'
         || typeof target.removeEventListener !== 'function'
         || typeof target.dispatchEvent !== 'function')
+        //  Avoid 'instanceof' since it won't work on different realms
         throw TypeError("🚫 Invalid event target")
     if (!eventNames.length || !allEvents.has(target)) return null
     try {
