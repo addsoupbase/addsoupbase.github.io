@@ -3,9 +3,6 @@ const sym = Symbol.for("🔔")
 let { warn, groupCollapsed, groupEnd } = console,
     { isArray } = Array
 export const allEvents = new WeakMap
-function pie(obj, prop) {
-    return propertyIsEnumerable.call(obj, prop)
-}
 function isValidET(target) {
     //  Avoid 'instanceof' since it won't work on different realms
     let props = 'dispatchEvent removeEventListener addEventListener'.split(' ')
@@ -13,7 +10,7 @@ function isValidET(target) {
         let prop = props[length]
         let val = target[prop]
         //  Be extra careful...
-        if (pie(target, prop) || Object.hasOwn(target, prop) || typeof val !== 'function' || val.toString() !== `function ${prop}() { [native code] }` || Object.hasOwn(val, 'toString')) return false
+        if (propertyIsEnumerable.call(target, prop) || Object.hasOwn(target, prop) || typeof val !== 'function' || val.toString() !== `function ${prop}() { [native code] }` || Object.hasOwn(val, 'toString')) return false
     }
     return true
 }
