@@ -98,7 +98,7 @@ export function on(target, events, useHandler) {
                 allEvents.has(target) || allEvents.set(target, new Map)
                 //A Map to hold the names & events
                 const myGlobalEventMap = allEvents.get(target)
-                myGlobalEventMap.set(eventName, Func)
+                myGlobalEventMap.set(eventName, { passive, capture, listener: Func })
                 myEvents.add(eventName)
             }
             console.info(`🔔 '${eventName}' event added`)
@@ -129,8 +129,8 @@ export function off(target, ...eventNames) {
             mySet = target[sym]
         for (let { length } = eventNames; length--;) {
             const name = verifyEventName(target, eventNames[length]),
-                func = map.get(name)
-            target.removeEventListener(name, func)
+                { listener, capture, passive } = map.get(name)
+            target.removeEventListener(name, listener, { capture, passive })
             map.has(name) && console.info(`🔕 '${name}' event removed`)
             map.delete(name)
             mySet.delete(name)
