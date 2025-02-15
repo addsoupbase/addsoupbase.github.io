@@ -1,13 +1,26 @@
-const sym = Symbol.for("🔔"),
-    //  Don't collide, and make sure its usable across realms!!
-    { warn, groupCollapsed, groupEnd } = console,
+const sym = Symbol.for("🔔")
+//  Don't collide, and make sure its usable across realms!!
+let { warn, groupCollapsed, groupEnd } = console,
     { isArray } = Array
 export const allEvents = new WeakMap
+function pie(obj, prop) {
+    return propertyIsEnumerable.call(obj, prop)
+}
+function isValidET(target) {
+    //  Avoid 'instanceof' since it won't work on different realms
+    let props = 'dispatchEvent removeEventListener addEventListener'.split(' ')
+    for (let { length } = props; length--;) {
+        let prop = props[length]
+        let val = target[prop]
+        //  Be extra careful...
+        if (pie(target, prop) || Object.hasOwn(target, prop) || typeof val !== 'function' || val.toString() !== `function ${prop}() { [native code] }` || Object.hasOwn(val, 'toString')) return false
+    }
+    return true
+}
 //const eventRegistry = new FinalizationRegistry(function ([key, set]) { set.delete(key) })
 function verifyEventName(target, name) {
     name = name.toLowerCase()
     if (`on${name}` in target) return name
-    //Fallback if we can
     if (`onwebkit${name}` in target) return `webkit${name}`
     if (`onmoz${name}` in target) return `moz${name}`
     if (`onms${name}` in target) return `ms${name}`
@@ -16,7 +29,6 @@ function verifyEventName(target, name) {
         return name
     //Some events like the one above don't have a handler
     throw TypeError(`🔇 Cannot listen for '${name}' events`)
-    // Ooops!
 }
 export function wait(ms) {
     return new Promise(res)
@@ -25,20 +37,15 @@ export function wait(ms) {
     }
 }
 export function getEventNames(target) {
-    target.hasOwnProperty(sym) || Object.defineProperty(target, sym, { value: new Set })
+    Object.hasOwn(target, sym) || Object.defineProperty(target, sym, { value: new Set })
     return target[sym]
 }
 export function hasEvent(target, eventName) {
-    return target[sym]?.has(eventName)
+    return target[sym]?.has(eventName) ?? false
 }
 export function on(target, events, useHandler) {
-    if (typeof target.addEventListener !== 'function'
-        || typeof target.removeEventListener !== 'function'
-        || typeof target.dispatchEvent !== 'function')
-        //  Avoid 'instanceof' since it won't work on different realms
-        throw TypeError("🚫 Invalid event target")
-
-    target.hasOwnProperty(sym) ||
+    if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
+    Object.hasOwn(target, sym) ||
         //This will hold the NAMES of the events
         Object.defineProperty(target, sym, { value: new Set })
     try {
@@ -116,11 +123,7 @@ on.once = function once(target, events, useHandler) {
     return on(target, events, useHandler)
 }
 export function off(target, ...eventNames) {
-    if (typeof target.addEventListener !== 'function'
-        || typeof target.removeEventListener !== 'function'
-        || typeof target.dispatchEvent !== 'function')
-        //  Avoid 'instanceof' since it won't work on different realms
-        throw TypeError("🚫 Invalid event target")
+    if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
     if (!eventNames.length || !allEvents.has(target)) return null
     try {
         groupCollapsed(`off(${target[Symbol.toStringTag] || target.constructor?.name || target})`)
@@ -154,7 +157,6 @@ export function until(target, eventName, timeout/* = 600000*/) {
                 try { resolve(event) }
                 catch (e) { reject(e) }
                 finally {
-                    // This is an accessor so you cannot use 'delete'
                     target[handleName] = null
                     timeout && clearTimeout(id)
                 }
