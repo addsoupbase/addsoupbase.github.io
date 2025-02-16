@@ -59,22 +59,24 @@ export function on(target, events, useHandler) {
                 prevents = eventName.includes('$'),
                 passive = eventName.includes('^'),
                 capture = eventName.includes('%'),
+                stopProp = eventName.includes('&'), 
                 options = {
                     capture,
                     //once: false,
                     passive,
                 }
-            eventName = verifyEventName(target, eventName.replace(/[_$^%]|bound /g, ''))
+            eventName = verifyEventName(target, eventName.replace(/[_$^%&]|bound /g, ''))
             if (myEvents.has(eventName)) {
                 queueMicrotask(w)
                 function w(){warn(`🔕 Duplicate '${eventName}' listener was  not added`)}
                 continue
             }
             function Func(...args) {
+                let [event] = args
+                stopProp && event.stopPropagation()
                 func.apply(null, args)
                 once && off(this, eventName)
                 if (prevents) {
-                    let [event] = args
                     event.cancelable ?
                         event.preventDefault() :
                         queueMicrotask(w)

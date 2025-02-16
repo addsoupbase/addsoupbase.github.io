@@ -5,8 +5,7 @@
   z-index: -1;
   margin: 0px;
   position: relative;
-  user-select: none;
-  -webkit-user-select: none;
+  --user-select: none;
   padding: 0px;
   overflow: hidden;
 }
@@ -232,8 +231,7 @@ html {
   z-index: 3;
   /* padding: 30px; */
   position: relative;
-  user-select: none;
-  -webkit-user-select: none;
+  --user-select: none;
   /* min-width: 100vw; */
   /* min-width: 65%; */
   /* max-height: 100vh; */

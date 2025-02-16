@@ -1,8 +1,8 @@
-export function vendor(prop, val) {
+export function vendor(prop, val, silent = false) {
     val = `${val}`
     if (val.trim() && !CSS.supports(prop, val)) {
         let prefix = prop = prop
-            .replace(/-(moz|o|ms|webkit|xv|atsc|wap|khtml|konq|apple|ah|hp|ro|rim|tc|fso|icab)-/, '')
+            .replace(/-(moz|o|ms|webkit|xv|atsc|wap|khtml|konq|apple|ah|hp|ro|rim|tc|fso|icabepub)-/, '')
             .replace(/(prince|mso)-/, '')
         return (
             CSS.supports(prefix, val) ||
@@ -45,7 +45,9 @@ export function vendor(prop, val) {
             // IDK
             CSS.supports(prefix = `-icab-${prop}`, val) ||
             // IDK
-            console.warn(`⛓️‍💥 Unrecognized CSS at '${prefix = prop}: ${val}'`)),
+            CSS.supports(prefix = `-epub-${prop}`, val) ||
+            // IDK
+            (silent && console.warn(`⛓️‍💥 Unrecognized CSS at '${prefix = prop}: ${val}'`))),
             // Sorry!
             prefix
     }
@@ -114,7 +116,7 @@ export function registerCSSAll(rules) {
     return out
 }
 queueMicrotask(() => {
-    //    Some default CSS...
+    //    Some default CSS..
     registerCSSAll({
         dialog: {
             transition: 'opacity 1s linear',
@@ -132,8 +134,10 @@ queueMicrotask(() => {
             'align-self': 'center',
             inset: 0,
             position: 'fixed'
-        }
+        },
     })
+    
+    if ('registerProperty'in CSS) import('./vendors.js')
 })
 export function dropShadow({
     color = '#000000',

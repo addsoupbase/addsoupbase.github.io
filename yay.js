@@ -5,7 +5,7 @@ const me = Symbol('base')
     , revokes = new WeakMap
     , bounded = new WeakMap
 function badCSS(prop, value) {
-    console.warn(`😵‍💫 Unrecognized CSS at '${prop}: ${value}'`)
+    console.warn(`⛓️‍💥 Unrecognized CSS at '${prop}: ${value}'`)
 }
 function bind(maybeFunc, to) {
     // ♻️ Make sure we just re-use the same function
