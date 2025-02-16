@@ -16,7 +16,7 @@
             parent: document.body,
         })
         main.fadein()
-        const bday = new Date(2007, 5, 17)
+        const bday = new Date(2007, 6 - 1, 17)
 
         let div = $("section", {
             parent: main
@@ -41,7 +41,7 @@
             parent: desc,
             os: [$("p<I am...>",), $(`h1< ${Math.floor(new Date().getFullYear() - bday.getFullYear() - (bday.getMonth() / 12))} years old>`), $('i.small', { txt: 'June 17 2007' })]
         })
-        $('h1<Fav pokemon:>', {
+        $('h1<Favourite pokemon:>', {
             parent: main
         })
         let pokemonholder = $('div #pokemonholder', {
