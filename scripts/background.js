@@ -71,7 +71,7 @@ function images({ avatars, mons }) {
         return me
     }
     async function spawnPkmn() {
-        setTimeout(spawnPkmn, ran.range(1000, 1600))
+        setTimeout(spawnPkmn, ran.range(500, 2000))
         if (document.hidden) return
         let pick = ran.choose(...mons)
         const element = createAnimationForSpritesheet(pick)

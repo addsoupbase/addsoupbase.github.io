@@ -67,7 +67,7 @@ export function on(target, events, useHandler) {
             eventName = verifyEventName(target, eventName.replace(/[_$^%]|bound /g, ''))
             if (myEvents.has(eventName)) {
                 queueMicrotask(w)
-                function w(){warn(`🔕 Duplicate '${eventName}' listener!`)}
+                function w(){warn(`🔕 Duplicate '${eventName}' listener was  not added`)}
                 continue
             }
             function Func(...args) {
@@ -105,7 +105,7 @@ export function on(target, events, useHandler) {
                 myGlobalEventMap.set(eventName, { passive, capture, listener: Func })
                 myEvents.add(eventName)
             }
-            console.info(`🔔 '${eventName}' event added`, func)
+            console.info(`🔔 '${eventName}' event added`)
         }
     } catch (e) {
         queueMicrotask(r)

@@ -6,6 +6,7 @@
   margin: 0px;
   position: relative;
   user-select: none;
+  -webkit-user-select: none;
   padding: 0px;
   overflow: hidden;
 }
@@ -17,6 +18,7 @@
   width: 60px;
   height: 60px;
   image-rendering: auto;
+  background-size: contain;
   left: 10px;
   top: 10px;
   position: absolute;
@@ -40,24 +42,31 @@
 
 .tar {
   background-repeat: no-repeat;
-  background-size: contain;
+  background-size: cover;
   width: 50px;
   pointer-events: none;
   height: 50px;
   position: absolute;
   display: flex;
   transform-origin: center;
-
   justify-content: center;
   image-rendering: optimizeQuality;
   background-position: center;
 }
-
+@supports (-moz-box-direction: inherit) {
+  #background {
+    background-image: url("./media/bg.png") !important;
+    background-size: contain;
+  }
+  body {
+    background: none !important;
+  }
+}
 .sprite {
   position: absolute;
   background-repeat: no-repeat;
   image-rendering: pixelated;
-  scale: 1.5 1.5
+  scale: 1.5 1.5;
 }
 
 .delibird {
@@ -224,6 +233,7 @@ html {
   /* padding: 30px; */
   position: relative;
   user-select: none;
+  -webkit-user-select: none;
   /* min-width: 100vw; */
   /* min-width: 65%; */
   /* max-height: 100vh; */
