@@ -1,21 +1,21 @@
 import { on, off, getEventNames } from './handle.js'
 import * as css from './csshelper.js'
-const all = new WeakMap
-    , me = Symbol('base')
+const me = Symbol('base')
+    , all = new WeakMap
     , revokes = new WeakMap
+    , bounded = new WeakMap
 function badCSS(prop, value) {
     console.warn(`😵‍💫 Unrecognized CSS at '${prop}: ${value}'`)
 }
-let bounded = new WeakMap
 function bind(maybeFunc, to) {
     // ♻️ Make sure we just re-use the same function
     // ♻️ instead of making a new one every time
-    if (typeof maybeFunc === 'function') {
-        if (!bounded.has(maybeFunc))
-            bounded.set(maybeFunc, maybeFunc.bind(to))
-        return bounded.get(maybeFunc)
-    }
-    return maybeFunc
+    return typeof
+        maybeFunc === 'function'
+        ? bounded.get(maybeFunc)
+        ?? void bounded.set(maybeFunc, maybeFunc.bind(to))
+        ?? bounded.get(maybeFunc)
+        : maybeFunc
 }
 function genericGet(t, prop) {
     if (!isNaN(prop)) {
@@ -49,9 +49,9 @@ const handlers = {
         },
         deleteProperty(t, prop) {
             let fixed = css.vendor(css.toDash(prop), 'inherit')
-            if (CSS.supports(fixed, 'inherit'))
+            CSS.supports(fixed, 'inherit') ?
                 t.removeProperty(css.toCaps(fixed))
-            else delete t[prop]
+                : delete t[prop]
             return true
         }
     },
@@ -137,10 +137,9 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             let old = events[i]
             events[i] = func
             function func(...args) {
-                let { target } = args[0]
-                target = prox(target);
-                (me !== target || includeSelf) && (filter?.(target) ?? 1) &&
-                    old.apply(target, args)
+                let { target } = args[0],
+                    pr = prox(target);
+                (me !== target || includeSelf) && (filter?.(pr) ?? 1) && old.apply(pr, args)
             }
         }
         this.on(events)
@@ -153,8 +152,8 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         for (let prop in styles) {
             let ogValue = styles[prop]
             let fixedProp = css.toCaps(css.vendor(css.toDash(prop), ogValue))
-            if (ogValue) this.style[fixedProp] = ogValue //out.push(`${fixedProp}: ${ogValue}`)
-            else delete this.style[fixedProp]
+            ogValue ? this.style[fixedProp] = ogValue //out.push(`${fixedProp}: ${ogValue}`)
+                : delete this.style[fixedProp]
         }
         //base(this).style.cssText = out.join(';')
     }
@@ -234,9 +233,12 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     }
     appendChild(...args) {
         let frag = document.createDocumentFragment()
-        args.flat(1 / 0).forEach(child => frag.appendChild(base(child)))
+        args.flat(1 / 0).forEach(a)
         base(this).appendChild(frag)
         return this
+        function a(child) {
+            frag.appendChild(base(child))
+        }
     }
     treeWalker(filter, whatToShow = NodeFilter.SHOW_ELEMENT) {
         let walker = document.createTreeWalker(base(this), whatToShow, filter_func)
@@ -249,22 +251,22 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             return (filter?.(node) ?? true) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
         }
     }
-    *[Symbol.iterator]() {
-        yield* this.treeWalker()
+    get [Symbol.iterator]() {
+        return base(this).querySelectorAll('*')[Symbol.iterator]
     }
     get [Symbol.toPrimitive]() {
         throw TypeError('Cannot convert Element to a primitive value')
         // 🔏 Don't want to accidentally convert to a string for stuff like
         //append, prepend, etc.
     }
-    query(selector) {
+    /*find(selector) {
         return this.treeWalker(func).next().value
         function func(node) { return node.matches(selector) }
     }
-    queryAll(selector) {
+    findAll(selector) {
         return [...this.treeWalker(func)]
         function func(node) { return node.matches(selector) }
-    }
+    }*/
     animate(keyframes, options) {
         options.timing ??= 'ease'
         options.iterations ??= 1
@@ -324,14 +326,21 @@ const prototype = Object.create(null)
         }
     })
 )
-Reflect.ownKeys(props).forEach(i =>
+CopyStuff: {
+    function forEach(i) { i === 'constructor' || Object.defineProperty(prototype, i, props[i]) }
+    Reflect.ownKeys(props).forEach(forEach)
     // 🖨 Copy everything
-    i.match?.(/^constructor|prototype|name|length$/) ?? Object.defineProperty(prototype, i, props[i])
-)
+}
 const prototypeDescriptors = Object.getOwnPropertyDescriptors(prototype)
 function base(element) {
     // 🌱 Get the root element
     return element[me] ?? prox(element)[me]
+}
+const flags = {
+    //  General Purpose binary flag
+    value: 0,
+    writable: 1,
+    enumerable: 1
 }
 function prox(target) {
     if (!(target instanceof HTMLElement)) throw TypeError(`😠 Invalid target: ${target}`) // get out
@@ -349,12 +358,7 @@ function prox(target) {
                 [me]: {
                     value: target
                 },
-                flags: {
-                    //  General Purpose binary flag
-                    value: 0,
-                    writable: 1,
-                },
-                // 📜 Those interfaces from before...
+                flags,
                 children: {
                     value: new Proxy(target.children, handlers.HTMLCollection)
                 },
@@ -366,14 +370,12 @@ function prox(target) {
                 }
             }), {
             get(targ, prop) {
-                if (targ.hasOwnProperty(prop)) return targ[prop]
-                let out = target[prop]
-                return bind(out, target)
+                return targ.hasOwnProperty(prop) ? targ[prop]
+                    : bind(target[prop], target)
                 // ⛓️‍💥 'Illegal invocation' if function is not bound
             },
             set(targ, prop, value) {
-                if (targ.hasOwnProperty(prop)) return targ[prop] = value, 1
-                if (prop in target) return target[prop] = value, 1
+                return (targ.hasOwnProperty(prop) ? targ : target)[prop] = value, 1
             },
         })
         if (target instanceof HTMLUnknownElement)
@@ -422,11 +424,14 @@ function $(html, props, ...children) {
         element = prox(element)
     }
     else {
+        switch (html) {
+            case 'fencedframe': typeof HTMLFencedFrameElement === 'undefined' && (html = 'iframe'); break;
+        }
         var element = prox(document.createElement(html.match(/\w+/)[0]))
         let classes = html.match(/\.[\w-]+/g)?.map(slice),
             id = html.match(/#\w+/)?.[0].slice(1),
             type = html.match(/%\w+/)?.[0].slice(1)
-        element.setAttributes({ class: classes && classes.join(' '), id, type })
+        element.setAttributes({ class: classes?.join(' '), id, type })
         function slice(o) { return o.slice(1) }
     }
     /*
@@ -446,8 +451,8 @@ function $(html, props, ...children) {
         if ('txt' in props) element.textContent = props.txt
         // 🛑 Make sure we add elements AFTER the textContent/innerText/innerHTML
         'beforebegin afterbegin beforeend afterend'.split(' ').forEach(reuse)
-        if ('attributes' in props) element.setAttributes(props.attributes)
-        if ('styles' in props) element.setStyles(props.styles)
+        'attributes' in props && element.setAttributes(props.attributes)
+        'styles' in props && element.setStyles(props.styles)
     }
     children.length && element.appendChild(children)
     return element
@@ -460,17 +465,17 @@ export default $
 Object.defineProperties($, {
     qs: {
         value(selector) {
-            return $.doc.query(selector)
+            return prox(base($.doc).querySelector(selector))
         }
     },
     qsa: {
         value(selector) {
-            return $.doc.queryAll(selector)
+            return Array.from(base($.doc).querySelectorAll(selector), prox)
         }
     },
     gid: {
         value(id) {
-            return document.getElementById(id)
+            return prox(document.getElementById(id))
         }
     },
     filter: {
@@ -488,7 +493,7 @@ Object.defineProperties($, {
         get() { return prox(document.documentElement) }
     }
 })
-Array.from(document.getElementsByTagName('noscript'), o=>o.remove())
+for (let o of document.getElementsByTagName('noscript')) o.remove()
 let parseMode = 'mozInnerScreenY' in window ? 'createRange' : 'default'
 //  createRange seems to be *slightly* faster on firefox
 

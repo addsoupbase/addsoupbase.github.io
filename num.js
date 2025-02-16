@@ -94,7 +94,7 @@ export function sanitize(num) {
     return num === +num && num != null && isFinite(num)
 }
 export function isWithinRange(val, floor, ceiling) {
-    return this.clamp(val, floor, ceiling) === val
+    return clamp(val, floor, ceiling) === val
 }
 export function sqrt(num) {
     const SIGN = sign(num),
@@ -124,7 +124,6 @@ export function maxBigInt(bigInt, ...bigInts) {
     return maximum
 }
 class Vector2 {
-    get [Symbol.toStringTag]() { return this.constructor.name }
     static get up() {
         return v(0, 1)
     }
@@ -151,7 +150,10 @@ class Vector2 {
         return `(${this.#x}${unit}, ${this.#y}${unit})`
     }
     static {
-        Object.defineProperties(this.prototype, { x: { get() { return this.#x }, set(x) { this.set(x, this.#y) }, enumerable: 1 }, y: { get() { return this.#y }, set(y) { this.set(this.#x, y) }, enumerable: 1 } })
+        Object.defineProperties(this.prototype, {
+            [Symbol.toStringTag]: { value: this.name },
+            x: { get() { return this.#x }, set(x) { this.set(x, this.#y) }, enumerable: 1 }, y: { get() { return this.#y }, set(y) { this.set(this.#x, y) }, enumerable: 1 }
+        })
     }
     constructor(x = 0, y = 0,
         { 0: minX = MIN_SAFE_INTEGER, 1: minY = MIN_SAFE_INTEGER } = {},

@@ -33,7 +33,7 @@ $('h1.centerx', {
 let content = $('section.centerx #content', {
     parent: main,
 })
-$('h2', { parent: content, txt: 'thank you so much for looking at this i love you' })
+$('h3', { parent: content, txt: 'thank you so much for looking at this i love you' })
 $('button.cute-green-button', {
     parent: content, txt: 'View Background', events: {
         async _click() {

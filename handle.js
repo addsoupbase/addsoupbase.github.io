@@ -105,7 +105,7 @@ export function on(target, events, useHandler) {
                 myGlobalEventMap.set(eventName, { passive, capture, listener: Func })
                 myEvents.add(eventName)
             }
-            console.info(`🔔 '${eventName}' event added`)
+            console.info(`🔔 '${eventName}' event added`, func)
         }
     } catch (e) {
         queueMicrotask(r)
