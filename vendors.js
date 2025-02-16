@@ -1,9 +1,7 @@
 import { vendor, registerCSS } from './csshelper.js'
 let scheduler = window.scheduler ?? {
     yield() {
-        return new Promise(res => {
-            requestAnimationFrame(res)
-        })
+        return new Promise(requestAnimationFrame)
     }
 }
 let inherits = true
@@ -201,7 +199,7 @@ CSS.registerProperty({
 })
 const universal = {}
 'user-select user-modify force-broken-image-icon float-edge image-region box-orient box-align box-direction box-flex box-group box-lines box-ordinal-group box-decoration-break box-pack user-input box-reflect mask-composite appearance stack-sizing text-stroke-color text-stroke-width text-security text-fill-color line-clamp font-smoothing mask-position-x mask-position-y window-dragging padding-start'
-.split(' ').forEach(o => {
-    universal[vendor(o, `var(--${o})`,)] = `var(--${o})`
-})
+    .split(' ').forEach(o => {
+        universal[vendor(o, `var(--${o})`)] = `var(--${o})`
+    })
 registerCSS('*', universal)

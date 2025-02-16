@@ -1,4 +1,4 @@
-export function vendor(prop, val, silent = false) {
+export function vendor(prop, val) {
     val = `${val}`
     if (val.trim() && !CSS.supports(prop, val)) {
         let prefix = prop = prop
@@ -47,7 +47,7 @@ export function vendor(prop, val, silent = false) {
             // IDK
             CSS.supports(prefix = `-epub-${prop}`, val) ||
             // IDK
-            (silent && console.warn(`⛓️‍💥 Unrecognized CSS at '${prefix = prop}: ${val}'`))),
+            console.warn(`⛓️‍💥 Unrecognized CSS at '${prefix = prop}: ${val}'`)),
             // Sorry!
             prefix
     }
