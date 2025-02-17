@@ -1,4 +1,5 @@
 import { vendor, registerCSS } from './csshelper.js'
+let old = console.warn
 let scheduler = window.scheduler ?? {
     yield() {
         return new Promise(requestAnimationFrame)
@@ -173,12 +174,12 @@ CSS.registerProperty({
     inherits: false,
     initialValue: 'drag'
 })
-await scheduler.yield()
+/*await scheduler.yield()
 CSS.registerProperty({
     name: '--padding-start',
     inherits: false,
-    initialValue: '0px'
-})
+    initialValue: 0
+})*/
 await scheduler.yield()
 CSS.registerProperty({
     name: '--stack-sizing',
@@ -198,7 +199,7 @@ CSS.registerProperty({
     initialValue: 'source-over'
 })
 const universal = {}
-'user-select user-modify force-broken-image-icon float-edge image-region box-orient box-align box-direction box-flex box-group box-lines box-ordinal-group box-decoration-break box-pack user-input box-reflect mask-composite appearance stack-sizing text-stroke-color text-stroke-width text-security text-fill-color line-clamp font-smoothing mask-position-x mask-position-y window-dragging padding-start'
+'user-select user-modify force-broken-image-icon float-edge image-region box-orient box-align box-direction box-flex box-group box-lines box-ordinal-group box-decoration-break box-pack user-input box-reflect mask-composite appearance stack-sizing text-stroke-color text-stroke-width text-security text-fill-color line-clamp font-smoothing mask-position-x mask-position-y window-dragging'
     .split(' ').forEach(o => {
         universal[vendor(o, `var(--${o})`)] = `var(--${o})`
     })

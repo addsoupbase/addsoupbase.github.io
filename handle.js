@@ -1,4 +1,5 @@
 const sym = Symbol.for("🔔")
+export const unbound = Symbol('⛓️‍💥')
 //  Don't collide, and make sure its usable across realms!!
 let { warn, groupCollapsed, groupEnd } = console,
     { isArray } = Array
@@ -8,7 +9,7 @@ function isValidET(target) {
     let props = 'dispatchEvent removeEventListener addEventListener'.split(' ')
     for (let { length } = props; length--;) {
         let prop = props[length]
-        , val = target[prop]
+            , val = target[prop]
         //  Be extra careful...
         if (propertyIsEnumerable.call(target, prop) || Object.hasOwn(target, prop) || typeof val !== 'function' || /*val.toString() !== `function ${prop}() { [native code] }` ||*/ Object.hasOwn(val, 'toString')) return false
     }
@@ -59,7 +60,7 @@ export function on(target, events, useHandler) {
                 prevents = eventName.includes('$'),
                 passive = eventName.includes('^'),
                 capture = eventName.includes('%'),
-                stopProp = eventName.includes('&'), 
+                stopProp = eventName.includes('&'),
                 options = {
                     capture,
                     //once: false,
@@ -68,7 +69,7 @@ export function on(target, events, useHandler) {
             eventName = verifyEventName(target, eventName.replace(/[_$^%&]|bound /g, ''))
             if (myEvents.has(eventName)) {
                 queueMicrotask(w)
-                function w(){warn(`🔕 Duplicate '${eventName}' listener was  not added`)}
+                function w() { warn(`🔕 Duplicate '${eventName}' listener was not added`) }
                 continue
             }
             function Func(...args) {
@@ -80,9 +81,12 @@ export function on(target, events, useHandler) {
                     event.cancelable ?
                         event.preventDefault() :
                         queueMicrotask(w)
-                        function w(){warn(`🔊 '${eventName}' events are not cancelable`)}
+                    function w() { warn(`🔊 '${eventName}' events are not cancelable`) }
                 }
             }
+            Object.defineProperty(Func, unbound, {
+                value: func
+            })
             /*
             func = new Proxy(func, {
                 apply(targ, _, args) {
@@ -99,21 +103,19 @@ export function on(target, events, useHandler) {
             })*/
             //    eventRegistry.register(func, [eventName, myEvents])
             if (useHandler) target[`on${eventName}`] = Func
-            else {
-                target.addEventListener(eventName, Func, options)
-                allEvents.has(target) || allEvents.set(target, new Map)
-                //A Map to hold the names & events
-                const myGlobalEventMap = allEvents.get(target)
-                myGlobalEventMap.set(eventName, { passive, capture, listener: Func })
-                myEvents.add(eventName)
-            }
-            console.info(`🔔 '${eventName}' event added`)
+            else target.addEventListener(eventName, Func, options)
+            allEvents.has(target) || allEvents.set(target, new Map)
+            //A Map to hold the names & events
+            const myGlobalEventMap = allEvents.get(target)
+            myGlobalEventMap.set(eventName, { passive, capture, listener: Func, handler: !!useHandler, prevents, stopProp, once })
+            myEvents.add(eventName)
+            useHandler ||  console.info(`🔔 '${eventName}' event added`)
         }
     } catch (e) {
         queueMicrotask(r)
-        function r(){reportError(e)}
+        function r() { reportError(e) }
     } finally {
-        groupEnd()
+       groupEnd()
     }
     return target
 }
@@ -121,8 +123,8 @@ on.once = function once(target, events, useHandler) {
     if (Array.isArray(events)) {
         events = events.map(f)
         function f([event, name]) { return [event, `${name}_`] }
-    } 
-        else for (let n in events) {
+    }
+    else for (let n in events) {
         let { name } = events[n]
         events[`_${n}`] = events[n]
         delete events[n]
@@ -139,16 +141,16 @@ export function off(target, ...eventNames) {
             mySet = target[sym]
         for (let { length } = eventNames; length--;) {
             const name = verifyEventName(target, eventNames[length]),
-                { listener, capture, passive } = map.get(name)
-            target.removeEventListener(name, listener, { capture, passive })
-            map.has(name) && console.info(`🔕 '${name}' event removed`)
+                { listener, capture, passive, handler } = map.get(name)
+            handler ? (target[`on${name}`] = null) : target.removeEventListener(name, listener, { capture, passive })
+            map.has(name) && (handler || console.info(`🔕 '${name}' event removed`))
             map.delete(name)
             mySet.delete(name)
             map.size || allEvents.delete(target)
         }
     } catch (e) {
         queueMicrotask(r)
-        function r(){reportError(e)}
+        function r() { reportError(e) }
     } finally {
         groupEnd()
     }

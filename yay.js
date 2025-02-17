@@ -1,13 +1,13 @@
-import { on, off, getEventNames } from './handle.js'
+import { on, off, getEventNames, allEvents, unbound } from './handle.js'
 import * as css from './csshelper.js'
 const me = Symbol('base')
-    , all = new WeakMap
-    , revokes = new WeakMap
-    , bounded = new WeakMap
+const all = new WeakMap
+const revokes = new WeakMap
+const bounded = new WeakMap
 function badCSS(prop, value) {
     console.warn(`⛓️‍💥 Unrecognized CSS at '${prop}: ${value}'`)
 }
-function bind(maybeFunc, to) {
+function bindIfNecessary(maybeFunc, to) {
     // ♻️ Make sure we just re-use the same function
     // ♻️ instead of making a new one every time
     return typeof
@@ -24,7 +24,7 @@ function genericGet(t, prop) {
     }
     if (Array.prototype.hasOwnProperty(prop) && typeof [][prop] === 'function') return [][prop].bind(t)
     let out = t[prop]
-    return bind(out, t)
+    return bindIfNecessary(out, t)
 }
 const handlers = {
     // 🚮 Replacements because these interfaces aren't very good...
@@ -36,7 +36,7 @@ const handlers = {
                 , maybe = target[fixedProp]
             if (typeof prop === 'string' && CSS.supports(fixedProp, 'inherit'))
                 return maybe === '' ? null : maybe // && window.CSSStyleValue?.parse(p, maybe) || maybe
-            return bind(out, target)
+            return bindIfNecessary(out, target)
         },
         set(t, prop, value) {
             let p = css.toCaps(css.vendor(css.toDash(prop), value))
@@ -94,6 +94,8 @@ const handlers = {
 }
 // ❗️ Main [[Prototype]] is on this class
 // 🖨 properties are copied over
+let states = Symbol('💾')
+let onstatechange = Symbol('📸')
 let props = Object.getOwnPropertyDescriptors(class _ {
     // 🖋 Class syntax is easier to use
     static cancel(o) { o.cancel() }
@@ -101,8 +103,94 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     static play(o) { o.playState === 'paused' && o.play() }
     static finish(o) { o.finish() }
     static restart(o) { o.currentTime = 0; o.play() }
+    /*get [states]() {
+        return Object.defineProperty(this, 'states', {
+            value: new Map
+        })[states]
+    }*/
+    createState(identifier, child, callback) {
+        //if ( !(typeof identifier).match(/number|string|symbol|bigint/)) throw TypeError(`State must be a primitive`)
+        console.assert((typeof identifier).match(/number|string|symbol|bigint/), `State should be a primitive:\n %o`, identifier)
+        let cached = $('template')
+        callback && (cached[onstatechange] = callback)
+        cached.content.appendChild(base(child))
+        this[states].set(identifier, cached)
+        return cached.content
+    }
+    getState(identifier) {
+        return this[states].get(identifier)?.content
+    }
+    deleteState(identifier) {
+        if (this[states].has(identifier)) {
+            let state = this[states].get(identifier)
+            state.remove()
+            this[states].delete(identifier)
+            return true
+        }
+        return false
+    }
+    setState(identifier) {
+        if (identifier === null) {
+            this.lastState = this.currentState
+            this.currentState = null
+            return this.destroyChildren()
+        }
+        if (!this[states].has(identifier)/* || !(typeof identifier).match(/number|string|symbol|bigint/)*/) {
+            this.destroyChildren()
+            this.push($(`<code style="font-size:30px">INVALID STATE: ${identifier}</code>`))
+            this.currentState = null
+            throw TypeError(`Unknown state ${identifier}`)
+        }
+        console.assert((typeof identifier).match(/number|string|symbol|bigint/,), `State should be a primitive: %o`, identifier)
+        let frag = this[states].get(identifier)
+        frag[onstatechange]?.call(frag.content)
+        frag = frag.content
+        let cached = frag.cloneNode(true)
+        let staticBatch = [...frag.querySelectorAll('*')]
+        let newBatch = [...cached.querySelectorAll('*')]
+        this.beforestatechange?.(cached)
+        staticBatch.forEach((el, index) => {
+            el = prox(el)
+            el.beforestatechange?.(cached)
+            let { events } = el
+            if (!events) return
+            let clone = prox(newBatch[index])
+            let staticEvents = allEvents.get(base(el))
+            events.forEach(name => {
+                let { listener, passive, capture, handler, prevents, stopProp, once } = staticEvents.get(name)
+                if (once) name = `_${name}`
+                if (passive) name = `^${name}`
+                if (capture) name = `%${name}`
+                if (stopProp) name = `&${name}`
+                if (prevents) name = `$${name}`
+                clone.on({ [name]: listener[unbound][unbound] }, handler, true)
+            })
+        })
+        this.destroyChildren()
+        base(this).appendChild(cached)
+        for (let desc of this)
+            prox(desc).afterstatechange?.()
+        this.afterstatechange?.()
+        this.lastState = this.currentState
+        this.currentState = identifier
+    }
+    get orphans() {
+        let me = base(this)
+        let out = document.createDocumentFragment(),
+            { firstElementChild } = me
+        while (firstElementChild) {
+            me.removeChild(firstElementChild)
+            out.appendChild(firstElementChild);
+            ({ firstElementChild } = me)
+        }
+        return out
+    }
+    get clone() {
+        return prox(this.cloneNode(true))
+    }
     destroy() {
         this.cancelAnims()
+        this[states].clear()
         let { lastElementChild } = this
         while (lastElementChild)
             prox(lastElementChild).destroy(),
@@ -115,15 +203,30 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         all.delete(base(this))
         revoke(this)
     }
+    destroyChildren() {
+        let { lastElementChild } = this
+        while (lastElementChild)
+            prox(lastElementChild).destroy(),
+                { lastElementChild } = this
+    }
     $(html, props, ...children) {
         let out = $(html, props, ...children)
         out.parent = this
         return out
     }
     on(events, useHandler) {
-        if (typeof events === 'function') events = events.bind(this)
-        else if (Array.isArray(events)) events = events.map(o => o.bind(this))
-        else for (let i in events) events[i] = events[i].bind(this)
+        if (typeof events === 'function') events = Object.defineProperty(events.bind(this), unbound, { value: events })
+        else if (Array.isArray(events)) events = events.map(o => {
+            console.warn(o)
+            return Object.defineProperty(o.bind(this), unbound, { value: o })
+        }
+        )
+        else for (let i in events) {
+            let ev = events[i]
+            let newOne = events[i] = events[i].bind(this)
+            newOne[unbound] = ev
+            Object.defineProperty(newOne, unbound, { value: ev })
+        }
         on(base(this), events, useHandler)
         return this
     }
@@ -231,7 +334,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         typeof other === 'object' && temp.destroy()
         return out
     }
-    appendChild(...args) {
+    push(...args) {
         let frag = document.createDocumentFragment()
         args.flat(1 / 0).forEach(a)
         base(this).appendChild(frag)
@@ -353,11 +456,35 @@ function prox(target) {
     // ✅ Only option is 'Object.create' or { __proto__: ... }
     if (!all.has(target)) {
         let { proxy, revoke } = Proxy.revocable(
-            Object.create(target, {
+            Object.seal(Object.create(target, {
                 ...prototypeDescriptors,
                 [me]: {
                     value: target
                 },
+                __direct__: {
+                    get() {
+                        return this[me]
+                    }
+                },
+                [states]: {
+                    value: new Map
+                },
+                [onstatechange]: {
+                    value: null,
+                    writable: 1
+                },
+                beforestatechange: { value: null, writable: 1 },
+                afterstatechange: { value: null, writable: 1 },
+                state: {
+                    get() {
+                        return this.currentState
+                    },
+                    set(val) {
+                        this.setState(val)
+                    }
+                },
+                currentState: { value: null, enumerable: 1, writable: 1 },
+                lastState: { value: null, enumerable: 1, writable: 1 },
                 flags,
                 children: {
                     value: new Proxy(target.children, handlers.HTMLCollection)
@@ -368,10 +495,10 @@ function prox(target) {
                 style: {
                     value: new Proxy(target.style, handlers.CSSStyleDeclaration)
                 }
-            }), {
+            })), {
             get(targ, prop) {
                 return targ.hasOwnProperty(prop) ? targ[prop]
-                    : bind(target[prop], target)
+                    : bindIfNecessary(target[prop], target)
                 // ⛓️‍💥 'Illegal invocation' if function is not bound
             },
             set(targ, prop, value) {
@@ -454,7 +581,7 @@ function $(html, props, ...children) {
         'attributes' in props && element.setAttributes(props.attributes)
         'styles' in props && element.setStyles(props.styles)
     }
-    children.length && element.appendChild(children)
+    children.length && element.push(children)
     return element
 }
 function revoke(targ) {
