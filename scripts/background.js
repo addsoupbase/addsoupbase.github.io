@@ -84,7 +84,9 @@ function images({ avatars, mons }) {
             : [{ translate: `calc(-10vw - ${offsetWidth}px) 0` }, { translate: `calc(100vw + ${offsetWidth}px) 0` }],
             duration = 15000
         switch (pick[Symbol.for('name')]) {
-            case 'wailord': duration = 30400; break
+            case 'wailord': case'wishiwashischool': duration = 30400; break
+            case 'kyogre': case'kyogreprimal': duration = 20000; break;
+            case 'luvdisc': duration = 10000; break;
             case 'sharpedo': case 'carvanha': duration = 8300; break
             //        case 'corsola': element.animate([{transform: 'rotateZ(0deg)'}, {transform: `rotateZ(360deg)`}], {composite:'add',easing:'linear',duration:5000, iterations:1/0,direction:coin?'reverse':'normal'})
         }

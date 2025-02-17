@@ -29,7 +29,6 @@
   transform: scale(.75, .75);
   opacity: 0.96;
   transform-origin: center;
-
   pointer-events: none;
 }
 
@@ -82,13 +81,19 @@
 .seadra {
   scale: 1.25 1.25
 }
-
+.eelektross,.clawitzer {
+  scale: 1.5 1.5
+}
 .luvdisc,
-.corsola {
-  scale: 1 1
+.corsola,
+.wishiwashi {
+  scale: 1.2 1.2
 }
 
-.kyogre {
+.wishiwashischool {
+  scale: 2 2
+}
+.kyogre, .kyogreprimal {
   scale: 2 2
 }
 
