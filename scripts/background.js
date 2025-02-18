@@ -118,7 +118,7 @@ const iframe = $.qs('iframe')
 //document.body.scrollLeft = innerHeight/2
 
 window.$ = $
-window.final = function () {
+iframe.contentWindow.final = function () {
     window.final = () => { }
     import('./images.js').then(images)
     console.debug("🐟 Loading the bg now...")

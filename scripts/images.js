@@ -7,6 +7,7 @@ const avatars = await Promise.all((await (await fetch('./scripts/allava.json')).
         let n = new Image
         n.src = `./media/avatars/${o}`
         await until(n, 'load')
+        await n.decode()
         return n
     }
 ))
@@ -38,11 +39,12 @@ const mons = await Promise.all([
 ].map(async function (o) {
     let [src, Width] = o.split(":")
     let img = Object.assign(new Image, {
-        src: `./media/${src}.png`,
+        src: `./media/sprites/${src}.webp`,
         [width]: +Width,
         [name]: src
     })
     await until(img, 'load')
+    await img.decode()
     return img
 }))
 mons.forEach(image => {
