@@ -9,7 +9,6 @@ function isValidET(target) {
         target instanceof (target.ownerDocument?.defaultView.EventTarget ?? target.EventTarget)
     )
 }
-window.e=isValidET
 //const eventRegistry = new FinalizationRegistry(function ([key, set]) { set.delete(key) })
 function verifyEventName(target, name) {
     name = name.toLowerCase()
@@ -17,8 +16,8 @@ function verifyEventName(target, name) {
     if (`onwebkit${name}` in target) return `webkit${name}`
     if (`onmoz${name}` in target) return `moz${name}`
     if (`onms${name}` in target) return `ms${name}`
-    if (name.match(/^domcontentloaded$/i) && target instanceof target.ownerDocument.defaultView.Document ||
-        name.match(/^(animation(cancel|remove))$/i) && 'onremove' in target)
+    if (/^domcontentloaded$/i.test(name) && target instanceof target.ownerDocument.defaultView.Document ||
+        /^(animation(cancel|remove))$/i.test(name) && 'onremove' in target)
         return name
     //Some events like the one above don't have a handler
     throw TypeError(`🔇 Cannot listen for '${name}' events`)

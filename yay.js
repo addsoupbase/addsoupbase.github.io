@@ -158,7 +158,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     }*/
     createState(identifier, child, callback) {
         //if ( !(typeof identifier).match(/number|string|symbol|bigint/)) throw TypeError(`State must be a primitive`)
-        console.assert((typeof identifier).match(/number|string|symbol|bigint/), `State should be a primitive:\n %o`, identifier)
+        console.assert(/number|string|symbol|bigint/.test(typeof identifier), `State should be a primitive:\n %o`, identifier)
         let cached = $('template')
         callback && (cached[onstatechange] = callback)
         cached.content.appendChild(base(child))
@@ -189,7 +189,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             this.currentState = null
             throw TypeError(`Unknown state ${identifier}`)
         }
-        console.assert((typeof identifier).match(/number|string|symbol|bigint/,), `State should be a primitive: %o`, identifier)
+        console.assert(/number|string|symbol|bigint/.test(typeof identifier), `State should be a primitive:\n %o`, identifier)
         let frag = this[states].get(identifier)
         frag[onstatechange]?.call(frag.content)
         frag = frag.content
@@ -396,7 +396,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         return out()
         function* out() {
             let current
-            while (current = walker.nextNode()) yield current instanceof HTMLElement ? prox(current) : current
+            while (current = walker.nextNode()) yield current instanceof current.ownerDocument.defaultView.HTMLElement ? prox(current) : current
         }
         function filter_func(node) {
             return (filter?.(node) ?? true) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
@@ -457,7 +457,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     }
 }.prototype)
 const prototype = Object.create(null)
-'textContent innerText innerHTML'.split(' ').forEach(txt =>
+'textContent innerText innerHTML outerHTML outerText'.split(' ').forEach(txt =>
     Object.defineProperty(prototype, txt, {
         get() {
             return base(this)[txt]
@@ -494,7 +494,7 @@ const flags = {
     enumerable: 1
 }
 function prox(target) {
-    if (!(target instanceof HTMLElement)) throw TypeError(`😠 Invalid target: ${target}`) // get out
+    if (!(target instanceof target.ownerDocument.defaultView.HTMLElement)) throw TypeError(`😠 Invalid target: ${target}`) // get out
 
     // 🥅 Goal:
     // 🪪 Make an object with a [[Prototype]] being the target element
@@ -553,7 +553,7 @@ function prox(target) {
                 return (targ.hasOwnProperty(prop) ? targ : target)[prop] = value, 1
             },
         })
-        if (target instanceof HTMLUnknownElement)
+        if (target instanceof target.ownerDocument.defaultView.HTMLUnknownElement)
             // ⏰ I will add the SVG elements later
             console.warn(`🤨 Unrecognized element '${target.tagName}'`)
         revokes.set(proxy, revoke)
@@ -562,7 +562,7 @@ function prox(target) {
     return all.get(target)
 }
 function $(html, props, ...children) {
-    if (html instanceof HTMLElement) return prox(html) // Redirect
+    if (html.ownerDocument&&html instanceof html.ownerDocument.defaultView.HTMLElement) return prox(html) // Redirect
     if (html[0] === '<' && html.at(-1) === '>') {
         switch (parseMode) {
             //  This one seems to be the fastest by a tad

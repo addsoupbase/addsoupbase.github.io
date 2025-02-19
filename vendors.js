@@ -198,8 +198,63 @@ CSS.registerProperty({
     inherits: false,
     initialValue: 'source-over'
 })
+await scheduler.yield()
+CSS.registerProperty({
+    name: '--image-rect',
+    inherits,
+    initialValue: 'auto'
+})
+await scheduler.yield()
+CSS.registerProperty({
+    name: '--context-properties',
+    inherits,
+    initialValue: 'none'
+})
+await scheduler.yield()
+CSS.registerProperty({
+    name: '--outline-radius',
+    inherits: false,
+    initialValue: '0 0 0 0'
+})
+await scheduler.yield()
+CSS.registerProperty({
+    name: '--window-shadow',
+    inherits: false,
+    initialValue: 'default'
+})
+await scheduler.yield()
+CSS.registerProperty({
+    name: '--binding',
+    inherits: false,
+    initialValue: 'none'
+})
+await scheduler.yield()
+CSS.registerProperty({
+    name: '--user-focus',
+    inherits: false,
+    initialValue: 'none'
+})
+await scheduler.yield()
+CSS.registerProperty({
+    name: '--text-blink',
+    inherits: false,
+    initialValue: 'none'
+})
+await scheduler.yield()
+CSS.registerProperty({
+    name: '--content-zoom-limit',
+    inherits: false,
+    initialValue: '400% 100%'
+})
+await scheduler.yield()
+CSS.registerProperty({
+    name: '--accelerator',
+    inherits: false,
+    initialValue: false
+})
+
 const universal = {}
-'user-select user-modify force-broken-image-icon float-edge image-region box-orient box-align box-direction box-flex box-group box-lines box-ordinal-group box-decoration-break box-pack user-input box-reflect mask-composite appearance stack-sizing text-stroke-color text-stroke-width text-security text-fill-color line-clamp font-smoothing mask-position-x mask-position-y window-dragging'
+'user-select user-modify accelerator text-blink content-zoom-limit user-focus binding outline-radius window-shadow force-broken-image-icon float-edge image-region context-properties image-rect box-orient box-align box-direction box-flex box-group box-lines box-ordinal-group box-decoration-break box-pack user-input box-reflect mask-composite appearance stack-sizing text-stroke-color text-stroke-width text-security text-fill-color line-clamp font-smoothing mask-position-x mask-position-y window-dragging'
     .split(' ').forEach(o => {
         universal[vendor(o, `var(--${o})`)] = `var(--${o})`
     })

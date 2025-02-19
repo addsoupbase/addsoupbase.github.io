@@ -8,8 +8,8 @@ export function forKeys(obj, callback) {
     for (let { length } = keys; length--;) callback.call(obj, keys[length])
 }
 export function of(length, filler) {
-    return typeof filler === 'function'?
-        Array.from({ length }, filler):
+    return typeof filler === 'function' ?
+        Array.from({ length }, filler) :
         Array(length).fill(filler)
 }
 export function* backwards(arrayLike) {
@@ -40,7 +40,13 @@ export function rotate(arr, rotation = 1) {
     if (arr.length < 2) return arr
     let sign = Math.sign(rotation),
         r = Math.abs(rotation | 0)
-    if (sign > 0) while(r--) arr.unshift(arr.pop())
-    else while(r--) arr.push(arr.shift())
+    if (sign > 0) while (r--) arr.unshift(arr.pop())
+    else while (r--) arr.push(arr.shift())
     return arr
+}
+export async function getJson(src) {
+    return await import(src, { with: { type: 'json' } })
+}
+if ('mozInnerScreenX' in globalThis) getJson = async function getJson(src) {
+    return await (await fetch(src)).json()
 }
