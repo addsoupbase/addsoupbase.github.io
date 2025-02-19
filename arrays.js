@@ -44,9 +44,11 @@ export function rotate(arr, rotation = 1) {
     else while (r--) arr.push(arr.shift())
     return arr
 }
-export async function getJson(src) {
+let getJson
+if (!('mozInnerScreenX' in globalThis)) getJson = Function('src', `async function getJson(src) {
     return  (await import(src, { with: { type: 'json' } })).default
-}
-if ('mozInnerScreenX' in globalThis) getJson = async function getJson(src) {
+}`)
+else getJson = async function getJson(src) {
     return await (await fetch(src)).json()
 }
+export {getJson}
