@@ -1,5 +1,12 @@
+export function dashVendor(prop, val) {
+    return vendor(toDash(prop), val)
+}
+export function capVendor(prop, val) {
+    return toCaps(vendor(toDash(prop), val))
+}
 export function vendor(prop, val) {
     val = `${val}`
+    if (prop.startsWith('--') && CSS.supports(prop, val)) return prop
     if (val.trim() && !CSS.supports(prop, val)) {
         let prefix = prop = prop
             .replace(/-(moz|o|ms|webkit|xv|atsc|wap|khtml|konq|apple|ah|hp|ro|rim|tc|fso|icabepub)-/, '')
@@ -136,8 +143,8 @@ queueMicrotask(() => {
             position: 'fixed'
         },
     })
-    
-    if ('registerProperty'in CSS) import('./vendors.js')
+
+    if ('registerProperty' in CSS) import('./vendors.js')
 })
 export function dropShadow({
     color = '#000000',

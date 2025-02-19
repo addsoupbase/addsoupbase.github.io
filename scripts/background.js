@@ -119,7 +119,6 @@ const iframe = $.qs('iframe')
 
 window.$ = $
 iframe.contentWindow.final = function () {
-    window.final = () => { }
     import('./images.js').then(images)
     console.debug("🐟 Loading the bg now...")
 }

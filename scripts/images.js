@@ -1,5 +1,10 @@
 import { registerCSS } from "../csshelper.js"
 import { until } from "../handle.js"
+let bubble = Object.assign(new Image, {
+    src: `./media/bubble.webp`
+})
+await until(bubble,'load')
+await bubble.decode()
 const width = Symbol.for('width'),
     name = Symbol.for('name')
 const avatars = await Promise.all((await (await fetch('./scripts/allava.json')).json()).map(

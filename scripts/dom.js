@@ -11,7 +11,6 @@ on(window, {
     load() {
         requestIdleCallback(() => {
             main.setStyles({ opacity: .95 })
-            final()
         }, { timeout: 20000 })
     }
 })

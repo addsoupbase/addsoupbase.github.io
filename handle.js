@@ -5,16 +5,11 @@ let { warn, groupCollapsed, groupEnd } = console,
     { isArray } = Array
 export const allEvents = new WeakMap
 function isValidET(target) {
-    //  Avoid 'instanceof' since it won't work on different realms
-    let props = 'dispatchEvent removeEventListener addEventListener'.split(' ')
-    for (let { length } = props; length--;) {
-        let prop = props[length]
-            , val = target[prop]
-        //  Be extra careful...
-        if (propertyIsEnumerable.call(target, prop) || Object.hasOwn(target, prop) || typeof val !== 'function' || /*val.toString() !== `function ${prop}() { [native code] }` ||*/ Object.hasOwn(val, 'toString')) return false
-    }
-    return true
+    return (target instanceof EventTarget) || (
+        target instanceof (target.ownerDocument?.defaultView.EventTarget ?? target.EventTarget)
+    )
 }
+window.e=isValidET
 //const eventRegistry = new FinalizationRegistry(function ([key, set]) { set.delete(key) })
 function verifyEventName(target, name) {
     name = name.toLowerCase()
@@ -22,7 +17,7 @@ function verifyEventName(target, name) {
     if (`onwebkit${name}` in target) return `webkit${name}`
     if (`onmoz${name}` in target) return `moz${name}`
     if (`onms${name}` in target) return `ms${name}`
-    if (name.match(/^domcontentloaded$/i) && target.constructor.name === 'HTMLDocument' ||
+    if (name.match(/^domcontentloaded$/i) && target instanceof target.ownerDocument.defaultView.Document ||
         name.match(/^(animation(cancel|remove))$/i) && 'onremove' in target)
         return name
     //Some events like the one above don't have a handler
@@ -109,13 +104,13 @@ export function on(target, events, useHandler) {
             const myGlobalEventMap = allEvents.get(target)
             myGlobalEventMap.set(eventName, { passive, capture, listener: Func, handler: !!useHandler, prevents, stopProp, once })
             myEvents.add(eventName)
-            useHandler ||  console.info(`🔔 '${eventName}' event added`)
+            useHandler || console.info(`🔔 '${eventName}' event added`)
         }
     } catch (e) {
         queueMicrotask(r)
         function r() { reportError(e) }
     } finally {
-       groupEnd()
+        groupEnd()
     }
     return target
 }
@@ -185,6 +180,3 @@ export function until(target, eventName, timeout/* = 600000*/) {
         })
     }
 }
-//export function namedFunction(name, func) {
-//    return { [name]: func }[name]
-//}

@@ -28,33 +28,80 @@ function genericGet(t, prop) {
 }
 const handlers = {
     // 🚮 Replacements because these interfaces aren't very good...
-    CSSStyleDeclaration: {
+    styles: {
         get(target, prop) {
-            if (prop in target) return target[prop]
-            let out = target[prop]
-                , fixedProp = css.vendor(css.toCaps(prop), 'inherit')
-                , maybe = target[fixedProp]
-            if (typeof prop === 'string' && CSS.supports(fixedProp, 'inherit'))
-                return maybe === '' ? null : maybe // && window.CSSStyleValue?.parse(p, maybe) || maybe
-            return bindIfNecessary(out, target)
+            if (prop.startsWith('--')) return target.getPropertyValue(prop)
+            return target.getPropertyValue(css.dashVendor(prop,'inherit'))
         },
-        set(t, prop, value) {
-            let p = css.toCaps(css.vendor(css.toDash(prop), value))
-            if (CSS.supports(css.toDash(p), value))
-                t[p] = value
-            else if (prop in t)
-                t[prop] = value
-            else badCSS(prop, value)
+        set(target, prop, value) {
+            if (prop.startsWith('--')) target.setProperty(prop,value)
+           else value ?
+                target.setProperty(css.dashVendor(prop, value), value)
+                : this.deleteProperty(target, prop)
             return true
         },
-        deleteProperty(t, prop) {
-            let fixed = css.vendor(css.toDash(prop), 'inherit')
-            CSS.supports(fixed, 'inherit') ?
-                t.removeProperty(css.toCaps(fixed))
-                : delete t[prop]
-            return true
+        deleteProperty(target, prop) {
+            if (prop.startsWith('--')) return target.removeProperty(prop)
+            return target.removeProperty(css.dashVendor(prop))
+        },
+        has(target, prop) {
+            return this.get(target, prop)
         }
     },
+    attr: {
+        get(t, prop) {
+            let el = t[ATTR]
+            return prop in t ? t[prop] : el.getAttribute(prop)
+        },
+        set(t, prop, value, /*r*/) {
+            let el = t[ATTR]
+            value ? el.setAttribute(prop, value) : this.deleteProperty({ el }, prop)
+            return true
+        },
+        has(t, prop) {
+            let el = t[ATTR]
+            return el.hasAttribute(prop)
+        },
+        deleteProperty(t, prop) {
+            let el = t[ATTR]
+            el.removeAttribute(prop)
+            return true
+        },
+
+    },
+    /* CSSStyleDeclaration: {
+         get(target, prop) {
+             if (prop in target) return target[prop]
+             if (prop.startsWith('__')) return this.get(target, prop.replace(/_/g, '-'))
+             let out = target[prop]
+                 , fixedProp = css.vendor(css.toCaps(prop), 'inherit')
+                 , maybe = target.getPropertyValue(fixedProp)
+             if (typeof prop === 'string' && CSS.supports(fixedProp, 'inherit'))
+                 return maybe === '' ? null : maybe // && window.CSSStyleValue?.parse(p, maybe) || maybe
+             return bindIfNecessary(out, target)
+         },
+         set(t, prop, value) {
+             if (prop.startsWith('__')) return t[prop.replace(/_/g, '-')] = value
+             let p = css.toCaps(css.vendor(css.toDash(prop), value))
+             if (CSS.supports(css.toDash(p), value))
+                 t.setProperty(p, value)
+             else if (prop in t)
+                 t[prop] = value
+             else badCSS(prop, value)
+             return true
+         },
+         deleteProperty(t, prop) {
+             if (prop.startsWith('__'))
+                 t.removeProperty(prop.replace(/_/g, '-'))
+             else {
+                 let fixed = css.vendor(css.toDash(prop), 'inherit')
+                 CSS.supports(fixed, 'inherit') ?
+                     t.removeProperty(css.toCaps(fixed))
+                     : delete t[prop]
+             }
+             return true
+         }
+     },*/
     HTMLCollection: {
         get: genericGet,
         set(t, prop, value) {
@@ -73,7 +120,7 @@ const handlers = {
             return true
         }
     },
-    NamedNodeMap: {
+    /*NamedNodeMap: {
         get(t, prop) {
             let out = genericGet(t, prop)
             return out instanceof Attr ? out.value : out
@@ -90,10 +137,11 @@ const handlers = {
                 return true
             }
         },
-    }
+    }*/
 }
 // ❗️ Main [[Prototype]] is on this class
 // 🖨 properties are copied over
+let ATTR = Symbol()
 let states = Symbol('💾')
 let onstatechange = Symbol('📸')
 let props = Object.getOwnPropertyDescriptors(class _ {
@@ -313,19 +361,19 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         return this.setAttributes({ hidden: false })
     }
     hide2() {
-        this.setStyles({ visibility: 'hidden' })
+        base(this).style.visibility = 'hidden'
         return this
     }
     show2() {
-        this.setStyles({ visibility: 'visible' })
+        base(this).style.visibility = 'visible'
         return this
     }
     hide3() {
-        this.setStyles({ display: 'none' })
+        base(this).style.display = 'none'
         return this
     }
     show3() {
-        this.setStyles({ display: '' })
+        base(this).style.display = ''
         return this
     }
     equals(other) {
@@ -489,11 +537,11 @@ function prox(target) {
                 children: {
                     value: new Proxy(target.children, handlers.HTMLCollection)
                 },
-                attributes: {
-                    value: new Proxy(target.attributes, handlers.NamedNodeMap)
+                attr: {
+                    value: new Proxy({ __proto__: null, [ATTR]: target, get length() {return target.attributes.length} }, handlers.attr)
                 },
-                style: {
-                    value: new Proxy(target.style, handlers.CSSStyleDeclaration)
+                styles: {
+                    value: new Proxy(target.style, handlers.styles)
                 }
             })), {
             get(targ, prop) {
