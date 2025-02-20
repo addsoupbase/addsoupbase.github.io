@@ -59,5 +59,8 @@ mons.forEach(image => {
         height: `${(image.height)}px`
     })
 })
+// registerCSS('.bubble',{
+// filter: 'hue-rotate(90deg)'
+// })
 console.debug("🐠 All sprites loaded")
 export { avatars, mons }

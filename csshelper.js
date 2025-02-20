@@ -106,14 +106,16 @@ export async function registerCSS(selector, rule) {
     const { sheet } = addedStyleRules ??= function () {
         let out = document.createElement('style');
         (document.head ?? document.body ?? document.documentElement ?? document.querySelector('*')).appendChild(out)
+        out.sheet.insertRule('@namespace svg url("http://www.w3.org/2000/svg")')
         out.textContent = '/*Check your browser for CSS rules*/'
-        return out
+        return out  
     }()
     return new Promise(res)
     function res(resolve) {
         requestAnimationFrame(res)
         function res() {
-            return resolve(sheet.insertRule(`${selector}{${toCSS(rule)}}`))
+            let r = `{${toCSS(rule)}}`
+            return resolve(sheet.insertRule(`${selector}${r}`))
         }
     }
 }
@@ -125,6 +127,7 @@ export function registerCSSAll(rules) {
 queueMicrotask(() => {
     //    Some default CSS..
     registerCSSAll({
+        
         dialog: {
             transition: 'opacity 1s linear',
             "font-family": "Arial",

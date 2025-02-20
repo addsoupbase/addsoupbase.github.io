@@ -12,9 +12,7 @@ function bindIfNecessary(maybeFunc, to) {
     // ♻️ instead of making a new one every time
     return typeof
         maybeFunc === 'function'
-        ? bounded.get(maybeFunc)
-        ?? void bounded.set(maybeFunc, maybeFunc.bind(to))
-        ?? bounded.get(maybeFunc)
+        ? bounded.get(maybeFunc) ?? bounded.set(maybeFunc, maybeFunc.bind(to)).get(maybeFunc)
         : maybeFunc
 }
 function genericGet(t, prop) {
@@ -31,11 +29,11 @@ const handlers = {
     styles: {
         get(target, prop) {
             if (prop.startsWith('--')) return target.getPropertyValue(prop)
-            return target.getPropertyValue(css.dashVendor(prop,'inherit'))
+            return target.getPropertyValue(css.dashVendor(prop, 'inherit'))
         },
         set(target, prop, value) {
-            if (prop.startsWith('--')) target.setProperty(prop,value)
-           else value ?
+            if (prop.startsWith('--')) target.setProperty(prop, value)
+            else value ?
                 target.setProperty(css.dashVendor(prop, value), value)
                 : this.deleteProperty(target, prop)
             return true
@@ -150,7 +148,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     static pause(o) { o.pause() }
     static play(o) { o.playState === 'paused' && o.play() }
     static finish(o) { o.finish() }
-    static restart(o) { o.currentTime = 0; o.play() }
+    static restart(o) { o.play(o.currentTime = 0) }
     /*get [states]() {
         return Object.defineProperty(this, 'states', {
             value: new Map
@@ -187,7 +185,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             this.destroyChildren()
             this.push($(`<code style="font-size:30px">INVALID STATE: ${identifier}</code>`))
             this.currentState = null
-            throw TypeError(`Unknown state ${identifier}`)
+            throw TypeError(`Unknown state: '${identifier}'`)
         }
         console.assert(/number|string|symbol|bigint/.test(typeof identifier), `State should be a primitive:\n %o`, identifier)
         let frag = this[states].get(identifier)
@@ -264,16 +262,16 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     }
     on(events, useHandler) {
         if (typeof events === 'function') events = Object.defineProperty(events.bind(this), unbound, { value: events })
-        else if (Array.isArray(events)) events = events.map(o => {
-            console.warn(o)
-            return Object.defineProperty(o.bind(this), unbound, { value: o })
+        else if (Array.isArray(events)) events = events.map(value => {
+            console.warn(value)
+            return Object.defineProperty(value.bind(this), unbound, { value })
         }
         )
         else for (let i in events) {
-            let ev = events[i]
+            let value = events[i]
             let newOne = events[i] = events[i].bind(this)
-            newOne[unbound] = ev
-            Object.defineProperty(newOne, unbound, { value: ev })
+            newOne[unbound] = value
+            Object.defineProperty(newOne, unbound, { value })
         }
         on(base(this), events, useHandler)
         return this
@@ -376,10 +374,18 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         base(this).style.display = ''
         return this
     }
+    hide4() {
+        base(this).style.contentVisibility = 'hidden'
+        return this
+    }
+    show4() {
+        base(this).style.contentVisibility = ''
+        return this
+    }
     equals(other) {
         let temp = $(other)
         let out = base(temp).isEqualNode(base(this))
-        typeof other === 'object' && temp.destroy()
+        temp.destroy?.()
         return out
     }
     push(...args) {
@@ -492,9 +498,16 @@ const flags = {
     value: 0,
     writable: 1,
     enumerable: 1
-}
+},
+    plc = {
+        value: null,
+        writable: 1
+    }
 function prox(target) {
-    if (!(target instanceof target.ownerDocument.defaultView.HTMLElement)) throw TypeError(`😠 Invalid target: ${target}`) // get out
+    if (target === null) return null
+    if (!(target instanceof target.ownerDocument.defaultView.HTMLElement) 
+        && !(target instanceof target.ownerDocument.defaultView.SVGElement)) 
+    throw TypeError(`Invalid target: ${target}`) // get out
 
     // 🥅 Goal:
     // 🪪 Make an object with a [[Prototype]] being the target element
@@ -503,26 +516,17 @@ function prox(target) {
     // ❌ or 'setPrototypeOf' since it's bad i guess?
     // ✅ Only option is 'Object.create' or { __proto__: ... }
     if (!all.has(target)) {
+        let rock = { value: target }
         let { proxy, revoke } = Proxy.revocable(
             Object.seal(Object.create(target, {
                 ...prototypeDescriptors,
-                [me]: {
-                    value: target
-                },
-                __direct__: {
-                    get() {
-                        return this[me]
-                    }
-                },
+                [me]: rock,
                 [states]: {
                     value: new Map
                 },
-                [onstatechange]: {
-                    value: null,
-                    writable: 1
-                },
-                beforestatechange: { value: null, writable: 1 },
-                afterstatechange: { value: null, writable: 1 },
+                [onstatechange]: plc,
+                beforestatechange: plc,
+                afterstatechange: plc,
                 state: {
                     get() {
                         return this.currentState
@@ -538,7 +542,7 @@ function prox(target) {
                     value: new Proxy(target.children, handlers.HTMLCollection)
                 },
                 attr: {
-                    value: new Proxy({ __proto__: null, [ATTR]: target, get length() {return target.attributes.length} }, handlers.attr)
+                    value: new Proxy(Object.create(null, { [ATTR]: rock, length: { get() { return target.attributes.length } } }), handlers.attr)
                 },
                 styles: {
                     value: new Proxy(target.style, handlers.styles)
@@ -555,14 +559,14 @@ function prox(target) {
         })
         if (target instanceof target.ownerDocument.defaultView.HTMLUnknownElement)
             // ⏰ I will add the SVG elements later
-            console.warn(`🤨 Unrecognized element '${target.tagName}'`)
+            console.warn(`Unrecognized element '${target.tagName}'`)
         revokes.set(proxy, revoke)
         all.set(target, proxy)
     }
     return all.get(target)
 }
 function $(html, props, ...children) {
-    if (html.ownerDocument&&html instanceof html.ownerDocument.defaultView.HTMLElement) return prox(html) // Redirect
+    if (html.ownerDocument && html instanceof html.ownerDocument.defaultView.HTMLElement) return prox(html) // Redirect
     if (html[0] === '<' && html.at(-1) === '>') {
         switch (parseMode) {
             //  This one seems to be the fastest by a tad
@@ -599,9 +603,7 @@ function $(html, props, ...children) {
         element = prox(element)
     }
     else {
-        switch (html) {
-            case 'fencedframe': typeof HTMLFencedFrameElement === 'undefined' && (html = 'iframe'); break;
-        }
+        html === 'fencedframe' && typeof HTMLFencedFrameElement === 'undefined' && (html = 'iframe')
         var element = prox(document.createElement(html.match(/\w+/)[0]))
         let classes = html.match(/\.[\w-]+/g)?.map(slice),
             id = html.match(/#\w+/)?.[0].slice(1),
@@ -622,7 +624,7 @@ function $(html, props, ...children) {
         function reuse(p) { if (p in props) element[p] = props[p] }
         if ('parent' in props) element.parent = props.parent
         'events' in props && element.on(props.events)
-        'innerHTML innerText textContent'.split(' ').forEach(reuse)
+        'innerHTML innerText textContent outerHTML outerText'.split(' ').forEach(reuse)
         if ('txt' in props) element.textContent = props.txt
         // 🛑 Make sure we add elements AFTER the textContent/innerText/innerHTML
         'beforebegin afterbegin beforeend afterend'.split(' ').forEach(reuse)

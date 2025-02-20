@@ -36,12 +36,18 @@ export function hasEvent(target, eventName) {
     return target[sym]?.has(eventName) ?? false
 }
 export function on(target, events, useHandler) {
+    if (Array.isArray(target)) {
+        groupCollapsed(`on(${target[Symbol.toStringTag] || target.constructor?.name || Object.getPrototypeOf(target).constructor[Symbol.toStringTag] || Object.getPrototypeOf(target).constructor.name || target})`)
+        for (let t of target) on(t, events, useHandler)
+        console.groupEnd()
+        return target
+    }
     if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
     Object.hasOwn(target, sym) ||
         //This will hold the NAMES of the events
         Object.defineProperty(target, sym, { value: new Set })
     try {
-        groupCollapsed(`on(${target[Symbol.toStringTag] || target.constructor?.name || target})`)
+        groupCollapsed(`on(${target[Symbol.toStringTag] || target.constructor?.name || Object.getPrototypeOf(target).constructor[Symbol.toStringTag] || Object.getPrototypeOf(target).constructor.name || target})`)
         console.dirxml(target)
         const myEvents = target[sym]
         if (typeof events === 'function') events = {
@@ -96,7 +102,10 @@ export function on(target, events, useHandler) {
                 }
             })*/
             //    eventRegistry.register(func, [eventName, myEvents])
-            if (useHandler) target[`on${eventName}`] = Func
+            if (useHandler) {
+                console.warn('Using handler property is deprecated')
+                target[`on${eventName} `] = Func
+            }
             else target.addEventListener(eventName, Func, options)
             allEvents.has(target) || allEvents.set(target, new Map)
             //A Map to hold the names & events
@@ -116,11 +125,11 @@ export function on(target, events, useHandler) {
 on.once = function once(target, events, useHandler) {
     if (Array.isArray(events)) {
         events = events.map(f)
-        function f([event, name]) { return [event, `${name}_`] }
+        function f([event, name]) { return [event, `${name} _`] }
     }
     else for (let n in events) {
         let { name } = events[n]
-        events[`_${n}`] = events[n]
+        events[`_${n} `] = events[n]
         delete events[n]
     }
     return on(target, events, useHandler)
@@ -136,7 +145,7 @@ export function off(target, ...eventNames) {
         for (let { length } = eventNames; length--;) {
             const name = verifyEventName(target, eventNames[length]),
                 { listener, capture, passive, handler } = map.get(name)
-            handler ? (target[`on${name}`] = null) : target.removeEventListener(name, listener, { capture, passive })
+            handler ? (target[`on${name} `] = null) : target.removeEventListener(name, listener, { capture, passive })
             map.has(name) && (handler || console.info(`🔕 '${name}' event removed`))
             map.delete(name)
             mySet.delete(name)
@@ -153,7 +162,7 @@ export function until(target, eventName, timeout/* = 600000*/) {
     return new Promise(un)
     function un(resolve, reject) {
         const id = timeout && setTimeout(reject, timeout, RangeError(`⏰ Promise for '${eventName}' expired after ${timeout} ms`))
-        const handleName = `on${eventName}`
+        const handleName = `on${eventName} `
         if (target[handleName] === null) {
             //Use the handler property if we can
             target[handleName] = handler

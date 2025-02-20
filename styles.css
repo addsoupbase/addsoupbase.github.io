@@ -54,7 +54,8 @@
 @supports (-moz-box-direction: inherit) {
   #background {
     background-image: url("./media/bg.png") !important;
-    background-size: contain;
+    background-size:cover;
+    background-repeat: no-repeat;
   }
   body {
     background: none !important;

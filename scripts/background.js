@@ -106,8 +106,8 @@ function images({ avatars, mons }) {
         let bubbl = $('div.bubble', { parent })
         let num = ran.range(13, 23)
         bubbl.setStyles({ width: `${num}px`, height: `${num}px`, left: `${ran.range(0, innerWidth)}px`, top: '100%' })
-        bubbl.animate([{ transform: `translateX(-10px)` }, { transform: 'translateX(10px)' }], { iterations: 1 / 0, duration: 200, direction: 'alternate', easing: 'ease-in-out', composite: 'add' })
-        await bubbl.animate([{ transform: `translateY(0px)`, }, { transform: `translateY(-110vh)` }], { easing: 'ease-in', duration: 8000, composite: 'add' }).finished
+        bubbl.animate([{ transform: `translateX(-10px)` }, { transform: 'translateX(10px)' }], { iterations: 1 / 0, duration: 220, direction: 'alternate', easing: 'ease-in-out', composite: 'add' })
+        await bubbl.animate([{ transform: `translateY(0px)`, }, { transform: `translateY(-110vh)` }], { easing: 'linear', duration: 8000, composite: 'add' }).finished
         bubbl.destroy()
     }
     tinyBubbles()
