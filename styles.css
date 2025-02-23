@@ -178,7 +178,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgb(14, 132, 228, 0.25);
+  background-color: rgb(14, 132, 228, 0.1);
   /* Slight blue tint */
   pointer-events: none;
   /* Allow clicks to pass through the overlay */
