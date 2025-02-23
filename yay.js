@@ -7,6 +7,13 @@ const bounded = new WeakMap
 function badCSS(prop, value) {
     console.warn(`⛓️‍💥 Unrecognized CSS at '${prop}: ${value}'`)
 }
+
+if (!/localhost|127\.0\.0\.1/.test(location.host)) 
+    //  SO APPARENTLY
+    // console prevents objects from being garbage collected(!)
+    // The more you know!
+    for(let i in console)console[i] = ()=>{}
+
 function bindIfNecessary(maybeFunc, to) {
     // ♻️ Make sure we just re-use the same function
     // ♻️ instead of making a new one every time
