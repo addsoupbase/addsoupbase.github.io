@@ -122,7 +122,6 @@ iframe.contentWindow.final = function () {
     import('./images.js').then(images)
     console.debug("🐟 Loading the bg now...")
 }
-console.log('%c🆓 Sprites credit: https://sprites.pmdcollab.org/', 'font-size:2em')
 const parent = $('div #background', {
     parent: document.body
 })
