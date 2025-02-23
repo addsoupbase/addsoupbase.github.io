@@ -124,7 +124,8 @@ export function registerCSSAll(rules) {
     for (let rule in rules) out.push(registerCSS(rule, rules[rule]))
     return out
 }
-queueMicrotask(() => {
+queueMicrotask
+(() => {
     //    Some default CSS..
     registerCSSAll({
         
@@ -148,7 +149,7 @@ queueMicrotask(() => {
     })
 
     if ('registerProperty' in CSS) import('./vendors.js')
-})
+})//()
 export function dropShadow({
     color = '#000000',
     offsetX = '0px',

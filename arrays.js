@@ -44,9 +44,12 @@ export function rotate(arr, rotation = 1) {
     else while (r--) arr.push(arr.shift())
     return arr
 }
-if ('mozInnerScreenX' in globalThis) var getJson = async function getJson(src) {
-    return(await fetch(src)).json()
+try {
+    //  Some browsers (like Firefox) don't like that syntax
+    var getJson = async function(){}.constructor('src', `return(await import(src,{with:{type:'json'}})).default`)
 }
-//  Firefox misinterprets the 2nd parameter to import()
-else var getJson = async function(){}.constructor('src', `return(await import(src,{with:{type:'json'}})).default`)
+catch(e) {
+    if (e instanceof SyntaxError) var getJson = async src => (await fetch(src)).json()
+    else reportError(e)
+}
 export { getJson }

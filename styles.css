@@ -99,11 +99,11 @@
   scale: 2 2
 }
 
-.name {
-  position: relative;
-  text-align: center;
-  align-self: center;
-}
+/* .name { */
+  /* position: relative; */
+  /* text-align: center; */
+  /* align-self: center; */
+/* } */
 
 .bubble {
   align-items: center;
@@ -143,18 +143,18 @@
   background-position-x: center, right, 80px;
 }
 
-#content {
-  text-align: center;
-  word-break: normal;
-  max-width: 50%;
-}
+/* #content { */
+  /* text-align: center; */
+  /* word-break: normal; */
+  /* max-width: 50%; */
+/* } */
 
-svg {
-  background-color: rgb(49, 55, 231, 0.7);
-  border-color: rgba(37, 41, 169, 0.7);
-  border-style: solid;
-  border-radius: 100%;
-}
+/* svg { */
+  /* background-color: rgb(49, 55, 231, 0.7); */
+  /* border-color: rgba(37, 41, 169, 0.7); */
+  /* border-style: solid; */
+  /* border-radius: 100%; */
+/* } */
 
 #background {
   z-index: 2;

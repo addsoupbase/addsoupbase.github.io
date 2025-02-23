@@ -39,8 +39,9 @@ const handlers = {
             return true
         },
         deleteProperty(target, prop) {
-            if (prop.startsWith('--')) return target.removeProperty(prop)
-            return target.removeProperty(css.dashVendor(prop))
+            if (prop.startsWith('--')) target.removeProperty(prop)
+            else target.removeProperty(css.dashVendor(prop,'inherit'))
+            return true
         },
         has(target, prop) {
             return this.get(target, prop)
@@ -505,9 +506,9 @@ const flags = {
     }
 function prox(target) {
     if (target === null) return null
-    if (!(target instanceof target.ownerDocument.defaultView.HTMLElement) 
-        && !(target instanceof target.ownerDocument.defaultView.SVGElement)) 
-    throw TypeError(`Invalid target: ${target}`) // get out
+    if (!(target instanceof (target.ownerDocument.defaultView?.HTMLElement ?? HTMLElement))
+        && !(target instanceof (target.ownerDocument.defaultView?.SVGElement ?? SVGElement)))
+        throw TypeError(`Invalid target: ${target}`) // get out
 
     // 🥅 Goal:
     // 🪪 Make an object with a [[Prototype]] being the target element
@@ -557,7 +558,7 @@ function prox(target) {
                 return (targ.hasOwnProperty(prop) ? targ : target)[prop] = value, 1
             },
         })
-        if (target instanceof target.ownerDocument.defaultView.HTMLUnknownElement)
+        if (target instanceof (target.ownerDocument.defaultView?.HTMLUnknownElement ?? HTMLUnknownElement))
             // ⏰ I will add the SVG elements later
             console.warn(`Unrecognized element '${target.tagName}'`)
         revokes.set(proxy, revoke)
@@ -566,7 +567,7 @@ function prox(target) {
     return all.get(target)
 }
 function $(html, props, ...children) {
-    if (html.ownerDocument && html instanceof html.ownerDocument.defaultView.HTMLElement) return prox(html) // Redirect
+    if (html.ownerDocument && html instanceof (html.ownerDocument.defaultView?.HTMLElement ?? HTMLElement)) return prox(html) // Redirect
     if (html[0] === '<' && html.at(-1) === '>') {
         switch (parseMode) {
             //  This one seems to be the fastest by a tad

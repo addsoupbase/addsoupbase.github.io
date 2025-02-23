@@ -188,3 +188,14 @@ export function until(target, eventName, timeout/* = 600000*/) {
         })
     }
 }
+const objectURLS = new WeakMap
+const regist = new FinalizationRegistry(o => URL.revokeObjectURL(o))
+export function getObjUrl(thingy) {
+    if (objectURLS.has(thingy)) {
+        return  objectURLS.get(thingy)
+    }
+    let url = URL.createObjectURL(thingy)
+    regist.register(thingy, url)
+    objectURLS.set(thingy,url)
+    return url
+}
