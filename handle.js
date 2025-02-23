@@ -1,3 +1,8 @@
+if (!/localhost|127\.0\.0\.1/.test(location.host)) 
+    //  SO APPARENTLY
+    // console prevents objects from being garbage collected(!)
+    // The more you know!
+    for(let i in console)console[i] = ()=>{}
 const sym = Symbol.for("🔔")
 export const unbound = Symbol('⛓️‍💥')
 //  Don't collide, and make sure its usable across realms!!
