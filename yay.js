@@ -638,6 +638,7 @@ function $(html, props, ...children) {
         'beforebegin afterbegin beforeend afterend'.split(' ').forEach(reuse)
         'attributes' in props && element.setAttributes(props.attributes)
         'styles' in props && element.setStyles(props.styles)
+        'start'in props && props.start.call(element)
     }
     children.length && element.push(children)
     return element

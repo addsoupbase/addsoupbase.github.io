@@ -252,8 +252,8 @@ class Vector2 {
     static equals({ 0: x1, 1: y1 }, { 0: x2, 1: y2 }) {
         return (x1 === x2) && (y1 === y2)
     }
-    lerp({ 0: x = y, 1: y = x }, time = 0.1, delta = 1) {
-        return this.subtract((this.minus(x, y)).scale(time * delta))
+    lerp({ 0: x = 0, 1: y = 0 }, time = 0.1, delta = 1) {
+        return this.subtract(...(this.minus(x, y)).scale(time * delta))
     }
     clamp({ 0: minX = MIN_SAFE_INTEGER, 1: minY = MIN_SAFE_INTEGER } = {}, { 0: maxX = MAX_SAFE_INTEGER, 1: maxY = MAX_SAFE_INTEGER } = {}) {
         this.clampX(minX, maxX)
