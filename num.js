@@ -41,6 +41,39 @@ export function average(...numbers) {
     const sorted = numbers.toSorted(sort)
     return sorted.reduce(reduce) / sorted.length
 }
+
+export function avg(...array) {
+    if (!array.length) return NaN
+    const sorted = array.toSorted(sort),
+        { length } = sorted
+    const q1 = sorted[length / 4 | 0],
+        q3 = sorted[3 * length / 4 | 0],
+        IQR = q3 - q1,
+        upperFence = q3 + 1.5 * IQR,
+        lowerFence = q1 - 1.5 * IQR,
+        filtered = sorted.filter(filter)
+    return filtered.reduce(reduce) / filtered.length
+    function filter(x) {
+        return x >= lowerFence && x <= upperFence
+    }
+}
+export function median(...numbers) {
+    let { length } = numbers
+        , sorted = numbers.sort(sort)
+    return length % 2 ? sorted[length / 2 | 0] : (sorted[length / 2 | 0] + sorted[(length / 2 | 0) - 1]) / 2
+}
+function _mode(a, b) { return a > b ? a : b }
+export function mode(...numbers) {
+    let obj = []
+    for (let { length: i } = numbers; i--;) {
+        let n = numbers[i]
+        obj[n] = (obj[n] | 0) + 1
+    }
+    return obj.indexOf(obj.reduce(_mode))
+}
+export function range(...numbers) {
+    return max.apply(1, numbers) - min.apply(1, numbers)
+}
 export function factorial(n) {
     return n ? n-- * factorial(n) : 1n
 }
@@ -90,9 +123,7 @@ export function compare(first, ...rest) {
     return rest.every(n)
     function n(o) { return is(o, first) }
 }
-export function sanitize(num) {
-    return num === +num && num != null && isFinite(num)
-}
+export const sanitize = isFinite
 export function isWithinRange(val, floor, ceiling) {
     return clamp(val, floor, ceiling) === val
 }
@@ -102,7 +133,7 @@ export function sqrt(num) {
     return absolute ** .5 * SIGN
 }
 export function minBigInt(bigInt, ...bigInts) {
-    if (bigInt == null) throw TypeError('More arguments needed')
+    if (bigInt == null) throw RangeError('More arguments needed')
     let minimum = bigInt
     let type = typeof bigInt
     for (let { length } = bigInts; length--;) {
@@ -113,7 +144,7 @@ export function minBigInt(bigInt, ...bigInts) {
     return minimum
 }
 export function maxBigInt(bigInt, ...bigInts) {
-    if (bigInt == null) throw TypeError('More arguments needed')
+    if (bigInt == null) throw RangeError('More arguments needed')
     let maximum = bigInt
     let type = typeof bigInt
     for (let { length } = bigInts; length--;) {
@@ -136,7 +167,13 @@ class Vector2 {
     static get right() {
         return v(1, 0)
     }
-    static dotProduct({ 0: x1, 1: y1 }, { 0: x2, 1: y2 }) {
+    static dotProduct(first, second) {
+        let { 0: x1, 1: y1 } = first
+        let { 0: x2, 1: y2 } = second
+        x1??=first.x
+        y1??=first.y
+        x2??=second.x
+        y2??=second.y
         return x1 * x2 + y1 * y2
     }
     flip() {
@@ -186,6 +223,9 @@ class Vector2 {
     scale(mult = 0) {
         return this.multiply(mult, mult)
     }
+    iScale(mult = 1) {
+        return this.scale(1 / mult)
+    }
     get magnitude() {
         return abs(this.#x + this.#y)
     }
@@ -210,18 +250,18 @@ class Vector2 {
     get length() {
         return hypot(this.#x, this.#y)
     }
-    nullify() {
+    reset() {
         return this.scale(0)
     }
     clampX(min, max) {
-        if (min instanceof v && max == null)
+        if (max == null && min instanceof Vector2)
             ({ 0: min, 1: max } = min)
         this.#min.x = +min
         this.#max.x = +max
         return this.set(this)
     }
     clampY(min, max) {
-        if (min instanceof v && max == null)
+        if (max == null && min instanceof Vector2)
             ({ 0: min, 1: max } = min)
         this.#min.y = +min
         this.#max.y = +max
@@ -237,29 +277,59 @@ class Vector2 {
       static y(vectorLike) {
           return +(vectorLike.y ?? vectorLike[1] ?? values(vectorLike)[1] ?? vectorLike)
       }*/
-    static angle({ 0: x1, 1: y1 }, { 0: x2, 1: y2 }) {
+    static angle(first, second) {
+        let { 0: x1, 1: y1 } = first
+        let { 0: x2, 1: y2 } = second
+        x1??=first.x
+        y1??=first.y
+        x2??=second.x
+        y2??=second.y
         const firstAngle = atan2(y1, x1),
             secondAngle = atan2(y2, x2),
             angle = secondAngle - firstAngle
         return angle
     }
-    static difference({ 0: x1, 1: y1 }, { 0: x2, 1: y2 }) {
+    static difference(first, second) {
+        let { 0: x1, 1: y1 } = first
+        let { 0: x2, 1: y2 } = second
+        x1??=first.x
+        y1??=first.y
+        x2??=second.x
+        y2??=second.y
         return v(diff(x1, x2), diff(y1, y2))
     }
-    static distance({ 0: x1, 1: y1 }, { 0: x2, 1: y2 }) {
+    static distance(first, second) {
+        let { 0: x1, 1: y1 } = first
+        let { 0: x2, 1: y2 } = second
+        x1??=first.x
+        y1??=first.y
+        x2??=second.x
+        y2??=second.y
         return hypot(x1 - x2, y1 - y2)
     }
-    static equals({ 0: x1, 1: y1 }, { 0: x2, 1: y2 }) {
-        return (x1 === x2) && (y1 === y2)
+    static equals(first, second) {
+      let { 0: x1, 1: y1 } = first
+      let { 0: x2, 1: y2 } = second
+      x1??=first.x
+      y1??=first.y
+        x2??=second.x
+        y2??=second.y
+        return x1 === x2 && y1 === y2
     }
-    lerp({ 0: x = 0, 1: y = 0 }, time = 0.1, delta = 1) {
-        return this.subtract(...(this.minus(x, y)).scale(time * delta))
+    lerp(pos, time = 0.1, delta = 1) {
+        let { 0: x = 0, 1: y = 0 } = pos
+        x??=pos.x
+        y??=pos.y
+        return this.subtract(this.minus(x, y).scale(time * delta))
     }
     clamp({ 0: minX = MIN_SAFE_INTEGER, 1: minY = MIN_SAFE_INTEGER } = {}, { 0: maxX = MAX_SAFE_INTEGER, 1: maxY = MAX_SAFE_INTEGER } = {}) {
         this.clampX(minX, maxX)
         return this.clampY(minY, maxY)
     }
-    moveTowards({ 0: x, 1: y }, maxDistance = 1, delta = 1) {
+    moveTowards(towards, maxDistance = 1, delta = 1) {
+        let { 0: x, 1: y } = towards
+        x??=towards.x
+        y??=towards.y
         const target = vect(x, y)
             , direction = target.minus(this)
             , magnitude = direction.magnitude
@@ -267,24 +337,24 @@ class Vector2 {
         return magnitude < step.magnitude ? this.set(target) : this.add(step)
     }
     set(x, y) {
-        if (x instanceof v && y == null)
+        if (y == null && x instanceof Vector2)
             ({ x, y } = x)
         this.#x = clamp(+x, this.#min.x, this.#max.x)
         this.#y = clamp(+y, this.#min.y, this.#max.y)
         return this
     }
     add(x, y) {
-        if (x instanceof v && y == null)
+        if (y == null && x instanceof Vector2)
             ({ x, y } = x)
         return this.set(this.#x + x, this.#y + y)
     }
     subtract(x, y) {
-        if (x instanceof v && y == null)
+        if (y == null && x instanceof Vector2)
             ({ x, y } = x)
         return this.set(this.#x - x, this.#y - y)
     }
     divide(x, y) {
-        if (x instanceof v && y == null)
+        if (y == null && x instanceof Vector2)
             ({ x, y } = x)
         return this.set(this.#x / x, this.#y / y)
     }
@@ -292,17 +362,17 @@ class Vector2 {
         return this.clone.divide(x, y)
     }
     minus(x, y) {
-        if (x instanceof v && y == null)
+        if (y == null && x instanceof Vector2)
             ({ x, y } = x)
         return this.clone.subtract(x, y)
     }
     multiply(x, y) {
-        if (x instanceof v && y == null)
+        if (y == null && x instanceof Vector2)
             ({ x, y } = x)
         return this.set(this.#x * x, this.#y * y)
     }
     pow(x, y) {
-        if (x instanceof v && y == null)
+        if (y == null && x instanceof Vector2)
             ({ x, y } = x)
         return this.set(this.#x ** x, this.#y ** y)
     }
