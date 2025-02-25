@@ -10,9 +10,15 @@ function sort(a, b) {
 function noConstructor() {
     console.warn("Use this as a factory function instead of the constructor")
 }
+export function safe(num) {
+    return clamp(num, MIN_SAFE_INTEGER, MAX_SAFE_INTEGER)
+}
+export function safeInt(num) {
+    return safe(num)|0
+}
 class Cycle {
     #wheel = null
-    move(step = 1) {
+    move(step) {
         this.current += (step | 0) || 1
         let { current, length } = this
         if (current < 0) this.current = length - 1
@@ -41,7 +47,6 @@ export function average(...numbers) {
     const sorted = numbers.toSorted(sort)
     return sorted.reduce(reduce) / sorted.length
 }
-
 export function avg(...array) {
     if (!array.length) return NaN
     const sorted = array.toSorted(sort),
@@ -62,14 +67,14 @@ export function median(...numbers) {
         , sorted = numbers.sort(sort)
     return length % 2 ? sorted[length / 2 | 0] : (sorted[length / 2 | 0] + sorted[(length / 2 | 0) - 1]) / 2
 }
-function _mode(a, b) { return a > b ? a : b }
+function modeHelperFunc(a, b) { return a > b ? a : b }
 export function mode(...numbers) {
     let obj = []
     for (let { length: i } = numbers; i--;) {
         let n = numbers[i]
         obj[n] = (obj[n] | 0) + 1
     }
-    return obj.indexOf(obj.reduce(_mode))
+    return obj.indexOf(obj.reduce(modeHelperFunc))
 }
 export function range(...numbers) {
     return max.apply(1, numbers) - min.apply(1, numbers)
@@ -170,10 +175,10 @@ class Vector2 {
     static dotProduct(first, second) {
         let { 0: x1, 1: y1 } = first
         let { 0: x2, 1: y2 } = second
-        x1??=first.x
-        y1??=first.y
-        x2??=second.x
-        y2??=second.y
+        x1 ??= first.x
+        y1 ??= first.y
+        x2 ??= second.x
+        y2 ??= second.y
         return x1 * x2 + y1 * y2
     }
     flip() {
@@ -251,7 +256,7 @@ class Vector2 {
         return hypot(this.#x, this.#y)
     }
     reset() {
-        return this.scale(0)
+        return this.set(0,0)
     }
     clampX(min, max) {
         if (max == null && min instanceof Vector2)
@@ -280,10 +285,10 @@ class Vector2 {
     static angle(first, second) {
         let { 0: x1, 1: y1 } = first
         let { 0: x2, 1: y2 } = second
-        x1??=first.x
-        y1??=first.y
-        x2??=second.x
-        y2??=second.y
+        x1 ??= first.x
+        y1 ??= first.y
+        x2 ??= second.x
+        y2 ??= second.y
         const firstAngle = atan2(y1, x1),
             secondAngle = atan2(y2, x2),
             angle = secondAngle - firstAngle
@@ -292,34 +297,34 @@ class Vector2 {
     static difference(first, second) {
         let { 0: x1, 1: y1 } = first
         let { 0: x2, 1: y2 } = second
-        x1??=first.x
-        y1??=first.y
-        x2??=second.x
-        y2??=second.y
+        x1 ??= first.x
+        y1 ??= first.y
+        x2 ??= second.x
+        y2 ??= second.y
         return v(diff(x1, x2), diff(y1, y2))
     }
     static distance(first, second) {
         let { 0: x1, 1: y1 } = first
         let { 0: x2, 1: y2 } = second
-        x1??=first.x
-        y1??=first.y
-        x2??=second.x
-        y2??=second.y
+        x1 ??= first.x
+        y1 ??= first.y
+        x2 ??= second.x
+        y2 ??= second.y
         return hypot(x1 - x2, y1 - y2)
     }
     static equals(first, second) {
-      let { 0: x1, 1: y1 } = first
-      let { 0: x2, 1: y2 } = second
-      x1??=first.x
-      y1??=first.y
-        x2??=second.x
-        y2??=second.y
+        let { 0: x1, 1: y1 } = first
+        let { 0: x2, 1: y2 } = second
+        x1 ??= first.x
+        y1 ??= first.y
+        x2 ??= second.x
+        y2 ??= second.y
         return x1 === x2 && y1 === y2
     }
     lerp(pos, time = 0.1, delta = 1) {
         let { 0: x = 0, 1: y = 0 } = pos
-        x??=pos.x
-        y??=pos.y
+        x ??= pos.x
+        y ??= pos.y
         return this.subtract(this.minus(x, y).scale(time * delta))
     }
     clamp({ 0: minX = MIN_SAFE_INTEGER, 1: minY = MIN_SAFE_INTEGER } = {}, { 0: maxX = MAX_SAFE_INTEGER, 1: maxY = MAX_SAFE_INTEGER } = {}) {
@@ -328,8 +333,8 @@ class Vector2 {
     }
     moveTowards(towards, maxDistance = 1, delta = 1) {
         let { 0: x, 1: y } = towards
-        x??=towards.x
-        y??=towards.y
+        x ??= towards.x
+        y ??= towards.y
         const target = vect(x, y)
             , direction = target.minus(this)
             , magnitude = direction.magnitude

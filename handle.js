@@ -38,7 +38,7 @@ else {
                     multiple,
                     oncancel,
                     onchange: () => multiple ? resolve(f.files) : resolve([].at.call(f.files, -1))
-                }).click()
+                }).showPicker()
             )
     }
 }
