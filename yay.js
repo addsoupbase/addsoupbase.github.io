@@ -4,22 +4,13 @@ const me = Symbol('base')
 const all = new WeakMap
 const revokes = new WeakMap
 const bounded = new WeakMap
-function badCSS(prop, value) {
-    console.warn(`⛓️‍💥 Unrecognized CSS at '${prop}: ${value}'`)
-}
-
-if (!/localhost|127\.0\.0\.1/.test(location.host)) 
-    //  SO APPARENTLY
-    // console prevents objects from being garbage collected(!)
-    // The more you know!
-    for(let i in console)console[i] = ()=>{}
-
 function bindIfNecessary(maybeFunc, to) {
     // ♻️ Make sure we just re-use the same function
     // ♻️ instead of making a new one every time
     return typeof
         maybeFunc === 'function'
-        ? bounded.get(maybeFunc) ?? bounded.set(maybeFunc, maybeFunc.bind(to)).get(maybeFunc)
+        ? bounded.get(maybeFunc) ?? bounded.set(maybeFunc, maybeFunc.bind(to))
+        .get(maybeFunc)
         : maybeFunc
 }
 function genericGet(t, prop) {
@@ -35,8 +26,8 @@ const handlers = {
     // 🚮 Replacements because these interfaces aren't very good...
     styles: {
         get(target, prop) {
-            if (prop.startsWith('--')) return target.getPropertyValue(prop)
-            return target.getPropertyValue(css.dashVendor(prop, 'inherit'))
+            return prop.startsWith('--') ? target.getPropertyValue(prop)
+                : target.getPropertyValue(css.dashVendor(prop, 'inherit'))
         },
         set(target, prop, value) {
             if (prop.startsWith('--')) target.setProperty(prop, value)
@@ -46,9 +37,9 @@ const handlers = {
             return true
         },
         deleteProperty(target, prop) {
-            if (prop.startsWith('--')) target.removeProperty(prop)
-            else target.removeProperty(css.dashVendor(prop,'inherit'))
-            return true
+            return prop.startsWith('--') ? target.removeProperty(prop)
+                : target.removeProperty(css.dashVendor(prop, 'inherit')),
+                true
         },
         has(target, prop) {
             return this.get(target, prop)
@@ -147,7 +138,7 @@ const handlers = {
 }
 // ❗️ Main [[Prototype]] is on this class
 // 🖨 properties are copied over
-let ATTR = Symbol()
+let ATTR = Symbol('💿')
 let states = Symbol('💾')
 let onstatechange = Symbol('📸')
 let props = Object.getOwnPropertyDescriptors(class _ {
@@ -199,6 +190,8 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         let frag = this[states].get(identifier)
         frag[onstatechange]?.call(frag.content)
         frag = frag.content
+        console.log(frag)
+        debugger
         let cached = frag.cloneNode(true)
         let staticBatch = [...frag.querySelectorAll('*')]
         let newBatch = [...cached.querySelectorAll('*')]
@@ -459,15 +452,15 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     }
     get parent() {
         let parent = base(this).parentElement
-        return parent && prox(parent)
+        return prox(parent)
     }
     get first() {
         let { firstElementChild } = base(this)
-        return firstElementChild && prox(firstElementChild)
+        return prox(firstElementChild)
     }
     get last() {
         let { lastElementChild } = base(this)
-        return lastElementChild && prox(lastElementChild)
+        return prox(lastElementChild)
     }
 }.prototype)
 const prototype = Object.create(null)
@@ -510,6 +503,14 @@ const flags = {
     plc = {
         value: null,
         writable: 1
+    },
+    state = {
+        get() {
+            return this.currentState
+        },
+        set(val) {
+            this.setState(val)
+        }
     }
 function prox(target) {
     if (target === null) return null
@@ -524,25 +525,18 @@ function prox(target) {
     // ❌ or 'setPrototypeOf' since it's bad i guess?
     // ✅ Only option is 'Object.create' or { __proto__: ... }
     if (!all.has(target)) {
-        let rock = { value: target }
+        let bleh = { value: target }
         let { proxy, revoke } = Proxy.revocable(
             Object.seal(Object.create(target, {
                 ...prototypeDescriptors,
-                [me]: rock,
+                [me]: bleh,
                 [states]: {
                     value: new Map
                 },
                 [onstatechange]: plc,
                 beforestatechange: plc,
                 afterstatechange: plc,
-                state: {
-                    get() {
-                        return this.currentState
-                    },
-                    set(val) {
-                        this.setState(val)
-                    }
-                },
+                state,
                 currentState: { value: null, enumerable: 1, writable: 1 },
                 lastState: { value: null, enumerable: 1, writable: 1 },
                 flags,
@@ -550,7 +544,7 @@ function prox(target) {
                     value: new Proxy(target.children, handlers.HTMLCollection)
                 },
                 attr: {
-                    value: new Proxy(Object.create(null, { [ATTR]: rock, length: { get() { return target.attributes.length } } }), handlers.attr)
+                    value: new Proxy(Object.create(null, { [ATTR]: bleh, length: { get() { return target.attributes.length } } }), handlers.attr)
                 },
                 styles: {
                     value: new Proxy(target.style, handlers.styles)
@@ -581,10 +575,22 @@ function $(html, props, ...children) {
             //  but it's hard to tell...
             default: var element = document.adoptNode(new DOMParser().parseFromString(html, 'text/html').body.firstElementChild)
                 break
+            case 'write': {
+                let doc = document.implementation.createHTMLDocument()
+                doc.write(html)
+                var element = document.adoptNode(doc.body.firstElementChild)
+            }
+                break
+            case 'setHTMLUnsafe': {
+                let temp = document.createElement('template')
+                temp.setHTMLUnsafe(html)
+                var element = document.adoptNode(temp.content.firstElementChild)
+            }
+                break
             case 'innerHTML': {
                 let n = document.createElement('div')
                 n.innerHTML = html
-                element = n.removeChild(n.firstElementChild)
+                var element = n.removeChild(n.firstElementChild)
             }
                 break
             case 'createHTMLDocument': {
@@ -638,7 +644,7 @@ function $(html, props, ...children) {
         'beforebegin afterbegin beforeend afterend'.split(' ').forEach(reuse)
         'attributes' in props && element.setAttributes(props.attributes)
         'styles' in props && element.setStyles(props.styles)
-        'start'in props && props.start.call(element)
+        'start' in props && props.start.call(element)
     }
     children.length && element.push(children)
     return element
@@ -682,22 +688,24 @@ Object.defineProperties($, {
 for (let o of document.getElementsByTagName('noscript')) o.remove()
 let parseMode = 'mozInnerScreenY' in window ? 'createRange' : 'default'
 //  createRange seems to be *slightly* faster on firefox
-
-/*if (location.href.startsWith('http://localhost')) window.test = function (count = 1000, mode=parseMode) {
-    parseMode = mode
-    let time = performance.now()
-  //  console.time(parseMode)
-    while (count--) $('<div><p>hello</p></div>').destroy()
-   // console.timeEnd(parseMode)
-    return performance.now() - time
-}
-let obj = {}
-import a from './math.js'
-for(let n of `template createRange createHTMLDocument innerHTML parseHTMLUnsafe default`.split(' ')) {
-    obj[n] = []
-    for(let i = 4; i--;) {
-        obj[n].push(test(3000,n))
+void async function () {
+    console.log("Test enabled")
+    if (location.href.startsWith('http://localhost')) window.test = function (count = 1000, mode = parseMode) {
+        parseMode = mode
+        let time = performance.now()
+        //  console.time(parseMode)
+        while (count--) $('<div><p>hello</p></div>').destroy()
+        // console.timeEnd(parseMode)
+        return performance.now() - time
     }
-    obj[n] = a.average(...obj[n])
+    let obj = {}
+    let { default: a } = await import('./math.js')
+    for (let n of `template createRange createHTMLDocument innerHTML parseHTMLUnsafe default template setHTMLUnsafe write`.split(' ')) {
+        obj[n] = []
+        for (let i = 4; i--;) {
+            obj[n].push(test(3000, n))
+        }
+        obj[n] = a.average(...obj[n])
+    }
+    console.log(obj)
 }
-console.log(obj)*/
