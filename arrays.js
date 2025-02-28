@@ -36,6 +36,7 @@ export function swapInside(item, firstIndex, secondIndex) {
     if (slot !== -1 && slot2 !== -1) return swap(item, slot, slot2)
     throw RangeError("Index out of range")
 }
+
 export function rotate(arr, rotation = 1) {
     if (arr.length < 2) return arr
     let sign = Math.sign(rotation),
@@ -46,10 +47,10 @@ export function rotate(arr, rotation = 1) {
 }
 try {
     //  Some browsers (like Firefox) don't like that syntax
-    var getJson = async function(){}.constructor('src', `return(await import(src,{with:{type:'json'}})).default`)
+    var getJson = async function () { }.constructor('src', `return(await import(new URL(src,location.href),{with:{type:'json'}})).default`)
 }
-catch(e) {
-    if (e instanceof SyntaxError) var getJson = async src => (await fetch(src)).json()
+catch (e) {
+    if (e instanceof SyntaxError) var getJson = async src => (await fetch(new URL(src, location.href))).json()
     else reportError(e)
 }
 export { getJson }

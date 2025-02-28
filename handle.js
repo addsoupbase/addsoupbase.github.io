@@ -12,7 +12,7 @@ if (typeof showOpenFilePicker !== 'undefined') var reqFile = async function supp
     let settings = {
         multiple,
         id: 602,
-        startIn:'downloads'
+        startIn: 'downloads'
     }
     if (accept) settings.types = [{
         accept: {
@@ -228,4 +228,10 @@ export function getObjUrl(thingy) {
     regist.register(thingy, url)
     objectURLS.set(thingy, url)
     return url
+}
+export function download(blob, title) {
+    let n = document.createElement('a')
+    n.download = title
+    n.href = n.src = getObjUrl(blob)
+    n.click()
 }
