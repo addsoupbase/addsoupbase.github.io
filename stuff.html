@@ -50,7 +50,7 @@
                 href: 'main.html',
             }
         })
-        linkholder.batch(['cute-emojis', 'dataurl'].map(o => {
+        linkholder.batch([`./marbles/play?level=data`,'cute-emojis', 'dataurl'].map(o => {
             let url = new URL(o, `https://addsoupbase.github.io/`)
             return $(`a.tiny <${o}>`, {
                 attr: {
@@ -63,7 +63,7 @@
             parent: all,
         })
         let di = $('div.lholder', { parent: all, attr: { style: 'display:inline-grid;word-break:break-word;' } })
-            ;[`./whatever`, `./twehg`, `./intro`,`./marbles/play?level=data`].forEach(o => {
+            ;[`./whatever`, `./twehg`, `./intro`,].forEach(o => {
                 let url = new URL(o, `https://addsoupbase.github.io/`)
                 $(`a.tiny <${o.match(/\w+/)}>`, {
                     parent: di,
