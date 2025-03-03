@@ -64,6 +64,20 @@ export function getEventNames(target) {
 export function hasEvent(target, eventName) {
     return target[sym]?.has(eventName) ?? false
 }
+Object.assign(on, {
+    '_': `Event is automatically removed after 1st call`,
+    '$': `Automatically calls 'preventDefault', if possible`,
+    '^': `Passive event listener`,
+    '%': `Capture event`,
+    '&': `Stop propagation`,
+    '!': `Stop immediate propagation`,
+    once: '_',
+    preventDefault: '$',
+    passive: '^',
+    capture: '%',
+    stopPropagation: '&',
+    stopImmediatePropagation: '!',
+})
 export function on(target, events, useHandler) {
     if (Array.isArray(target)) {
         groupCollapsed('on(...)')
@@ -90,33 +104,29 @@ export function on(target, events, useHandler) {
                 passive = eventName.includes('^'),
                 capture = eventName.includes('%'),
                 stopProp = eventName.includes('&'),
+                stopImmediateProp = eventName.includes('!'),
                 options = {
                     capture,
-                    //once: false,
+                    //once
                     passive,
                 }
-            eventName = verifyEventName(target, eventName.replace(/[_$^%&]|bound /g, ''))
+            eventName = verifyEventName(target, eventName.replace(/[_$^%&!]|bound /g, ''))
             if (myEvents.has(eventName)) {
                 queueMicrotask(w)
-                function w() { warn(`🔕 Duplicate '${eventName}' listener was not added`) }
+                function w() { warn(`🔕 Skipped duplicate '${eventName}' listener`) }
                 continue
             }
             function ProxyFunction(...args) {
                 let { 0: event } = args
-                stopProp && event.stopPropagation()
                 func.apply(null, args)
+                stopImmediateProp && event.stopImmediatePropagation()
+                stopProp && event.stopPropagation()
+                prevents && (event.cancelable ? event.preventDefault() : warn(`🔊 '${eventName}' events are not cancelable`))
                 once && off(this, eventName)
-                if (prevents) {
-                    event.cancelable ?
-                        event.preventDefault() :
-                        // queueMicrotask(w)
-                        // function w() { 
-                        warn(`🔊 '${eventName}' events are not cancelable`)
-                    // }
-                }
             }
             Object.defineProperty(ProxyFunction, unbound, {
-                value: func
+                value: func,
+                configurable: 1,
             })
             /*
             func = new Proxy(func, {
@@ -193,9 +203,9 @@ export function until(target, eventName, timeout/* = 600000*/) {
     return new Promise(un)
     function un(resolve, reject) {
         const id = timeout && setTimeout(reject, timeout, RangeError(`⏰ Promise for '${eventName}' expired after ${timeout} ms`))
-        const handleName = `on${eventName}`
+            , handleName = `on${eventName}`
         if (target[handleName] === null) {
-            //Use the handler property if we can
+            //  Use the handler property if we can
             target[handleName] = handler
             function handler(event) {
                 try { resolve(event) }
@@ -207,7 +217,7 @@ export function until(target, eventName, timeout/* = 600000*/) {
             }
         }
         else on(target, {
-            //Use the addEventListener
+            //  Use the addEventListener
             [eventName](event) {
                 try { resolve(event) }
                 catch (e) { reject(e) }
@@ -219,9 +229,11 @@ export function until(target, eventName, timeout/* = 600000*/) {
         })
     }
 }
-const objectURLS = new WeakMap
-const regist = new FinalizationRegistry(URL.revokeObjectURL)
+let objectURLS,
+    regist
 export function getObjUrl(thingy) {
+    regist ??= new FinalizationRegistry(URL.revokeObjectURL)
+    objectURLS ??= new WeakMap
     if (objectURLS.has(thingy)) return objectURLS.get(thingy)
     let url = URL.createObjectURL(thingy)
     regist.register(thingy, url)
@@ -231,7 +243,7 @@ export function getObjUrl(thingy) {
 let anchor
 export function download(blob, title) {
     anchor ??= document.createElement('a')
-    anchor.download = title
+    anchor.download = title || 'download'
     anchor.href = anchor.src = getObjUrl(blob)
     anchor.click()
 }
