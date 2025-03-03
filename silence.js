@@ -7,8 +7,8 @@ void function () {
             try {   
                 old.apply(console, data.map(o => typeof o === 'object' ? JSON.stringify(o) : o))
             }
-            finally {
-                
+            catch{
+                //  ignore it
             }
         } 
     }
