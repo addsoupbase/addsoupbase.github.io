@@ -5,10 +5,10 @@ void function () {
         let old = console[i]
         console[i] = (...data) => {
             try {
-                old.apply(console, data.map(o => typeof o === 'object' ? JSON.stringify(o) : o))
+                old.apply(console, data.map(o => o&&typeof o === 'object' ? ('outerHTML'in o ? o.outerHTML : JSON.stringify(o)) : o))
             }
             catch {
-                //  ignore it
+                console[i](`[REDACTED]`)
             }
         }
     }
