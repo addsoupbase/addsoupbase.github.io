@@ -3,7 +3,14 @@ void function () {
     if (!/localhost|127\.0\.0\.1/.test(location.host)) for (let i in console) {
         if (typeof console[i] !== 'function') continue
         let old = console[i]
-        console[i] = (...data) => old.apply(console, data.map(o => typeof o === 'object' ? JSON.stringify(o) : o))
+        console[i] = (...data) => { 
+            try {   
+                old.apply(console, data.map(o => typeof o === 'object' ? JSON.stringify(o) : o))
+            }
+            finally {
+                
+            }
+        } 
     }
     /*console.print ?? Object.defineProperty(console, 'print', {
         value(...data) {
