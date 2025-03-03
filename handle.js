@@ -6,9 +6,9 @@ let { warn, groupCollapsed, groupEnd } = console,
 export const allEvents = new WeakMap
 function isValidET(target) {
     return (target instanceof EventTarget) || (
-        target instanceof (target.ownerDocument?.defaultView.EventTarget ?? target.EventTarget))
+        target instanceof (target.ownerDocument?.defaultView.EventTarget ?? target.EventTarget ?? EventTarget))
 }
-if (typeof showOpenFilePicker !== 'undefined') var reqFile = async function supported(accept, multiple) {
+if (0/*typeof showOpenFilePicker !== 'undefined'*/) var reqFile = async function supported(accept, multiple) {
     let settings = {
         multiple,
         id: 602,
@@ -37,7 +37,6 @@ else {
             )
     }
 }
-window.reqFile = reqFile
 export { reqFile }
 //const eventRegistry = new FinalizationRegistry(function ([key, set]) { set.delete(key) })
 function verifyEventName(target, name) {
@@ -229,9 +228,10 @@ export function getObjUrl(thingy) {
     objectURLS.set(thingy, url)
     return url
 }
+let anchor
 export function download(blob, title) {
-    let n = document.createElement('a')
-    n.download = title
-    n.href = n.src = getObjUrl(blob)
-    n.click()
+    anchor ??= document.createElement('a')
+    anchor.download = title
+    anchor.href = anchor.src = getObjUrl(blob)
+    anchor.click()
 }

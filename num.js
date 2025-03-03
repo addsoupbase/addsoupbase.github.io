@@ -14,7 +14,7 @@ export function safe(num) {
     return clamp(num, MIN_SAFE_INTEGER, MAX_SAFE_INTEGER)
 }
 export function safeInt(num) {
-    return safe(num)|0
+    return safe(num) | 0
 }
 class Cycle {
     #wheel = null
@@ -111,6 +111,9 @@ export function cycle(...wheel) {
 export function cycleFrom(arrayLike) {
     new.target && noConstructor()
     return cycle.apply(1, arrayLike)
+}
+export function lerp(start, end, time) {
+    return start + (end - start) * time
 }
 export function clamp(val, MIN, MAX) {
     return min(MAX, max(MIN, val))
@@ -256,7 +259,7 @@ class Vector2 {
         return hypot(this.#x, this.#y)
     }
     reset() {
-        return this.set(0,0)
+        return this.set(0, 0)
     }
     clampX(min, max) {
         if (max == null && min instanceof Vector2)
@@ -337,9 +340,9 @@ class Vector2 {
         y ??= towards.y
         const target = vect(x, y)
             , direction = target.minus(this)
-            , magnitude = direction.magnitude
+            , {magnitude} = direction
         if (magnitude <= maxDistance || !magnitude) return target
-        return magnitude < step.magnitude ? this.set(target) : this.add(step)
+        return magnitude < step.magnitude ? this.set(target) : this.add(delta,delta)
     }
     set(x, y) {
         if (y == null && x instanceof Vector2)
