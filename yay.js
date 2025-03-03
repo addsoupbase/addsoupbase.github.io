@@ -174,6 +174,9 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         }
         return false
     }
+    toJSON() {
+        return base(this).outerHTML
+    }
     setState(identifier) {
         if (identifier === null) {
             this.lastState = this.currentState
