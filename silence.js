@@ -7,5 +7,5 @@ console.print ?? Object.defineProperty(console, 'print', {
     value(...data) {
         log.apply(1, data.map(o => typeof o === 'object' ? JSON.stringify(o) : o))
     }
-})
+}) 
 }()
