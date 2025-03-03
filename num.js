@@ -7,9 +7,9 @@ function reduce(a, b) {
 function sort(a, b) {
     return a - b
 }
-function noConstructor() {
-    console.warn("Use this as a factory function instead of the constructor")
-}
+// function noConstructor() {
+    // console.warn("Use this as a factory function instead of the constructor")
+// }
 export function safe(num) {
     return clamp(num, MIN_SAFE_INTEGER, MAX_SAFE_INTEGER)
 }
@@ -59,28 +59,29 @@ export function avg(...array) {
         filtered = sorted.filter(filter)
     return filtered.reduce(reduce) / filtered.length
     function filter(x) {
-        return x >= lowerFence && x <= upperFence
+        return x>=lowerFence&&x<=upperFence
     }
 }
 export function median(...numbers) {
     let { length } = numbers
         , sorted = numbers.sort(sort)
-    return length % 2 ? sorted[length / 2 | 0] : (sorted[length / 2 | 0] + sorted[(length / 2 | 0) - 1]) / 2
+    return length%2?sorted[length/2|0]:(sorted[length/2|0]+sorted[(length/2|0)-1])/2
 }
-function modeHelperFunc(a, b) { return a > b ? a : b }
+function gt(a, b) { return a > b ? a : b }
+function lt(a, b) { return a < b ? a : b }
 export function mode(...numbers) {
     let obj = []
     for (let { length: i } = numbers; i--;) {
         let n = numbers[i]
         obj[n] = (obj[n] | 0) + 1
     }
-    return obj.indexOf(obj.reduce(modeHelperFunc))
+    return obj.indexOf(obj.reduce(gt))
 }
 export function range(...numbers) {
     return max.apply(1, numbers) - min.apply(1, numbers)
 }
 export function factorial(n) {
-    return n ? n-- * factorial(n) : 1n
+    return n?n--*factorial(n):1n
 }
 export function closest(num, ...nums) {
     let distance = 1 / 0
@@ -92,6 +93,7 @@ export function closest(num, ...nums) {
     return distance
 }
 export function furthest(num, ...nums) {
+    //  Could probably use recude() here
     let distance = 0
     for (let { length } = nums; length--;) {
         let n = nums[length]
@@ -105,11 +107,11 @@ export function isPrimitive(val) {
     return type !== 'function' && type !== 'object' || val === null
 }
 export function cycle(...wheel) {
-    new.target && noConstructor()
+    // new.target && noConstructor()
     return new Cycle(...wheel)
 }
 export function cycleFrom(arrayLike) {
-    new.target && noConstructor()
+    // new.target && noConstructor()
     return cycle.apply(1, arrayLike)
 }
 export function lerp(start, end, time) {
@@ -140,27 +142,11 @@ export function sqrt(num) {
         absolute = abs(num)
     return absolute ** .5 * SIGN
 }
-export function minBigInt(bigInt, ...bigInts) {
-    if (bigInt == null) throw RangeError('More arguments needed')
-    let minimum = bigInt
-    let type = typeof bigInt
-    for (let { length } = bigInts; length--;) {
-        const num = bigInts[length]
-        if (typeof num !== type) throw TypeError("Cannot mix types")
-        if (num < minimum) minimum = num
-    }
-    return minimum
+export function minBigInt(...BigInts) {
+    return BigInts.reduce(lt)
 }
-export function maxBigInt(bigInt, ...bigInts) {
-    if (bigInt == null) throw RangeError('More arguments needed')
-    let maximum = bigInt
-    let type = typeof bigInt
-    for (let { length } = bigInts; length--;) {
-        const num = bigInts[length]
-        if (typeof num !== type) throw TypeError("Cannot mix types")
-        if (num > maximum) maximum = num
-    }
-    return maximum
+export function maxBigInt(...BigInts) {
+    return BigInts.reduce(gt)
 }
 class Vector2 {
     static get up() {
@@ -340,9 +326,9 @@ class Vector2 {
         y ??= towards.y
         const target = vect(x, y)
             , direction = target.minus(this)
-            , {magnitude} = direction
+            , { magnitude } = direction
         if (magnitude <= maxDistance || !magnitude) return target
-        return magnitude < step.magnitude ? this.set(target) : this.add(delta,delta)
+        return magnitude < step.magnitude ? this.set(target) : this.add(delta, delta)
     }
     set(x, y) {
         if (y == null && x instanceof Vector2)
@@ -389,13 +375,8 @@ class Vector2 {
         yield this.#y
     }
 }
-const v = vect
+const v = Object.defineProperties(vect, Object.getOwnPropertyDescriptors(Vector2))
 export function vect(x, y) {
-    new.target && noConstructor()
+    // new.target && noConstructor()
     return new Vector2(x, y)
 }
-for (let prop of Reflect.ownKeys(Vector2))
-    prop.match(/^prototype|name|length|constructor$/) ?? (vect[prop] = Vector2[prop])//.bind(Vector2)
-/*export const vect = new Proxy(Vector2, {
-    apply(target, x, args) { return Reflect.construct(target,args,target) }
-})*/
