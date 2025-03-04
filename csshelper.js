@@ -4,6 +4,12 @@ export function dashVendor(prop, val) {
 export function capVendor(prop, val) {
     return toCaps(vendor(toDash(prop), val))
 }
+const alreadyLogged = new Set
+export function badCSS(data) {
+    if (alreadyLogged.has(data)) return
+    console.warn(data)
+    alreadyLogged.add(data)
+}
 const allVendors = /-(webkit|moz|o|ms|xv|atsc|wap|khtml|konq|apple|ah|hp|ro|rim|tc|fso|icabepub)-/,
     allVendors2 = /-(prince|mso)-/
 export function vendor(prop, val) {
@@ -56,7 +62,7 @@ export function vendor(prop, val) {
             // IDK
             CSS.supports(prefix = `-epub-${prop}`, val) ||
             // IDK
-            console.warn(`⛓️‍💥 Unrecognized CSS at '${prefix = prop}: ${val}'`)),
+            badCSS(`⛓️‍💥 Unrecognized CSS at '${prefix = prop}: ${val}'`)),
             // Sorry!
             prefix
     }
@@ -141,10 +147,10 @@ export function registerCSSAll(rules) {
     return out
 }
 // let dummyStyleSheet,
-    // working = new Set,
-    // bad = new Set
+// working = new Set,
+// bad = new Set
 export function supportsRule(rule) {
-   
+
     return CSS.supports(`selector(${rule})`) // Not me finding out you can do this after spending like an hour trying to make a workaround 😭
     dummyStyleSheet ??= new CSSStyleSheet
     if (working.has(rule)) return true
@@ -226,8 +232,40 @@ queueMicrotask
                 position: 'fixed'
             },
         })
+        'registerProperty' in CSS &&
+            void async function (all, scheduler = {
+                yield() {
+                    return new Promise(requestAnimationFrame)
+                }
+            }) {
+                //  This registers all of those var(--abc-xyz)
+                //  all the properties are located at the very bottom of this module!
 
-        if ('registerProperty' in CSS) import('./vendors.js')
+
+                /*await scheduler.yield()
+                CSS.registerProperty({
+                    name: '--padding-start',
+                    inherits: false,
+                    initialValue: 0
+                })*/
+                // console.groupCollapsed('⛓️‍💥 Unsupported CSS (you can ignore this)')
+                for (let prop of all)
+                    try {
+                        CSS.registerProperty(prop)
+                        await scheduler.yield()
+                    }
+                    catch (e) {
+                        reportError(e)
+                        continue
+                    }
+                const universal = {}
+                all.forEach(reg)
+                function reg({ name: o }) {
+                    universal[vendor(o.slice(2), `var(${o})`)] = `var(${o})`
+                }
+                registerCSS('*', universal)
+                // console.groupEnd('⛓️‍💥 Unsupported CSS (you can ignore this)')
+            }(new Set(allProps), window.scheduler)
     })//()
 export function dropShadow({
     color = '#000000',
@@ -259,4 +297,222 @@ export function convertToCSSMethod(value) {
      } catch {*/
     return value
     // }
+}
+{
+let inherits = true
+var allProps = [
+    {
+        //  Most important one
+        name: '--user-select',
+        initialValue: 'auto',
+        inherits
+    },
+    {
+        name: '--user-modify',
+        initialValue: 'auto',
+        inherits: false
+    },
+    {
+        name: '--force-broken-image-icon',
+        syntax: '<integer>',
+        initialValue: 0,
+        inherits: false
+    },
+    {
+        name: '--float-edge',
+        initialValue: 'content-box',
+        inherits: false
+    },
+    {
+        name: '--image-region',
+        inherits,
+        initialValue: 'auto',
+    },
+    {
+        name: '--box-orient',
+        initialValue: 'inline-axis',
+        inherits: false
+    },
+    {
+        name: '--box-align',
+        initialValue: 'stretch',
+        inherits: false
+    },
+    {
+        name: '--box-direction',
+        initialValue: 'normal',
+        inherits: false
+    },
+    {
+        name: '--box-flex',
+        inherits: false,
+        initialValue: 0,
+    },
+    {
+        name: '--box-flex-group',
+        inherits: false,
+        initialValue: 0,
+    },
+    {
+        name: '--box-lines',
+        inherits: false,
+        initialValue: 'single'
+    },
+    {
+        name: '--box-ordinal-group',
+        inherits: false,
+        initialValue: 1
+    },
+    {
+        name: '--box-decoration-break',
+        inherits: false,
+        initialValue: 'slice'
+    },
+    {
+        name: '--box-pack',
+        inherits: false,
+        initialValue: 'start'
+    },
+    {
+        name: '--user-input',
+        inherits,
+        initialValue: 'auto'
+    },
+    {
+        name: '--box-reflect',
+        inherits: false,
+        initialValue: 'none'
+    },
+    {
+        name: '--text-stroke-color',
+        inherits,
+        syntax: '<color>',
+        initialValue: 'currentcolor'
+    },
+    {
+        name: '--text-stroke-width',
+        inherits,
+        syntax: '<length>',
+        initialValue: 0
+    },
+    {
+        name: '--text-security',
+        inherits: false,
+        initialValue: 'none'
+    },
+    {
+        name: '--text-fill-color',
+        inherits,
+        initialValue: 'currentcolor'
+    },
+    {
+        name: '--line-clamp',
+        inherits: false,
+        initialValue: 'none'
+    },
+    {
+        name: '--font-smoothing',
+        inherits,
+        initialValue: 'auto'
+    },
+    {
+        name: '--mask-position-x',
+        inherits: false,
+        syntax: '<length-percentage>',
+        initialValue: '0%'
+    },
+    {
+        name: '--mask-position-y',
+        inherits: false,
+        syntax: '<length-percentage>',
+        initialValue: '0%'
+    },
+    {
+        name: '--tap-highlight-color',
+        inherits,
+        syntax: '<color>',
+        initialValue: 'black'
+    },
+    {
+        name: '--touch-callout',
+        inherits,
+        syntax: '<color>',
+        initialValue: 'black'
+    },
+    {
+        name: '--window-dragging',
+        inherits: false,
+        initialValue: 'drag'
+    },
+    {
+        name: '--stack-sizing',
+        inherits,
+        initialValue: 'stretch-to-fit'
+    },
+    {
+        name: '--appearance',
+        inherits: false,
+        initialValue: 'auto'
+    },
+    {
+        name: '--mask-composite',
+        inherits: false,
+        initialValue: 'source-over'
+    },
+    {
+        name: '--image-rect',
+        inherits,
+        initialValue: 'auto'
+    },
+    {
+        name: '--context-properties',
+        inherits,
+        initialValue: 'none'
+    },
+    {
+        name: '--outline-radius',
+        inherits: false,
+        initialValue: '0 0 0 0'
+    },
+    {
+        name: '--window-shadow',
+        inherits: false,
+        initialValue: 'default'
+    },
+    {
+        name: '--binding',
+        inherits: false,
+        initialValue: 'none'
+    },
+    {
+        name: '--user-focus',
+        inherits: false,
+        initialValue: 'none'
+    },
+    {
+        name: '--text-blink',
+        inherits: false,
+        initialValue: 'none'
+    },
+    {
+        name: '--content-zoom-limit',
+        inherits: false,
+        initialValue: '400% 100%'
+    },
+    {
+        name: '--accelerator',
+        inherits: false,
+        initialValue: false
+    },
+    {
+        name: '--initial-letter',
+        inherits: false,
+        initialValue: 'normal'
+    },
+    {
+        name: '--order',
+        inherits: false,
+        initialValue: 0
+    }
+]
 }

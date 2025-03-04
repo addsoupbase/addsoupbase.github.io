@@ -22,7 +22,6 @@ function bindIfNecessary(maybeFunc, to) {
             .get(maybeFunc) :
         maybeFunc
 }
-
 function genericGet(t, prop) {
     if (!isNaN(prop)) {
         let out = t[prop]
@@ -34,7 +33,7 @@ function genericGet(t, prop) {
 }
 const customRules = css.getDefaultStyleSheet()
 const handlers = {
-    // 🚮 Replacements because these interfaces aren't very good...
+    // Other proxies
     styles: {
         get(target, prop) {
             return prop.startsWith('--') ? target.getPropertyValue(prop) :
@@ -548,7 +547,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             this.setAttributes({ id })
         }
         catch {
-            console.warn(`⛓️‍💥 Unrecognized CSS rule at '${og}'`)
+            css.badCSS(`⛓️‍💥 Unrecognized CSS rule at '${og}'`)
         }
         finally {
             return this
@@ -658,6 +657,11 @@ const flags = {
         set(val) {
             this.setState(val)
         }
+    },
+    junk = {
+        value: null,
+        enumerable: 1,
+        writable: 1
     }
 
 function prox(target) {
@@ -675,6 +679,16 @@ function prox(target) {
         let bleh = {
             value: target
         }
+        let { revoke: styleRevoke, proxy: styleProxy } = Proxy.revocable(target.style, handlers.styles)
+        let { revoke: childRevoke, proxy: childProxy } = Proxy.revocable(target.children, handlers.HTMLCollection)
+        let { revoke: attrRevoke, proxy: attrProxy } = Proxy.revocable(Object.create(null, {
+            [ATTR]: bleh,
+            length: {
+                get() {
+                    return target.attributes.length
+                }
+            }
+        }), handlers.attr)
         let {
             proxy,
             revoke
@@ -694,32 +708,17 @@ function prox(target) {
                 beforestatechange: plc,
                 afterstatechange: plc,
                 state,
-                currentState: {
-                    value: null,
-                    enumerable: 1,
-                    writable: 1
-                },
-                lastState: {
-                    value: null,
-                    enumerable: 1,
-                    writable: 1
-                },
+                currentState: junk,
+                lastState: junk,
                 flags,
                 children: {
-                    value: new Proxy(target.children, handlers.HTMLCollection)
+                    value: childProxy
                 },
                 attr: {
-                    value: new Proxy(Object.create(null, {
-                        [ATTR]: bleh,
-                        length: {
-                            get() {
-                                return target.attributes.length
-                            }
-                        }
-                    }), handlers.attr)
+                    value: attrProxy
                 },
                 styles: {
-                    value: new Proxy(target.style, handlers.styles)
+                    value: styleProxy
                 }
             })), {
             get(targ, prop) {
@@ -734,8 +733,14 @@ function prox(target) {
         if (target instanceof HTMLUnknownElement ||
             target.ownerDocument.defaultView?.HTMLUnknownElement.prototype.isPrototypeOf(target))
             // ⏰ I will add the SVG elements later
-            console.warn(`Unrecognized element '${target.tagName}'`)
-        revokes.set(proxy, revoke)
+            console.warn(`Unknown element: '${target.tagName}'`)
+        revokes.set(proxy, () =>
+            //  Make sure we have *NO* possible references left
+            revoke() ^
+            childRevoke() ^
+            attrRevoke() ^
+            styleRevoke()
+        )
         all.set(target, proxy)
     }
     return all.get(target)
@@ -752,7 +757,6 @@ const parser = new DOMParser
 let temp
 let div
 let range
-
 function $(html, props, ...children) {
     if (getValid(html)) return prox(html) // Redirect
     if (html[0] === '<' && html.at(-1) === '>') {
@@ -813,7 +817,6 @@ function $(html, props, ...children) {
             id,
             type
         })
-
         function slice(o) {
             return o.slice(1)
         }
@@ -839,14 +842,12 @@ function $(html, props, ...children) {
                    <!-- afterend -->
     */
     if (props) {
-        function reuse(p) {
-            if (p in props) element[p] = props[p]
-        }
-        if ('parent' in props) element.parent = props.parent
+        function reuse(p) { p in props && (element[p] = props[p]) }
+        'parent' in props && (element.parent = props.parent)
         'events' in props && element.on(props.events)
-        'innerHTML innerText textContent outerHTML outerText'.split(' ').forEach(reuse)
-        if ('txt' in props) element.textContent = props.txt
-        // 🛑 Make sure we add elements AFTER the textContent/innerText/innerHTML
+        'outerHTML innerHTML outerText innerText textContent'.split(' ').forEach(reuse)
+        'txt' in props && (element.textContent = props.txt)
+        // add elements AFTER the textContent/innerHTML/whatever
         'beforebegin afterbegin beforeend afterend'.split(' ').forEach(reuse)
         'attributes' in props && element.setAttributes(props.attributes)
         'styles' in props && element.setStyles(props.styles)
@@ -861,6 +862,11 @@ function revoke(targ) {
 }
 export default $
 Object.defineProperties($, {
+    random: {
+        value() {
+            return
+        }
+    },
     qs: {
         value(selector) {
             return prox(base($.doc).querySelector(selector))
