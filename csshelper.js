@@ -112,11 +112,12 @@ export async function registerCSS(selector, rule) {
             return selectr
         })
         .join(',')
-    const { sheet } = addedStyleRules ??= function () {
+    const { sheet } = addedStyleRules ??= document.getElementById('addedStyleRules') ?? function () {
         let out = document.createElement('style');
         (document.head ?? document.body ?? document.documentElement ?? document.querySelector('*')).appendChild(out)
         out.sheet.insertRule('@namespace svg url("http://www.w3.org/2000/svg")')
-        out.textContent = '/*Check your browser for CSS rules*/'
+        out.setAttribute('id', 'addedStyleRules')
+        out.textContent = 'Check your browser for CSS rules ($0.sheet.cssRules)'
         return out
     }()
     return new Promise(res)

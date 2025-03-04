@@ -22,6 +22,14 @@ function genericGet(t, prop) {
     let out = t[prop]
     return bindIfNecessary(out, t)
 }
+const customRules = (document.getElementById('addedStyleRules') ?? function () {
+    let out = document.createElement('style');
+    (document.head ?? document.body ?? document.documentElement ?? document.querySelector('*')).appendChild(out)
+    out.sheet.insertRule('@namespace svg url("http://www.w3.org/2000/svg")')
+    out.setAttribute('id', 'addedStyleRules')
+    out.textContent = 'Check your browser for CSS rules ($0.sheet.cssRules)'
+    return out
+}()).sheet
 const handlers = {
     // 🚮 Replacements because these interfaces aren't very good...
     styles: {
@@ -415,6 +423,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             frag.appendChild(base(child))
         }
     }
+    //  i tried SO hard to make treewalker useful but it did not impress me!
     treeWalker(filter, whatToShow = NodeFilter.SHOW_ELEMENT) {
         let walker = document.createTreeWalker(base(this), whatToShow, filter_func)
         return out()
@@ -426,7 +435,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             return (filter?.(node) ?? true) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
         }
     }
-     *[Symbol.iterator]() {
+    *[Symbol.iterator]() {
         yield* Array.from(base(this).getElementsByTagName('*'), prox)
     }
     get [Symbol.toPrimitive]() {
@@ -442,6 +451,18 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         return [...this.treeWalker(func)]
         function func(node) { return node.matches(selector) }
     }*/
+
+    addSelfRule(selector, cssStuff) {
+        if (!base(this).hasAttribute('id')) {
+            do var id = `${Math.random().toString(36).slice(2)}${performance.now().toString(36).slice(2)}`.replace(/\./g, '')
+            while (document.getElementById(id))
+            this.setAttributes({ id })
+        }
+        else var id = base(this).getAttribute('id')
+        if (selector.includes('::')) selector = css.supportedPElementVendor(selector)
+        else if (selector.includes(':')) selector = css.supportedPClassVendor(selector)
+        customRules.insertRule(`#${id}${selector.startsWith(':') ? selector : ` ${selector}`}{${css.toCSS(cssStuff)}}`)
+    }
     animate(keyframes, options) {
         options.timing ??= 'ease'
         options.iterations ??= 1
@@ -549,6 +570,11 @@ function prox(target) {
                 [me]: bleh,
                 [states]: {
                     value: new Map
+                },
+                selfRules: {
+                    value: {
+                        __proto__: null,
+                    }
                 },
                 [onstatechange]: plc,
                 beforestatechange: plc,
@@ -678,8 +704,7 @@ function $(html, props, ...children) {
     return element
 }
 function revoke(targ) {
-    revokes.get(targ)?.()
-    revokes.delete(targ)
+    revokes.get(targ)?.(revokes.delete(targ))
 }
 export default $
 Object.defineProperties($, {
