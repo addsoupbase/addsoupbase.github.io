@@ -533,19 +533,21 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         } else var id = base(this).getAttribute('id')
         if (selector.includes('::')) selector = css.supportedPElementVendor(selector)
         else if (selector.includes(':')) selector = css.supportedPClassVendor(selector)
-        const final = `#${id}${selector}{${css.toCSS(cssStuff)}}`
+        const final = `#${id}  ${selector} {${css.toCSS(cssStuff)}}`
         let existing = this.selfRules[css.formatStr(selector.replace(/\s/g, ''))]
+        // for (let i = 5; i--;) try {
         if (existing) {
-            for (let i = 0, { length } = existing.style; i < length; ++i) {
-                let prop = existing.style[i]
-                existing.style.removeProperty(prop)
-            }
-            for (let i in cssStuff) {
-                existing.style.setProperty(css.capVendor(i, cssStuff[i]), cssStuff[i])
-            }
+            existing.cssText = final
+            return
         } else {
-            this.selfRules[css.formatStr(selector.replace(/\s/g, ''))] = customRules.cssRules[customRules.insertRule(final)]
+            let n = this.selfRules[css.formatStr(selector.replace(/\s/g, ''))] = customRules.cssRules[customRules.insertRule(final)]
         }
+        // }
+        // catch(e) {
+        // if (!i) throw e
+        // await new Promise(requestAnimationFrame)
+        // continue
+        // }
     }
     animate(keyframes, options = {}) {
         options.timing ??= 'ease'
