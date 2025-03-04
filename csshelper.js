@@ -4,7 +4,7 @@ export function dashVendor(prop, val) {
 export function capVendor(prop, val) {
     return toCaps(vendor(toDash(prop), val))
 }
-const allVendors = /-(moz|o|ms|webkit|xv|atsc|wap|khtml|konq|apple|ah|hp|ro|rim|tc|fso|icabepub)-/,
+const allVendors = /-(webkit|moz|o|ms|xv|atsc|wap|khtml|konq|apple|ah|hp|ro|rim|tc|fso|icabepub)-/,
     allVendors2 = /-(prince|mso)-/
 export function vendor(prop, val) {
     val = `${val}`
@@ -157,20 +157,33 @@ export function supportsRule(rule) {
 }
 const theNames = allVendors.toString().match(/\w+/g)
 export function supportedPClassVendor(className) {
-    let _class = className.split(':').at(-1).replace(allVendors, '')
-    for (let vendor of theNames) {
-        let name = `:-${vendor}-${_class}`
-        if (supportsPseudoClass(name)) return name
+    try {
+        let [before, _class] = className.split(/:/)
+        _class = _class.replace(allVendors, '')
+        for (let vendor of theNames) {
+            let name = `:-${vendor}-${_class}`
+            if (supportsPseudoClass(name)) return `${before}${name}`
+        }
+        if (supportsPseudoClass(className = `::prince-${_class}`) || supportsPseudoClass(className = `::mso-${_class}`)) return `${before}${className}`
+        return `${before}:${_class}`
     }
-    return _class
+    catch {
+        throw SyntaxError(`Bad parsing for Pseudo-Class: '${_class}' (they should start with ':')`)
+    }
 }
 export function supportedPElementVendor(element) {
-    let _element = element.split('::').at(-1).replace(allVendors, '')
-    for (let vendor of theNames) {
-        let name = `::-${vendor}-${_element}`
-        if (supportsPseudoElement(name)) return name
+    try {
+        let [before, _element] = element.split(/::/)
+        _element = _element.replace(allVendors, '')
+        for (let vendor of theNames) {
+            let name = `::-${vendor}-${_element}`
+            if (supportsPseudoElement(name)) return `${before}${name}`
+        }
+        return `${before}::${_element}`
     }
-    return _element
+    catch {
+        throw SyntaxError(`Bad parsing for Pseudo-Element: '${element}' (they should start with '::')`)
+    }
 }
 window.spc = supportedPClassVendor
 window.sse = supportedPElementVendor
