@@ -168,7 +168,7 @@ export function supportedPClassVendor(className) {
         return `${before}:${_class}`
     }
     catch {
-        throw SyntaxError(`Bad parsing for Pseudo-Class: '${_class}' (they should start with ':')`)
+        throw SyntaxError(`Bad parsing for Pseudo-Class: '${_class}'. They should include ':'`)
     }
 }
 export function supportedPElementVendor(element) {
@@ -179,10 +179,11 @@ export function supportedPElementVendor(element) {
             let name = `::-${vendor}-${_element}`
             if (supportsPseudoElement(name)) return `${before}${name}`
         }
+        if (supportsPseudoElement(element = `:prince-${_element}`) || supportsPseudoElement(element = `:mso-${_element}`)) return `${before}${element}`
         return `${before}::${_element}`
     }
     catch {
-        throw SyntaxError(`Bad parsing for Pseudo-Element: '${element}' (they should start with '::')`)
+        throw SyntaxError(`Bad parsing for Pseudo-Element: '${element}'. They should include '::'`)
     }
 }
 export function supportsPseudoClass(className) {
