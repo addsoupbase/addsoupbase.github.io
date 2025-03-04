@@ -22,14 +22,7 @@ function genericGet(t, prop) {
     let out = t[prop]
     return bindIfNecessary(out, t)
 }
-const customRules = (document.getElementById('addedStyleRules') ?? function () {
-    let out = document.createElement('style');
-    (document.head ?? document.body ?? document.documentElement ?? document.querySelector('*')).appendChild(out)
-    out.sheet.insertRule('@namespace svg url("http://www.w3.org/2000/svg")')
-    out.setAttribute('id', 'addedStyleRules')
-    out.textContent = 'Check your browser for CSS rules ($0.sheet.cssRules)'
-    return out
-}()).sheet
+const customRules = css.getDefaultStyleSheet()
 const handlers = {
     // 🚮 Replacements because these interfaces aren't very good...
     styles: {
@@ -453,6 +446,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     }*/
 
     addSelfRule(selector, cssStuff) {
+        //  Throws randomly sometimes??
         if (!base(this).hasAttribute('id')) {
             do var id = `${Math.random().toString(36).slice(2)}${performance.now().toString(36).slice(2)}`.replace(/\./g, '')
             while (document.getElementById(id))

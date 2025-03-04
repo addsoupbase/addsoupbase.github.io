@@ -112,14 +112,7 @@ export async function registerCSS(selector, rule) {
             return selectr
         })
         .join(',')
-    const { sheet } = addedStyleRules ??= document.getElementById('addedStyleRules') ?? function () {
-        let out = document.createElement('style');
-        (document.head ?? document.body ?? document.documentElement ?? document.querySelector('*')).appendChild(out)
-        out.sheet.insertRule('@namespace svg url("http://www.w3.org/2000/svg")')
-        out.setAttribute('id', 'addedStyleRules')
-        out.textContent = 'Check your browser for CSS rules ($0.sheet.cssRules)'
-        return out
-    }()
+    const sheet = addedStyleRules ??= getDefaultStyleSheet()
     return new Promise(res)
     function res(resolve) {
         requestAnimationFrame(res)
@@ -128,6 +121,16 @@ export async function registerCSS(selector, rule) {
             return resolve(sheet.insertRule(`${selector}${r}`))
         }
     }
+}
+export function getDefaultStyleSheet() {
+    return (document.getElementById('addedStyleRules') ?? function () {
+        let out = document.createElement('style');
+        (document.head ?? document.body ?? document.documentElement ?? document.querySelector('*')).appendChild(out)
+        out.sheet.insertRule('@namespace svg url("http://www.w3.org/2000/svg")')
+        out.setAttribute('id', 'addedStyleRules')
+        out.textContent = 'Check your browser for CSS rules ($0.sheet.cssRules)'
+        return out
+    }()).sheet
 }
 export function registerCSSAll(rules) {
     let out = []
@@ -146,7 +149,7 @@ export function supportsRule(rule) {
         dummyStyleSheet.insertRule(rule, 0)
         //  If for whatever reason it doesn't,
         //  it won't be added so we can just check for that
-        if (!(dummyStyleSheet.cssRules ?? dummyStyleSheet.rules).length) throw''
+        if (!(dummyStyleSheet.cssRules ?? dummyStyleSheet.rules).length) throw ''
         dummyStyleSheet.deleteRule(0)
         working.add(rule)
         return true
@@ -161,7 +164,7 @@ export function supportedPClassVendor(className) {
     try {
         let [before, _class] = className.split(':')
         _class = _class.replace(allVendors, '')
-        .replace(allVendors2, '')
+            .replace(allVendors2, '')
         if (supportsPseudoClass(_class)) return `${before}:${_class}`
         for (let vendor of theNames) {
             let name = `:-${vendor}-${_class}`
@@ -178,7 +181,7 @@ export function supportedPElementVendor(element) {
     try {
         let [before, _element] = element.split('::')
         _element = _element.replace(allVendors, '')
-        .replace(allVendors2, '')
+            .replace(allVendors2, '')
         if (supportsPseudoElement(_element)) return `${before}::${_element}`
         for (let vendor of theNames) {
             let name = `::-${vendor}-${_element}`
