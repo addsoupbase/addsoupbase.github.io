@@ -140,10 +140,12 @@ export function registerCSSAll(rules) {
     for (let rule in rules) out.push(registerCSS(rule, rules[rule]))
     return out
 }
-let dummyStyleSheet,
-    working = new Set,
-    bad = new Set
+// let dummyStyleSheet,
+    // working = new Set,
+    // bad = new Set
 export function supportsRule(rule) {
+   
+    return CSS.supports(`selector(${rule})`) // Not me finding out you can do this after spending like an hour trying to make a workaround 😭
     dummyStyleSheet ??= new CSSStyleSheet
     if (working.has(rule)) return true
     else if (bad.has(rule)) return false
@@ -151,8 +153,8 @@ export function supportsRule(rule) {
         //  if the rule is invalid it will throw
         dummyStyleSheet.insertRule(rule, 0)
         //  If for whatever reason it doesn't,
-        //  it won't be added so we can just check for that
-        if (!(dummyStyleSheet.cssRules ?? dummyStyleSheet.rules).length) throw ''
+        //  it won't be added so we can just check for that        
+        if (!(0 in dummyStyleSheet.cssRules)) throw ''
         dummyStyleSheet.deleteRule(0)
         working.add(rule)
         return true
@@ -165,15 +167,17 @@ export function supportsRule(rule) {
 const theNames = allVendors.toString().match(/\w+/g)
 export function supportedPClassVendor(className) {
     try {
-        let [before, _class] = className.split(':')
+        let [before, _class] = className.split(':'),
+            already = _class
         _class = _class.replace(allVendors, '')
             .replace(allVendors2, '')
-        if (supportsPseudoClass(_class)) return `${before}:${_class}`
+        if (supportsRule(already = `${before}:${already}`)) return already
         for (let vendor of theNames) {
             let name = `:-${vendor}-${_class}`
-            if (supportsPseudoClass(name)) return `${before}${name}`
+            if (supportsRule(name)) return `${before}${name}`
         }
-        if (supportsPseudoClass(className = `:prince-${_class}`) || supportsPseudoClass(className = `:mso-${_class}`)) return `${before}${className}`
+        if (supportsRule(className = `:prince-${_class}`) ||
+            supportsRule(className = `:mso-${_class}`)) return `${before}${className}`
         return `${before}:${_class}`
     }
     catch {
@@ -182,27 +186,24 @@ export function supportedPClassVendor(className) {
 }
 export function supportedPElementVendor(element) {
     try {
-        let [before, _element] = element.split('::')
+        let [before, _element] = element.split('::'),
+            already = _element
         _element = _element.replace(allVendors, '')
             .replace(allVendors2, '')
-        if (supportsPseudoElement(_element)) return `${before}::${_element}`
+        if (supportsRule(already = `${before}::${already}`)) return already
         for (let vendor of theNames) {
             let name = `::-${vendor}-${_element}`
-            if (supportsPseudoElement(name)) return `${before}${name}`
+            if (supportsRule(name)) return `${before}${name}`
         }
-        if (supportsPseudoElement(element = `::prince-${_element}`) || supportsPseudoElement(element = `::mso-${_element}`)) return `${before}${element}`
+        if (supportsRule(element = `::prince-${_element}`) ||
+            supportsRule(element = `::mso-${_element}`)) return `${before}${element}`
         return `${before}::${_element}`
     }
     catch {
         throw SyntaxError(`Bad parsing for Pseudo-Element: '${element}'. They should include '::'`)
     }
 }
-export function supportsPseudoClass(className) {
-    return supportsRule(`${className}{}`)
-}
-export function supportsPseudoElement(element) {
-    return supportsRule(`${element}{}`)
-}
+
 queueMicrotask
     (() => {
         //    Some default CSS..

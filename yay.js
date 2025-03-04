@@ -10,7 +10,9 @@ const me = Symbol('base')
 const all = new WeakMap
 const revokes = new WeakMap
 const bounded = new WeakMap
-
+function gen() {
+    return `${Math.random()}${Math.random()}`.replace(/\./g, '')
+}
 function bindIfNecessary(maybeFunc, to) {
     // ♻️ Make sure we just re-use the same function
     // ♻️ instead of making a new one every time
@@ -525,22 +527,31 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             customRules.deleteRule([...customRules.cssRules].indexOf(this.selfRules[i]))
     }
     addSelfRule(selector, cssStuff) {
-        if (!base(this).hasAttribute('id')) {
-            //  cant start with a number
-            do var id = `${this.tagName}${Math.random().toString(36).slice(2)}${performance.now().toString(36).slice(2)}`.replace(/\./g, '')
-            while (document.getElementById(id))
+        const og = selector
+        try {
+            if (!base(this).hasAttribute('id')) {
+                //  cant start with a number
+                do var id = gen()
+                while (document.getElementById(id))
+            } else var id = base(this).getAttribute('id')
+            if (selector.includes('::')) selector = css.supportedPElementVendor(selector)
+            else if (selector.includes(':')) selector = css.supportedPClassVendor(selector)
+            const final = `#${CSS.escape(id)}  ${selector} {${(css.toCSS(cssStuff))}}`
+            let existing = this.selfRules[css.formatStr(selector.replace(/\s/g, ''))]
+            // for (let i = 5; i--;) try {
+            if (existing) {
+                existing.insertRule(final)
+                console.log(existing)
+            } else {
+                let n = this.selfRules[css.formatStr(selector.replace(/\s/g, ''))] = customRules.cssRules[customRules.insertRule(final)]
+            }
             this.setAttributes({ id })
-        } else var id = base(this).getAttribute('id')
-        if (selector.includes('::')) selector = css.supportedPElementVendor(selector)
-        else if (selector.includes(':')) selector = css.supportedPClassVendor(selector)
-        const final = `#${id}  ${selector} {${css.toCSS(cssStuff)}}`
-        let existing = this.selfRules[css.formatStr(selector.replace(/\s/g, ''))]
-        // for (let i = 5; i--;) try {
-        if (existing) {
-            existing.cssText = final
-            return
-        } else {
-            let n = this.selfRules[css.formatStr(selector.replace(/\s/g, ''))] = customRules.cssRules[customRules.insertRule(final)]
+        }
+        catch {
+            console.warn(`⛓️‍💥 Unrecognized CSS rule at '${og}'`)
+        }
+        finally {
+            return this
         }
         // }
         // catch(e) {
