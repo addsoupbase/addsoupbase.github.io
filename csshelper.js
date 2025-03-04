@@ -185,8 +185,6 @@ export function supportedPElementVendor(element) {
         throw SyntaxError(`Bad parsing for Pseudo-Element: '${element}' (they should start with '::')`)
     }
 }
-window.spc = supportedPClassVendor
-window.sse = supportedPElementVendor
 export function supportsPseudoClass(className) {
     return supportsRule(`${className}{}`)
 }
