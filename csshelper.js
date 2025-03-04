@@ -107,8 +107,8 @@ export function toCSS(obj) {
 export async function registerCSS(selector, rule) {
     selector = selector.split(',')
         .map(selectr => {
-            if (selectr.startsWith('::')) selectr = supportedPElementVendor(selectr)
-            else if (selectr.startsWith(':')) selectr = supportedPClassVendor(selectr)
+            if (/::[\w-]/.test(selectr)) selectr = supportedPElementVendor(selectr)
+            else if (/:[\w-]/.test(selectr)) selectr = supportedPClassVendor(selectr)
             return selectr
         })
         .join(',')
