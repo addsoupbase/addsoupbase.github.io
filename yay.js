@@ -194,7 +194,6 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         frag[onstatechange]?.call(frag.content)
         frag = frag.content
         console.log(frag)
-        debugger
         let cached = frag.cloneNode(true)
         let staticBatch = [...frag.querySelectorAll('*')]
         let newBatch = [...cached.querySelectorAll('*')]
@@ -207,12 +206,13 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             let clone = prox(newBatch[index])
             let staticEvents = allEvents.get(base(el))
             events.forEach(name => {
-                let { listener, passive, capture, handler, prevents, stopProp, once } = staticEvents.get(name)
+                let { listener, passive, capture, handler, prevents, stopProp, once, stopImmediateProp } = staticEvents.get(name)
                 if (once) name = `_${name}`
                 if (passive) name = `^${name}`
                 if (capture) name = `%${name}`
                 if (stopProp) name = `&${name}`
                 if (prevents) name = `$${name}`
+                if (stopImmediateProp) name = `!${name}`
                 clone.on({ [name]: listener[unbound][unbound] }, handler, true)
             })
         })
@@ -229,25 +229,31 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         let out = document.createDocumentFragment(),
             { firstElementChild } = me
         while (firstElementChild) {
-            me.removeChild(firstElementChild)
-            out.appendChild(firstElementChild);
+            out.appendChild(me.removeChild(firstElementChild));
             ({ firstElementChild } = me)
         }
         return out
+    }
+    pass() {
+        let { orphans } = this
+        this.destroy()
+        return orphans
     }
     get clone() {
         return prox(this.cloneNode(true))
     }
     destroy() {
         this.cancelAnims()
+        for (let [, val] of this[states]) {
+            for (let el of val.content.querySelectorAll('*')) {
+                prox(el).destroy()
+            }
+        }
         this[states].clear()
-        let { lastElementChild } = this
-        while (lastElementChild)
-            prox(lastElementChild).destroy(),
-                { lastElementChild } = this
+        this.destroyChildren()
         let my = base(this)
         do my.remove()
-        while (document.contains(my))
+        while (my.isConnected /*document.contains(my)*/)
         let myevents = getEventNames(my)
         myevents.size && this.off(...myevents)
         all.delete(base(this))
@@ -266,10 +272,8 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     }
     on(events, useHandler) {
         if (typeof events === 'function') events = Object.defineProperty(events.bind(this), unbound, { value: events })
-        else if (Array.isArray(events)) events = events.map(value => {
-            console.warn(value)
-            return Object.defineProperty(value.bind(this), unbound, { value })
-        }
+        else if (Array.isArray(events)) events = events.map(value =>
+            Object.defineProperty(value.bind(this), unbound, { value })
         )
         else for (let i in events) {
             let value = events[i]
@@ -422,8 +426,8 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             return (filter?.(node) ?? true) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
         }
     }
-    get [Symbol.iterator]() {
-        return base(this).querySelectorAll('*')[Symbol.iterator]
+     *[Symbol.iterator]() {
+        yield* Array.from(base(this).getElementsByTagName('*'), prox)
     }
     get [Symbol.toPrimitive]() {
         throw TypeError('Cannot convert Element to a primitive value')
@@ -497,7 +501,7 @@ const prototype = Object.create(null)
         }
     })
 )
-CopyStuff: {
+{
     function forEach(i) { i === 'constructor' || Object.defineProperty(prototype, i, props[i]) }
     Reflect.ownKeys(props).forEach(forEach)
     // 🖨 Copy everything
@@ -607,7 +611,7 @@ function $(html, props, ...children) {
             }
                 break
             case 'createHTMLDocument': {
-                let n = document.implementation.createHTMLDocument('')
+                let n = document.implementation.createHTMLDocument()
                 n.body.innerHTML = html
                 var element = document.adoptNode(n.body.firstElementChild)
             }

@@ -145,7 +145,7 @@ export function supportsRule(rule) {
         dummyStyleSheet.insertRule(rule, 0)
         //  If for whatever reason it doesn't,
         //  it won't be added so we can just check for that
-        if (!(dummyStyleSheet.cssRules ?? dummyStyleSheet.rules).length) throw ''
+        if (!(dummyStyleSheet.cssRules ?? dummyStyleSheet.rules).length) throw''
         dummyStyleSheet.deleteRule(0)
         working.add(rule)
         return true
@@ -158,8 +158,10 @@ export function supportsRule(rule) {
 const theNames = allVendors.toString().match(/\w+/g)
 export function supportedPClassVendor(className) {
     try {
-        let [before, _class] = className.split(/:/)
+        let [before, _class] = className.split(':')
         _class = _class.replace(allVendors, '')
+        .replace(allVendors2, '')
+        if (supportsPseudoClass(_class)) return `${before}:${_class}`
         for (let vendor of theNames) {
             let name = `:-${vendor}-${_class}`
             if (supportsPseudoClass(name)) return `${before}${name}`
@@ -173,8 +175,10 @@ export function supportedPClassVendor(className) {
 }
 export function supportedPElementVendor(element) {
     try {
-        let [before, _element] = element.split(/::/)
+        let [before, _element] = element.split('::')
         _element = _element.replace(allVendors, '')
+        .replace(allVendors2, '')
+        if (supportsPseudoElement(_element)) return `${before}::${_element}`
         for (let vendor of theNames) {
             let name = `::-${vendor}-${_element}`
             if (supportsPseudoElement(name)) return `${before}${name}`

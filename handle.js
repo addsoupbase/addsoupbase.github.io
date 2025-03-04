@@ -151,7 +151,7 @@ export function on(target, events, useHandler) {
             allEvents.has(target) || allEvents.set(target, new Map)
             //A Map to hold the names & events
             const myGlobalEventMap = allEvents.get(target)
-            myGlobalEventMap.set(eventName, { passive, capture, listener: ProxyFunction, handler: !!useHandler, prevents, stopProp, once })
+            myGlobalEventMap.set(eventName, { passive, capture, listener: ProxyFunction, handler: !!useHandler, prevents, stopProp, once, stopImmediateProp })
             myEvents.add(eventName)
             useHandler || console.info(`🔔 '${eventName}' event added`)
         }
