@@ -164,7 +164,7 @@ export function supportedPClassVendor(className) {
             let name = `:-${vendor}-${_class}`
             if (supportsPseudoClass(name)) return `${before}${name}`
         }
-        if (supportsPseudoClass(className = `::prince-${_class}`) || supportsPseudoClass(className = `::mso-${_class}`)) return `${before}${className}`
+        if (supportsPseudoClass(className = `:prince-${_class}`) || supportsPseudoClass(className = `:mso-${_class}`)) return `${before}${className}`
         return `${before}:${_class}`
     }
     catch {
@@ -179,7 +179,7 @@ export function supportedPElementVendor(element) {
             let name = `::-${vendor}-${_element}`
             if (supportsPseudoElement(name)) return `${before}${name}`
         }
-        if (supportsPseudoElement(element = `:prince-${_element}`) || supportsPseudoElement(element = `:mso-${_element}`)) return `${before}${element}`
+        if (supportsPseudoElement(element = `::prince-${_element}`) || supportsPseudoElement(element = `::mso-${_element}`)) return `${before}${element}`
         return `${before}::${_element}`
     }
     catch {
