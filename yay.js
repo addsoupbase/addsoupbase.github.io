@@ -10,7 +10,7 @@ function bindIfNecessary(maybeFunc, to) {
     return typeof
         maybeFunc === 'function'
         ? bounded.get(maybeFunc) ?? bounded.set(maybeFunc, maybeFunc.bind(to))
-        .get(maybeFunc)
+            .get(maybeFunc)
         : maybeFunc
 }
 function genericGet(t, prop) {
@@ -312,8 +312,18 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     }
     setAttributes(attr) {
         let me = base(this)
+        let bad = /^on.+$/
         for (let i in attr) {
             let val = attr[i]
+            if (bad.test(i)) throw TypeError(`Inline event handlers are deprecated`)
+            /*   switch (i) {
+                   case 'disabled': me.setAttribute('aria-disabled', !!val); break
+                   case 'checked': me.setAttribute('aria-checked', !!val); break
+                   case 'hidden': me.setAttribute('aria-hidden', !!val); break
+                   case 'required': me.setAttribute('aria-required', !!val); break
+                   case 'readonly': me.setAttribute('aria-readonly', !!val); break
+                   case 'placeholder': me.setAttribute('aria-placeholder', val); break
+               }*/
             if (typeof val === 'boolean') me.toggleAttribute(i, val)
             else if (val === '' || val == null) me.removeAttribute(i)
             else me.setAttribute(i, val)
@@ -628,6 +638,17 @@ function $(html, props, ...children) {
         element.setAttributes({ class: classes?.join(' '), id, type })
         function slice(o) { return o.slice(1) }
     }
+    /*{
+        let attributes = {}
+        if (element.type === 'checkbox') attributes.role = 'checkbox'
+        else if (element.type === 'range') attributes.role = 'slider'
+        switch (element.tagName.toLowerCase()) {
+            case 'dialog': attributes['aria-dialog'] = true; break
+            case 'button': attributes['aria-button'] = true; break
+            case 'form': attributes['aria-form'] = true; break
+        }
+        element.setAttributes(attributes)
+    }*/
     /*
                    <!-- beforebegin -->
                            <element>

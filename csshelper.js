@@ -4,13 +4,15 @@ export function dashVendor(prop, val) {
 export function capVendor(prop, val) {
     return toCaps(vendor(toDash(prop), val))
 }
+const allVendors = /-(moz|o|ms|webkit|xv|atsc|wap|khtml|konq|apple|ah|hp|ro|rim|tc|fso|icabepub)-/,
+    allVendors2 = /-(prince|mso)-/
 export function vendor(prop, val) {
     val = `${val}`
     if (prop.startsWith('--') && CSS.supports(prop, val)) return prop
     if (val.trim() && !CSS.supports(prop, val)) {
         let prefix = prop = prop
-            .replace(/-(moz|o|ms|webkit|xv|atsc|wap|khtml|konq|apple|ah|hp|ro|rim|tc|fso|icabepub)-/, '')
-            .replace(/(prince|mso)-/, '')
+            .replace(allVendors, '')
+            .replace(allVendors2, '')
         return (
             CSS.supports(prefix, val) ||
             // Maybe you dont need a prefix?
@@ -103,12 +105,19 @@ export function toCSS(obj) {
  * @param {Object} rule An object which describes the selector 
  */
 export async function registerCSS(selector, rule) {
+    selector = selector.split(',')
+        .map(selectr => {
+            if (selectr.startsWith('::')) selectr = supportedPElementVendor(selectr)
+            else if (selectr.startsWith(':')) selectr = supportedPClassVendor(selectr)
+            return selectr
+        })
+        .join(',')
     const { sheet } = addedStyleRules ??= function () {
         let out = document.createElement('style');
         (document.head ?? document.body ?? document.documentElement ?? document.querySelector('*')).appendChild(out)
         out.sheet.insertRule('@namespace svg url("http://www.w3.org/2000/svg")')
         out.textContent = '/*Check your browser for CSS rules*/'
-        return out  
+        return out
     }()
     return new Promise(res)
     function res(resolve) {
@@ -124,32 +133,78 @@ export function registerCSSAll(rules) {
     for (let rule in rules) out.push(registerCSS(rule, rules[rule]))
     return out
 }
+let dummyStyleSheet,
+    working = new Set,
+    bad = new Set
+export function supportsRule(rule) {
+    dummyStyleSheet ??= new CSSStyleSheet
+    if (working.has(rule)) return true
+    else if (bad.has(rule)) return false
+    try {
+        //  if the rule is invalid it will throw
+        dummyStyleSheet.insertRule(rule, 0)
+        //  If for whatever reason it doesn't,
+        //  it won't be added so we can just check for that
+        if (!(dummyStyleSheet.cssRules ?? dummyStyleSheet.rules).length) throw ''
+        dummyStyleSheet.deleteRule(0)
+        working.add(rule)
+        return true
+    } catch {
+        bad.add(rule)
+        console.warn(`⛓️‍💥 Unsupported CSS rule: '${rule}'`)
+        return false
+    }
+}
+const theNames = allVendors.toString().match(/\w+/g)
+export function supportedPClassVendor(className) {
+    let _class = className.split(':').at(-1).replace(allVendors, '')
+    for (let vendor of theNames) {
+        let name = `:-${vendor}-${_class}`
+        if (supportsPseudoClass(name)) return name
+    }
+    return _class
+}
+export function supportedPElementVendor(element) {
+    let _element = element.split('::').at(-1).replace(allVendors, '')
+    for (let vendor of theNames) {
+        let name = `::-${vendor}-${_element}`
+        if (supportsPseudoElement(name)) return name
+    }
+    return _element
+}
+window.spc = supportedPClassVendor
+window.sse = supportedPElementVendor
+export function supportsPseudoClass(className) {
+    return supportsRule(`${className}{}`)
+}
+export function supportsPseudoElement(element) {
+    return supportsRule(`${element}{}`)
+}
 queueMicrotask
-(() => {
-    //    Some default CSS..
-    registerCSSAll({
-        
-        dialog: {
-            transition: 'opacity 1s linear',
-            "font-family": "Arial",
-            "text-align": "center",
-            width: "300px",
-            height: "150px",
-            "word-break": "break-word"
-        },
-        '.centerx,.center': {
-            'justify-self': 'center',
-            margin: 'auto'
-        },
-        '.centery,.center': {
-            'align-self': 'center',
-            inset: 0,
-            position: 'fixed'
-        },
-    })
+    (() => {
+        //    Some default CSS..
+        registerCSSAll({
+            dialog: {
+                transition: 'opacity 1s linear',
+                "font-family": "Arial",
+                "text-align": "center",
+                width: "300px",
+                height: "150px",
+                "word-break": "break-word"
+            },
+            '.centerx,.center': {
+                'justify-self': 'center',
+                margin: 'auto'
+            },
+            '.centery,.center': {
+                'align-self': 'center',
+                inset: 0,
+                position: 'fixed'
+            },
+        })
 
-    if ('registerProperty' in CSS) import('./vendors.js')
-})//()
+        if ('registerProperty' in CSS) import('./vendors.js')
+    })//()
 export function dropShadow({
     color = '#000000',
     offsetX = '0px',
