@@ -118,9 +118,12 @@ export async function registerCSS(selector, rule) {
         requestAnimationFrame(res)
         function res() {
             let r = `{${toCSS(rule)}}`
-            return resolve(sheet.insertRule(`${selector}${r}`))
+            return resolve(sheet.insertRule(`${formatStr(selector)}${formatStr(r)}`))
         }
     }
+}
+export function formatStr(str) {
+    return str.trim().replace(/\s\s|\n\n/g, '')
 }
 export function getDefaultStyleSheet() {
     return (document.getElementById('addedStyleRules') ?? function () {

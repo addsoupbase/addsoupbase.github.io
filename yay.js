@@ -1,18 +1,26 @@
-import { on, off, getEventNames, allEvents, unbound } from './handle.js'
+import {
+    on,
+    off,
+    getEventNames,
+    allEvents,
+    unbound
+} from './handle.js'
 import * as css from './csshelper.js'
 const me = Symbol('base')
 const all = new WeakMap
 const revokes = new WeakMap
 const bounded = new WeakMap
+
 function bindIfNecessary(maybeFunc, to) {
     // ♻️ Make sure we just re-use the same function
     // ♻️ instead of making a new one every time
     return typeof
-        maybeFunc === 'function'
-        ? bounded.get(maybeFunc) ?? bounded.set(maybeFunc, maybeFunc.bind(to))
-            .get(maybeFunc)
-        : maybeFunc
+        maybeFunc === 'function' ?
+        bounded.get(maybeFunc) ?? bounded.set(maybeFunc, maybeFunc.bind(to))
+            .get(maybeFunc) :
+        maybeFunc
 }
+
 function genericGet(t, prop) {
     if (!isNaN(prop)) {
         let out = t[prop]
@@ -27,19 +35,19 @@ const handlers = {
     // 🚮 Replacements because these interfaces aren't very good...
     styles: {
         get(target, prop) {
-            return prop.startsWith('--') ? target.getPropertyValue(prop)
-                : target.getPropertyValue(css.dashVendor(prop, 'inherit'))
+            return prop.startsWith('--') ? target.getPropertyValue(prop) :
+                target.getPropertyValue(css.dashVendor(prop, 'inherit'))
         },
         set(target, prop, value) {
             if (prop.startsWith('--')) target.setProperty(prop, value)
             else value ?
-                target.setProperty(css.dashVendor(prop, value), value)
-                : this.deleteProperty(target, prop)
+                target.setProperty(css.dashVendor(prop, value), value) :
+                this.deleteProperty(target, prop)
             return true
         },
         deleteProperty(target, prop) {
-            return prop.startsWith('--') ? target.removeProperty(prop)
-                : target.removeProperty(css.dashVendor(prop, 'inherit')),
+            return prop.startsWith('--') ? target.removeProperty(prop) :
+                target.removeProperty(css.dashVendor(prop, 'inherit')),
                 true
         },
         has(target, prop) {
@@ -53,7 +61,9 @@ const handlers = {
         },
         set(t, prop, value, /*r*/) {
             let el = t[ATTR]
-            value ? el.setAttribute(prop, value) : this.deleteProperty({ el }, prop)
+            value ? el.setAttribute(prop, value) : this.deleteProperty({
+                el
+            }, prop)
             return true
         },
         has(t, prop) {
@@ -106,8 +116,7 @@ const handlers = {
             if (!isNaN(prop)) {
                 let out = t[prop]
                 out && base(out).replaceWith(base(value))
-            }
-            else t[prop] = value
+            } else t[prop] = value
             return true
         },
         deleteProperty(t, prop) {
@@ -144,11 +153,21 @@ let states = Symbol('💾')
 let onstatechange = Symbol('📸')
 let props = Object.getOwnPropertyDescriptors(class _ {
     // 🖋 Class syntax is easier to use
-    static cancel(o) { o.cancel() }
-    static pause(o) { o.pause() }
-    static play(o) { o.playState === 'paused' && o.play() }
-    static finish(o) { o.finish() }
-    static restart(o) { o.play(o.currentTime = 0) }
+    static cancel(o) {
+        o.cancel()
+    }
+    static pause(o) {
+        o.pause()
+    }
+    static play(o) {
+        o.playState === 'paused' && o.play()
+    }
+    static finish(o) {
+        o.finish()
+    }
+    static restart(o) {
+        o.play(o.currentTime = 0)
+    }
     /*get [states]() {
         return Object.defineProperty(this, 'states', {
             value: new Map
@@ -184,7 +203,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             this.currentState = null
             return this.destroyChildren()
         }
-        if (!this[states].has(identifier)/* || !(typeof identifier).match(/number|string|symbol|bigint/)*/) {
+        if (!this[states].has(identifier) /* || !(typeof identifier).match(/number|string|symbol|bigint/)*/) {
             this.destroyChildren()
             this.push($(`<code style="font-size:30px">INVALID STATE: ${identifier}</code>`))
             this.currentState = null
@@ -202,19 +221,32 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         staticBatch.forEach((el, index) => {
             el = prox(el)
             el.beforestatechange?.(cached)
-            let { events } = el
+            let {
+                events
+            } = el
             if (!events) return
             let clone = prox(newBatch[index])
             let staticEvents = allEvents.get(base(el))
             events.forEach(name => {
-                let { listener, passive, capture, handler, prevents, stopProp, once, stopImmediateProp } = staticEvents.get(name)
+                let {
+                    listener,
+                    passive,
+                    capture,
+                    handler,
+                    prevents,
+                    stopProp,
+                    once,
+                    stopImmediateProp
+                } = staticEvents.get(name)
                 if (once) name = `_${name}`
                 if (passive) name = `^${name}`
                 if (capture) name = `%${name}`
                 if (stopProp) name = `&${name}`
                 if (prevents) name = `$${name}`
                 if (stopImmediateProp) name = `!${name}`
-                clone.on({ [name]: listener[unbound][unbound] }, handler, true)
+                clone.on({
+                    [name]: listener[unbound][unbound]
+                }, handler, true)
             })
         })
         this.destroyChildren()
@@ -228,15 +260,21 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     get orphans() {
         let me = base(this)
         let out = document.createDocumentFragment(),
-            { firstElementChild } = me
+            {
+                firstElementChild
+            } = me
         while (firstElementChild) {
             out.appendChild(me.removeChild(firstElementChild));
-            ({ firstElementChild } = me)
+            ({
+                firstElementChild
+            } = me)
         }
         return out
     }
     pass() {
-        let { orphans } = this
+        let {
+            orphans
+        } = this
         this.destroy()
         return orphans
     }
@@ -244,6 +282,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         return prox(this.cloneNode(true))
     }
     destroy() {
+        this.resetSelfRules()
         this.cancelAnims()
         for (let [, val] of this[states]) {
             for (let el of val.content.querySelectorAll('*')) {
@@ -261,10 +300,13 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         revoke(this)
     }
     destroyChildren() {
-        let { lastElementChild } = this
+        let {
+            lastElementChild
+        } = this
         while (lastElementChild)
-            prox(lastElementChild).destroy(),
-                { lastElementChild } = this
+            prox(lastElementChild).destroy(), {
+                lastElementChild
+            } = this
     }
     $(html, props, ...children) {
         let out = $(html, props, ...children)
@@ -272,16 +314,23 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         return out
     }
     on(events, useHandler) {
-        if (typeof events === 'function') events = Object.defineProperty(events.bind(this), unbound, { value: events })
+        if (typeof events === 'function') events = Object.defineProperty(events.bind(this), unbound, {
+            value: events
+        })
         else if (Array.isArray(events)) events = events.map(value =>
-            Object.defineProperty(value.bind(this), unbound, { value })
+            Object.defineProperty(value.bind(this), unbound, {
+                value
+            })
         )
-        else for (let i in events) {
-            let value = events[i]
-            let newOne = events[i] = events[i].bind(this)
-            newOne[unbound] = value
-            Object.defineProperty(newOne, unbound, { value })
-        }
+        else
+            for (let i in events) {
+                let value = events[i]
+                let newOne = events[i] = events[i].bind(this)
+                newOne[unbound] = value
+                Object.defineProperty(newOne, unbound, {
+                    value
+                })
+            }
         on(base(this), events, useHandler)
         return this
     }
@@ -294,8 +343,11 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         for (let i in events) {
             let old = events[i]
             events[i] = func
+
             function func(...args) {
-                let { target } = args[0],
+                let {
+                    target
+                } = args[0],
                     pr = prox(target);
                 (me !== target || includeSelf) && (filter?.(pr) ?? 1) && old.apply(pr, args)
             }
@@ -311,7 +363,8 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             let ogValue = styles[prop]
             let fixedProp = css.toCaps(css.vendor(css.toDash(prop), ogValue))
             ogValue ? this.style[fixedProp] = ogValue //out.push(`${fixedProp}: ${ogValue}`)
-                : delete this.style[fixedProp]
+                :
+                delete this.style[fixedProp]
         }
         //base(this).style.cssText = out.join(';')
     }
@@ -339,7 +392,9 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         return base(this).getAnimations()
     }
     get allAnims() {
-        return base(this).getAnimations({ subtree: true })
+        return base(this).getAnimations({
+            subtree: true
+        })
     }
     cancelAnims() {
         this.allAnims.forEach(_.cancel)
@@ -362,20 +417,38 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         return this
     }
     fadeOut(duration = 500) {
-        return this.animate([{}, { opacity: 0 }], { duration, easing: 'ease', iterations: 1 }).finished.then(() => this.hide3())
+        return this.animate([{}, {
+            opacity: 0
+        }], {
+            duration,
+            easing: 'ease',
+            iterations: 1
+        }).finished.then(() => this.hide3())
     }
     fadeIn(duration = 500) {
         this.show3()
-        return this.animate([{ opacity: 0 }, { opacity: 1 }], { duration, easing: 'ease', iterations: 1 }).finished
+        return this.animate([{
+            opacity: 0
+        }, {
+            opacity: 1
+        }], {
+            duration,
+            easing: 'ease',
+            iterations: 1
+        }).finished
     }
     replaceWith(...elements) {
         base(this).replaceWith(...elements.map(base))
     }
     hide() {
-        return this.setAttributes({ hidden: true })
+        return this.setAttributes({
+            hidden: true
+        })
     }
     show() {
-        return this.setAttributes({ hidden: false })
+        return this.setAttributes({
+            hidden: false
+        })
     }
     hide2() {
         base(this).style.visibility = 'hidden'
@@ -408,10 +481,11 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         return out
     }
     push(...args) {
-        let frag = document.createDocumentFragment()
+        let frag = doc
         args.flat(1 / 0).forEach(a)
         base(this).appendChild(frag)
         return this
+
         function a(child) {
             frag.appendChild(base(child))
         }
@@ -420,10 +494,12 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     treeWalker(filter, whatToShow = NodeFilter.SHOW_ELEMENT) {
         let walker = document.createTreeWalker(base(this), whatToShow, filter_func)
         return out()
+
         function* out() {
             let current
-            while (current = walker.nextNode()) yield current instanceof current.ownerDocument.defaultView.HTMLElement ? prox(current) : current
+            while (current = walker.nextNode()) yield getValid(current) ? prox(current) : current
         }
+
         function filter_func(node) {
             return (filter?.(node) ?? true) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
         }
@@ -444,20 +520,34 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         return [...this.treeWalker(func)]
         function func(node) { return node.matches(selector) }
     }*/
-
+    resetSelfRules() {
+        for (let i in this.selfRules)
+            customRules.deleteRule([...customRules.cssRules].indexOf(this.selfRules[i]))
+    }
     addSelfRule(selector, cssStuff) {
-        //  Throws randomly sometimes??
         if (!base(this).hasAttribute('id')) {
-            do var id = `${Math.random().toString(36).slice(2)}${performance.now().toString(36).slice(2)}`.replace(/\./g, '')
+            //  cant start with a number
+            do var id = `${this.tagName}${Math.random().toString(36).slice(2)}${performance.now().toString(36).slice(2)}`.replace(/\./g, '')
             while (document.getElementById(id))
             this.setAttributes({ id })
-        }
-        else var id = base(this).getAttribute('id')
+        } else var id = base(this).getAttribute('id')
         if (selector.includes('::')) selector = css.supportedPElementVendor(selector)
         else if (selector.includes(':')) selector = css.supportedPClassVendor(selector)
-        customRules.insertRule(`#${id}${selector.startsWith(':') ? selector : ` ${selector}`}{${css.toCSS(cssStuff)}}`)
+        const final = `#${id}${selector}{${css.toCSS(cssStuff)}}`
+        let existing = this.selfRules[css.formatStr(selector.replace(/\s/g, ''))]
+        if (existing) {
+            for (let i = 0, { length } = existing.style; i < length; ++i) {
+                let prop = existing.style[i]
+                existing.style.removeProperty(prop)
+            }
+            for (let i in cssStuff) {
+                existing.style.setProperty(css.capVendor(i, cssStuff[i]), cssStuff[i])
+            }
+        } else {
+            this.selfRules[css.formatStr(selector.replace(/\s/g, ''))] = customRules.cssRules[customRules.insertRule(final)]
+        }
     }
-    animate(keyframes, options) {
+    animate(keyframes, options = {}) {
         options.timing ??= 'ease'
         options.iterations ??= 1
         for (let frame of keyframes)
@@ -472,12 +562,16 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         base(this).before(base(val))
     }
     get after() {
-        let { nextElementSibling } = base(this)
-        return nextElementSibling && prox(nextElementSibling)
+        let {
+            nextElementSibling
+        } = base(this)
+        return prox(nextElementSibling)
     }
     get before() {
-        let { previousElementSibling } = base(this)
-        return previousElementSibling && prox(previousElementSibling)
+        let {
+            previousElementSibling
+        } = base(this)
+        return prox(previousElementSibling)
     }
     set parent(parent) {
         parent ? base(parent).appendChild(base(this)) : base(this).remove()
@@ -487,11 +581,15 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         return prox(parent)
     }
     get first() {
-        let { firstElementChild } = base(this)
+        let {
+            firstElementChild
+        } = base(this)
         return prox(firstElementChild)
     }
     get last() {
-        let { lastElementChild } = base(this)
+        let {
+            lastElementChild
+        } = base(this)
         return prox(lastElementChild)
     }
 }.prototype)
@@ -510,18 +608,21 @@ const prototype = Object.create(null)
 'beforebegin afterbegin beforeend afterend'.split(' ').forEach(set =>
     Object.defineProperty(prototype, set, {
         set(val) {
-            typeof val === 'object'
-                ? base(this).insertAdjacentElement(set, base(val))
-                : base(this).insertAdjacentHTML(set, val)
+            typeof val === 'object' ?
+                base(this).insertAdjacentElement(set, base(val)) :
+                base(this).insertAdjacentHTML(set, val)
         }
     })
 )
 {
-    function forEach(i) { i === 'constructor' || Object.defineProperty(prototype, i, props[i]) }
+    function forEach(i) {
+        i === 'constructor' || Object.defineProperty(prototype, i, props[i])
+    }
     Reflect.ownKeys(props).forEach(forEach)
     // 🖨 Copy everything
 }
 const prototypeDescriptors = Object.getOwnPropertyDescriptors(prototype)
+
 function base(element) {
     // 🌱 Get the root element
     return element[me] ?? prox(element)[me]
@@ -544,10 +645,10 @@ const flags = {
             this.setState(val)
         }
     }
+
 function prox(target) {
     if (target === null) return null
-    if (!(target instanceof (target.ownerDocument.defaultView?.HTMLElement ?? HTMLElement))
-        && !(target instanceof (target.ownerDocument.defaultView?.SVGElement ?? SVGElement)))
+    if (!getValid(target))
         throw TypeError(`Invalid target: ${target}`) // get out
 
     // 🥅 Goal:
@@ -557,8 +658,13 @@ function prox(target) {
     // ❌ or 'setPrototypeOf' since it's bad i guess?
     // ✅ Only option is 'Object.create' or { __proto__: ... }
     if (!all.has(target)) {
-        let bleh = { value: target }
-        let { proxy, revoke } = Proxy.revocable(
+        let bleh = {
+            value: target
+        }
+        let {
+            proxy,
+            revoke
+        } = Proxy.revocable(
             Object.seal(Object.create(target, {
                 ...prototypeDescriptors,
                 [me]: bleh,
@@ -574,29 +680,45 @@ function prox(target) {
                 beforestatechange: plc,
                 afterstatechange: plc,
                 state,
-                currentState: { value: null, enumerable: 1, writable: 1 },
-                lastState: { value: null, enumerable: 1, writable: 1 },
+                currentState: {
+                    value: null,
+                    enumerable: 1,
+                    writable: 1
+                },
+                lastState: {
+                    value: null,
+                    enumerable: 1,
+                    writable: 1
+                },
                 flags,
                 children: {
                     value: new Proxy(target.children, handlers.HTMLCollection)
                 },
                 attr: {
-                    value: new Proxy(Object.create(null, { [ATTR]: bleh, length: { get() { return target.attributes.length } } }), handlers.attr)
+                    value: new Proxy(Object.create(null, {
+                        [ATTR]: bleh,
+                        length: {
+                            get() {
+                                return target.attributes.length
+                            }
+                        }
+                    }), handlers.attr)
                 },
                 styles: {
                     value: new Proxy(target.style, handlers.styles)
                 }
             })), {
             get(targ, prop) {
-                return targ.hasOwnProperty(prop) ? targ[prop]
-                    : bindIfNecessary(target[prop], target)
+                return targ.hasOwnProperty(prop) ? targ[prop] :
+                    bindIfNecessary(target[prop], target)
                 // ⛓️‍💥 'Illegal invocation' if function is not bound
             },
             set(targ, prop, value) {
                 return (targ.hasOwnProperty(prop) ? targ : target)[prop] = value, 1
             },
         })
-        if (target instanceof (target.ownerDocument.defaultView?.HTMLUnknownElement ?? HTMLUnknownElement))
+        if (target instanceof HTMLUnknownElement ||
+            target.ownerDocument.defaultView?.HTMLUnknownElement.prototype.isPrototypeOf(target))
             // ⏰ I will add the SVG elements later
             console.warn(`Unrecognized element '${target.tagName}'`)
         revokes.set(proxy, revoke)
@@ -604,13 +726,27 @@ function prox(target) {
     }
     return all.get(target)
 }
+
+function getValid(target) {
+    return target &&
+        target instanceof Element ||
+        target.ownerDocument?.defaultView?.Element.prototype.isPrototypeOf(target) ||
+        Element.prototype.isPrototypeOf(target)
+}
+const doc = document.createDocumentFragment()
+const parser = new DOMParser
+let temp
+let div
+let range
+
 function $(html, props, ...children) {
-    if (html.ownerDocument && html instanceof (html.ownerDocument.defaultView?.HTMLElement ?? HTMLElement)) return prox(html) // Redirect
+    if (getValid(html)) return prox(html) // Redirect
     if (html[0] === '<' && html.at(-1) === '>') {
         switch (parseMode) {
             //  This one seems to be the fastest by a tad
             //  but it's hard to tell...
-            default: var element = document.adoptNode(new DOMParser().parseFromString(html, 'text/html').body.firstElementChild)
+            default:
+                var element = document.adoptNode(parser.parseFromString(html, 'text/html').body.firstElementChild)
                 break
             case 'write': {
                 let doc = document.implementation.createHTMLDocument()
@@ -619,15 +755,15 @@ function $(html, props, ...children) {
             }
                 break
             case 'setHTMLUnsafe': {
-                let temp = document.createElement('template')
+                temp ??= document.createElement('template')
                 temp.setHTMLUnsafe(html)
                 var element = document.adoptNode(temp.content.firstElementChild)
             }
                 break
             case 'innerHTML': {
-                let n = document.createElement('div')
-                n.innerHTML = html
-                var element = n.removeChild(n.firstElementChild)
+                div ??= document.createElement('div')
+                div.innerHTML = html
+                var element = div.removeChild(div.firstElementChild)
             }
                 break
             case 'createHTMLDocument': {
@@ -638,11 +774,11 @@ function $(html, props, ...children) {
                 break
             case 'createRange':
                 //  Def the slowest
-                var element = document.adoptNode(document.createRange().createContextualFragment(html).firstElementChild)
+                var element = document.adoptNode((range ??= document.createRange()).createContextualFragment(html).firstElementChild)
                 break
             case 'template': {
                 //  Contender
-                let temp = document.createElement('template')
+                temp ??= document.createElement('template')
                 temp.innerHTML = html
                 var element = document.adoptNode(temp.content.firstElementChild)
             }
@@ -652,15 +788,21 @@ function $(html, props, ...children) {
                 break
         }
         element = prox(element)
-    }
-    else {
+    } else {
         html === 'fencedframe' && typeof HTMLFencedFrameElement === 'undefined' && (html = 'iframe')
         var element = prox(document.createElement(html.match(/\w+/)[0]))
         let classes = html.match(/\.[\w-]+/g)?.map(slice),
             id = html.match(/#\w+/)?.[0].slice(1),
             type = html.match(/%\w+/)?.[0].slice(1)
-        element.setAttributes({ class: classes?.join(' '), id, type })
-        function slice(o) { return o.slice(1) }
+        element.setAttributes({
+            class: classes?.join(' '),
+            id,
+            type
+        })
+
+        function slice(o) {
+            return o.slice(1)
+        }
     }
     /*{
         let attributes = {}
@@ -683,7 +825,9 @@ function $(html, props, ...children) {
                    <!-- afterend -->
     */
     if (props) {
-        function reuse(p) { if (p in props) element[p] = props[p] }
+        function reuse(p) {
+            if (p in props) element[p] = props[p]
+        }
         if ('parent' in props) element.parent = props.parent
         'events' in props && element.on(props.events)
         'innerHTML innerText textContent outerHTML outerText'.split(' ').forEach(reuse)
@@ -697,6 +841,7 @@ function $(html, props, ...children) {
     children.length && element.push(children)
     return element
 }
+
 function revoke(targ) {
     revokes.get(targ)?.(revokes.delete(targ))
 }
@@ -723,13 +868,19 @@ Object.defineProperties($, {
         }
     },
     body: {
-        get() { return prox(document.body) }
+        get() {
+            return prox(document.body)
+        }
     },
     head: {
-        get() { return prox(document.head) }
+        get() {
+            return prox(document.head)
+        }
     },
     doc: {
-        get() { return prox(document.documentElement) }
+        get() {
+            return prox(document.documentElement)
+        }
     }
 })
 for (let o of document.getElementsByTagName('noscript')) o.remove()
@@ -746,7 +897,9 @@ void async function () {
         return performance.now() - time
     }
     let obj = {}
-    let { default: a } = await import('./math.js')
+    let {
+        default: a
+    } = await import('./math.js')
     for (let n of `template createRange createHTMLDocument innerHTML parseHTMLUnsafe default template setHTMLUnsafe write`.split(' ')) {
         obj[n] = []
         for (let i = 4; i--;) {
