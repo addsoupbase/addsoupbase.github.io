@@ -552,7 +552,8 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         options.iterations ??= 1
         for (let frame of keyframes)
             for (let prop in frame)
-                frame[css.toCaps(css.vendor(css.toDash(prop), `${frame[prop]}`))] ??= `${frame[prop]}`
+                if (frame[prop]) frame[css.toCaps(css.vendor(css.toDash(prop), `${frame[prop]}`))] ??= `${frame[prop]}`
+                else delete frame[prop]
         return base(this).animate(keyframes, options)
     }
     set after(val) {
