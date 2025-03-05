@@ -190,7 +190,7 @@ img {
 
 body,
 html {
-  --tap-highlight-color: magenta;
+  --tap-highlight-color: rgba(255, 0, 255, 0.268);
   padding: 0;
   margin: 0;
   overflow: scroll;
