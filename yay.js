@@ -7,7 +7,7 @@ import {
 } from './handle.js'
 import * as css from './csshelper.js'
 const me = Symbol('base')
-const all = new WeakMap
+const all = new WeakMap 
 const revokes = new WeakMap
 const bounded = new WeakMap
 function gen() {
@@ -327,7 +327,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             for (let i in events) {
                 let value = events[i]
                 let newOne = events[i] = events[i].bind(this)
-                newOne[unbound] = value
+                
                 Object.defineProperty(newOne, unbound, {
                     value
                 })
@@ -468,11 +468,11 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         return this
     }
     hide4() {
-        base(this).style.contentVisibility = 'hidden'
+        this.styles.contentVisibility = 'hidden'
         return this
     }
     show4() {
-        base(this).style.contentVisibility = ''
+        this.styles.contentVisibility = ''
         return this
     }
     equals(other) {
@@ -491,7 +491,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             frag.appendChild(base(child))
         }
     }
-    //  i tried SO hard to make treewalker useful but it did not impress me!
+    //  i tried SO hard to make treewalker useful but it did NOT impress me!
     treeWalker(filter, whatToShow = NodeFilter.SHOW_ELEMENT) {
         let walker = document.createTreeWalker(base(this), whatToShow, filter_func)
         return out()
@@ -700,9 +700,7 @@ function prox(target) {
                     value: new Map
                 },
                 selfRules: {
-                    value: {
-                        __proto__: null,
-                    }
+                    value:Object.create(null)
                 },
                 [onstatechange]: plc,
                 beforestatechange: plc,
@@ -732,7 +730,7 @@ function prox(target) {
         })
         if (target instanceof HTMLUnknownElement ||
             target.ownerDocument.defaultView?.HTMLUnknownElement.prototype.isPrototypeOf(target))
-            // ⏰ I will add the SVG elements later
+            
             console.warn(`Unknown element: '${target.tagName}'`)
         revokes.set(proxy, () =>
             //  Make sure we have *NO* possible references left
