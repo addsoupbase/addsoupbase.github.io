@@ -7,7 +7,7 @@ import {
 } from './handle.js'
 import * as css from './csshelper.js'
 const me = Symbol('base')
-const all = new WeakMap 
+const all = new WeakMap
 const revokes = new WeakMap
 const bounded = new WeakMap
 function gen() {
@@ -327,7 +327,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             for (let i in events) {
                 let value = events[i]
                 let newOne = events[i] = events[i].bind(this)
-                
+
                 Object.defineProperty(newOne, unbound, {
                     value
                 })
@@ -486,7 +486,15 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         args.flat(1 / 0).forEach(a)
         base(this).appendChild(frag)
         return this
-
+        function a(child) {
+            frag.appendChild(base(child))
+        }
+    }
+    unshift(...args) {
+        let frag = doc
+        args.flat(1 / 0).forEach(a)
+        base(this).prepend(frag)
+        return this
         function a(child) {
             frag.appendChild(base(child))
         }
@@ -495,12 +503,10 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     treeWalker(filter, whatToShow = NodeFilter.SHOW_ELEMENT) {
         let walker = document.createTreeWalker(base(this), whatToShow, filter_func)
         return out()
-
         function* out() {
             let current
             while (current = walker.nextNode()) yield getValid(current) ? prox(current) : current
         }
-
         function filter_func(node) {
             return (filter?.(node) ?? true) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
         }
@@ -529,13 +535,12 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         const og = selector
         try {
             if (!base(this).hasAttribute('id')) {
-                //  cant start with a number
                 do var id = gen()
                 while (document.getElementById(id))
             } else var id = base(this).getAttribute('id')
             if (selector.includes('::')) selector = css.supportedPElementVendor(selector)
             else if (selector.includes(':')) selector = css.supportedPClassVendor(selector)
-            const final = `#${CSS.escape(id)}  ${selector} {${(css.toCSS(cssStuff))}}`
+            const final = `#${CSS.escape(id)}  ${selector}{${(css.toCSS(cssStuff))}}`
             let existing = this.selfRules[css.formatStr(selector.replace(/\s/g, ''))]
             // for (let i = 5; i--;) try {
             if (existing) {
@@ -564,8 +569,8 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         options.iterations ??= 1
         for (let frame of keyframes)
             for (let prop in frame)
-                if (frame[prop]) frame[css.toCaps(css.vendor(css.toDash(prop), `${frame[prop]}`))] ??= `${frame[prop]}`
-                else delete frame[prop]
+                if (frame[prop]) frame[css.capVendor(prop, `${frame[prop]}`)] ??= `${frame[prop]}`
+        // else delete frame[prop]
         return base(this).animate(keyframes, options)
     }
     set after(val) {
@@ -700,7 +705,7 @@ function prox(target) {
                     value: new Map
                 },
                 selfRules: {
-                    value:Object.create(null)
+                    value: Object.create(null)
                 },
                 [onstatechange]: plc,
                 beforestatechange: plc,
@@ -730,7 +735,7 @@ function prox(target) {
         })
         if (target instanceof HTMLUnknownElement ||
             target.ownerDocument.defaultView?.HTMLUnknownElement.prototype.isPrototypeOf(target))
-            
+
             console.warn(`Unknown element: '${target.tagName}'`)
         revokes.set(proxy, () =>
             //  Make sure we have *NO* possible references left
@@ -837,7 +842,7 @@ function $(html, props, ...children) {
                    <!-- afterend -->
     */
     if (props) {
-        function reuse(p) { p in props && (element[p] = props[p]) }
+        function reuse(p) {p in props&&(element[p]=props[p])}
         'parent' in props && (element.parent = props.parent)
         'events' in props && element.on(props.events)
         'outerHTML innerHTML outerText innerText textContent'.split(' ').forEach(reuse)
@@ -898,7 +903,7 @@ Object.defineProperties($, {
         }
     }
 })
-for (let o of document.getElementsByTagName('noscript')) o.remove()
+// for (let o of document.getElementsByTagName('noscript')) o.remove()
 let parseMode = 'mozInnerScreenY' in window ? 'createRange' : 'default'
 //  createRange seems to be *slightly* faster on firefox
 1 || async function () {
