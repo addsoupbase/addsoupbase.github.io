@@ -736,10 +736,7 @@ function prox(target) {
             console.warn(`Unknown element: '${target.tagName}'`)
         revokes.set(proxy, () =>
             //  Make sure we have *NO* possible references left
-            revoke() ^
-            childRevoke() ^
-            attrRevoke() ^
-            styleRevoke()
+            revoke(childRevoke(attrRevoke(styleRevoke())))
         )
         all.set(target, proxy)
     }
@@ -906,7 +903,7 @@ Object.defineProperties($, {
 for (let o of document.getElementsByTagName('noscript')) o.remove()
 let parseMode = 'mozInnerScreenY' in window ? 'createRange' : 'default'
 //  createRange seems to be *slightly* faster on firefox
-void async function () {
+1 || async function () {
     console.log("Test enabled")
     if (location.href.startsWith('http://localhost')) window.test = function (count = 1000, mode = parseMode) {
         parseMode = mode
@@ -928,4 +925,4 @@ void async function () {
         obj[n] = a.average(...obj[n])
     }
     console.log(obj)
-}
+}()

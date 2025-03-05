@@ -10,8 +10,11 @@ export function badCSS(data) {
     console.warn(data)
     alreadyLogged.add(data)
 }
-const allVendors = /-(webkit|moz|o|ms|xv|atsc|wap|khtml|konq|apple|ah|hp|ro|rim|tc|fso|icabepub)-/,
-    allVendors2 = /-(prince|mso)-/
+const allVendors = RegExp(
+    `-(${'webkit moz apple khtml konq o ms xv atsc wap ah hp ro rim tc fso icab epub'.split(' ').join('|')})-`
+    // internal
+),
+    allVendors2 = /(prince|mso)-/
 export function vendor(prop, val) {
     val = `${val}`
     if (prop.startsWith('--') && CSS.supports(prop, val)) return prop
@@ -29,9 +32,13 @@ export function vendor(prop, val) {
             CSS.supports(prefix = `-o-${prop}`, val) ||
             // Opera
             CSS.supports(prefix = `-apple-${prop}`, val) ||
-            // Other webkit thing idk
+            // Fruit
             CSS.supports(prefix = `-ms-${prop}`, val) ||
             // Microsoft
+            CSS.supports(prefix = `-khtml-${prop}`, val) ||
+            // Konqueror
+            CSS.supports(prefix = `-konq-${prop}`, val) ||
+            // Konqueror
             CSS.supports(prefix = `mso-${prop}`, val) ||
             // Microsoft Office
             CSS.supports(prefix = `-xv-${prop}`, val) ||
@@ -40,10 +47,6 @@ export function vendor(prop, val) {
             // Advanced Television Standards Committee
             CSS.supports(prefix = `-wap-${prop}`, val) ||
             // The WAP Forum
-            CSS.supports(prefix = `-khtml-${prop}`, val) ||
-            // Konqueror
-            CSS.supports(prefix = `-konq-${prop}`, val) ||
-            // Konqueror
             CSS.supports(prefix = `prince-${prop}`, val) ||
             // YesLogic
             CSS.supports(prefix = `-ah-${prop}`, val) ||
@@ -62,17 +65,18 @@ export function vendor(prop, val) {
             // IDK
             CSS.supports(prefix = `-epub-${prop}`, val) ||
             // IDK
+            // CSS.supports(prefix = `-internal-${prop}`, val) ||
+            // IDK
             badCSS(`⛓️‍💥 Unrecognized CSS at '${prefix = prop}: ${val}'`)),
             // Sorry!
             prefix
     }
     return prop
 }
-export async function importFont(name, src) {
-    if (!name || !src) throw TypeError('More arguments needed')
+export function importFont(name, src) {
+    if (!name || !src) throw TypeError(`Src and name required`)
     const font = new FontFace(name, `url(${src})`)
-    await font.load()
-    document.fonts.add(font)
+    font.load().then(() => document.fonts.add(font), console.warn)
     return font
 }
 export function toCaps(prop) {
@@ -150,9 +154,11 @@ export function registerCSSAll(rules) {
 // working = new Set,
 // bad = new Set
 export function supportsRule(rule) {
+    return CSS.supports(`selector(${rule})`)
+    // Not me finding out you can do this after spending 
+    // like an hour trying to make a workaround 😭
 
-    return CSS.supports(`selector(${rule})`) // Not me finding out you can do this after spending like an hour trying to make a workaround 😭
-    dummyStyleSheet ??= new CSSStyleSheet
+    /* dummyStyleSheet ??= new CSSStyleSheet
     if (working.has(rule)) return true
     else if (bad.has(rule)) return false
     try {
@@ -168,7 +174,7 @@ export function supportsRule(rule) {
         bad.add(rule)
         console.warn(`⛓️‍💥 Unsupported CSS rule: '${rule}'`)
         return false
-    }
+    } */
 }
 const theNames = allVendors.toString().match(/\w+/g)
 export function supportedPClassVendor(className) {
@@ -263,6 +269,7 @@ queueMicrotask
                 function reg({ name: o }) {
                     universal[vendor(o.slice(2), `var(${o})`)] = `var(${o})`
                 }
+                all = allProps = null
                 registerCSS('*', universal)
                 // console.groupEnd('⛓️‍💥 Unsupported CSS (you can ignore this)')
             }(new Set(allProps), window.scheduler)
@@ -299,220 +306,220 @@ export function convertToCSSMethod(value) {
     // }
 }
 {
-let inherits = true
-var allProps = [
-    {
-        //  Most important one
-        name: '--user-select',
-        initialValue: 'auto',
-        inherits
-    },
-    {
-        name: '--user-modify',
-        initialValue: 'auto',
-        inherits: false
-    },
-    {
-        name: '--force-broken-image-icon',
-        syntax: '<integer>',
-        initialValue: 0,
-        inherits: false
-    },
-    {
-        name: '--float-edge',
-        initialValue: 'content-box',
-        inherits: false
-    },
-    {
-        name: '--image-region',
-        inherits,
-        initialValue: 'auto',
-    },
-    {
-        name: '--box-orient',
-        initialValue: 'inline-axis',
-        inherits: false
-    },
-    {
-        name: '--box-align',
-        initialValue: 'stretch',
-        inherits: false
-    },
-    {
-        name: '--box-direction',
-        initialValue: 'normal',
-        inherits: false
-    },
-    {
-        name: '--box-flex',
-        inherits: false,
-        initialValue: 0,
-    },
-    {
-        name: '--box-flex-group',
-        inherits: false,
-        initialValue: 0,
-    },
-    {
-        name: '--box-lines',
-        inherits: false,
-        initialValue: 'single'
-    },
-    {
-        name: '--box-ordinal-group',
-        inherits: false,
-        initialValue: 1
-    },
-    {
-        name: '--box-decoration-break',
-        inherits: false,
-        initialValue: 'slice'
-    },
-    {
-        name: '--box-pack',
-        inherits: false,
-        initialValue: 'start'
-    },
-    {
-        name: '--user-input',
-        inherits,
-        initialValue: 'auto'
-    },
-    {
-        name: '--box-reflect',
-        inherits: false,
-        initialValue: 'none'
-    },
-    {
-        name: '--text-stroke-color',
-        inherits,
-        syntax: '<color>',
-        initialValue: 'currentcolor'
-    },
-    {
-        name: '--text-stroke-width',
-        inherits,
-        syntax: '<length>',
-        initialValue: 0
-    },
-    {
-        name: '--text-security',
-        inherits: false,
-        initialValue: 'none'
-    },
-    {
-        name: '--text-fill-color',
-        inherits,
-        initialValue: 'currentcolor'
-    },
-    {
-        name: '--line-clamp',
-        inherits: false,
-        initialValue: 'none'
-    },
-    {
-        name: '--font-smoothing',
-        inherits,
-        initialValue: 'auto'
-    },
-    {
-        name: '--mask-position-x',
-        inherits: false,
-        syntax: '<length-percentage>',
-        initialValue: '0%'
-    },
-    {
-        name: '--mask-position-y',
-        inherits: false,
-        syntax: '<length-percentage>',
-        initialValue: '0%'
-    },
-    {
-        name: '--tap-highlight-color',
-        inherits,
-        syntax: '<color>',
-        initialValue: 'transparent'
-    },
-    {
-        name: '--touch-callout',
-        inherits,
-        // syntax: '<color>',
-        initialValue: 'default'
-    },
-    {
-        name: '--window-dragging',
-        inherits: false,
-        initialValue: 'drag'
-    },
-    {
-        name: '--stack-sizing',
-        inherits,
-        initialValue: 'stretch-to-fit'
-    },
-    {
-        name: '--appearance',
-        inherits: false,
-        initialValue: 'auto'
-    },
-    {
-        name: '--mask-composite',
-        inherits: false,
-        initialValue: 'source-over'
-    },
-    {
-        name: '--image-rect',
-        inherits,
-        initialValue: 'auto'
-    },
-    {
-        name: '--context-properties',
-        inherits,
-        initialValue: 'none'
-    },
-    {
-        name: '--outline-radius',
-        inherits: false,
-        initialValue: '0 0 0 0'
-    },
-    {
-        name: '--window-shadow',
-        inherits: false,
-        initialValue: 'default'
-    },
-    {
-        name: '--binding',
-        inherits: false,
-        initialValue: 'none'
-    },
-    {
-        name: '--user-focus',
-        inherits: false,
-        initialValue: 'none'
-    },
-    {
-        name: '--text-blink',
-        inherits: false,
-        initialValue: 'none'
-    },
-    {
-        name: '--content-zoom-limit',
-        inherits: false,
-        initialValue: '400% 100%'
-    },
-    {
-        name: '--accelerator',
-        inherits: false,
-        initialValue: false
-    },
-    {
-        name: '--initial-letter',
-        inherits: false,
-        initialValue: 'normal'
-    },
-    {
-        name: '--order',
-        inherits: false,
-        initialValue: 0
-    }
-]
+    let inherits = true
+    var allProps = [
+        {
+            //  Most important one
+            name: '--user-select',
+            initialValue: 'auto',
+            inherits
+        },
+        {
+            name: '--user-modify',
+            initialValue: 'auto',
+            inherits: false
+        },
+        {
+            name: '--force-broken-image-icon',
+            syntax: '<integer>',
+            initialValue: 0,
+            inherits: false
+        },
+        {
+            name: '--float-edge',
+            initialValue: 'content-box',
+            inherits: false
+        },
+        {
+            name: '--image-region',
+            inherits,
+            initialValue: 'auto',
+        },
+        {
+            name: '--box-orient',
+            initialValue: 'inline-axis',
+            inherits: false
+        },
+        {
+            name: '--box-align',
+            initialValue: 'stretch',
+            inherits: false
+        },
+        {
+            name: '--box-direction',
+            initialValue: 'normal',
+            inherits: false
+        },
+        {
+            name: '--box-flex',
+            inherits: false,
+            initialValue: 0,
+        },
+        {
+            name: '--box-flex-group',
+            inherits: false,
+            initialValue: 0,
+        },
+        {
+            name: '--box-lines',
+            inherits: false,
+            initialValue: 'single'
+        },
+        {
+            name: '--box-ordinal-group',
+            inherits: false,
+            initialValue: 1
+        },
+        {
+            name: '--box-decoration-break',
+            inherits: false,
+            initialValue: 'slice'
+        },
+        {
+            name: '--box-pack',
+            inherits: false,
+            initialValue: 'start'
+        },
+        {
+            name: '--user-input',
+            inherits,
+            initialValue: 'auto'
+        },
+        {
+            name: '--box-reflect',
+            inherits: false,
+            initialValue: 'none'
+        },
+        {
+            name: '--text-stroke-color',
+            inherits,
+            syntax: '<color>',
+            initialValue: 'currentcolor'
+        },
+        {
+            name: '--text-stroke-width',
+            inherits,
+            syntax: '<length>',
+            initialValue: 0
+        },
+        {
+            name: '--text-security',
+            inherits: false,
+            initialValue: 'none'
+        },
+        {
+            name: '--text-fill-color',
+            inherits,
+            initialValue: 'currentcolor'
+        },
+        {
+            name: '--line-clamp',
+            inherits: false,
+            initialValue: 'none'
+        },
+        {
+            name: '--font-smoothing',
+            inherits,
+            initialValue: 'auto'
+        },
+        {
+            name: '--mask-position-x',
+            inherits: false,
+            syntax: '<length-percentage>',
+            initialValue: '0%'
+        },
+        {
+            name: '--mask-position-y',
+            inherits: false,
+            syntax: '<length-percentage>',
+            initialValue: '0%'
+        },
+        {
+            name: '--tap-highlight-color',
+            inherits,
+            syntax: '<color>',
+            initialValue: 'transparent'
+        },
+        {
+            name: '--touch-callout',
+            inherits,
+            // syntax: '<color>',
+            initialValue: 'default'
+        },
+        {
+            name: '--window-dragging',
+            inherits: false,
+            initialValue: 'drag'
+        },
+        {
+            name: '--stack-sizing',
+            inherits,
+            initialValue: 'stretch-to-fit'
+        },
+        {
+            name: '--appearance',
+            inherits: false,
+            initialValue: 'auto'
+        },
+        {
+            name: '--mask-composite',
+            inherits: false,
+            initialValue: 'source-over'
+        },
+        {
+            name: '--image-rect',
+            inherits,
+            initialValue: 'auto'
+        },
+        {
+            name: '--context-properties',
+            inherits,
+            initialValue: 'none'
+        },
+        {
+            name: '--outline-radius',
+            inherits: false,
+            initialValue: '0 0 0 0'
+        },
+        {
+            name: '--window-shadow',
+            inherits: false,
+            initialValue: 'default'
+        },
+        {
+            name: '--binding',
+            inherits: false,
+            initialValue: 'none'
+        },
+        {
+            name: '--user-focus',
+            inherits: false,
+            initialValue: 'none'
+        },
+        {
+            name: '--text-blink',
+            inherits: false,
+            initialValue: 'none'
+        },
+        {
+            name: '--content-zoom-limit',
+            inherits: false,
+            initialValue: '400% 100%'
+        },
+        {
+            name: '--accelerator',
+            inherits: false,
+            initialValue: false
+        },
+        {
+            name: '--initial-letter',
+            inherits: false,
+            initialValue: 'normal'
+        },
+        {
+            name: '--order',
+            inherits: false,
+            initialValue: 0
+        }
+    ]
 }
