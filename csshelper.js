@@ -251,7 +251,7 @@ queueMicrotask
                 /*await scheduler.yield()
                 CSS.registerProperty({
                     name: '--padding-start',
-                    inherits: false,
+                    inherits:0,
                     initialValue: 0
                 })*/
                 // console.groupCollapsed('⛓️‍💥 Unsupported CSS (you can ignore this)')
@@ -317,18 +317,18 @@ export function convertToCSSMethod(value) {
         {
             name: '--user-modify',
             initialValue: 'auto',
-            inherits: false
+            inherits: 0
         },
         {
             name: '--force-broken-image-icon',
             syntax: '<integer>',
             initialValue: 0,
-            inherits: false
+            inherits: 0
         },
         {
             name: '--float-edge',
             initialValue: 'content-box',
-            inherits: false
+            inherits: 0
         },
         {
             name: '--image-region',
@@ -338,46 +338,46 @@ export function convertToCSSMethod(value) {
         {
             name: '--box-orient',
             initialValue: 'inline-axis',
-            inherits: false
+            inherits: 0
         },
         {
             name: '--box-align',
             initialValue: 'stretch',
-            inherits: false
+            inherits: 0
         },
         {
             name: '--box-direction',
             initialValue: 'normal',
-            inherits: false
+            inherits: 0
         },
         {
             name: '--box-flex',
-            inherits: false,
+            inherits: 0,
             initialValue: 0,
         },
         {
             name: '--box-flex-group',
-            inherits: false,
+            inherits: 0,
             initialValue: 0,
         },
         {
             name: '--box-lines',
-            inherits: false,
+            inherits: 0,
             initialValue: 'single'
         },
         {
             name: '--box-ordinal-group',
-            inherits: false,
+            inherits: 0,
             initialValue: 1
         },
         {
             name: '--box-decoration-break',
-            inherits: false,
+            inherits: 0,
             initialValue: 'slice'
         },
         {
             name: '--box-pack',
-            inherits: false,
+            inherits: 0,
             initialValue: 'start'
         },
         {
@@ -387,7 +387,7 @@ export function convertToCSSMethod(value) {
         },
         {
             name: '--box-reflect',
-            inherits: false,
+            inherits: 0,
             initialValue: 'none'
         },
         {
@@ -404,7 +404,7 @@ export function convertToCSSMethod(value) {
         },
         {
             name: '--text-security',
-            inherits: false,
+            inherits: 0,
             initialValue: 'none'
         },
         {
@@ -414,7 +414,7 @@ export function convertToCSSMethod(value) {
         },
         {
             name: '--line-clamp',
-            inherits: false,
+            inherits: 0,
             initialValue: 'none'
         },
         {
@@ -424,13 +424,13 @@ export function convertToCSSMethod(value) {
         },
         {
             name: '--mask-position-x',
-            inherits: false,
+            inherits: 0,
             syntax: '<length-percentage>',
             initialValue: '0%'
         },
         {
             name: '--mask-position-y',
-            inherits: false,
+            inherits: 0,
             syntax: '<length-percentage>',
             initialValue: '0%'
         },
@@ -448,7 +448,7 @@ export function convertToCSSMethod(value) {
         },
         {
             name: '--window-dragging',
-            inherits: false,
+            inherits: 0,
             initialValue: 'drag'
         },
         {
@@ -458,12 +458,12 @@ export function convertToCSSMethod(value) {
         },
         {
             name: '--appearance',
-            inherits: false,
+            inherits: 0,
             initialValue: 'auto'
         },
         {
             name: '--mask-composite',
-            inherits: false,
+            inherits: 0,
             initialValue: 'source-over'
         },
         {
@@ -478,48 +478,160 @@ export function convertToCSSMethod(value) {
         },
         {
             name: '--outline-radius',
-            inherits: false,
+            inherits: 0,
             initialValue: '0 0 0 0'
         },
         {
             name: '--window-shadow',
-            inherits: false,
+            inherits: 0,
             initialValue: 'default'
         },
         {
             name: '--binding',
-            inherits: false,
+            inherits: 0,
             initialValue: 'none'
         },
         {
             name: '--user-focus',
-            inherits: false,
+            inherits: 0,
             initialValue: 'none'
         },
         {
             name: '--text-blink',
-            inherits: false,
+            inherits: 0,
             initialValue: 'none'
         },
         {
             name: '--content-zoom-limit',
-            inherits: false,
+            inherits: 0,
             initialValue: '400% 100%'
         },
         {
             name: '--accelerator',
-            inherits: false,
+            inherits: 0,
             initialValue: false
         },
         {
             name: '--initial-letter',
-            inherits: false,
+            inherits: 0,
             initialValue: 'normal'
         },
         {
             name: '--order',
-            inherits: false,
+            inherits: 0,
             initialValue: 0
+        },
+        {
+            name: '--text-kashida-space',
+            inherits,
+            syntax: '<percentage>',
+            initialValue: '0%'
+        },
+        {
+            name: '--interpolation-mode',
+            inherits: 0,
+            initialValue: 'none'
+        },
+        {
+            name: '--progress-appearance',
+            inherits: 0,
+            initialValue: 'bar',
+        },
+        {
+            name: '--content-zooming',
+            inherits: 0,
+            initialValue: 'auto'
+        },
+        {
+            name: '--flow-from',
+            inherits: 0,
+            initialValue: 'none'
+        },
+        {
+            name: '--flow-into',
+            inherits: 0,
+            initialValue: 'none'
+        },
+        {
+            name: '--content-zoom-chaining',
+            inherits: 0,
+            initialValue: 'none'
+        },
+        {
+            name: '--high-contrast-adjust',
+            inherits,
+            initialValue: 'auto'
+        },
+        {
+            name: '--ime-mode',
+            inherits: 0,
+            initialValue: 'auto'
+        },
+        /*    {
+                name: '--scrollbar-3dlight-color',
+                inherits,
+                initialValue: 'none'
+            },
+            {
+                name: '--scrollbar-arrow-color',
+                inherits,
+                initialValue: 'auto'
+            },
+            {
+                name: '--scrollbar-base-color',
+                inherits,
+                initialValue: 'auto'
+            },
+            {
+                name: '--scrollbar-dark-shadow-color',
+                inherits,
+                initialValue: 'none'
+            },*/
+        {
+            name: '--overflow-style',
+            inherits,
+            initialValue: 'auto'
+        },
+        {
+            name: '--text-autospace',
+            inherits: 0,
+            initialValue: 'none'
+        },
+        {
+            name: '--touch-select',
+            inherits,
+            initialValue: 'grippers'
+        },
+        {
+            name: '--behaviour',
+            inherits: 0,
+            syntax: '<url>',
+            initialValue: 'url()'
+        },
+        {
+            name: '--interactivity',
+            inherits,
+            initialValue: 'auto'
+        },
+        {
+            name: '--input-security',
+            initialValue: 'auto',
+            inherits: 0
+        },
+        {
+            name: '--caret-animation',
+            initialValue: 'auto',
+            inherits
+        },
+        {
+            name: '--wrap-through',
+            inherits: 0,
+            initialValue: 'wrap'
+        },
+        {
+            name: '--print-color-adjust',
+            inherits,
+            initialValue:'economy'
         }
     ]
 }
