@@ -436,8 +436,8 @@ var allProps = [
     {
         name: '--touch-callout',
         inherits,
-        syntax: '<color>',
-        initialValue: 'black'
+        // syntax: '<color>',
+        initialValue: 'default'
     },
     {
         name: '--window-dragging',
