@@ -431,7 +431,7 @@ var allProps = [
         name: '--tap-highlight-color',
         inherits,
         syntax: '<color>',
-        initialValue: 'black'
+        initialValue: 'transparent'
     },
     {
         name: '--touch-callout',
