@@ -593,11 +593,6 @@ export function convertToCSSMethod(value) {
             initialValue: 'auto'
         },
         {
-            name: '--text-autospace',
-            inherits: 0,
-            initialValue: 'none'
-        },
-        {
             name: '--touch-select',
             inherits,
             initialValue: 'grippers'
@@ -631,7 +626,87 @@ export function convertToCSSMethod(value) {
         {
             name: '--print-color-adjust',
             inherits,
-            initialValue:'economy'
+            initialValue: 'economy'
+        },
+        {
+            name: '--cursor-visibility',
+            inherits,
+            initialValue: 'auto'
+        },
+        {
+            name: '--pay-button-style',
+            inherits: 0,
+            initialValue: 'white'
+        },
+        {
+            name: '--color-filter',
+            inherits,
+            initialValue: 'none'
+        },
+        {
+            name: '--pay-button-type',
+            initialValue: 'plain',
+            inherits: 0,
+        },
+        {
+            name: '--visual-effect',
+            inherits,
+            initialValue: 'none'
+        },
+        {
+            name: '--text-wrap-style',
+            initialValue: 'auto',
+            inherits
+        },
+        {
+            name: '--text-spacing-trim',
+            initialValue: 'normal',
+            inherits
+        },
+        {
+            name: '--text-group-align',
+            inherits: 0,
+            initialValue: 'none'
+        },
+        {
+            name: '--text-autospace',
+            initialValue: 'normal',
+            inherits
+        },
+        {
+            name: '--scrollbar-color',
+            initialValue: 'auto',
+            inherits
+        },
+        {
+            name: '--scrollbar-gutter',
+            inherits: 0,
+            initialValue: 'auto'
+        },
+        {
+            name: '--scrollbar-width',
+            inherits: 0,
+            initialValue: 'auto'
+        },
+        {
+            name: '--ruby-overhang',
+            initialValue: 'auto',
+            inherits
+        },
+        {
+            name: '--max-lines',
+            initialValue: 'none',
+            inherits: 0
+        },
+        {
+            name: '--line-fit-edge',
+            initialValue: 'leading',
+            inherits
+        },
+        {
+            name:'--continue',
+            initialValue:'auto',
+            inherits:0
         }
     ]
 }
