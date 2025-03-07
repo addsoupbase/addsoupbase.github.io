@@ -188,7 +188,8 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     deleteState(identifier) {
         if (this[states].has(identifier)) {
             let state = this[states].get(identifier).cached
-            state.content.remove()
+            for(let ch of state.content.querySelectorAll('*')) 
+                prox(ch).destroy()
             this[states].delete(identifier)
             return true
         }
