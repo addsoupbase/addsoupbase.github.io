@@ -187,7 +187,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     }
     deleteState(identifier) {
         if (this[states].has(identifier)) {
-            let state = this[states].get(identifier)
+            let state = this[states].get(identifier).cached
             state.content.remove()
             this[states].delete(identifier)
             return true
@@ -273,7 +273,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         let myStates = this[states]
         for (let [key, { cached: val }] of myStates) {
             myStates.delete(key)
-            for (let el of val.content.getElementsByTagName('*')) {
+            for (let el of val.content.querySelectorAll('*')) {
                 prox(el).destroy()
             }
         }
