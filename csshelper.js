@@ -79,19 +79,21 @@ export function importFont(name, src) {
     font.load().then(() => document.fonts.add(font), console.warn)
     return font
 }
+let defrt = /-./g
 export function toCaps(prop) {
     if (prop.includes('-') && !prop.startsWith('--')) { // Ignore custom properties
         if (prop[0] === '-') prop = prop.slice(1)
-        return prop.replace(/-./g, tuc)
+        return prop.replace(defrt, tuc)
         function tuc({ 1: char }) {
             return char.toUpperCase()
         }
     }
     return prop
 }
+let azregex = /[A-Z]/g
 export function toDash(prop) {
     return prop.startsWith('--') ? prop :
-        prop.replace(/[A-Z]/g, tlc)
+        prop.replace(azregex, tlc)
     function tlc(o) {
         return `-${o.toLowerCase()}`
     }
@@ -218,7 +220,7 @@ queueMicrotask
             },
         })
         'registerProperty' in CSS &&
-            void async function (all, scheduler = {
+            async function (all, scheduler = {
                 yield() {
                     return new Promise(requestAnimationFrame)
                 }
@@ -240,7 +242,7 @@ queueMicrotask
                         await scheduler.yield()
                     }
                     catch (e) {
-                        reportError(e)
+                        if (!(e instanceof DOMException)) reportError(e)
                         continue
                     }
                 const universal = {}

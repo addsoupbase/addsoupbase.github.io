@@ -177,7 +177,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     }
     getState(identifier) {
         return this[states].get(identifier)?.cached.content
-    }
+    } 
     editState(id, func) {
         func(this[states].get(id).cached.content)
         return this
@@ -209,7 +209,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         // console.assert(/number|string|symbol|bigint/.test(typeof identifier), `State should be a primitive:\n %o`, identifier)
         let { cached: cache, callback } = this[states].get(identifier)
         let frag = cache.content
-        let cached = frag.cloneNode(true)
+        let cached = document.importNode(frag, true)
         let staticBatch = [...frag.querySelectorAll('*')]
         let newBatch = [...cached.querySelectorAll('*')]
         let withIds = []
@@ -327,11 +327,9 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         let me = base(this)
         for (let i in events) {
             let old = events[i]
-            events[i] = func
-            function func(...args) {
-                let {
-                    target
-                } = args[0],
+            events[i] = DelegationFunction
+            function DelegationFunction(...args) {
+                let {target} = args[0],
                     pr = prox(target);
                 (me !== target || includeSelf) && (filter?.(pr) ?? 1) && old.apply(pr, args)
             }
@@ -350,6 +348,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
                 :
                 delete this.style[fixedProp]
         }
+      return this
         //base(this).style.cssText = out.join(';')
     }
     setAttributes(attr) {

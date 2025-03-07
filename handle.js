@@ -58,7 +58,7 @@ const sym = Symbol.for("🔔")
         //Some events like the one above don't have a handler
         throw TypeError(`🔇 Cannot listen for '${name}' events`)
     }
-    
+
     export function wait(ms) {
         return new Promise(res)
         function res(resolve) {
@@ -307,4 +307,3 @@ const sym = Symbol.for("🔔")
         anchor.href = anchor.src = getObjUrl(blob)
         anchor.click()
     }
-    
