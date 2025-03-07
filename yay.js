@@ -1,7 +1,8 @@
+//  The journey begins...
 import { on, off, getEventNames, allEvents, unbound } from './handle.js'
-import * as css from './csshelper.js'
-const          me = Symbol('base')
-const           all = new WeakMap
+import*as css from './csshelper.js'
+const me = Symbol('base')
+const all = new WeakMap
 const revokes = new WeakMap
 const bounded = new WeakMap
 const dotRegex = /\./g
@@ -146,7 +147,6 @@ const handlers = {
 let ATTR = Symbol('💿')
 let states = Symbol('💾')
 let props = Object.getOwnPropertyDescriptors(class _ {
-    // 🖋 Class syntax is easier to use
     static cancel(o) {
         o.cancel()
     }
@@ -162,12 +162,8 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     static restart(o) {
         o.play(o.currentTime = 0)
     }
-    /*get [states]() {
-        return Object.defineProperty(this, 'states', {
-            value: new Map
-        })[states]
-    }*/
     createState(identifier, child, callback) {
+        if (this[states].has(identifier))throw Error("Already present")
         //if ( !(typeof identifier).match(/number|string|symbol|bigint/)) throw TypeError(`State must be a primitive`)
         // console.assert(/number|string|symbol|bigint/.test(typeof identifier), `State should be a primitive:\n %o`, identifier)
         let cached = $('template')
@@ -177,7 +173,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     }
     getState(identifier) {
         return this[states].get(identifier)?.cached.content
-    } 
+    }
     editState(id, func) {
         func(this[states].get(id).cached.content)
         return this
@@ -227,7 +223,8 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             if (!events) return
             let clone = prox(newBatch[index])
             let staticEvents = allEvents.get(base(el))
-            events.forEach(name => {
+            events.forEach(eventThing)
+            function eventThing(name) {
                 let { listener, passive, capture, handler, prevents, stopProp, once, stopImmediateProp, onlyTrusted } = staticEvents.get(name)
                 if (once) name = `_${name}`
                 if (passive) name = `^${name}`
@@ -239,27 +236,20 @@ let props = Object.getOwnPropertyDescriptors(class _ {
                 clone.on({
                     [name]: listener[unbound][unbound]
                 }, handler, true)
-            })
+            }
         }
     }
     get orphans() {
         let me = base(this)
         let out = document.createDocumentFragment(),
-            {
-                firstElementChild
-            } = me
-        while (firstElementChild) {
-            out.appendChild(me.removeChild(firstElementChild));
-            ({
-                firstElementChild
-            } = me)
-        }
+            { firstElementChild } = me
+        while (firstElementChild)
+            out.appendChild(me.removeChild(firstElementChild)),
+                ({ firstElementChild } = me)
         return out
     }
     pass() {
-        let {
-            orphans
-        } = this
+        let { orphans } = this
         this.destroy()
         return orphans
     }
@@ -286,13 +276,10 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         revoke(this)
     }
     destroyChildren() {
-        let {
-            lastElementChild
-        } = this
+        let { lastElementChild } = this
         while (lastElementChild)
-            prox(lastElementChild).destroy(), {
-                lastElementChild
-            } = this
+            prox(lastElementChild).destroy(),
+                { lastElementChild } = this
     }
     $(html, props, ...children) {
         let out = $(html, props, ...children)
@@ -329,7 +316,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             let old = events[i]
             events[i] = DelegationFunction
             function DelegationFunction(...args) {
-                let {target} = args[0],
+                let { target } = args[0],
                     pr = prox(target);
                 (me !== target || includeSelf) && (filter?.(pr) ?? 1) && old.apply(pr, args)
             }
@@ -348,7 +335,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
                 :
                 delete this.style[fixedProp]
         }
-      return this
+        return this
         //base(this).style.cssText = out.join(';')
     }
     setAttributes(attr) {
@@ -558,15 +545,11 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         base(this).before(base(val))
     }
     get after() {
-        let {
-            nextElementSibling
-        } = base(this)
+        let { nextElementSibling } = base(this)
         return prox(nextElementSibling)
     }
     get before() {
-        let {
-            previousElementSibling
-        } = base(this)
+        let { previousElementSibling } = base(this)
         return prox(previousElementSibling)
     }
     set parent(parent) {
@@ -577,15 +560,11 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         return prox(parent)
     }
     get first() {
-        let {
-            firstElementChild
-        } = base(this)
+        let { firstElementChild } = base(this)
         return prox(firstElementChild)
     }
     get last() {
-        let {
-            lastElementChild
-        } = base(this)
+        let { lastElementChild } = base(this)
         return prox(lastElementChild)
     }
 }.prototype)
@@ -669,10 +648,7 @@ function prox(target) {
                 }
             }
         }), handlers.attr)
-        let {
-            proxy,
-            revoke
-        } = Proxy.revocable(
+        let { proxy, revoke } = Proxy.revocable(
             Object.seal(Object.create(target, {
                 ...prototypeDescriptors,
                 [me]: bleh,
@@ -730,13 +706,13 @@ const parser = new DOMParser
 let temp
 let div
 let range
-/**
- * # Be careful of html injection when using a string!!
- */
 let classRegex = /\.[\w-]+/g
 let htmlRegex = /\w+/
 let idRegex = /#\w+/
 let typeRegex = /%\w+/
+/**
+ * # Be careful of html injection when using a string!!
+ */
 function $(html, props, ...children) {
     if (getValid(html)) return prox(html) // Redirect
     if (html[0] === '<' && html.at(-1) === '>') {
@@ -801,7 +777,10 @@ function $(html, props, ...children) {
             return o.slice(1)
         }
     }
-    if (element.tagName === 'SCRIPT') throw new DOMException('Potential script injection', 'SecurityError')
+    if (element.tagName === 'SCRIPT') {
+        debugger
+        throw new DOMException('Potential script injection', 'SecurityError')
+    }
     /*{
         let attributes = {}
         if (element.type === 'checkbox') attributes.role = 'checkbox'
@@ -899,9 +878,7 @@ let parseMode = 'mozInnerScreenY' in window ? 'createRange' : 'default'
         return performance.now() - time
     }
     let obj = {}
-    let {
-        default: a
-    } = await import('./math.js')
+    let { default: a } = await import('./math.js')
     for (let n of `template createRange createHTMLDocument innerHTML parseHTMLUnsafe default template setHTMLUnsafe write`.split(' ')) {
         obj[n] = []
         for (let i = 4; i--;) {
