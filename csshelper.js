@@ -114,11 +114,13 @@ export function toCSS(obj) {
  * @param {String} selector A valid CSS selector (something like . or#)
  * @param {Object} rule An object which describes the selector 
  */
+let pseudoElementRegex = /::[\w-]/
+let pseudoClassRegex = /:[\w-]/
 export async function registerCSS(selector, rule) {
     selector = selector.split(',')
         .map(selectr => {
-            if (/::[\w-]/.test(selectr)) selectr = supportedPElementVendor(selectr)
-            else if (/:[\w-]/.test(selectr)) selectr = supportedPClassVendor(selectr)
+            if (pseudoElementRegex.test(selectr)) selectr = supportedPElementVendor(selectr)
+            else if (pseudoClassRegex.test(selectr)) selectr = supportedPClassVendor(selectr)
             return selectr
         })
         .join(',')
@@ -132,8 +134,9 @@ export async function registerCSS(selector, rule) {
         }
     }
 }
+let cleanRegex = /\s\s|\n\n/g
 export function formatStr(str) {
-    return str.trim().replace(/\s\s|\n\n/g, '')
+    return str.trim().replace(cleanRegex, '')
 }
 export function getDefaultStyleSheet() {
     return (document.getElementById('addedStyleRules') ?? function () {
@@ -150,31 +153,8 @@ export function registerCSSAll(rules) {
     for (let rule in rules) out.push(registerCSS(rule, rules[rule]))
     return out
 }
-// let dummyStyleSheet,
-// working = new Set,
-// bad = new Set
 export function supportsRule(rule) {
     return CSS.supports(`selector(${rule})`)
-    // Not me finding out you can do this after spending 
-    // like an hour trying to make a workaround 😭
-
-    /* dummyStyleSheet ??= new CSSStyleSheet
-    if (working.has(rule)) return true
-    else if (bad.has(rule)) return false
-    try {
-        //  if the rule is invalid it will throw
-        dummyStyleSheet.insertRule(rule, 0)
-        //  If for whatever reason it doesn't,
-        //  it won't be added so we can just check for that        
-        if (!(0 in dummyStyleSheet.cssRules)) throw ''
-        dummyStyleSheet.deleteRule(0)
-        working.add(rule)
-        return true
-    } catch {
-        bad.add(rule)
-        console.warn(`⛓️‍💥 Unsupported CSS rule: '${rule}'`)
-        return false
-    } */
 }
 const theNames = allVendors.toString().match(/\w+/g)
 export function supportedPClassVendor(className) {
@@ -215,7 +195,6 @@ export function supportedPElementVendor(element) {
         throw SyntaxError(`Bad parsing for Pseudo-Element: '${element}'. They should include '::'`)
     }
 }
-
 queueMicrotask
     (() => {
         //    Some default CSS..
@@ -306,407 +285,83 @@ export function convertToCSSMethod(value) {
     // }
 }
 {
-    let inherits = true
+    function g(name, initialValue = 'auto', inherits = false, syntax = '*') {
+        return { name, initialValue, inherits, syntax }
+    }
     var allProps = [
-        {
-            //  Most important one
-            name: '--user-select',
-            initialValue: 'auto',
-            inherits
-        },
-        {
-            name: '--user-modify',
-            initialValue: 'auto',
-            inherits: 0
-        },
-        {
-            name: '--force-broken-image-icon',
-            syntax: '<integer>',
-            initialValue: 0,
-            inherits: 0
-        },
-        {
-            name: '--float-edge',
-            initialValue: 'content-box',
-            inherits: 0
-        },
-        {
-            name: '--image-region',
-            inherits,
-            initialValue: 'auto',
-        },
-        {
-            name: '--box-orient',
-            initialValue: 'inline-axis',
-            inherits: 0
-        },
-        {
-            name: '--box-align',
-            initialValue: 'stretch',
-            inherits: 0
-        },
-        {
-            name: '--box-direction',
-            initialValue: 'normal',
-            inherits: 0
-        },
-        {
-            name: '--box-flex',
-            inherits: 0,
-            initialValue: 0,
-        },
-        {
-            name: '--box-flex-group',
-            inherits: 0,
-            initialValue: 0,
-        },
-        {
-            name: '--box-lines',
-            inherits: 0,
-            initialValue: 'single'
-        },
-        {
-            name: '--box-ordinal-group',
-            inherits: 0,
-            initialValue: 1
-        },
-        {
-            name: '--box-decoration-break',
-            inherits: 0,
-            initialValue: 'slice'
-        },
-        {
-            name: '--box-pack',
-            inherits: 0,
-            initialValue: 'start'
-        },
-        {
-            name: '--user-input',
-            inherits,
-            initialValue: 'auto'
-        },
-        {
-            name: '--box-reflect',
-            inherits: 0,
-            initialValue: 'none'
-        },
-        {
-            name: '--text-stroke-color',
-            inherits,
-            syntax: '<color>',
-            initialValue: 'currentcolor'
-        },
-        {
-            name: '--text-stroke-width',
-            inherits,
-            syntax: '<length>',
-            initialValue: 0
-        },
-        {
-            name: '--text-security',
-            inherits: 0,
-            initialValue: 'none'
-        },
-        {
-            name: '--text-fill-color',
-            inherits,
-            initialValue: 'currentcolor'
-        },
-        {
-            name: '--line-clamp',
-            inherits: 0,
-            initialValue: 'none'
-        },
-        {
-            name: '--font-smoothing',
-            inherits,
-            initialValue: 'auto'
-        },
-        {
-            name: '--mask-position-x',
-            inherits: 0,
-            syntax: '<length-percentage>',
-            initialValue: '0%'
-        },
-        {
-            name: '--mask-position-y',
-            inherits: 0,
-            syntax: '<length-percentage>',
-            initialValue: '0%'
-        },
-        {
-            name: '--tap-highlight-color',
-            inherits,
-            syntax: '<color>',
-            initialValue: 'transparent'
-        },
-        {
-            name: '--touch-callout',
-            inherits,
-            // syntax: '<color>',
-            initialValue: 'default'
-        },
-        {
-            name: '--window-dragging',
-            inherits: 0,
-            initialValue: 'drag'
-        },
-        {
-            name: '--stack-sizing',
-            inherits,
-            initialValue: 'stretch-to-fit'
-        },
-        {
-            name: '--appearance',
-            inherits: 0,
-            initialValue: 'auto'
-        },
-        {
-            name: '--mask-composite',
-            inherits: 0,
-            initialValue: 'source-over'
-        },
-        {
-            name: '--image-rect',
-            inherits,
-            initialValue: 'auto'
-        },
-        {
-            name: '--context-properties',
-            inherits,
-            initialValue: 'none'
-        },
-        {
-            name: '--outline-radius',
-            inherits: 0,
-            initialValue: '0 0 0 0'
-        },
-        {
-            name: '--window-shadow',
-            inherits: 0,
-            initialValue: 'default'
-        },
-        {
-            name: '--binding',
-            inherits: 0,
-            initialValue: 'none'
-        },
-        {
-            name: '--user-focus',
-            inherits: 0,
-            initialValue: 'none'
-        },
-        {
-            name: '--text-blink',
-            inherits: 0,
-            initialValue: 'none'
-        },
-        {
-            name: '--content-zoom-limit',
-            inherits: 0,
-            initialValue: '400% 100%'
-        },
-        {
-            name: '--accelerator',
-            inherits: 0,
-            initialValue: false
-        },
-        {
-            name: '--initial-letter',
-            inherits: 0,
-            initialValue: 'normal'
-        },
-        {
-            name: '--order',
-            inherits: 0,
-            initialValue: 0
-        },
-        {
-            name: '--text-kashida-space',
-            inherits,
-            syntax: '<percentage>',
-            initialValue: '0%'
-        },
-        {
-            name: '--interpolation-mode',
-            inherits: 0,
-            initialValue: 'none'
-        },
-        {
-            name: '--progress-appearance',
-            inherits: 0,
-            initialValue: 'bar',
-        },
-        {
-            name: '--content-zooming',
-            inherits: 0,
-            initialValue: 'auto'
-        },
-        {
-            name: '--flow-from',
-            inherits: 0,
-            initialValue: 'none'
-        },
-        {
-            name: '--flow-into',
-            inherits: 0,
-            initialValue: 'none'
-        },
-        {
-            name: '--content-zoom-chaining',
-            inherits: 0,
-            initialValue: 'none'
-        },
-        {
-            name: '--high-contrast-adjust',
-            inherits,
-            initialValue: 'auto'
-        },
-        {
-            name: '--ime-mode',
-            inherits: 0,
-            initialValue: 'auto'
-        },
-        /*    {
-                name: '--scrollbar-3dlight-color',
-                inherits,
-                initialValue: 'none'
-            },
-            {
-                name: '--scrollbar-arrow-color',
-                inherits,
-                initialValue: 'auto'
-            },
-            {
-                name: '--scrollbar-base-color',
-                inherits,
-                initialValue: 'auto'
-            },
-            {
-                name: '--scrollbar-dark-shadow-color',
-                inherits,
-                initialValue: 'none'
-            },*/
-        {
-            name: '--overflow-style',
-            inherits,
-            initialValue: 'auto'
-        },
-        {
-            name: '--touch-select',
-            inherits,
-            initialValue: 'grippers'
-        },
-        {
-            name: '--behaviour',
-            inherits: 0,
-            syntax: '<url>',
-            initialValue: 'url()'
-        },
-        {
-            name: '--interactivity',
-            inherits,
-            initialValue: 'auto'
-        },
-        {
-            name: '--input-security',
-            initialValue: 'auto',
-            inherits: 0
-        },
-        {
-            name: '--caret-animation',
-            initialValue: 'auto',
-            inherits
-        },
-        {
-            name: '--wrap-through',
-            inherits: 0,
-            initialValue: 'wrap'
-        },
-        {
-            name: '--print-color-adjust',
-            inherits,
-            initialValue: 'economy'
-        },
-        {
-            name: '--cursor-visibility',
-            inherits,
-            initialValue: 'auto'
-        },
-        {
-            name: '--pay-button-style',
-            inherits: 0,
-            initialValue: 'white'
-        },
-        {
-            name: '--color-filter',
-            inherits,
-            initialValue: 'none'
-        },
-        {
-            name: '--pay-button-type',
-            initialValue: 'plain',
-            inherits: 0,
-        },
-        {
-            name: '--visual-effect',
-            inherits,
-            initialValue: 'none'
-        },
-        {
-            name: '--text-wrap-style',
-            initialValue: 'auto',
-            inherits
-        },
-        {
-            name: '--text-spacing-trim',
-            initialValue: 'normal',
-            inherits
-        },
-        {
-            name: '--text-group-align',
-            inherits: 0,
-            initialValue: 'none'
-        },
-        {
-            name: '--text-autospace',
-            initialValue: 'normal',
-            inherits
-        },
-        {
-            name: '--scrollbar-color',
-            initialValue: 'auto',
-            inherits
-        },
-        {
-            name: '--scrollbar-gutter',
-            inherits: 0,
-            initialValue: 'auto'
-        },
-        {
-            name: '--scrollbar-width',
-            inherits: 0,
-            initialValue: 'auto'
-        },
-        {
-            name: '--ruby-overhang',
-            initialValue: 'auto',
-            inherits
-        },
-        {
-            name: '--max-lines',
-            initialValue: 'none',
-            inherits: 0
-        },
-        {
-            name: '--line-fit-edge',
-            initialValue: 'leading',
-            inherits
-        },
-        {
-            name:'--continue',
-            initialValue:'auto',
-            inherits:0
-        }
+        g("--user-select", "auto", "true"),
+        g("--user-modify", "auto", "0"),
+        g("--force-broken-image-icon", "0", "0", "<integer>"),
+        g("--float-edge", "content-box", "0"),
+        g("--image-region", "auto", "true"),
+        g("--box-orient", "inline-axis", "0"),
+        g("--box-align", "stretch", "0"),
+        g("--box-direction", "normal", "0"),
+        g("--box-flex", "0", "0"),
+        g("--box-flex-group", "0", "0"),
+        g("--box-lines", "single", "0"),
+        g("--box-ordinal-group", "1", "0"),
+        g("--box-decoration-break", "slice", "0"),
+        g("--box-pack", "start", "0"),
+        g("--user-input", "auto", "true"),
+        g("--box-reflect", "none", "0"),
+        g("--text-stroke-color", "currentcolor", "true", "<color>"),
+        g("--text-stroke-width", "0", "true", "<length>"),
+        g("--text-security", "none", "0"),
+        g("--text-fill-color", "currentcolor", "true"),
+        g("--line-clamp", "none", "0"),
+        g("--font-smoothing", "auto", "true"),
+        g("--mask-position-x", "0%", "0", "<length-percentage>"),
+        g("--mask-position-y", "0%", "0", "<length-percentage>"),
+        g("--tap-highlight-color", "transparent", "true", "<color>"),
+        g("--touch-callout", "default", "true"),
+        g("--window-dragging", "drag", "0"),
+        g("--stack-sizing", "stretch-to-fit", "true"),
+        g("--appearance", "auto", "0"),
+        g("--mask-composite", "source-over", "0"),
+        g("--image-rect", "auto", "true"),
+        g("--context-properties", "none", "true"),
+        g("--outline-radius", "0 0 0 0", "0"),
+        g("--window-shadow", "default", "0"),
+        g("--binding", "none", "0"),
+        g("--user-focus", "none", "0"),
+        g("--text-blink", "none", "0"),
+        g("--content-zoom-limit", "400% 100%", "0"),
+        g("--accelerator", "false", "0"),
+        g("--initial-letter", "normal", "0"),
+        g("--order", "0", "0"),
+        g("--text-kashida-space", "0%", "true", "<percentage>"),
+        g("--interpolation-mode", "none", "0"),
+        g("--progress-appearance", "bar", "0"),
+        g("--content-zooming", "auto", "0"),
+        g("--flow-from", "none", "0"),
+        g("--flow-into", "none", "0"),
+        g("--content-zoom-chaining", "none", "0"),
+        g("--high-contrast-adjust", "auto", "true"),
+        g("--ime-mode", "auto", "0"),
+        g("--overflow-style", "auto", "true"),
+        g("--touch-select", "grippers", "true"),
+        g("--behaviour", "url()", "0", "<url>"),
+        g("--interactivity", "auto", "true"),
+        g("--input-security", "auto", "0"),
+        g("--caret-animation", "auto", "true"),
+        g("--wrap-through", "wrap", "0"),
+        g("--print-color-adjust", "economy", "true"),
+        g("--cursor-visibility", "auto", "true"),
+        g("--pay-button-style", "white", "0"),
+        g("--color-filter", "none", "true"),
+        g("--pay-button-type", "plain", "0"),
+        g("--visual-effect", "none", "true"),
+        g("--text-wrap-style", "auto", "true"),
+        g("--text-spacing-trim", "normal", "true"),
+        g("--text-group-align", "none", "0"),
+        g("--text-autospace", "normal", "true"),
+        g("--scrollbar-color", "auto", "true"),
+        g("--scrollbar-gutter", "auto", "0"),
+        g("--scrollbar-width", "auto", "0"),
+        g("--ruby-overhang", "auto", "true"),
+        g("--max-lines", "none", "0"),
+        g("--line-fit-edge", "leading", "true"),
+        g("--continue", "auto", "0")
     ]
 }

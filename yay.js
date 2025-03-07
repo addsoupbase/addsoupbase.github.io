@@ -1,17 +1,13 @@
-import {
-    on,
-    off,
-    getEventNames,
-    allEvents,
-    unbound
-} from './handle.js'
+import { on, off, getEventNames, allEvents, unbound } from './handle.js'
 import * as css from './csshelper.js'
-const me = Symbol('base')
-const all = new WeakMap
+const          me = Symbol('base')
+const           all = new WeakMap
 const revokes = new WeakMap
 const bounded = new WeakMap
+const dotRegex = /\./g
+const spaceRegex = /\s/g
 function gen() {
-    return `${Math.random()}${Math.random()}`.replace(/\./g, '')
+    return `${Math.random()}${Math.random()}`.replace(dotRegex, '')
 }
 function bindIfNecessary(maybeFunc, to) {
     // Make sure we just re-use the same function
@@ -184,16 +180,16 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     }
     editState(id, func) {
         func(this[states].get(id).cached.content)
+        return this
     }
     deleteState(identifier) {
         if (this[states].has(identifier)) {
             let state = this[states].get(identifier).cached
-            for(let ch of state.content.querySelectorAll('*')) 
+            for (let ch of state.content.querySelectorAll('*'))
                 prox(ch).destroy()
             this[states].delete(identifier)
-            return true
         }
-        return false
+        return this
     }
     toJSON() {
         return base(this).outerHTML
@@ -217,7 +213,14 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         let staticBatch = [...frag.querySelectorAll('*')]
         let newBatch = [...cached.querySelectorAll('*')]
         let withIds = []
-        staticBatch.forEach((el, index) => {
+        staticBatch.forEach(forEach)
+        this.destroyChildren()
+        callback?.apply(cached, withIds)
+        base(this).appendChild(cached)
+        this.lastState = this.currentState
+        this.currentState = identifier
+        return this
+        function forEach(el, index) {
             el = prox(el)
             el.hasAttribute('id') && withIds.push(el) // its considered important
             let { events } = el
@@ -237,12 +240,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
                     [name]: listener[unbound][unbound]
                 }, handler, true)
             })
-        })
-        this.destroyChildren()
-        callback?.apply(cached, withIds)
-        base(this).appendChild(cached)
-        this.lastState = this.currentState
-        this.currentState = identifier
+        }
     }
     get orphans() {
         let me = base(this)
@@ -521,12 +519,12 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             if (selector.includes('::')) selector = css.supportedPElementVendor(selector)
             else if (selector.includes(':')) selector = css.supportedPClassVendor(selector)
             const final = `#${CSS.escape(id)}  ${selector}{${(css.toCSS(cssStuff))}}`
-            let existing = this.selfRules[css.formatStr(selector.replace(/\s/g, ''))]
+            let existing = this.selfRules[css.formatStr(selector.replace(spaceRegex, ''))]
             // for (let i = 5; i--;) try {
             existing ?
                 existing.insertRule(final)
                 :
-                (this.selfRules[css.formatStr(selector.replace(/\s/g, ''))] = customRules.cssRules[customRules.insertRule(final)])
+                (this.selfRules[css.formatStr(selector.replace(spaceRegex, ''))] = customRules.cssRules[customRules.insertRule(final)])
             this.setAttributes({ id })
         }
         catch {
@@ -546,9 +544,12 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         options.timing ??= 'ease'
         options.iterations ??= 1
         for (let frame of keyframes)
-            for (let prop in frame)
-                if (frame[prop]) frame[css.capVendor(prop, `${frame[prop]}`)] ??= `${frame[prop]}`
+            for (let prop in frame) {
+                let val = frame[prop]
+                frame[css.capVendor(prop, `${val}`)] ??= `${val}`
+            }
         // else delete frame[prop]
+        // Firefox warns of empty string
         return base(this).animate(keyframes, options)
     }
     set after(val) {
@@ -611,9 +612,7 @@ const prototype = Object.create(null)
     })
 )
 {
-    function forEach(i) {
-        i === 'constructor' || Object.defineProperty(prototype, i, props[i])
-    }
+    function forEach(i) { i === 'constructor' || Object.defineProperty(prototype, i, props[i]) }
     Reflect.ownKeys(props).forEach(forEach)
     // 🖨 Copy everything
 }
@@ -622,6 +621,7 @@ function base(element) {
     // 🌱 Get the root element
     return element[me] ?? prox(element)[me]
 }
+// Don't mind these objects
 const flags = {
     //  General Purpose binary flag
     value: 0,
@@ -710,7 +710,6 @@ function prox(target) {
         })
         if (target instanceof HTMLUnknownElement ||
             target.ownerDocument.defaultView?.HTMLUnknownElement.prototype.isPrototypeOf(target))
-
             console.warn(`Unknown element: '${target.tagName}'`)
         revokes.set(proxy, () =>
             //  Make sure we have *NO* possible references left
@@ -732,6 +731,13 @@ const parser = new DOMParser
 let temp
 let div
 let range
+/**
+ * # Be careful of html injection when using a string!!
+ */
+let classRegex = /\.[\w-]+/g
+let htmlRegex = /\w+/
+let idRegex = /#\w+/
+let typeRegex = /%\w+/
 function $(html, props, ...children) {
     if (getValid(html)) return prox(html) // Redirect
     if (html[0] === '<' && html.at(-1) === '>') {
@@ -783,10 +789,10 @@ function $(html, props, ...children) {
         element = prox(element)
     } else {
         html === 'fencedframe' && typeof HTMLFencedFrameElement === 'undefined' && (html = 'iframe')
-        var element = prox(document.createElement(html.match(/\w+/)[0]))
-        let classes = html.match(/\.[\w-]+/g)?.map(slice),
-            id = html.match(/#\w+/)?.[0].slice(1),
-            type = html.match(/%\w+/)?.[0].slice(1)
+        var element = prox(document.createElement(html.match(htmlRegex)[0]))
+        let classes = html.match(classRegex)?.map(slice),
+            id = html.match(idRegex)?.[0].slice(1),
+            type = html.match(typeRegex)?.[0].slice(1)
         element.setAttributes({
             class: classes?.join(' '),
             id,
@@ -796,6 +802,7 @@ function $(html, props, ...children) {
             return o.slice(1)
         }
     }
+    if (element.tagName === 'SCRIPT') throw new DOMException('Potential script injection', 'SecurityError')
     /*{
         let attributes = {}
         if (element.type === 'checkbox') attributes.role = 'checkbox'
@@ -807,18 +814,20 @@ function $(html, props, ...children) {
         }
         element.setAttributes(attributes)
     }*/
+    // i wanted to do the aria stuff SO bad,
+    // but its better to just leave it as-is
     /*
                    <!-- beforebegin -->
                            <element>
                     <!-- afterbegin -->
-                           <new element>
+                           <new-element>
                     <!-- beforeend -->
                            </element>
                    <!-- afterend -->
     */
     if (props) {
         function reuse(p) { p in props && (element[p] = props[p]) }
-        'parent' in props && (element.parent = props.parent)
+        reuse('parent')
         'events' in props && element.on(props.events)
         'outerHTML innerHTML outerText innerText textContent'.split(' ').forEach(reuse)
         'txt' in props && (element.textContent = props.txt)
@@ -878,7 +887,6 @@ Object.defineProperties($, {
         }
     }
 })
-// for (let o of document.getElementsByTagName('noscript')) o.remove()
 let parseMode = 'mozInnerScreenY' in window ? 'createRange' : 'default'
 //  createRange seems to be *slightly* faster on firefox
 1 || async function () {
