@@ -11,7 +11,7 @@ const all = new WeakMap
 const revokes = new WeakMap
 const bounded = new WeakMap
 function gen() {
-    return`${Math.random()}${Math.random()}`.replace(/\./g, '')
+    return `${Math.random()}${Math.random()}`.replace(/\./g, '')
 }
 function bindIfNecessary(maybeFunc, to) {
     // Make sure we just re-use the same function
@@ -213,8 +213,8 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         let { cached: cache, callback } = this[states].get(identifier)
         let frag = cache.content
         let cached = frag.cloneNode(true)
-        let staticBatch = [...frag.getElementsByTagName('*')]
-        let newBatch = [...cached.getElementsByTagName('*')]
+        let staticBatch = [...frag.querySelectorAll('*')]
+        let newBatch = [...cached.querySelectorAll('*')]
         let withIds = []
         staticBatch.forEach((el, index) => {
             el = prox(el)
@@ -224,17 +224,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             let clone = prox(newBatch[index])
             let staticEvents = allEvents.get(base(el))
             events.forEach(name => {
-                let {
-                    listener,
-                    passive,
-                    capture,
-                    handler,
-                    prevents,
-                    stopProp,
-                    once,
-                    stopImmediateProp,
-                    onlyTrusted
-                } = staticEvents.get(name)
+                let { listener, passive, capture, handler, prevents, stopProp, once, stopImmediateProp, onlyTrusted } = staticEvents.get(name)
                 if (once) name = `_${name}`
                 if (passive) name = `^${name}`
                 if (capture) name = `%${name}`
@@ -281,7 +271,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         this.resetSelfRules()
         this.cancelAnims()
         let myStates = this[states]
-        for (let [key, {cached: val}] of myStates) {
+        for (let [key, { cached: val }] of myStates) {
             myStates.delete(key)
             for (let el of val.content.getElementsByTagName('*')) {
                 prox(el).destroy()
@@ -412,7 +402,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         return this
     }
     fadeOut(duration = 500) {
-        return this.animate([{}, {opacity: 0}], { duration, easing: 'ease', iterations: 1 }).finished.then(() => this.hide3())
+        return this.animate([{}, { opacity: 0 }], { duration, easing: 'ease', iterations: 1 }).finished.then(() => this.hide3())
     }
     fadeIn(duration = 500) {
         this.show3()
@@ -491,7 +481,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     treeWalker(filter, whatToShow = NodeFilter.SHOW_ELEMENT) {
         let walker = document.createTreeWalker(base(this), whatToShow, filter_func)
         return out()
-     function* out() {
+        function* out() {
             let current
             while (current = walker.nextNode()) yield getValid(current) ? prox(current) : current
         }
@@ -523,19 +513,19 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     addSelfRule(selector, cssStuff) {
         const og = selector
         try {
-            if (!base(this).hasAttribute('id')) {
+            if (!base(this).hasAttribute('id'))
                 do var id = gen()
                 while (document.getElementById(id))
-            } else var id = base(this).getAttribute('id')
+            else var id = base(this).getAttribute('id')
             if (selector.includes('::')) selector = css.supportedPElementVendor(selector)
             else if (selector.includes(':')) selector = css.supportedPClassVendor(selector)
             const final = `#${CSS.escape(id)}  ${selector}{${(css.toCSS(cssStuff))}}`
             let existing = this.selfRules[css.formatStr(selector.replace(/\s/g, ''))]
             // for (let i = 5; i--;) try {
-            if (existing) 
+            existing ?
                 existing.insertRule(final)
-             else 
-                this.selfRules[css.formatStr(selector.replace(/\s/g, ''))] = customRules.cssRules[customRules.insertRule(final)]
+                :
+                (this.selfRules[css.formatStr(selector.replace(/\s/g, ''))] = customRules.cssRules[customRules.insertRule(final)])
             this.setAttributes({ id })
         }
         catch {
@@ -827,15 +817,15 @@ function $(html, props, ...children) {
     */
     if (props) {
         function reuse(p) { p in props && (element[p] = props[p]) }
-        'parent'in props && (element.parent = props.parent)
-        'events'in props && element.on(props.events)
+        'parent' in props && (element.parent = props.parent)
+        'events' in props && element.on(props.events)
         'outerHTML innerHTML outerText innerText textContent'.split(' ').forEach(reuse)
-        'txt'in props && (element.textContent = props.txt)
+        'txt' in props && (element.textContent = props.txt)
         // add elements AFTER the textContent/innerHTML/whatever
         'beforebegin afterbegin beforeend afterend'.split(' ').forEach(reuse)
-        'attributes'in props && element.setAttributes(props.attributes)
-        'styles'in props && element.setStyles(props.styles)
-        'start'in props && props.start.call(element)
+        'attributes' in props && element.setAttributes(props.attributes)
+        'styles' in props && element.setStyles(props.styles)
+        'start' in props && props.start.call(element)
     }
     children.length && element.push(children)
     return element
@@ -888,7 +878,7 @@ Object.defineProperties($, {
     }
 })
 // for (let o of document.getElementsByTagName('noscript')) o.remove()
-let parseMode = 'mozInnerScreenY'in window ? 'createRange' : 'default'
+let parseMode = 'mozInnerScreenY' in window ? 'createRange' : 'default'
 //  createRange seems to be *slightly* faster on firefox
 1 || async function () {
     console.log("Test enabled")
