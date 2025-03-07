@@ -11,11 +11,10 @@ const all = new WeakMap
 const revokes = new WeakMap
 const bounded = new WeakMap
 function gen() {
-    return `${Math.random()}${Math.random()}`.replace(/\./g, '')
+    return`${Math.random()}${Math.random()}`.replace(/\./g, '')
 }
 function bindIfNecessary(maybeFunc, to) {
-    // ♻️ Make sure we just re-use the same function
-    // ♻️ instead of making a new one every time
+    // Make sure we just re-use the same function
     return typeof
         maybeFunc === 'function' ?
         bounded.get(maybeFunc) ?? bounded.set(maybeFunc, maybeFunc.bind(to))
@@ -147,11 +146,9 @@ const handlers = {
         },
     }*/
 }
-// ❗️ Main [[Prototype]] is on this class
-// 🖨 properties are copied over
+// Main [[Prototype]] is on this class
 let ATTR = Symbol('💿')
 let states = Symbol('💾')
-let onstatechange = Symbol('📸')
 let props = Object.getOwnPropertyDescriptors(class _ {
     // 🖋 Class syntax is easier to use
     static cancel(o) {
@@ -176,20 +173,22 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     }*/
     createState(identifier, child, callback) {
         //if ( !(typeof identifier).match(/number|string|symbol|bigint/)) throw TypeError(`State must be a primitive`)
-        console.assert(/number|string|symbol|bigint/.test(typeof identifier), `State should be a primitive:\n %o`, identifier)
+        // console.assert(/number|string|symbol|bigint/.test(typeof identifier), `State should be a primitive:\n %o`, identifier)
         let cached = $('template')
-        callback && (cached[onstatechange] = callback)
         cached.content.appendChild(base(child))
-        this[states].set(identifier, cached)
+        this[states].set(identifier, { cached, callback })
         return cached.content
     }
     getState(identifier) {
-        return this[states].get(identifier)?.content
+        return this[states].get(identifier)?.cached.content
+    }
+    editState(id, func) {
+        func(this[states].get(id).cached.content)
     }
     deleteState(identifier) {
         if (this[states].has(identifier)) {
             let state = this[states].get(identifier)
-            state.remove()
+            state.content.remove()
             this[states].delete(identifier)
             return true
         }
@@ -206,25 +205,21 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         }
         if (!this[states].has(identifier) /* || !(typeof identifier).match(/number|string|symbol|bigint/)*/) {
             this.destroyChildren()
-            this.push($(`<code style="font-size:30px">INVALID STATE: ${identifier}</code>`))
+            this.push($(`<samp style="font-size:30px">INVALID STATE: ${identifier}</samp>`))
             this.currentState = null
             throw TypeError(`Unknown state: '${identifier}'`)
         }
-        console.assert(/number|string|symbol|bigint/.test(typeof identifier), `State should be a primitive:\n %o`, identifier)
-        let frag = this[states].get(identifier)
-        frag[onstatechange]?.call(frag.content)
-        frag = frag.content
-        console.log(frag)
+        // console.assert(/number|string|symbol|bigint/.test(typeof identifier), `State should be a primitive:\n %o`, identifier)
+        let { cached: cache, callback } = this[states].get(identifier)
+        let frag = cache.content
         let cached = frag.cloneNode(true)
-        let staticBatch = [...frag.querySelectorAll('*')]
-        let newBatch = [...cached.querySelectorAll('*')]
-        this.beforestatechange?.(cached)
+        let staticBatch = [...frag.getElementsByTagName('*')]
+        let newBatch = [...cached.getElementsByTagName('*')]
+        let withIds = []
         staticBatch.forEach((el, index) => {
             el = prox(el)
-            el.beforestatechange?.(cached)
-            let {
-                events
-            } = el
+            el.hasAttribute('id') && withIds.push(el) // its considered important
+            let { events } = el
             if (!events) return
             let clone = prox(newBatch[index])
             let staticEvents = allEvents.get(base(el))
@@ -237,13 +232,15 @@ let props = Object.getOwnPropertyDescriptors(class _ {
                     prevents,
                     stopProp,
                     once,
-                    stopImmediateProp
+                    stopImmediateProp,
+                    onlyTrusted
                 } = staticEvents.get(name)
                 if (once) name = `_${name}`
                 if (passive) name = `^${name}`
                 if (capture) name = `%${name}`
                 if (stopProp) name = `&${name}`
                 if (prevents) name = `$${name}`
+                if (onlyTrusted) name = `?${name}`
                 if (stopImmediateProp) name = `!${name}`
                 clone.on({
                     [name]: listener[unbound][unbound]
@@ -251,9 +248,8 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             })
         })
         this.destroyChildren()
+        callback?.apply(cached, withIds)
         base(this).appendChild(cached)
-        for (let desc of this)
-            prox(desc).afterstatechange?.()
         this.afterstatechange?.()
         this.lastState = this.currentState
         this.currentState = identifier
@@ -285,12 +281,13 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     destroy() {
         this.resetSelfRules()
         this.cancelAnims()
-        for (let [, val] of this[states]) {
-            for (let el of val.content.querySelectorAll('*')) {
+        let myStates = this[states]
+        for (let [key, val] of myStates) {
+            myStates.delete(key)
+            for (let el of val.content.getElementsByTagName('*')) {
                 prox(el).destroy()
             }
         }
-        this[states].clear()
         this.destroyChildren()
         let my = base(this)
         do my.remove()
@@ -327,7 +324,6 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             for (let i in events) {
                 let value = events[i]
                 let newOne = events[i] = events[i].bind(this)
-
                 Object.defineProperty(newOne, unbound, {
                     value
                 })
@@ -344,7 +340,6 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         for (let i in events) {
             let old = events[i]
             events[i] = func
-
             function func(...args) {
                 let {
                     target
@@ -418,13 +413,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         return this
     }
     fadeOut(duration = 500) {
-        return this.animate([{}, {
-            opacity: 0
-        }], {
-            duration,
-            easing: 'ease',
-            iterations: 1
-        }).finished.then(() => this.hide3())
+        return this.animate([{}, {opacity: 0}], { duration, easing: 'ease', iterations: 1 }).finished.then(() => this.hide3())
     }
     fadeIn(duration = 500) {
         this.show3()
@@ -503,7 +492,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     treeWalker(filter, whatToShow = NodeFilter.SHOW_ELEMENT) {
         let walker = document.createTreeWalker(base(this), whatToShow, filter_func)
         return out()
-        function* out() {
+     function* out() {
             let current
             while (current = walker.nextNode()) yield getValid(current) ? prox(current) : current
         }
@@ -530,6 +519,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     resetSelfRules() {
         for (let i in this.selfRules)
             customRules.deleteRule([...customRules.cssRules].indexOf(this.selfRules[i]))
+        return this
     }
     addSelfRule(selector, cssStuff) {
         const og = selector
@@ -640,7 +630,6 @@ const prototype = Object.create(null)
     // 🖨 Copy everything
 }
 const prototypeDescriptors = Object.getOwnPropertyDescriptors(prototype)
-
 function base(element) {
     // 🌱 Get the root element
     return element[me] ?? prox(element)[me]
@@ -668,7 +657,6 @@ const flags = {
         enumerable: 1,
         writable: 1
     }
-
 function prox(target) {
     if (target === null) return null
     if (!getValid(target))
@@ -707,7 +695,6 @@ function prox(target) {
                 selfRules: {
                     value: Object.create(null)
                 },
-                [onstatechange]: plc,
                 beforestatechange: plc,
                 afterstatechange: plc,
                 state,
@@ -842,16 +829,16 @@ function $(html, props, ...children) {
                    <!-- afterend -->
     */
     if (props) {
-        function reuse(p) {p in props&&(element[p]=props[p])}
-        'parent' in props && (element.parent = props.parent)
-        'events' in props && element.on(props.events)
+        function reuse(p) { p in props && (element[p] = props[p]) }
+        'parent'in props && (element.parent = props.parent)
+        'events'in props && element.on(props.events)
         'outerHTML innerHTML outerText innerText textContent'.split(' ').forEach(reuse)
-        'txt' in props && (element.textContent = props.txt)
+        'txt'in props && (element.textContent = props.txt)
         // add elements AFTER the textContent/innerHTML/whatever
         'beforebegin afterbegin beforeend afterend'.split(' ').forEach(reuse)
-        'attributes' in props && element.setAttributes(props.attributes)
-        'styles' in props && element.setStyles(props.styles)
-        'start' in props && props.start.call(element)
+        'attributes'in props && element.setAttributes(props.attributes)
+        'styles'in props && element.setStyles(props.styles)
+        'start'in props && props.start.call(element)
     }
     children.length && element.push(children)
     return element
@@ -904,7 +891,7 @@ Object.defineProperties($, {
     }
 })
 // for (let o of document.getElementsByTagName('noscript')) o.remove()
-let parseMode = 'mozInnerScreenY' in window ? 'createRange' : 'default'
+let parseMode = 'mozInnerScreenY'in window ? 'createRange' : 'default'
 //  createRange seems to be *slightly* faster on firefox
 1 || async function () {
     console.log("Test enabled")

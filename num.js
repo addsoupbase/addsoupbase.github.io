@@ -8,7 +8,7 @@ function sort(a, b) {
     return a - b
 }
 // function noConstructor() {
-    // console.warn("Use this as a factory function instead of the constructor")
+// console.warn("Use this as a factory function instead of the constructor")
 // }
 export function safe(num) {
     return clamp(num, MIN_SAFE_INTEGER, MAX_SAFE_INTEGER)
@@ -38,8 +38,7 @@ class Cycle {
         return this.#wheel[this.current]
     }
     constructor(...items) {
-        this.current = this.length = items.length
-        this.#wheel = items
+        this.current = this.length = (this.#wheel = items).length
     }
 }
 export function average(...numbers) {
@@ -59,13 +58,13 @@ export function avg(...array) {
         filtered = sorted.filter(filter)
     return filtered.reduce(reduce) / filtered.length
     function filter(x) {
-        return x>=lowerFence&&x<=upperFence
+        return x >= lowerFence && x <= upperFence
     }
 }
 export function median(...numbers) {
     let { length } = numbers
         , sorted = numbers.sort(sort)
-    return length%2?sorted[length/2|0]:(sorted[length/2|0]+sorted[(length/2|0)-1])/2
+    return length % 2 ? sorted[length / 2 | 0] : (sorted[length / 2 | 0] + sorted[(length / 2 | 0) - 1]) / 2
 }
 function gt(a, b) { return a > b ? a : b }
 function lt(a, b) { return a < b ? a : b }
@@ -81,7 +80,7 @@ export function range(...numbers) {
     return max.apply(1, numbers) - min.apply(1, numbers)
 }
 export function factorial(n) {
-    return n?n--*factorial(n):1n
+    return n ? n-- * factorial(n) : 1n
 }
 export function closest(num, ...nums) {
     let distance = 1 / 0
@@ -116,6 +115,11 @@ export function cycleFrom(arrayLike) {
 }
 export function lerp(start, end, time) {
     return start + (end - start) * time
+}
+export function* lerpTo(start, end, time) {
+    let n = start
+    while (start < end) yield clamp(start += (end - n) * time, start, end)
+    return end
 }
 export function clamp(val, MIN, MAX) {
     return min(MAX, max(MIN, val))
@@ -181,6 +185,22 @@ class Vector2 {
         return `(${this.#x}${unit}, ${this.#y}${unit})`
     }
     static {
+        let props = Object.getOwnPropertyDescriptors(this.prototype)
+        for (let i in props) {
+            if ('get' in props[i] || 'set' in props[i] || props[i].value?.length !== 2) continue
+            let { value: old } = props[i]
+            delete this.prototype[i]
+            Object.defineProperty(this.prototype, i, {
+                value: makeItANumber
+            })
+            function makeItANumber(x, y) {
+                if (typeof x !== 'number' || typeof y !== 'number') {
+                    y = x.y ?? x[1]
+                    x = x.x ?? x[0]
+                }
+                return old.call(this, x, y)
+            }
+        }
         Object.defineProperties(this.prototype, {
             [Symbol.toStringTag]: { value: this.name },
             x: { get() { return this.#x }, set(x) { this.set(x, this.#y) }, enumerable: 1 }, y: { get() { return this.#y }, set(y) { this.set(this.#x, y) }, enumerable: 1 }
@@ -189,7 +209,7 @@ class Vector2 {
     constructor(x = 0, y = 0,
         { 0: minX = MIN_SAFE_INTEGER, 1: minY = MIN_SAFE_INTEGER } = {},
         { 0: maxX = MAX_SAFE_INTEGER, 1: maxY = MAX_SAFE_INTEGER } = {}) {
-        Object.seal(this)
+        Object.freeze(this)
         this.#min = { x: minX, y: minY }
         this.#max = { x: maxX, y: maxY }
         this.set(x, y)
@@ -248,15 +268,11 @@ class Vector2 {
         return this.set(0, 0)
     }
     clampX(min, max) {
-        if (max == null && min instanceof Vector2)
-            ({ 0: min, 1: max } = min)
         this.#min.x = +min
         this.#max.x = +max
         return this.set(this)
     }
     clampY(min, max) {
-        if (max == null && min instanceof Vector2)
-            ({ 0: min, 1: max } = min)
         this.#min.y = +min
         this.#max.y = +max
         return this.set(this)
@@ -265,12 +281,12 @@ class Vector2 {
         const { range } = ran
         return v(range(minX, maxX), range(minY, maxY))
     }
-    /*  static x(vectorLike) {
-          return +(vectorLike.x ?? vectorLike[0] ?? values(vectorLike)[0] ?? vectorLike)
-      }
-      static y(vectorLike) {
-          return +(vectorLike.y ?? vectorLike[1] ?? values(vectorLike)[1] ?? vectorLike)
-      }*/
+    static x(vectorLike) {
+        return +(vectorLike.x ?? vectorLike[0] ?? Object.values(vectorLike)[0] ?? vectorLike)
+    }
+    static y(vectorLike) {
+        return +(vectorLike.y ?? vectorLike[1] ?? Object.values(vectorLike)[1] ?? vectorLike)
+    }
     static angle(first, second) {
         let { 0: x1, 1: y1 } = first
         let { 0: x2, 1: y2 } = second
@@ -331,43 +347,29 @@ class Vector2 {
         return magnitude < step.magnitude ? this.set(target) : this.add(delta, delta)
     }
     set(x, y) {
-        if (y == null && x instanceof Vector2)
-            ({ x, y } = x)
         this.#x = clamp(+x, this.#min.x, this.#max.x)
         this.#y = clamp(+y, this.#min.y, this.#max.y)
         return this
     }
     add(x, y) {
-        if (y == null && x instanceof Vector2)
-            ({ x, y } = x)
         return this.set(this.#x + x, this.#y + y)
     }
     subtract(x, y) {
-        if (y == null && x instanceof Vector2)
-            ({ x, y } = x)
         return this.set(this.#x - x, this.#y - y)
     }
     divide(x, y) {
-        if (y == null && x instanceof Vector2)
-            ({ x, y } = x)
         return this.set(this.#x / x, this.#y / y)
     }
     dividedBy(x, y) {
         return this.clone.divide(x, y)
     }
     minus(x, y) {
-        if (y == null && x instanceof Vector2)
-            ({ x, y } = x)
         return this.clone.subtract(x, y)
     }
     multiply(x, y) {
-        if (y == null && x instanceof Vector2)
-            ({ x, y } = x)
         return this.set(this.#x * x, this.#y * y)
     }
     pow(x, y) {
-        if (y == null && x instanceof Vector2)
-            ({ x, y } = x)
         return this.set(this.#x ** x, this.#y ** y)
     }
     *[Symbol.iterator]() {
