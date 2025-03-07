@@ -250,7 +250,6 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         this.destroyChildren()
         callback?.apply(cached, withIds)
         base(this).appendChild(cached)
-        this.afterstatechange?.()
         this.lastState = this.currentState
         this.currentState = identifier
     }
@@ -282,7 +281,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         this.resetSelfRules()
         this.cancelAnims()
         let myStates = this[states]
-        for (let [key, val] of myStates) {
+        for (let [key, {cached: val}] of myStates) {
             myStates.delete(key)
             for (let el of val.content.getElementsByTagName('*')) {
                 prox(el).destroy()
@@ -533,12 +532,10 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             const final = `#${CSS.escape(id)}  ${selector}{${(css.toCSS(cssStuff))}}`
             let existing = this.selfRules[css.formatStr(selector.replace(/\s/g, ''))]
             // for (let i = 5; i--;) try {
-            if (existing) {
+            if (existing) 
                 existing.insertRule(final)
-                console.log(existing)
-            } else {
-                let n = this.selfRules[css.formatStr(selector.replace(/\s/g, ''))] = customRules.cssRules[customRules.insertRule(final)]
-            }
+             else 
+                this.selfRules[css.formatStr(selector.replace(/\s/g, ''))] = customRules.cssRules[customRules.insertRule(final)]
             this.setAttributes({ id })
         }
         catch {
