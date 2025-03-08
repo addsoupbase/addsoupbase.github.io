@@ -293,6 +293,8 @@ export function convertToCSSMethod(value) {
     var allProps = [
         g("--user-select", "auto", "true"),
         g("--user-modify", "auto", "0"),
+        g('--user-drag', "auto", 'true'),
+        g('--text-decorations-in-effect', 'auto', '0'),
         g("--force-broken-image-icon", "0", "0", "<integer>"),
         g("--float-edge", "content-box", "0"),
         g("--image-region", "auto", "true"),
