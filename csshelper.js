@@ -110,20 +110,21 @@ export function toCSS(obj, silent) {
         catch { continue }
     return arr.join(';')
 }
+let pseudoElementRegex = /::[\w-]/
+let pseudoClassRegex = /:[\w-]/
+function mapThing(selectr) {
+    if (pseudoElementRegex.test(selectr)) selectr = supportedPElementVendor(selectr)
+    else if (pseudoClassRegex.test(selectr)) selectr = supportedPClassVendor(selectr)
+    return selectr
+}
 /** 
  *  ⚠️ Should only be used for dynamic/default CSS
  * @param {String} selector A valid CSS selector (something like . or#)
  * @param {Object} rule An object which describes the selector 
  */
-let pseudoElementRegex = /::[\w-]/
-let pseudoClassRegex = /:[\w-]/
 export async function registerCSS(selector, rule, silent) {
     selector = selector.split(',')
-        .map(selectr => {
-            if (pseudoElementRegex.test(selectr)) selectr = supportedPElementVendor(selectr)
-            else if (pseudoClassRegex.test(selectr)) selectr = supportedPClassVendor(selectr)
-            return selectr
-        })
+        .map(mapThing)
         .join(',')
     const sheet = addedStyleRules ??= getDefaultStyleSheet()
     return new Promise(res)
@@ -200,14 +201,18 @@ queueMicrotask
     (() => {
         //    Some default CSS..
         registerCSSAll({
-          /*  dialog: {
-                transition: 'opacity 1s linear',
-                "font-family": "Arial",
-                "text-align": "center",
-                width: "300px",
-                height: "150px",
-                "word-break": "break-word"
-            },*/
+            /*  dialog: {
+                  transition: 'opacity 1s linear',
+                  "font-family": "Arial",
+                  "text-align": "center",
+                  width: "300px",
+                  height: "150px",
+                  "word-break": "break-word"
+              },*/
+
+            'button, a, input[type=button]': {
+                cursor: 'pointer'
+            },
             '.centerx,.center': {
                 'justify-self': 'center',
                 margin: 'auto'
@@ -285,7 +290,7 @@ export function convertToCSSMethod(value) {
     // }
 }
 {
-    function g(name, initialValue, inherits , syntax) {
+    function g(name, initialValue, inherits, syntax) {
         initialValue ??= 'auto'
         inherits ??= false
         syntax ??= '*'
