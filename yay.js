@@ -1,6 +1,7 @@
 //  The journey begins...
 import { on, off, getEventNames, allEvents, unbound } from './handle.js'
-import*as css from './csshelper.js'
+import *as css from './csshelper.js'
+import { FormDataManager as form } from './proxies.js'
 const me = Symbol('base')
 const all = new WeakMap
 const revokes = new WeakMap
@@ -163,7 +164,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         o.play(o.currentTime = 0)
     }
     createState(identifier, child, callback) {
-        if (this[states].has(identifier))throw Error("Already present")
+        if (this[states].has(identifier)) throw Error("Already present")
         //if ( !(typeof identifier).match(/number|string|symbol|bigint/)) throw TypeError(`State must be a primitive`)
         // console.assert(/number|string|symbol|bigint/.test(typeof identifier), `State should be a primitive:\n %o`, identifier)
         let cached = $('template')
@@ -648,32 +649,39 @@ function prox(target) {
                 }
             }
         }), handlers.attr)
+        let baseThingy = {
+            ...prototypeDescriptors,
+            [me]: bleh,
+            [states]: {
+                value: new Map
+            },
+            selfRules: {
+                value: Object.create(null)
+            },
+            beforestatechange: plc,
+            afterstatechange: plc,
+            state,
+            currentState: junk,
+            lastState: junk,
+            flags,
+            form: {
+                get() {
+                    return new form(target)
+                },
+                enumerable: 1,
+            },
+            children: {
+                value: childProxy
+            },
+            attr: {
+                value: attrProxy
+            },
+            styles: {
+                value: styleProxy
+            }
+        }
         let { proxy, revoke } = Proxy.revocable(
-            Object.seal(Object.create(target, {
-                ...prototypeDescriptors,
-                [me]: bleh,
-                [states]: {
-                    value: new Map
-                },
-                selfRules: {
-                    value: Object.create(null)
-                },
-                beforestatechange: plc,
-                afterstatechange: plc,
-                state,
-                currentState: junk,
-                lastState: junk,
-                flags,
-                children: {
-                    value: childProxy
-                },
-                attr: {
-                    value: attrProxy
-                },
-                styles: {
-                    value: styleProxy
-                }
-            })), {
+            Object.seal(Object.create(target, baseThingy)), {
             get(targ, prop) {
                 return targ.hasOwnProperty(prop) ? targ[prop] :
                     bindIfNecessary(target[prop], target)

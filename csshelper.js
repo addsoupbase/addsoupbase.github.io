@@ -5,8 +5,8 @@ export function capVendor(prop, val) {
     return toCaps(vendor(toDash(prop), val))
 }
 const alreadyLogged = new Set
-export function badCSS(data) {
-    if (alreadyLogged.has(data)) return
+export function badCSS(data, silent) {
+    if (silent || alreadyLogged.has(data)) return
     console.warn(data)
     alreadyLogged.add(data)
 }
@@ -15,7 +15,7 @@ const allVendors = RegExp(
     // internal
 ),
     allVendors2 = /(prince|mso)-/
-export function vendor(prop, val) {
+export function vendor(prop, val, silent) {
     val = `${val}`
     if (prop.startsWith('--') && CSS.supports(prop, val)) return prop
     if (val.trim() && !CSS.supports(prop, val)) {
@@ -66,17 +66,16 @@ export function vendor(prop, val) {
             CSS.supports(prefix = `-epub-${prop}`, val) ||
             // IDK
             // CSS.supports(prefix = `-internal-${prop}`, val) ||
-            // IDK
-            badCSS(`⛓️‍💥 Unrecognized CSS at '${prefix = prop}: ${val}'`)),
+            badCSS(`⛓️‍💥 Unrecognized CSS at '${prefix = prop}: ${val}'`, silent)),
             // Sorry!
             prefix
     }
     return prop
 }
 export function importFont(name, src) {
-    if (!name || !src) throw TypeError(`Src and name required`)
+    if (!name || !src) throw Error(`Src and name required`)
     const font = new FontFace(name, `url(${src})`)
-    font.load().then(() => document.fonts.add(font), console.warn)
+    font.load().then(document.fonts.add, console.warn)
     return font
 }
 let defrt = /-./g
@@ -103,11 +102,11 @@ let addedStyleRules = null
  * @param {Object} obj key/value pairs that match CSS
  * @returns {String}
  */
-export function toCSS(obj) {
+export function toCSS(obj, silent) {
     const arr = []
     if (!Array.isArray(obj)) obj = Object.entries(obj)
     for (let [prop, val] of obj)
-        try { arr.push(`${vendor(toDash(prop), val)}:${val}`) }
+        try { arr.push(`${vendor(toDash(prop), val, silent)}:${val}`) }
         catch { continue }
     return arr.join(';')
 }
@@ -118,7 +117,7 @@ export function toCSS(obj) {
  */
 let pseudoElementRegex = /::[\w-]/
 let pseudoClassRegex = /:[\w-]/
-export async function registerCSS(selector, rule) {
+export async function registerCSS(selector, rule, silent) {
     selector = selector.split(',')
         .map(selectr => {
             if (pseudoElementRegex.test(selectr)) selectr = supportedPElementVendor(selectr)
@@ -131,7 +130,7 @@ export async function registerCSS(selector, rule) {
     function res(resolve) {
         requestAnimationFrame(res)
         function res() {
-            let r = `{${toCSS(rule)}}`
+            let r = `{${toCSS(rule, silent)}}`
             return resolve(sheet.insertRule(`${formatStr(selector)}${formatStr(r)}`))
         }
     }
@@ -201,14 +200,14 @@ queueMicrotask
     (() => {
         //    Some default CSS..
         registerCSSAll({
-            dialog: {
+          /*  dialog: {
                 transition: 'opacity 1s linear',
                 "font-family": "Arial",
                 "text-align": "center",
                 width: "300px",
                 height: "150px",
                 "word-break": "break-word"
-            },
+            },*/
             '.centerx,.center': {
                 'justify-self': 'center',
                 margin: 'auto'
@@ -220,15 +219,14 @@ queueMicrotask
             },
         })
         'registerProperty' in CSS &&
-            async function (all, scheduler = {
-                yield() {
-                    return new Promise(requestAnimationFrame)
+            async function (all, scheduler) {
+                scheduler ??= {
+                    yield() {
+                        return new Promise(requestAnimationFrame)
+                    }
                 }
-            }) {
                 //  This registers all of those var(--abc-xyz)
                 //  all the properties are located at the very bottom of this module!
-
-
                 /*await scheduler.yield()
                 CSS.registerProperty({
                     name: '--padding-start',
@@ -248,10 +246,10 @@ queueMicrotask
                 const universal = {}
                 all.forEach(reg)
                 function reg({ name: o }) {
-                    universal[vendor(o.slice(2), `var(${o})`)] = `var(${o})`
+                    universal[vendor(o.slice(2), `var(${o})`, true)] = `var(${o})`
                 }
                 all = allProps = null
-                registerCSS('*', universal)
+                registerCSS('*', universal, true)
                 // console.groupEnd('⛓️‍💥 Unsupported CSS (you can ignore this)')
             }(new Set(allProps), window.scheduler)
     })//()
@@ -287,15 +285,19 @@ export function convertToCSSMethod(value) {
     // }
 }
 {
-    function g(name, initialValue = 'auto', inherits = false, syntax = '*') {
+    function g(name, initialValue, inherits , syntax) {
+        initialValue ??= 'auto'
+        inherits ??= false
+        syntax ??= '*'
         return { name, initialValue, inherits, syntax }
     }
     var allProps = [
-        g("--user-select", "auto", "true"),
+        //  Fallback stuff
+        g("--user-select", "auto", "true"), // Most important one
         g("--user-modify", "auto", "0"),
         g('--user-drag', "auto", 'true'),
         g('--text-decorations-in-effect', 'auto', '0'),
-        g("--force-broken-image-icon", "0", "0", "<integer>"),
+        g("--force-broken-image-icon", "0", "0", "<integer>"),  // Might be useful (moz)
         g("--float-edge", "content-box", "0"),
         g("--image-region", "auto", "true"),
         g("--box-orient", "inline-axis", "0"),
@@ -308,7 +310,7 @@ export function convertToCSSMethod(value) {
         g("--box-decoration-break", "slice", "0"),
         g("--box-pack", "start", "0"),
         g("--user-input", "auto", "true"),
-        g("--box-reflect", "none", "0"),
+        g("--box-reflect", "none", "0"), // Kewl
         g("--text-stroke-color", "currentcolor", "true", "<color>"),
         g("--text-stroke-width", "0", "true", "<length>"),
         g("--text-security", "none", "0"),
@@ -317,7 +319,7 @@ export function convertToCSSMethod(value) {
         g("--font-smoothing", "auto", "true"),
         g("--mask-position-x", "0%", "0", "<length-percentage>"),
         g("--mask-position-y", "0%", "0", "<length-percentage>"),
-        g("--tap-highlight-color", "transparent", "true", "<color>"),
+        g("--tap-highlight-color", "transparent", "true", "<color>"), // Also good
         g("--touch-callout", "default", "true"),
         g("--window-dragging", "drag", "0"),
         g("--stack-sizing", "stretch-to-fit", "true"),
