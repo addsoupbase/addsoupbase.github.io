@@ -236,7 +236,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
                 if (stopImmediateProp) name = `!${name}`
                 clone.on({
                     [name]: listener[unbound][unbound]
-                }, handler, true)
+                }, handler)
             }
         }
     }
@@ -246,7 +246,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             { firstElementChild } = me
         while (firstElementChild)
             out.appendChild(me.removeChild(firstElementChild)),
-                ({ firstElementChild } = me)
+                { firstElementChild } = me
         return out
     }
     pass() {
@@ -263,9 +263,8 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         let myStates = this[states]
         for (let [key, { cached: val }] of myStates) {
             myStates.delete(key)
-            for (let el of val.content.querySelectorAll('*')) {
+            for (let el of val.content.querySelectorAll('*'))
                 prox(el).destroy()
-            }
         }
         this.destroyChildren()
         let my = base(this)
@@ -322,8 +321,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
                 (me !== target || includeSelf) && (filter?.(pr) ?? 1) && old.apply(pr, args)
             }
         }
-        this.on(events)
-        return this
+        return this.on(events)
     }
     get events() {
         return getEventNames(base(this))
@@ -362,10 +360,11 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     get anims() {
         return base(this).getAnimations()
     }
+    static subtree = {
+        subtree: true
+    }
     get allAnims() {
-        return base(this).getAnimations({
-            subtree: true
-        })
+        return base(this).getAnimations(_.subtree)
     }
     cancelAnims() {
         this.allAnims.forEach(_.cancel)
@@ -387,16 +386,18 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         this.allAnims.forEach(_.restart)
         return this
     }
+    static nopacity = {
+        opacity: 0
+    }
+    static onepacity = {
+        opacity: 1
+    }
     fadeOut(duration = 500) {
-        return this.animate([{}, { opacity: 0 }], { duration, easing: 'ease', iterations: 1 }).finished.then(() => this.hide3())
+        return this.animate([{}, _.nopacity], { duration, easing: 'ease', iterations: 1 }).finished.then(() => this.hide3())
     }
     fadeIn(duration = 500) {
         this.show3()
-        return this.animate([{
-            opacity: 0
-        }, {
-            opacity: 1
-        }], {
+        return this.animate([_.nopacity, _.onepacity], {
             duration,
             easing: 'ease',
             iterations: 1
@@ -405,15 +406,17 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     replaceWith(...elements) {
         base(this).replaceWith(...elements.map(base))
     }
+    static hidden = {
+        hidden: true
+    }
+    static notHidden = {
+        hidden: false
+    }
     hide() {
-        return this.setAttributes({
-            hidden: true
-        })
+        return this.setAttributes(_.hidden)
     }
     show() {
-        return this.setAttributes({
-            hidden: false
-        })
+        return this.setAttributes(_.notHidden)
     }
     hide2() {
         base(this).style.visibility = 'hidden'
@@ -576,8 +579,9 @@ const prototype = Object.create(null)
             return base(this)[txt]
         },
         set(val) {
-            if (base(this).childElementCount) throw TypeError(`Cannot set '${txt}', element has children`)
-            base(this)[txt] = val
+            let me = base(this)
+            if (me.childElementCount) throw TypeError(`Cannot set '${txt}', element has children`)
+            me[txt] = val
         }
     })
 )
@@ -785,7 +789,7 @@ function $(html, props, ...children) {
             return o.slice(1)
         }
     }
-    if (element.tagName === 'SCRIPT') {
+    if (element.tagName === 'SCRIPT' || element.querySelector('script')) {
         debugger
         throw new DOMException('Potential script injection', 'SecurityError')
     }
@@ -826,12 +830,10 @@ function $(html, props, ...children) {
     children.length && element.push(children)
     return element
 }
-
 function revoke(targ) {
     revokes.get(targ)?.(revokes.delete(targ))
 }
-export default $
-Object.defineProperties($, {
+export default Object.defineProperties($, {
     random: {
         value() {
             return

@@ -26,7 +26,7 @@ class StorageProxy {
         throw TypeError("Illegal constructor")
     }
 }
-export let lstorage = globalThis.localStorage &&
+export const lstorage = globalThis.localStorage &&
     new StorageProxy(localStorage),
     sstorage = globalThis.sessionStorage &&
         new StorageProxy(sessionStorage)

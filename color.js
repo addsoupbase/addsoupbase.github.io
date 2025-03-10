@@ -1,4 +1,4 @@
-import math from './math.js'
+import * as math from './num.js'
 const { min, max, round } = Math,
     colors = new Map,
     canvas = new OffscreenCanvas(0, 0).getContext('2d'),
@@ -8,7 +8,7 @@ const { min, max, round } = Math,
             if (CSS.supports('color', prop)) {
                 if (!colors.has(prop)) {
                     canvas.fillStyle = prop
-                    colors.set(prop, Object.freeze(Color(canvas.fillStyle)))
+                    colors.set(prop, Color(canvas.fillStyle))
                 }
                 return colors.get(prop)
             }
@@ -22,6 +22,7 @@ const { min, max, round } = Math,
     }
 const Color = new Proxy(class {
     //Darken Hex Colour
+    //Don't ask why there's a "k" there
     static dhk(e, f = 40) { let $ = parseInt((e = ('' + e).replace(/^#/, "")).substring(0, 2), 16), a = parseInt(e.substring(2, 4), 16), r = parseInt(e.substring(4, 6), 16); return $ = round($ * (1 - f / 100)), a = round(a * (1 - f / 100)), r = round(r * (1 - f / 100)), $ = min(255, max(0, $)), a = min(255, max(0, a)), r = min(255, max(0, r)), "#" + [$, a, r].map(function (e) { let f = e.toString(16); return 1 === f.length ? "0" + f : f }).join('') }
     static choose() {
         return `#${(Math.floor(Math.random() * 0x1000000)).toString(16).padStart(6, 0)}`
@@ -101,7 +102,7 @@ const Color = new Proxy(class {
                 b = parseInt(hex.slice(4, 6), 16),
                 a = 1
         }
-        Object.assign(this, { r, g, b, a })
+        Object.freeze(Object.assign(this, { r, g, b, a }))
     }
     toString(format) {
         function map(o) {
