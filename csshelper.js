@@ -212,6 +212,9 @@ queueMicrotask
             [`button,a,${'button checkbox radio submit image reset file'.split(' ').map(o => `input[type=${o}]`).join(',')}`]: {
                 cursor: 'pointer'
             },
+            '*:disabled': {
+                cursor: 'not-allowed'
+            },
             '.centerx,.center': {
                 'justify-self': 'center',
                 margin: 'auto'
