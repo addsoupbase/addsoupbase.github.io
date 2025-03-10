@@ -1,4 +1,4 @@
-let regex = /[\w\.]+\.(webp|png|gif|jpe?g)/
+let regex = /[\w\.\-]+\.(webp|png|gif|jpe?g)/
 import { on } from '../handle.js'
 function images({ avatars, mons }) {
     let pop = new Audio('media/pop.mp3')
