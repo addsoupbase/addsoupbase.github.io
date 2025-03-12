@@ -4,6 +4,10 @@ const { sign, PI, abs, min, max, atan2, hypot } = Math,
 function reduce(a, b) {
     return a + b
 }
+function sum(arr) {
+    return arr.reduce(reduce, -0)
+}
+sum = Math.sumPrecise ?? sum
 function sort(a, b) {
     return a - b
 }
@@ -42,13 +46,13 @@ class Cycle {
     }
 }
 export function average(...numbers) {
-    if (!numbers.length) return NaN
-    const sorted = numbers.toSorted(sort)
-    return sorted.reduce(reduce) / sorted.length
+    let { length } = numbers
+    if (!length) return NaN
+    return sum(numbers.sort(sort)) / length
 }
 export function avg(...array) {
     if (!array.length) return NaN
-    const sorted = array.toSorted(sort),
+    const sorted = array.sort(sort),
         { length } = sorted
     const q1 = sorted[length / 4 | 0],
         q3 = sorted[3 * length / 4 | 0],
