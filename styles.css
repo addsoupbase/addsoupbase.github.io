@@ -252,26 +252,16 @@ html {
 
 input.cute-green {
   background-color: #43b363;
-  /* Same soft pastel green */
   opacity: 0.8;
   border: 2px solid #399a3e;
-  /* Darker green border */
+  margin: 5px;
   border-radius: 15px;
-  /* Rounded corners for a cute look */
   padding: 10px 15px;
-  /* Padding for a comfortable feel */
   font-family: 'Choco';
-  /* Playful font */
   color: #000000;
-  /* Black text for contrast */
   text-align: center;
-  /* Center the text inside */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  /* Soft shadow */
   transition: transform 0.3s ease, background-color 0.3s ease;
-  /* max-width: 80%; */
-  /* Limit max width for aesthetic */
-  margin: auto;
 }
 
 .input {
@@ -411,6 +401,7 @@ input.cute-green::placeholder {
 
 @font-face {
   font-family: 'Choco';
+  font-display: swap;
   src: url('./media/Chococooky.woff2') format('woff2'),
     /* Super Modern Browsers */
     url('/media/Chococooky.woff2') format('woff');

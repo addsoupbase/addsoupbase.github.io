@@ -10,13 +10,15 @@ main.setStyles({ opacity: 0 })
 on(window, {
     load() {
         requestIdleCallback(() => {
-            main.setStyles({ opacity: .95 })
             final()
         }, { timeout: 20000 })
     }
 })
 window.requestIdleCallback ??= queueMicrotask
-main.animate([{ filter: 'blur(2px)', opacity: 0, scale: '0.8 0.8', translate: '0 -40px' }, { filter: '', }], { duration: 700, easing: 'ease-in' })
+if (location.hash) main.animate([{ filter: 'blur(2px)', opacity: 0, scale: '0.8 0.8', translate: '0 -40px' }, { filter: '', opacity: .96 }], { duration: 700, easing: 'ease-in', fill: 'forwards' })
+else {
+    main.animate([{ opacity: 0 }, { opacity: .96 }], { duration: 500, easing: 'ease', fill: 'forwards' })
+}
 
 let avatarPreview = $('div.holdavatar')
 avatarPreview.parent = main
