@@ -226,12 +226,8 @@ queueMicrotask
             },
         })
         'registerProperty' in CSS &&
-            async function (all, scheduler) {
-                scheduler ??= {
-                    yield() {
-                        return new Promise(requestAnimationFrame)
-                    }
-                }
+            async function (all) {
+                let Yield = window.scheduler?.yield?.bind(scheduler) ?? (() => new Promise(queueMicrotask))
                 //  This registers all of those var(--abc-xyz)
                 //  all the properties are located at the very bottom of this module!
                 /*await scheduler.yield()
@@ -247,7 +243,7 @@ queueMicrotask
                         let o = prop.name
                         universal[vendor(o.slice(2), o = `var(${o})`, true)] = o
                         CSS.registerProperty(prop)
-                        await scheduler.yield()
+                        await Yield()
                     }
                     catch (e) {
                         if (!(e instanceof DOMException)) reportError(e)
@@ -256,7 +252,7 @@ queueMicrotask
                 all = allProps = null
                 registerCSS('*', universal, true)
                 // console.groupEnd('⛓️‍💥 Unsupported CSS (you can ignore this)')
-            }(new Set(allProps), window.scheduler)
+            }(new Set(allProps))
     })//()
 export function dropShadow({
     color = '#000000',

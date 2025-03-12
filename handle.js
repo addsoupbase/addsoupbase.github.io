@@ -270,9 +270,12 @@ export function off(target, ...eventNames) {
 export function until(target, eventName, timeout/* = 600000*/) {
     return new Promise(un)
     function un(resolve, reject) {
-        const id = timeout && setTimeout(reject, timeout, RangeError(`⏰ Promise for '${eventName}' expired after ${timeout} ms`))
+        const id = timeout && setTimeout(err => {
+            reject(err)
+            off(target, eventName)
+        }, timeout, RangeError(`⏰ Promise for '${eventName}' expired after ${timeout} ms`))
             , handleName = `on${eventName}`
-        if (target[handleName] === null) {
+        /*if (target[handleName] === null) {
             //  Use the handler property if we can
             target[handleName] = handler
             function handler(event) {
@@ -284,17 +287,15 @@ export function until(target, eventName, timeout/* = 600000*/) {
                 }
             }
         }
-        else on(target, {
-            //  Use the addEventListener
-            [eventName](event) {
-                try { resolve(event) }
-                catch (e) { reject(e) }
-                finally {
-                    off(target, eventName)
-                    timeout && clearTimeout(id)
+        else */on(target, {
+                [`${eventName}_`](event) {
+                    try { resolve(event) }
+                    catch (e) { reject(e) }
+                    finally {
+                        timeout && clearTimeout(id)
+                    }
                 }
-            }
-        })
+            })
     }
 }
 let objectURLS,
