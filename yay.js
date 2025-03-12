@@ -448,6 +448,9 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         temp.destroy?.()
         return out
     }
+    initForm() {
+        return new form(base(this))
+    }
     push(...args) {
         let frag = doc
         args.flat(1 / 0).forEach(a)
@@ -668,12 +671,12 @@ function prox(target) {
             currentState: junk,
             lastState: junk,
             flags,
-            form: {
+            /*form: {
                 get() {
                     return new form(target)
                 },
                 enumerable: 1,
-            },
+            },*/
             children: {
                 value: childProxy
             },
