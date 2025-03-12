@@ -7,10 +7,10 @@ const main = $('main.center.cute-green #main', {
     parent: document.body,
 })
 main.setStyles({ opacity: 0 })
-typeof final === 'function' && on(window, {
+ on(window, {
     load() {
         requestIdleCallback(() => {
-            final()
+            typeof final === 'function' &&final()
         }, { timeout: 20000 })
     }
 })
