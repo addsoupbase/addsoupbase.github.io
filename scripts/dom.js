@@ -7,7 +7,7 @@ const main = $('main.center.cute-green #main', {
     parent: document.body,
 })
 main.setStyles({ opacity: 0 })
-on(window, {
+typeof final === 'function' && on(window, {
     load() {
         requestIdleCallback(() => {
             final()
