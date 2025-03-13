@@ -23,7 +23,7 @@ function images({ avatars, mons }) {
         pop.play()
         this.fadeOut(300)
         this.flags = 1
-        await this.animate([{ transform: '' }, { transform: 'scaleX(2) scaleY(2)', }], { duration: 300, easing: 'ease-in-out', composite: 'add' }).finished
+        await this.animate([{ transform: '' }, { transform: 'scaleX(2) scaleY(2)', }], { duration: 300, easing: 'ease-in-out', composite: 'accumulate', }).finished
         let [name] = this.firstElementChild.src.match(regex)[0].split(/\.(webp|png|gif|jpe*g)/)
         let me = $('div.ava .tar', {
             styles: {
@@ -49,7 +49,7 @@ function images({ avatars, mons }) {
             : [{ transform: `translateX(calc(-10vw - ${n.offsetWidth}px))` }, { transform: `translateX(calc(100vw + ${n.offsetWidth}px))` }]
         n.animate(settings, { duration }).finished.then(() => n.destroy())
         const c = ran.range(0, innerHeight)
-        n.animate([{ translate: `0 ${c}px` }, { translate: `0 ${c - 200}px` }], { easing: 'ease-in-out', duration: ran.range(2000, 3000), iterations: 1 / 0, direction: 'alternate' })
+        n.animate([{ transform: `translate(0, ${c}px)` }, { transform: `translate(0, ${c - 200}px)` }], { composite: 'accumulate',easing: 'ease-in-out', duration: ran.range(2000, 3000), iterations: 1 / 0, direction: 'alternate' })
         const out = $('img.ava', {
             parent: n,
             attributes: {
@@ -60,7 +60,7 @@ function images({ avatars, mons }) {
                 draggable: false
             }
         })
-        out.animate([{ rotate: '' }, { rotate: `${ran.choose(360, -360)}deg` }], { duration: 80000, iterations: 1 / 0, easing: 'linear' })
+        out.animate([{ transform: 'rotate(0deg)' }, { transform: `rotate(${ran.choose(360, -360)}deg)` }], {composite: 'accumulate', duration: 80000, iterations: 1 / 0, easing: 'linear' })
     }
     function createAnimationForSpritesheet(image) {
         let me = $(`div.${image[Symbol.for('name')]}.sprite`, { parent })
@@ -83,8 +83,8 @@ function images({ avatars, mons }) {
         element.setStyles({ transform: `translateY(${ran.range(0, innerHeight)}px) scaleX(${coin ? '-1' : '1'})`, })
         let { offsetWidth } = element
         let settings = coin
-            ? [{ translate: `calc(100vw + ${offsetWidth}px) 0` }, { translate: `calc(-10vw - ${offsetWidth}px) 0` },]
-            : [{ translate: `calc(-10vw - ${offsetWidth}px) 0` }, { translate: `calc(100vw + ${offsetWidth}px) 0` }],
+            ? [{ transform: `translate(calc(100vw + ${offsetWidth}px), 0)` }, { transform: `translate(calc(-10vw - ${offsetWidth}px), 0)` },]
+            : [{ transform: `translate(calc(-10vw - ${offsetWidth}px), 0)` }, { transform: `translate(calc(100vw + ${offsetWidth}px), 0)` }],
             duration = 15000
         switch (pick[Symbol.for('name')]) {
             case 'wailord': case 'wishiwashischool': duration = 30400; break
@@ -95,7 +95,7 @@ function images({ avatars, mons }) {
             //        case 'corsola': element.animate([{transform: 'rotateZ(0deg)'}, {transform: `rotateZ(360deg)`}], {composite:'add',easing:'linear',duration:5000, iterations:1/0,direction:coin?'reverse':'normal'})
         }
         duration *= 0.9
-        await element.animate(settings, { easing: 'linear', duration, composite: 'add', fill: 'forwards' }).finished
+        await element.animate(settings, { easing: 'linear', duration, composite: 'accumulate', fill: 'forwards' }).finished
         await element.fadeOut()
         element.destroy()
     }

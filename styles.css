@@ -70,33 +70,33 @@
 }
 
 .delibird {
-  scale: 1.6 1.6;
+  transform: scale(1.6, 1.6);
   margin: 5px;
   image-rendering: pixelated;
 }
 
 .wailord {
-  scale: 3.3 3
+  transform: scale(3.3, 3)
 }
 
 .carvanha,
 .seadra {
-  scale: 1.25 1.25
+  transform: scale(1.25, 1.25)
 }
 .eelektross,.clawitzer {
-  scale: 1.5 1.5
+  transform: scale(1.5, 1.5)
 }
 .luvdisc,
 .corsola,
 .wishiwashi {
-  scale: 1.2 1.2
+  transform: scale(1.2, 1.2)
 }
 
 .wishiwashischool {
-  scale: 2 2
+  transform: scale(2, 2)
 }
 .kyogre, .kyogreprimal {
-  scale: 2 2
+  transform: scale(2, 2)
 }
 
 /* .name { */
@@ -123,7 +123,7 @@
   width: 100%;
   justify-content: center;
   height: 100%;
-  zoom: 0.8;
+  --zoom:.8;
   inset: 0;
   margin: auto;
   text-align: center;
@@ -429,7 +429,7 @@ a {
 }
 
 body {
-  scrollbar-width: none;
+  --scrollbar-width: none;
   /* Firefox */
   height: 100vh;
   width: 100vw;
@@ -452,7 +452,7 @@ body {
 }
 
 .pkm {
-  scale: 1.5 1.5;
+  transform: scale(1.5, 1.5);
   margin: 10px;
   image-rendering: pixelated;
 }
@@ -501,7 +501,7 @@ body {
 .cute-green-button:active {
   background-color: #a8db67;
   /* Darker green on hover */
-  scale: .9 .9
+  transform: scale(.9, .9)
     /* Slight scale effect */
 }
 

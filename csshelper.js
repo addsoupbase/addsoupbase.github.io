@@ -67,10 +67,16 @@ export function vendor(prop, val, silent) {
             // IDK
             // CSS.supports(prefix = `-internal-${prop}`, val) ||
             badCSS(`⛓️‍💥 Unrecognized CSS at '${prefix = prop}: ${val}'`, silent)),
+            mayNotBeSupported(prop),
             // Sorry!
             prefix
     }
     return prop
+}
+const newerProps = /^(translate|scale|rotate|zoom)$/
+//  (that i have used before)
+function mayNotBeSupported(prop) {
+    newerProps.test(prop) && badCSS(`💿 '${prop}' may not be supported on older devices`)
 }
 export function importFont(name, src) {
     if (!name || !src) throw Error(`Src and name required`)
@@ -209,9 +215,8 @@ queueMicrotask
                   height: "150px",
                   "word-break": "break-word"
               },*/
-            [`button,a,${
-                'button checkbox radio submit image reset file'.split(' ').map(o => `input[type=${o}]`).join(',')
-            }`]: {
+            [`button,a,${'button checkbox radio submit image reset file'.split(' ').map(o => `input[type=${o}]`).join(',')
+                }`]: {
                 cursor: 'pointer'
             },
             '*:disabled': {
@@ -227,7 +232,7 @@ queueMicrotask
                 position: 'fixed'
             },
         })
-        'registerProperty' in CSS &&
+        void
             async function (all) {
                 let Yield = window.scheduler?.yield?.bind(scheduler) ?? (() => new Promise(queueMicrotask))
                 //  This registers all of those var(--abc-xyz)
@@ -244,7 +249,7 @@ queueMicrotask
                     try {
                         let o = prop.name
                         universal[vendor(o.slice(2), o = `var(${o})`, true)] = o
-                        CSS.registerProperty(prop)
+                        CSS.registerProperty?.(prop)
                         await Yield()
                     }
                     catch (e) {
@@ -292,85 +297,93 @@ export function convertToCSSMethod(value) {
         initialValue ??= 'auto'
         inherits ??= false
         syntax ??= '*'
-        return { name, initialValue, inherits, syntax }
+        return { name: `--${name}`, initialValue, inherits, syntax }
     }
     var allProps = [
         //  Fallback stuff
-        g("--user-select", "auto", true), // Most important one
-        g("--user-modify", "auto", 0),
-        g('--user-drag', "auto", true),
-        g('--text-decorations-in-effect', 'auto', 0),
-        g("--force-broken-image-icon", 0, 0, "<integer>"),  // Might be useful (moz)
-        g("--float-edge", "content-box", 0),
-        g("--image-region", "auto", true),
-        g("--box-orient", "inline-axis", 0),
-        g("--box-align", "stretch", 0),
-        g("--box-direction", "normal", 0),
-        g("--box-flex", 0, 0),
-        g("--box-flex-group", 0, 0),
-        g("--box-lines", "single", 0),
-        g("--box-ordinal-group", "1", 0),
-        g("--box-decoration-break", "slice", 0),
-        g("--box-pack", "start", 0),
-        g("--user-input", "auto", true),
-        g("--box-reflect", "none", 0), // Kewl
-        g("--text-stroke-color", "currentcolor", true, "<color>"),
-        g("--text-stroke-width", 0, true, "<length>"),
-        g("--text-security", "none", 0),
-        g("--text-fill-color", "currentcolor", true),
-        g("--line-clamp", "none", 0),
-        g("--font-smoothing", "auto", true),
-        g("--mask-position-x", "0%", 0, "<length-percentage>"),
-        g("--mask-position-y", "0%", 0, "<length-percentage>"),
-        g("--tap-highlight-color", "transparent", true, "<color>"), // Also good
-        g("--touch-callout", "default", true),
-        g("--window-dragging", "drag", 0),
-        g("--stack-sizing", "stretch-to-fit", true),
-        g("--appearance", "auto", 0),
-        g("--mask-composite", "source-over", 0),
-        g("--image-rect", "auto", true),
-        g("--context-properties", "none", true),
-        g("--outline-radius", "0 0 0 0", 0),
-        g("--window-shadow", "default", 0),
-        g("--binding", "none", 0),
-        g("--user-focus", "none", 0),
-        g("--text-blink", "none", 0),
-        g("--content-zoom-limit", "400% 100%", 0),
-        g("--accelerator", 0, 0),
-        g("--initial-letter", "normal", 0),
-        g("--order", 0, 0),
-        g("--text-kashida-space", "0%", true, "<percentage>"),
-        g("--interpolation-mode", "none", 0),
-        g("--progress-appearance", "bar", 0),
-        g("--content-zooming", "auto", 0),
-        g("--flow-from", "none", 0),
-        g("--flow-into", "none", 0),
-        g("--content-zoom-chaining", "none", 0),
-        g("--high-contrast-adjust", "auto", true),
-        g("--ime-mode", "auto", 0),
-        g("--overflow-style", "auto", true),
-        g("--touch-select", "grippers", true),
-        g("--behaviour", "url()", 0, "<url>"),
-        g("--interactivity", "auto", true),
-        g("--input-security", "auto", 0),
-        g("--caret-animation", "auto", true),
-        g("--wrap-through", "wrap", 0),
-        g("--print-color-adjust", "economy", true),
-        g("--cursor-visibility", "auto", true),
-        g("--pay-button-style", "white", 0),
-        g("--color-filter", "none", true),
-        g("--pay-button-type", "plain", 0),
-        g("--visual-effect", "none", true),
-        g("--text-wrap-style", "auto", true),
-        g("--text-spacing-trim", "normal", true),
-        g("--text-group-align", "none", 0),
-        g("--text-autospace", "normal", true),
-        g("--scrollbar-color", "auto", true),
-        g("--scrollbar-gutter", "auto", 0),
-        g("--scrollbar-width", "auto", 0),
-        g("--ruby-overhang", "auto", true),
-        g("--max-lines", "none", 0),
-        g("--line-fit-edge", "leading", true),
-        g("--continue", "auto", 0)
+        g("user-select", "auto", true), // Most important one
+        g("user-modify", "auto", 0),
+        g("zoom", "auto", 0),
+        g('locale', 'auto', true),
+        g('line-grid', 'auto', true),
+        g('line-snap', 'auto', true),
+        g('nbsp-mode', 'auto', true),
+        g("text-zoom", 'auto', true),
+        g('line-align', 'auto', true),
+        g('user-drag', "auto", true),
+        g('text-decorations-in-effect', 'auto', 0),
+        g("force-broken-image-icon", 0, 0, "<integer>"),  // Might be useful (moz)
+        g("float-edge", "content-box", 0),
+        g("image-region", "auto", true),
+        g("box-orient", "inline-axis", 0),
+        g("box-align", "stretch", 0),
+        g("box-direction", "normal", 0),
+        g("box-flex", 0, 0),
+        g("box-flex-group", 0, 0),
+        g("box-lines", "single", 0),
+        g("box-ordinal-group", "1", 0),
+        g("box-decoration-break", "slice", 0),
+        g("box-pack", "start", 0),
+        g("user-input", "auto", true),
+        g("text-orientation", 'vertical-right', true),
+        g("box-reflect", "none", 0), // Kewl
+        g("text-stroke-color", "currentcolor", true, "<color>"),
+        g("text-stroke-width", 0, true, "<length>"),
+        g("text-security", "none", 0),
+        g("text-fill-color", "currentcolor", true),
+        g("line-clamp", "none", 0),
+        g("font-smoothing", "auto", true),
+        g("mask-position-x", "0%", 0, "<length-percentage>"),
+        g("mask-position-y", "0%", 0, "<length-percentage>"),
+        g("tap-highlight-color", "rgb(0 0 0 0.18)", true, "<color>"), // Also good
+        g("touch-callout", "default", true),
+        g("window-dragging", "drag", 0),
+        g("stack-sizing", "stretch-to-fit", true),
+        g("appearance", "auto", 0),
+        g("mask-composite", "source-over", 0),
+        g("image-rect", "auto", true),
+        g("context-properties", "none", true),
+        g("outline-radius", "0 0 0 0", 0),
+        g("window-shadow", "default", 0),
+        g("binding", "none", 0),
+        g("user-focus", "none", 0),
+        g("text-blink", "none", 0),
+        g("content-zoom-limit", "400% 100%", 0),
+        g("accelerator", 0, 0),
+        g("initial-letter", "normal", 0),
+        g("order", 0, 0),
+        g("text-kashida-space", "0%", true, "<percentage>"),
+        g("interpolation-mode", "none", 0),
+        g("progress-appearance", "bar", 0),
+        g("content-zooming", "auto", 0),
+        g("flow-from", "none", 0),
+        g("flow-into", "none", 0),
+        g("content-zoom-chaining", "none", 0),
+        g("high-contrast-adjust", "auto", true),
+        g("ime-mode", "auto", 0),
+        g("overflow-style", "auto", true),
+        g("touch-select", "grippers", true),
+        g("behaviour", "url()", 0, "<url>"),
+        g("interactivity", "auto", true),
+        g("input-security", "auto", 0),
+        g("caret-animation", "auto", true),
+        g("wrap-through", "wrap", 0),
+        g("print-color-adjust", "economy", true),
+        g("cursor-visibility", "auto", true),
+        g("pay-button-style", "white", 0),
+        g("color-filter", "none", true),
+        g("pay-button-type", "plain", 0),
+        g("visual-effect", "none", true),
+        g("text-wrap-style", "auto", true),
+        g("text-spacing-trim", "normal", true),
+        g("text-group-align", "none", 0),
+        g("text-autospace", "normal", true),
+        g("scrollbar-color", "auto", true),
+        g("scrollbar-gutter", "auto", 0),
+        g("scrollbar-width", "auto", 0),
+        g("ruby-overhang", "auto", true),
+        g("max-lines", "none", 0),
+        g("line-fit-edge", "leading", true),
+        g("continue", "auto", 0)
     ]
 }
