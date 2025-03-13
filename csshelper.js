@@ -252,7 +252,7 @@ queueMicrotask
                 all = allProps = null
                 registerCSS('*', universal, true)
                 // console.groupEnd('⛓️‍💥 Unsupported CSS (you can ignore this)')
-            }(new Set(allProps))
+            }(allProps)
     })//()
 export function dropShadow({
     color = '#000000',
