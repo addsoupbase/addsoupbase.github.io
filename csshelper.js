@@ -209,7 +209,9 @@ queueMicrotask
                   height: "150px",
                   "word-break": "break-word"
               },*/
-            [`button,a,${'button checkbox radio submit image reset file'.split(' ').map(o => `input[type=${o}]`).join(',')}`]: {
+            [`button,a,${
+                'button checkbox radio submit image reset file'.split(' ').map(o => `input[type=${o}]`).join(',')
+            }`]: {
                 cursor: 'pointer'
             },
             '*:disabled': {
