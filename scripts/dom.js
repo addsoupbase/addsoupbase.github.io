@@ -29,9 +29,10 @@ $('img #avatar', {
 $('h1.centerx', {
     txt: 'addsoupbase', parent: main,
     attributes: { style: 'margin:auto;z-index:3;position:relative;' }
-}).animate([
+})
+/*.animate([
     { scale: '' }, { scale: '1.1 1.1' },
-], { duration: 500, iterations: 4, direction: 'alternate', easing: 'ease-in-out' })
+], { duration: 500, iterations: 4, direction: 'alternate', easing: 'ease-in-out' })*/
 let content = $('section.centerx #content', {
     parent: main,
 })
