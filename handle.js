@@ -77,7 +77,7 @@ export function abort(id, reason) {
     console.info(`🛜 Aborted on signal`, id, reason ? ` with reason "${reason}".` : ' ')
 }
 export function getEventNames(target) {
-    Object.hasOwn(target, sym) || Object.defineProperty(target, sym, { value: new Set })
+    target.hasOwnProperty(sym) || Object.defineProperty(target, sym, { value: new Set })
     return target[sym]
 }
 export function hasEvent(target, eventName) {
@@ -110,7 +110,7 @@ export function on(target, events, useHandler) {
     }
     if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
     let manualSignal
-    Object.hasOwn(target, sym) ||
+    target.hasOwnProperty(sym) ||
         //This will hold the NAMES of the events
         Object.defineProperty(target, sym, { value: new Set })
     try {
@@ -205,7 +205,6 @@ export function on(target, events, useHandler) {
             if (useHandler)
                 // console.warn('Using handler property is deprecated')
                 target[`on${eventName}`] = ProxyFunction
-
             else target.addEventListener(eventName, ProxyFunction, options)
             if (controller)
                 console.info(`📡 '${eventName}' event added with signal`, signal)
@@ -227,7 +226,7 @@ export function on(target, events, useHandler) {
     return target
 }
 {
-    function a([event, name]) { return [event, `${name}_`] }
+    function a({0:event, 1:name}) { return [event, `${name}_`] }
     Object.assign(on,
         {
             once(target, events, useHandler) {

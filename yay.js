@@ -516,9 +516,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             const final = `#${CSS.escape(id)}  ${selector}{${(css.toCSS(cssStuff))}}`
             let existing = this.selfRules[css.formatStr(selector.replace(spaceRegex, ''))]
             // for (let i = 5; i--;) try {
-            existing ?
-                existing.insertRule(final)
-                :
+            existing ? existing.insertRule(final) :
                 (this.selfRules[css.formatStr(selector.replace(spaceRegex, ''))] = customRules.cssRules[customRules.insertRule(final)])
             this.setAttributes({ id })
         }
@@ -672,12 +670,6 @@ function prox(target) {
             currentState: junk,
             lastState: junk,
             flags,
-            /*form: {
-                get() {
-                    return new form(target)
-                },
-                enumerable: 1,
-            },*/
             children: {
                 value: childProxy
             },

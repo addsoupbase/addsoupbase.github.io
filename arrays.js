@@ -46,7 +46,7 @@ export function rotate(arr, rotation = 1) {
     return arr
 }
 async function fallback(src) {
-    return (await fetch(new URL(src, location.href))).json()
+    return(await fetch(new URL(src, location.href))).json()
 }
 try {
     //  Some browsers (Firefox, old) throw with the 'options' parameter
@@ -70,4 +70,5 @@ catch (e) {
     if (e instanceof SyntaxError) var getJson = fallback
     else reportError(e)
 }
+export const jason = getJson
 export { getJson }
