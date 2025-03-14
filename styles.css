@@ -9,9 +9,11 @@
   padding: 0px;
   overflow: hidden;
 }
+
 .lanturn {
   filter: drop-shadow(0 0 5px yellow);
 }
+
 #avatar {
   border-radius: 100%;
   width: 60px;
@@ -24,6 +26,7 @@
   left: 20px;
   top: 20px;
 }
+
 .ava {
   border-radius: 100%;
   transform: scale(.75, .75);
@@ -51,16 +54,19 @@
   image-rendering: optimizeQuality;
   background-position: center;
 }
+
 @supports (-moz-box-direction: inherit) {
   #background {
     background-image: url("./media/bg.png") !important;
-    background-size:cover;
+    background-size: cover;
     background-repeat: no-repeat;
   }
+
   body {
     background: none !important;
   }
 }
+
 .sprite {
   position: absolute;
   background-repeat: no-repeat;
@@ -70,39 +76,44 @@
 }
 
 .delibird {
-  transform: scale(1.6, 1.6);
+  scale: 1.6 1.6;
   margin: 5px;
   image-rendering: pixelated;
 }
 
 .wailord {
-  transform: scale(3.3, 3)
+  scale: 3.3 3
 }
 
 .carvanha,
 .seadra {
-  transform: scale(1.25, 1.25)
+  scale: 1.25 1.25
 }
-.eelektross,.clawitzer {
-  transform: scale(1.5, 1.5)
+
+.eelektross,
+.clawitzer {
+  scale: 1.5 1.5
 }
+
 .luvdisc,
 .corsola,
 .wishiwashi {
-  transform: scale(1.2, 1.2)
+  scale: 1.2 1.2
 }
 
 .wishiwashischool {
-  transform: scale(2, 2)
+  scale: 2 2
 }
-.kyogre, .kyogreprimal {
-  transform: scale(2, 2)
+
+.kyogre,
+.kyogreprimal {
+  scale: 2 2
 }
 
 /* .name { */
-  /* position: relative; */
-  /* text-align: center; */
-  /* align-self: center; */
+/* position: relative; */
+/* text-align: center; */
+/* align-self: center; */
 /* } */
 
 .bubble {
@@ -123,7 +134,7 @@
   width: 100%;
   justify-content: center;
   height: 100%;
-  --zoom:.8;
+  --zoom: .8;
   inset: 0;
   margin: auto;
   text-align: center;
@@ -144,16 +155,16 @@
 }
 
 /* #content { */
-  /* text-align: center; */
-  /* word-break: normal; */
-  /* max-width: 50%; */
+/* text-align: center; */
+/* word-break: normal; */
+/* max-width: 50%; */
 /* } */
 
 /* svg { */
-  /* background-color: rgb(49, 55, 231, 0.7); */
-  /* border-color: rgba(37, 41, 169, 0.7); */
-  /* border-style: solid; */
-  /* border-radius: 100%; */
+/* background-color: rgb(49, 55, 231, 0.7); */
+/* border-color: rgba(37, 41, 169, 0.7); */
+/* border-style: solid; */
+/* border-radius: 100%; */
 /* } */
 
 #background {

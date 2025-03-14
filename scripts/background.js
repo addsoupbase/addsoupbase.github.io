@@ -94,7 +94,8 @@ function images({ avatars, mons }) {
             case 'corsola': duration = 25000; break
             //        case 'corsola': element.animate([{transform: 'rotateZ(0deg)'}, {transform: `rotateZ(360deg)`}], {composite:'add',easing:'linear',duration:5000, iterations:1/0,direction:coin?'reverse':'normal'})
         }
-        duration *= 0.9
+        duration *= 1.6
+        duration *= ran.range(.9,1.1)
         await element.animate(settings, { easing: 'linear', duration, composite: 'accumulate', fill: 'forwards' }).finished
         await element.fadeOut()
         element.destroy()
