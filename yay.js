@@ -8,6 +8,7 @@ const revokes = new WeakMap
 const bounded = new WeakMap
 const dotRegex = /\./g
 const spaceRegex = /\s/g
+let bad
 function gen() {
     return `${Math.random()}${Math.random()}`.replace(dotRegex, '')
 }
@@ -15,9 +16,7 @@ function bindIfNecessary(maybeFunc, to) {
     // Make sure we just re-use the same function
     return typeof
         maybeFunc === 'function' ?
-        bounded.get(maybeFunc) ?? bounded.set(maybeFunc, maybeFunc.bind(to))
-            .get(maybeFunc) :
-        maybeFunc
+        bounded.get(maybeFunc) ?? bounded.set(maybeFunc, maybeFunc.bind(to)).get(maybeFunc) : maybeFunc
 }
 function genericGet(t, prop) {
     if (!isNaN(prop)) {
@@ -312,13 +311,14 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     }
     delegate(events, filter, includeSelf) {
         let me = base(this)
+        filter ??= function () { }
         for (let i in events) {
             let old = events[i]
             events[i] = DelegationFunction
             function DelegationFunction(...args) {
                 let { target } = args[0],
                     pr = prox(target);
-                (me !== target || includeSelf) && (filter?.(pr) ?? 1) && old.apply(pr, args)
+                (me !== target || includeSelf) && (filter(pr) ?? 1) && old.apply(pr, args)
             }
         }
         return this.on(events)
@@ -327,19 +327,21 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         return getEventNames(base(this))
     }
     setStyles(styles) {
-        for (let prop in styles) {
-            let ogValue = styles[prop]
-            let fixedProp = css.toCaps(css.vendor(css.toDash(prop), ogValue))
-            ogValue ? this.style[fixedProp] = ogValue //out.push(`${fixedProp}: ${ogValue}`)
-                :
-                delete this.style[fixedProp]
-        }
+        /* for (let prop in styles) {
+             let ogValue = styles[prop]
+             let fixedProp = css.toCaps(css.vendor(css.toDash(prop), ogValue))
+             ogValue ? this.style[fixedProp] = ogValue //out.push(`${fixedProp}: ${ogValue}`)
+                 :
+                 delete this.style[fixedProp]
+         }
+         return this*/
+        Object.assign(this.styles, styles)
         return this
         //base(this).style.cssText = out.join(';')
     }
     setAttributes(attr) {
         let me = base(this)
-        let bad = /^on.+$/
+        bad ??= /^on.+$/
         for (let i in attr) {
             let val = attr[i]
             if (bad.test(i)) throw TypeError(`Inline event handlers are deprecated`)
@@ -403,7 +405,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             iterations: 1
         }).finished
     }
-    replaceWith(...elements) {
+    replace(...elements) {
         base(this).replaceWith(...elements.map(base))
     }
     static hidden = {
@@ -538,8 +540,8 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         options.iterations ??= 1
         for (let frame of keyframes)
             for (let prop in frame) {
-                let val = frame[prop]
-                frame[css.capVendor(prop, `${val}`)] ??= `${val}`
+                let val = `${frame[prop]}`
+                frame[css.capVendor(prop, val)] ??= val
             }
         // else delete frame[prop]
         // Firefox warns of empty string
@@ -635,7 +637,6 @@ function prox(target) {
     if (target === null) return null
     if (!getValid(target))
         throw TypeError(`Invalid target: ${target}`) // get out
-
     // 🥅 Goal:
     // 🪪 Make an object with a [[Prototype]] being the target element
     // 🪤 Also put a proxy around said object

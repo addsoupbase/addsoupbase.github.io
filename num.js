@@ -191,8 +191,9 @@ class Vector2 {
     static {
         let props = Object.getOwnPropertyDescriptors(this.prototype)
         for (let i in props) {
-            if ('get' in props[i] || 'set' in props[i] || props[i].value?.length !== 2) continue
-            let { value: old } = props[i]
+            let { [i]: p } = props
+            if ('get' in p || 'set' in p || p.value?.length !== 2) continue
+            let { value: old } = p
             delete this.prototype[i]
             Object.defineProperty(this.prototype, i, {
                 value: makeItANumber
@@ -232,8 +233,8 @@ class Vector2 {
         return v(this.#x / mag || 0, this.#y / mag || 0)
     }
     [Symbol.toPrimitive](hint) {
-        if (hint === 'number') throw TypeError(`Cannot convert ${this[Symbol.toStringTag]} to number`)
-        return this.toString()
+        if (hint === 'string') return this.toString()
+        throw TypeError(`Cannot convert ${this[Symbol.toStringTag]} to ${hint}`)
     }
     normalize() {
         return this.set(this.normalized)
@@ -381,8 +382,14 @@ class Vector2 {
         yield this.#y
     }
 }
-const v = Object.defineProperties(vect, Object.getOwnPropertyDescriptors(Vector2))
+const v = Object.defineProperty(Object.defineProperties(vect, Object.getOwnPropertyDescriptors(Vector2)), Symbol.hasInstance, {
+    value(obj) {
+        return Vector2.prototype.isPrototypeOf(obj)
+    }
+})
 export function vect(x, y) {
     // new.target && noConstructor()
     return new Vector2(x, y)
 }
+window.vect = vect
+window.Vector2 = Vector2

@@ -156,10 +156,15 @@ export function getDefaultStyleSheet() {
         return out
     }()).sheet
 }
+
 export function registerCSSAll(rules) {
-    let out = []
-    for (let rule in rules) out.push(registerCSS(rule, rules[rule]))
-    return out
+    return Object.keys(rules).map(bleh)
+    function bleh(r) {
+        return registerCSS(r, rules[r])
+    }
+    // let out = []
+    // for (let rule in rules) out.push(registerCSS(rule, rules[rule]))
+    // return out
 }
 export function supportsRule(rule) {
     return CSS.supports(`selector(${rule})`)
@@ -215,7 +220,8 @@ queueMicrotask
                   height: "150px",
                   "word-break": "break-word"
               },*/
-            [`button,a,${'button checkbox radio submit image reset file'.split(' ').map(o => `input[type=${o}]`).join(',')
+            [`button,a,
+                ${'button checkbox radio submit image reset file'.split(' ').map(o => `input[type=${o}]`).join(',')
                 }`]: {
                 cursor: 'pointer'
             },
@@ -232,8 +238,7 @@ queueMicrotask
                 position: 'fixed'
             },
         })
-        void
-            async function (all) {
+        void async function (all) {
                 let Yield = window.scheduler?.yield?.bind(scheduler) ?? (() => new Promise(queueMicrotask))
                 //  This registers all of those var(--abc-xyz)
                 //  all the properties are located at the very bottom of this module!
@@ -245,11 +250,12 @@ queueMicrotask
                 })*/
                 // console.groupCollapsed('⛓️‍💥 Unsupported CSS (you can ignore this)')
                 const universal = {}
+                let func = CSS.registerProperty ?? function(){}
                 for (let prop of all)
                     try {
                         let o = prop.name
                         universal[vendor(o.slice(2), o = `var(${o})`, true)] = o
-                        CSS.registerProperty?.(prop)
+                        func(prop)
                         await Yield()
                     }
                     catch (e) {

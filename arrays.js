@@ -46,13 +46,13 @@ export function rotate(arr, rotation = 1) {
     return arr
 }
 async function fallback(src) {
-    return(await fetch(new URL(src, location.href))).json()
+    return (await fetch(new URL(src, location.href))).json()
 }
 try {
     //  Some browsers (Firefox, old) throw with the 'options' parameter
     var getJson = fallback.
-    constructor('src',
-        `
+        constructor('src',
+`
 try {
     return(await import(new URL(src,location.href),{with:{type:'json'}})).default
 }
@@ -62,9 +62,9 @@ catch(e) {
     throw e
 }
 `)
-//  If the import() thing still fails just use the fallback
-.bind(fallback)
-//  using bind since the function can't access the module scope
+        //  If the import() thing still fails just use the fallback
+        .bind(fallback)
+    //  using bind since the function can't access the module scope
 }
 catch (e) {
     if (e instanceof SyntaxError) var getJson = fallback
