@@ -29,6 +29,8 @@ export function vendor(prop, val, silent) {
             // Most likely (Chrome, Safari)
             CSS.supports(prefix = `-moz-${prop}`, val) ||
             // Firefox
+            CSS.supports(prefix = `-moz-osx-${prop}`, val) ||
+            // Firefox
             CSS.supports(prefix = `-o-${prop}`, val) ||
             // Opera
             CSS.supports(prefix = `-apple-${prop}`, val) ||
@@ -285,6 +287,7 @@ export function boxShadow({
     return `${color} ${offsetX} ${offsetY} ${blurRadius} ${spreadRadius}`.replaceAll('  ', '')
 }
 export function convertToCSSMethod(value) {
+    debugger
     // Does not work in firefox
     /* try {
          let val = parseFloat(value),

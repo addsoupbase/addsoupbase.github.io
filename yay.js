@@ -22,7 +22,7 @@ function genericGet(t, prop) {
     if (!isNaN(prop)) {
         let out = t[prop]
         return out && prox(out)
-    }
+    } 
     if (Array.prototype.hasOwnProperty(prop) && typeof [][prop] === 'function') return [][prop].bind(t)
     let out = t[prop]
     return bindIfNecessary(out, t)
