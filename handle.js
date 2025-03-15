@@ -104,7 +104,10 @@ const matchDigits = /\d+/
 export function on(target, events, useHandler) {
     if (Array.isArray(target)) {
         groupCollapsed('on(...)')
-        for (let t of target) on(t, events, useHandler)
+        target.forEach(func)
+        function func(t) {
+                on(t, events, useHandler)
+        }
         console.groupEnd()
         return target
     }
@@ -298,13 +301,13 @@ export function until(target, eventName, timeout/* = 600000*/) {
     }
 }
 let objectURLS,
-    regist
+    registry
 export function getObjUrl(thingy) {
-    regist ??= new FinalizationRegistry(URL.revokeObjectURL)
+    registry ??= new FinalizationRegistry(URL.revokeObjectURL)
     objectURLS ??= new WeakMap
     if (objectURLS.has(thingy)) return objectURLS.get(thingy)
     let url = URL.createObjectURL(thingy)
-    regist.register(thingy, url)
+    registry.register(thingy, url)
     objectURLS.set(thingy, url)
     return url
 }
