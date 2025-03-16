@@ -391,5 +391,3 @@ export function vect(x, y) {
     // new.target && noConstructor()
     return new Vector2(x, y)
 }
-window.vect = vect
-window.Vector2 = Vector2

@@ -86,7 +86,7 @@ const Color = new Proxy(class {
     constructor(r, g, b, a) {
         if (typeof r === 'string' && r[0] !== '#')
             try {
-                ({r, g, b, a} = Color[r])
+                ({ r, g, b, a } = Color[r])
             }
             catch {
                 r = 255
@@ -95,24 +95,17 @@ const Color = new Proxy(class {
                 a ??= 1
             }
         else if (typeof r === 'string' && r.startsWith('#')) {
-            let hex = r.slice(1)
-            if (hex.length === 3) hex = hex.split('').map(c => `${c}${c}`).join('')
-            r = parseInt(hex.slice(0, 2), 16),
-                g = parseInt(hex.slice(2, 4), 16),
-                b = parseInt(hex.slice(4, 6), 16),
-                a = 1
+            r = hexToRgb(r)
         }
         Object.freeze(Object.assign(this, { r, g, b, a }))
     }
     toString(format) {
-        function map(o) {
-            return (o | 0).toString(16).padStart(2, 0)
-        }
+
         switch (format) {
-            default: return `#${[this.r, this.g, this.b].map(map).join('')}`
+            default: return `#${[this.r, this.g, this.b].map(toHex).join('')}`
             case 'rgb': return `rgb(${this.r},${this.g},${this.b})`
             case 'rgba': return `rgba(${this.r},${this.g},${this.b},${this.a})`
-            case 'hex2': return `#${[this.r, this.g, this.b, this.a * 255].map(map).join('')}`
+            case 'hex2': return `#${[this.r, this.g, this.b, this.a * 255].map(toHex).join('')}`
             case 'hsl': {
                 let [h, s, l] = this.hsl
                 return `hsl(${h},${s}%,${l}%)`
@@ -219,3 +212,19 @@ const Color = new Proxy(class {
     }
 }, handler)
 export default Color
+function toHex(o) {
+    return (o | 0).toString(16).padStart(2, 0)
+}
+export function rgbToHex(r, g, b) {
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`
+}
+export function hexToRgb(hex) {
+    if (hex[0] === '#')
+        hex = hex.slice(1)
+    if (hex.length === 3) hex = hex.split('').map(c => `${c}${c}`).join('')
+    let r = parseInt(hex.slice(0, 2), 16),
+        g = parseInt(hex.slice(2, 4), 16),
+        b = parseInt(hex.slice(4, 6), 16),
+        a = 1
+        return`rgb(${r} ${g} ${b} ${a})`
+}
