@@ -32,7 +32,7 @@ const Color = new Proxy(class {
         let f = (255 - parseInt(colour.slice(0, 2), 16)).toString(16),
             $ = (255 - parseInt(colour.slice(2, 4), 16)).toString(16),
             a = (255 - parseInt(colour.slice(4, 6), 16)).toString(16)
-        return `#${[f, $, a].map(o => o.padStart(0, 2)).join('')}`
+        return `#${[f, $, a].map(bleh2).join('')}`
     }
     static log(colour) {
         console.log(`%c${colour}`, `color:${colour};font-size:100px;background-color:${colour}`)
@@ -94,26 +94,23 @@ const Color = new Proxy(class {
                 b ??= 255
                 a ??= 1
             }
-        else if (typeof r === 'string' && r.startsWith('#')) {
+        else if (typeof r === 'string' && r.startsWith('#')) 
             [r,g,b,a] = hexToRgb(r).match(thingy)
-            console.log(r)
-        }
         Object.freeze(Object.assign(this, { r, g, b, a }))
     }
     toString(format) {
-
         switch (format) {
             default: return `#${[this.r, this.g, this.b].map(toHex).join('')}`
-            case 'rgb': return `rgb(${this.r},${this.g},${this.b})`
-            case 'rgba': return `rgba(${this.r},${this.g},${this.b},${this.a})`
+            case 'rgb': return `rgb(${this.r} ${this.g} ${this.b})`
+            case 'rgba': return `rgba(${this.r} ${this.g} ${this.b} ${this.a})`
             case 'hex2': return `#${[this.r, this.g, this.b, this.a * 255].map(toHex).join('')}`
             case 'hsl': {
                 let [h, s, l] = this.hsl
-                return `hsl(${h},${s}%,${l}%)`
+                return `hsl(${h} ${s}% ${l}%)`
             }
             case 'hsla': {
                 let [h, s, l] = this.hsl
-                return `hsla(${h},${s}%,${l}%,${this.#a})`
+                return `hsla(${h} ${s}% ${l}% ${this.#a})`
             }
         }
     }
@@ -160,22 +157,22 @@ const Color = new Proxy(class {
         else {
             switch (max) {
                 case r:
-                    segment = (g - b) / c;
-                    shift = 0 / 60;       // R° / (360° / hex sides)
-                    if (segment < 0) {          // hue > 180, full rotation
-                        shift = 360 / 60;         // R° / (360° / hex sides)
-                    }
+                    segment = (g - b) / c
+                    shift = 0 / 60       // R° / (360° / hex sides)
+                    if (segment < 0)           // hue > 180, full rotation
+                        shift = 360 / 60         // R° / (360° / hex sides)
+                    
                     break;
                 case g:
-                    segment = (b - r) / c;
-                    shift = 120 / 60;     // G° / (360° / hex sides)
-                    break;
+                    segment = (b - r) / c
+                    shift = 120 / 60     // G° / (360° / hex sides)
+                    break
                 case b:
-                    segment = (r - g) / c;
-                    shift = 240 / 60;     // B° / (360° / hex sides)
-                    break;
+                    segment = (r - g) / c
+                    shift = 240 / 60    // B° / (360° / hex sides)
+                    break
             }
-            hue = segment + shift;
+            hue = segment + shift
         }
         return [hue * 60, saturation * 100, luminance * 100]
     }
@@ -222,11 +219,17 @@ export function rgbToHex(r, g, b) {
 export function hexToRgb(hex) {
     if (hex[0] === '#')
         hex = hex.slice(1)
-    if (hex.length === 3) hex = hex.split('').map(c => `${c}${c}`).join('')
+    if (hex.length === 3) hex = hex.split('').map(bleh).join('')
     let r = parseInt(hex.slice(0, 2), 16),
         g = parseInt(hex.slice(2, 4), 16),
         b = parseInt(hex.slice(4, 6), 16),
         a = 1
         return`rgb(${r} ${g} ${b} ${a})`
+}
+function bleh(c) {
+return`${c}${c}`
+}
+function bleh2(o) {
+    return  o.padStart(0, 2)
 }
 const thingy = /\d+/g
