@@ -95,7 +95,8 @@ const Color = new Proxy(class {
                 a ??= 1
             }
         else if (typeof r === 'string' && r.startsWith('#')) {
-            r = hexToRgb(r)
+            [r,g,b,a] = hexToRgb(r).match(thingy)
+            console.log(r)
         }
         Object.freeze(Object.assign(this, { r, g, b, a }))
     }
@@ -228,3 +229,4 @@ export function hexToRgb(hex) {
         a = 1
         return`rgb(${r} ${g} ${b} ${a})`
 }
+const thingy = /\d+/g

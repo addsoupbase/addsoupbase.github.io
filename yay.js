@@ -8,7 +8,7 @@ const revokes = new WeakMap
 const bounded = new WeakMap
 const dotRegex = /\./g
 const spaceRegex = /\s/g
-let bad
+const badRegex = /^on.+$/
 function gen() {
     return `${Math.random()}${Math.random()}`.replace(dotRegex, '')
 }
@@ -22,7 +22,7 @@ function genericGet(t, prop) {
     if (!isNaN(prop)) {
         let out = t[prop]
         return out && prox(out)
-    } 
+    }
     if (Array.prototype.hasOwnProperty(prop) && typeof [][prop] === 'function') return [][prop].bind(t)
     let out = t[prop]
     return bindIfNecessary(out, t)
@@ -176,16 +176,13 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     }
     editState(id, func) {
         func(this[states].get(id).cached.content)
-        return this
     }
     deleteState(identifier) {
         if (this[states].has(identifier)) {
-            let state = this[states].get(identifier).cached
-            for (let ch of state.content.querySelectorAll('*'))
-                prox(ch).destroy()
+            let state = this[states].get(identifier).cached;
+            [].forEach.call(state.content.querySelectorAll('*'), destroyEach)
             this[states].delete(identifier)
         }
-        return this
     }
     toJSON() {
         return base(this).outerHTML
@@ -196,13 +193,13 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             this.currentState = null
             return this.destroyChildren()
         }
-        if (!this[states].has(identifier) /* || !(typeof identifier).match(/number|string|symbol|bigint/)*/) {
+        if (!this[states].has(identifier)) {
             this.destroyChildren()
-            this.push($(`<samp style="font-size:30px">INVALID STATE: ${identifier}</samp>`))
+            this.push($(`<samp style="font-size:30px">INVALID STATE</samp>`))
             this.currentState = null
-            throw TypeError(`Unknown state: '${identifier}'`)
+            reportError(identifier)
+            throw TypeError(`Invalid state`)
         }
-        // console.assert(/number|string|symbol|bigint/.test(typeof identifier), `State should be a primitive:\n %o`, identifier)
         let { cached: cache, callback } = this[states].get(identifier)
         let frag = cache.content
         let cached = document.importNode(frag, true)
@@ -273,6 +270,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         myevents.size && this.off(...myevents)
         all.delete(base(this))
         revoke(this)
+        return null
     }
     destroyChildren() {
         let { lastElementChild } = this
@@ -303,11 +301,9 @@ let props = Object.getOwnPropertyDescriptors(class _ {
                 })
             }
         on(base(this), events, useHandler)
-        return this
     }
     off(...events) {
         off(base(this), ...events)
-        return this
     }
     delegate(events, filter, includeSelf) {
         let me = base(this)
@@ -321,7 +317,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
                 (me !== target || includeSelf) && (filter(pr) ?? 1) && old.apply(pr, args)
             }
         }
-        return this.on(events)
+        this.on(events)
     }
     get events() {
         return getEventNames(base(this))
@@ -336,15 +332,13 @@ let props = Object.getOwnPropertyDescriptors(class _ {
          }
          return this*/
         Object.assign(this.styles, styles)
-        return this
         //base(this).style.cssText = out.join(';')
     }
     setAttributes(attr) {
         let me = base(this)
-        bad ??= /^on.+$/
         for (let i in attr) {
             let val = attr[i]
-            if (bad.test(i)) throw TypeError(`Inline event handlers are deprecated`)
+            if (badRegex.test(i)) throw TypeError(`Inline event handlers are deprecated`)
             /*   switch (i) {
                    case 'disabled': me.setAttribute('aria-disabled', !!val); break
                    case 'checked': me.setAttribute('aria-checked', !!val); break
@@ -357,7 +351,6 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             else if (val === '' || val == null) me.removeAttribute(i)
             else me.setAttribute(i, val)
         }
-        return this
     }
     get anims() {
         return base(this).getAnimations()
@@ -370,23 +363,18 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     }
     cancelAnims() {
         this.allAnims.forEach(_.cancel)
-        return this
     }
     resumeAnims() {
         this.allAnims.forEach(_.play)
-        return this
     }
     pauseAnims() {
         this.allAnims.forEach(_.pause)
-        return this
     }
     finishAnims() {
         this.allAnims.forEach(_.finish)
-        return this
     }
     restartAnims() {
         this.allAnims.forEach(_.restart)
-        return this
     }
     static nopacity = {
         opacity: 0
@@ -405,6 +393,9 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             iterations: 1
         }).finished
     }
+    fadeFromTo(from, to, { duration = 500, easing = 'ease' } = {}) {
+        return this.animate([{ opacity: from }, { opacity: to }], { duration, easing, fill: 'forwards' })
+    }
     replace(...elements) {
         base(this).replaceWith(...elements.map(base))
     }
@@ -415,34 +406,28 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         hidden: false
     }
     hide() {
-        return this.setAttributes(_.hidden)
+        this.setAttributes(_.hidden)
     }
     show() {
-        return this.setAttributes(_.notHidden)
+        this.setAttributes(_.notHidden)
     }
     hide2() {
         base(this).style.visibility = 'hidden'
-        return this
     }
     show2() {
         base(this).style.visibility = 'visible'
-        return this
     }
     hide3() {
         base(this).style.display = 'none'
-        return this
     }
     show3() {
         base(this).style.display = ''
-        return this
     }
     hide4() {
         this.styles.contentVisibility = 'hidden'
-        return this
     }
     show4() {
         this.styles.contentVisibility = ''
-        return this
     }
     equals(other) {
         let temp = $(other)
@@ -457,7 +442,6 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         let frag = doc
         args.flat(1 / 0).forEach(a)
         base(this).appendChild(frag)
-        return this
         function a(child) {
             frag.appendChild(base(child))
         }
@@ -466,7 +450,6 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         let frag = doc
         args.flat(1 / 0).forEach(a)
         base(this).prepend(frag)
-        return this
         function a(child) {
             frag.appendChild(base(child))
         }
@@ -474,13 +457,14 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     //  i tried SO hard to make treewalker useful but it did NOT impress me!
     treeWalker(filter, whatToShow = NodeFilter.SHOW_ELEMENT) {
         let walker = document.createTreeWalker(base(this), whatToShow, filter_func)
+        filter ??= function () { }
         return out()
         function* out() {
             let current
             while (current = walker.nextNode()) yield getValid(current) ? prox(current) : current
         }
         function filter_func(node) {
-            return (filter?.(node) ?? true) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
+            return (filter(node) ?? true) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
         }
     }
     *[Symbol.iterator]() {
@@ -502,7 +486,6 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     resetSelfRules() {
         for (let i in this.selfRules)
             customRules.deleteRule([...customRules.cssRules].indexOf(this.selfRules[i]))
-        return this
     }
     addSelfRule(selector, cssStuff) {
         const og = selector
@@ -523,9 +506,6 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         catch {
             css.badCSS(`⛓️‍💥 Unrecognized CSS rule at '${og}'`)
         }
-        finally {
-            return this
-        }
         // }
         // catch(e) {
         // if (!i) throw e
@@ -536,14 +516,15 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     animate(keyframes, options = {}) {
         options.timing ??= 'ease'
         options.iterations ??= 1
-        for (let frame of keyframes)
+        keyframes.forEach(forEach)
+        return base(this).animate(keyframes, options)
+        function forEach(frame) {
             for (let prop in frame) {
                 let val = `${frame[prop]}`
                 frame[css.capVendor(prop, val)] ??= val
             }
-        // else delete frame[prop]
-        // Firefox warns of empty string
-        return base(this).animate(keyframes, options)
+            // Firefox warns of empty string
+        }
     }
     set after(val) {
         base(this).after(base(val))
@@ -597,8 +578,26 @@ const prototype = Object.create(null)
         }
     })
 )
+//  i just like using emojis
 {
-    function forEach(i) { i === 'constructor' || Object.defineProperty(prototype, i, props[i]) }
+    function forEach(i) {
+        if (i !== 'constructor') {
+            if (typeof props[i].value === 'function') {
+                let old = props[i].value
+                props[i].value = {
+                    [i](...a) {
+                        //  This function is for automatically returning the 'this'
+                        //  value if the original return value is undefined
+                        if (!all.has(base(this))) throw TypeError(`Illegal invocation`)
+                        let r = old.apply(this, a)
+                        return typeof r === 'undefined' ? this : r
+                    }
+                }[i]
+                //  Just want to keep the original function name intact
+            }
+            Object.defineProperty(prototype, i, props[i])
+        }
+    }
     Reflect.ownKeys(props).forEach(forEach)
     // 🖨 Copy everything
 }
@@ -634,7 +633,7 @@ const flags = {
 function prox(target) {
     if (target === null) return null
     if (!getValid(target))
-        throw TypeError(`Invalid target: ${target}`) // get out
+        throw TypeError(`Illegal invocation`) // get out
     // 🥅 Goal:
     // 🪪 Make an object with a [[Prototype]] being the target element
     // 🪤 Also put a proxy around said object
@@ -712,12 +711,12 @@ function getValid(target) {
 const doc = document.createDocumentFragment()
 const parser = new DOMParser
 let temp
-let div
-let range
-let classRegex = /\.[\w-]+/g
-let htmlRegex = /\w+/
-let idRegex = /#\w+/
-let typeRegex = /%\w+/
+    , div
+    , range
+    , classRegex = /\.[\w-]+/g
+    , htmlRegex = /\w+/
+    , idRegex = /#\w+/
+    , typeRegex = /%\w+/
 /**
  * # Be careful of html injection when using a string!!
  */
@@ -769,6 +768,7 @@ function $(html, props, ...children) {
                 var element = document.adoptNode(Document.parseHTMLUnsafe(html).body.firstElementChild)
                 break
         }
+
         element = prox(element)
     } else {
         html === 'fencedframe' && typeof HTMLFencedFrameElement === 'undefined' && (html = 'iframe')
@@ -785,6 +785,8 @@ function $(html, props, ...children) {
             return o.slice(1)
         }
     }
+
+    if ([].some.call([element].concat(...element.getElementsByTagName('*')), allElementStuff)) throw TypeError(`Inline event handlers are deprecated`)
     if (element.tagName === 'SCRIPT' || element.querySelector('script')) {
         debugger
         throw new DOMException('Potential script injection', 'SecurityError')
@@ -818,8 +820,8 @@ function $(html, props, ...children) {
         'outerHTML innerHTML outerText innerText textContent'.split(' ').forEach(reuse)
         'txt' in props && (element.textContent = props.txt)
         // add elements AFTER the textContent/innerHTML/whatever
-        'beforebegin afterbegin beforeend afterend'.split(' ').forEach(reuse)
-        'attributes' in props && element.setAttributes(props.attributes)
+        'beforebegin afterbegin beforeend afterend'.split(' ').forEach(reuse);
+        ('attributes' in props || 'attr' in props) && element.setAttributes(props.attributes ?? props.attr)
         'styles' in props && element.setStyles(props.styles)
         'start' in props && props.start.call(element)
     }
@@ -894,3 +896,13 @@ let parseMode = 'mozInnerScreenY' in window ? 'createRange' : 'default'
     }
     console.log(obj)
 }()
+
+function badAttrName(attr) {
+    return badRegex.test(attr.nodeName)
+}
+function allElementStuff(e) {
+    return [].some.call(e.attributes, badAttrName)
+}
+function destroyEach(ch) {
+    prox(ch).destroy()
+}

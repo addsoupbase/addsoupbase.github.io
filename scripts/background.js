@@ -2,12 +2,12 @@ let regex = /[\w\.\-]+\.(webp|png|gif|jpe?g)/
 import { on } from '../handle.js'
 function images({ avatars, mons }) {
     let pop = new Audio('media/pop.mp3')
-    on(document, {
-        visibilitychange() {
-            let func = document.hidden ? o => o.pauseAnims() : o => o.resumeAnims()
-            $.qsa('*').forEach(func)
-        }
-    })
+    // on(document, {
+    // visibilitychange() {
+    // let func = document.hidden ? o => o.pauseAnims() : o => o.resumeAnims()
+    // $.qsa('*').forEach(func)
+    // }
+    // })
     let bg = parent
     const frameDuration = 135
     const duration = 12_000
@@ -30,6 +30,7 @@ function images({ avatars, mons }) {
                 'backgroundImage': `url(${this.firstElementChild.src})`
             },
             attributes: {
+                role: 'presentation',
                 alt: name,
             },
             parent: bg,
@@ -43,27 +44,38 @@ function images({ avatars, mons }) {
     function bubbleWithAva(image = cycle.next) {
         if (document.hidden) return
         const { src } = image
-        let n = $('div.bubble', { attributes: { width: 50, height: 50 }, parent })
+        let n = $('div.bubble', {
+            attr: {
+                role: 'presentation',
+                width: 50, height: 50
+            }, parent
+        })
         let settings = ran.coin
             ? [{ transform: `translateX(calc(100vw + ${n.offsetWidth}px))` }, { transform: `translateX(calc(-10vw - ${n.offsetWidth}px))` },]
             : [{ transform: `translateX(calc(-10vw - ${n.offsetWidth}px))` }, { transform: `translateX(calc(100vw + ${n.offsetWidth}px))` }]
         n.animate(settings, { duration }).finished.then(() => n.destroy())
         const c = ran.range(0, innerHeight)
-        n.animate([{ transform: `translate(0, ${c}px)` }, { transform: `translate(0, ${c - 200}px)` }], { composite: 'accumulate',easing: 'ease-in-out', duration: ran.range(2000, 3000), iterations: 1 / 0, direction: 'alternate' })
+        n.animate([{ transform: `translate(0, ${c}px)` }, { transform: `translate(0, ${c - 200}px)` }], { composite: 'accumulate', easing: 'ease-in-out', duration: ran.range(2000, 3000), iterations: 1 / 0, direction: 'alternate' })
         const out = $('img.ava', {
             parent: n,
             attributes: {
                 src,
-                alt: src,
+                // alt: src,
+                role: 'presentation',
+
                 width: 50,
                 height: 50,
                 draggable: false
             }
         })
-        out.animate([{ transform: 'rotate(0deg)' }, { transform: `rotate(${ran.choose(360, -360)}deg)` }], {composite: 'accumulate', duration: 80000, iterations: 1 / 0, easing: 'linear' })
+        out.animate([{ transform: 'rotate(0deg)' }, { transform: `rotate(${ran.choose(360, -360)}deg)` }], { composite: 'accumulate', duration: 80000, iterations: 1 / 0, easing: 'linear' })
     }
     function createAnimationForSpritesheet(image) {
-        let me = $(`div.${image[Symbol.for('name')]}.sprite`, { parent })
+        let me = $(`div.${image[Symbol.for('name')]}.sprite`, {
+            parent, attr: {
+                role: 'presentation',
+            }
+        })
         me.animate([{
             'backgroundPositionX': '0px'
         },
@@ -95,7 +107,7 @@ function images({ avatars, mons }) {
             //        case 'corsola': element.animate([{transform: 'rotateZ(0deg)'}, {transform: `rotateZ(360deg)`}], {composite:'add',easing:'linear',duration:5000, iterations:1/0,direction:coin?'reverse':'normal'})
         }
         duration *= 1.6
-        duration *= ran.range(.9,1.1)
+        duration *= ran.range(.9, 1.1)
         await element.animate(settings, { easing: 'linear', duration, composite: 'accumulate', fill: 'forwards' }).finished
         await element.fadeOut()
         element.destroy()
@@ -116,7 +128,7 @@ function images({ avatars, mons }) {
 }
 import $ from '../yay.js'
 import { math, ran, string } from '../misc.js'
-const iframe = $.qs('iframe')
+const iframe = $.qs('object')
 //document.body.scrollLeft = innerHeight/2
 
 window.$ = $

@@ -10,6 +10,8 @@
   overflow: hidden;
 }
 
+#aboutbutton {}
+
 .lanturn {
   filter: drop-shadow(0 0 5px yellow);
 }
@@ -144,7 +146,8 @@
   width: 100vw;
   position: relative;
   box-sizing: border-box;
-  height: 100vh;
+  height: fit-content;
+  min-height: 100vh;
   inset: 0px;
   image-rendering: pixelated;
   background-image: url(./media/flowers.webp), url(./media/topdecor.webp), url(./media/roses.webp);
@@ -530,7 +533,27 @@ body {
   text-align: center;
   display: grid;
 }
-
+#diary {
+  outline: 3px dashed #1275b4;
+  width:400px;
+  height:300px;
+  overflow-y: scroll;
+}
+/* #abtbutton::after,
+#abtbutton::before {
+  content: '';
+  background-image: url('https://addsoupbase.github.io/cute-emojis/emojis/1225821658225577984.gif');
+  content: '';
+  display: inline-block;
+  vertical-align: middle;
+  width: 30px;
+  height: 30px;
+  background-size: contain;
+} */
+object {
+  width: 90%;
+  height: 70%;
+}
 .scale {
   animation: scaleIn 2s ease 0s normal forwards;
 }

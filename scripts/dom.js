@@ -7,10 +7,10 @@ const main = $('main.center.cute-green #main', {
     parent: document.body,
 })
 main.setStyles({ opacity: 0 })
- on(window, {
+on(window, {
     load() {
         requestIdleCallback(() => {
-            typeof final === 'function' &&final()
+            typeof final === 'function' && final()
         }, { timeout: 20000 })
     }
 })
@@ -41,20 +41,21 @@ $('button.cute-green-button', {
     parent: content, txt: 'View Background', events: {
         async _click() {
             await main.fadeOut()
-            let topWindow = parent.document.querySelector('iframe')
+            let topWindow = parent.document.querySelector('object')
             topWindow.remove()
         }
     }
 })
 let section = content.$('div.lol')
 let buttonholder = section.$("div")
-$('<a class="cute-green-button" href="./about.html" title="about me">About</a>', {
+$('<a class="cute-green-button" href="./about.html" title="about me" id="abtbutton">About</a>', {
     parent: buttonholder,
 })
-
+// buttonholder.$(`<a class="cute-green-button" href="./diary.html">Diary</a>`)
 $('<a class="cute-green-button"></a>', {
     parent: buttonholder,
     txt: 'Stuff',
+    id: 'stuffbutton',
     attributes: {
         title: 'stuff i made',
         href: './stuff.html'

@@ -45,7 +45,9 @@
         })
         let pokemonholder = $('div #pokemonholder', {
             parent: main,
-            os: ['spinda', 'misdreavus', 'mawile', 'delcatty', 'masquerain', 'shedinja', 'clamperl', 'swoobat', 'gourgeist', 'minior', "trapinch", 'pheromosa','meloetta','cherrim', 'aegislash', 'zygarde', 'wobbuffet', 'tinkaton'].map(o => $('img.pkm', { attr: { alt: o, title: o, src: `./media/${o}.gif` } }))
+            os: 
+            'spinda misdreavus mawile delcatty masquerain shedinja clamperl swoobat gourgeist minior trapinch pheromosa meloetta cherrim aegislash zygarde wobbuffet tinkaton ogerpon surskit darmanitan'
+            .split(' ').map(o => $('img.pkm', { attr: { alt: o, title: o, src: `./media/${o}.gif` } }))
         });
 
         /*$("h2", {
