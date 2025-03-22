@@ -5,6 +5,7 @@ export function capVendor(prop, val) {
     return toCaps(vendor(toDash(prop), val))
 }
 const alreadyLogged = new Set
+const beenHereBefore = sessionStorage.getItem('css')
 export function badCSS(data, silent) {
     if (silent || alreadyLogged.has(data)) return
     console.warn(data)
@@ -81,10 +82,12 @@ function mayNotBeSupported(prop) {
     newerProps.test(prop) && badCSS(`💿 '${prop}' may not be supported on older devices`)
 }
 export function importFont(name, src) {
-    if (!name || !src) throw Error(`Src and name required`)
-    const font = new FontFace(name, `url(${src})`)
-    font.load().then(document.fonts.add, console.warn)
-    return font
+    if (name && src) {
+        const font = new FontFace(name, `url(${src})`)
+        font.load().then(document.fonts.add, console.warn)
+        return font
+    }
+    throw Error(`Src and name required`)
 }
 let defrt = /-./g
 export function toCaps(prop) {
@@ -158,7 +161,6 @@ export function getDefaultStyleSheet() {
         return out
     }()).sheet
 }
-
 export function registerCSSAll(rules) {
     return Object.keys(rules).map(bleh)
     function bleh(r) {
@@ -241,34 +243,35 @@ queueMicrotask
             },
         })
         void async function (all) {
-                let Yield = window.scheduler?.yield?.bind(scheduler) ?? (() => new Promise(queueMicrotask))
-                //  This registers all of those var(--abc-xyz)
-                //  all the properties are located at the very bottom of this module!
-                /*await scheduler.yield()
-                CSS.registerProperty({
-                    name: '--padding-start',
-                    inherits:0,
-                    initialValue: 0
-                })*/
-                // console.groupCollapsed('⛓️‍💥 Unsupported CSS (you can ignore this)')
-                const universal = {}
-                let func = CSS.registerProperty ?? function(){}
-                for (let prop of all)
-                    try {
-                        let o = prop.name
-                        universal[vendor(o.slice(2), o = `var(${o})`, true)] = o
-                        func(prop)
-                        await Yield()
-                    }
-                    catch (e) {
-                        if (!(e instanceof DOMException)) reportError(e)
-                        continue
-                    }
-                all = allProps = null
-                registerCSS('*', universal, true)
-                // console.groupEnd('⛓️‍💥 Unsupported CSS (you can ignore this)')
-            }(allProps)
-    })//()
+            let Yield = window.scheduler?.yield?.bind(scheduler) ?? (() => new Promise(queueMicrotask))
+            //  This registers all of those var(--abc-xyz)
+            //  all the properties are located at the very bottom of this module!
+            /*CSS.registerProperty({
+                name: '--padding-start',
+                inherits:0,
+                initialValue: 0
+            })*/
+            const universal = {}
+            let func = CSS.registerProperty ?? function () { }
+            for (let prop of all)
+                try {
+                    let o = prop.name
+                    universal[vendor(o.slice(2), o = `var(${o})`, true)] = o
+                    func(prop)
+                    await Yield()
+                }
+                catch (e) {
+                    if (e.name === 'InvalidModificationError') continue
+                    reportError(e)
+                }
+            all = allProps = null
+            if (beenHereBefore)
+                addedStyleRules.insertRule(`* {${beenHereBefore}}`)
+            else
+                registerCSS('*', universal, true),
+                    sessionStorage.setItem('css', toCSS(universal, true))
+        }(allProps)
+    })
 export function dropShadow({
     color = '#000000',
     offsetX = '0px',
@@ -344,7 +347,10 @@ export function convertToCSSMethod(value) {
         g("font-smoothing", "auto", true),
         g("mask-position-x", "0%", 0, "<length-percentage>"),
         g("mask-position-y", "0%", 0, "<length-percentage>"),
-        g("tap-highlight-color", "rgb(0 0 0 0.18)", true, "<color>"), // Also good
+        g("tap-highlight-color", "rgb(0 0 0 0.18)", true,
+            // "<color>"
+        ),
+        // Also good
         g("touch-callout", "default", true),
         g("window-dragging", "drag", 0),
         g("stack-sizing", "stretch-to-fit", true),

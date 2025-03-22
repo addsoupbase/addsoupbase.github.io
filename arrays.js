@@ -36,7 +36,6 @@ export function swapInside(item, firstIndex, secondIndex) {
     if (slot !== -1 && slot2 !== -1) return swap(item, slot, slot2)
     throw RangeError("Index out of range")
 }
-
 export function rotate(arr, rotation = 1) {
     if (arr.length < 2) return arr
     let sign = Math.sign(rotation),
@@ -46,18 +45,16 @@ export function rotate(arr, rotation = 1) {
     return arr
 }
 async function fallback(src) {
-    return(await fetch(new URL(src, location.href))).json()
+    return (await fetch(new URL(src, location.href))).json()
 }
 try {
     //  Some browsers (Firefox, old) throw with the 'options' parameter
     var getJson = fallback.
         constructor('src',
 `
-try {
-    return(await import(new URL(src,location.href),{with:{type:'json'}})).default
-}
+try {return(await import(new URL(src,location.href),{with:{type:'json'}})).default}
 catch(e) {
-    if (e instanceof TypeError)
+    if (e.name === "TypeError")
     return this(src)
     throw e
 }
@@ -67,7 +64,7 @@ catch(e) {
     //  using bind since the function can't access the module scope
 }
 catch (e) {
-    if (e.name==="SyntaxError") var getJson = fallback
+    if (e.name === "SyntaxError") var getJson = fallback
     else reportError(e)
 }
 export const jason = getJson
