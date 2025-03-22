@@ -67,7 +67,7 @@ catch(e) {
     //  using bind since the function can't access the module scope
 }
 catch (e) {
-    if (e instanceof SyntaxError) var getJson = fallback
+    if (e.name==="SyntaxError") var getJson = fallback
     else reportError(e)
 }
 export const jason = getJson
