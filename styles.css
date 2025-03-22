@@ -130,7 +130,12 @@
   background-image: url('./media/bubble.webp');
   background-repeat: no-repeat
 }
-
+.zygarde {
+  margin-bottom: -50px !important;
+}
+.tinkaton {
+  margin: -40px !important;
+}
 #wrapper {
   display: flex;
   width: 100%;
@@ -466,7 +471,7 @@ body {
 }
 
 .pkm {
-  transform: scale(1.5, 1.5);
+  transform: scale(1.65, 1.65);
   margin: 10px;
   image-rendering: pixelated;
 }
