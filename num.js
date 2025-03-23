@@ -120,7 +120,7 @@ export function cycleFrom(arrayLike) {
 export function lerp(start, end, time) {
     return start + (end - start) * time
 }
-export function* lerpTo(start, end, time) {
+export function* derp(start, end, time) {
     let n = start
     while (start < end) yield clamp(start += (end - n) * time, start, end)
     return end
