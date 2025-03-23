@@ -4,6 +4,22 @@ export function dashVendor(prop, val) {
 export function capVendor(prop, val) {
     return toCaps(vendor(toDash(prop), val))
 }
+export function vendorValue(val) {
+    let without = val.replace(allVendors, '')
+        .replace(allVendors2, '')
+    switch (without) {
+        case 'crisp-edges':
+                CSS.supports('image-rendering', without) ||
+                CSS.supports('image-rendering', val = '-webkit-optimize-contrast') ||
+                CSS.supports('image-rendering', val = `-moz-crisp-edges`) 
+            break
+        case 'stretch':
+                CSS.supports('max-width', without) ||
+                CSS.supports('max-width', val = '-webkit-fill-available')
+            break
+    }
+    return val
+}
 const alreadyLogged = new Set
 const beenHereBefore = sessionStorage.getItem('css')
 export function badCSS(data, silent) {
@@ -20,6 +36,7 @@ export function vendor(prop, val, silent) {
     val = `${val}`
     if (prop.startsWith('--') && CSS.supports(prop, val)) return prop
     if (val.trim() && !CSS.supports(prop, val)) {
+        // val = vendorValue(val)
         let prefix = prop = prop
             .replace(allVendors, '')
             .replace(allVendors2, '')
