@@ -3,12 +3,12 @@ import { on, off, getEventNames, allEvents, unbound } from './handle.js'
 import *as css from './csshelper.js'
 import { FormDataManager as form } from './proxies.js'
 const me = Symbol('base')
-const all = new WeakMap
-const revokes = new WeakMap
-const bounded = new WeakMap
-const dotRegex = /\./g
-const spaceRegex = /\s/g
-const badRegex = /^on.+$/
+, all = new WeakMap
+, revokes = new WeakMap
+, bounded = new WeakMap
+, dotRegex = /\./g
+, spaceRegex = /\s/g
+, badRegex = /^on.+$/
 function gen() {
     return `${Math.random()}${Math.random()}`.replace(dotRegex, '')
 }
@@ -23,7 +23,7 @@ function genericGet(t, prop) {
         let out = t[prop]
         return out && prox(out)
     }
-    if (Array.prototype.hasOwnProperty(prop) && typeof [][prop] === 'function') return [][prop].bind(t)
+    if (Array.prototype.hasOwnProperty(prop) && typeof [][prop] === 'function') return[][prop].bind(t)
     let out = t[prop]
     return bindIfNecessary(out, t)
 }
@@ -53,10 +53,12 @@ const handlers = {
     },
     attr: {
         get(t, prop) {
+            debugger
             let el = t[ATTR]
             return prop in t ? t[prop] : el.getAttribute(prop)
         },
         set(t, prop, value, /*r*/) {
+            debugger
             let el = t[ATTR]
             value ? el.setAttribute(prop, value) : this.deleteProperty({
                 el
@@ -64,10 +66,12 @@ const handlers = {
             return true
         },
         has(t, prop) {
+            debugger
             let el = t[ATTR]
             return el.hasAttribute(prop)
         },
         deleteProperty(t, prop) {
+            debugger
             let el = t[ATTR]
             el.removeAttribute(prop)
             return true
@@ -230,9 +234,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
                 if (prevents) name = `$${name}`
                 if (onlyTrusted) name = `?${name}`
                 if (stopImmediateProp) name = `!${name}`
-                clone.on({
-                    [name]: listener[unbound][unbound]
-                }, handler)
+                clone.on({ [name]: listener[unbound][unbound] }, handler)
             }
         }
     }
@@ -292,14 +294,13 @@ let props = Object.getOwnPropertyDescriptors(class _ {
                 value
             })
         )
-        else
-            for (let i in events) {
-                let value = events[i]
-                let newOne = events[i] = events[i].bind(this)
-                Object.defineProperty(newOne, unbound, {
-                    value
-                })
-            }
+        else for (let i in events) {
+            let value = events[i]
+            let newOne = events[i] = events[i].bind(this)
+            Object.defineProperty(newOne, unbound, {
+                value
+            })
+        }
         on(base(this), events, useHandler)
     }
     off(...events) {
@@ -582,8 +583,9 @@ const prototype = Object.create(null)
 {
     function forEach(i) {
         if (i !== 'constructor') {
-            if (typeof props[i].value === 'function') {
-                let old = props[i].value
+            let v
+            if (typeof (v = props[i]).value === 'function') {
+                let old = v.value
                 props[i].value = {
                     [i](...a) {
                         //  This function is for automatically returning the 'this'
@@ -781,9 +783,6 @@ function $(html, props, ...children) {
             id,
             type
         })
-        function slice(o) {
-            return o.slice(1)
-        }
     }
 
     if ([].some.call([element].concat(...element.getElementsByTagName('*')), allElementStuff)) throw TypeError(`Inline event handlers are deprecated`)
@@ -832,11 +831,11 @@ function revoke(targ) {
     revokes.get(targ)?.(revokes.delete(targ))
 }
 export default Object.defineProperties($, {
-    random: {
-        value() {
-            return
-        }
-    },
+    // random: {
+    // value() {
+    // return 
+    // }
+    // },
     qs: {
         value(selector) {
             return prox(base($.doc).querySelector(selector))
@@ -896,13 +895,4 @@ let parseMode = 'mozInnerScreenY' in window ? 'createRange' : 'default'
     }
     console.log(obj)
 }()
-
-function badAttrName(attr) {
-    return badRegex.test(attr.nodeName)
-}
-function allElementStuff(e) {
-    return [].some.call(e.attributes, badAttrName)
-}
-function destroyEach(ch) {
-    prox(ch).destroy()
-}
+function badAttrName(attr) { return badRegex.test(attr.nodeName) } function allElementStuff(e) { return [].some.call(e.attributes, badAttrName) } function destroyEach(ch) { prox(ch).destroy() } function slice(o) { return o.slice(1) }

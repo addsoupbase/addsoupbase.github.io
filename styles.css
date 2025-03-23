@@ -128,14 +128,17 @@
   justify-content: center;
   background-size: contain;
   background-image: url('./media/bubble.webp');
-  background-repeat: no-repeat
+  background-repeat: no-repeat;
 }
+
 .zygarde {
   margin-bottom: -50px !important;
 }
+
 .tinkaton {
   margin: -40px !important;
 }
+
 #wrapper {
   display: flex;
   width: 100%;
@@ -538,12 +541,14 @@ body {
   text-align: center;
   display: grid;
 }
+
 #diary {
   outline: 3px dashed #1275b4;
-  width:400px;
-  height:300px;
+  width: 400px;
+  height: 300px;
   overflow-y: scroll;
 }
+
 /* #abtbutton::after,
 #abtbutton::before {
   content: '';
@@ -558,7 +563,9 @@ body {
 object {
   width: 90%;
   height: 70%;
+  filter: drop-shadow(0px 0px 5px teal)
 }
+
 .scale {
   animation: scaleIn 2s ease 0s normal forwards;
 }
