@@ -123,13 +123,13 @@ export function on(target, events, useHandler) {
         if (typeof events === 'function') events = {
             [events.name]: events
         }
-        else if (isArray(events)) {
-            if (2 in events) {
-                manualSignal = events[2]
-                delete events[2]
-            }
-            events = Object.fromEntries(events)
-        }
+        // else if (isArray(events)) {
+            // if (2 in events) {
+                // manualSignal = events[2]
+                // delete events[2]
+            // }
+            // events = Object.fromEntries(events)
+        // }
         for (let eventName in events) {
             let func = events[eventName]
             const once = eventName.includes('_'),

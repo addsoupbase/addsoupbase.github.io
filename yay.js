@@ -30,6 +30,11 @@ function genericGet(t, prop) {
 const customRules = css.getDefaultStyleSheet()
 const handlers = {
     // Other proxies
+    querySelector: {
+        get(t,p) {
+            return prox(t.querySelector(p))
+        }
+    },
     styles: {
         get(target, prop) {
             return prop.startsWith('--') ? target.getPropertyValue(prop) :
@@ -334,6 +339,9 @@ let props = Object.getOwnPropertyDescriptors(class _ {
          return this*/
         Object.assign(this.styles, styles)
         //base(this).style.cssText = out.join(';')
+    }
+    setAttr(attr) {
+        this.setAttributes(attr)
     }
     setAttributes(attr) {
         let me = base(this)
@@ -648,6 +656,7 @@ function prox(target) {
         }
         let { revoke: styleRevoke, proxy: styleProxy } = Proxy.revocable(target.style, handlers.styles)
         let { revoke: childRevoke, proxy: childProxy } = Proxy.revocable(target.children, handlers.HTMLCollection)
+        let {revoke: querySelectorRevoke, proxy: querySelectorProxy} = Proxy.revocable(target, handlers.querySelector)
         let { revoke: attrRevoke, proxy: attrProxy } = Proxy.revocable(Object.create(null, {
             [ATTR]: bleh,
             length: {
@@ -659,6 +668,9 @@ function prox(target) {
         let baseThingy = {
             ...prototypeDescriptors,
             [me]: bleh,
+            fromQuery: {
+                value:querySelectorProxy
+            },
             [states]: {
                 value: new Map
             },
@@ -697,7 +709,7 @@ function prox(target) {
             console.warn(`Unknown element: '${target.tagName}'`)
         revokes.set(proxy, () =>
             //  Make sure we have *NO* possible references left
-            revoke(childRevoke(attrRevoke(styleRevoke())))
+            revoke(childRevoke(attrRevoke(styleRevoke(querySelectorRevoke()))))
         )
         all.set(target, proxy)
     }
@@ -840,6 +852,20 @@ export default Object.defineProperties($, {
         value(selector) {
             return prox(base($.doc).querySelector(selector))
         }
+    },
+    byId: {
+        value: new Proxy(document, {
+            get(t,p) {
+                return prox(t.getElementById(p))
+            }
+        })
+    },
+    byQuery: {
+        value: new Proxy(document, {
+            get(t,p) {
+                return prox(t.querySelector(p))
+            }
+        })
     },
     qsa: {
         value(selector) {

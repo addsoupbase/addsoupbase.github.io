@@ -132,9 +132,9 @@ let addedStyleRules = null
  */
 export function toCSS(obj, silent) {
     const arr = []
-    if (!Array.isArray(obj)) obj = Object.entries(obj)
-    for (let [prop, val] of obj)
-        try { arr.push(`${vendor(toDash(prop), val, silent)}:${val}`) }
+    if (Array.isArray(obj)) obj = Object.fromEntries(obj)
+    for (let prop in obj)
+        try { arr.push(`${vendor(toDash(prop), obj[prop], silent)}:${obj[prop]}`) }
         catch { continue }
     return arr.join(';')
 }

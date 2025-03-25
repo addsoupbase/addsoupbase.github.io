@@ -95,7 +95,7 @@ const Color = new Proxy(class {
                 a ??= 1
             }
         else if (typeof r === 'string' && r.startsWith('#')) 
-            [r,g,b,a] = hexToRgb(r).match(thingy)
+            ({0:r,1:g,2:b,3:a} = hexToRgb(r).match(thingy))
         Object.freeze(Object.assign(this, { r, g, b, a }))
     }
     toString(format) {
@@ -105,11 +105,11 @@ const Color = new Proxy(class {
             case 'rgba': return `rgba(${this.r} ${this.g} ${this.b} ${this.a})`
             case 'hex2': return `#${[this.r, this.g, this.b, this.a * 255].map(toHex).join('')}`
             case 'hsl': {
-                let [h, s, l] = this.hsl
+                let {0:h, 1:s, 2:l} = this.hsl
                 return `hsl(${h} ${s}% ${l}%)`
             }
             case 'hsla': {
-                let [h, s, l] = this.hsl
+                let {0:h, 1:s, 2:l} = this.hsl
                 return `hsla(${h} ${s}% ${l}% ${this.#a})`
             }
         }
