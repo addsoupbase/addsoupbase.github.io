@@ -11,10 +11,11 @@
             font-size: 13px;
         }
 
-        .lholder>a::before, .lholder > a::after {
+        .lholder>a::before,
+        .lholder>a::after {
             background-image: url(./media/ribbon.webp);
             content: '';
-            alt:'';
+            alt: '';
             display: inline-block;
             vertical-align: middle;
             width: 30px;
@@ -26,53 +27,44 @@
 
 <body>
     <script src="./silence.js"></script>
-
+    <template id="template" >
+        <main id="main" class="center cute-green" style="opacity: 0.95;">
+            <section style="margin-top:50px;">
+                <h1>Random stuff I made</h1>
+                <h3>Some of it might be broken 😭</h3>
+                <div id="newStuff" class="lholder" style="display:inline-grid;word-break:break-word;"></div>
+                <h2>Old stuff</h2>
+                <div id="oldStuff" class="lholder" style="display:inline-grid;word-break:break-word;"></div>
+            </section><a class="cute-green-button back" href="main.html">Back</a>
+        </main>
+    </template>
     <script type="module">
-        import $ from './quick.js'
-        const main = $('main.center .cute-green #main', { parent: document.body, })
-        main.fadein()
-        main.styleMe({opacity:.95})
-        let all = $("section", {
-            parent: main,
-            attr: {
-                style: 'margin-top:50px;'
-            }
-        })
-        $('h1<Random stuff I made>', { parent: all })
-        $('h3<Some of it might be broken 😭>', {
-            parent: all,
-        })
-        let linkholder = $('div .lholder', { parent: all, attr: { style: 'display:inline-grid;word-break:break-word;' } })
-        $('a.cute-green-button .back', {
-            parent: main,
-            txt: 'Back',
-            attr: {
-                href: 'main.html',
-            }
-        })
-        linkholder.batch([`./marbles/play?level=data`,'cute-emojis', 'dataurl'].map(o => {
+        import $ from './yay.js'
+        let { template } = $.byId
+        document.body.appendChild(document.importNode(template.content, true))
+        const { main } = $.byId
+        let { newStuff, oldStuff } = $.byId
+        main.fadeFromTo(0, .95)
+        newStuff.push([`./marbles/play?level=data`, 'cute-emojis', 'dataurl'].map(o => {
             let url = new URL(o, `https://addsoupbase.github.io/`)
-            return $(`a.tiny <${o}>`, {
+            return $(`<a class="tiny">${o}</a>`, {
                 attr: {
                     href: url,
                     target: '_blank'
                 }
             })
         }))
-        $('h2 <Old stuff>', {
-            parent: all,
-        })
-        let di = $('div.lholder', { parent: all, attr: { style: 'display:inline-grid;word-break:break-word;' } })
-            ;[`./whatever`, `./twehg`, `./intro`,].forEach(o => {
+        oldStuff.push([`./whatever`, `./twehg`, `./intro`,].map(
+            o => {
                 let url = new URL(o, `https://addsoupbase.github.io/`)
-                $(`a.tiny <${o.match(/\w+/)}>`, {
-                    parent: di,
+                return $(`<a class="tiny">${o.match(/\w+/)}</a>`, {
                     attr: {
                         href: url,
                         target: '_blank'
                     }
                 })
-            })
+            }
+        ))
     </script>
 </body>
 

@@ -10,61 +10,44 @@
 
 <body>
     <script src="./silence.js"></script>
+    <template id="template">
+        <main id="main" class="center cute-green" style="opacity: 0.95;">
+            <section>
+                <div id="maindesc">
+                    <div class="descrHolder">
+                        <p>My name is...</p>
+                        <h1>Misha</h1><i>Миша</i>
+                    </div>
+                    <div class="descrHolder">
+                        <p>I am...</p>
+                        <h1 id="age">[age]</h1><time class="small" id="bday">June 17 2007</time>
+                    </div>
+                </div>
+            </section><a class="cute-green-button back" href="main.html">Back</a>
+            <h1>Favourite pokemon:</h1>
+            <div id="pokemonholder"></div>
+        </main>
+    </template>
+    <script src="fallback.js"></script>
     <script type="module">
-        import $ from './quick.js'
+        import $ from './yay.js'
         import { wait } from './handle.js'
-        const main = $('main.center .cute-green #main', {
-            parent: document.body,
-        })
-        main.fadein()
+        let { template } = $.byId
+        document.body.appendChild(document.importNode(template.content, true))
+        const { main } = $.byId
         const bday = new Date(2007, 6 - 1, 17)
         let div = $("section", {
             parent: main
         })
-        $('a.cute-green-button .back', {
-            parent: main,
-            txt: 'Back',
-            attr: { href: 'main.html', }
-        })
-
-        let desc = $('div #maindesc', { parent: div })
-        main.styleMe({ opacity: 0 })
-        main.fadein()
-        main.styleMe({ opacity: .95 })
-
-        $('div.descrHolder', {
-            parent: desc,
-            os: [$("p", { txt: 'My name is...' }), $("h1<Misha>"), $('i,small<Миша>')]
-        })
-        $('div.descrHolder', {
-            parent: desc,
-            os: [$("p<I am...>",), $(`h1< ${Math.floor(new Date().getFullYear() - bday.getFullYear() - (bday.getMonth() / 12))} years old>`), $('i.small', { txt: 'June 17 2007' })]
-        })
-        $('h1<Favourite pokemon:>', {
-            parent: main
-        })
-        let pokemonholder = $('div #pokemonholder', {
-            parent: main,
-            os: 
-            'spinda misdreavus mawile delcatty masquerain shedinja clamperl swoobat gourgeist minior trapinch pheromosa meloetta cherrim aegislash zygarde wobbuffet tinkaton ogerpon surskit darmanitan'
-            .split(' ').map(o => $(`img.pkm.${o}`, { 
-                
-                attr: { alt: o, title: o, src: `./media/${o}.gif` } }))
-        });
-
-        /*$("h2", {
-            parent:main,
-            txt:'Things I like'
-        })
-        $('ul', {
-            id: 'list',
-            parent:main,
-            os: ['pokémon', 'HYPER PEOPLE','sparkly stuff'].map(o=>$('li', {
-                txt: o,
-                id: o.replaceAll(' ','')
-            }))
-        })*/
+        main.fadeFromTo(0, .95)
+        $.gid('age').innerHTML = `${Math.floor(new Date().getFullYear() - bday.getFullYear() - (bday.getMonth() / 12))} years old`
+        let pokemonholder = $.gid('pokemonholder')
+        pokemonholder.push('spinda misdreavus mawile delcatty masquerain shedinja clamperl swoobat gourgeist minior trapinch pheromosa meloetta cherrim aegislash zygarde wobbuffet tinkaton ogerpon surskit darmanitan'
+            .split(' ').map(o => $(`img.pkm.${o}`, {
+                attr: { alt: o, title: o, src: `./media/${o}.gif` }
+            })))
     </script>
+    
 </body>
 
 </html>
