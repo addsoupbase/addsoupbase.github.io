@@ -26,7 +26,6 @@
 </head>
 
 <body>
-    <script src="./silence.js"></script>
     <template id="template" >
         <main id="main" class="center cute-green" style="opacity: 0.95;">
             <section style="margin-top:50px;">
@@ -38,6 +37,7 @@
             </section><a class="cute-green-button back" href="main.html">Back</a>
         </main>
     </template>
+    <script src="fallback.js"></script>
     <script type="module">
         import $ from './yay.js'
         let { template } = $.byId
@@ -66,6 +66,7 @@
             }
         ))
     </script>
+        <script src="./silence.js"></script>
 </body>
 
 </html>
