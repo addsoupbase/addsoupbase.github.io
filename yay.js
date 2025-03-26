@@ -3,12 +3,12 @@ import { on, off, getEventNames, allEvents, unbound } from './handle.js'
 import *as css from './csshelper.js'
 import { FormDataManager as form } from './proxies.js'
 const me = Symbol('base')
-, all = new WeakMap
-, revokes = new WeakMap
-, bounded = new WeakMap
-, dotRegex = /\./g
-, spaceRegex = /\s/g
-, badRegex = /^on.+$/
+    , all = new WeakMap
+    , revokes = new WeakMap
+    , bounded = new WeakMap
+    , dotRegex = /\./g
+    , spaceRegex = /\s/g
+    , badRegex = /^on.+$/
 function gen() {
     return `${Math.random()}${Math.random()}`.replace(dotRegex, '')
 }
@@ -23,7 +23,7 @@ function genericGet(t, prop) {
         let out = t[prop]
         return out && prox(out)
     }
-    if (Array.prototype.hasOwnProperty(prop) && typeof [][prop] === 'function') return[][prop].bind(t)
+    if (Array.prototype.hasOwnProperty(prop) && typeof [][prop] === 'function') return [][prop].bind(t)
     let out = t[prop]
     return bindIfNecessary(out, t)
 }
@@ -31,7 +31,7 @@ const customRules = css.getDefaultStyleSheet()
 const handlers = {
     // Other proxies
     querySelector: {
-        get(t,p) {
+        get(t, p) {
             return prox(t.querySelector(p))
         }
     },
@@ -57,30 +57,42 @@ const handlers = {
         }
     },
     attr: {
-        get(t, prop) {
-            debugger
-            let el = t[ATTR]
-            return prop in t ? t[prop] : el.getAttribute(prop)
+        get(t, p) {
+            return prox(t).getAttribute(p)
         },
-        set(t, prop, value, /*r*/) {
-            debugger
-            let el = t[ATTR]
-            value ? el.setAttribute(prop, value) : this.deleteProperty({
-                el
-            }, prop)
-            return true
+        set(t, p, v) {
+            return prox(t).setAttr({ [p]: v })
         },
-        has(t, prop) {
-            debugger
-            let el = t[ATTR]
-            return el.hasAttribute(prop)
+        deleteProperty(t, p) {
+            return prox(t).setAttr({ [p]: '' })
         },
-        deleteProperty(t, prop) {
-            debugger
-            let el = t[ATTR]
-            el.removeAttribute(prop)
-            return true
-        },
+        has(t, p) {
+            return t.hasAttribute(p)
+        }
+        /*  get(t, prop) {
+              debugger
+              let el = t[ATTR]
+              return prop in t ? t[prop] : el.getAttribute(prop)
+          },
+          set(t, prop, value, r) {
+              debugger
+              let el = t[ATTR]
+              value ? el.setAttribute(prop, value) : this.deleteProperty({
+                  el
+              }, prop)
+              return true
+          },
+          has(t, prop) {
+              debugger
+              let el = t[ATTR]
+              return el.hasAttribute(prop)
+          },
+          deleteProperty(t, prop) {
+              debugger
+              let el = t[ATTR]
+              el.removeAttribute(prop)
+              return true
+          },*/
 
     },
     /* CSSStyleDeclaration: {
@@ -328,6 +340,12 @@ let props = Object.getOwnPropertyDescriptors(class _ {
     get events() {
         return getEventNames(base(this))
     }
+    /**
+     * @deprecated
+     */
+    styleMe(styles) {
+        this.setStyles(styles)
+    }
     setStyles(styles) {
         /* for (let prop in styles) {
              let ogValue = styles[prop]
@@ -341,9 +359,6 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         //base(this).style.cssText = out.join(';')
     }
     setAttr(attr) {
-        this.setAttributes(attr)
-    }
-    setAttributes(attr) {
         let me = base(this)
         for (let i in attr) {
             let val = attr[i]
@@ -360,6 +375,12 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             else if (val === '' || val == null) me.removeAttribute(i)
             else me.setAttribute(i, val)
         }
+    }
+    /**
+     * @deprecated
+     */
+    setAttributes(attr) {
+        this.setAttr(attr)
     }
     get anims() {
         return base(this).getAnimations()
@@ -415,10 +436,10 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         hidden: false
     }
     hide() {
-        this.setAttributes(_.hidden)
+        this.setAttr(_.hidden)
     }
     show() {
-        this.setAttributes(_.notHidden)
+        this.setAttr(_.notHidden)
     }
     hide2() {
         base(this).style.visibility = 'hidden'
@@ -510,7 +531,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             // for (let i = 5; i--;) try {
             existing ? existing.insertRule(final) :
                 (this.selfRules[css.formatStr(selector.replace(spaceRegex, ''))] = customRules.cssRules[customRules.insertRule(final)])
-            this.setAttributes({ id })
+            this.setAttr({ id })
         }
         catch {
             css.badCSS(`⛓️‍💥 Unrecognized CSS rule at '${og}'`)
@@ -656,20 +677,13 @@ function prox(target) {
         }
         let { revoke: styleRevoke, proxy: styleProxy } = Proxy.revocable(target.style, handlers.styles)
         let { revoke: childRevoke, proxy: childProxy } = Proxy.revocable(target.children, handlers.HTMLCollection)
-        let {revoke: querySelectorRevoke, proxy: querySelectorProxy} = Proxy.revocable(target, handlers.querySelector)
-        let { revoke: attrRevoke, proxy: attrProxy } = Proxy.revocable(Object.create(null, {
-            [ATTR]: bleh,
-            length: {
-                get() {
-                    return target.attributes.length
-                }
-            }
-        }), handlers.attr)
+        let { revoke: querySelectorRevoke, proxy: querySelectorProxy } = Proxy.revocable(target, handlers.querySelector)
+        let { revoke: attrRevoke, proxy: attrProxy } = Proxy.revocable(target, handlers.attr)
         let baseThingy = {
             ...prototypeDescriptors,
             [me]: bleh,
             fromQuery: {
-                value:querySelectorProxy
+                value: querySelectorProxy
             },
             [states]: {
                 value: new Map
@@ -782,7 +796,6 @@ function $(html, props, ...children) {
                 var element = document.adoptNode(Document.parseHTMLUnsafe(html).body.firstElementChild)
                 break
         }
-
         element = prox(element)
     } else {
         html === 'fencedframe' && typeof HTMLFencedFrameElement === 'undefined' && (html = 'iframe')
@@ -790,7 +803,7 @@ function $(html, props, ...children) {
         let classes = html.match(classRegex)?.map(slice),
             id = html.match(idRegex)?.[0].slice(1),
             type = html.match(typeRegex)?.[0].slice(1)
-        element.setAttributes({
+        element.setAttr({
             class: classes?.join(' '),
             id,
             type
@@ -832,7 +845,7 @@ function $(html, props, ...children) {
         'txt' in props && (element.textContent = props.txt)
         // add elements AFTER the textContent/innerHTML/whatever
         'beforebegin afterbegin beforeend afterend'.split(' ').forEach(reuse);
-        ('attributes' in props || 'attr' in props) && element.setAttributes(props.attributes ?? props.attr)
+        ('attributes' in props || 'attr' in props) && element.setAttr(props.attributes ?? props.attr)
         'styles' in props && element.setStyles(props.styles)
         'start' in props && props.start.call(element)
     }
@@ -855,14 +868,14 @@ export default Object.defineProperties($, {
     },
     byId: {
         value: new Proxy(document, {
-            get(t,p) {
+            get(t, p) {
                 return prox(t.getElementById(p))
             }
         })
     },
     byQuery: {
         value: new Proxy(document, {
-            get(t,p) {
+            get(t, p) {
                 return prox(t.querySelector(p))
             }
         })
