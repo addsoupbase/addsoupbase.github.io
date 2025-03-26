@@ -260,7 +260,10 @@ queueMicrotask
             },
         })
         void async function (all) {
-            let Yield = window.scheduler?.yield?.bind(scheduler) ?? (() => new Promise(queueMicrotask))
+            function Yield() {
+                return new Promise(queueMicrotask)
+            }
+            Yield = window.scheduler?.yield?.bind(scheduler) ?? Yield
             //  This registers all of those var(--abc-xyz)
             //  all the properties are located at the very bottom of this module!
             /*CSS.registerProperty({
