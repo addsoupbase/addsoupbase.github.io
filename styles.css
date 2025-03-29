@@ -490,6 +490,7 @@ body {
 }
 
 .cute-green-button {
+  --touch-callout: none;
   background-color: #b0e57c;
   /* Match the div's background */
   text-decoration: none;

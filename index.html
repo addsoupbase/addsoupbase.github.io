@@ -45,28 +45,6 @@
 <body
     style="background: rgb(2,101,226);background: linear-gradient(0deg, rgba(2,101,226,1) 0%, rgba(0,212,255,1) 100%);">
     <script src="./silence.js"></script>
-  <script>
-     1||function () {
-            'use strict'
-            var regex = RegExp('syntax|invalid character', 'i')
-            var remove = function () {
-                window.removeEventListener('error', go)
-                window.remove
-            }
-            var go = function (e) {
-                alert(123)
-                if (regex.test(e.message)) {
-                    console.log(123)
-                  document.open()
-                  alert(123)
-                  document.write('<style>body{margin:0;padding:0;}</style><object type="text/html" style="width:'+window.innerWidth+'px;height:'+window.innerHeight+'px;background-color:red;" data="./fallback.html"></object>')
-                  document.close()
-                }
-            }
-            window.addEventListener('error', go)
-            window.addEventListener('DOMContentLoaded', remove)
-        }()
-  </script>
     <main id="wrapper">
         <object id="frame" name="content" title="content" class="center" type="text/html" data=" ./main.html#first"></object>
     </main>

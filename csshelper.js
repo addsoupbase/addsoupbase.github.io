@@ -9,12 +9,12 @@ export function vendorValue(val) {
         .replace(allVendors2, '')
     switch (without) {
         case 'crisp-edges':
-                CSS.supports('image-rendering', without) ||
+            CSS.supports('image-rendering', without) ||
                 CSS.supports('image-rendering', val = '-webkit-optimize-contrast') ||
-                CSS.supports('image-rendering', val = `-moz-crisp-edges`) 
+                CSS.supports('image-rendering', val = `-moz-crisp-edges`)
             break
         case 'stretch':
-                CSS.supports('max-width', without) ||
+            CSS.supports('max-width', without) ||
                 CSS.supports('max-width', val = '-webkit-fill-available')
             break
     }
@@ -272,7 +272,7 @@ queueMicrotask
                 initialValue: 0
             })*/
             const universal = {}
-            let func = CSS.registerProperty ?? function () { }
+            let func = CSS.registerProperty ?? function(){}
             for (let prop of all)
                 try {
                     let o = prop.name
@@ -367,10 +367,7 @@ export function convertToCSSMethod(value) {
         g("font-smoothing", "auto", true),
         g("mask-position-x", "0%", 0, "<length-percentage>"),
         g("mask-position-y", "0%", 0, "<length-percentage>"),
-        g("tap-highlight-color", "rgb(0 0 0 0.18)", true,
-            // "<color>"
-        ),
-        // Also good
+        g("tap-highlight-color", "rgb(0, 0, 0, 0.18)", true, "<color>"), // Also good
         g("touch-callout", "default", true),
         g("window-dragging", "drag", 0),
         g("stack-sizing", "stretch-to-fit", true),

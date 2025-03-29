@@ -39,6 +39,12 @@ function genericGet(t, prop) {
     let out = t[prop]
     return bindIfNecessary(out, t)
 }
+function ariaOrData(i) {
+    let {0:char} = i
+    if (char === '_') i = i.replace(char, 'aria-')
+    else if (char === '$') i = i.replace(char, 'data-')
+    return i
+}
 const customRules = css.getDefaultStyleSheet()
 const handlers = {
     // Other proxies
@@ -70,6 +76,7 @@ const handlers = {
     },
     attr: {
         get(t, p) {
+            p = ariaOrData(p)
             return prox(t).getAttribute(p)
         },
         set(t, p, v) {
@@ -83,6 +90,7 @@ const handlers = {
             })
         },
         has(t, p) {
+            p = ariaOrData(p)
             return t.hasAttribute(p)
         }
         /*  get(t, prop) {
@@ -183,7 +191,7 @@ const handlers = {
 // Main [[Prototype]] is on this class
 let ATTR = Symbol('💿')
 let states = Symbol('💾')
-let props = Object.getOwnPropertyDescriptors(class _ 
+let props = Object.getOwnPropertyDescriptors(class _
     extends null {
     static cancel(o) {
         o.cancel()
@@ -416,6 +424,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         for (let i in attr) {
             let val = attr[i]
             if (badRegex.test(i)) throw TypeError(`Inline event handlers are deprecated`)
+            i = ariaOrData(i)
             /*   switch (i) {
                    case 'disabled': me.setAttribute('aria-disabled', !!val); break
                    case 'checked': me.setAttribute('aria-checked', !!val); break
@@ -674,11 +683,16 @@ let props = Object.getOwnPropertyDescriptors(class _
     }
     busy(busy) {
         this.setAttr({
-            'aria-busy': !!busy
+            _busy: `${!!busy}`
         })
             .setStyles({
                 cursor: busy ? 'progress' : ''
             })
+    }
+    copyAttr(other) {
+        other = base(other),
+            me = base(this)
+        for (let attr of other.attributes) me.setAttribute(attr.nodeName, attr.nodeValue)
     }
 }.prototype)
 const prototype = Object.create(null)
@@ -1111,7 +1125,7 @@ class CUSTOM_ELEMENT_SPRITE extends HTMLElement {
             }
                 break
         }
-        
+
     }
     adoptedCallback() {
         debugger
@@ -1209,7 +1223,7 @@ class CUSTOM_ELEMENT_SPRITE extends HTMLElement {
         }
         }
         `
-        while(!this.#style.sheet.cssRules.length)
+        while (!this.#style.sheet.cssRules.length)
     }
 }
 const spriteTemplate = $('<template><style></style><div></div></template>')
