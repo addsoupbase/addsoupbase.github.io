@@ -22,9 +22,31 @@
                         <h1 id="age">[age]</h1><time class="small" id="bday">June 17 2007</time>
                     </div>
                 </div>
-            </section><a class="cute-green-button back" href="main.html">Back</a>
+            </section><a role="button" class="cute-green-button back" href="main.html">Back</a>
             <h1>Favourite pokemon:</h1>
-            <div id="pokemonholder"></div>
+            <div id="pokemonholder">
+                <img class="pkm spinda" src="./media/spinda.gif" alt="spinda" title="spinda">
+                <img class="pkm misdreavus" src="./media/misdreavus.gif" alt="misdreavus" title="misdreavus">
+                <img class="pkm mawile" src="./media/mawile.gif" alt="mawile" title="mawile">
+                <img class="pkm delcatty" src="./media/delcatty.gif" alt="delcatty" title="delcatty">
+                <img class="pkm masquerain" src="./media/masquerain.gif" alt="masquerain" title="masquerain">
+                <img class="pkm shedinja" src="./media/shedinja.gif" alt="shedinja" title="shedinja">
+                <img class="pkm clamperl" src="./media/clamperl.gif" alt="clamperl" title="clamperl">
+                <img class="pkm swoobat" src="./media/swoobat.gif" alt="swoobat" title="swoobat">
+                <img class="pkm gourgeist" src="./media/gourgeist.gif" alt="gourgeist" title="gourgeist">
+                <img class="pkm minior" src="./media/minior.gif" alt="minior" title="minior">
+                <img class="pkm trapinch" src="./media/trapinch.gif" alt="trapinch" title="trapinch">
+                <img class="pkm pheromosa" src="./media/pheromosa.gif" alt="pheromosa" title="pheromosa">
+                <img class="pkm meloetta" src="./media/meloetta.gif" alt="meloetta" title="meloetta">
+                <img class="pkm cherrim" src="./media/cherrim.gif" alt="cherrim" title="cherrim">
+                <img class="pkm aegislash" src="./media/aegislash.gif" alt="aegislash" title="aegislash">
+                <img class="pkm zygarde" src="./media/zygarde.gif" alt="zygarde" title="zygarde">
+                <img class="pkm wobbuffet" src="./media/wobbuffet.gif" alt="wobbuffet" title="wobbuffet">
+                <img class="pkm tinkaton" src="./media/tinkaton.gif" alt="tinkaton" title="tinkaton">
+                <img class="pkm ogerpon" src="./media/ogerpon.gif" alt="ogerpon" title="ogerpon">
+                <img class="pkm surskit" src="./media/surskit.gif" alt="surskit" title="surskit">
+                <img class="pkm darmanitan" src="./media/darmanitan.gif" alt="darmanitan" title="darmanitan">
+            </div>
         </main>
     </template>
     <script src="fallback.js"></script>
@@ -40,13 +62,13 @@
         })
         main.fadeFromTo(0, .95)
         $.gid('age').innerHTML = `${Math.floor(new Date().getFullYear() - bday.getFullYear() - (bday.getMonth() / 12))} years old`
-        let pokemonholder = $.gid('pokemonholder')
-        pokemonholder.push('spinda misdreavus mawile delcatty masquerain shedinja clamperl swoobat gourgeist minior trapinch pheromosa meloetta cherrim aegislash zygarde wobbuffet tinkaton ogerpon surskit darmanitan'
-            .split(' ').map(o => $(`img.pkm.${o}`, {
-                attr: { alt: o, title: o, src: `./media/${o}.gif` }
-            })))
+        // console.log('spinda misdreavus mawile delcatty masquerain shedinja clamperl swoobat gourgeist minior trapinch pheromosa meloetta cherrim aegislash zygarde wobbuffet tinkaton ogerpon surskit darmanitan'
+            // .split(' ').map(generateImages).join('\n'))
+        // function generateImages(o) {
+            // return `<img class="pkm ${o}" src="./media/${o}.gif" alt="${o}" title="${o}">`
+        // }
     </script>
-        <script src="./silence.js"></script>
+    <script src="./silence.js"></script>
 
 </body>
 

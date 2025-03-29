@@ -9,9 +9,9 @@
         if (regex.test(e.message)) {
             remove()
             var template = document.getElementById('template')
-            document.body.innerHTML = template.content ? template.content.firstElementChild.outerHTML : template.firstElementChild.outerHTML
+            document.body.outerHTML = template.content ? template.content.firstElementChild.outerHTML : template.firstElementChild.outerHTML
         }
     }
-    window.addEventListener('load',remove)
+    window.addEventListener('load', remove)
     window.addEventListener('error', err)
 }()

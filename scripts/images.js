@@ -1,18 +1,18 @@
 import { registerCSS } from "../csshelper.js"
 import { until } from "../handle.js"
+import { jason } from '../arrays.js'
 let bubble = Object.assign(new Image, {
     src: `./media/bubble.webp`
 })
-await until(bubble,'load')
+await until(bubble, 'load')
 await bubble.decode()
 const width = Symbol.for('width'),
     name = Symbol.for('name')
-const avatars = await Promise.all((await (await fetch('./scripts/allava.json')).json()).map(
+const avatars = await Promise.all((await jason('./scripts/allava.json')).map(
     async function (o) {
         let n = new Image
         n.src = `./media/avatars/${o}`
-        await until(n, 'load')
-        await n.decode()
+        await Promise.all([until(n, 'load'), n.decode()])
         return n
     }
 ))
@@ -48,8 +48,7 @@ const mons = await Promise.all([
         [width]: +Width,
         [name]: src
     })
-    await until(img, 'load')
-    await img.decode()
+    await Promise.all([until(img, 'load'), img.decode()])
     return img
 }))
 mons.forEach(image => {

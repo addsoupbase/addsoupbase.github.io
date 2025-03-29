@@ -8,7 +8,7 @@ document.body.appendChild(document.importNode(template.content,true))
 let { main } = $.byId
 main.setStyles({ opacity: 0 })
 on(window, {
-    load() {
+    _load() {
         requestIdleCallback(() => {
             typeof final === 'function'  && final()
         }, { timeout: 20000 })

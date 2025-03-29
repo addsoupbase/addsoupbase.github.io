@@ -37,9 +37,10 @@ export function swapInside(item, firstIndex, secondIndex) {
     throw RangeError("Index out of range")
 }
 export function rotate(arr, rotation = 1) {
-    if (arr.length < 2) return arr
+    let { length } = arr
+    if (length < 2) return arr
     let sign = Math.sign(rotation),
-        r = Math.abs(rotation | 0)
+        r = Math.abs(rotation | 0) % length
     if (sign > 0) while (r--) arr.unshift(arr.pop())
     else while (r--) arr.push(arr.shift())
     return arr
@@ -49,16 +50,7 @@ async function fallback(src) {
 }
 try {
     //  Some browsers (Firefox, old) throw with the 'options' parameter
-    var getJson = fallback.
-        constructor('src',
-`
-try {return(await import(new URL(src,location.href),{with:{type:'json'}})).default}
-catch(e) {
-    if (e.name === "TypeError")
-    return this(src)
-    throw e
-}
-`)
+    var getJson = fallback.constructor('src',`try{return(await import(new URL(src,location.href),{with:{type:'json'}})).default}\ncatch(e){if(e.name==="TypeError")return this(src)\nthrow e}`)
         //  If the import() thing still fails just use the fallback
         .bind(fallback)
     //  using bind since the function can't access the module scope

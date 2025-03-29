@@ -1,23 +1,35 @@
 //  The journey begins...
-import { on, off, getEventNames, allEvents, unbound } from './handle.js'
-import *as css from './csshelper.js'
-import { FormDataManager as form } from './proxies.js'
-const me = Symbol('base')
-    , all = new WeakMap
-    , revokes = new WeakMap
-    , bounded = new WeakMap
-    , dotRegex = /\./g
-    , spaceRegex = /\s/g
-    , badRegex = /^on.+$/
+import {
+    on,
+    off,
+    getEventNames,
+    allEvents,
+    unbound,
+    until
+} from './handle.js'
+import * as css from './csshelper.js'
+import {
+    FormDataManager as form
+} from './proxies.js'
+const me = Symbol('base'),
+    all = new WeakMap,
+    revokes = new WeakMap,
+    bounded = new WeakMap,
+    dotRegex = /\./g,
+    spaceRegex = /\s/g,
+    badRegex = /^on.+$/
+
 function gen() {
     return `${Math.random()}${Math.random()}`.replace(dotRegex, '')
 }
+
 function bindIfNecessary(maybeFunc, to) {
     // Make sure we just re-use the same function
     return typeof
         maybeFunc === 'function' ?
         bounded.get(maybeFunc) ?? bounded.set(maybeFunc, maybeFunc.bind(to)).get(maybeFunc) : maybeFunc
 }
+
 function genericGet(t, prop) {
     if (!isNaN(prop)) {
         let out = t[prop]
@@ -61,10 +73,14 @@ const handlers = {
             return prox(t).getAttribute(p)
         },
         set(t, p, v) {
-            return prox(t).setAttr({ [p]: v })
+            return prox(t).setAttr({
+                [p]: v
+            })
         },
         deleteProperty(t, p) {
-            return prox(t).setAttr({ [p]: '' })
+            return prox(t).setAttr({
+                [p]: ''
+            })
         },
         has(t, p) {
             return t.hasAttribute(p)
@@ -167,7 +183,8 @@ const handlers = {
 // Main [[Prototype]] is on this class
 let ATTR = Symbol('💿')
 let states = Symbol('💾')
-let props = Object.getOwnPropertyDescriptors(class _ {
+let props = Object.getOwnPropertyDescriptors(class _ 
+    extends null {
     static cancel(o) {
         o.cancel()
     }
@@ -189,7 +206,10 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         // console.assert(/number|string|symbol|bigint/.test(typeof identifier), `State should be a primitive:\n %o`, identifier)
         let cached = $('template')
         cached.content.appendChild(base(child))
-        this[states].set(identifier, { cached, callback })
+        this[states].set(identifier, {
+            cached,
+            callback
+        })
         return cached.content
     }
     getState(identifier) {
@@ -221,7 +241,10 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             reportError(identifier)
             throw TypeError(`Invalid state`)
         }
-        let { cached: cache, callback } = this[states].get(identifier)
+        let {
+            cached: cache,
+            callback
+        } = this[states].get(identifier)
         let frag = cache.content
         let cached = document.importNode(frag, true)
         let staticBatch = [...frag.querySelectorAll('*')]
@@ -234,16 +257,30 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         this.lastState = this.currentState
         this.currentState = identifier
         return this
+
         function forEach(el, index) {
             el = prox(el)
             el.hasAttribute('id') && withIds.push(el) // its considered important
-            let { events } = el
+            let {
+                events
+            } = el
             if (!events) return
             let clone = prox(newBatch[index])
             let staticEvents = allEvents.get(base(el))
             events.forEach(eventThing)
+
             function eventThing(name) {
-                let { listener, passive, capture, handler, prevents, stopProp, once, stopImmediateProp, onlyTrusted } = staticEvents.get(name)
+                let {
+                    listener,
+                    passive,
+                    capture,
+                    handler,
+                    prevents,
+                    stopProp,
+                    once,
+                    stopImmediateProp,
+                    onlyTrusted
+                } = staticEvents.get(name)
                 if (once) name = `_${name}`
                 if (passive) name = `^${name}`
                 if (capture) name = `%${name}`
@@ -251,21 +288,28 @@ let props = Object.getOwnPropertyDescriptors(class _ {
                 if (prevents) name = `$${name}`
                 if (onlyTrusted) name = `?${name}`
                 if (stopImmediateProp) name = `!${name}`
-                clone.on({ [name]: listener[unbound][unbound] }, handler)
+                clone.on({
+                    [name]: listener[unbound][unbound]
+                }, handler)
             }
         }
     }
     get orphans() {
         let me = base(this)
         let out = document.createDocumentFragment(),
-            { firstElementChild } = me
+            {
+                firstElementChild
+            } = me
         while (firstElementChild)
-            out.appendChild(me.removeChild(firstElementChild)),
-                { firstElementChild } = me
+            out.appendChild(me.removeChild(firstElementChild)), {
+                firstElementChild
+            } = me
         return out
     }
     pass() {
-        let { orphans } = this
+        let {
+            orphans
+        } = this
         this.destroy()
         return orphans
     }
@@ -276,7 +320,9 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         this.resetSelfRules()
         this.cancelAnims()
         let myStates = this[states]
-        for (let [key, { cached: val }] of myStates) {
+        for (let [key, {
+            cached: val
+        }] of myStates) {
             myStates.delete(key)
             for (let el of val.content.querySelectorAll('*'))
                 prox(el).destroy()
@@ -292,10 +338,13 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         return null
     }
     destroyChildren() {
-        let { lastElementChild } = this
+        let {
+            lastElementChild
+        } = this
         while (lastElementChild)
-            prox(lastElementChild).destroy(),
-                { lastElementChild } = this
+            prox(lastElementChild).destroy(), {
+                lastElementChild
+            } = this
     }
     $(html, props, ...children) {
         let out = $(html, props, ...children)
@@ -311,13 +360,14 @@ let props = Object.getOwnPropertyDescriptors(class _ {
                 value
             })
         )
-        else for (let i in events) {
-            let value = events[i]
-            let newOne = events[i] = events[i].bind(this)
-            Object.defineProperty(newOne, unbound, {
-                value
-            })
-        }
+        else
+            for (let i in events) {
+                let value = events[i]
+                let newOne = events[i] = events[i].bind(this)
+                Object.defineProperty(newOne, unbound, {
+                    value
+                })
+            }
         on(base(this), events, useHandler)
     }
     off(...events) {
@@ -329,8 +379,11 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         for (let i in events) {
             let old = events[i]
             events[i] = DelegationFunction
+
             function DelegationFunction(...args) {
-                let { target } = args[0],
+                let {
+                    target
+                } = args[0],
                     pr = prox(target);
                 (me !== target || includeSelf) && (filter(pr) ?? 1) && old.apply(pr, args)
             }
@@ -413,7 +466,11 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         opacity: 1
     }
     fadeOut(duration = 500) {
-        return this.animate([{}, _.nopacity], { duration, easing: 'ease', iterations: 1 }).finished.then(() => this.hide3())
+        return this.animate([{}, _.nopacity], {
+            duration,
+            easing: 'ease',
+            iterations: 1
+        }).finished.then(() => this.hide3())
     }
     fadeIn(duration = 500) {
         this.show3()
@@ -423,8 +480,19 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             iterations: 1
         }).finished
     }
-    fadeFromTo(from, to, { duration = 500, easing = 'ease' } = {}) {
-        return this.animate([{ opacity: from }, { opacity: to }], { duration, easing, fill: 'forwards' })
+    fadeFromTo(from, to, {
+        duration = 500,
+        easing = 'ease'
+    } = {}) {
+        return this.animate([{
+            opacity: from
+        }, {
+            opacity: to
+        }], {
+            duration,
+            easing,
+            fill: 'forwards'
+        })
     }
     replace(...elements) {
         base(this).replaceWith(...elements.map(base))
@@ -472,6 +540,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         let frag = doc
         args.flat(1 / 0).forEach(a)
         base(this).appendChild(frag)
+
         function a(child) {
             frag.appendChild(base(child))
         }
@@ -480,6 +549,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         let frag = doc
         args.flat(1 / 0).forEach(a)
         base(this).prepend(frag)
+
         function a(child) {
             frag.appendChild(base(child))
         }
@@ -489,10 +559,12 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         let walker = document.createTreeWalker(base(this), whatToShow, filter_func)
         filter ??= function () { }
         return out()
+
         function* out() {
             let current
             while (current = walker.nextNode()) yield getValid(current) ? prox(current) : current
         }
+
         function filter_func(node) {
             return (filter(node) ?? true) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
         }
@@ -514,8 +586,13 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         function func(node) { return node.matches(selector) }
     }*/
     resetSelfRules() {
+
         for (let i in this.selfRules)
-            customRules.deleteRule([...customRules.cssRules].indexOf(this.selfRules[i]))
+            try {
+                customRules.deleteRule([...customRules.cssRules].indexOf(this.selfRules[i]))
+            }
+            finally { continue }
+
     }
     addSelfRule(selector, cssStuff) {
         const og = selector
@@ -531,9 +608,10 @@ let props = Object.getOwnPropertyDescriptors(class _ {
             // for (let i = 5; i--;) try {
             existing ? existing.insertRule(final) :
                 (this.selfRules[css.formatStr(selector.replace(spaceRegex, ''))] = customRules.cssRules[customRules.insertRule(final)])
-            this.setAttr({ id })
-        }
-        catch {
+            this.setAttr({
+                id
+            })
+        } catch {
             css.badCSS(`⛓️‍💥 Unrecognized CSS rule at '${og}'`)
         }
         // }
@@ -548,6 +626,7 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         options.iterations ??= 1
         keyframes.forEach(forEach)
         return base(this).animate(keyframes, options)
+
         function forEach(frame) {
             for (let prop in frame) {
                 let val = `${frame[prop]}`
@@ -563,11 +642,15 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         base(this).before(base(val))
     }
     get after() {
-        let { nextElementSibling } = base(this)
+        let {
+            nextElementSibling
+        } = base(this)
         return prox(nextElementSibling)
     }
     get before() {
-        let { previousElementSibling } = base(this)
+        let {
+            previousElementSibling
+        } = base(this)
         return prox(previousElementSibling)
     }
     set parent(parent) {
@@ -578,12 +661,24 @@ let props = Object.getOwnPropertyDescriptors(class _ {
         return prox(parent)
     }
     get first() {
-        let { firstElementChild } = base(this)
+        let {
+            firstElementChild
+        } = base(this)
         return prox(firstElementChild)
     }
     get last() {
-        let { lastElementChild } = base(this)
+        let {
+            lastElementChild
+        } = base(this)
         return prox(lastElementChild)
+    }
+    busy(busy) {
+        this.setAttr({
+            'aria-busy': !!busy
+        })
+            .setStyles({
+                cursor: busy ? 'progress' : ''
+            })
     }
 }.prototype)
 const prototype = Object.create(null)
@@ -633,6 +728,7 @@ const prototype = Object.create(null)
     // 🖨 Copy everything
 }
 const prototypeDescriptors = Object.getOwnPropertyDescriptors(prototype)
+
 function base(element) {
     // 🌱 Get the root element
     return element[me] ?? prox(element)[me]
@@ -661,6 +757,7 @@ const flags = {
         enumerable: 1,
         writable: 1
     }
+
 function prox(target) {
     if (target === null) return null
     if (!getValid(target))
@@ -675,10 +772,22 @@ function prox(target) {
         let bleh = {
             value: target
         }
-        let { revoke: styleRevoke, proxy: styleProxy } = Proxy.revocable(target.style, handlers.styles)
-        let { revoke: childRevoke, proxy: childProxy } = Proxy.revocable(target.children, handlers.HTMLCollection)
-        let { revoke: querySelectorRevoke, proxy: querySelectorProxy } = Proxy.revocable(target, handlers.querySelector)
-        let { revoke: attrRevoke, proxy: attrProxy } = Proxy.revocable(target, handlers.attr)
+        let {
+            revoke: styleRevoke,
+            proxy: styleProxy
+        } = Proxy.revocable(target.style, handlers.styles)
+        let {
+            revoke: childRevoke,
+            proxy: childProxy
+        } = Proxy.revocable(target.children, handlers.HTMLCollection)
+        let {
+            revoke: querySelectorRevoke,
+            proxy: querySelectorProxy
+        } = Proxy.revocable(target, handlers.querySelector)
+        let {
+            revoke: attrRevoke,
+            proxy: attrProxy
+        } = Proxy.revocable(target, handlers.attr)
         let baseThingy = {
             ...prototypeDescriptors,
             [me]: bleh,
@@ -707,7 +816,10 @@ function prox(target) {
                 value: styleProxy
             }
         }
-        let { proxy, revoke } = Proxy.revocable(
+        let {
+            proxy,
+            revoke
+        } = Proxy.revocable(
             Object.seal(Object.create(target, baseThingy)), {
             get(targ, prop) {
                 return targ.hasOwnProperty(prop) ? targ[prop] :
@@ -732,19 +844,16 @@ function prox(target) {
 
 function getValid(target) {
     return target &&
-        target instanceof Element ||
-        target.ownerDocument?.defaultView?.Element.prototype.isPrototypeOf(target) ||
-        Element.prototype.isPrototypeOf(target)
+        (target instanceof Element ||
+            target.ownerDocument?.defaultView?.Element.prototype.isPrototypeOf(target) ||
+            Element.prototype.isPrototypeOf(target))
 }
 const doc = document.createDocumentFragment()
 const parser = new DOMParser
-let temp
-    , div
-    , range
-    , classRegex = /\.[\w-]+/g
-    , htmlRegex = /\w+/
-    , idRegex = /#\w+/
-    , typeRegex = /%\w+/
+let temp, div, range, classRegex = /\.[\w-]+/g,
+    htmlRegex = /[\w-]+/,
+    idRegex = /#\w+/,
+    typeRegex = /%\w+/
 /**
  * # Be careful of html injection when using a string!!
  */
@@ -755,7 +864,9 @@ function $(html, props, ...children) {
             //  This one seems to be the fastest by a tad
             //  but it's hard to tell...
             default:
-                var element = document.adoptNode(parser.parseFromString(html, 'text/html').body.firstElementChild)
+                let t = parser.parseFromString(html, 'text/html')
+                // console.log(t)
+                var element = document.adoptNode(t.body.firstElementChild)
                 break
             case 'write': {
                 let doc = document.implementation.createHTMLDocument()
@@ -838,7 +949,9 @@ function $(html, props, ...children) {
                    <!-- afterend -->
     */
     if (props) {
-        function reuse(p) { p in props && (element[p] = props[p]) }
+        function reuse(p) {
+            p in props && (element[p] = props[p])
+        }
         reuse('parent')
         'events' in props && element.on(props.events)
         'outerHTML innerHTML outerText innerText textContent'.split(' ').forEach(reuse)
@@ -852,6 +965,7 @@ function $(html, props, ...children) {
     children.length && element.push(children)
     return element
 }
+
 function revoke(targ) {
     revokes.get(targ)?.(revokes.delete(targ))
 }
@@ -911,7 +1025,7 @@ export default Object.defineProperties($, {
         }
     }
 })
-let parseMode = 'mozInnerScreenY' in window ? 'createRange' : 'default'
+let parseMode = 'mozInnerScreenY' in window ? 'createRange' : 'template'
 //  createRange seems to be *slightly* faster on firefox
 1 || async function () {
     console.log("Test enabled")
@@ -924,7 +1038,9 @@ let parseMode = 'mozInnerScreenY' in window ? 'createRange' : 'default'
         return performance.now() - time
     }
     let obj = {}
-    let { default: a } = await import('./math.js')
+    let {
+        default: a
+    } = await import('./math.js')
     for (let n of `template createRange createHTMLDocument innerHTML parseHTMLUnsafe default template setHTMLUnsafe write`.split(' ')) {
         obj[n] = []
         for (let i = 4; i--;) {
@@ -934,4 +1050,204 @@ let parseMode = 'mozInnerScreenY' in window ? 'createRange' : 'default'
     }
     console.log(obj)
 }()
-function badAttrName(attr) { return badRegex.test(attr.nodeName) } function allElementStuff(e) { return [].some.call(e.attributes, badAttrName) } function destroyEach(ch) { prox(ch).destroy() } function slice(o) { return o.slice(1) }
+
+function badAttrName(attr) {
+    return badRegex.test(attr.nodeName)
+}
+
+function allElementStuff(e) {
+    return [].some.call(e.attributes, badAttrName)
+}
+
+function destroyEach(ch) {
+    prox(ch).destroy()
+}
+
+function slice(o) {
+    return o.slice(1)
+}
+class CUSTOM_ELEMENT_SPRITE extends HTMLElement {
+    static observedAttributes = 'steps x y src width height'.split(' ')
+    #style = null
+    get #animation() {
+        return prox(this.#sprite).getAnimations()[0]
+    }
+    #sprite = null
+    #steps = []
+    attributeChangedCallback(name, oldValue, newValue) {
+        this.#attch()
+        switch (name) {
+            case 'steps': {
+                this.#steps = JSON.parse(newValue)
+            }
+                break
+            case 'src': {
+                this.#sprite.style.setProperty('--sprite', `url(${newValue})`)
+                break
+            }
+            case 'width':
+            case 'height': {
+                this.#sprite.style.setProperty(`--${name}`, `${newValue}px`)
+            }
+                break
+            case 'x':
+            case 'y': {
+                this.#sprite.style.setProperty(`--grid-${name}`, newValue)
+            }
+                break
+            case 'state': switch (newValue) {
+                case 'running': {
+                    this.#animation.play()
+                }
+                    break
+                case 'paused': {
+                    this.#animation.pause()
+                }
+                    break
+                case 'stopped': {
+                    this.#animation.cancel()
+                }
+                    break
+            }
+                break
+        }
+        
+    }
+    adoptedCallback() {
+        debugger
+    }
+    constructor() {
+        super()
+        this.#attch()
+    }
+    #updateAnim() {
+        this.#animation?.cancel()
+        let settings = []
+        let me = prox(this),
+            sprite = prox(this.#sprite)
+        let { width, height } = me.attr
+        width = +width | 0
+        height = +height | 0
+        let inBetween = ''
+        console.log(this.#style.sheet.cssRules.length)
+        sprite.setStyles({
+            animation: `anim 1s steps(var(--grid-x),end) infinite   `
+        });
+        ;[].cssText = ` @keyframes anim {
+        0% {
+        background-position-x: 0px
+        }
+        ${inBetween}
+        100% {
+        background-position-x: calc(var(--width) * -1 * var(--grid-x))
+        }
+        }`
+    }
+    #attch() {
+        let g = () => {
+            this.#animation?.cancel()
+            this.#updateAnim()
+        }
+        if (this.shadowRoot) {
+            this.#sprite = this.shadowRoot.querySelector('div')
+            this.#style = this.shadowRoot.querySelector("style")
+            g()
+            return this.shadowRoot
+        }
+        let shadow = this.attachShadow({
+            mode: 'open'
+        })
+        shadow.appendChild(spriteTemplate.content.cloneNode(true))
+        this.#sprite = shadow.querySelector('div')
+        this.#style = this.shadowRoot.querySelector("style")
+        g()
+        return shadow
+    }
+    connectedCallback() {
+        this.#attch()
+        do this.#style.textContent =
+            `
+        @property --sprite {
+        syntax: "<image>";
+        inherits: false;
+        initial-value: url("");
+        }
+        @property --width {
+        syntax: "<length-percentage>";
+        inherits: false;
+        initial-value: 30px;
+        }
+        @property --height {
+        syntax: "<length-percentage>";
+        inherits: false;
+        initial-value: 30px;
+        }
+        @property --grid-x {
+        syntax: "<integer>";
+        initial-value: 8;
+        inherits: false;
+        }
+        @property --grid-y {
+        syntax: "<integer>";
+        initial-value: 8;
+        inherits: false;
+        }
+        div {
+        width:  var(--width);
+        height: var(--height);
+        background-color:red;
+        background-image: var(--sprite);
+        background-repeat:no-repeat;
+        background-size: calc(var(--width) * var(--grid-x)) calc(var(--height) * var(--grid-y));
+        }
+        @keyframes anim {
+        0% {
+        background-position-x: 0px;
+        }
+        100% {
+        background-position-x: calc(var(--width) * -1 * var(--grid-x));
+        }
+        }
+        `
+        while(!this.#style.sheet.cssRules.length)
+    }
+}
+const spriteTemplate = $('<template><style></style><div></div></template>')
+customElements.define('img-sprite', CUSTOM_ELEMENT_SPRITE)
+/*export function info(heading, message, parent, yes, no) {
+    return new Promise(resolve => {
+        parent ??= $.body
+        let backdrop = $('div.alertbackdrop', {
+            parent
+        })
+        let p = $('<form class="alertdialog" aria-modal="true" role="alertdialog"></form>', {
+            parent: backdrop
+        })
+        let section = p.$('section')
+        let head = typeof heading === 'string' ? $('h1', {
+            textContent: heading,
+        }) : heading
+        head.parent = section
+        let msg = typeof message === 'string' ? $('p', {
+                textContent: message
+            }) :
+            msg
+        msg.parent = section
+        let button = typeof yes === 'undefined' ? $(`<button class="cute-green-button" autofocus>Okay</button>`) : yes
+        backdrop.push(button)
+        backdrop.fadeIn().then(() => {
+            button.on({
+                async _click() {
+                    this.fadeOut(300)
+                    await p.fadeOut(300)
+                    await backdrop.fadeOut(300)
+                    backdrop.destroy()
+                    resolve()
+                }
+            })
+        })
+    })
+}*/
+function reduce(a, b) {
+    return a + b
+}
