@@ -72,7 +72,7 @@ function images({ avatars, mons }) {
     function createAnimationForSpritesheet(image) {
         let me = $(`div.${image[Symbol.for('name')]}.sprite`, {
             parent, attr: {
-                role: 'presentation',
+                role: 'marquee',
             }
         })
         me.animate([{
