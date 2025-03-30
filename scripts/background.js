@@ -129,8 +129,6 @@ import $ from '../yay.js'
 import { math, ran, string } from '../misc.js'
 const iframe = $.qs('object')
 //document.body.scrollLeft = innerHeight/2
-
-window.$ = $
 iframe.contentWindow.final = function () {
     import('./images.js').then(images)
     console.debug("🐟 Loading the bg now...")
