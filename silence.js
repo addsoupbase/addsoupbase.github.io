@@ -1,5 +1,5 @@
 // Since logging prevents objects from being garbage collected:
-typeof console !== 'undefined' && function () {
+typeof console !== 'undefined' && (function () {
     'use strict'
     if (!/localhost|127\.0\.0\.1/.test(location.host)) for (var i in console) {
         if (typeof console[i] !== 'function') continue
@@ -12,7 +12,7 @@ typeof console !== 'undefined' && function () {
                         (o + '')) : o
                 }))
             }
-            catch {
+            catch(e) {
                 old(`♻️ (Object was not logged to prevent a potential memory leak)`)
             }
         }
@@ -22,4 +22,4 @@ typeof console !== 'undefined' && function () {
             log.apply(1, data.map(o => typeof o === 'object' ? JSON.stringify(o) : o))
         }
     })*/
-}()
+}())
