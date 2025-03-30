@@ -4,6 +4,7 @@
     var remove = function () {
         removeEventListener('error', err)
         removeEventListener('load', remove)
+        remove = err = null
     }
     var err = function (e) {
         if (regex.test(e.message)) {

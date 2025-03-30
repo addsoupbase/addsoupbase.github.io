@@ -50,14 +50,14 @@ async function fallback(src) {
 }
 try {
     //  Some browsers (Firefox, old) throw with the 'options' parameter
-    var getJson = fallback.constructor('src', `try{return(await import(new URL(src,location),{with:{type:'json'}})).default}\ncatch(e){if(e.name==="TypeError")return this(src)\nthrow e}`)
+    var getJson = fallback.constructor('src', '"use strict";try{return(await import(new URL(src,location),{with:{type:\'json\'}})).default}\ncatch(e){if(e.name==="TypeError")return this(src)\nthrow e}')
         //  If the import() thing still fails just use the fallback
         .bind(fallback)
     //  using bind since the function can't access the module scope
 }
 catch (e) {
     if (e.name === "SyntaxError") {
-        console.warn(`Your browser does not support 'import()' with json. Switching to fetch`)
+        console.warn(`Your browser does not support 'import()' with json; Switching to fetch.`)
         var getJson = fallback
     }
     else reportError(e)
