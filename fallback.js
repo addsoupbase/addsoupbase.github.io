@@ -2,8 +2,8 @@
     'use strict'
     var regex = /syntax|invalid character/i
     var remove = function () {
-        window.removeEventListener('error', err)
-        window.removeEventListener('load', remove)
+        removeEventListener('error', err)
+        removeEventListener('load', remove)
     }
     var err = function (e) {
         if (regex.test(e.message)) {
@@ -12,6 +12,6 @@
             document.body.outerHTML = template.content ? template.content.firstElementChild.outerHTML : template.firstElementChild.outerHTML
         }
     }
-    window.addEventListener('load', remove)
-    window.addEventListener('error', err)
+    addEventListener('load', remove)
+    addEventListener('error', err)
 }()
