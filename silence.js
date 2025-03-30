@@ -1,7 +1,7 @@
 // Since logging prevents objects from being garbage collected:
 typeof console !== 'undefined' && (function () {
     'use strict'
-    if (!/localhost|127\.0\.0\.1/.test(location.host)) for (var i in console) {
+    if (!RegExp('localhost|127\\.0\\.0\\.1').test(location.host)) for (var i in console) {
         if (typeof console[i] !== 'function') continue
         var old = console[i]
         console[i] = function () {
@@ -13,7 +13,7 @@ typeof console !== 'undefined' && (function () {
                 }))
             }
             catch(e) {
-                old(`♻️ (Object was not logged to prevent a potential memory leak)`)
+                old('♻️ (Object was not logged to prevent a potential memory leak)')
             }
         }
     }
