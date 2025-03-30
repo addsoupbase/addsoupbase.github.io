@@ -9,6 +9,7 @@
   padding: 0px;
   overflow: hidden;
 }
+
 .lanturn {
   filter: drop-shadow(0 0 5px yellow);
 }
@@ -64,6 +65,60 @@
   body {
     background: none !important;
   }
+}
+.terrain {
+  background-position-x: -95px;
+  background-position-y: -416px;
+  width: 193px;
+  height: 64px;
+}
+.sea {
+  background-image: url(media/sea.png);
+  image-rendering: pixelated;
+  position: fixed;
+  bottom: 0;
+}
+
+.coral2 {
+  background-position-x: 366px;
+  background-position-y: -782px;
+  width: 30px;
+  height: 38px;
+}
+
+.plant {
+  background-position-x: 1071px;
+  background-position-y: -786px;
+  width: 30px;
+  height: 28px;
+}
+
+.sand {
+  background-position-x: 122px;
+  background-position-y: -628px;
+  width: 54px;
+  height: 24px;
+}
+
+.coral {
+  background-position-x: 430px;
+  background-position-y: -786px;
+  width: 28px;
+  height: 28px;
+}
+
+.seaweed {
+  background-position-x: 864px;
+  background-position-y: -1187px;
+  width: 32px;
+  height: 60px;
+}
+
+.rock {
+  background-position-x: 176px;
+  background-position-y: -373px;
+  width: 30px;
+  height: 23px;
 }
 
 .sprite {
@@ -153,7 +208,7 @@
   box-sizing: border-box;
   height: fit-content;
   min-height: 100vh;
-  opacity:1;
+  opacity: 1;
   inset: 0px;
   image-rendering: pixelated;
   background-image: url(./media/flowers.webp), url(./media/topdecor.webp), url(./media/roses.webp);

@@ -1,12 +1,16 @@
 // Since logging prevents objects from being garbage collected:
-void function () {
+typeof console !== 'undefined' && function () {
     'use strict'
-    if (!/localhost|127\.0\.0\.1/.test(location.host)) for (let i in console) {
+    if (!/localhost|127\.0\.0\.1/.test(location.host)) for (var i in console) {
         if (typeof console[i] !== 'function') continue
-        let old = console[i]
-        console[i] = (...data) => {
+        var old = console[i]
+        console[i] = function () {
+            var data = [].slice.call(arguments)
             try {
-                old.apply(console, data.map(o => o&&(typeof o==='object'||typeof o ==='function')?('outerHTML'in o ? o.outerHTML:JSON.stringify(o)??`${o}`):o))
+                old.apply(console, data.map(function () {
+                    return o && (typeof o === 'object' || typeof o === 'function') ? ('outerHTML' in o ? o.outerHTML : JSON.stringify(o) ||
+                        (o + '')) : o
+                }))
             }
             catch {
                 old(`♻️ (Object was not logged to prevent a potential memory leak)`)
