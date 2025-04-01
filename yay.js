@@ -230,11 +230,11 @@ let props = Object.getOwnPropertyDescriptors(class _
         if (identifier === null) {
             this.lastState = this.currentState
             this.currentState = null
-            return this.destroyChildren()
+            this.destroyChildren()
         }
         if (!this[states].has(identifier)) {
             this.destroyChildren()
-            this.push($(`<samp style="font-size:30px">INVALID STATE</samp>`))
+                .push($(`<samp style="font-size:30px; color:red;">INVALID STATE</samp>`))
             this.currentState = null
             reportError(identifier)
             throw TypeError(`Invalid state`)
@@ -1131,17 +1131,14 @@ class CUSTOM_ELEMENT_SPRITE extends HTMLElement {
             }
                 break
             case 'state': switch (newValue) {
-                case 'running': {
+                case 'running':
                     this.#animation.play()
-                }
                     break
-                case 'paused': {
+                case 'paused':
                     this.#animation.pause()
-                }
                     break
-                case 'stopped': {
+                case 'stopped':
                     this.#animation.cancel()
-                }
                     break
             }
                 break
@@ -1157,7 +1154,7 @@ class CUSTOM_ELEMENT_SPRITE extends HTMLElement {
     }
     #updateAnim() {
         this.#animation?.cancel()
-        let settings = []
+        // let settings = []
         let me = prox(this),
             sprite = prox(this.#sprite)
         let { width, height } = me.attr
