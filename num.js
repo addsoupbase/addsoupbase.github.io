@@ -188,7 +188,7 @@ class Vector2 {
         unit ??= ''
         return `(${this.#x}${unit}, ${this.#y}${unit})`
     }
-    static {
+    static _ = function(){
         let props = Object.getOwnPropertyDescriptors(this.prototype)
         for (let i in props) {
             let { [i]: p } = props
@@ -210,7 +210,7 @@ class Vector2 {
             [Symbol.toStringTag]: { value: this.name },
             x: { get() { return this.#x }, set(x) { this.set(x, this.#y) }, enumerable: 1 }, y: { get() { return this.#y }, set(y) { this.set(this.#x, y) }, enumerable: 1 }
         })
-    }
+    }()
     constructor(x = 0, y = 0,
         { 0: minX = MIN_SAFE_INTEGER, 1: minY = MIN_SAFE_INTEGER } = {},
         { 0: maxX = MAX_SAFE_INTEGER, 1: maxY = MAX_SAFE_INTEGER } = {}) {
