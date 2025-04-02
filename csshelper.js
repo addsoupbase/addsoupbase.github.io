@@ -3,7 +3,7 @@ function reportError(throwable) {
         message: throwable.message,
         error: throwable
     }))
-    console.error(throwable)
+    console.error(`${throwable}`)
 }
 reportError = window.reportError ?? reportError
 export function dashVendor(prop, val) {
@@ -283,13 +283,14 @@ queueMicrotask
             let func = CSS.registerProperty ?? function () { }
             for (let prop of all)
                 try {
-                    let o = prop.name
+                    var o = prop.name
                     universal[vendor(o.slice(2), o = `var(${o})`, true)] = o
                     func(prop)
                     await Yield()
                 }
                 catch (e) {
                     if (e.name === 'InvalidModificationError') continue
+                    console.log(o)
                     reportError(e)
                 }
             all = allProps = null
