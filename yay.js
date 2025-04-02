@@ -1,18 +1,18 @@
 //  The journey begins...
 import * as h from './handle.js'
 import * as css from './csshelper.js'
-import {
-    FormDataManager as form
-} from './proxies.js'
+import { FormDataManager as form } from './proxies.js'
+const regex = {
+    dot: /\./g,
+    space: /\s/g,
+    onXYZ: /^on.+$/
+}
 const me = Symbol('base'),
     all = new WeakMap,
     revokes = new WeakMap,
-    bounded = new WeakMap,
-    dotRegex = /\./g,
-    spaceRegex = /\s/g,
-    badRegex = /^on.+$/
+    bounded = new WeakMap
 function gen() {
-    return `${Math.random()}${Math.random()}`.replace(dotRegex, '')
+    return `${Math.random()}${Math.random()}`.replace(regex.dot, '')
 }
 function bindIfNecessary(maybeFunc, to) {
     // Make sure we just re-use the same function
@@ -257,9 +257,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         function forEach(el, index) {
             el = prox(el)
             el.hasAttribute('id') && withIds.push(el) // its considered important
-            let {
-                events
-            } = el
+            let { events } = el
             if (!events) return
             let clone = prox(newBatch[index])
             let staticEvents = h.allEvents.get(base(el))
@@ -302,9 +300,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         return out
     }
     pass() {
-        let {
-            orphans
-        } = this
+        let { orphans } = this
         this.destroy()
         return orphans
     }
@@ -368,7 +364,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         )
         else for (let i in events) {
             let value = events[i]
-            let newOne = events[i] = events[i].bind(this)
+            let newOne = events[i] = value.bind(this)
             Object.defineProperty(newOne, h.unbound, {
                 value
             })
@@ -417,7 +413,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         let me = base(this)
         for (let i in attr) {
             let val = attr[i]
-            if (badRegex.test(i)) throw TypeError(`Inline event handlers are deprecated`)
+            if (regex.onXYZ.test(i)) throw TypeError(`Inline event handlers are deprecated`)
             i = ariaOrData(i)
             /*   switch (i) {
                    case 'disabled': me.setAttribute('aria-disabled', !!val); break
@@ -633,10 +629,10 @@ let props = Object.getOwnPropertyDescriptors(class _
             if (selector.includes('::')) selector = css.supportedPElementVendor(selector)
             else if (selector.includes(':')) selector = css.supportedPClassVendor(selector)
             const final = `#${CSS.escape(id)}  ${selector}{${(css.toCSS(cssStuff))}}`
-            let existing = this.selfRules[css.formatStr(selector.replace(spaceRegex, ''))]
+            let existing = this.selfRules[css.formatStr(selector.replace(regex.space, ''))]
             // for (let i = 5; i--;) try {
             existing ? existing.insertRule(final) :
-                (this.selfRules[css.formatStr(selector.replace(spaceRegex, ''))] = customRules.cssRules[customRules.insertRule(final)])
+                (this.selfRules[css.formatStr(selector.replace(regex.space, ''))] = customRules.cssRules[customRules.insertRule(final)])
             this.setAttr({
                 id
             })
@@ -758,17 +754,18 @@ function base(element) {
     return element[me] ?? prox(element)[me]
 }
 // Don't mind these objects
-const flags = {
-    //  General Purpose binary flag
-    value: 0,
-    writable: 1,
-    enumerable: 1
-},
-    plc = {
+const reuse = {
+    flags: {
+        //  General Purpose binary flag
+        value: 0,
+        writable: 1,
+        enumerable: 1
+    },
+    nullThing: {
         value: null,
         writable: 1
     },
-    state = {
+    state: {
         get() {
             return this.currentState
         },
@@ -776,12 +773,12 @@ const flags = {
             this.setState(val)
         }
     },
-    junk = {
+    junk: {
         value: null,
         enumerable: 1,
         writable: 1
     }
-
+}
 function prox(target) {
     if (target === null) return null
     if (!getValid(target))
@@ -824,12 +821,12 @@ function prox(target) {
             selfRules: {
                 value: Object.create(null)
             },
-            beforestatechange: plc,
-            afterstatechange: plc,
-            state,
-            currentState: junk,
-            lastState: junk,
-            flags,
+            beforestatechange: reuse.nullThing,
+            afterstatechange: reuse.nullThing,
+            state: reuse.state,
+            currentState: reuse.junk,
+            lastState: reuse.junk,
+            flags: reuse.flags,
             children: {
                 value: childProxy
             },
@@ -840,10 +837,7 @@ function prox(target) {
                 value: styleProxy
             }
         }
-        let {
-            proxy,
-            revoke
-        } = Proxy.revocable(
+        let { proxy, revoke } = Proxy.revocable(
             Object.seal(Object.create(target, baseThingy)), {
             get(targ, prop) {
                 return targ.hasOwnProperty(prop) ? targ[prop] :
@@ -857,11 +851,13 @@ function prox(target) {
         if (target instanceof HTMLUnknownElement ||
             target.ownerDocument.defaultView?.HTMLUnknownElement.prototype.isPrototypeOf(target))
             console.warn(`Unknown element: '${target.tagName}'`)
-        revokes.set(proxy, () =>
+        function hi() {
             //  Make sure we have *NO* possible references left
             revoke(childRevoke(attrRevoke(styleRevoke(querySelectorRevoke()))))
-        )
+        }
+        revokes.set(proxy, hi)
         all.set(target, proxy)
+        return proxy
     }
     return all.get(target)
 }
@@ -874,65 +870,56 @@ function getValid(target) {
 }
 const doc = document.createDocumentFragment()
 const parser = new DOMParser
-let temp, div, range, classRegex = /\.[\w-]+/g,
+let temp, div, range, parsingDoc, classRegex = /\.[\w-]+/g,
     htmlRegex = /[\w-]+/,
     idRegex = /#\w+/,
     typeRegex = /%\w+/
+const parseModeMap = new Map(Object.entries({
+    write(html) {
+        parsingDoc ??= document.implementation.createHTMLDocument()
+        parsingDoc.write(html)
+        return document.adoptNode(parsingDoc.body.firstElementChild)
+    },
+    setHTMLUnsafe(html) {
+        temp ??= document.createElement('template')
+        temp.setHTMLUnsafe(html)
+        return document.adoptNode(temp.content.firstElementChild)
+    },
+    innerHTML(html) {
+        div ??= document.createElement('div')
+        div.innerHTML = html
+        return div.removeChild(div.firstElementChild)
+    },
+    createHTMLDocument(html) {
+        parsingDoc ??= document.implementation.createHTMLDocument()
+        parsingDoc.body.outerHTML = html
+        return document.adoptNode(parsingDoc.body.firstElementChild)
+    },
+    createRange(html) {
+        return document.adoptNode((range ??= document.createRange()).createContextualFragment(html).firstElementChild)
+    },
+    template(html) {
+        //  Contender
+        temp ??= document.createElement('template')
+        temp.innerHTML = html
+        return document.adoptNode(temp.content.firstElementChild)
+    },
+    parseHTMLUnsafe(html) {
+        return document.adoptNode(Document.parseHTMLUnsafe(html).body.firstElementChild)
+    },
+    ''(html) {
+        let t = parser.parseFromString(html, 'text/html')
+        return document.adoptNode(t.body.firstElementChild)
+    }
+}))
 /**
  * # Be careful of html injection when using a string!!
  */
 function $(html, props, ...children) {
     if (getValid(html)) return prox(html) // Redirect
-    if (html[0] === '<' && html.at(-1) === '>') {
-        switch (parseMode) {
-            //  This one seems to be the fastest by a tad
-            //  but it's hard to tell...
-            default:
-                let t = parser.parseFromString(html, 'text/html')
-                // console.log(t)
-                var element = document.adoptNode(t.body.firstElementChild)
-                break
-            case 'write': {
-                let doc = document.implementation.createHTMLDocument()
-                doc.write(html)
-                var element = document.adoptNode(doc.body.firstElementChild)
-            }
-                break
-            case 'setHTMLUnsafe': {
-                temp ??= document.createElement('template')
-                temp.setHTMLUnsafe(html)
-                var element = document.adoptNode(temp.content.firstElementChild)
-            }
-                break
-            case 'innerHTML': {
-                div ??= document.createElement('div')
-                div.innerHTML = html
-                var element = div.removeChild(div.firstElementChild)
-            }
-                break
-            case 'createHTMLDocument': {
-                let n = document.implementation.createHTMLDocument()
-                n.body.innerHTML = html
-                var element = document.adoptNode(n.body.firstElementChild)
-            }
-                break
-            case 'createRange':
-                //  Def the slowest
-                var element = document.adoptNode((range ??= document.createRange()).createContextualFragment(html).firstElementChild)
-                break
-            case 'template': {
-                //  Contender
-                temp ??= document.createElement('template')
-                temp.innerHTML = html
-                var element = document.adoptNode(temp.content.firstElementChild)
-            }
-                break
-            case 'parseHTMLUnsafe':
-                var element = document.adoptNode(Document.parseHTMLUnsafe(html).body.firstElementChild)
-                break
-        }
-        element = prox(element)
-    } else {
+    if (html[0] === '<' && html.at(-1) === '>')
+        var element = prox(parseModeMap.get(parseMode)?.(html) ?? parseModeMap.get('')(html))
+    else {
         html === 'fencedframe' && typeof HTMLFencedFrameElement === 'undefined' && (html = 'iframe')
         var element = prox(document.createElement(html.match(htmlRegex)[0]))
         let classes = html.match(classRegex)?.map(slice),
@@ -944,7 +931,6 @@ function $(html, props, ...children) {
             type
         })
     }
-
     if ([].some.call([element].concat(...element.getElementsByTagName('*')), allElementStuff)) throw TypeError(`Inline event handlers are deprecated`)
     if (element.tagName === 'SCRIPT' || element.querySelector('script')) {
         debugger
@@ -1087,7 +1073,7 @@ let parseMode = 'mozInnerScreenY' in window ? 'createRange' : 'template'
 }()
 
 function badAttrName(attr) {
-    return badRegex.test(attr.nodeName)
+    return regex.onXYZ.test(attr.nodeName)
 }
 
 function allElementStuff(e) {
@@ -1101,7 +1087,7 @@ function destroyEach(ch) {
 function slice(o) {
     return o.slice(1)
 }
-class CUSTOM_ELEMENT_SPRITE extends HTMLElement {
+/*class CUSTOM_ELEMENT_SPRITE extends HTMLElement {
     static observedAttributes = 'steps x y src width height'.split(' ')
     #style = null
     get #animation() {
@@ -1245,7 +1231,7 @@ class CUSTOM_ELEMENT_SPRITE extends HTMLElement {
     }
 }
 const spriteTemplate = $('<template><style></style><div></div></template>')
-customElements.define('img-sprite', CUSTOM_ELEMENT_SPRITE)
+customElements.define('img-sprite', CUSTOM_ELEMENT_SPRITE)*/
 /*export function info(heading, message, parent, yes, no) {
     return new Promise(resolve => {
         parent ??= $.body

@@ -38,31 +38,38 @@ $.gid('viewbackground').on({
 })*/
 let { submit: form } = $.byId
 form.on({
-    async $submit({ target }) {
-        let { name, message } = FormDataManager(target)
-        name ||= 'Anonymous'
-        await form.fadeOut()
-        let loading = $('<img class="delibird" src="./media/loading.webp">')
-        form.before = loading
-        let req = !location.href.startsWith('http://localhost') ? await fetch(`https://formspree.io/f/mqakzlyo`, {
-            method: 'POST',
-            body: `name=${encodeURIComponent(name)}&message=${encodeURIComponent(message)}`,
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Accept': 'application/json'
-            }
-        }) : { ok: 1 }
-        if (req.ok) {
-            loading.src = './media/yay.webp'
-            await wait(1000)
-            await loading.fadeOut()
-            loading.destroy()
-            let f = $('<h1>Message sent :)</h1>',)
-            form.replaceWith(f)
-            f.fadeIn()
-        } else {
-            Alert("for some reason, your message could not be sent :(")
-        }
-        form.destroy()
+    async $submit() {
+         let { name, message } = FormDataManager(this.valueOf())
+        // name ||= 'Anonymous'
+         await form.fadeOut()
+         let hi = $(`<section><h3>Sent!! (hopefully)</h3>
+            <samp>Name: ${name}</samp><br>
+            <samp>Message: ${message}</samp>
+            </section>`)
+         form.replace(hi)
+         hi.fadeIn()
+        // let loading = $('<img class="delibird" src="./media/loading.webp">')
+        // form.before = loading
+        // let req = !location.href.startsWith('http://localhost') ? await fetch(`https://formspree.io/f/mqakzlyo`, {
+            // method: 'POST',
+            // body: `name=${encodeURIComponent(name)}&message=${encodeURIComponent(message)}`,
+            // headers: {
+                // 'Content-Type': 'application/x-www-form-urlencoded',
+                // 'Accept': 'application/json'
+            // }
+        // }) : { ok: 1 }
+        // if (req.ok) {
+            // loading.src = './media/yay.webp'
+            // await wait(1000)
+            // await loading.fadeOut()
+            // loading.destroy()
+            // let f = $('<h1>Message sent :)</h1>',)
+            // form.replaceWith(f)
+            // f.fadeIn()
+        // } else {
+            // Alert("for some reason, your message could not be sent :(")
+        // }
+        // form.destroy()
     }
-})
+}
+)
