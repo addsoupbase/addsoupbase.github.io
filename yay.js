@@ -1,4 +1,17 @@
 //  The journey begins...
+
+// Most recent attempt
+// Goto quick.js for 2nd attempt
+// Goto favourites/utils.js for 1st attempt
+
+/*
+Things i learned from 2nd -> 3rd:
+• Composition
+• Make it less confusingz
+• Recycling Objects
+• using Symbols
+• finally settled on WeakMap
+*/
 import * as h from './handle.js'
 import * as css from './csshelper.js'
 import { FormDataManager as form } from './proxies.js'

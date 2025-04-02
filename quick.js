@@ -1,3 +1,18 @@
+// This file was attempt 2
+// Goto yay.js for attempt 3
+// Goto favourites/utils.js for attempt 1
+
+/* 
+Things i learned from 1 -> 2:
+• Proxies and how to use them
+• Using loops more
+• Using modules instead of global variables
+• Stop worrying about code golf
+• handle.js
+• just use the console instead of making my own 🙄
+*/
+
+
 /*Some useful functions to remember:
 queryObjects
 reportError
