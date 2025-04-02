@@ -1,7 +1,8 @@
 function reportError(throwable) {
-    window.dispatchEvent(new Event('Error', {
+    window.dispatchEvent(new ErrorEvent('Error', {
         message: throwable.message,
-        error: throwable
+        error: throwable,
+        filename: import.meta.url
     }))
     console.error(`${throwable}`)
 }
