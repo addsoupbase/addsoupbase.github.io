@@ -3,6 +3,7 @@ function reportError(throwable) {
         message: throwable.message,
         error: throwable
     }))
+    console.error(throwable)
 }
 reportError = window.reportError ?? reportError
 export function dashVendor(prop, val) {
