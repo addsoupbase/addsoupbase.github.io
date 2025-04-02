@@ -1,3 +1,10 @@
+function reportError(throwable) {
+    window.dispatchEvent(new Event('Error', {
+        message: throwable.message,
+        error: throwable
+    }))
+}
+reportError = window.reportError ?? reportError
 export function dashVendor(prop, val) {
     return vendor(toDash(prop), val)
 }
@@ -272,7 +279,7 @@ queueMicrotask
                 initialValue: 0
             })*/
             const universal = {}
-            let func = CSS.registerProperty ?? function(){}
+            let func = CSS.registerProperty ?? function () { }
             for (let prop of all)
                 try {
                     let o = prop.name
