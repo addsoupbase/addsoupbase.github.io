@@ -716,7 +716,8 @@ let props = Object.getOwnPropertyDescriptors(class _
     }
 }.prototype)
 const prototype = Object.create(null)
-'textContent innerText innerHTML outerHTML outerText'.split(' ').forEach(txt =>
+const TEXT_THINGIES = new Set('textContent innerText innerHTML outerHTML outerText'.split(' '))
+TEXT_THINGIES.forEach(txt =>
     Object.defineProperty(prototype, txt, {
         get() {
             return base(this)[txt]
@@ -728,7 +729,8 @@ const prototype = Object.create(null)
         }
     })
 )
-'beforebegin afterbegin beforeend afterend'.split(' ').forEach(set =>
+const HTML_PLACING = new Set('beforebegin afterbegin beforeend afterend'.split(' '))
+HTML_PLACING.forEach(set =>
     Object.defineProperty(prototype, set, {
         set(val) {
             typeof val === 'object' ?
@@ -741,8 +743,8 @@ const prototype = Object.create(null)
 {
     function forEach(i) {
         if (i !== 'constructor') {
-            let v
-            if (typeof (v = props[i]).value === 'function') {
+            let v = props[i]
+            if (typeof v.value === 'function') {
                 let old = v.value
                 props[i].value = {
                     [i](...a) {
@@ -755,7 +757,7 @@ const prototype = Object.create(null)
                 }[i]
                 //  Just want to keep the original function name intact
             }
-            Object.defineProperty(prototype, i, props[i])
+            Object.defineProperty(prototype, i, v)
         }
     }
     Reflect.ownKeys(props).forEach(forEach)
@@ -803,6 +805,7 @@ function prox(target) {
     // ❌ or 'setPrototypeOf' since it's bad i guess?
     // ✅ Only option is 'Object.create' or { __proto__: ... }
     if (!all.has(target)) {
+        // ++$.len
         let bleh = {
             value: target
         }
@@ -834,8 +837,8 @@ function prox(target) {
             selfRules: {
                 value: Object.create(null)
             },
-            beforestatechange: reuse.nullThing,
-            afterstatechange: reuse.nullThing,
+            // beforestatechange: reuse.nullThing,
+            // afterstatechange: reuse.nullThing,
             state: reuse.state,
             currentState: reuse.junk,
             lastState: reuse.junk,
@@ -944,7 +947,7 @@ function $(html, props, ...children) {
             type
         })
     }
-    if ([].some.call([element].concat(...element.getElementsByTagName('*')), allElementStuff)) throw TypeError(`Inline event handlers are deprecated`)
+    if ([element,...element.getElementsByTagName('*')].some(allElementStuff)) throw TypeError(`Inline event handlers are deprecated`)
     if (element.tagName === 'SCRIPT' || element.querySelector('script')) {
         debugger
         throw new DOMException('Potential script injection', 'SecurityError')
@@ -977,10 +980,10 @@ function $(html, props, ...children) {
         }
         reuse('parent')
         'events' in props && element.on(props.events)
-        'outerHTML innerHTML outerText innerText textContent'.split(' ').forEach(reuse)
+        TEXT_THINGIES.forEach(reuse)
         'txt' in props && (element.textContent = props.txt)
         // add elements AFTER the textContent/innerHTML/whatever
-        'beforebegin afterbegin beforeend afterend'.split(' ').forEach(reuse);
+        HTML_PLACING.forEach(reuse);
         ('attributes' in props || 'attr' in props) && element.setAttr(props.attributes ?? props.attr)
         'styles' in props && element.setStyles(props.styles)
         'start' in props && props.start.call(element)
@@ -1004,6 +1007,7 @@ export default Object.defineProperties($, {
     // return 
     // }
     // },
+    //len:0,
     0: {
         get() {
             return $(window.$0 ?? document.activeElement)
