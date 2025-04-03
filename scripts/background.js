@@ -98,7 +98,8 @@ function images({ avatars, mons }) {
             : [{ transform: `translate(calc(-10vw - ${offsetWidth}px), 0)` }, { transform: `translate(calc(100vw + ${offsetWidth}px), 0)` }],
             duration = 15000
         switch (pick[Symbol.for('name')]) {
-            case 'wailord': case 'wishiwashischool': duration = 300400; break
+            case 'wailord': duration = 300400; break
+            case 'wishiwashischool': duration = 50400; break
             case 'kyogre': case 'kyogreprimal': duration = 20000; break
             case 'luvdisc': duration = 10000; break;
             case 'sharpedo': case 'carvanha': duration = 8300; break
