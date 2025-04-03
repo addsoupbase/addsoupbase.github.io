@@ -14,6 +14,7 @@ export function capVendor(prop, val) {
     return toCaps(vendor(toDash(prop), val))
 }
 export function vendorValue(val) {
+    // i will fix this soon
     let without = val.replace(allVendors, '')
         .replace(allVendors2, '')
     switch (without) {
@@ -37,10 +38,11 @@ export function badCSS(data, silent) {
     alreadyLogged.add(data)
 }
 const allVendors = RegExp(
-    `-(${'webkit moz apple khtml konq o ms xv atsc wap ah hp ro rim tc fso icab epub'.split(' ').join('|')})-`
+    `-(${'webkit moz apple khtml konq o ms xv atsc wap ah hp ro rim tc fso icab epub'.replace(/\s/g, '|')})-`
     // internal
 ),
     allVendors2 = /(prince|mso)-/
+const dontRedo = new Map
 export function vendor(prop, val, silent) {
     val = `${val}`
     if (prop.startsWith('--') && CSS.supports(prop, val)) return prop
@@ -49,6 +51,7 @@ export function vendor(prop, val, silent) {
         let prefix = prop = prop
             .replace(allVendors, '')
             .replace(allVendors2, '')
+        if (dontRedo.has(prop)) return dontRedo.get(prop)
         return (
             CSS.supports(prefix, val) ||
             // Maybe you dont need a prefix?
@@ -97,6 +100,7 @@ export function vendor(prop, val, silent) {
             // CSS.supports(prefix = `-internal-${prop}`, val) ||
             badCSS(`⛓️‍💥 Unrecognized CSS at '${prefix = prop}: ${val}'`, silent)),
             mayNotBeSupported(prop),
+            dontRedo.set(prop, prefix),
             // Sorry!
             prefix
     }
