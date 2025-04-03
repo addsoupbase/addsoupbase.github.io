@@ -98,11 +98,13 @@ function images({ avatars, mons }) {
             : [{ transform: `translate(calc(-10vw - ${offsetWidth}px), 0)` }, { transform: `translate(calc(100vw + ${offsetWidth}px), 0)` }],
             duration = 15000
         switch (pick[Symbol.for('name')]) {
-            case 'wailord': case 'wishiwashischool': duration = 50400; break
-            case 'kyogre': case 'kyogreprimal': duration = 20000; break;
+            case 'wailord': case 'wishiwashischool': duration = 300400; break
+            case 'kyogre': case 'kyogreprimal': duration = 20000; break
             case 'luvdisc': duration = 10000; break;
             case 'sharpedo': case 'carvanha': duration = 8300; break
             case 'corsola': duration = 25000; break
+            case 'wishiwashi': duration = 20_000; break
+            case 'qwilfish': duration = 14_000; break
             //        case 'corsola': element.animate([{transform: 'rotateZ(0deg)'}, {transform: `rotateZ(360deg)`}], {composite:'add',easing:'linear',duration:5000, iterations:1/0,direction:coin?'reverse':'normal'})
         }
         duration *= 1.6

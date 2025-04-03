@@ -7,7 +7,7 @@
 /*
 Things i learned from 2nd -> 3rd:
 • Composition
-• Make it less confusingz
+• Make it less confusing
 • Recycling Objects
 • using Symbols
 • finally settled on WeakMap
@@ -42,10 +42,11 @@ function genericGet(t, prop) {
     let out = t[prop]
     return bindIfNecessary(out, t)
 }
-function ariaOrData(i) {
+function ariaOrDataOrCustom(i) {
     let { 0: char } = i
     if (char === '_') i = i.replace(char, 'aria-')
     else if (char === '$') i = i.replace(char, 'data-')
+    else if (char === '@') i = i.replace(char, '--')
     return i
 }
 const customRules = css.getDefaultStyleSheet()
@@ -79,7 +80,7 @@ const handlers = {
     },
     attr: {
         get(t, p) {
-            p = ariaOrData(p)
+            p = ariaOrDataOrCustom(p)
             return prox(t).getAttribute(p)
         },
         set(t, p, v) {
@@ -93,7 +94,7 @@ const handlers = {
             })
         },
         has(t, p) {
-            p = ariaOrData(p)
+            p = ariaOrDataOrCustom(p)
             return t.hasAttribute(p)
         }
         /*  get(t, prop) {
@@ -248,7 +249,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         if (!this[states].has(identifier)) {
             this.destroyChildren()
                 .push($(`<samp style="font-size:30px; color:red;">INVALID STATE</samp>`))
-            this.currentState = null
+            .currentState = null
             reportError(identifier)
             throw TypeError(`Invalid state`)
         }
@@ -331,7 +332,7 @@ let props = Object.getOwnPropertyDescriptors(class _
     }
     destroy() {
         this.resetSelfRules()
-        this.cancelAnims()
+        .cancelAnims()
         let myStates = this[states]
         for (let [key, {
             cached: val
@@ -427,7 +428,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         for (let i in attr) {
             let val = attr[i]
             if (regex.onXYZ.test(i)) throw TypeError(`Inline event handlers are deprecated`)
-            i = ariaOrData(i)
+            i = ariaOrDataOrCustom(i)
             /*   switch (i) {
                    case 'disabled': me.setAttribute('aria-disabled', !!val); break
                    case 'checked': me.setAttribute('aria-checked', !!val); break
@@ -559,15 +560,15 @@ let props = Object.getOwnPropertyDescriptors(class _
     }
     hide5() {
         this.setStyles({
-            opacity: '0', '--user-input': 'none', '--user-focus': 'none', '--user-select': 'none', 'pointer-events': 'none',
-            '--user-modify': 'read-only',
+            opacity: '0', '@user-input': 'none', '@user-focus': 'none', '@user-select': 'none', 'pointer-events': 'none',
+            '@user-modify': 'read-only',
         })
             .setAttr({ _hidden: "true", contenteditable: 'false' })
     }
     show5() {
         this.setStyles({
-            opacity: '', '--user-input': '', '--user-focus': '', '--user-select': '', 'pointer-events': '',
-            '--user-modify': '',
+            opacity: '', '@user-input': '', '@user-focus': '', '@user-select': '', 'pointer-events': '',
+            '@user-modify': '',
         })
             .setAttr({ _hidden: "", contenteditable: '' })
     }
@@ -806,26 +807,12 @@ function prox(target) {
     // ✅ Only option is 'Object.create' or { __proto__: ... }
     if (!all.has(target)) {
         // ++$.len
-        let bleh = {
-            value: target
-        }
-        let {
-            revoke: styleRevoke,
-            proxy: styleProxy
-        } = Proxy.revocable(target.style, handlers.styles)
-        let {
-            revoke: childRevoke,
-            proxy: childProxy
-        } = Proxy.revocable(target.children, handlers.HTMLCollection)
-        let {
-            revoke: querySelectorRevoke,
-            proxy: querySelectorProxy
-        } = Proxy.revocable(target, handlers.querySelector)
-        let {
-            revoke: attrRevoke,
-            proxy: attrProxy
-        } = Proxy.revocable(target, handlers.attr)
-        let baseThingy = {
+        let bleh = { value: target }
+        , { revoke: styleRevoke, proxy: styleProxy } = Proxy.revocable(target.style, handlers.styles)
+        , { revoke: childRevoke, proxy: childProxy } = Proxy.revocable(target.children, handlers.HTMLCollection)
+        , { revoke: querySelectorRevoke, proxy: querySelectorProxy } = Proxy.revocable(target, handlers.querySelector)
+        , { revoke: attrRevoke, proxy: attrProxy } = Proxy.revocable(target, handlers.attr)
+        , baseThingy = {
             ...prototypeDescriptors,
             [me]: bleh,
             fromQuery: {
@@ -853,7 +840,7 @@ function prox(target) {
                 value: styleProxy
             }
         }
-        let { proxy, revoke } = Proxy.revocable(
+        , { proxy, revoke } = Proxy.revocable(
             Object.seal(Object.create(target, baseThingy)), {
             get(targ, prop) {
                 return targ.hasOwnProperty(prop) ? targ[prop] :
@@ -947,7 +934,7 @@ function $(html, props, ...children) {
             type
         })
     }
-    if ([element,...element.getElementsByTagName('*')].some(allElementStuff)) throw TypeError(`Inline event handlers are deprecated`)
+    if ([element, ...element.getElementsByTagName('*')].some(allElementStuff)) throw TypeError(`Inline event handlers are deprecated`)
     if (element.tagName === 'SCRIPT' || element.querySelector('script')) {
         debugger
         throw new DOMException('Potential script injection', 'SecurityError')

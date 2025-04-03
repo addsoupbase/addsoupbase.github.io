@@ -17,7 +17,11 @@ const avatars = await Promise.all((await jason('./scripts/allava.json')).map(
     }
 ))
 console.debug("🪪 All avatars loaded")
-const mons = await Promise.all([
+const mons = 
+await Promise.all([
+    'horsea:4',
+    'qwilfish:4',
+    'remoraid:4',
     'carvanha:4',
     'corsola:4',
     'gorebyss:9',
@@ -44,7 +48,7 @@ const mons = await Promise.all([
 ].map(async function (o) {
     let [src, Width] = o.split(":")
     let img = Object.assign(new Image, {
-        src: `./media/sprites/${src}.webp`,
+        src: `./media/sprites/${src}.png`,
         [width]: +Width,
         [name]: src
     })
