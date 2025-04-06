@@ -9,6 +9,7 @@
     var err = function (e) {
         if (regex.test(e.message)) {
             remove()
+            alert(e.message)
             var template = document.getElementById('template')
             document.body.outerHTML = template.content ? template.content.firstElementChild.outerHTML : template.firstElementChild.outerHTML
         }
