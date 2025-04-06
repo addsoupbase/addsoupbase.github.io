@@ -8,11 +8,12 @@ typeof console !== 'undefined' && (function () {
             var data = [].slice.call(arguments)
             try {
                 old.apply(console, data.map(function () {
-                    return o && (typeof o === 'object' || typeof o === 'function') ? ('outerHTML' in o ? o.outerHTML : JSON.stringify(o) ||
-                        (o + '')) : o
+                    return o && (typeof o === 'object' || typeof o === 'function') ? ('outerHTML' in o ? o.outerHTML :
+                        o.toString !== {}.toString ? o.toString() : (JSON.stringify(o) ||
+                            (o + ''))) : o
                 }))
             }
-            catch(e) {
+            catch (e) {
                 old('♻️ (Object was not logged to prevent a potential memory leak)')
             }
         }
