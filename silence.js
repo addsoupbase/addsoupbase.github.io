@@ -9,8 +9,7 @@ typeof console !== 'undefined' && (function () {
             try {
                 old.apply(console, data.map(function () {
                     return o && (typeof o === 'object' || typeof o === 'function') ? ('outerHTML' in o ? o.outerHTML :
-                        o.toString !== {}.toString ? o.toString() : (JSON.stringify(o) ||
-                            (o + ''))) : o
+                        ((o.toString !== toString) ? o.toString() : (JSON.stringify(o) ||(o+'')))) : o
                 }))
             }
             catch (e) {
