@@ -1,3 +1,5 @@
+debugger
+console.warn(`Using old version of ${import.meta.url}`)
 const { sign, PI, abs, min, max, atan2, hypot } = Math,
     { is } = Object,
     { isFinite, MIN_SAFE_INTEGER, MAX_SAFE_INTEGER, } = Number

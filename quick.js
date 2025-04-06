@@ -1,7 +1,8 @@
 // This file was attempt 2
 // Goto yay.js for attempt 3
 // Goto favourites/utils.js for attempt 1
-
+debugger
+console.warn('Using old version')
 /* 
 Things i learned from 1 -> 2:
 • Proxies and how to use them

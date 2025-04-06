@@ -1,3 +1,5 @@
+debugger
+console.warn(`Using old version of ${import.meta.url}`)
 const string = {
     __proto__: null,
     ALPHABET: 'abcdefghijklmnopqrstuvwxyz'.toUpperCase(),

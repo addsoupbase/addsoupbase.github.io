@@ -206,7 +206,7 @@ export function supportsRule(rule) {
 const theNames = allVendors.toString().match(/\w+/g)
 export function supportedPClassVendor(className) {
     try {
-        let [before, _class] = className.split(':'),
+        let {0:before, 1:_class} = className.split(':'),
             already = _class
         _class = _class.replace(allVendors, '')
             .replace(allVendors2, '')
@@ -225,7 +225,7 @@ export function supportedPClassVendor(className) {
 }
 export function supportedPElementVendor(element) {
     try {
-        let [before, _element] = element.split('::'),
+        let {0:before, 1:_element} = element.split('::'),
             already = _element
         _element = _element.replace(allVendors, '')
             .replace(allVendors2, '')

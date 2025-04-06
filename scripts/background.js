@@ -129,7 +129,9 @@ function images({ avatars, mons }) {
     tinyBubbles()
 }
 import $ from '../yay.js'
-import { math, ran, string } from '../misc.js'
+import * as math from '../num.js'
+import * as string from '../str.js'
+import  ran from '../random.js'
 const iframe = $.qs('object')
 //document.body.scrollLeft = innerHeight/2
 iframe.contentWindow.final = function () {
