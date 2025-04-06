@@ -8,8 +8,12 @@ typeof console !== 'undefined' && (function () {
             var data = [].slice.call(arguments)
             try {
                 old.apply(console, data.map(function () {
-                    return o && (typeof o === 'object' || typeof o === 'function') ? ('outerHTML' in o ? o.outerHTML :
-                        ((o.toString !== toString) ? o.toString() : (JSON.stringify(o) ||(o+'')))) : o
+                    if (o && typeof o === 'object' || typeof o === 'function') {
+                        if ('outerHTML' in o) return o.outerHTML
+                        if (o.toString !== Object.prototype.toString) return o.toString()
+                        return JSON.stringify(o) || (o + '')
+                    }
+                    return o
                 }))
             }
             catch (e) {
