@@ -388,6 +388,9 @@ let props = Object.getOwnPropertyDescriptors(class _
     off(...events) {
         h.off(base(this), ...events)
     }
+    set(prop, val) {
+        base(this)[prop] = val
+    }
     delegate(events, filter, includeSelf) {
         let me = base(this)
         filter ??= function () { }
