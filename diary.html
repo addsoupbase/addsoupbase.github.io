@@ -31,7 +31,7 @@
     <meta property="og:site_name" content="YOUR TITLE HERE">
     <meta property="og:image" content="YOUR ICON HERE.png">
     <meta name="twitter:image" content="YOUR ICON HERE.png">
-    <title>YOUR TITLE HERE</title>
+    <title>Diary</title>
 </head>
 
 <body>
@@ -40,32 +40,102 @@
         <a class="cute-green-button back" href="main.html">Back</a>
         <section class="center" id="diary-container">
             <time>
-                <h1 id="diary-heading"></h1>
+                <h1 id="diary-heading">
+
+                </h1>
             </time>
-            <div id="diary"></div>
+            <div id="diary" style="  resize:both
+">
+                <h2 id="invalid" hidden>No entry for today :&lpar;</h2>
+                <iframe id="display" style="   width: 100%;
+                height: 100vh;
+                border: none;"></iframe>
+            </div>
+            <div style="justify-content: space-around;display: flex;    align-items: end;">
+                <input id="prev" type="image" title="Turn to previous page" alt="Back" style="transform:scaleX(-1)"
+                    src="./cute-emojis/emojis/1321091969635848294.gif">
+                <button class="cute-green-button" id="toToday">Go to today</button>
+                <input id="next" type="image" title="Turn to next page" alt="Forward"
+                    src="./cute-emojis/emojis/1321091969635848294.gif">
+            </div>
+
         </section>
     </main>
     <script type="module">
         // 
         import $ from './yay.js'
         import * as h from './handle.js'
-        let diaryHeading = $.gid('diary-heading')
-        let diaryContainer = $.gid('diary-container')
-        function getMSThingy() {
-            return Date.UTC((new Date).getFullYear(), (new Date).getMonth(), (new Date).getDate())
+        let { toToday, invalid, next, prev, 'diary-heading': diaryHeading, 'diary-container': diaryContainer, display: currentThingy } = $.byId
+        let today = new Date()
+        function getDate() {
+            return today.toLocaleDateString('en-US')
         }
+        function goBy(a) {
+
+            // We need the temporal api quick...
+            today.setDate(today.getDate() + a)
+            if (today.getDate() <= 7 && today.getFullYear() <= 2025 && today.getMonth() <= 3) {
+                // This is before i made any entries
+                prev.hide2()
+            }
+            else {
+                prev.show2()
+            }
+            if (getDate() === new Date().toLocaleDateString('en-US') || today >= new Date) {
+                // After today
+                next.hide2()
+            }
+            else next.show2()
+        }
+        toToday.on({
+            click() {
+                today = new Date()
+                setEntry(getDate())
+            }
+        })
+        next.on({
+            click() {
+                goBy(1)
+                setEntry(getDate())
+            }
+        })
+        prev.on({
+            click() {
+                goBy(-1)
+                setEntry(getDate())
+            }
+        })
+        // function getMSThingy() {
+        // return Date.UTC((new Date).getFullYear(), (new Date).getMonth(), (new Date).getDate())
+        // }
+        currentThingy.on({
+            load() {
+                this.fadeIn()
+                this.show()
+                this.parent.busy(false)
+            }
+        })
         async function setEntry(date) {
             diaryHeading.textContent = new Date(date).toLocaleDateString()
-            diary.destroyChildren()
-            let req = (await fetch(`./entries/${date}.html`))
-            if (!req.ok) return diary.push($(`<h1 class="center">No entry for today :(</h1>`))
-            diary.$(await req.text())
+            currentThingy.hide()
+            currentThingy.parent.busy(true)
+
+            invalid.hide()
+            let url = `./entries/${date.replace(/\//g, '_')}`
+            let req = (await fetch(url))
+            if (!req.ok) {
+                currentThingy.parent.busy(false)
+                invalid.show()
+            }
+            else {
+                currentThingy.setAttr({ src: url })
+            }
         }
         let diary = $.gid('diary')
         let m = $.gid('main')
-        setEntry(13213)
+        goBy(0)
+        setEntry(getDate())
         m.animate([{ opacity: 0 }, { opacity: .96 }], { duration: 500, easing: 'ease', fill: 'forwards' })
-
     </script>
 </body>
 

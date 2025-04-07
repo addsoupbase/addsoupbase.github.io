@@ -66,12 +66,14 @@
     background: none !important;
   }
 }
+
 .terrain {
   background-position-x: -95px;
   background-position-y: -416px;
   width: 193px;
   height: 64px;
 }
+
 .sea {
   background-image: url(media/sea.png);
   image-rendering: pixelated;
@@ -154,9 +156,11 @@
 .wishiwashi {
   scale: 1.2 1.2
 }
+
 .qwilfish {
   scale: 1.5 1.5
 }
+
 .wishiwashischool {
   scale: 2 2
 }
@@ -202,6 +206,19 @@
   inset: 0;
   margin: auto;
   text-align: center;
+}
+
+input[type=image] {
+  width: 55px;
+  image-rendering: pixelated;
+  filter: drop-shadow(2px 4px 6px red) hue-rotate(211deg);
+  --tap-highlight-color: rgba(255, 0, 255, 0.268);
+  transition: scale 0.3s ease;
+  scale:  1 1
+}
+
+input[type=image]:active {
+  scale: 0.9 0.9
 }
 
 #main {

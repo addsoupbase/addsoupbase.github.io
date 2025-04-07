@@ -264,7 +264,8 @@ queueMicrotask
             },
             '.centerx,.center': {
                 'justify-self': 'center',
-                margin: 'auto'
+                margin: 'auto',
+                'text-align':'center'
             },
             '.centery,.center': {
                 'align-self': 'center',
