@@ -603,7 +603,7 @@ let props = Object.getOwnPropertyDescriptors(class _
     //  i tried SO hard to make treewalker useful but it did NOT impress me!
     treeWalker(filter, whatToShow = NodeFilter.SHOW_ELEMENT) {
         let walker = document.createTreeWalker(base(this), whatToShow, filter_func)
-        filter ??= function () { }
+        filter ??= function(){}
         return out()
         function* out() {
             let current
@@ -857,11 +857,11 @@ function prox(target) {
         if (target instanceof HTMLUnknownElement ||
             target.ownerDocument.defaultView?.HTMLUnknownElement.prototype.isPrototypeOf(target))
             console.warn(`Unknown element: '${target.tagName}'`)
-        function hi() {
+        function RevokeAllFunctions() {
             //  Make sure we have *NO* possible references left
             revoke(childRevoke(attrRevoke(styleRevoke(querySelectorRevoke()))))
         }
-        revokes.set(proxy, hi)
+        revokes.set(proxy, RevokeAllFunctions)
         all.set(target, proxy)
         return proxy
     }
