@@ -40,13 +40,14 @@
         <a class="cute-green-button back" href="main.html" role="button">Back</a>
         <section class="center" id="diary-container">
             <time>
-                <h1 id="diary-heading">
-
-                </h1>
+                <input class="cute-green" style="font-size:20px;margin:20px;" id="diary-heading" type="date"
+                    min="2025-04-07">
             </time>
             <div id="diary" style="  resize:both
 ">
-                <h2 id="invalid" hidden>No entry for today :&lpar;</h2>
+                <h2 id="invalid" hidden>No entry for today &lpar;yet!&rpar;
+                    <img height="34" src="./cute-emojis/emojis/1143313874943234058.gif">
+                </h2>
                 <iframe id="display" style="   width: 100%;
                 height: 100vh;
                 border: none;"></iframe>
@@ -67,6 +68,18 @@
         import * as h from './handle.js'
         let { toToday, invalid, next, prev, 'diary-heading': diaryHeading, 'diary-container': diaryContainer, display: currentThingy } = $.byId
         let today = new Date()
+        diaryHeading
+            .on({
+                change() {
+                    let v = this.value.split('-')
+                    v[2] = (+v[2] + 1).toString().padStart(2, 0)
+                    today = new Date(v.join('-'))
+                    setEntry(getDate())
+                }
+            })
+            .setAttr({
+                max: getThat(today)
+            })
         function getDate() {
             return today.toLocaleDateString('en-US')
         }
@@ -115,11 +128,14 @@
                 this.parent.busy(false)
             }
         })
+        function getThat(d) {
+            return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, 0)}-${d.getDate().toString().padStart(2, 0)}`
+        }
         async function setEntry(date) {
-            diaryHeading.textContent = new Date(date).toLocaleDateString()
+            let d = new Date(date)
+            diaryHeading.value = getThat(d)
             currentThingy.hide()
             currentThingy.parent.busy(true)
-
             invalid.hide()
             let url = `./entries/${date.replace(/\//g, '_')}`
             let req = (await fetch(url))
@@ -133,7 +149,7 @@
         }
         let diary = $.gid('diary')
         let m = $.gid('main')
-        goBy(0)
+        goBy(-1)
         setEntry(getDate())
         m.animate([{ opacity: 0 }, { opacity: .96 }], { duration: 500, easing: 'ease', fill: 'forwards' })
     </script>

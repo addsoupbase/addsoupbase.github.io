@@ -220,7 +220,6 @@ input[type=image] {
 input[type=image]:active {
   scale: 0.9 0.9
 }
-
 #main {
   width: 100vw;
   position: relative;
@@ -312,6 +311,7 @@ html {
 
 #submit {
   display: inline-block;
+  opacity:0.3
 }
 
 #formholder {
