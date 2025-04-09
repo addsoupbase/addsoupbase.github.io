@@ -142,6 +142,7 @@
             let req = (await fetch(url))
             if (!req.ok) {
                 currentThingy.parent.busy(false)
+                invalid.fadeIn()
                 invalid.show()
             }
             else {
