@@ -131,13 +131,23 @@ function images({ avatars, mons }) {
 import $ from '../yay.js'
 import * as math from '../num.js'
 import * as string from '../str.js'
+import * as h from '../handle.js'
 import  ran from '../random.js'
 const iframe = $.qs('object')
 //document.body.scrollLeft = innerHeight/2
-iframe.contentWindow.final = function () {
-    import('./images.js').then(images)
-    console.debug("🐟 Loading the bg now...")
+async function go () {
+    try {
+        iframe.contentWindow.final = function () {
+            import('./images.js').then(images)
+            console.debug("🐟 Loading the bg now...")
+        }
+    }
+    catch {
+        await h.wait(1000)
+        go()
+    }
 }
+go()
 const parent = $('div #background', {
     parent: document.body
 })

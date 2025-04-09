@@ -19,8 +19,8 @@ const regex = {
     dot: /\./g,
     space: /\s/g,
     onXYZ: /^on.+$/
-}
-const me = Symbol('base'),
+},
+    me = Symbol('base'),
     all = new WeakMap,
     revokes = new WeakMap,
     bounded = new WeakMap
@@ -59,22 +59,26 @@ const handlers = {
     },
     styles: {
         get(target, prop) {
+            if (prop === 'cssFloat') prop = 'float'
             return prop.startsWith('--') ? target.getPropertyValue(prop) :
                 target.getPropertyValue(css.dashVendor(prop, 'inherit'))
         },
         set(target, prop, value) {
+            if (prop === 'cssFloat') prop = 'float'
             if (prop.startsWith('--')) target.setProperty(prop, value)
             else value ?
                 target.setProperty(css.dashVendor(prop, value), value) :
                 this.deleteProperty(target, prop)
-            return true
+            return 7
         },
         deleteProperty(target, prop) {
+            if (prop === 'cssFloat') prop = 'float'
             return prop.startsWith('--') ? target.removeProperty(prop) :
                 target.removeProperty(css.dashVendor(prop, 'inherit')),
-                true
+                3
         },
         has(target, prop) {
+            if (prop === 'cssFloat') prop = 'float'
             return this.get(target, prop)
         }
     },
@@ -124,38 +128,38 @@ const handlers = {
 
     },
     /* CSSStyleDeclaration: {
-         get(target, prop) {
-             if (prop in target) return target[prop]
-             if (prop.startsWith('__')) return this.get(target, prop.replace(/_/g, '-'))
-             let out = target[prop]
-                 , fixedProp = css.vendor(css.toCaps(prop), 'inherit')
-                 , maybe = target.getPropertyValue(fixedProp)
-             if (typeof prop === 'string' && CSS.supports(fixedProp, 'inherit'))
-                 return maybe === '' ? null : maybe // && window.CSSStyleValue?.parse(p, maybe) || maybe
-             return bindIfNecessary(out, target)
-         },
-         set(t, prop, value) {
-             if (prop.startsWith('__')) return t[prop.replace(/_/g, '-')] = value
-             let p = css.toCaps(css.vendor(css.toDash(prop), value))
-             if (CSS.supports(css.toDash(p), value))
-                 t.setProperty(p, value)
-             else if (prop in t)
-                 t[prop] = value
-             else badCSS(prop, value)
-             return true
-         },
-         deleteProperty(t, prop) {
-             if (prop.startsWith('__'))
-                 t.removeProperty(prop.replace(/_/g, '-'))
-             else {
-                 let fixed = css.vendor(css.toDash(prop), 'inherit')
-                 CSS.supports(fixed, 'inherit') ?
-                     t.removeProperty(css.toCaps(fixed))
-                     : delete t[prop]
-             }
-             return true
+     get(target, prop) {
+         if (prop in target) return target[prop]
+         if (prop.startsWith('__')) return this.get(target, prop.replace(/_/g, '-'))
+         let out = target[prop]
+             , fixedProp = css.vendor(css.toCaps(prop), 'inherit')
+             , maybe = target.getPropertyValue(fixedProp)
+         if (typeof prop === 'string' && CSS.supports(fixedProp, 'inherit'))
+             return maybe === '' ? null : maybe // && window.CSSStyleValue?.parse(p, maybe) || maybe
+         return bindIfNecessary(out, target)
+     },
+     set(t, prop, value) {
+         if (prop.startsWith('__')) return t[prop.replace(/_/g, '-')] = value
+         let p = css.toCaps(css.vendor(css.toDash(prop), value))
+         if (CSS.supports(css.toDash(p), value))
+             t.setProperty(p, value)
+         else if (prop in t)
+             t[prop] = value
+         else badCSS(prop, value)
+         return true
+     },
+     deleteProperty(t, prop) {
+         if (prop.startsWith('__'))
+             t.removeProperty(prop.replace(/_/g, '-'))
+         else {
+             let fixed = css.vendor(css.toDash(prop), 'inherit')
+             CSS.supports(fixed, 'inherit') ?
+                 t.removeProperty(css.toCaps(fixed))
+                 : delete t[prop]
          }
-     },*/
+         return true
+     }
+    },*/
     HTMLCollection: {
         get: genericGet,
         set(t, prop, value) {
@@ -163,33 +167,33 @@ const handlers = {
                 let out = t[prop]
                 out && base(out).replaceWith(base(value))
             } else t[prop] = value
-            return true
+            return 4
         },
         deleteProperty(t, prop) {
             if (!isNaN((prop))) {
                 let obj = this.get(t, prop)
                 obj && prox(obj).destroy()
             }
-            return true
+            return 6
         }
     },
     /*NamedNodeMap: {
-        get(t, prop) {
-            let out = genericGet(t, prop)
-            return out instanceof Attr ? out.value : out
-        },
-        set(t, prop, value) {
-            t.setNamedItem(prop, value)
+    get(t, prop) {
+        let out = genericGet(t, prop)
+        return out instanceof Attr ? out.value : out
+    },
+    set(t, prop, value) {
+        t.setNamedItem(prop, value)
+        return true
+    },
+    deleteProperty(t, prop) {
+        try {
+            t.removeNamedItem(prop)
+        }
+        finally {
             return true
-        },
-        deleteProperty(t, prop) {
-            try {
-                t.removeNamedItem(prop)
-            }
-            finally {
-                return true
-            }
-        },
+        }
+    },
     }*/
 }
 // Main [[Prototype]] is on this class
@@ -213,28 +217,30 @@ let props = Object.getOwnPropertyDescriptors(class _
         o.play(o.currentTime = 0)
     }
     createState(identifier, child, callback) {
-        if (this[states].has(identifier)) throw Error("Already present")
-        //if ( !(typeof identifier).match(/number|string|symbol|bigint/)) throw TypeError(`State must be a primitive`)
+        let t = this[states]
+        if (t.has(identifier)) throw Error("Already present")
+        //if (!(typeof identifier).match(/number|string|symbol|bigint/)) throw TypeError(`State must be a primitive`)
         // console.assert(/number|string|symbol|bigint/.test(typeof identifier), `State should be a primitive:\n %o`, identifier)
         let cached = $('template')
         cached.content.appendChild(base(child))
-        this[states].set(identifier, {
+        t.set(identifier, {
             cached,
             callback
         })
         return cached.content
     }
     getState(identifier) {
-        return this[states].get(identifier)?.cached.content
+        return this[states].get(identifier)?.cached.content ?? null
     }
     editState(id, func) {
         func(this[states].get(id).cached.content)
     }
     deleteState(identifier) {
-        if (this[states].has(identifier)) {
-            let state = this[states].get(identifier).cached;
+        let t = this[states]
+        if (t.has(identifier)) {
+            let state = t.get(identifier).cached;
             [].forEach.call(state.content.querySelectorAll('*'), destroyEach)
-            this[states].delete(identifier)
+            t.delete(identifier)
         }
     }
     toJSON() {
@@ -244,24 +250,22 @@ let props = Object.getOwnPropertyDescriptors(class _
         if (identifier === null) {
             this.lastState = this.currentState
             this.currentState = null
-            this.destroyChildren()
+            return this.destroyChildren()
         }
-        if (!this[states].has(identifier)) {
+        let t = this[states]
+        if (!t.has(identifier)) {
             this.destroyChildren()
                 .push($(`<samp style="font-size:30px; color:red;">INVALID STATE</samp>`))
-            .currentState = null
+                .currentState = null
             reportError(identifier)
             throw TypeError(`Invalid state`)
         }
-        let {
-            cached: cache,
-            callback
-        } = this[states].get(identifier)
-        let frag = cache.content
-        let cached = document.importNode(frag, true)
-        let staticBatch = [...frag.querySelectorAll('*')]
-        let newBatch = [...cached.querySelectorAll('*')]
-        let withIds = []
+        let { cached: cache, callback } = t.get(identifier)
+            , frag = cache.content
+            , cached = document.importNode(frag, true)
+            , staticBatch = [...frag.querySelectorAll('*')]
+            , newBatch = [...cached.querySelectorAll('*')]
+            , withIds = []
         staticBatch.forEach(forEach)
         this.destroyChildren()
         callback?.apply(cached, withIds)
@@ -277,17 +281,7 @@ let props = Object.getOwnPropertyDescriptors(class _
             let staticEvents = h.allEvents.get(base(el))
             events.forEach(eventThing)
             function eventThing(name) {
-                let {
-                    listener,
-                    passive,
-                    capture,
-                    handler,
-                    prevents,
-                    stopProp,
-                    once,
-                    stopImmediateProp,
-                    onlyTrusted
-                } = staticEvents.get(name)
+                let { listener, passive, capture, handler, prevents, stopProp, once, stopImmediateProp, onlyTrusted } = staticEvents.get(name)
                 if (once) name = `_${name}`
                 if (passive) name = `^${name}`
                 if (capture) name = `%${name}`
@@ -303,10 +297,8 @@ let props = Object.getOwnPropertyDescriptors(class _
     }
     get orphans() {
         let me = base(this)
-        if (me.tagName === 'TEMPLATE') {
-            let { content } = me
-            return content
-        }
+        if (me.tagName === 'TEMPLATE')
+            return me.content
         let out = document.createDocumentFragment(),
             { firstElementChild } = me
         while (firstElementChild)
@@ -325,14 +317,14 @@ let props = Object.getOwnPropertyDescriptors(class _
         return prox(this.cloneNode(true))
     }
     /**
-     * @deprecated
-     */
+    * @deprecated
+    */
     kill() {
         return this.destroy()
     }
     destroy() {
         this.resetSelfRules()
-        .cancelAnims()
+            .cancelAnims()
         let myStates = this[states]
         for (let [key, {
             cached: val
@@ -352,8 +344,8 @@ let props = Object.getOwnPropertyDescriptors(class _
         return null
     }
     /**
-     * @deprecated
-     */
+    * @deprecated
+    */
     killChildren() {
         this.destroyChildren()
     }
@@ -409,8 +401,8 @@ let props = Object.getOwnPropertyDescriptors(class _
         return h.getEventNames(base(this))
     }
     /**
-     * @deprecated
-     */
+    * @deprecated
+    */
     styleMe(styles) {
         this.setStyles(styles)
     }
@@ -446,8 +438,8 @@ let props = Object.getOwnPropertyDescriptors(class _
         }
     }
     /**
-     * @deprecated
-     */
+    * @deprecated
+    */
     setAttributes(attr) {
         this.setAttr(attr)
     }
@@ -489,7 +481,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         }).finished.then(() => this.hide3())
     }
     fadeIn(duration = 500) {
-        this.show3()
+        this.show(3)
         return this.animate([_.nopacity, _.onepacity], {
             duration,
             easing: 'ease',
@@ -537,38 +529,105 @@ let props = Object.getOwnPropertyDescriptors(class _
     static notHidden = {
         hidden: false
     }
-    hide() {
-        this.setAttr(_.hidden)
+    /**
+    * 
+    * @param {Integer} t
+    * # 1 - 5 
+    */
+    hide(t) {
+        switch (t) {
+            case 1:
+            default: this.setAttr(_.hidden); break
+            case 2: base(this).style.visibility = 'hidden'; break
+            case 3: base(this).style.display = 'none'; break
+            case 4: this.styles.contentVisibility = 'hidden'; break
+            case 5: this.setStyles({
+                opacity: '0', '@user-input': 'none', '@user-focus': 'none', '@user-select': 'none', 'pointer-events': 'none',
+                '@user-modify': 'read-only',
+            })
+                .setAttr({ _hidden: "true", contenteditable: 'false' })
+                break
+        }
     }
-    show() {
-        this.setAttr(_.notHidden)
+    /**
+    * 
+    * @param {Integer} t
+    * # 1 - 5
+    */
+    show(t) {
+        switch (t) {
+            case 1:
+            default: this.setAttr(_.notHidden); break
+            case 2: base(this).style.visibility = 'visible'; break
+            case 3: base(this).style.display = ''; break
+            case 4: this.styles.contentVisibility = ''; break
+            case 5: this.setStyles({
+                opacity: '', '@user-input': '', '@user-focus': '', '@user-select': '', 'pointer-events': '',
+                '@user-modify': '',
+            })
+                .setAttr({ _hidden: "", contenteditable: '' })
+                break
+
+        }
     }
+    /**
+    * @deprecated
+    */
     hide2() {
+        debugger
         base(this).style.visibility = 'hidden'
     }
+    /**
+    * @deprecated
+    */
     show2() {
+        debugger
         base(this).style.visibility = 'visible'
     }
+    /**
+    * @deprecated
+    */
     hide3() {
+        debugger
         base(this).style.display = 'none'
     }
+    /**
+    * @deprecated
+    */
     show3() {
+        debugger
         base(this).style.display = ''
     }
+    /**
+    * @deprecated
+    */
     hide4() {
+        debugger
         this.styles.contentVisibility = 'hidden'
     }
+    /**
+    * @deprecated
+    */
     show4() {
+        debugger
         this.styles.contentVisibility = ''
     }
+    /**
+    * @deprecated
+    */
     hide5() {
+        debugger
         this.setStyles({
             opacity: '0', '@user-input': 'none', '@user-focus': 'none', '@user-select': 'none', 'pointer-events': 'none',
             '@user-modify': 'read-only',
         })
             .setAttr({ _hidden: "true", contenteditable: 'false' })
     }
+    /**
+    * @deprecated
+    */
     show5() {
+        debugger
         this.setStyles({
             opacity: '', '@user-input': '', '@user-focus': '', '@user-select': '', 'pointer-events': '',
             '@user-modify': '',
@@ -603,7 +662,7 @@ let props = Object.getOwnPropertyDescriptors(class _
     //  i tried SO hard to make treewalker useful but it did NOT impress me!
     treeWalker(filter, whatToShow = NodeFilter.SHOW_ELEMENT) {
         let walker = document.createTreeWalker(base(this), whatToShow, filter_func)
-        filter ??= function(){}
+        filter ??= function () { }
         return out()
         function* out() {
             let current
@@ -622,17 +681,17 @@ let props = Object.getOwnPropertyDescriptors(class _
         //append, prepend, etc.
     }
     /*find(selector) {
-        return this.treeWalker(func).next().value
-        function func(node) { return node.matches(selector) }
+    return this.treeWalker(func).next().value
+    function func(node) { return node.matches(selector) }
     }
     findAll(selector) {
-        return [...this.treeWalker(func)]
-        function func(node) { return node.matches(selector) }
+    return [...this.treeWalker(func)]
+    function func(node) { return node.matches(selector) }
     }*/
     resetSelfRules() {
         for (let i in this.selfRules)
             try {
-                customRules.deleteRule([...customRules.cssRules].indexOf(this.selfRules[i]))
+                customRules.deleteRule([].indexOf.call(customRules.cssRules, this.selfRules[i]))
             }
             finally { continue }
     }
@@ -811,57 +870,57 @@ function prox(target) {
     if (!all.has(target)) {
         // ++$.len
         let bleh = { value: target }
-        , { revoke: styleRevoke, proxy: styleProxy } = Proxy.revocable(target.style, handlers.styles)
-        , { revoke: childRevoke, proxy: childProxy } = Proxy.revocable(target.children, handlers.HTMLCollection)
-        , { revoke: querySelectorRevoke, proxy: querySelectorProxy } = Proxy.revocable(target, handlers.querySelector)
-        , { revoke: attrRevoke, proxy: attrProxy } = Proxy.revocable(target, handlers.attr)
-        , baseThingy = {
-            ...prototypeDescriptors,
-            [me]: bleh,
-            fromQuery: {
-                value: querySelectorProxy
-            },
-            [states]: {
-                value: new Map
-            },
-            selfRules: {
-                value: Object.create(null)
-            },
-            // beforestatechange: reuse.nullThing,
-            // afterstatechange: reuse.nullThing,
-            state: reuse.state,
-            currentState: reuse.junk,
-            lastState: reuse.junk,
-            flags: reuse.flags,
-            children: {
-                value: childProxy
-            },
-            attr: {
-                value: attrProxy
-            },
-            styles: {
-                value: styleProxy
+            , { revoke: styleRevoke, proxy: styleProxy } = Proxy.revocable(target.style, handlers.styles)
+            , { revoke: childRevoke, proxy: childProxy } = Proxy.revocable(target.children, handlers.HTMLCollection)
+            , { revoke: querySelectorRevoke, proxy: querySelectorProxy } = Proxy.revocable(target, handlers.querySelector)
+            , { revoke: attrRevoke, proxy: attrProxy } = Proxy.revocable(target, handlers.attr)
+            , baseThingy = {
+                ...prototypeDescriptors,
+                [me]: bleh,
+                fromQuery: {
+                    value: querySelectorProxy
+                },
+                [states]: {
+                    value: new Map
+                },
+                selfRules: {
+                    value: Object.create(null)
+                },
+                // beforestatechange: reuse.nullThing,
+                // afterstatechange: reuse.nullThing,
+                state: reuse.state,
+                currentState: reuse.junk,
+                lastState: reuse.junk,
+                flags: reuse.flags,
+                children: {
+                    value: childProxy
+                },
+                attr: {
+                    value: attrProxy
+                },
+                styles: {
+                    value: styleProxy
+                }
             }
-        }
-        , { proxy, revoke } = Proxy.revocable(
-            Object.seal(Object.create(target, baseThingy)), {
-            get(targ, prop) {
-                return targ.hasOwnProperty(prop) ? targ[prop] :
-                    bindIfNecessary(target[prop], target)
-                // ⛓️‍💥 'Illegal invocation' if function is not bound
-            },
-            set(targ, prop, value) {
-                return (targ.hasOwnProperty(prop) ? targ : target)[prop] = value, 1
-            },
-        })
+            , { proxy, revoke } = Proxy.revocable(
+                Object.seal(Object.create(target, baseThingy)), {
+                get(targ, prop) {
+                    return targ.hasOwnProperty(prop) ? targ[prop] :
+                        bindIfNecessary(target[prop], target)
+                    // ⛓️‍💥 'Illegal invocation' if function is not bound
+                },
+                set(targ, prop, value) {
+                    return (targ.hasOwnProperty(prop) ? targ : target)[prop] = value, 1
+                },
+            })
         if (target instanceof HTMLUnknownElement ||
             target.ownerDocument.defaultView?.HTMLUnknownElement.prototype.isPrototypeOf(target))
             console.warn(`Unknown element: '${target.tagName}'`)
-        function RevokeAllFunctions() {
+        function RevokeAllProxies() {
             //  Make sure we have *NO* possible references left
             revoke(childRevoke(attrRevoke(styleRevoke(querySelectorRevoke()))))
         }
-        revokes.set(proxy, RevokeAllFunctions)
+        revokes.set(proxy, RevokeAllProxies)
         all.set(target, proxy)
         return proxy
     }
@@ -919,8 +978,8 @@ const parseModeMap = new Map(Object.entries({
     }
 }))
 /**
- * # Be careful of html injection when using a string!!
- */
+* # Be careful of html injection when using a string!!
+*/
 function $(html, props, ...children) {
     if (getValid(html)) return prox(html) // Redirect
     if (html[0] === '<' && html.at(-1) === '>')
@@ -943,40 +1002,40 @@ function $(html, props, ...children) {
         throw new DOMException('Potential script injection', 'SecurityError')
     }
     /*{
-        let attributes = {}
-        if (element.type === 'checkbox') attributes.role = 'checkbox'
-        else if (element.type === 'range') attributes.role = 'slider'
-        switch (element.tagName.toLowerCase()) {
-            case 'dialog': attributes['aria-dialog'] = true; break
-            case 'button': attributes['aria-button'] = true; break
-            case 'form': attributes['aria-form'] = true; break
-        }
-        element.setAttributes(attributes)
+    let attributes = {}
+    if (element.type === 'checkbox') attributes.role = 'checkbox'
+    else if (element.type === 'range') attributes.role = 'slider'
+    switch (element.tagName.toLowerCase()) {
+        case 'dialog': attributes['aria-dialog'] = true; break
+        case 'button': attributes['aria-button'] = true; break
+        case 'form': attributes['aria-form'] = true; break
+    }
+    element.setAttributes(attributes)
     }*/
     // i wanted to do the aria stuff SO bad,
     // but its better to just leave it as-is
     /*
-                   <!-- beforebegin -->
-                           <element>
-                    <!-- afterbegin -->
-                           <new-element>
-                    <!-- beforeend -->
-                           </element>
-                   <!-- afterend -->
+               <beforebegin>
+                       <element>
+                 <afterbegin>
+                       <new-element>
+                <beforeend>
+                       </element>
+               <afterend>
     */
     if (props && !getValid(props) && typeof props !== 'string') {
         function reuse(p) {
-            p in props && (element[p] = props[p])
+            Object.hasOwn(props, p) && (element[p] = props[p])
         }
         reuse('parent')
-        'events' in props && element.on(props.events)
+        Object.hasOwn(props, 'events') && element.on(props.events)
         TEXT_THINGIES.forEach(reuse)
-        'txt' in props && (element.textContent = props.txt)
+        Object.hasOwn(props, 'txt') && (element.textContent = props.txt)
         // add elements AFTER the textContent/innerHTML/whatever
         HTML_PLACING.forEach(reuse);
-        ('attributes' in props || 'attr' in props) && element.setAttr(props.attributes ?? props.attr)
-        'styles' in props && element.setStyles(props.styles)
-        'start' in props && props.start.call(element)
+        (Object.hasOwn(props, 'attr') || Object.hasOwn(props, 'attributes')) && element.setAttr(props.attributes ?? props.attr)
+        Object.hasOwn(props, 'styles') && element.setStyles(props.styles)
+        Object.hasOwn(props, 'start') && props.start.call(element)
     }
     else if (typeof props === 'string' || getValid(props)) {
         children.unshift(props)
@@ -1095,183 +1154,183 @@ function slice(o) {
     return o.slice(1)
 }
 /*class CUSTOM_ELEMENT_SPRITE extends HTMLElement {
-    static observedAttributes = 'steps x y src width height'.split(' ')
-    #style = null
-    get #animation() {
-        return prox(this.#sprite).getAnimations()[0]
+static observedAttributes = 'steps x y src width height'.split(' ')
+#style = null
+get #animation() {
+return prox(this.#sprite).getAnimations()[0]
+}
+#sprite = null
+#steps = []
+attributeChangedCallback(name, oldValue, newValue) {
+this.#attch()
+switch (name) {
+    case 'steps': {
+        this.#steps = JSON.parse(newValue)
     }
-    #sprite = null
-    #steps = []
-    attributeChangedCallback(name, oldValue, newValue) {
-        this.#attch()
-        switch (name) {
-            case 'steps': {
-                this.#steps = JSON.parse(newValue)
-            }
-                break
-            case 'src': {
-                this.#sprite.style.setProperty('--sprite', `url(${newValue})`)
-                break
-            }
-            case 'width':
-            case 'height': {
-                this.#sprite.style.setProperty(`--${name}`, `${newValue}px`)
-            }
-                break
-            case 'x':
-            case 'y': {
-                this.#sprite.style.setProperty(`--grid-${name}`, newValue)
-            }
-                break
-            case 'state': switch (newValue) {
-                case 'running':
-                    this.#animation.play()
-                    break
-                case 'paused':
-                    this.#animation.pause()
-                    break
-                case 'stopped':
-                    this.#animation.cancel()
-                    break
-            }
-                break
-        }
+        break
+    case 'src': {
+        this.#sprite.style.setProperty('--sprite', `url(${newValue})`)
+        break
+    }
+    case 'width':
+    case 'height': {
+        this.#sprite.style.setProperty(`--${name}`, `${newValue}px`)
+    }
+        break
+    case 'x':
+    case 'y': {
+        this.#sprite.style.setProperty(`--grid-${name}`, newValue)
+    }
+        break
+    case 'state': switch (newValue) {
+        case 'running':
+            this.#animation.play()
+            break
+        case 'paused':
+            this.#animation.pause()
+            break
+        case 'stopped':
+            this.#animation.cancel()
+            break
+    }
+        break
+}
 
-    }
-    adoptedCallback() {
-        debugger
-    }
-    constructor() {
-        super()
-        this.#attch()
-    }
-    #updateAnim() {
-        this.#animation?.cancel()
-        // let settings = []
-        let me = prox(this),
-            sprite = prox(this.#sprite)
-        let { width, height } = me.attr
-        width = +width | 0
-        height = +height | 0
-        let inBetween = ''
-        console.log(this.#style.sheet.cssRules.length)
-        sprite.setStyles({
-            animation: `anim 1s steps(var(--grid-x),end) infinite   `
-        });
-        ;[].cssText = ` @keyframes anim {
-        0% {
-        background-position-x: 0px
-        }
-        ${inBetween}
-        100% {
-        background-position-x: calc(var(--width) * -1 * var(--grid-x))
-        }
-        }`
-    }
-    #attch() {
-        let g = () => {
-            this.#animation?.cancel()
-            this.#updateAnim()
-        }
-        if (this.shadowRoot) {
-            this.#sprite = this.shadowRoot.querySelector('div')
-            this.#style = this.shadowRoot.querySelector("style")
-            g()
-            return this.shadowRoot
-        }
-        let shadow = this.attachShadow({
-            mode: 'open'
-        })
-        shadow.appendChild(spriteTemplate.content.cloneNode(true))
-        this.#sprite = shadow.querySelector('div')
-        this.#style = this.shadowRoot.querySelector("style")
-        g()
-        return shadow
-    }
-    connectedCallback() {
-        this.#attch()
-        do this.#style.textContent =
-            `
-        @property --sprite {
-        syntax: "<image>";
-        inherits: false;
-        initial-value: url("");
-        }
-        @property --width {
-        syntax: "<length-percentage>";
-        inherits: false;
-        initial-value: 30px;
-        }
-        @property --height {
-        syntax: "<length-percentage>";
-        inherits: false;
-        initial-value: 30px;
-        }
-        @property --grid-x {
-        syntax: "<integer>";
-        initial-value: 8;
-        inherits: false;
-        }
-        @property --grid-y {
-        syntax: "<integer>";
-        initial-value: 8;
-        inherits: false;
-        }
-        div {
-        width:  var(--width);
-        height: var(--height);
-        background-color:red;
-        background-image: var(--sprite);
-        background-repeat:no-repeat;
-        background-size: calc(var(--width) * var(--grid-x)) calc(var(--height) * var(--grid-y));
-        }
-        @keyframes anim {
-        0% {
-        background-position-x: 0px;
-        }
-        100% {
-        background-position-x: calc(var(--width) * -1 * var(--grid-x));
-        }
-        }
-        `
-        while (!this.#style.sheet.cssRules.length)
-    }
+}
+adoptedCallback() {
+debugger
+}
+constructor() {
+super()
+this.#attch()
+}
+#updateAnim() {
+this.#animation?.cancel()
+// let settings = []
+let me = prox(this),
+    sprite = prox(this.#sprite)
+let { width, height } = me.attr
+width = +width | 0
+height = +height | 0
+let inBetween = ''
+console.log(this.#style.sheet.cssRules.length)
+sprite.setStyles({
+    animation: `anim 1s steps(var(--grid-x),end) infinite   `
+});
+;[].cssText = ` @keyframes anim {
+0% {
+background-position-x: 0px
+}
+${inBetween}
+100% {
+background-position-x: calc(var(--width) * -1 * var(--grid-x))
+}
+}`
+}
+#attch() {
+let g = () => {
+    this.#animation?.cancel()
+    this.#updateAnim()
+}
+if (this.shadowRoot) {
+    this.#sprite = this.shadowRoot.querySelector('div')
+    this.#style = this.shadowRoot.querySelector("style")
+    g()
+    return this.shadowRoot
+}
+let shadow = this.attachShadow({
+    mode: 'open'
+})
+shadow.appendChild(spriteTemplate.content.cloneNode(true))
+this.#sprite = shadow.querySelector('div')
+this.#style = this.shadowRoot.querySelector("style")
+g()
+return shadow
+}
+connectedCallback() {
+this.#attch()
+do this.#style.textContent =
+    `
+@property --sprite {
+syntax: "<image>";
+inherits: false;
+initial-value: url("");
+}
+@property --width {
+syntax: "<length-percentage>";
+inherits: false;
+initial-value: 30px;
+}
+@property --height {
+syntax: "<length-percentage>";
+inherits: false;
+initial-value: 30px;
+}
+@property --grid-x {
+syntax: "<integer>";
+initial-value: 8;
+inherits: false;
+}
+@property --grid-y {
+syntax: "<integer>";
+initial-value: 8;
+inherits: false;
+}
+div {
+width:  var(--width);
+height: var(--height);
+background-color:red;
+background-image: var(--sprite);
+background-repeat:no-repeat;
+background-size: calc(var(--width) * var(--grid-x)) calc(var(--height) * var(--grid-y));
+}
+@keyframes anim {
+0% {
+background-position-x: 0px;
+}
+100% {
+background-position-x: calc(var(--width) * -1 * var(--grid-x));
+}
+}
+`
+while (!this.#style.sheet.cssRules.length)
+}
 }
 const spriteTemplate = $('<template><style></style><div></div></template>')
 customElements.define('img-sprite', CUSTOM_ELEMENT_SPRITE)*/
 /*export function info(heading, message, parent, yes, no) {
-    return new Promise(resolve => {
-        parent ??= $.body
-        let backdrop = $('div.alertbackdrop', {
-            parent
-        })
-        let p = $('<form class="alertdialog" aria-modal="true" role="alertdialog"></form>', {
-            parent: backdrop
-        })
-        let section = p.$('section')
-        let head = typeof heading === 'string' ? $('h1', {
-            textContent: heading,
-        }) : heading
-        head.parent = section
-        let msg = typeof message === 'string' ? $('p', {
-                textContent: message
-            }) :
-            msg
-        msg.parent = section
-        let button = typeof yes === 'undefined' ? $(`<button class="cute-green-button" autofocus>Okay</button>`) : yes
-        backdrop.push(button)
-        backdrop.fadeIn().then(() => {
-            button.on({
-                async _click() {
-                    this.fadeOut(300)
-                    await p.fadeOut(300)
-                    await backdrop.fadeOut(300)
-                    backdrop.destroy()
-                    resolve()
-                }
-            })
-        })
+return new Promise(resolve => {
+parent ??= $.body
+let backdrop = $('div.alertbackdrop', {
+    parent
+})
+let p = $('<form class="alertdialog" aria-modal="true" role="alertdialog"></form>', {
+    parent: backdrop
+})
+let section = p.$('section')
+let head = typeof heading === 'string' ? $('h1', {
+    textContent: heading,
+}) : heading
+head.parent = section
+let msg = typeof message === 'string' ? $('p', {
+        textContent: message
+    }) :
+    msg
+msg.parent = section
+let button = typeof yes === 'undefined' ? $(`<button class="cute-green-button" autofocus>Okay</button>`) : yes
+backdrop.push(button)
+backdrop.fadeIn().then(() => {
+    button.on({
+        async _click() {
+            this.fadeOut(300)
+            await p.fadeOut(300)
+            await backdrop.fadeOut(300)
+            backdrop.destroy()
+            resolve()
+        }
     })
+})
+})
 }*/
 // function reduce(a, b) {
 // return a + b

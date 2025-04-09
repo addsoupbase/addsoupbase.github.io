@@ -210,16 +210,18 @@
 
 input[type=image] {
   width: 55px;
+  --user-drag: none;
   image-rendering: pixelated;
   filter: drop-shadow(2px 4px 6px red) hue-rotate(211deg);
   --tap-highlight-color: rgba(255, 0, 255, 0.268);
   transition: scale 0.3s ease;
-  scale:  1 1
+  scale: 1 1
 }
 
 input[type=image]:active {
   scale: 0.9 0.9
 }
+
 #main {
   width: 100vw;
   position: relative;
@@ -292,26 +294,20 @@ html {
 
 .cute-green {
   background-color: #4dcd71;
-  /* Soft pastel green */
   opacity: 0.8;
+  caret-color: #e66a7f;
   border: 2px solid #4ac350;
-  /* Slightly darker green border */
   border-radius: 15px;
-  /* Rounded corners for a cute look */
   padding: 20px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  /* Soft shadow */
-  /* Playful font */
   color: #000000;
-  /* White text for contrast */
   text-align: center;
-  /* Center the text inside */
   transition: transform 0.3s ease, background-color 0.3s ease;
 }
 
 #submit {
   display: inline-block;
-  opacity:0.3
+  opacity: 0.3
 }
 
 #formholder {

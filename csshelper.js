@@ -13,19 +13,22 @@ export function dashVendor(prop, val) {
 export function capVendor(prop, val) {
     return toCaps(vendor(toDash(prop), val))
 }
-export function vendorValue(val) {
+export function vendorValue(prop, val) {
     // i will fix this soon
     let without = val.replace(allVendors, '')
         .replace(allVendors2, '')
     switch (without) {
         case 'crisp-edges':
-            CSS.supports('image-rendering', without) ||
-                CSS.supports('image-rendering', val = '-webkit-optimize-contrast') ||
-                CSS.supports('image-rendering', val = `-moz-crisp-edges`)
+            CSS.supports(prop, val = '-webkit-optimize-contrast') ||
+                CSS.supports(prop, val = `-moz-crisp-edges`) ||
+                CSS.supports(prop, val = without)
             break
         case 'stretch':
-            CSS.supports('max-width', without) ||
-                CSS.supports('max-width', val = '-webkit-fill-available')
+        case 'fill-available':
+        case 'available':
+            CSS.supports(prop, val = '-webkit-fill-available') ||
+                CSS.supports(prop, val = '-moz-available') ||
+                CSS.supports(prop, val = without)
             break
     }
     return val
@@ -44,10 +47,8 @@ const allVendors = RegExp(
     allVendors2 = /(prince|mso)-/
 const dontRedo = new Map
 export function vendor(prop, val, silent) {
-    val = `${val}`
     if (prop.startsWith('--') && CSS.supports(prop, val)) return prop
     if (val.trim() && !CSS.supports(prop, val)) {
-        // val = vendorValue(val)
         let prefix = prop = prop
             .replace(allVendors, '')
             .replace(allVendors2, '')
@@ -146,9 +147,11 @@ let addedStyleRules = null
 export function toCSS(obj, silent) {
     const arr = []
     if (Array.isArray(obj)) obj = Object.fromEntries(obj)
-    for (let prop in obj)
-        try { arr.push(`${vendor(toDash(prop), obj[prop], silent)}:${obj[prop]}`) }
+    for (let prop in obj) {
+        let p = vendorValue(prop, `${obj[prop]}`)
+        try { arr.push(`${vendor(toDash(prop), p, silent)}:${p}`) }
         catch { continue }
+    }
     return arr.join(';')
 }
 let pseudoElementRegex = /::[\w-]/
@@ -265,7 +268,7 @@ queueMicrotask
             '.centerx,.center': {
                 'justify-self': 'center',
                 margin: 'auto',
-                'text-align':'center'
+                'text-align': 'center'
             },
             '.centery,.center': {
                 'align-self': 'center',
@@ -286,7 +289,7 @@ queueMicrotask
                 initialValue: 0
             })*/
             const universal = {}
-            let func = CSS.registerProperty ?? function(){}
+            let func = CSS.registerProperty ?? function () { }
             for (let { length: i } = all; i--;) {
                 let prop = all[i]
                 try {
@@ -433,6 +436,11 @@ export function convertToCSSMethod(value) {
         g("ruby-overhang", "auto", true),
         g("max-lines", "none", 0),
         g("line-fit-edge", "leading", true),
-        g("continue", "auto", 0)
+        g("continue", "auto", 0),
+        g("dashboard-region", "none", 0),
+        g("overflow-scrolling", "auto", 0),
+        g("column-axis", "auto", 0),
+        g('column-progression', 'auto', 0)
+        // g('marquee-style','scroll',0)
     ]
 }

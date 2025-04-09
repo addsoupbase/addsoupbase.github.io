@@ -48,9 +48,7 @@
                 <h2 id="invalid" hidden>No entry for today &lpar;yet!&rpar;
                     <img height="34" src="./cute-emojis/emojis/1143313874943234058.gif">
                 </h2>
-                <iframe id="display" style="   width: 100%;
-                height: 100vh;
-                border: none;"></iframe>
+                <iframe id="display" style="width: 100%;height: 100%;border: none;"></iframe>
             </div>
             <div style="justify-content: space-around;display: flex;    align-items: end;">
                 <input id="prev" type="image" title="Turn to previous page" alt="Back" style="transform:scaleX(-1)"
@@ -89,16 +87,16 @@
             today.setDate(today.getDate() + a)
             if (today.getDate() <= 7 && today.getFullYear() <= 2025 && today.getMonth() <= 3) {
                 // This is before i made any entries
-                prev.hide2()
+                prev.hide(2)
             }
             else {
-                prev.show2()
+                prev.show(2)
             }
             if (getDate() === new Date().toLocaleDateString('en-US') || today >= new Date) {
                 // After today
-                next.hide2()
+                next.hide(2)
             }
-            else next.show2()
+            else next.show(2)
         }
         toToday.on({
             click() {
