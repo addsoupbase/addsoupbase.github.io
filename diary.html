@@ -48,6 +48,13 @@
                 <h2 id="invalid" hidden>No entry for today &lpar;yet!&rpar;
                     <img height="34" src="./cute-emojis/emojis/1143313874943234058.gif">
                 </h2>
+                <h2 id="error" hidden>
+                    <img height="50" src="./cute-emojis/emojis/1242581617084465222.gif">
+                    <br>
+                    <samp  style="color:#631414;">Error
+                    </samp>
+                 
+                </h2>
                 <iframe id="display" style="width: 100%;height: 100%;border: none;"></iframe>
             </div>
             <div style="justify-content: space-around;display: flex;    align-items: end;">
@@ -64,7 +71,7 @@
         // 
         import $ from './yay.js'
         import * as h from './handle.js'
-        let { toToday, invalid, next, prev, 'diary-heading': diaryHeading, 'diary-container': diaryContainer, display: currentThingy } = $.byId
+        let { toToday, invalid, error,next, prev, 'diary-heading': diaryHeading, 'diary-container': diaryContainer, display: currentThingy } = $.byId
         let today = new Date()
         diaryHeading
             .on({
@@ -134,17 +141,33 @@
             let d = new Date(date)
             diaryHeading.value = getThat(d)
             currentThingy.hide()
+            error.hide()
             currentThingy.parent.busy(true)
             invalid.hide()
             let url = `./entries/${date.replace(/\//g, '_')}`
-            let req = (await fetch(url))
-            if (!req.ok) {
-                currentThingy.parent.busy(false)
-                invalid.fadeIn()
-                invalid.show()
+            try {
+
+                let req = (await fetch(url))
+                if (!req.ok) {
+                    if (req.status === 404) {
+                        invalid.fadeIn()
+                        invalid.show()
+                    }
+                    else {
+                        error.fadeIn()
+                        error.show()
+                    }
+                }
+                else {
+                    currentThingy.setAttr({ src: url })
+                }
             }
-            else {
-                currentThingy.setAttr({ src: url })
+            catch {
+                error.fadeIn()
+                        error.show()
+            }
+            finally {
+                currentThingy.parent.busy(false)
             }
         }
         let diary = $.gid('diary')
