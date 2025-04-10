@@ -341,6 +341,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         myevents.size && this.off(...myevents)
         all.delete(base(this))
         revoke(this)
+        ie?.unobserve(base(this))
         return null
     }
     /**
@@ -802,7 +803,7 @@ HTML_PLACING.forEach(set =>
         }
     })
 )
-//  i just like using emojis sorry
+// i just like using emojis sorry
 {
     function forEach(i) {
         if (i !== 'constructor') {
@@ -855,6 +856,19 @@ const reuse = {
         value: null,
         enumerable: 1,
         writable: 1
+    }
+}
+if (typeof ContentVisibilityAutoStateChangeEvent === 'undefined') {
+    var ie = new IntersectionObserver(handle)
+    function handle(entries) {
+        for (let { length: i } = entries; i--;) {
+            let me = entries[i].target
+            let val = getComputedStyle(me).getPropertyValue('--content-visibility')
+            if (val !== 'hidden')  {
+                let event = new CustomEvent('contentvisibilityautostatechange', { bubbles: true, detail: { skipped: me.isIntersecting } })
+                me.dispatchEvent(event)
+            }
+        }
     }
 }
 function prox(target) {
@@ -922,6 +936,7 @@ function prox(target) {
         }
         revokes.set(proxy, RevokeAllProxies)
         all.set(target, proxy)
+        ie?.observe(target)
         return proxy
     }
     return all.get(target)
@@ -1024,18 +1039,19 @@ function $(html, props, ...children) {
                <afterend>
     */
     if (props && !getValid(props) && typeof props !== 'string') {
+        let { hasOwn } = Object
         function reuse(p) {
-            Object.hasOwn(props, p) && (element[p] = props[p])
+            hasOwn(props, p) && (element[p] = props[p])
         }
         reuse('parent')
-        Object.hasOwn(props, 'events') && element.on(props.events)
+        hasOwn(props, 'events') && element.on(props.events)
         TEXT_THINGIES.forEach(reuse)
-        Object.hasOwn(props, 'txt') && (element.textContent = props.txt)
+        hasOwn(props, 'txt') && (element.textContent = props.txt)
         // add elements AFTER the textContent/innerHTML/whatever
         HTML_PLACING.forEach(reuse);
-        (Object.hasOwn(props, 'attr') || Object.hasOwn(props, 'attributes')) && element.setAttr(props.attributes ?? props.attr)
-        Object.hasOwn(props, 'styles') && element.setStyles(props.styles)
-        Object.hasOwn(props, 'start') && props.start.call(element)
+        (hasOwn(props, 'attr') || hasOwn(props, 'attributes')) && element.setAttr(props.attributes ?? props.attr)
+        hasOwn(props, 'styles') && element.setStyles(props.styles)
+        hasOwn(props, 'start') && props.start.call(element)
     }
     else if (typeof props === 'string' || getValid(props)) {
         children.unshift(props)

@@ -388,15 +388,15 @@ export function convertToCSSMethod(value) {
         g("mask-position-x", "0%", 0, "<length-percentage>"),
         g("mask-position-y", "0%", 0, "<length-percentage>"),
         g("tap-highlight-color", "rgb(0, 0, 0, 0.18)", true, "<color>"), // Also good
-        g("touch-callout", "default", true),
-        g("window-dragging", "drag", 0),
+        g("touch-callout", "auto", true),
+        g("window-dragging", "auto", 0),
         g("stack-sizing", "stretch-to-fit", true),
         g("appearance", "auto", 0),
         g("mask-composite", "source-over", 0),
         g("image-rect", "auto", true),
         g("context-properties", "none", true),
         g("outline-radius", "0 0 0 0", 0),
-        g("window-shadow", "default", 0),
+        g("window-shadow", "auto", 0),
         g("binding", "none", 0),
         g("user-focus", "none", 0),
         g("text-blink", "none", 0),
@@ -440,7 +440,8 @@ export function convertToCSSMethod(value) {
         g("dashboard-region", "none", 0),
         g("overflow-scrolling", "auto", 0),
         g("column-axis", "auto", 0),
-        g('column-progression', 'auto', 0)
+        g('column-progression', 'auto', 0),
+        g('content-visibility','visible',0)
         // g('marquee-style','scroll',0)
     ]
 }
