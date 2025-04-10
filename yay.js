@@ -859,15 +859,16 @@ const reuse = {
     }
 }
 if (typeof ContentVisibilityAutoStateChangeEvent === 'undefined') {
-    var ie = new IntersectionObserver(handle)
+    var ie = new IntersectionObserver(handle,{
+        threshold:[0,1]
+    })
     function handle(entries) {
         for (let { length: i } = entries; i--;) {
-            let me = entries[i].target
-            let val = getComputedStyle(me).getPropertyValue('--content-visibility')
-            if (val !== 'hidden')  {
-                let event = new CustomEvent('contentvisibilityautostatechange', { bubbles: true, detail: { skipped: me.isIntersecting } })
-                me.dispatchEvent(event)
-            }
+            let me = entries[i],
+                target = me.target
+            let val = getComputedStyle(target).getPropertyValue('--content-visibility')
+            let event = new CustomEvent('contentvisibilityautostatechange', { bubbles: true, detail: { skipped:!me.isIntersecting } })
+            target.dispatchEvent(event)
         }
     }
 }
