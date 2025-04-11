@@ -333,15 +333,14 @@ let props = Object.getOwnPropertyDescriptors(class _
             for (let el of val.content.querySelectorAll('*'))
                 prox(el).destroy()
         }
-        let b = base(this)
         this.destroyChildren()
         let my = base(this)
         do my.remove()
         while (my.isConnected /*document.contains(my)*/)
         let myevents = h.getEventNames(my)
         myevents.size && this.off(...myevents)
-        all.delete(b)
-        ie?.unobserve(b)
+        all.delete(my)
+        ie?.unobserve(my)
         revoke(this)
         return null
     }
