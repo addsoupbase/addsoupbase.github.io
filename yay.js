@@ -15,6 +15,7 @@ Things i learned from 2nd -> 3rd:
 import * as h from './handle.js'
 import * as css from './csshelper.js'
 import { FormDataManager as form } from './proxies.js'
+Object.hasOwn ??= (obj, prop) => hasOwnProperty.call(obj, prop)
 const regex = {
     dot: /\./g,
     space: /\s/g,
@@ -479,7 +480,7 @@ let props = Object.getOwnPropertyDescriptors(class _
             duration,
             easing: 'ease',
             iterations: 1
-        }).finished.then(() => this.hide3())
+        }).finished.then(() => this.hide(3))
     }
     fadeIn(duration = 500) {
         this.show(3)
@@ -575,7 +576,6 @@ let props = Object.getOwnPropertyDescriptors(class _
     * @deprecated
     */
     hide2() {
-        debugger
         base(this).style.visibility = 'hidden'
     }
     /**
@@ -633,7 +633,7 @@ let props = Object.getOwnPropertyDescriptors(class _
             opacity: '', '@user-input': '', '@user-focus': '', '@user-select': '', 'pointer-events': '',
             '@user-modify': '',
         })
-            .setAttr({ _hidden: "", contenteditable: '' })
+            .setAttr({ _hidden: "", contenteditable: 'true' })
     }
     equals(other) {
         let temp = $(other)
@@ -859,15 +859,15 @@ const reuse = {
     }
 }
 if (typeof ContentVisibilityAutoStateChangeEvent === 'undefined') {
-    var ie = new IntersectionObserver(handle,{
-        threshold:[0,1]
+    var ie = new IntersectionObserver(handle, {
+        threshold: [0, 1]
     })
     function handle(entries) {
         for (let { length: i } = entries; i--;) {
             let me = entries[i],
                 target = me.target
             let val = getComputedStyle(target).getPropertyValue('--content-visibility')
-            let event = new CustomEvent('contentvisibilityautostatechange', { bubbles: true, detail: { skipped:!me.isIntersecting } })
+            let event = new CustomEvent('contentvisibilityautostatechange', { bubbles: true, detail: { skipped: !me.isIntersecting } })
             target.dispatchEvent(event)
         }
     }
