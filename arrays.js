@@ -46,21 +46,33 @@ export function rotate(arr, rotation = 1) {
     return arr
 }
 async function fallback(src) {
-    return(await fetch(new URL(src,location))).json()
+    return (await fetch(new URL(src, location))).json()
 }
-try {
-    //  Some browsers (Firefox, old) throw with the 'options' parameter
-    var getJson = fallback.constructor('src', '"use strict";try{return(await import(new URL(src,location),{with:{type:\'json\'}})).default}\ncatch(e){if(e.name==="TypeError")return this(src)\nthrow e}')
-        //  If the import() thing still fails just use the fallback
+let s = sessionStorage.getItem('supportsJSONModule')
+export let getJson
+function do1() {
+    // Some browsers (Firefox, old) throw with the 'options' parameter
+    getJson = fallback.constructor('src',
+        '"use strict";try{let out = (await import(new URL(src,location),{with:{type:\'json\'}})).default; sessionStorage.setItem("supportsJSONModule", true); return out}\ncatch(e){if(e.name==="TypeError"){sessionStorage.setItem("supportsJSONModule", false);return this(src)}\nthrow e}'
+    )
+    // If the import() thing still fails just use the fallback
         .bind(fallback)
-    //  using bind since the function can't access the module scope
+    // using bind since the function can't access the module scope
 }
-catch (e) {
-    if (e.name === "SyntaxError") {
-        console.warn(`Your browser does not support 'import()' with json; Switching to fetch.`)
-        var getJson = fallback
+function do2() {
+    sessionStorage.setItem("supportsJSONModule", false)
+    console.warn(`Your browser does not support 'import()' with json; Switching to fetch.`)
+    getJson = fallback
+}
+if (s !== 'false' && s !== 'true') try {
+    do1()
+}
+    catch (e) {
+        if (e.name === "SyntaxError") {
+            do2()
+        }
+        else reportError(e)
     }
-    else reportError(e)
-}
+else if (s === 'true') do1()
+else do2()
 export const jason = getJson
-export { getJson }
