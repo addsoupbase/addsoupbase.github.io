@@ -84,7 +84,7 @@ export function range(...numbers) {
     return max.apply(1, numbers) - min.apply(1, numbers)
 }
 export function factorial(n) {
-    return n ? n-- * factorial(n) : 1n
+    return n ? n-- * factorial(n) : n**(n-n)
 }
 export function closest(num, ...nums) {
     let distance = 1 / 0
