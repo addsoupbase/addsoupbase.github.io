@@ -24,10 +24,11 @@ function images({ avatars, mons }) {
     }, 30)
         .on({
             pointerup() {
-
                 holding = false
             },
             pointerdown(e) {
+                console.log(e)
+                this.setPointerCapture(e.pointerId)
                 holding = true
             }
         })
