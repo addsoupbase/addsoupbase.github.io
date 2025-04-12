@@ -24,9 +24,10 @@ function images({ avatars, mons }) {
     }, 30)
         .on({
             pointerup() {
+
                 holding = false
             },
-            pointerdown() {
+            pointerdown(e) {
                 holding = true
             }
         })
@@ -133,15 +134,15 @@ function images({ avatars, mons }) {
     setInterval(bubbleWithAva, 2000)
     spawnPkmn()
     function makeBubble(x, y) {
-        let bubbl = $('div.bubble', { parent })
-        bubbl.flags=1
+        let bubbl = $('<div class="bubble" style="pointer-events:none;"></div>', { parent })
+        bubbl.flags = 1
         let num = ran.range(13, 23)
         bubbl.setStyles({ width: `${num}px`, height: `${num}px`, left: x ?? `${ran.range(0, innerWidth)}px`, top: y ?? '100%' })
         bubbl.animate([{ transform: `translateX(-10px)` }, { transform: 'translateX(10px)' }], { iterations: 1 / 0, duration: 220, direction: 'alternate', easing: 'ease-in-out', composite: 'add' })
         bubbl.animate([{ transform: `translateY(0px)`, }, { transform: `translateY(-110vh)` }], { easing: 'linear', duration: 8000, composite: 'add' }).finished
             .then(() => bubbl.destroy()
             )
-            return bubbl
+        return bubbl
     }
     function tinyBubbles(again = true) {
         again && setTimeout(tinyBubbles, ran.range(1000, 1200))
