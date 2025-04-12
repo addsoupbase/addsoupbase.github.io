@@ -35,7 +35,7 @@ function bindIfNecessary(maybeFunc, to) {
         bounded.get(maybeFunc) ?? bounded.set(maybeFunc, maybeFunc.bind(to)).get(maybeFunc) : maybeFunc
 }
 function genericGet(t, prop) {
-    if (!isNaN(prop)) {
+    if (typeof prop !== 'symbol' && !isNaN(prop)) {
         let out = t[prop]
         return out && prox(out)
     }
@@ -384,6 +384,28 @@ let props = Object.getOwnPropertyDescriptors(class _
     }
     set(prop, val) {
         base(this)[prop] = val
+    }
+    getByTag(tag) {
+        return Array.from(base(this).getElementsByTagName(tag), prox)
+    }
+    debounce(events, interval) {
+        for (let i in events) {
+            let old = events[i]
+            events[i] = DebouncedFunction
+            let waiting = false
+            function enable() {
+                waiting = false
+            }
+            function DebouncedFunction(...args) {
+                if (!waiting) {
+                    let me = prox(args[0].target)
+                    waiting = true
+                    setTimeout(enable, interval)
+                    old.apply(me, args)
+                }
+            }
+        }
+        this.on(events)
     }
     delegate(events, filter, includeSelf) {
         let me = base(this)

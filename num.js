@@ -84,7 +84,7 @@ export function range(...numbers) {
     return max.apply(1, numbers) - min.apply(1, numbers)
 }
 export function factorial(n) {
-    return n ? n-- * factorial(n) : n**(n-n)
+    return n ? n-- * factorial(n) : n ** (n - n)
 }
 export function closest(num, ...nums) {
     let distance = 1 / 0
@@ -188,7 +188,7 @@ class Vector2 {
         unit ??= ''
         return `(${this.#x}${unit}, ${this.#y}${unit})`
     }
-    static _(){
+    static _() {
         // Older browsers cant have static init blocks
         delete this._
         let props = Object.getOwnPropertyDescriptors(this.prototype)
@@ -201,10 +201,12 @@ class Vector2 {
                 value: makeItANumber
             })
             function makeItANumber(x, y) {
-                if (typeof x !== 'number' || typeof y !== 'number') {
+                if (typeof x === 'number' && typeof y !== 'number') y = x
+                else if (typeof x !== 'number' || typeof y !== 'number') {
                     y = x.y ?? x[1]
                     x = x.x ?? x[0]
                 }
+
                 return old.call(this, x, y)
             }
         }

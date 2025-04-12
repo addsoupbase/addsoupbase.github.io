@@ -1,5 +1,6 @@
 let regex = /[\w\.\-]+\.(webp|png|gif|jpe?g)/
 function images({ avatars, mons }) {
+
     let pop = new Audio('media/pop.mp3')
     // on(document, {
     // visibilitychange() {
@@ -11,12 +12,27 @@ function images({ avatars, mons }) {
     const frameDuration = 135
     const duration = 12_000
     const cycle = math.cycle(...ran.shuffle(...avatars))
+    let holding = false
     bg.delegate({
-        click
+        pointerdown1: click
     }, o =>
         o.classList.contains('bubble') && o.flags === 0
-    )
-    async function click({ x, y }) {
+    ).debounce({
+        pointermove({ x, y }) {
+            holding && makeBubble(`${x}px`, `${y}px`).fadeIn(300)
+        }
+    }, 30)
+        .on({
+            pointerup() {
+                holding = false
+            },
+            pointerdown() {
+                holding = true
+            }
+        })
+    async function click(e) {
+        e.stopImmediatePropagation()
+        let { x, y } = e
         this.pauseAnims()
         pop.currentTime = 0
         pop.play()
@@ -29,7 +45,7 @@ function images({ avatars, mons }) {
                 'backgroundImage': `url(${this.firstElementChild.src})`
             },
             attributes: {
-                role: 'presentation',
+                role: 'marquee',
                 alt: name,
             },
             parent: bg,
@@ -45,7 +61,7 @@ function images({ avatars, mons }) {
         const { src } = image
         let n = $('div.bubble', {
             attr: {
-                role: 'presentation',
+                role: 'marquee',
                 width: 50, height: 50
             }, parent
         })
@@ -60,7 +76,7 @@ function images({ avatars, mons }) {
             attributes: {
                 src,
                 // alt: src,
-                role: 'presentation',
+                role: 'marquee',
 
                 width: 50,
                 height: 50,
@@ -116,15 +132,21 @@ function images({ avatars, mons }) {
     }
     setInterval(bubbleWithAva, 2000)
     spawnPkmn()
-    async function tinyBubbles(again = true) {
+    function makeBubble(x, y) {
+        let bubbl = $('div.bubble', { parent })
+        bubbl.flags=1
+        let num = ran.range(13, 23)
+        bubbl.setStyles({ width: `${num}px`, height: `${num}px`, left: x ?? `${ran.range(0, innerWidth)}px`, top: y ?? '100%' })
+        bubbl.animate([{ transform: `translateX(-10px)` }, { transform: 'translateX(10px)' }], { iterations: 1 / 0, duration: 220, direction: 'alternate', easing: 'ease-in-out', composite: 'add' })
+        bubbl.animate([{ transform: `translateY(0px)`, }, { transform: `translateY(-110vh)` }], { easing: 'linear', duration: 8000, composite: 'add' }).finished
+            .then(() => bubbl.destroy()
+            )
+            return bubbl
+    }
+    function tinyBubbles(again = true) {
         again && setTimeout(tinyBubbles, ran.range(1000, 1200))
         if (document.hidden) return
-        let bubbl = $('div.bubble', { parent })
-        let num = ran.range(13, 23)
-        bubbl.setStyles({ width: `${num}px`, height: `${num}px`, left: `${ran.range(0, innerWidth)}px`, top: '100%' })
-        bubbl.animate([{ transform: `translateX(-10px)` }, { transform: 'translateX(10px)' }], { iterations: 1 / 0, duration: 220, direction: 'alternate', easing: 'ease-in-out', composite: 'add' })
-        await bubbl.animate([{ transform: `translateY(0px)`, }, { transform: `translateY(-110vh)` }], { easing: 'linear', duration: 8000, composite: 'add' }).finished
-        bubbl.destroy()
+        makeBubble()
     }
     tinyBubbles()
 }
@@ -132,10 +154,10 @@ import $ from '../yay.js'
 import * as math from '../num.js'
 import * as string from '../str.js'
 import * as h from '../handle.js'
-import  ran from '../random.js'
+import ran from '../random.js'
 const iframe = $.qs('object')
 //document.body.scrollLeft = innerHeight/2
-async function go () {
+async function go() {
     try {
         iframe.contentWindow.final = function () {
             import('./images.js').then(images)
