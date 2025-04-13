@@ -100,8 +100,8 @@ function images({ avatars, mons }) {
             'backgroundPositionX': `-${image.width}px`
         }
         ], { easing: `steps(${image[Symbol.for('width')]},end)`, duration: frameDuration * image[Symbol.for('width')], iterations: 1 / 0 })
-        me.classList.add('shiny')
-            return me
+        ran.jackpot(1000)&& me.classList.add('shiny')
+            return me 
     }
     async function spawnPkmn() {
         setTimeout(spawnPkmn, ran.range(500, 2000))
