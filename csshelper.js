@@ -441,7 +441,8 @@ export function convertToCSSMethod(value) {
         g("overflow-scrolling", "auto", 0),
         g("column-axis", "auto", 0),
         g('column-progression', 'auto', 0),
-        g('content-visibility','visible',0)
+        g('content-visibility','visible',0),
+        g('text-size-adjust','auto',true)
         // g('marquee-style','scroll',0)
     ]
 }

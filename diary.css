@@ -15,7 +15,9 @@
   h3 {
     font-family: 'Choco';
   }
-  
+  body {
+    overflow-x: hidden;
+  }
   :root {
     font-family: 'Choco';
   }

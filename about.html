@@ -53,9 +53,7 @@
     <script type="module">
         import $ from './yay.js'
         import { wait } from './handle.js'
-        let { template } = $.byId
-        
-        document.body.appendChild(document.importNode(template.content, true))
+        $.setup()
         const { main } = $.byId
         const bday = new Date(2007, 6 - 1, 17)
         let div = $("section", {

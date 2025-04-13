@@ -74,8 +74,7 @@
         import $ from './yay.js'
         import * as h from './handle.js'
 
-        let { template, } = $.byId
-        document.body.appendChild(document.importNode(template.content, true))
+        $.setup()
         let { toToday, invalid, error, next, prev, 'diary-heading': diaryHeading, 'diary-container': diaryContainer, display: currentThingy } = $.byId
         let today = new Date()
         diaryHeading

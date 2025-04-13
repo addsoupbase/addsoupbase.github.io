@@ -1125,6 +1125,13 @@ export default Object.defineProperties($, {
             return Array.from(base($.doc).querySelectorAll(selector), prox)
         }
     },
+    setup: {
+        value(id) {
+            let te = prox(document.getElementById(id) ?? document.querySelector('template'))
+            document.body.appendChild(document.importNode(te.content,true))
+            te.destroy()
+        }
+    },
     gid: {
         value(id) {
             return prox(document.getElementById(id))

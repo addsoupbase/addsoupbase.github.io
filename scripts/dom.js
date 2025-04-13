@@ -3,8 +3,7 @@ import $ from '../yay.js'
 import { FormDataManager } from '../proxies.js'
 import { on, wait } from "../handle.js"
 
-let { template, } = $.byId
-document.body.appendChild(document.importNode(template.content,true))
+$.setup()
 let { main } = $.byId
 main.setStyles({ opacity: 0 })
 on(window, {

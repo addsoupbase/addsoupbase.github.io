@@ -49,8 +49,7 @@
     <script src="fallback.js"></script>
     <script type="module">
         import $ from './yay.js'
-        let { template } = $.byId
-        document.body.appendChild(document.importNode(template.content, true))
+       $.setup()
         const { main } = $.byId
         let { newStuff, oldStuff } = $.byId
         main.fadeFromTo(0, .95)

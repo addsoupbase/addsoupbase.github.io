@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="content-language" content="en">
+    <meta property="og:locale" content="en_US">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+    <link rel="stylesheet" href="../../diary.css">
+    <meta name="author" content="addsoupbase">
+    <meta property="profile:username" content="addsoupbase">
+    <title>Sat Apr 12 2025</title>
+    <style>
+        #t {
+            image-rendering: pixelated;
+            letter-spacing: 3px;
+            color: blue;
+            text-shadow: 0px 10px 7px teal;
+            animation: ease-in-out 2.7s alternate-reverse infinite slide;
+        }
+        @keyframes slide {
+            0% {
+                transform:translateX(-100px)
+            }
+            100% {
+                transform:translateX(100px)
+
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main id="m" class="centerx">
+        <section>
+            <h1>Today was great!!</h1>
+            <p>i felt really hyper today</p>
+            <p>on here i also added like, when you touch and move your mouse bubbles spawn so thats cool, you can try
+                that out now. i also uh enjoyed existing today :&gt</p>
+            <i>that's all folks</i>
+            <h2 id="t" role="marquee">hello hi</h2>
+        </section>
+    </main>
+    <script type="module">
+        import $ from '../../yay.js'
+        // import * as h from '../../handle.js'
+        // import * as m from '../../num.js'
+        // import * as str from '../../str.js'
+        import ran from '../../random.js'
+        // import c from '../../color.js'
+        let phrases = `have a great day,much love,hiii,hey,you're awesome,hearts,<3,love,happy,cheers,smile,drink water,bleh,positivity,sending hugs,hugs sent,hii stuella,look at me`.split(',')
+        let {t} = $.byId
+        setInterval(()=>{
+            t.textContent = ran.choose(...phrases)
+        },3_000)
+    </script>
+    <!-- 
+        have a wonderful day 😊 
+        -->
+
+</body>
+
+</html>
