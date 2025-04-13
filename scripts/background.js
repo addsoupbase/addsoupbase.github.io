@@ -47,7 +47,7 @@ function images({ avatars, mons }) {
                 'backgroundImage': `url(${this.firstElementChild.src})`
             },
             attributes: {
-                role: 'marquee',
+                _hidden:'true',
                 alt: name,
             },
             parent: bg,
@@ -63,7 +63,7 @@ function images({ avatars, mons }) {
         const { src } = image
         let n = $('div.bubble', {
             attr: {
-                role: 'marquee',
+                _hidden:'true',
                 width: 50, height: 50
             }, parent
         })
@@ -78,7 +78,7 @@ function images({ avatars, mons }) {
             attributes: {
                 src,
                 // alt: src,
-                role: 'marquee',
+                _hidden:'true',
 
                 width: 50,
                 height: 50,
@@ -90,7 +90,7 @@ function images({ avatars, mons }) {
     function createAnimationForSpritesheet(image) {
         let me = $(`div.${image[Symbol.for('name')]}.sprite`, {
             parent, attr: {
-                role: 'marquee',
+                _hidden:'true',
             }
         })
         me.animate([{
