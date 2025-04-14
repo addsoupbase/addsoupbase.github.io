@@ -41,10 +41,10 @@ export function badCSS(data, silent) {
     alreadyLogged.add(data)
 }
 const allVendors = RegExp(
-    `-(${'webkit moz apple khtml konq o ms xv atsc wap ah hp ro rim tc fso icab epub'.replace(/\s/g, '|')})-`
+    `-(?:${'webkit moz apple khtml konq o ms xv atsc wap ah hp ro rim tc fso icab epub'.replace(/\s/g, '|')})-`
     // internal
 ),
-    allVendors2 = /(prince|mso)-/
+    allVendors2 = /(?:prince|mso)-/
 const dontRedo = new Map
 export function vendor(prop, val, silent) {
     if (prop.startsWith('--') && CSS.supports(prop, val)) return prop
@@ -107,7 +107,7 @@ export function vendor(prop, val, silent) {
     }
     return prop
 }
-const newerProps = /^(translate|scale|rotate|zoom)$/
+const newerProps = /^(?:translate|scale|rotate|zoom)$/
 //  (that i have used before)
 function mayNotBeSupported(prop) {
     newerProps.test(prop) && badCSS(`💿 '${prop}' may not be supported on older devices`)
@@ -125,9 +125,6 @@ export function toCaps(prop) {
     if (prop.includes('-') && !prop.startsWith('--')) { // Ignore custom properties
         if (prop[0] === '-') prop = prop.slice(1)
         return prop.replace(defrt, tuc)
-        function tuc({ 1: char }) {
-            return char.toUpperCase()
-        }
     }
     return prop
 }
@@ -135,9 +132,12 @@ let azregex = /[A-Z]/g
 export function toDash(prop) {
     return prop.startsWith('--') ? prop :
         prop.replace(azregex, tlc)
-    function tlc(o) {
-        return `-${o.toLowerCase()}`
-    }
+}
+function tlc(o) {
+    return `-${o.toLowerCase()}`
+}
+function tuc({ 1: char }) {
+    return char.toUpperCase()
 }
 let addedStyleRules = null
 /**
@@ -206,7 +206,7 @@ export function registerCSSAll(rules) {
 export function supportsRule(rule) {
     return CSS.supports(`selector(${rule})`)
 }
-const theNames = allVendors.toString().match(/\w+/g)
+const theNames = `${allVendors}`.match(/\w+/g)
 export function supportedPClassVendor(className) {
     try {
         let { 0: before, 1: _class } = className.split(':'),
