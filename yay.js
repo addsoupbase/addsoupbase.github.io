@@ -1198,13 +1198,14 @@ let parseMode = 'mozInnerScreenY' in window ? 'createRange' : 'template'
     console.log(obj)
 }()
 
-function badAttrName(attr) {
-    return regex.onXYZ.test(attr.nodeName)
+function badAttrName(name) {
+    return regex.onXYZ.test(name//.nodeName
+    )
 }
 
 function allElementStuff(e) {
-    // return e.getAttributeNames().some(badAttrName)
-    return [].some.call(e.attributes, badAttrName)
+    return e.getAttributeNames().some(badAttrName)
+    // return [].some.call(e.attributes, badAttrName)
 }
 
 function destroyEach(ch) {
