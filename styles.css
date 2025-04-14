@@ -252,7 +252,7 @@ input[type=image]:active {
   height: fit-content;
   min-height: 100vh;
   opacity: 1;
-  display: table-header-group;
+  display: block;
   inset: 0px;
   image-rendering: pixelated;
   background-image: url(./media/flowers.webp), url(./media/topdecor.webp), url(./media/roses.webp);
