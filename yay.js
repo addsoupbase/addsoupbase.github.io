@@ -19,7 +19,7 @@ Object.hasOwn ??= (obj, prop) => hasOwnProperty.call(obj, prop)
 const regex = {
     dot: /\./g,
     space: /\s/g,
-    onXYZ: /^on.+$/
+    onXYZ: /^on\w+$/
 },
     me = Symbol('base'),
     all = new WeakMap,
