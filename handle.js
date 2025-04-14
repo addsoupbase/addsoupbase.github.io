@@ -179,7 +179,7 @@ export function on(target, events, useHandler) {
             }
             function ProxyFunction(...args) {
                 let { 0: event } = args
-                if (event instanceof CustomEvent) for (let i in event.detail) {
+                if (event.constructor.name === 'CustomEvent') for (let i in event.detail) {
                     if (i in event) continue
                     event[i] = event.detail[i]
                 }
