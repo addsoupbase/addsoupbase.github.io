@@ -106,7 +106,7 @@ export function on(target, events, useHandler) {
         groupCollapsed('on(...)')
         target.forEach(func)
         function func(t) {
-                on(t, events, useHandler)
+            on(t, events, useHandler)
         }
         console.groupEnd()
         return target
@@ -125,8 +125,8 @@ export function on(target, events, useHandler) {
         }
         else if (isArray(events)) {
             // if (2 in events) {
-                // manualSignal = events[2]
-                // delete events[2]
+            // manualSignal = events[2]
+            // delete events[2]
             // }
             events = Object.fromEntries(events)
         }
@@ -179,6 +179,10 @@ export function on(target, events, useHandler) {
             }
             function ProxyFunction(...args) {
                 let { 0: event } = args
+                if (event instanceof CustomEvent) for (let i in event.detail) {
+                    if (i in event) continue
+                    event[i] = event.detail[i]
+                }
                 controller && args.push(Abort, Remove)
                 onlyTrusted && event.isTrusted || !onlyTrusted && func.apply(target, args)
                 stopImmediateProp && event.stopImmediatePropagation()
@@ -229,7 +233,7 @@ export function on(target, events, useHandler) {
     return target
 }
 {
-    function a({0:event, 1:name}) { return [event, `${name}_`] }
+    function a({ 0: event, 1: name }) { return [event, `${name}_`] }
     Object.assign(on,
         {
             once(target, events, useHandler) {
