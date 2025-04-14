@@ -28,11 +28,24 @@ const regex = {
 function gen() {
     return `${Math.random()}${Math.random()}`.replace(regex.dot, '')
 }
+const BoundFunctions = new WeakMap
 function bindIfNecessary(maybeFunc, to) {
     // Make sure we just re-use the same function
-    return typeof
-        maybeFunc === 'function' ?
-        bounded.get(maybeFunc) ?? bounded.set(maybeFunc, maybeFunc.bind(to)).get(maybeFunc) : maybeFunc
+    /*if (typeof maybeFunc === 'function') {
+        if (!Object.hasOwn(to, maybeFunc.name)) Object.defineProperty(prox(to), maybeFunc.name, {
+            value: maybeFunc.bind(to),
+            writable: 1,
+            configurable: 1
+        })
+        return to[maybeFunc.name]
+    }*/
+   // There was like a catastrophic bug but i fixed it bc im the best
+    if (typeof maybeFunc === 'function') {
+        const me = prox(to)
+        , obj = BoundFunctions.get(me) ?? BoundFunctions.set(me, { __proto__: null }).get(me)
+        return obj[maybeFunc.name] ??= maybeFunc.bind(to)
+    }
+    return maybeFunc
 }
 function genericGet(t, prop) {
     if (typeof prop !== 'symbol' && !isNaN(prop)) {
@@ -940,7 +953,8 @@ function prox(target) {
                 }
             }
             , { proxy, revoke } = Proxy.revocable(
-                Object.seal(Object.create(target, baseThingy)), {
+                // Object.seal
+                (Object.create(target, baseThingy)), {
                 get(targ, prop) {
                     return targ.hasOwnProperty(prop) ? targ[prop] :
                         bindIfNecessary(target[prop], target)
@@ -1028,13 +1042,13 @@ function $(html, props, ...children) {
         let classes = html.match(classRegex),
             id = html.match(idRegex)?.[0],
             type = html.match(typeRegex)?.[0]
-        element.setAttr({
-            class: classes?.join(' '),
-            id,
-            type
-        })
+        let toSet = {}
+        classes && (toSet.class = classes.join(' '))
+        id && (toSet.id = id)
+        type && (toSet.type = type)
+        element.setAttr(toSet)
     }
-    if ([element, ...element.getElementsByTagName('*')].some(allElementStuff)) throw TypeError(`Inline event handlers are deprecated`)
+    if (Array.from(element.querySelectorAll('*'), prox).concat(element).some(allElementStuff)) throw TypeError(`Inline event handlers are deprecated`)
     if (element.tagName === 'SCRIPT' || element.querySelector('script')) {
         debugger
         throw new DOMException('Potential script injection', 'SecurityError')
@@ -1128,7 +1142,7 @@ export default Object.defineProperties($, {
     setup: {
         value(id) {
             let te = prox(document.getElementById(id) ?? document.querySelector('template'))
-            document.body.appendChild(document.importNode(te.content,true))
+            document.body.appendChild(document.importNode(te.content, true))
             te.destroy()
         }
     },
@@ -1189,6 +1203,7 @@ function badAttrName(attr) {
 }
 
 function allElementStuff(e) {
+    // return e.getAttributeNames().some(badAttrName)
     return [].some.call(e.attributes, badAttrName)
 }
 
