@@ -113,13 +113,10 @@ export function on(target, events, useHandler) {
     }
     if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
     let manualSignal
-    target.hasOwnProperty(sym) ||
-        //This will hold the NAMES of the events
-        Object.defineProperty(target, sym, { value: new Set })
     try {
         groupCollapsed(`on(${target[Symbol.toStringTag] || target.constructor?.name || Object.getPrototypeOf(target).constructor[Symbol.toStringTag] || Object.getPrototypeOf(target).constructor.name || target})`)
         console.dirxml(target)
-        const myEvents = target[sym]
+        const myEvents = getEventNames(target)
         if (typeof events === 'function') events = {
             [events.name]: events
         }
