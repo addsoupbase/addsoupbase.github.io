@@ -23,8 +23,7 @@ const regex = {
 },
     me = Symbol('base'),
     all = new WeakMap,
-    revokes = new WeakMap,
-    bounded = new WeakMap
+    revokes = new WeakMap
 function gen() {
     return `${Math.random()}${Math.random()}`.replace(regex.dot, '')
 }
@@ -39,10 +38,10 @@ function bindIfNecessary(maybeFunc, to) {
         })
         return to[maybeFunc.name]
     }*/
-   // There was like a catastrophic bug but i fixed it bc im the best
+    // There was like a catastrophic bug but i fixed it bc im the best
     if (typeof maybeFunc === 'function') {
         const me = prox(to)
-        , obj = BoundFunctions.get(me) ?? BoundFunctions.set(me, { __proto__: null }).get(me)
+            , obj = BoundFunctions.get(me) ?? BoundFunctions.set(me, { __proto__: null }).get(me)
         return obj[maybeFunc.name] ??= maybeFunc.bind(to)
     }
     return maybeFunc
@@ -71,14 +70,12 @@ const handlers = {
             return prox(t.querySelector(p))
         }
     },
-    styles: {
+    styles: Object.fromEntries(Object.entries({
         get(target, prop) {
-            if (prop === 'cssFloat') prop = 'float'
             return prop.startsWith('--') ? target.getPropertyValue(prop) :
                 target.getPropertyValue(css.dashVendor(prop, 'inherit'))
         },
         set(target, prop, value) {
-            if (prop === 'cssFloat') prop = 'float'
             if (prop.startsWith('--')) target.setProperty(prop, value)
             else value ?
                 target.setProperty(css.dashVendor(prop, value), value) :
@@ -86,16 +83,21 @@ const handlers = {
             return 7
         },
         deleteProperty(target, prop) {
-            if (prop === 'cssFloat') prop = 'float'
             return prop.startsWith('--') ? target.removeProperty(prop) :
                 target.removeProperty(css.dashVendor(prop, 'inherit')),
                 3
         },
         has(target, prop) {
-            if (prop === 'cssFloat') prop = 'float'
             return this.get(target, prop)
         }
-    },
+    }).map(({ 0: key, 1: value }) => ({
+        0: key,
+        StyleFunction(...args) {
+            if (args[1] === 'cssFloat') args[1] = 'float'
+            // there might be some other props on other objects that are/were reserved words, like class
+            return value.apply(this, args)
+        }
+    }))),
     attr: {
         get(t, p) {
             p = ariaOrDataOrCustom(p)
@@ -404,17 +406,16 @@ let props = Object.getOwnPropertyDescriptors(class _
     debounce(events, interval) {
         for (let i in events) {
             let old = events[i]
+                , waiting = false
             events[i] = DebouncedFunction
-            let waiting = false
             function enable() {
                 waiting = false
             }
             function DebouncedFunction(...args) {
                 if (!waiting) {
-                    let me = prox(args[0].target)
-                    waiting = true
                     setTimeout(enable, interval)
-                    old.apply(me, args)
+                    waiting = true
+                    old.apply(prox(args[0].target), args)
                 }
             }
         }
@@ -611,64 +612,56 @@ let props = Object.getOwnPropertyDescriptors(class _
     * @deprecated
     */
     hide2() {
-        base(this).style.visibility = 'hidden'
+        this.hide(2)
     }
     /**
     * @deprecated
     */
     show2() {
         debugger
-        base(this).style.visibility = 'visible'
+        this.show(2)
     }
     /**
     * @deprecated
     */
     hide3() {
         debugger
-        base(this).style.display = 'none'
+        this.hide(3)
     }
     /**
     * @deprecated
     */
     show3() {
         debugger
-        base(this).style.display = ''
+        this.show(3)
     }
     /**
     * @deprecated
     */
     hide4() {
         debugger
-        this.styles.contentVisibility = 'hidden'
+        this.hide(4)
     }
     /**
     * @deprecated
     */
     show4() {
         debugger
-        this.styles.contentVisibility = ''
+        this.show(4)
     }
     /**
     * @deprecated
     */
     hide5() {
         debugger
-        this.setStyles({
-            opacity: '0', '@user-input': 'none', '@user-focus': 'none', '@user-select': 'none', 'pointer-events': 'none',
-            '@user-modify': 'read-only',
-        })
-            .setAttr({ _hidden: "true", contenteditable: 'false' })
+        this.hide(5)
     }
     /**
     * @deprecated
     */
     show5() {
         debugger
-        this.setStyles({
-            opacity: '', '@user-input': '', '@user-focus': '', '@user-select': '', 'pointer-events': '',
-            '@user-modify': '',
-        })
-            .setAttr({ _hidden: "", contenteditable: 'true' })
+        this.show(5)
     }
     equals(other) {
         let temp = $(other)
@@ -680,19 +673,17 @@ let props = Object.getOwnPropertyDescriptors(class _
         return new form(base(this))
     }
     push(...args) {
-        let frag = doc
         args.flat(1 / 0).forEach(a)
-        base(this).appendChild(frag)
+        base(this).appendChild(doc)
         function a(child) {
-            frag.appendChild(base(child))
+            doc.appendChild(base(child))
         }
     }
     unshift(...args) {
-        let frag = doc
         args.flat(1 / 0).forEach(a)
-        base(this).prepend(frag)
+        base(this).prepend(doc)
         function a(child) {
-            frag.appendChild(base(child))
+            doc.appendChild(base(child))
         }
     }
     //  i tried SO hard to make treewalker useful but it did NOT impress me!
@@ -758,18 +749,18 @@ let props = Object.getOwnPropertyDescriptors(class _
         // continue
         // }
     }
+    static forEach(frame) {
+        for (let prop in frame) {
+            let val = `${frame[prop]}`
+            frame[css.capVendor(prop, val)] ??= val
+        }
+        // Firefox warns of empty string
+    }
     animate(keyframes, options = {}) {
         options.timing ??= 'ease'
         options.iterations ??= 1
-        keyframes.forEach(forEach)
+        keyframes.forEach(_.forEach)
         return base(this).animate(keyframes, options)
-        function forEach(frame) {
-            for (let prop in frame) {
-                let val = `${frame[prop]}`
-                frame[css.capVendor(prop, val)] ??= val
-            }
-            // Firefox warns of empty string
-        }
     }
     set after(val) {
         base(this).after(base(val))
@@ -893,7 +884,7 @@ const reuse = {
         writable: 1
     }
 }
-if (typeof ContentVisibilityAutoStateChangeEvent === 'undefined') {
+if (typeof ContentVisibilityAutoStateChangeEvent !== 'function') {
     var ie = new IntersectionObserver(handle, {
         threshold: [0, 1]
     })
@@ -953,8 +944,7 @@ function prox(target) {
                 }
             }
             , { proxy, revoke } = Proxy.revocable(
-                // Object.seal
-                (Object.create(target, baseThingy)), {
+                Object.seal(Object.create(target, baseThingy)), {
                 get(targ, prop) {
                     return targ.hasOwnProperty(prop) ? targ[prop] :
                         bindIfNecessary(target[prop], target)
@@ -963,6 +953,11 @@ function prox(target) {
                 set(targ, prop, value) {
                     return (targ.hasOwnProperty(prop) ? targ : target)[prop] = value, 1
                 },
+                // defineProperty(target, prop) {
+                // console.debug(prop)
+                // if (prop in target) return Reflect.defineProperty(...arguments)
+                // throw TypeError('Object not mutable')
+                // }
             })
         if (target instanceof HTMLUnknownElement ||
             target.ownerDocument.defaultView?.HTMLUnknownElement.prototype.isPrototypeOf(target))
@@ -1048,7 +1043,7 @@ function $(html, props, ...children) {
         type && (toSet.type = type)
         element.setAttr(toSet)
     }
-    if (Array.from(element.querySelectorAll('*'), prox).concat(element).some(allElementStuff)) throw TypeError(`Inline event handlers are deprecated`)
+    if (Array.from(base(element).querySelectorAll('*'), prox).concat(element).some(allElementStuff)) throw TypeError(`Inline event handlers are deprecated`)
     if (element.tagName === 'SCRIPT' || element.querySelector('script')) {
         debugger
         throw new DOMException('Potential script injection', 'SecurityError')
@@ -1174,35 +1169,10 @@ export default Object.defineProperties($, {
 })
 let parseMode = 'mozInnerScreenY' in window ? 'createRange' : 'template'
 //  createRange seems to be *slightly* faster on firefox
-1 || async function () {
-    console.log("Test enabled")
-    if (location.href.startsWith('http://localhost')) window.test = function (count = 1000, mode = parseMode) {
-        parseMode = mode
-        let time = performance.now()
-        //  console.time(parseMode)
-        while (count--) $('<div><p>hello</p></div>').destroy()
-        // console.timeEnd(parseMode)
-        return performance.now() - time
-    }
-    let obj = {}
-    let {
-        default: a
-    } = await import('./math.js')
-    for (let n of `template createRange createHTMLDocument innerHTML parseHTMLUnsafe default template setHTMLUnsafe write`.split(' ')) {
-        obj[n] = []
-        for (let i = 4; i--;) {
-            obj[n].push(test(3000, n))
-        }
-        obj[n] = a.average(...obj[n])
-    }
-    console.log(obj)
-}()
-
 function badAttrName(name) {
     return regex.onXYZ.test(name//.nodeName
     )
 }
-
 function allElementStuff(e) {
     return e.getAttributeNames().some(badAttrName)
     // return [].some.call(e.attributes, badAttrName)
@@ -1394,3 +1364,26 @@ backdrop.fadeIn().then(() => {
 // return a + b
 // }
 if (location.host.includes('localhost')) window.$ = $
+1 || async function () {
+    console.log("Test enabled")
+    if (location.href.startsWith('http://localhost')) window.test = function (count = 1000, mode = parseMode) {
+        parseMode = mode
+        let time = performance.now()
+        //  console.time(parseMode)
+        while (count--) $('<div><p>hello</p></div>').destroy()
+        // console.timeEnd(parseMode)
+        return performance.now() - time
+    }
+    let obj = {}
+    let {
+        default: a
+    } = await import('./math.js')
+    for (let n of `template createRange createHTMLDocument innerHTML parseHTMLUnsafe default template setHTMLUnsafe write`.split(' ')) {
+        obj[n] = []
+        for (let i = 4; i--;) {
+            obj[n].push(test(3000, n))
+        }
+        obj[n] = a.average(...obj[n])
+    }
+    console.log(obj)
+}()
