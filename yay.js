@@ -893,7 +893,6 @@ if (typeof ContentVisibilityAutoStateChangeEvent !== 'function') {
             let me = entries[i],
                 target = me.target
             let val = getComputedStyle(target).getPropertyValue('--content-visibility').trim()
-            if (val !== 'auto') continue
             let event = new CustomEvent('contentvisibilityautostatechange', { bubbles: true, detail: { skipped: !me.isIntersecting } })
             target.dispatchEvent(event)
         }
