@@ -973,10 +973,10 @@ function getValid(target) {
 }
 const doc = document.createDocumentFragment()
 const parser = new DOMParser
-let temp, div, range, parsingDoc, classRegex = /\.[\w-]+/g,
+let temp, div, range, parsingDoc, classRegex = /(?<=\.)[\w-]+/g,
     htmlRegex = /[\w-]+/,
-    idRegex = /#\w+/,
-    typeRegex = /%\w+/
+    idRegex = /(?<=#)\w+/,
+    typeRegex = /(?<=%)\w+/
 const parseModeMap = new Map(Object.entries({
     write(html) {
         parsingDoc ??= document.implementation.createHTMLDocument()
@@ -1024,10 +1024,10 @@ function $(html, props, ...children) {
         var element = prox(parseModeMap.get(parseMode)?.(html) ?? parseModeMap.get('')(html))
     else {
         html === 'fencedframe' && typeof HTMLFencedFrameElement === 'undefined' && (html = 'iframe')
-        var element = prox(document.createElement(html.match(htmlRegex)[0]))
-        let classes = html.match(classRegex)?.map(slice),
-            id = html.match(idRegex)?.[0].slice(1),
-            type = html.match(typeRegex)?.[0].slice(1)
+        var element = prox(document.createElement(html.match(htmlRegex)?.[0]))
+        let classes = html.match(classRegex),
+            id = html.match(idRegex)?.[0],
+            type = html.match(typeRegex)?.[0]
         element.setAttr({
             class: classes?.join(' '),
             id,
@@ -1194,10 +1194,6 @@ function allElementStuff(e) {
 
 function destroyEach(ch) {
     prox(ch).destroy()
-}
-
-function slice(o) {
-    return o.slice(1)
 }
 /*class CUSTOM_ELEMENT_SPRITE extends HTMLElement {
 static observedAttributes = 'steps x y src width height'.split(' ')
