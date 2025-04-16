@@ -888,7 +888,9 @@ const reuse = {
         writable: 1
     }
 }
-if (typeof ContentVisibilityAutoStateChangeEvent !== 'function') {
+if (typeof ContentVisibilityAutoStateChangeEvent !== 'function' || 
+    'mozInnerScreenX'in window // Firefox is weird again
+) {
     var ie = new IntersectionObserver(handle, {
         threshold: [0, 1]
     })
