@@ -91,17 +91,17 @@ const handlers = {
             return this.get(target, prop)
         }
     })
-    //  Don't know why but below isn't working on firefox only like usual
-   /* .map(({ 0: key, 1: value }) => ({
-        0: key,
-        StyleFunction(...args) {
-            if (args[1] === 'cssFloat') args[1] = 'float'
-            // there might be some other props on other objects that are/were reserved words, like class
-            return value.apply(this, args)
-        }
-    })
-)*/
-),
+        //  Don't know why but below isn't working on firefox only like usual
+        /* .map(({ 0: key, 1: value }) => ({
+             0: key,
+             StyleFunction(...args) {
+                 if (args[1] === 'cssFloat') args[1] = 'float'
+                 // there might be some other props on other objects that are/were reserved words, like class
+                 return value.apply(this, args)
+             }
+         })
+     )*/
+    ),
     attr: {
         get(t, p) {
             p = ariaOrDataOrCustom(p)
@@ -888,11 +888,59 @@ const reuse = {
         writable: 1
     }
 }
-if (typeof ContentVisibilityAutoStateChangeEvent !== 'function' || 
-    'mozInnerScreenX'in window // Firefox is weird again
+{
+    function PerformanceLoop(o) {
+        let detail
+        switch (o.entryType) {
+
+            case 'layout-shift':
+                for (let { length: i } = o.sources; i--;) {
+                    let { node, currentRect, previousRect } = o.sources[i]
+                    node.dispatchEvent(new CustomEvent('layout-shift', {
+                        bubbles: true,
+                        detail: {
+                            currentRect,
+                            previousRect
+                        }
+                    }))
+                }
+                return
+            case 'first-input':
+                detail = o
+                detail.actualTarget = o.target
+                break
+            case 'largest-contentful-paint':
+                detail = o  
+                break
+            default:
+                break
+            case 'paint': switch (o.name) {
+                case 'first-paint':
+                case 'first-contentful-paint':
+                    detail = {
+                        time: o.startTime,
+                        name: o.name
+                    }
+                    break
+            }
+                break
+        }
+        dispatchEvent(new CustomEvent(o.entryType, {
+            detail
+        }))
+    }
+    function PerformanceObserverCallback(entr) {
+        entr.getEntries().forEach(PerformanceLoop)
+    }
+    let entryTypes = `paint first-input layout-shift largest-contentful-paint`.split(' ')
+    var perf = new PerformanceObserver(PerformanceObserverCallback)
+    perf.observe({ entryTypes, })
+}
+if (typeof ContentVisibilityAutoStateChangeEvent !== 'function' ||
+    'mozInnerScreenX' in window // Firefox is weird again
 ) {
     var ie = new IntersectionObserver(handle, {
-        threshold: [0, 1]
+        threshold: [0, Number.MIN_VALUE]
     })
     function handle(entries) {
         for (let { length: i } = entries; i--;) {

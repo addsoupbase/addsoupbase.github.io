@@ -1,15 +1,41 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+  <link rel="prefetch" href="../yay.js">
 </head>
+<style>
+    #a {
+        width:30px;
+        height:30px;
+        background-color: red;
+        position: relative;
+    }
+</style>
+ 
 <body>
-    <script type="module">
-        import  $ from '../yay.js'
-        $.body.$(`<img-sprite steps="[1,1,1,2,1,2,1,1,1,1,1,1]" width="300" height="300" x="12" y="1" src="../media/sprites/bruxish.png"></img-sprite>`)
-        </script>
+ <p>rgthry</p>
+ <img src="../media/art.webp">
+  <script type="module">
+    import * as h from '../handle.js'
+      import $ from '../yay.js'
+      h.on(window, {
+        'first-input'(e) {
+          alert(123)
+        }
+      })
+      // h.on(a, {
+      //   'layout-shift'(e) {
+      //     console.log(e)
+      //   }
+      // })
+    </script>
+        <div id="a">
+    
+        </div>
 </body>
+
 </html>
