@@ -360,7 +360,8 @@ let props = Object.getOwnPropertyDescriptors(class _
         let myevents = h.getEventNames(my)
         myevents.size && this.off(...myevents)
         all.delete(my)
-        ie?.unobserve(my)
+        // inte?.unobserve(my)
+        // resi.unobserve(my)
         revoke(this)
         return null
     }
@@ -612,61 +613,6 @@ let props = Object.getOwnPropertyDescriptors(class _
 
         }
     }
-    /**
-    * @deprecated
-    */
-    hide2() {
-        this.hide(2)
-    }
-    /**
-    * @deprecated
-    */
-    show2() {
-        debugger
-        this.show(2)
-    }
-    /**
-    * @deprecated
-    */
-    hide3() {
-        debugger
-        this.hide(3)
-    }
-    /**
-    * @deprecated
-    */
-    show3() {
-        debugger
-        this.show(3)
-    }
-    /**
-    * @deprecated
-    */
-    hide4() {
-        debugger
-        this.hide(4)
-    }
-    /**
-    * @deprecated
-    */
-    show4() {
-        debugger
-        this.show(4)
-    }
-    /**
-    * @deprecated
-    */
-    hide5() {
-        debugger
-        this.hide(5)
-    }
-    /**
-    * @deprecated
-    */
-    show5() {
-        debugger
-        this.show(5)
-    }
     equals(other) {
         let temp = $(other)
         let out = base(temp).isEqualNode(base(this))
@@ -804,8 +750,8 @@ let props = Object.getOwnPropertyDescriptors(class _
             })
     }
     copyAttr(other) {
-        other = base(other),
-            me = base(this)
+        other = base(other)
+        let me = base(this)
         for (let attr of other.attributes) me.setAttribute(attr.nodeName, attr.nodeValue)
     }
 }.prototype)
@@ -888,16 +834,77 @@ const reuse = {
         writable: 1
     }
 }
-
+/*
+MUTATION OBSERVER STUFFS
+*/
+function observeAll(node) {
+    inte?.observe(node)
+    resi.observe(node)
+}
+function unobserveAll(node) {
+    inte?.unobserve(node)
+    resi.unobserve(node)
+}
+function MutationObserverCallback(entry) {
+    for (let { length: ii } = entry; ii--;) {
+        let me = entry[ii]
+        for (let { length: i } = me.addedNodes; i--;) {
+            let node = me.addedNodes[i]
+            if (node instanceof Element) {
+                /*node.parent.dispatchEvent(new CustomEvent('hierarchychange', {
+                    bubbles: true,
+                    detail: {
+                        added: true,
+                    }
+                }))*/
+                observeAll(node)
+            }
+        }
+        for (let { length: i } = me.removedNodes; i--;) {
+            let node = me.removedNodes[i]
+            if (node instanceof Element) {
+                unobserveAll(node)
+            }
+        }
+    }
+}
+const muta = new MutationObserver(MutationObserverCallback)
+muta.observe(document.documentElement, {
+    subtree: true,
+    childList: true
+})
+/*
+RESIZE OBSERVER STUFFS
+*/
+function ResizeLoop(o) {
+    o.target.dispatchEvent(new CustomEvent('scale', {
+        bubbles: true,
+        detail: {
+            borderBoxSize: o.borderBoxSize,
+            contentBoxSize: o.contentBoxSize,
+            contentRect: o.contentRect,
+            devicePixelContentBoxSize: o.devicePixelContentBoxSize,
+            actualTarget: o.target
+        }
+    }))
+}
+h.addCustomEvent({
+    scale: true
+})
+function ResizeObserverCallback(entries) {
+    entries.forEach(ResizeLoop)
+}
+const resi = new ResizeObserver(ResizeObserverCallback)
 /*
 PERFORMANCE OBSERVER STUFFS
 */
 function PerformanceLoop(o) {
     let detail
     switch (o.entryType) {
-        case 'layout-shift':
-            for (let { length: i } = o.sources; i--;) {
-                let { node, currentRect, previousRect } = o.sources[i]
+        case 'layout-shift': {
+            let { sources } = o
+            for (let { length: i } = sources; i--;) {
+                let { node, currentRect, previousRect } = sources[i]
                 node.dispatchEvent(new CustomEvent('layout-shift', {
                     bubbles: true,
                     detail: {
@@ -906,6 +913,7 @@ function PerformanceLoop(o) {
                     }
                 }))
             }
+        }
             return
         case 'first-input':
             detail = o
@@ -943,14 +951,13 @@ const entryTypes = {
 const perf = new PerformanceObserver(PerformanceObserverCallback)
 perf.observe({ entryTypes: Object.keys(entryTypes) })
 h.addCustomEvent(entryTypes)
-
 /*
 INTERSECTION OBSERVER STUFFS
 */
-if (typeof ContentVisibilityAutoStateChangeEvent !== 'function' ||
-    'mozInnerScreenX' in window // Firefox is weird again
+if (typeof ContentVisibilityAutoStateChangeEvent !== 'function'
+    || 'mozInnerScreenX' in window  // Firefox is weird again
 ) {
-    var ie = new IntersectionObserver(IntersectionObserverCallback, {
+    var inte = new IntersectionObserver(IntersectionObserverCallback, {
         threshold: [0, Number.MIN_VALUE]
     })
     function IntersectionObserverCallback(entries) {
@@ -1035,7 +1042,8 @@ function prox(target) {
         }
         revokes.set(proxy, RevokeAllProxies)
         all.set(target, proxy)
-        ie?.observe(target)
+        inte?.observe(target)
+        resi.observe(target)
         return proxy
     }
     return all.get(target)
@@ -1430,6 +1438,7 @@ backdrop.fadeIn().then(() => {
 // function reduce(a, b) {
 // return a + b
 // }
+[].forEach.call(document.getElementsByTagName('*'), observeAll)
 if (location.host.includes('localhost')) window.$ = $
 1 || async function () {
     console.log("Test enabled")

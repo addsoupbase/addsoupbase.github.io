@@ -91,6 +91,8 @@ Object.assign(on, {
     '&': `Stop propagation`,
     '!': `Stop immediate propagation`,
     '?': 'Only trusted events',
+    '@': 'Only currentTarget',
+    currentTarget: '@',
     trusted: '?',
     once: '_',
     preventDefault: '$',
@@ -105,7 +107,7 @@ export function addCustomEvent(names) {
         if (names[name]) customEvents.add(name.toLowerCase())
     }
 }
-const formatEventName = /[_$^%&!?\d]|bound /g
+const formatEventName = /[_$^%&!?@\d]|bound /g
 const matchDigits = /\d+/
 export function on(target, events, useHandler) {
     if (Array.isArray(target)) {
@@ -142,6 +144,7 @@ export function on(target, events, useHandler) {
                 stopProp = eventName.includes('&'),
                 stopImmediateProp = eventName.includes('!'),
                 onlyTrusted = eventName.includes('?'),
+                onlyCurrentTarget = eventName.includes('@'),
                 options = {
                     capture,
                     //once
@@ -187,11 +190,12 @@ export function on(target, events, useHandler) {
                     event[i] = event.detail[i]
                 }
                 controller && args.push(Abort, Remove)
-                onlyTrusted && event.isTrusted || !onlyTrusted && func.apply(target, args)
-                stopImmediateProp && event.stopImmediatePropagation()
-                stopProp && event.stopPropagation()
-                prevents && (event.cancelable ? event.preventDefault() : warn(`🔊 '${eventName}' events are not cancelable`))
-                once && off(this, eventName)
+                onlyTrusted && event.isTrusted || !onlyTrusted && (!onlyCurrentTarget || onlyCurrentTarget && event.target === event.currentTarget) &&
+                    (func.apply(target, args),
+                        stopImmediateProp && event.stopImmediatePropagation(),
+                        stopProp && event.stopPropagation(),
+                        prevents && (event.cancelable ? event.preventDefault() : warn(`🔊 '${eventName}' events are not cancelable`)),
+                        once && off(event.currentTarget, eventName))
             }
             Object.defineProperty(ProxyFunction, unbound, {
                 value: func,
@@ -222,7 +226,7 @@ export function on(target, events, useHandler) {
                 allEvents.has(target) || allEvents.set(target, new Map)
                 //A Map to hold the names & events
                 const myGlobalEventMap = allEvents.get(target)
-                myGlobalEventMap.set(eventName, { passive, capture, onlyTrusted, listener: ProxyFunction, handler: !!useHandler, prevents, stopProp, once, stopImmediateProp })
+                myGlobalEventMap.set(eventName, { onlyCurrentTarget, passive, capture, onlyTrusted, listener: ProxyFunction, handler: !!useHandler, prevents, stopProp, once, stopImmediateProp })
                 myEvents.add(eventName)
                 useHandler || console.info(`🔔 '${eventName}' event added`)
             }

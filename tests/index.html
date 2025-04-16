@@ -18,13 +18,15 @@
  
 <body>
  <p>rgthry</p>
- <img src="../media/art.webp">
+ <textarea id="b"></textarea>
+ <p id="c">0</p>
   <script type="module">
     import * as h from '../handle.js'
       import $ from '../yay.js'
-      h.on(window, {
-        'first-input'(e) {
-          console.log(e)
+      let m = 0
+      $.byId.b.on({
+        scale() {
+          c.textContent = ++m
         }
       })
       // h.on(a, {
@@ -33,6 +35,7 @@
       //   }
       // })
     </script>
+
         <div id="a">
     
         </div>
