@@ -7,9 +7,9 @@ export const allEvents = new WeakMap
 function isValidET(target) {
     return target &&
         (target instanceof EventTarget
-        || target.ownerDocument?.defaultView?.EventTarget.prototype.isPrototypeOf(target)
-        || EventTarget.prototype.isPrototypeOf(target)
-        || (typeof target.addEventListener === 'function' && typeof target.removeEventListener === 'function' && typeof target.dispatchEvent === 'function'))
+            || target.ownerDocument?.defaultView?.EventTarget.prototype.isPrototypeOf(target)
+            || EventTarget.prototype.isPrototypeOf(target)
+            || (typeof target.addEventListener === 'function' && typeof target.removeEventListener === 'function' && typeof target.dispatchEvent === 'function'))
     // || target instanceof globalThis.EventTarget
 }
 if (0/*typeof showOpenFilePicker !== 'undefined'*/) var reqFile = async function supported(accept, multiple) {
@@ -57,9 +57,9 @@ function verifyEventName(target, name) {
         /^(?:animation(?:cancel|remove))$/i.test(original) && 'onremove' in target)
         return original
     //Some events like the one above don't have a handler
-    queueMicrotask(warn)
-    function warn() { console.warn(`'${original}' events might not be available on the following object:`, target) }
+    customEvents.has(name) || queueMicrotask(warn)
     return original
+    function warn() { console.warn(`'${original}' events might not be available on the following object:`, target) }
     // throw TypeError(`🔇 Cannot listen for '${original}' events`)
 }
 export function wait(ms) {
@@ -99,6 +99,12 @@ Object.assign(on, {
     stopPropagation: '&',
     stopImmediatePropagation: '!',
 })
+const customEvents = new Set
+export function addCustomEvent(names) {
+    for (let name in names) {
+        if (names[name]) customEvents.add(name.toLowerCase())
+    }
+}
 const formatEventName = /[_$^%&!?\d]|bound /g
 const matchDigits = /\d+/
 export function on(target, events, useHandler) {

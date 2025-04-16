@@ -888,67 +888,80 @@ const reuse = {
         writable: 1
     }
 }
-{
-    function PerformanceLoop(o) {
-        let detail
-        switch (o.entryType) {
 
-            case 'layout-shift':
-                for (let { length: i } = o.sources; i--;) {
-                    let { node, currentRect, previousRect } = o.sources[i]
-                    node.dispatchEvent(new CustomEvent('layout-shift', {
-                        bubbles: true,
-                        detail: {
-                            currentRect,
-                            previousRect
-                        }
-                    }))
-                }
-                return
-            case 'first-input':
-                detail = o
-                detail.actualTarget = o.target
-                break
-            case 'largest-contentful-paint':
-                detail = o  
-                break
-            default:
-                break
-            case 'paint': switch (o.name) {
-                case 'first-paint':
-                case 'first-contentful-paint':
-                    detail = {
-                        time: o.startTime,
-                        name: o.name
+/*
+PERFORMANCE OBSERVER STUFFS
+*/
+function PerformanceLoop(o) {
+    let detail
+    switch (o.entryType) {
+        case 'layout-shift':
+            for (let { length: i } = o.sources; i--;) {
+                let { node, currentRect, previousRect } = o.sources[i]
+                node.dispatchEvent(new CustomEvent('layout-shift', {
+                    bubbles: true,
+                    detail: {
+                        currentRect,
+                        previousRect
                     }
-                    break
+                }))
             }
+            return
+        case 'first-input':
+            detail = o
+            detail.actualTarget = o.target
+            break
+        case 'largest-contentful-paint':
+            detail = o
+            break
+        default:
+            break
+        case 'paint': switch (o.name) {
+            case 'first-paint':
+            case 'first-contentful-paint':
+                detail = {
+                    time: o.startTime,
+                    name: o.name
+                }
                 break
         }
-        dispatchEvent(new CustomEvent(o.entryType, {
-            detail
-        }))
+            break
     }
-    function PerformanceObserverCallback(entr) {
-        entr.getEntries().forEach(PerformanceLoop)
-    }
-    let entryTypes = `paint first-input layout-shift largest-contentful-paint`.split(' ')
-    var perf = new PerformanceObserver(PerformanceObserverCallback)
-    perf.observe({ entryTypes, })
+    dispatchEvent(new CustomEvent(o.entryType, {
+        detail
+    }))
 }
+function PerformanceObserverCallback(entr) {
+    entr.getEntries().forEach(PerformanceLoop)
+}
+const entryTypes = {
+    paint: 'PerformancePaintTiming' in window,
+    'first-input': 'PerformanceEventTiming' in window,
+    'layout-shift': 'LayoutShift' in window,
+    'largest-contentful-paint': 'LargestContentfulPaint' in window
+}
+const perf = new PerformanceObserver(PerformanceObserverCallback)
+perf.observe({ entryTypes: Object.keys(entryTypes) })
+h.addCustomEvent(entryTypes)
+
+/*
+INTERSECTION OBSERVER STUFFS
+*/
 if (typeof ContentVisibilityAutoStateChangeEvent !== 'function' ||
     'mozInnerScreenX' in window // Firefox is weird again
 ) {
-    var ie = new IntersectionObserver(handle, {
+    var ie = new IntersectionObserver(IntersectionObserverCallback, {
         threshold: [0, Number.MIN_VALUE]
     })
-    function handle(entries) {
+    function IntersectionObserverCallback(entries) {
         for (let { length: i } = entries; i--;) {
             let me = entries[i],
                 target = me.target
             let val = getComputedStyle(target).getPropertyValue('--content-visibility').trim()
-            let event = new CustomEvent('contentvisibilityautostatechange', { bubbles: true, detail: { skipped: !me.isIntersecting } })
-            target.dispatchEvent(event)
+            if (val === 'auto') {
+                let event = new CustomEvent('contentvisibilityautostatechange', { bubbles: true, detail: { skipped: !me.isIntersecting } })
+                target.dispatchEvent(event)
+            }
         }
     }
 }
