@@ -44,7 +44,9 @@
                     <input class="cute-green" style="font-size:20px;margin:20px;" id="diary-heading" type="date"
                         min="2025-04-07">
                 </time>
-                <div id="diary" style="resize:both;width: 154%;resize: both;border-radius:1%;width: 490px;max-width: 90vw;">
+                <p id="info" style="margin-top:-8px"><span style="cursor: help;">🛈</span> Scrolling could reveal more!</p>
+                <div id="diary"
+                    style="resize:both;width: 154%;resize: both;border-radius:1%;width: 490px;max-width: 90vw;">
                     <h2 id="invalid" hidden>No entry for today &lpar;yet!&rpar;
                         <img height="34" src="./cute-emojis/emojis/1143313874943234058.gif">
                     </h2>
@@ -76,7 +78,18 @@
         import * as h from './handle.js'
 
         $.setup()
-        let { toToday, invalid, error, next, prev, 'diary-heading': diaryHeading, 'diary-container': diaryContainer, display: currentThingy } = $.byId
+        let { info, toToday, invalid, error, next, prev, 'diary-heading': diaryHeading, 'diary-container': diaryContainer, display: currentThingy } = $.byId
+        // h.on(window, {
+            // _load() {
+                // setTimeout(async () => {
+                    // await info.animate([{opacity:'',opacity:0}],{
+                        // duration: 500,
+                        // easing:'ease-out'
+                    // }).finished
+                    // info.hide(2)
+                // }, 7000)
+            // }
+        // })
         let today = new Date()
         diaryHeading
             .on({
@@ -134,40 +147,48 @@
         // }
         currentThingy.on({
             load() {
-                this.fadeIn()
-                this.show()
+                if (!this.contentWindow.document.querySelector('[name="author"][content="addsoupbase"]')) {
+                    invalid.show().fadeIn()
+                    //will work good enough i think
+                }
+                else {
+                    this.fadeIn()
+                }
                 this.parent.busy(false)
             }
         })
         function getThat(d) {
             return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, 0)}-${d.getDate().toString().padStart(2, 0)}`
         }
+
         async function setEntry(date) {
             let d = new Date(date)
             diaryHeading.value = getThat(d)
-            currentThingy.hide()
+            currentThingy.hide(3)
             error.hide()
             currentThingy.parent.busy(true)
             invalid.hide()
             let url = `./entries/${date.replace(/\//g, '_')}`
+            // currentThingy.hide(2)
             try {
+                // let req = (await fetch(url))
+                // if (!req.ok) {
+                // if (req.status === 404) {
+                // invalid.fadeIn()
+                // invalid.show()
+                // }
+                // else {
+                // error.fadeIn()
+                // error.show()
+                // }
+                // }
+                // else {
 
-                let req = (await fetch(url))
-                if (!req.ok) {
-                    if (req.status === 404) {
-                        invalid.fadeIn()
-                        invalid.show()
-                    }
-                    else {
-                        error.fadeIn()
-                        error.show()
-                    }
-                }
-                else {
-                    currentThingy.setAttr({ src: url })
-                }
+                currentThingy.setAttr({ src: url })
+                // }
             }
-            catch {
+            catch (e) {
+                reportError(e)
                 error.fadeIn()
                 error.show()
             }
