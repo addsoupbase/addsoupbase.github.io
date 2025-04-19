@@ -905,7 +905,7 @@ function PerformanceLoop(o) {
             let { sources } = o
             for (let { length: i } = sources; i--;) {
                 let { node, currentRect, previousRect } = sources[i]
-                node.dispatchEvent(new CustomEvent('layout-shift', {
+                node?.dispatchEvent(new CustomEvent('layout-shift', {
                     bubbles: true,
                     detail: {
                         currentRect,
@@ -1112,6 +1112,7 @@ const parseModeMap = new Map(Object.entries({
 */
 function $(html, props, ...children) {
     if (getValid(html)) return prox(html) // Redirect
+    if (typeof html === 'string') html = html.trim()
     if (html[0] === '<' && html.at(-1) === '>')
         var element = prox(parseModeMap.get(parseMode)?.(html) ?? parseModeMap.get('')(html))
     else {
