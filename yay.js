@@ -915,6 +915,12 @@ function PerformanceLoop(o) {
             }
         }
             return
+        case 'longtask':
+            console.warn(o)
+        case "long-animation-frame": {
+            detail = o
+        }
+            break
         case 'first-input':
             detail = o
             detail.actualTarget = o.target
@@ -946,7 +952,9 @@ const entryTypes = {
     paint: 'PerformancePaintTiming' in window,
     'first-input': 'PerformanceEventTiming' in window,
     'layout-shift': 'LayoutShift' in window,
-    'largest-contentful-paint': 'LargestContentfulPaint' in window
+    'largest-contentful-paint': 'LargestContentfulPaint' in window,
+    'long-animation-frame': 'PerformanceLongAnimationFrameTiming' in window,
+    longtask: 'PerformanceLongTaskTiming' in window
 }
 const perf = new PerformanceObserver(PerformanceObserverCallback)
 perf.observe({ entryTypes: Object.keys(entryTypes) })
