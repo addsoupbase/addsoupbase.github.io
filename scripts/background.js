@@ -21,7 +21,7 @@ function images({ avatars, mons }) {
         pointermove({ x, y }) {
             holding && makeBubble(`${x}px`, `${y}px`).fadeIn(300)
         }
-    }, 30)
+    }, 80)
         .on({
             pointerup() {
                 holding = false

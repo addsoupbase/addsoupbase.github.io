@@ -15,6 +15,7 @@ Things i learned from 2nd -> 3rd:
 import * as h from './handle.js'
 import * as css from './csshelper.js'
 import { FormDataManager as form } from './proxies.js'
+import * as f from './functions.js'
 Object.hasOwn ??= (obj, prop) => hasOwnProperty.call(obj, prop)
 const regex = {
     dot: /\./g,
@@ -411,18 +412,14 @@ let props = Object.getOwnPropertyDescriptors(class _
     debounce(events, interval) {
         for (let i in events) {
             let old = events[i]
-                , waiting = false
-            events[i] = DebouncedFunction
-            function enable() {
-                waiting = false
-            }
-            function DebouncedFunction(...args) {
-                if (!waiting) {
-                    setTimeout(enable, interval)
-                    waiting = true
-                    old.apply(prox(args[0].target), args)
-                }
-            }
+            events[i] = f.debounce(old, interval)
+        }
+        this.on(events)
+    }
+    throttle(events, interval) {
+        for (let i in events) {
+            let old = events[i]
+            events[i] = f.throttle(old, interval)
         }
         this.on(events)
     }
