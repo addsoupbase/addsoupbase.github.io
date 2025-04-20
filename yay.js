@@ -610,7 +610,6 @@ let props = Object.getOwnPropertyDescriptors(class _
             })
                 .setAttr({ _hidden: "", contenteditable: '' })
                 break
-
         }
     }
     equals(other) {
@@ -780,29 +779,26 @@ HTML_PLACING.forEach(set =>
     })
 )
 // i just like using emojis sorry
-{
-    function forEach(i) {
-        if (i !== 'constructor') {
-            let v = props[i]
-            if (typeof v.value === 'function') {
-                let old = v.value
-                props[i].value = {
-                    [i](...a) {
-                        //  This function is for automatically returning the 'this'
-                        //  value if the original return value is undefined
-                        if (!all.has(base(this))) throw TypeError(`Illegal invocation`)
-                        let r = old.apply(this, a)
-                        return typeof r === 'undefined' ? this : r
-                    }
-                }[i]
-                //  Just want to keep the original function name intact
-            }
-            Object.defineProperty(prototype, i, v)
+Reflect.ownKeys(props).forEach(i => {
+    if (i !== 'constructor') {
+        let v = props[i]
+        if (typeof v.value === 'function') {
+            let old = v.value
+            props[i].value = {
+                [i](...a) {
+                    //  This function is for automatically returning the 'this'
+                    //  value if the original return value is undefined
+                    if (!all.has(base(this))) throw TypeError('Bad input')
+                    let r = old.apply(this, a)
+                    return typeof r === 'undefined' ? this : r
+                }
+            }[i]
+            //  Just want to keep the original function name intact
         }
+        Object.defineProperty(prototype, i, v)
     }
-    Reflect.ownKeys(props).forEach(forEach)
-    // 🖨 Copy everything
-}
+})
+// 🖨 Copy everything
 const prototypeDescriptors = Object.getOwnPropertyDescriptors(prototype)
 function base(element) {
     // 🌱 Get the root element
@@ -994,7 +990,7 @@ const baseHandler = {
 function prox(target) {
     if (target === null) return null
     if (!getValid(target))
-        throw TypeError(`Illegal invocation`) // get out
+        throw TypeError('Bad input') // get out
     // 🥅 Goal:
     // 🪪 Make an object with a [[Prototype]] being the target element
     // 🪤 Also put a proxy around said object
