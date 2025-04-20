@@ -13,22 +13,24 @@ export function debounce(func, interval) {
         return !waiting
     }
 }
+/*
 export function throttle(func, interval) {
     let toCall = [],
         thisArg = this,
-        i
+        i = setInterval(() => CallNext.next(), interval)
+    CallNext = CallNext()
     return ThrottledFunction
-    function CallNext() {
-        let o = toCall.pop()
-        if (o) func.apply(thisArg, o[0]), o[1](o)
-        else if (!toCall.length) i = clearInterval(i)
-        else if (i == null) i = setInterval(CallNext, interval)
+    function* CallNext() {
+        let o
+        while (1) yield(o = toCall.pop()) && (func.apply(thisArg, o[0]), o[1](o))
+        // else if (!toCall.length) i = clearInterval(i)
+        // else if (i == null) i = setInterval(CallNext, interval)
     }
     function ThrottledFunction(...args) {
-        i ??= setInterval(CallNext, interval)
+        // i ??=)
         return new Promise(Resolver)
         function Resolver(resolve) {
             toCall.unshift([args, resolve])
         }
     }
-}
+}*/
