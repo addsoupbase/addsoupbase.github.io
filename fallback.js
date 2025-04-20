@@ -1,17 +1,24 @@
 !function () {
     'use strict'
-    var regex = /syntax|invalid character/i
+    try {
+        JSON.parse() // Produce a syntax error
+    }
+    catch(e) {
+        var syntax = e.toString().split(':')[0].trim()
+    }
     var remove = function () {
         removeEventListener('error', err)
         removeEventListener('load', remove)
-        remove = err = regex = null
+        remove = err = syntax = null
     }
     var err = function (e) {
-        if (regex.test(e.message)) {
+        var a = e.message.replace(/uncaught/i,'').split(':')[0].trim()
+        console.log(a===syntax)
+        if (syntax === a) {
             remove()
             alert(e.message)
             var template = document.getElementById('template')
-            if (template) document.body.outerHTML = template.content ? template.content.firstElementChild.outerHTML : template.firstElementChild.outerHTML
+            if (template) document.body.innerHTML = template.content ? template.content.firstElementChild.outerHTML : template.firstElementChild.outerHTML
         }
     }
     addEventListener('load', remove)
