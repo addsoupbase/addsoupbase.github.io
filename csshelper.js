@@ -276,7 +276,7 @@ queueMicrotask
                 position: 'fixed'
             },
         })
-        void async function (all) {
+        void function() {
             function Yield() {
                 return new Promise(queueMicrotask)
             }
@@ -290,13 +290,13 @@ queueMicrotask
             })*/
             const universal = {}
             let func = CSS.registerProperty ?? function () { }
-            for (let { length: i } = all; i--;) {
-                let prop = all[i]
+            for (let { length: i } = allProps; i--;) {
+                let prop = allProps[i]
                 try {
                     var o = prop.name
                     universal[vendor(o.slice(2), o = `var(${o})`, true)] = o
                     func(prop)
-                    await Yield()
+                    // await Yield()
                 }
                 catch (e) {
                     if (e.name === 'InvalidModificationError') continue
@@ -304,13 +304,13 @@ queueMicrotask
                     reportError(e)
                 }
             }
-            all = allProps = null
+            allProps = null
             if (beenHereBefore)
                 addedStyleRules.insertRule(`* {${beenHereBefore}}`)
             else
                 registerCSS('*', universal, true),
                     sessionStorage.setItem('css', toCSS(universal, true))
-        }(allProps)
+        }()
     })
 export function dropShadow({
     color = '#000000',
@@ -377,7 +377,7 @@ export function convertToCSSMethod(value) {
         g("box-decoration-break", "slice", 0),
         g("box-pack", "start", 0),
         g("user-input", "auto", true),
-        g("text-orientation", 'vertical-right', true),
+        // g("text-orientation", 'vertical-right', true),
         g("box-reflect", "none", 0), // Kewl
         g("text-stroke-color", "currentcolor", true, "<color>"),
         g("text-stroke-width", 0, true, "<length>"),
@@ -391,7 +391,7 @@ export function convertToCSSMethod(value) {
         g("touch-callout", "auto", true),
         g("window-dragging", "auto", 0),
         g("stack-sizing", "stretch-to-fit", true),
-        g("appearance", "auto", 0),
+        // g("appearance", "auto", 0),
         g("mask-composite", "source-over", 0),
         g("image-rect", "auto", true),
         g("context-properties", "none", true),
@@ -403,7 +403,7 @@ export function convertToCSSMethod(value) {
         g("content-zoom-limit", "400% 100%", 0),
         g("accelerator", 0, 0),
         g("initial-letter", "normal", 0),
-        g("order", 0, 0),
+        // g("order", 0, 0),
         g("text-kashida-space", "0%", true, "<percentage>"),
         g("interpolation-mode", "none", 0),
         g("progress-appearance", "bar", 0),
@@ -426,13 +426,13 @@ export function convertToCSSMethod(value) {
         g("color-filter", "none", true),
         g("pay-button-type", "plain", 0),
         g("visual-effect", "none", true),
-        g("text-wrap-style", "auto", true),
+        // g("text-wrap-style", "auto", true),
         g("text-spacing-trim", "normal", true),
         g("text-group-align", "none", 0),
         g("text-autospace", "normal", true),
-        g("scrollbar-color", "auto", true),
-        g("scrollbar-gutter", "auto", 0),
-        g("scrollbar-width", "auto", 0),
+        // g("scrollbar-color", "auto", true),
+        // g("scrollbar-gutter", "auto", 0),
+        // g("scrollbar-width", "auto", 0),
         g("ruby-overhang", "auto", true),
         g("max-lines", "none", 0),
         g("line-fit-edge", "leading", true),
@@ -441,7 +441,7 @@ export function convertToCSSMethod(value) {
         g("overflow-scrolling", "auto", 0),
         g("column-axis", "auto", 0),
         g('column-progression', 'auto', 0),
-        g('content-visibility','visible',0),
+        g('content-visibility','visible',0),  // This is a special case in order to support browsers without 'ContentVisibilityAutoStateChangeEvent'
         g('text-size-adjust','auto',true)
         // g('marquee-style','scroll',0)
     ]

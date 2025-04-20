@@ -41,7 +41,7 @@ function bindIfNecessary(maybeFunc, to) {
     // There was like a catastrophic bug but i fixed it bc im the best
     if (typeof maybeFunc === 'function') {
         const me = prox(to)
-            , obj = BoundFunctions.get(me) ?? BoundFunctions.set(me, { __proto__: null }).get(me)
+            , obj = BoundFunctions.get(me) ?? BoundFunctions.set(me, Object.create(null)).get(me)
         return obj[maybeFunc.name] ??= maybeFunc.bind(to)
     }
     return maybeFunc
@@ -980,6 +980,17 @@ if (typeof ContentVisibilityAutoStateChangeEvent !== 'function'
         }
     }
 }
+const baseHandler = {
+    get(targ, prop) {
+        let a = this[0]
+        return targ.hasOwnProperty(prop) ? targ[prop] :
+            bindIfNecessary(a[prop], a)
+        // ⛓️‍💥 'Illegal invocation' if function is not bound
+    },
+    set(targ, prop, value) {
+        return (targ.hasOwnProperty(prop) ? targ : this[0])[prop] = value, 1
+    }
+}
 function prox(target) {
     if (target === null) return null
     if (!getValid(target))
@@ -997,7 +1008,7 @@ function prox(target) {
             , { revoke: childRevoke, proxy: childProxy } = Proxy.revocable(target.children, handlers.HTMLCollection)
             , { revoke: querySelectorRevoke, proxy: querySelectorProxy } = Proxy.revocable(target, handlers.querySelector)
             , { revoke: attrRevoke, proxy: attrProxy } = Proxy.revocable(target, handlers.attr)
-            , baseThingy = {
+            , propertiesToDefine = {
                 ...prototypeDescriptors,
                 [me]: bleh,
                 fromQuery: {
@@ -1026,21 +1037,13 @@ function prox(target) {
                 }
             }
             , { proxy, revoke } = Proxy.revocable(
-                Object.seal(Object.create(target, baseThingy)), {
-                get(targ, prop) {
-                    return targ.hasOwnProperty(prop) ? targ[prop] :
-                        bindIfNecessary(target[prop], target)
-                    // ⛓️‍💥 'Illegal invocation' if function is not bound
-                },
-                set(targ, prop, value) {
-                    return (targ.hasOwnProperty(prop) ? targ : target)[prop] = value, 1
-                },
+                Object.seal(Object.create(target, propertiesToDefine)), Object.create(baseHandler, { 0: { value: target } })
                 // defineProperty(target, prop) {
                 // console.debug(prop)
                 // if (prop in target) return Reflect.defineProperty(...arguments)
                 // throw TypeError('Object not mutable')
                 // }
-            })
+            )
         if (target instanceof HTMLUnknownElement ||
             target.ownerDocument.defaultView?.HTMLUnknownElement.prototype.isPrototypeOf(target))
             console.warn(`Unknown element: '${target.tagName}'`)
