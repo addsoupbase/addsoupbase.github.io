@@ -6,8 +6,12 @@ import { on, wait } from "../handle.js"
 $.setup()
 let { main } = $.byId
 main.setStyles({ opacity: 0 })
+if (top === window)$.byId.viewframe.destroy()
 on(window, {
     _load() {
+        if (top === window) {
+            $.byId.goBack.setAttribute('href', './')
+        }
         requestIdleCallback(() => {
             typeof final === 'function'  && final()
         }, { timeout: 20000 })

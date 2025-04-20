@@ -843,7 +843,7 @@ function MutationObserverCallback(entry) {
         let me = entry[ii]
         for (let { length: i } = me.addedNodes; i--;) {
             let node = me.addedNodes[i]
-            if (node instanceof Element) {
+            if (node instanceof Element || node?.ownerDocument?.defaultView.Element.prototype.isPrototypeOf(node)) {
                 /*node.parent.dispatchEvent(new CustomEvent('hierarchychange', {
                     bubbles: true,
                     detail: {
@@ -855,7 +855,7 @@ function MutationObserverCallback(entry) {
         }
         for (let { length: i } = me.removedNodes; i--;) {
             let node = me.removedNodes[i]
-            if (node instanceof Element) {
+            if (node instanceof Element || node?.ownerDocument?.defaultView.Element.prototype.isPrototypeOf(node)) {
                 unobserveAll(node)
             }
         }
