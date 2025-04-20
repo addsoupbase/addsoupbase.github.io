@@ -13,8 +13,8 @@
     }
     var err = function (e) {
         var a = e.message.replace(/uncaught/i,'').split(':')[0].trim()
-        console.log(a===syntax)
         if (syntax === a) {
+            console.error(e)
             remove()
             alert(e.message)
             var template = document.getElementById('template')
