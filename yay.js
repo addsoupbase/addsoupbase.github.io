@@ -1267,25 +1267,35 @@ function destroyEach(ch) {
     prox(ch).destroy()
 }
 class AnimatedSprite extends HTMLElement {
-    static observedAttributes = 'x y src width height duration direction'.split(' ')
+    static observedAttributes = 'cols rows src width height duration direction index'.split(' ')
     #ANIMATE() {
         let p = prox(this)
-        let d = this.#direction === 'horizontal' ? 'width' : 'height'
-        p.setStyles({
-            animation: `${this.#direction} ${this.#duration * (this.getAttribute(d === 'width' ? 'x' : 'y') | 0)}ms steps(var(--grid-${d}), end) infinite`
-        })
+        console.log(this.#duration)
+        if (this.#axis === 'horizontal') {
+            p.setStyles({
+                'background-position-y': `calc((var(--axis)*var(--height)) * -1)`,
+                animation: `horizontal ${this.#duration * this.getAttribute('cols') | 0}ms steps(var(--grid-width), end) ${this.#direction} infinite`
+            })
+        }
+        else if (this.#axis === 'vertical') {
+            p.setStyles({
+                'background-position-x':`calc((var(--axis)*var(--width)) * -1)`,
+                animation: `vertical ${this.#duration * this.getAttribute('rows') | 0}ms steps(var(--grid-height), end) ${this.#direction} infinite`
+            })
+        }
     }
     #duration = 1000
-    #direction = 'horizontal'
+    #axis = 'horizontal'
+    #direction = 'normal'
     attributeChangedCallback(name, oValue, nValue) {
         let p = prox(this)
-        if (/[xy]/.test(name)) {
+        if (/^(?:cols|rows)$/.test(name)) {
             p.setStyles({
-                [`--grid-${name === 'x' ? 'width' : 'height'}`]: `${nValue}`
+                [`--grid-${name === 'cols' ? 'width' : 'height'}`]: `${nValue}`
             })
             this.#ANIMATE()
         }
-        else if (/width|height/.test(name)) {
+        else if (/^(?:width|height)/.test(name)) {
             if (!CSS.supports('width', nValue)) nValue += 'px'
             p.setStyles({
                 [`--${name}`]: nValue
@@ -1299,15 +1309,25 @@ class AnimatedSprite extends HTMLElement {
             })
             this.#ANIMATE()
         }
-        else if (name === 'direction') {
+        else if (name === 'axis') {
             if (nValue !== 'horizontal' && nValue !== 'vertical') nValue = 'horizontal'
-            this.#direction = nValue
+            this.#axis = nValue
         }
         else if (name === 'duration') {
             this.#duration = nValue
+            this.#ANIMATE()   
+        }
+        else if (name === 'direction') {
+            if (!/^(?:normal|reverse|(?:alternate(?:-reverse)?))$/.test(nValue)) nValue = 'normal'
+            this.#direction = nValue
+            this.#ANIMATE()   
+        }
+        else if (name === 'index') {
+            p.setStyles({
+                '--axis': nValue | 0
+            })
         }
     }
-
     connectedCallback() {
         this.attachShadow({ mode: 'open' }).appendChild(base($(`style`, {
             textContent:
@@ -1337,8 +1357,14 @@ class AnimatedSprite extends HTMLElement {
   initial-value: 8;
   inherits: false;
 }
+  @property --axis {
+  syntax: "<integer>";
+  initial-value: 0;
+  inherits: false;
+}
 :host {
   width: var(--width);
+  --axis:0;
   display:block;
   height: var(--height);
   background-image: var(--sprite);

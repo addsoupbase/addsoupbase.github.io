@@ -32,15 +32,114 @@
   <meta property="og:image" content="YOUR ICON HERE.png">
   <meta name="twitter:image" content="YOUR ICON HERE.png">
   <title>YOUR TITLE HERE</title>
+  <style>
+    :root {
+      font-family: monospace;
+    }
 
+    #sprite {
+      border-color: black;
+      border-width: 1px;
+      border-style: solid;
+      image-rendering: pixelated;
+    }
+    #m {
+      transition: background-color .5s ease;
+     display: inline-grid;
+    }
+    #m > * {
+      margin:5px
+    }
+  </style>
 </head>
 
 <body>
   <script type="module">
     import $ from '../yay.js'
+    import * as h from '../handle.js'
+    let { file, sprite, gridx, gridy,pixelated, index, m, direction,speed} = $.byId
+    index.on({
+      input() {
+        sprite.attr.index = this.value|0
+      }
+    })
+    speed.on({
+      input() {
+        sprite.attr.duration = this.value
+      }
+    })
+    direction.on({
+      input() {
+        sprite.attr.direction = this.value
+      }
+    })
+    /*h.on(document.body, {
+      paste(e){
+        console.log(e)
+      }
+    })*/
+    pixelated.on({
+      change() {
+        sprite.setStyles({
+          'image-rendering':this.checked?'pixelated':'auto'
+        })
+      }
+    })
+    gridx.on({
+      input(){
+        sprite.attr.rows = this.value | 0
+      }
+    })
+    gridy.on({
+      input() {
+        sprite.attr.cols = this.value | 0
+      }
+    })
+    file.on({
+      change(e) {
+        sprite.attr.src = URL.createObjectURL(this.files[0])
+      },
+
+    })
+    /*m.on({
+      $dragover() {
+        this.setStyles({
+          background:'red'
+        })
+      },
+      $dragleave() {
+        this.setStyles({
+          background:''
+        })
+      },
+      $drop(e){
+        this.setStyles({
+          background:''
+        })
+        console.log(e.dataTransfer.getData('image/*'))
+      }
+    })*/
   </script>
-  <main id="main">
-    <img-sprite direction="rhorizontal" duration="100" src="../media/sprites/bruxish.png" width="300" x="12" y="1" height="300"></img-sprite>
+  <main >
+    <section id="m">
+
+      <h1>My OWN WebComponent demo:</h1>
+      <p>I made one that will automatically animate sprite sheets</p>
+      <label>Upload a spritesheet <input type="file" id="file" accept="image/*"></label>
+      <img-sprite id="sprite" direction="horizontal" src="../media/sprites/carvanha.png" duration="100" width="200" cols="4" rows="1" height="200"></img-sprite>
+      <label>Rows <input type="number" id="gridx" placeholder="Rows (horizontal)" value="1"></label>
+      <label>Columns <input type="number" id="gridy" placeholder="Columns (vertical)" value="4"></label>
+      <label>Index <input type="number" id="index" placeholder="Index (where to start)" value="0" min="0"></label>
+      <label>Pixelated <input type="checkbox" id="pixelated" checked></label>
+      <label>Direction <select id="direction">
+        <option value="normal">Normal</option>
+        <option value="reverse">Reverse</option>
+        <option value="alternate">Alternate</option>
+        <option value="alternate-reverse">Alternate-Reverse</option>
+      </select></label>
+      <label>Speed <input type="range" id="speed" min="1" max="1000" value="100"> </label>
+    </section>
+
   </main>
 </body>
 
