@@ -284,7 +284,7 @@ export function convertToCSSMethod(value) {
         syntax ??= '*'
         return { name: `--${name}`, initialValue, inherits, syntax }
     }
-    !function(allProps) {
+    !function (allProps) {
         //    Some default CSS..
         registerCSSAll({
             /*  dialog: {
@@ -314,7 +314,7 @@ export function convertToCSSMethod(value) {
                 position: 'fixed'
             },
         })
-        void function() {
+        void function () {
             function Yield() {
                 return new Promise(queueMicrotask)
             }
@@ -349,7 +349,7 @@ export function convertToCSSMethod(value) {
                 registerCSS('*', universal, true),
                     sessionStorage.setItem('css', toCSS(universal, true))
         }()
-    }( [
+    }([
         //  Fallback stuff
         g("user-select", "auto", true), // Most important one
         g("user-modify", "auto", 0),
@@ -428,6 +428,7 @@ export function convertToCSSMethod(value) {
         g("text-spacing-trim", "normal", true),
         g("text-group-align", "none", 0),
         g("text-autospace", "normal", true),
+        g("orient", 'inline', 0,),
         // g("scrollbar-color", "auto", true),
         // g("scrollbar-gutter", "auto", 0),
         // g("scrollbar-width", "auto", 0),
@@ -439,8 +440,8 @@ export function convertToCSSMethod(value) {
         g("overflow-scrolling", "auto", 0),
         g("column-axis", "auto", 0),
         g('column-progression', 'auto', 0),
-        g('content-visibility','visible',0),  // This is a special case in order to support browsers without 'ContentVisibilityAutoStateChangeEvent'
-        g('text-size-adjust','auto',true)
+        g('content-visibility', 'visible', 0),  // This is a special case in order to support browsers without 'ContentVisibilityAutoStateChangeEvent'
+        g('text-size-adjust', 'auto', true)
         // g('marquee-style','scroll',0)
     ])
 }
