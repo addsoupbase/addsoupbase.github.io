@@ -41,7 +41,7 @@ function images({ avatars, mons }) {
         this.fadeOut(300)
         this.flags = 1
         await this.animate([{ transform: '' }, { transform: 'scaleX(2) scaleY(2)', }], { duration: 300, easing: 'ease-in-out', composite: 'accumulate', }).finished
-        let [name] = this.firstElementChild.src.match(regex)[0].split(/\.(webp|a?png|gif|jpe?g)/)
+        let [name] = this.firstElementChild.src.match(regex)[0].split(/\.(webp|png|gif|jpe*g)/)
         let me = $('div.ava .tar', {
             styles: {
                 'backgroundImage': `url(${this.firstElementChild.src})`

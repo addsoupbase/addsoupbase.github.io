@@ -2,43 +2,46 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-  <link rel="prefetch" href="../yay.js">
-</head>
-<style>
-    #a {
-        width:30px;
-        height:30px;
-        background-color: red;
-        position: relative;
-    }
-</style>
- 
-<body>
- <p>rgthry</p>
- <textarea id="b"></textarea>
- <p id="c">0</p>
-  <script type="module">
-    import * as h from '../handle.js'
-      import $ from '../yay.js'
-      let m = 0
-      $.byId.b.on({
-        scale() {
-          c.textContent = ++m
-        }
-      })
-      // h.on(a, {
-      //   'layout-shift'(e) {
-      //     console.log(e)
-      //   }
-      // })
-    </script>
+  <meta charset="UTF-8">
+  <meta http-equiv="content-language" content="en">
+  <meta property="og:locale" content="en_US">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+  <meta property="og:image:width" content="750">
+  <meta property="og:image:height" content="500">
+  <meta property="og:image:type" content="image/png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/x-icon" href="favicon.ico" defer>
+  <meta name="robots" content="index">
+  <meta name="color-scheme" content="normal">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="styles.css">
+  <meta name="twitter:creator" content="addsoupbase">
+  <meta name="author" content="addsoupbase">
+  <meta property="profile:username" content="addsoupbase">
+  <meta property="og:url" content="YOUR SITE URL.com">
+  <meta name="twitter:url" content="YOUR SITE URL.com">
+  <link rel="canonical" href="YOUR SITE URL.com">
+  <meta property="og:description" content="YOUR DESC HERE">
+  <meta name="description" content="YOUR DESC HERE">
+  <meta name="twitter:description" content="YOUR DESC HERE">
+  <meta property="og:title" content="YOUR TITLE HERE">
+  <meta name="twitter:title" content="YOUR TITLE HERE">
+  <meta property="og:site_name" content="YOUR TITLE HERE">
+  <meta property="og:image" content="YOUR ICON HERE.png">
+  <meta name="twitter:image" content="YOUR ICON HERE.png">
+  <title>YOUR TITLE HERE</title>
 
-        <div id="a">
-    
-        </div>
+</head>
+
+<body>
+  <script type="module">
+    import $ from '../yay.js'
+  </script>
+  <main id="main">
+    <img-sprite direction="rhorizontal" duration="100" src="../media/sprites/bruxish.png" width="300" x="12" y="1" height="300"></img-sprite>
+  </main>
 </body>
 
 </html>

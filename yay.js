@@ -608,6 +608,9 @@ let props = Object.getOwnPropertyDescriptors(class _
                 break
         }
     }
+    get isProxy() {
+        return true
+    }
     equals(other) {
         let temp = $(other)
         let out = base(temp).isEqualNode(base(this))
@@ -827,7 +830,11 @@ const reuse = {
 /*
 MUTATION OBSERVER STUFFS
 */
+function refreshAttributes(attr) {
+    this.setAttribute(attr, this.getAttribute(attr))
+}
 function observeAll(node) {
+    // if (node instanceof CUSTOM_ELEMENT_SPRITE) node.getAttributeNames().forEach(refreshAttributes, node)
     inte?.observe(node)
     resi.observe(node)
 }
@@ -886,6 +893,7 @@ function ResizeObserverCallback(entries) {
     entries.forEach(ResizeLoop)
 }
 const resi = new ResizeObserver(ResizeObserverCallback)
+    ;[].forEach.call(document.getElementsByTagName('*'), observeAll)
 /*
 PERFORMANCE OBSERVER STUFFS
 */
@@ -939,12 +947,12 @@ function PerformanceObserverCallback(entr) {
     entr.getEntries().forEach(PerformanceLoop)
 }
 const entryTypes = {
-    paint: 'PerformancePaintTiming'in window,
-    'first-input': 'PerformanceEventTiming'in window,
-    'layout-shift': 'LayoutShift'in window,
-    'largest-contentful-paint': 'LargestContentfulPaint'in window,
-    'long-animation-frame': 'PerformanceLongAnimationFrameTiming'in window,
-    longtask: 'PerformanceLongTaskTiming'in window
+    paint: 'PerformancePaintTiming' in window,
+    'first-input': 'PerformanceEventTiming' in window,
+    'layout-shift': 'LayoutShift' in window,
+    'largest-contentful-paint': 'LargestContentfulPaint' in window,
+    'long-animation-frame': 'PerformanceLongAnimationFrameTiming' in window,
+    longtask: 'PerformanceLongTaskTiming' in window
 }
 const perf = new PerformanceObserver(PerformanceObserverCallback)
 perf.observe({ entryTypes: Object.keys(entryTypes) })
@@ -953,7 +961,7 @@ h.addCustomEvent(entryTypes)
 INTERSECTION OBSERVER STUFFS
 */
 if (typeof ContentVisibilityAutoStateChangeEvent !== 'function'
-    || 'mozInnerScreenX'in window  // Firefox is weird again
+    || 'mozInnerScreenX' in window  // Firefox is weird again
 ) {
     var inte = new IntersectionObserver(IntersectionObserverCallback, {
         threshold: [0, Number.MIN_VALUE]
@@ -983,6 +991,7 @@ const baseHandler = {
 }
 function prox(target) {
     if (target === null) return null
+    if (target.isProxy) return target
     if (!getValid(target))
         throw TypeError('Bad input') // get out
     // 🥅 Goal:
@@ -1244,7 +1253,7 @@ export default Object.defineProperties($, {
         }
     }
 })
-let parseMode = 'mozInnerScreenY'in window ? 'createRange' : 'template'
+let parseMode = 'mozInnerScreenY' in window ? 'createRange' : 'template'
 //  createRange seems to be *slightly* faster on firefox
 function badAttrName(name) {
     return regex.onXYZ.test(name//.nodeName
@@ -1257,151 +1266,106 @@ function allElementStuff(e) {
 function destroyEach(ch) {
     prox(ch).destroy()
 }
-/*class CUSTOM_ELEMENT_SPRITE extends HTMLElement {
-static observedAttributes = 'steps x y src width height'.split(' ')
-#style = null
-get #animation() {
-return prox(this.#sprite).getAnimations()[0]
-}
-#sprite = null
-#steps = []
-attributeChangedCallback(name, oldValue, newValue) {
-this.#attch()
-switch (name) {
-    case 'steps': {
-        this.#steps = JSON.parse(newValue)
+class AnimatedSprite extends HTMLElement {
+    static observedAttributes = 'x y src width height duration direction'.split(' ')
+    #ANIMATE() {
+        let p = prox(this)
+        let d = this.#direction === 'horizontal' ? 'width' : 'height'
+        p.setStyles({
+            animation: `${this.#direction} ${this.#duration * (this.getAttribute(d === 'width' ? 'x' : 'y') | 0)}ms steps(var(--grid-${d}), end) infinite`
+        })
     }
-        break
-    case 'src': {
-        this.#sprite.style.setProperty('--sprite', `url(${newValue})`)
-        break
-    }
-    case 'width':
-    case 'height': {
-        this.#sprite.style.setProperty(`--${name}`, `${newValue}px`)
-    }
-        break
-    case 'x':
-    case 'y': {
-        this.#sprite.style.setProperty(`--grid-${name}`, newValue)
-    }
-        break
-    case 'state': switch (newValue) {
-        case 'running':
-            this.#animation.play()
-            break
-        case 'paused':
-            this.#animation.pause()
-            break
-        case 'stopped':
-            this.#animation.cancel()
-            break
-    }
-        break
-}
+    #duration = 1000
+    #direction = 'horizontal'
+    attributeChangedCallback(name, oValue, nValue) {
+        let p = prox(this)
+        if (/[xy]/.test(name)) {
+            p.setStyles({
+                [`--grid-${name === 'x' ? 'width' : 'height'}`]: `${nValue}`
+            })
+            this.#ANIMATE()
+        }
+        else if (/width|height/.test(name)) {
+            if (!CSS.supports('width', nValue)) nValue += 'px'
+            p.setStyles({
+                [`--${name}`]: nValue
+            })
+            this.#ANIMATE()
 
-}
-adoptedCallback() {
-debugger
-}
-constructor() {
-super()
-this.#attch()
-}
-#updateAnim() {
-this.#animation?.cancel()
-// let settings = []
-let me = prox(this),
-    sprite = prox(this.#sprite)
-let { width, height } = me.attr
-width = +width | 0
-height = +height | 0
-let inBetween = ''
-console.log(this.#style.sheet.cssRules.length)
-sprite.setStyles({
-    animation: `anim 1s steps(var(--grid-x),end) infinite   `
-});
-;[].cssText = ` @keyframes anim {
-0% {
-background-position-x: 0px
-}
-${inBetween}
-100% {
-background-position-x: calc(var(--width) * -1 * var(--grid-x))
-}
-}`
-}
-#attch() {
-let g = () => {
-    this.#animation?.cancel()
-    this.#updateAnim()
-}
-if (this.shadowRoot) {
-    this.#sprite = this.shadowRoot.querySelector('div')
-    this.#style = this.shadowRoot.querySelector("style")
-    g()
-    return this.shadowRoot
-}
-let shadow = this.attachShadow({
-    mode: 'open'
-})
-shadow.appendChild(spriteTemplate.content.cloneNode(true))
-this.#sprite = shadow.querySelector('div')
-this.#style = this.shadowRoot.querySelector("style")
-g()
-return shadow
-}
-connectedCallback() {
-this.#attch()
-do this.#style.textContent =
-    `
+        }
+        else if (name === 'src') {
+            p.setStyles({
+                '--sprite': `url(${nValue})`
+            })
+            this.#ANIMATE()
+        }
+        else if (name === 'direction') {
+            if (nValue !== 'horizontal' && nValue !== 'vertical') nValue = 'horizontal'
+            this.#direction = nValue
+        }
+        else if (name === 'duration') {
+            this.#duration = nValue
+        }
+    }
+
+    connectedCallback() {
+        this.attachShadow({ mode: 'open' }).appendChild(base($(`style`, {
+            textContent:
+                `
 @property --sprite {
-syntax: "<image>";
-inherits: false;
-initial-value: url("");
+  syntax: "<image>";
+  inherits: false;
+  initial-value: url("");
 }
 @property --width {
-syntax: "<length-percentage>";
-inherits: false;
-initial-value: 30px;
+  syntax: "<length-percentage>";
+  inherits: false;
+  initial-value: 30px;
 }
 @property --height {
-syntax: "<length-percentage>";
-inherits: false;
-initial-value: 30px;
+  syntax: "<length-percentage>";
+  inherits: false;
+  initial-value: 30px;
 }
-@property --grid-x {
-syntax: "<integer>";
-initial-value: 8;
-inherits: false;
+@property --grid-width {
+  syntax: "<integer>";
+  initial-value: 8;
+  inherits: false;
 }
-@property --grid-y {
-syntax: "<integer>";
-initial-value: 8;
-inherits: false;
+@property --grid-height {
+  syntax: "<integer>";
+  initial-value: 8;
+  inherits: false;
 }
-div {
-width:  var(--width);
-height: var(--height);
-background-color:red;
-background-image: var(--sprite);
-background-repeat:no-repeat;
-background-size: calc(var(--width) * var(--grid-x)) calc(var(--height) * var(--grid-y));
+:host {
+  width: var(--width);
+  display:block;
+  height: var(--height);
+  background-image: var(--sprite);
+  background-repeat: no-repeat;
+  background-size: calc(var(--width) * var(--grid-width)) calc(var(--height) * var(--grid-height));
 }
-@keyframes anim {
-0% {
-background-position-x: 0px;
+@keyframes horizontal {
+  0% {
+    background-position-x: 0px;
+  }
+  100% {
+    background-position-x: calc(var(--width) * -1 * var(--grid-width));
+  }
 }
-100% {
-background-position-x: calc(var(--width) * -1 * var(--grid-x));
-}
+@keyframes vertical {
+  0% {
+    background-position-y: 0px;
+  }
+  100% {
+    background-position-y: calc(var(--height) * -1 * var(--grid-height));
+  }
 }
 `
-while (!this.#style.sheet.cssRules.length)
+        })))
+    }
 }
-}
-const spriteTemplate = $('<template><style></style><div></div></template>')
-customElements.define('img-sprite', CUSTOM_ELEMENT_SPRITE)*/
+customElements.define('img-sprite', AnimatedSprite)
 /*export function info(heading, message, parent, yes, no) {
 return new Promise(resolve => {
 parent ??= $.body
@@ -1439,7 +1403,7 @@ backdrop.fadeIn().then(() => {
 // function reduce(a, b) {
 // return a + b
 // }
-[].forEach.call(document.getElementsByTagName('*'), observeAll)
+/*
 if (location.host.includes('localhost')) window.$ = $
 1 || async function () {
     console.log("Test enabled")
@@ -1464,3 +1428,4 @@ if (location.host.includes('localhost')) window.$ = $
     }
     console.log(obj)
 }()
+    */
