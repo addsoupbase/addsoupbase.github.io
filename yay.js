@@ -276,10 +276,10 @@ let props = Object.getOwnPropertyDescriptors(class _
         let t = this[states]
         if (!t.has(identifier)) {
             this.destroyChildren()
-                .push($(`<samp style="font-size:30px; color:red;">INVALID STATE</samp>`))
+                .push($('<samp style="font-size:30px; color:red;">INVALID STATE</samp>'))
                 .currentState = null
             reportError(identifier)
-            throw TypeError(`Invalid state`)
+            throw TypeError('Invalid state')
         }
         let { cached: cache, callback } = t.get(identifier)
             , frag = cache.content
@@ -393,8 +393,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         )
         else for (let i in events) {
             let value = events[i]
-            let newOne = events[i] = value.bind(this)
-            Object.defineProperty(newOne, h.unbound, {
+            Object.defineProperty(events[i] = value.bind(this), h.unbound, {
                 value
             })
         }
@@ -462,7 +461,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         let me = base(this)
         for (let i in attr) {
             let val = attr[i]
-            if (regex.onXYZ.test(i)) throw TypeError(`Inline event handlers are deprecated`)
+            if (regex.onXYZ.test(i)) throw TypeError('Inline event handlers are deprecated')
             i = ariaOrDataOrCustom(i)
             /*   switch (i) {
                    case 'disabled': me.setAttribute('aria-disabled', !!val); break
@@ -618,19 +617,16 @@ let props = Object.getOwnPropertyDescriptors(class _
     initForm() {
         return new form(base(this))
     }
+    static append(child) {
+        doc.appendChild(base(child))
+    }
     push(...args) {
-        args.flat(1 / 0).forEach(a)
+        args.flat(1 / 0).forEach(_.append)
         base(this).appendChild(doc)
-        function a(child) {
-            doc.appendChild(base(child))
-        }
     }
     unshift(...args) {
-        args.flat(1 / 0).forEach(a)
+        args.flat(1 / 0).forEach(_.append)
         base(this).prepend(doc)
-        function a(child) {
-            doc.appendChild(base(child))
-        }
     }
     //  i tried SO hard to make treewalker useful but it did NOT impress me!
     treeWalker(filter, whatToShow = NodeFilter.SHOW_ELEMENT) {
@@ -778,10 +774,11 @@ HTML_PLACING.forEach(set =>
 // i just like using emojis sorry
 Reflect.ownKeys(props).forEach(i => {
     if (i !== 'constructor') {
-        let v = props[i]
-        if (typeof v.value === 'function') {
-            let old = v.value
-            props[i].value = {
+        let v = props[i],
+            { value } = v
+        if (typeof value === 'function') {
+            let old = value
+            v.value = {
                 [i](...a) {
                     //  This function is for automatically returning the 'this'
                     //  value if the original return value is undefined
@@ -840,9 +837,10 @@ function unobserveAll(node) {
 }
 function MutationObserverCallback(entry) {
     for (let { length: ii } = entry; ii--;) {
-        let me = entry[ii]
-        for (let { length: i } = me.addedNodes; i--;) {
-            let node = me.addedNodes[i]
+        let me = entry[ii],
+            { addedNodes, removedNodes } = me
+        for (let { length: i } = addedNodes; i--;) {
+            let node = addedNodes[i]
             if (node instanceof Element || node?.ownerDocument?.defaultView.Element.prototype.isPrototypeOf(node)) {
                 /*node.parent.dispatchEvent(new CustomEvent('hierarchychange', {
                     bubbles: true,
@@ -853,8 +851,8 @@ function MutationObserverCallback(entry) {
                 observeAll(node)
             }
         }
-        for (let { length: i } = me.removedNodes; i--;) {
-            let node = me.removedNodes[i]
+        for (let { length: i } = removedNodes; i--;) {
+            let node = removedNodes[i]
             if (node instanceof Element || node?.ownerDocument?.defaultView.Element.prototype.isPrototypeOf(node)) {
                 unobserveAll(node)
             }
@@ -910,9 +908,8 @@ function PerformanceLoop(o) {
             return
         case 'longtask':
             console.warn(o)
-        case "long-animation-frame": {
+        case "long-animation-frame":
             detail = o
-        }
             break
         case 'first-input':
             detail = o
@@ -942,12 +939,12 @@ function PerformanceObserverCallback(entr) {
     entr.getEntries().forEach(PerformanceLoop)
 }
 const entryTypes = {
-    paint: 'PerformancePaintTiming' in window,
-    'first-input': 'PerformanceEventTiming' in window,
-    'layout-shift': 'LayoutShift' in window,
-    'largest-contentful-paint': 'LargestContentfulPaint' in window,
-    'long-animation-frame': 'PerformanceLongAnimationFrameTiming' in window,
-    longtask: 'PerformanceLongTaskTiming' in window
+    paint: 'PerformancePaintTiming'in window,
+    'first-input': 'PerformanceEventTiming'in window,
+    'layout-shift': 'LayoutShift'in window,
+    'largest-contentful-paint': 'LargestContentfulPaint'in window,
+    'long-animation-frame': 'PerformanceLongAnimationFrameTiming'in window,
+    longtask: 'PerformanceLongTaskTiming'in window
 }
 const perf = new PerformanceObserver(PerformanceObserverCallback)
 perf.observe({ entryTypes: Object.keys(entryTypes) })
@@ -956,7 +953,7 @@ h.addCustomEvent(entryTypes)
 INTERSECTION OBSERVER STUFFS
 */
 if (typeof ContentVisibilityAutoStateChangeEvent !== 'function'
-    || 'mozInnerScreenX' in window  // Firefox is weird again
+    || 'mozInnerScreenX'in window  // Firefox is weird again
 ) {
     var inte = new IntersectionObserver(IntersectionObserverCallback, {
         threshold: [0, Number.MIN_VALUE]
@@ -965,8 +962,7 @@ if (typeof ContentVisibilityAutoStateChangeEvent !== 'function'
         for (let { length: i } = entries; i--;) {
             let me = entries[i],
                 target = me.target
-            let val = getComputedStyle(target).getPropertyValue('--content-visibility').trim()
-            if (val === 'auto') {
+            if (getComputedStyle(target).getPropertyValue('--content-visibility').trim() === 'auto') {
                 let event = new CustomEvent('contentvisibilityautostatechange', { bubbles: true, detail: { skipped: !me.isIntersecting } })
                 target.dispatchEvent(event)
             }
@@ -974,6 +970,7 @@ if (typeof ContentVisibilityAutoStateChangeEvent !== 'function'
     }
 }
 const baseHandler = {
+    // just create as few closures as possible
     get(targ, prop) {
         let a = this[0]
         return targ.hasOwnProperty(prop) ? targ[prop] :
@@ -1112,7 +1109,7 @@ function $(html, props, ...children) {
     if (html[0] === '<' && html.at(-1) === '>')
         var element = prox(parseModeMap.get(parseMode)?.(html) ?? parseModeMap.get('')(html))
     else {
-        html === 'fencedframe' && typeof HTMLFencedFrameElement === 'undefined' && (html = 'iframe')
+        // html === 'fencedframe' && typeof HTMLFencedFrameElement === 'undefined' && (html = 'iframe')
         var element = prox(document.createElement(html.match(htmlRegex)?.[0]))
         let classes = html.match(classRegex),
             id = html.match(idRegex)?.[0],
@@ -1123,7 +1120,7 @@ function $(html, props, ...children) {
         type && (toSet.type = type)
         element.setAttr(toSet)
     }
-    if (Array.from(base(element).querySelectorAll('*'), prox).concat(element).some(allElementStuff)) throw TypeError(`Inline event handlers are deprecated`)
+    if (Array.from(base(element).querySelectorAll('*'), prox).concat(element).some(allElementStuff)) throw TypeError('Inline event handlers are deprecated')
     if (element.tagName === 'SCRIPT' || element.querySelector('script')) {
         debugger
         throw new DOMException('Potential script injection', 'SecurityError')
@@ -1247,7 +1244,7 @@ export default Object.defineProperties($, {
         }
     }
 })
-let parseMode = 'mozInnerScreenY' in window ? 'createRange' : 'template'
+let parseMode = 'mozInnerScreenY'in window ? 'createRange' : 'template'
 //  createRange seems to be *slightly* faster on firefox
 function badAttrName(name) {
     return regex.onXYZ.test(name//.nodeName
@@ -1257,7 +1254,6 @@ function allElementStuff(e) {
     return e.getAttributeNames().some(badAttrName)
     // return [].some.call(e.attributes, badAttrName)
 }
-
 function destroyEach(ch) {
     prox(ch).destroy()
 }
