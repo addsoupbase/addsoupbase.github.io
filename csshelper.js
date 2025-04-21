@@ -245,8 +245,46 @@ export function supportedPElementVendor(element) {
         throw SyntaxError(`Bad parsing for Pseudo-Element: '${element}'. They should include '::'`)
     }
 }
-queueMicrotask
-    (() => {
+export function dropShadow({
+    color = '#000000',
+    offsetX = '0px',
+    offsetY = '0px',
+    standardDeviation = ''
+}) {
+    return `${color} ${offsetX} ${offsetY} ${standardDeviation}`
+}
+export function boxShadow({
+    offsetX = '0px',
+    offsetY = '0px',
+    blurRadius = '',
+    spreadRadius = '',
+    color = '#000000'
+}) {
+    return `${color} ${offsetX} ${offsetY} ${blurRadius} ${spreadRadius}`.replaceAll('  ', '')
+}
+export function convertToCSSMethod(value) {
+    debugger
+    // Does not work in firefox
+    /* try {
+         let val = parseFloat(value),
+             unit = value.split(val).at(-1)
+         if (unit === '%') unit = 'percent'
+         if (isNaN(val)) throw TypeError('Invalid number')
+         if (!isNaN(+value)) return CSS.number(value)
+         if (!(unit in CSS)) throw SyntaxError(`Unrecognised unit '${unit}'`)
+         return CSS[unit](val)
+     } catch {*/
+    return value
+    // }
+}
+{
+    function g(name, initialValue, inherits, syntax) {
+        initialValue ??= 'auto'
+        inherits ??= false
+        syntax ??= '*'
+        return { name: `--${name}`, initialValue, inherits, syntax }
+    }
+    !function(allProps) {
         //    Some default CSS..
         registerCSSAll({
             /*  dialog: {
@@ -311,47 +349,7 @@ queueMicrotask
                 registerCSS('*', universal, true),
                     sessionStorage.setItem('css', toCSS(universal, true))
         }()
-    })
-export function dropShadow({
-    color = '#000000',
-    offsetX = '0px',
-    offsetY = '0px',
-    standardDeviation = ''
-}) {
-    return `${color} ${offsetX} ${offsetY} ${standardDeviation}`
-}
-export function boxShadow({
-    offsetX = '0px',
-    offsetY = '0px',
-    blurRadius = '',
-    spreadRadius = '',
-    color = '#000000'
-}) {
-    return `${color} ${offsetX} ${offsetY} ${blurRadius} ${spreadRadius}`.replaceAll('  ', '')
-}
-export function convertToCSSMethod(value) {
-    debugger
-    // Does not work in firefox
-    /* try {
-         let val = parseFloat(value),
-             unit = value.split(val).at(-1)
-         if (unit === '%') unit = 'percent'
-         if (isNaN(val)) throw TypeError('Invalid number')
-         if (!isNaN(+value)) return CSS.number(value)
-         if (!(unit in CSS)) throw SyntaxError(`Unrecognised unit '${unit}'`)
-         return CSS[unit](val)
-     } catch {*/
-    return value
-    // }
-}
-{
-    function g(name, initialValue, inherits, syntax) {
-        initialValue ??= 'auto'
-        inherits ??= false
-        syntax ??= '*'
-        return { name: `--${name}`, initialValue, inherits, syntax }
-    }
-    var allProps = [
+    }( [
         //  Fallback stuff
         g("user-select", "auto", true), // Most important one
         g("user-modify", "auto", 0),
@@ -444,5 +442,5 @@ export function convertToCSSMethod(value) {
         g('content-visibility','visible',0),  // This is a special case in order to support browsers without 'ContentVisibilityAutoStateChangeEvent'
         g('text-size-adjust','auto',true)
         // g('marquee-style','scroll',0)
-    ]
+    ])
 }
