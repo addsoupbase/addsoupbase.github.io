@@ -701,9 +701,11 @@ let props = Object.getOwnPropertyDescriptors(class _
         }
         // Firefox warns of empty string
     }
-    animate(keyframes, options = {}) {
+    animate(keyframes, options) {
+        options ??= {}
         options.timing ??= 'ease'
         options.iterations ??= 1
+        options.pseudoElement &&= css.supportedPElementVendor(options.pseudoElement)
         keyframes.forEach(_.forEach)
         return base(this).animate(keyframes, options)
     }
@@ -1279,7 +1281,7 @@ class AnimatedSprite extends HTMLElement {
         }
         else if (this.#axis === 'vertical') {
             p.setStyles({
-                'background-position-x':`calc((var(--axis)*var(--width)) * -1)`,
+                'background-position-x': `calc((var(--axis)*var(--width)) * -1)`,
                 animation: `vertical ${this.#duration * this.getAttribute('rows') | 0}ms steps(var(--grid-height), end) ${this.#direction} infinite`
             })
         }
@@ -1315,12 +1317,12 @@ class AnimatedSprite extends HTMLElement {
         }
         else if (name === 'duration') {
             this.#duration = nValue
-            this.#ANIMATE()   
+            this.#ANIMATE()
         }
         else if (name === 'direction') {
             if (!/^(?:normal|reverse|(?:alternate(?:-reverse)?))$/.test(nValue)) nValue = 'normal'
             this.#direction = nValue
-            this.#ANIMATE()   
+            this.#ANIMATE()
         }
         else if (name === 'index') {
             p.setStyles({
@@ -1430,7 +1432,6 @@ backdrop.fadeIn().then(() => {
 // return a + b
 // }
 /*
-if (location.host.includes('localhost')) window.$ = $
 1 || async function () {
     console.log("Test enabled")
     if (location.href.startsWith('http://localhost')) window.test = function (count = 1000, mode = parseMode) {
@@ -1455,3 +1456,7 @@ if (location.host.includes('localhost')) window.$ = $
     console.log(obj)
 }()
     */
+location.host.includes('localhost') &&
+    Object.assign(window, {
+        $, css
+    })
