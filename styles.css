@@ -274,7 +274,13 @@ input[type=image]:active {
 /* border-style: solid; */
 /* border-radius: 100%; */
 /* } */
-
+#diary {
+  overflow: hidden !important;
+  resize: both;
+  max-height: 70vh;
+  opacity: 1;
+  backdrop-filter: blur(4px);
+}
 #background {
   z-index: 2;
   position: fixed;
