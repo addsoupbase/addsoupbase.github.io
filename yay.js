@@ -237,6 +237,11 @@ let props = Object.getOwnPropertyDescriptors(class _
     static restart(o) {
         o.play(o.currentTime = 0)
     }
+    get isVisible() {
+        let rect = base(this).getBoundingClientRect()
+        , viewHeight = Math.max(document.documentElement.clientHeight, innerHeight)
+        return !(rect.bottom < 0 || rect.top - viewHeight >= 0)
+    }
     createState(identifier, child, callback) {
         let t = this[states]
         if (t.has(identifier)) throw Error("Already present")

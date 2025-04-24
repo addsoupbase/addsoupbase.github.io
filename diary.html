@@ -130,18 +130,18 @@
                 setEntry(getDate())
             }
         })
-        next.on({
+        next.debounce({
             click() {
                 goBy(1)
                 setEntry(getDate())
             }
-        })
-        prev.on({
+        },300)
+        prev.debounce({
             click() {
                 goBy(-1)
                 setEntry(getDate())
             }
-        })
+        }, 300)
         // function getMSThingy() {
         // return Date.UTC((new Date).getFullYear(), (new Date).getMonth(), (new Date).getDate())
         // }
