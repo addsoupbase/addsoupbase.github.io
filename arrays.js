@@ -27,8 +27,7 @@ export function remove(item, index) {
         item.splice(index, 1)
 }
 export function swap(item, first, second) {
-    [item[first], item[second]] = [item[second], item[first]]
-    return item
+    return{0:item[first], 1:item[second]} = [item[second], item[first]], item
 }
 export function swapInside(item, firstIndex, secondIndex) {
     const slot = item.indexOf(firstIndex),
@@ -53,9 +52,9 @@ export let getJson
 function do1() {
     // Some browsers (Firefox, old) throw with the 'options' parameter
     getJson = fallback.constructor('src',
-        '"use strict";try{let out = (await import(new URL(src,location),{with:{type:\'json\'}})).default; sessionStorage.setItem("supportsJSONModule", true); return out}\ncatch(e){if(e.name==="TypeError"){sessionStorage.setItem("supportsJSONModule", false);return this(src)}\nthrow e}'
+        '"use strict";try{let out=(await import(new URL(src,location),{with:{type:\'json\'}})).default;sessionStorage.setItem("supportsJSONModule",true);return out}catch(e){if(e.name==="TypeError"){sessionStorage.setItem("supportsJSONModule",false);return this(src)}throw e}'
     )
-    // If the import() thing still fails just use the fallback
+        // If the import() thing still fails just use the fallback
         .bind(fallback)
     // using bind since the function can't access the module scope
 }
