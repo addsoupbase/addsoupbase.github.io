@@ -806,7 +806,7 @@ Reflect.ownKeys(props).forEach(i => {
 const prototypeDescriptors = Object.getOwnPropertyDescriptors(prototype)
 function base(element) {
     // 🌱 Get the root element
-    return element[me] ?? prox(element)[me]
+    return element[me] ?? element
 }
 // Don't mind these objects
 const reuse = {
