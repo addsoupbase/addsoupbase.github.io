@@ -13,22 +13,24 @@ export function dashVendor(prop, val) {
 export function capVendor(prop, val) {
     return toCaps(vendor(toDash(prop), val))
 }
+const all = new Set
+export const has = all.has.bind(all)
 export function vendorValue(prop, val) {
     // i will fix this soon
     let without = val.replace(allVendors, '')
         .replace(allVendors2, '')
     switch (without) {
         case 'crisp-edges':
-            CSS.supports(prop, val = '-webkit-optimize-contrast') ||
-                CSS.supports(prop, val = `-moz-crisp-edges`) ||
-                CSS.supports(prop, val = without)
+            sup(prop, val = '-webkit-optimize-contrast') ||
+                sup(prop, val = '-moz-crisp-edges') ||
+                sup(prop, val = without)
             break
         case 'stretch':
         case 'fill-available':
         case 'available':
-            CSS.supports(prop, val = '-webkit-fill-available') ||
-                CSS.supports(prop, val = '-moz-available') ||
-                CSS.supports(prop, val = without)
+            sup(prop, val = '-webkit-fill-available') ||
+                sup(prop, val = '-moz-available') ||
+                sup(prop, val = without)
             break
     }
     return val
@@ -45,60 +47,61 @@ const allVendors = RegExp(
     // internal
 ),
     allVendors2 = /(?:prince|mso)-/
-const dontRedo = new Map
+const dontRedo = new Map,
+    sup = CSS.supports
 export function vendor(prop, val, silent) {
-    if (prop.startsWith('--') && CSS.supports(prop, val)) return prop
-    if (val.trim() && !CSS.supports(prop, val)) {
+    if (prop.startsWith('--') && sup(prop, val)) return prop
+    if (val.trim() && !sup(prop, val)) {
         let prefix = prop = prop
             .replace(allVendors, '')
             .replace(allVendors2, '')
         if (dontRedo.has(prop)) return dontRedo.get(prop)
         return (
-            CSS.supports(prefix, val) ||
+            sup(prefix, val) ||
             // Maybe you dont need a prefix?
-            CSS.supports(prefix = `-webkit-${prop}`, val) ||
+            sup(prefix = `-webkit-${prop}`, val) ||
             // Most likely (Chrome, Safari)
-            CSS.supports(prefix = `-moz-${prop}`, val) ||
+            sup(prefix = `-moz-${prop}`, val) ||
             // Firefox
-            CSS.supports(prefix = `-moz-osx-${prop}`, val) ||
+            sup(prefix = `-moz-osx-${prop}`, val) ||
             // Firefox
-            CSS.supports(prefix = `-o-${prop}`, val) ||
-            // Opera
-            CSS.supports(prefix = `-apple-${prop}`, val) ||
+            sup(prefix = `-apple-${prop}`, val) ||
             // Apple!
-            CSS.supports(prefix = `-ms-${prop}`, val) ||
-            // Microsoft
-            CSS.supports(prefix = `-khtml-${prop}`, val) ||
-            // Konqueror
-            CSS.supports(prefix = `-konq-${prop}`, val) ||
-            // Konqueror
-            CSS.supports(prefix = `mso-${prop}`, val) ||
-            // Microsoft Office
-            CSS.supports(prefix = `-xv-${prop}`, val) ||
+            sup(prefix = `-o-${prop}`, val) ||
             // Opera
-            CSS.supports(prefix = `-atsc-${prop}`, val) ||
+            sup(prefix = `-ms-${prop}`, val) ||
+            // Microsoft
+            sup(prefix = `-khtml-${prop}`, val) ||
+            // Konqueror
+            sup(prefix = `-konq-${prop}`, val) ||
+            // Konqueror
+            sup(prefix = `mso-${prop}`, val) ||
+            // Microsoft Office
+            sup(prefix = `-xv-${prop}`, val) ||
+            // Opera
+            sup(prefix = `-atsc-${prop}`, val) ||
             // Advanced Television Standards Committee
-            CSS.supports(prefix = `-wap-${prop}`, val) ||
+            sup(prefix = `-wap-${prop}`, val) ||
             // The WAP Forum
-            CSS.supports(prefix = `prince-${prop}`, val) ||
+            sup(prefix = `prince-${prop}`, val) ||
             // YesLogic
-            CSS.supports(prefix = `-ah-${prop}`, val) ||
+            sup(prefix = `-ah-${prop}`, val) ||
             // Antenna House
-            CSS.supports(prefix = `-hp-${prop}`, val) ||
+            sup(prefix = `-hp-${prop}`, val) ||
             // Hewlett Packard
-            CSS.supports(prefix = `-ro-${prop}`, val) ||
+            sup(prefix = `-ro-${prop}`, val) ||
             // Real Objects
-            CSS.supports(prefix = `-rim-${prop}`, val) ||
+            sup(prefix = `-rim-${prop}`, val) ||
             // Research In Motion
-            CSS.supports(prefix = `-tc-${prop}`, val) ||
+            sup(prefix = `-tc-${prop}`, val) ||
             // Tall Components
-            CSS.supports(prefix = `-fso-${prop}`, val) ||
+            sup(prefix = `-fso-${prop}`, val) ||
             // IDK
-            CSS.supports(prefix = `-icab-${prop}`, val) ||
+            sup(prefix = `-icab-${prop}`, val) ||
             // IDK
-            CSS.supports(prefix = `-epub-${prop}`, val) ||
+            sup(prefix = `-epub-${prop}`, val) ||
             // IDK
-            // CSS.supports(prefix = `-internal-${prop}`, val) ||
+            // sup(prefix = `-internal-${prop}`, val) ||
             badCSS(`⛓️‍💥 Unrecognized CSS at '${prefix = prop}: ${val}'`, silent)),
             mayNotBeSupported(prop),
             dontRedo.set(prop, prefix),
@@ -204,9 +207,10 @@ export function registerCSSAll(rules) {
     // return out
 }
 export function supportsRule(rule) {
-    return CSS.supports(`selector(${rule})`)
+    return sup(`selector(${rule})`)
 }
 const theNames = `${allVendors}`.match(/\w+/g)
+export const pcv = supportedPClassVendor
 export function supportedPClassVendor(className) {
     try {
         let { 0: before, 1: _class } = className.split(':'),
@@ -223,9 +227,10 @@ export function supportedPClassVendor(className) {
         return `${before}:${_class}`
     }
     catch {
-        throw SyntaxError(`Bad parsing for Pseudo-Class: '${_class}'. They should include ':'`)
+        throw SyntaxError(`Failed to parse '${_class}'`)
     }
 }
+export const pev = supportedPElementVendor
 export function supportedPElementVendor(element) {
     try {
         let { 0: before, 1: _element } = element.split('::'),
@@ -242,7 +247,7 @@ export function supportedPElementVendor(element) {
         return `${before}::${_element}`
     }
     catch {
-        throw SyntaxError(`Bad parsing for Pseudo-Element: '${element}'. They should include '::'`)
+        throw SyntaxError(`Failed to parse '${element}'`)
     }
 }
 export function dropShadow({
@@ -262,26 +267,27 @@ export function boxShadow({
 }) {
     return `${color} ${offsetX} ${offsetY} ${blurRadius} ${spreadRadius}`.replaceAll('  ', '')
 }
-export function convertToCSSMethod(value) {
-    debugger
-    // Does not work in firefox
-    /* try {
-         let val = parseFloat(value),
-             unit = value.split(val).at(-1)
-         if (unit === '%') unit = 'percent'
-         if (isNaN(val)) throw TypeError('Invalid number')
-         if (!isNaN(+value)) return CSS.number(value)
-         if (!(unit in CSS)) throw SyntaxError(`Unrecognised unit '${unit}'`)
-         return CSS[unit](val)
-     } catch {*/
-    return value
-    // }
-}
+// export function convertToCSSMethod(value) {
+//     debugger
+//     // Does not work in firefox
+//     /* try {
+//          let val = parseFloat(value),
+//              unit = value.split(val).at(-1)
+//          if (unit === '%') unit = 'percent'
+//          if (isNaN(val)) throw TypeError('Invalid number')
+//          if (!isNaN(+value)) return CSS.number(value)
+//          if (!(unit in CSS)) throw SyntaxError(`Unrecognised unit '${unit}'`)
+//          return CSS[unit](val)
+//      } catch {*/
+//     return value
+//     // }
+// }
 {
     function g(name, initialValue, inherits, syntax) {
         initialValue ??= 'auto'
         inherits ??= false
         syntax ??= '*'
+        all.add(name)
         return { name: `--${name}`, initialValue, inherits, syntax }
     }
     !function (allProps) {
@@ -315,10 +321,10 @@ export function convertToCSSMethod(value) {
             },
         })
         void function () {
-            function Yield() {
-                return new Promise(queueMicrotask)
-            }
-            Yield = window.scheduler?.yield?.bind(scheduler) ?? Yield
+            // function Yield() {
+                // return new Promise(queueMicrotask)
+            // }
+            // Yield = window.scheduler?.yield?.bind(scheduler) ?? Yield
             //  This registers all of those var(--abc-xyz)
             //  all the properties are located at the very bottom of this module!
             /*CSS.registerProperty({
@@ -327,7 +333,7 @@ export function convertToCSSMethod(value) {
                 initialValue: 0
             })*/
             const universal = {}
-            let func = CSS.registerProperty ?? function () { }
+            let func = CSS.registerProperty ?? function () {}
             for (let { length: i } = allProps; i--;) {
                 let prop = allProps[i]
                 try {
@@ -343,11 +349,10 @@ export function convertToCSSMethod(value) {
                 }
             }
             allProps = null
-            if (beenHereBefore)
-                addedStyleRules.insertRule(`* {${beenHereBefore}}`)
-            else
+                beenHereBefore?
+                addedStyleRules.insertRule(`* {${beenHereBefore}}`):
                 registerCSS('*', universal, true),
-                    sessionStorage.setItem('css', toCSS(universal, true))
+                sessionStorage.setItem('css', toCSS(universal, true))
         }()
     }([
         //  Fallback stuff
@@ -440,7 +445,8 @@ export function convertToCSSMethod(value) {
         g("overflow-scrolling", "auto", 0),
         g("column-axis", "auto", 0),
         g('column-progression', 'auto', 0),
-        g('content-visibility', 'visible', 0),  // This is a special case in order to support browsers without 'ContentVisibilityAutoStateChangeEvent'
+        g('content-visibility', 'visible', 0),
+        // This is a special case in order to support browsers without 'ContentVisibilityAutoStateChangeEvent'
         g('text-size-adjust', 'auto', true)
         // g('marquee-style','scroll',0)
     ])

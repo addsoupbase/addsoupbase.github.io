@@ -27,7 +27,6 @@ function images({ avatars, mons }) {
                 holding = false
             },
             pointerdown(e) {
-                console.log(e)
                 this.setPointerCapture(e.pointerId)
                 holding = true
             }
