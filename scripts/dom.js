@@ -1,7 +1,7 @@
 
 import $ from '../yay.js'
 import { FormDataManager } from '../proxies.js'
-import { on, wait } from "../handle.js"
+import { on, } from "../handle.js"
 
 $.setup()
 let { main } = $.byId
@@ -12,12 +12,9 @@ on(window, {
         if (top === window) {
             $.byId.goBack.setAttribute('href', './')
         }
-        requestIdleCallback(() => {
-            typeof final === 'function'  && final()
-        }, { timeout: 20000 })
+
     }
 })
-window.requestIdleCallback ??= queueMicrotask
 if (location.hash) main.animate([{ filter: 'blur(2px)', opacity: 0, scale: '0.8 0.8', translate: '0 -40px' }, { filter: '', opacity: .96 }], { duration: 700, easing: 'ease-in', fill: 'forwards' })
 else {
     main.animate([{ opacity: 0 }, { opacity: .96 }], { duration: 500, easing: 'ease', fill: 'forwards' })

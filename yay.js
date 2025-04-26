@@ -219,6 +219,7 @@ const handlers = {
 // Main [[Prototype]] is on this class
 // let ATTR = Symbol('💿')
 let states = Symbol('💾')
+let computed = Symbol('🔬')
 let props = Object.getOwnPropertyDescriptors(class _
     extends null {
     static cancel(o) {
@@ -238,8 +239,11 @@ let props = Object.getOwnPropertyDescriptors(class _
     }
     get isVisible() {
         let rect = base(this).getBoundingClientRect()
-        , viewHeight = Math.max(document.documentElement.clientHeight, innerHeight)
+            , viewHeight = Math.max(document.documentElement.clientHeight, innerHeight)
         return !(rect.bottom < 0 || rect.top - viewHeight >= 0)
+    }
+    get computed() {
+        return this[computed]??=getComputedStyle(base(this))
     }
     createState(identifier, child, callback) {
         let t = this[states]
@@ -766,7 +770,7 @@ TEXT_THINGIES.forEach(txt =>
         set(val) {
             let me = base(this)
             if (me.childElementCount) throw TypeError(`Cannot set '${txt}', element has children`)
-            me[txt] = val
+            me[txt] = safeHTML(val)
         }
     })
 )
@@ -855,18 +859,30 @@ function MutationObserverCallback(entry) {
         for (let { length: i } = addedNodes; i--;) {
             let node = addedNodes[i]
             if (node instanceof Element || node?.ownerDocument?.defaultView.Element.prototype.isPrototypeOf(node)) {
-                /*node.parent.dispatchEvent(new CustomEvent('hierarchychange', {
-                    bubbles: true,
-                    detail: {
-                        added: true,
-                    }
-                }))*/
+              /*  queueMicrotask(() => {
+                    document.dispatchEvent(new CustomEvent('subtree-modified', {
+                        // bubbles: true,
+                        detail: {
+                            node,
+                            added: true,
+                        }
+                    }))
+                })*/
                 observeAll(node)
             }
         }
         for (let { length: i } = removedNodes; i--;) {
             let node = removedNodes[i]
             if (node instanceof Element || node?.ownerDocument?.defaultView.Element.prototype.isPrototypeOf(node)) {
+             /*   queueMicrotask(() => {
+                    document.dispatchEvent(new CustomEvent('subtree-modified', {
+                        // bubbles: true,
+                        detail: {
+                            node,
+                            added: false,
+                        }
+                    }))
+                })*/
                 unobserveAll(node)
             }
         }
@@ -921,7 +937,7 @@ function PerformanceLoop(o) {
         }
             return
         case 'longtask':
-            console.warn(o)
+            // console.warn(o)
         case "long-animation-frame":
             detail = o
             break
@@ -1019,6 +1035,10 @@ function prox(target) {
                 fromQuery: {
                     value: querySelectorProxy
                 },
+                [computed]:{
+                    value:null,
+                    writable:1
+                },
                 [states]: {
                     value: new Map
                 },
@@ -1115,14 +1135,26 @@ const parseModeMap = new Map(Object.entries({
         return document.adoptNode(t.body.firstElementChild)
     }
 }))
+let safeHTML = html => html
+/*if (window.trustedTypes && window.trustedTypes.createPolicy && !window.trustedTypes.defaultPolicy) {
+it's like being weird for some reason idfk how to use trusted types policy thing    
+    let t = trustedTypes.createPolicy("default", {
+        createHTML: safeHTML,
+        createScriptURL: safeHTML,
+        createScript: safeHTML
+    })
+    safeHTML = t.createHTML.bind(t)
+}*/
 /**
 * # Be careful of html injection when using a string!!
 */
 function $(html, props, ...children) {
     if (getValid(html)) return prox(html) // Redirect
     if (typeof html === 'string') html = html.trim()
-    if (html[0] === '<' && html.at(-1) === '>')
+    if (html[0] === '<' && html.at(-1) === '>') {
+        html = safeHTML(html)
         var element = prox(parseModeMap.get(parseMode)?.(html) ?? parseModeMap.get('')(html))
+    }
     else {
         // html === 'fencedframe' && typeof HTMLFencedFrameElement === 'undefined' && (html = 'iframe')
         var element = prox(document.createElement(html.match(htmlRegex)?.[0]))
@@ -1259,7 +1291,7 @@ export default Object.defineProperties($, {
         }
     }
 })
-let parseMode = 'mozInnerScreenY' in window ? 'createRange' : 'template'
+let parseMode = 'mozInnerScreenY' in window ? 'createRange' : ''
 //  createRange seems to be *slightly* faster on firefox
 function badAttrName(name) {
     return regex.onXYZ.test(name//.nodeName
@@ -1272,72 +1304,72 @@ function allElementStuff(e) {
 function destroyEach(ch) {
     prox(ch).destroy()
 }
-class AnimatedSprite extends HTMLElement {
-    static observedAttributes = 'cols rows src width height duration direction index'.split(' ')
-    #ANIMATE() {
-        let p = prox(this)
-        console.log(this.#duration)
-        if (this.#axis === 'horizontal') {
-            p.setStyles({
-                'background-position-y': `calc((var(--axis)*var(--height)) * -1)`,
-                animation: `horizontal ${this.#duration * this.getAttribute('cols') | 0}ms steps(var(--grid-width), end) ${this.#direction} infinite`
-            })
+try {
+    class AnimatedSprite extends HTMLElement {
+        static observedAttributes = 'cols rows src width height duration direction index'.split(' ')
+        #ANIMATE() {
+            let p = prox(this)
+            if (this.#axis === 'horizontal') {
+                p.setStyles({
+                    'background-position-y': `calc((mod(var(--axis), var(--grid-height))*var(--height)) * -1)`,
+                    animation: `horizontal ${this.#duration * this.getAttribute('cols') | 0}ms steps(var(--grid-width), end) ${this.#direction} infinite`
+                })
+            }
+            else if (this.#axis === 'vertical') {
+                p.setStyles({
+                    'background-position-x': `calc((mod(var(--axis), var(--grid-width))*var(--width)) * -1)`,
+                    animation: `vertical ${this.#duration * this.getAttribute('rows') | 0}ms steps(var(--grid-height), end) ${this.#direction} infinite`
+                })
+            }
         }
-        else if (this.#axis === 'vertical') {
-            p.setStyles({
-                'background-position-x': `calc((var(--axis)*var(--width)) * -1)`,
-                animation: `vertical ${this.#duration * this.getAttribute('rows') | 0}ms steps(var(--grid-height), end) ${this.#direction} infinite`
-            })
-        }
-    }
-    #duration = 1000
-    #axis = 'horizontal'
-    #direction = 'normal'
-    attributeChangedCallback(name, oValue, nValue) {
-        let p = prox(this)
-        if (/^(?:cols|rows)$/.test(name)) {
-            p.setStyles({
-                [`--grid-${name === 'cols' ? 'width' : 'height'}`]: `${nValue}`
-            })
-            this.#ANIMATE()
-        }
-        else if (/^(?:width|height)/.test(name)) {
-            if (!CSS.supports('width', nValue)) nValue += 'px'
-            p.setStyles({
-                [`--${name}`]: nValue
-            })
-            this.#ANIMATE()
+        #duration = 1000
+        #axis = 'horizontal'
+        #direction = 'normal'
+        attributeChangedCallback(name, oValue, nValue) {
+            let p = prox(this)
+            if (/^(?:cols|rows)$/.test(name)) {
+                p.setStyles({
+                    [`--grid-${name === 'cols' ? 'width' : 'height'}`]: `${nValue}`
+                })
+                this.#ANIMATE()
+            }
+            else if (/^(?:width|height)/.test(name)) {
+                if (!CSS.supports('width', nValue)) nValue += 'px'
+                p.setStyles({
+                    [`--${name}`]: nValue
+                })
+                this.#ANIMATE()
 
+            }
+            else if (name === 'src') {
+                p.setStyles({
+                    '--sprite': `url(${nValue})`
+                })
+                this.#ANIMATE()
+            }
+            else if (name === 'axis') {
+                if (nValue !== 'horizontal' && nValue !== 'vertical') nValue = 'horizontal'
+                this.#axis = nValue
+            }
+            else if (name === 'duration') {
+                this.#duration = nValue
+                this.#ANIMATE()
+            }
+            else if (name === 'direction') {
+                if (!/^(?:normal|reverse|(?:alternate(?:-reverse)?))$/.test(nValue)) nValue = 'normal'
+                this.#direction = nValue
+                this.#ANIMATE()
+            }
+            else if (name === 'index') {
+                p.setStyles({
+                    '--axis': nValue | 0
+                })
+            }
         }
-        else if (name === 'src') {
-            p.setStyles({
-                '--sprite': `url(${nValue})`
-            })
-            this.#ANIMATE()
-        }
-        else if (name === 'axis') {
-            if (nValue !== 'horizontal' && nValue !== 'vertical') nValue = 'horizontal'
-            this.#axis = nValue
-        }
-        else if (name === 'duration') {
-            this.#duration = nValue
-            this.#ANIMATE()
-        }
-        else if (name === 'direction') {
-            if (!/^(?:normal|reverse|(?:alternate(?:-reverse)?))$/.test(nValue)) nValue = 'normal'
-            this.#direction = nValue
-            this.#ANIMATE()
-        }
-        else if (name === 'index') {
-            p.setStyles({
-                '--axis': nValue | 0
-            })
-        }
-    }
-    connectedCallback() {
-        this.attachShadow({ mode: 'open' }).appendChild(base($(`style`, {
-            textContent:
-                `
+        connectedCallback() {
+            this.attachShadow({ mode: 'open' }).appendChild(base($(`style`, {
+                textContent:
+                    `
 @property --sprite {
   syntax: "<image>";
   inherits: false;
@@ -1394,10 +1426,14 @@ class AnimatedSprite extends HTMLElement {
   }
 }
 `
-        })))
+            })))
+        }
     }
+    Object.getPrototypeOf(customElements).define.call(customElements,'img-sprite', AnimatedSprite)
 }
-customElements.define('img-sprite', AnimatedSprite)
+catch (e) {
+    reportError(e)
+}
 /*export function info(heading, message, parent, yes, no) {
 return new Promise(resolve => {
 parent ??= $.body

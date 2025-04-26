@@ -34,7 +34,19 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" type="image/x-icon" href="favicon.ico" defer="">
     <title>addsoupbase🍜</title>
-    <script type="module" blocking="render">import'./csshelper.js'</script>
+    <script type="speculationrules">
+        {
+          "prefetch": [
+            {
+              "urls": ["about.html", "stuff.html", "diary.html"],
+              "eagerness":"immediate"
+            }
+          ]
+        }
+      </script>
+    <script type="module" blocking="render">
+        import './csshelper.js'
+    </script>
     <script>
         'use strict'
         console.log('%c🆓 Sprites credit: https://sprites.pmdcollab.org/', 'font-size:2em')

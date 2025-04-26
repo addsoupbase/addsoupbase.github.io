@@ -1,6 +1,5 @@
-let regex = /[\w\.\-]+\.(webp|png|gif|jpe?g)/
+let regex = /[\w\.\-]+\.(?:webp|a?png|gif|jpe?g)/
 function images({ avatars, mons }) {
-
     let pop = new Audio('media/pop.mp3')
     // on(document, {
     // visibilitychange() {
@@ -46,7 +45,7 @@ function images({ avatars, mons }) {
                 'backgroundImage': `url(${this.firstElementChild.src})`
             },
             attributes: {
-                _hidden:'true',
+                _hidden: 'true',
                 alt: name,
             },
             parent: bg,
@@ -62,7 +61,7 @@ function images({ avatars, mons }) {
         const { src } = image
         let n = $('div.bubble', {
             attr: {
-                _hidden:'true',
+                _hidden: 'true',
                 width: 50, height: 50
             }, parent
         })
@@ -77,7 +76,7 @@ function images({ avatars, mons }) {
             attributes: {
                 src,
                 // alt: src,
-                _hidden:'true',
+                _hidden: 'true',
 
                 width: 50,
                 height: 50,
@@ -89,7 +88,7 @@ function images({ avatars, mons }) {
     function createAnimationForSpritesheet(image) {
         let me = $(`div.${image[Symbol.for('name')]}.sprite`, {
             parent, attr: {
-                _hidden:'true',
+                _hidden: 'true',
             }
         })
         me.animate([{
@@ -99,8 +98,8 @@ function images({ avatars, mons }) {
             'backgroundPositionX': `-${image.width}px`
         }
         ], { easing: `steps(${image[Symbol.for('width')]},end)`, duration: frameDuration * image[Symbol.for('width')], iterations: 1 / 0 })
-        ran.jackpot(1000)&& me.classList.add('shiny')
-            return me 
+        ran.jackpot(1000) && me.classList.add('shiny')
+        return me
     }
     async function spawnPkmn() {
         setTimeout(spawnPkmn, ran.range(500, 2000))
@@ -155,23 +154,19 @@ function images({ avatars, mons }) {
 import $ from '../yay.js'
 import * as math from '../num.js'
 import * as string from '../str.js'
-import * as h from '../handle.js'
+// import * as h from '../handle.js'
 import ran from '../random.js'
-const iframe = $.qs('object')
+const frame = $.qs('object')
 //document.body.scrollLeft = innerHeight/2
-async function go() {
-    try {
-        iframe.contentWindow.final = function () {
+frame.on({
+    _load() {
+        (window.requestIdleCallback || queueMicrotask)((deadline) => {
+            deadline ? console.debug(`Did timeout: `,deadline.didTimeout) : console.debug(`requestIdleCallback unsupported`)
             import('./images.js').then(images)
             console.debug("🐟 Loading the bg now...")
-        }
+        }, { timeout: 20000 })
     }
-    catch {
-        await h.wait(1000)
-        go()
-    }
-}
-go()
+})
 const parent = $('div #background', {
     parent: document.body
 })
