@@ -37,7 +37,7 @@ iframe {
             async _click() {
                 await this.fadeOut()
                 r.textContent='Recursion: '
-                let frame = $(`<iframe src="http://localhost:3000/addsoupbase.github.io/entries/4_26_2025/?a=${Date.now()}">`)
+                let frame = $(`<iframe src="https://addsoupbase.github.io/entries/4_26_2025/?a=${Date.now()}">`)
                 frame.fadeIn()
                 this.parent.parent.push(frame)
                 this.destroy()
