@@ -56,11 +56,10 @@ function genericGet(t, prop) {
     let out = t[prop]
     return bindIfNecessary(out, t)
 }
-function ariaOrDataOrCustom(i) {
+function ariaOrData(i) {
     let { 0: char } = i
     if (char === '_') i = i.replace(char, 'aria-')
     else if (char === '$') i = i.replace(char, 'data-')
-    else if (char === '@') i = i.replace(char, '--')
     return i
 }
 const customRules = css.getDefaultStyleSheet()
@@ -105,7 +104,7 @@ const handlers = {
     ),
     attr: {
         get(t, p) {
-            p = ariaOrDataOrCustom(p)
+            p = ariaOrData(p)
             return prox(t).getAttribute(p)
         },
         set(t, p, v) {
@@ -119,7 +118,7 @@ const handlers = {
             })
         },
         has(t, p) {
-            p = ariaOrDataOrCustom(p)
+            p = ariaOrData(p)
             return t.hasAttribute(p)
         }
         /*  get(t, prop) {
@@ -467,7 +466,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         for (let i in attr) {
             let val = attr[i]
             if (regex.onXYZ.test(i)) throw TypeError('Inline event handlers are deprecated')
-            i = ariaOrDataOrCustom(i)
+            i = ariaOrData(i)
             /*   switch (i) {
                    case 'disabled': me.setAttribute('aria-disabled', !!val); break
                    case 'checked': me.setAttribute('aria-checked', !!val); break
@@ -586,8 +585,8 @@ let props = Object.getOwnPropertyDescriptors(class _
             case 3: base(this).style.display = 'none'; break
             case 4: this.styles.contentVisibility = 'hidden'; break
             case 5: this.setStyles({
-                opacity: '0', '@user-input': 'none', '@user-focus': 'none', '@user-select': 'none', 'pointer-events': 'none',
-                '@user-modify': 'read-only',
+                opacity: '0', '--user-input': 'none', '--user-focus': 'none', '--user-select': 'none', '--pointer-events': 'none',
+                '--user-modify': 'read-only',
             })
                 .setAttr({ _hidden: "true", contenteditable: 'false' })
                 break
@@ -606,8 +605,8 @@ let props = Object.getOwnPropertyDescriptors(class _
             case 3: base(this).style.display = ''; break
             case 4: this.styles.contentVisibility = ''; break
             case 5: this.setStyles({
-                opacity: '', '@user-input': '', '@user-focus': '', '@user-select': '', 'pointer-events': '',
-                '@user-modify': '',
+                opacity: '', '--user-input': '', '--user-focus': '', '--user-select': '', '--pointer-events': '',
+                '--user-modify': '',
             })
                 .setAttr({ _hidden: "", contenteditable: '' })
                 break

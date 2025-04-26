@@ -41,7 +41,9 @@ const Color = new Proxy(class {
     #g = 255
     #b = 255
     #a = 1
-    static {
+    // No static init blocks allowed
+    static _() {
+        delete this._
         let enumerable = 1
         Object.defineProperties(this.prototype, {
             r: {
@@ -82,7 +84,9 @@ const Color = new Proxy(class {
                 }
             }
         })
+        return this
     }
+
     constructor(r, g, b, a) {
         if (typeof r === 'string' && r[0] !== '#')
             try {
@@ -94,8 +98,8 @@ const Color = new Proxy(class {
                 b ??= 255
                 a ??= 1
             }
-        else if (typeof r === 'string' && r.startsWith('#')) 
-            ({0:r,1:g,2:b,3:a} = hexToRgb(r).match(thingy))
+        else if (typeof r === 'string' && r.startsWith('#'))
+            ({ 0: r, 1: g, 2: b, 3: a } = hexToRgb(r).match(thingy))
         Object.freeze(Object.assign(this, { r, g, b, a }))
     }
     toString(format) {
@@ -105,11 +109,11 @@ const Color = new Proxy(class {
             case 'rgba': return `rgba(${this.r} ${this.g} ${this.b} ${this.a})`
             case 'hex2': return `#${[this.r, this.g, this.b, this.a * 255].map(toHex).join('')}`
             case 'hsl': {
-                let {0:h, 1:s, 2:l} = this.hsl
+                let { 0: h, 1: s, 2: l } = this.hsl
                 return `hsl(${h} ${s}% ${l}%)`
             }
             case 'hsla': {
-                let {0:h, 1:s, 2:l} = this.hsl
+                let { 0: h, 1: s, 2: l } = this.hsl
                 return `hsla(${h} ${s}% ${l}% ${this.#a})`
             }
         }
@@ -161,7 +165,7 @@ const Color = new Proxy(class {
                     shift = 0 / 60       // R° / (360° / hex sides)
                     if (segment < 0)           // hue > 180, full rotation
                         shift = 360 / 60         // R° / (360° / hex sides)
-                    
+
                     break;
                 case g:
                     segment = (b - r) / c
@@ -208,7 +212,7 @@ const Color = new Proxy(class {
         yield this.b
         yield this.a
     }
-}, handler)
+}._(), handler)
 export default Color
 function toHex(o) {
     return (o | 0).toString(16).padStart(2, 0)
@@ -224,12 +228,12 @@ export function hexToRgb(hex) {
         g = parseInt(hex.slice(2, 4), 16),
         b = parseInt(hex.slice(4, 6), 16),
         a = 1
-        return`rgb(${r} ${g} ${b} ${a})`
+    return `rgb(${r} ${g} ${b} ${a})`
 }
 function bleh(c) {
-return`${c}${c}`
+    return `${c}${c}`
 }
 function bleh2(o) {
-    return  o.padStart(0, 2)
+    return o.padStart(0, 2)
 }
 const thingy = /\d+/g

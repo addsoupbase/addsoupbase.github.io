@@ -13,10 +13,9 @@ export function dashVendor(prop, val) {
 export function capVendor(prop, val) {
     return toCaps(vendor(toDash(prop), val))
 }
-const all = new Set
-export const has = all.has.bind(all)
+export const all = new Set
+, has = all.has.bind(all)
 export function vendorValue(prop, val) {
-    // i will fix this soon
     let without = val.replace(allVendors, '')
         .replace(allVendors2, '')
     switch (without) {
@@ -49,8 +48,10 @@ const allVendors = RegExp(
     allVendors2 = /(?:prince|mso)-/
 const dontRedo = new Map,
     sup = CSS.supports
+
 export function vendor(prop, val, silent) {
-    if (prop.startsWith('--') && sup(prop, val)) return prop
+    if (prop.startsWith('--'))
+        return prop
     if (val.trim() && !sup(prop, val)) {
         let prefix = prop = prop
             .replace(allVendors, '')
@@ -320,9 +321,9 @@ export function boxShadow({
                 position: 'fixed'
             },
         })
-        void function () {
+        void/*async*/function () {
             // function Yield() {
-                // return new Promise(queueMicrotask)
+            // return new Promise(queueMicrotask)
             // }
             // Yield = window.scheduler?.yield?.bind(scheduler) ?? Yield
             //  This registers all of those var(--abc-xyz)
@@ -333,7 +334,7 @@ export function boxShadow({
                 initialValue: 0
             })*/
             const universal = {}
-            let func = CSS.registerProperty ?? function () {}
+            let func = CSS.registerProperty ?? function () { }
             for (let { length: i } = allProps; i--;) {
                 let prop = allProps[i]
                 try {
@@ -349,8 +350,8 @@ export function boxShadow({
                 }
             }
             allProps = null
-                beenHereBefore?
-                addedStyleRules.insertRule(`* {${beenHereBefore}}`):
+            beenHereBefore ?
+                addedStyleRules.insertRule(`* {${beenHereBefore}}`) :
                 registerCSS('*', universal, true),
                 sessionStorage.setItem('css', toCSS(universal, true))
         }()
@@ -446,7 +447,7 @@ export function boxShadow({
         g("column-axis", "auto", 0),
         g('column-progression', 'auto', 0),
         g('content-visibility', 'visible', 0),
-        // This is a special case in order to support browsers without 'ContentVisibilityAutoStateChangeEvent'
+        // ^ This is a special case just to support older browsers without 'ContentVisibilityAutoStateChangeEvent'
         g('text-size-adjust', 'auto', true)
         // g('marquee-style','scroll',0)
     ])

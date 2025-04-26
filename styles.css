@@ -550,7 +550,7 @@ a {
 }
 
 body {
-  --scrollbar-width: none;
+  scrollbar-width: none;
   /* Firefox */
   height: 100vh;
   width: 100vw;
@@ -611,7 +611,7 @@ body {
   text-align: center;
   /* Center the text */
   margin: 3px;
-  transition: background-color 0.3s ease, scale 0.1s ease;
+  transition: background-color 0.3s ease, transform 0.1s ease;
   /* Smooth transitions */
 }
 
@@ -623,7 +623,7 @@ body {
 .cute-green-button:active {
   background-color: #a8db67;
   /* Darker green on hover */
-  transform: scale(.9, .9)
+  transform: scale(.94, .94)
     /* Slight scale effect */
 }
 
