@@ -125,6 +125,7 @@
 
 .sprite {
   position: absolute;
+  z-index: 3;
   background-repeat: no-repeat;
   image-rendering: pixelated;
   scale: 1.5 1.5;
@@ -154,24 +155,45 @@ a {
 .manaphy.shiny,.phione.shiny, .mantyke.shiny {
   filter:hue-rotate(318deg);
 }
+.skrelp {
+  scale: 1.5 1.2
+}
+.skrelp.shiny {
+  filter: hue-rotate(306deg);
+}
 .luvdisc.shiny {
   filter: hue-rotate(87deg) brightness(1.4);
 }
-.wailord.shiny {
+.wailord.shiny, .kingdra.shiny {
   filter: hue-rotate(70deg);
 }
 .wailord {
   scale: 5.9 5.3
 }
+/* .dragalge {
+  scale: 3 3.2
+} */
 
 .carvanha,
 .seadra {
   scale: 1.25 1.25
 }
-
+.kyogre,
+.kyogreprimal,
 .eelektross,
-.clawitzer {
-  scale: 1.5 1.5
+.jellicent_f,
+.jellicent_m,
+.clawitzer,
+.seaking,
+.arctovish,
+.huntail,
+.gorebyss,
+.nihilego,
+.sharpedo,
+.lumineon,
+.lanturn,
+.wishiwashischool  {
+  scale: 2 2
 }
 
 .luvdisc,
@@ -180,17 +202,12 @@ a {
   scale: 1.2 1.2
 }
 
-.qwilfish {
+.qwilfish,.bruxish {
   scale: 1.5 1.5
 }
 
-.wishiwashischool {
-  scale: 2 2
-}
-
-.kyogre,
-.kyogreprimal {
-  scale: 2 2
+.jellicent_f.shiny, .jellicent_m.shiny {
+  filter: hue-rotate(302deg);
 }
 
 /* .name { */

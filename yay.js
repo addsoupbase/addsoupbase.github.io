@@ -243,7 +243,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         return !(rect.bottom < 0 || rect.top - viewHeight >= 0)
     }
     get computed() {
-        return this[computed]??=getComputedStyle(base(this))
+        return this[computed] ??= getComputedStyle(base(this))
     }
     createState(identifier, child, callback) {
         let t = this[states]
@@ -385,7 +385,11 @@ let props = Object.getOwnPropertyDescriptors(class _
         while (lastElementChild)
             prox(lastElementChild).destroy(), { lastElementChild } = this
     }
+    /**
+     * @deprecated 
+     * */
     $(html, props, ...children) {
+        debugger
         let out = $(html, props, ...children)
         out.parent = this
         return out
@@ -520,14 +524,16 @@ let props = Object.getOwnPropertyDescriptors(class _
     static onepacity = {
         opacity: 1
     }
-    fadeOut(duration = 500) {
+    fadeOut(duration) {
+        duration ||= 500
         return this.animate([{}, _.nopacity], {
             duration,
             easing: 'ease',
             iterations: 1
         }).finished.then(() => this.hide(3))
     }
-    fadeIn(duration = 500) {
+    fadeIn(duration) {
+        duration ||= 500
         this.show(3)
         return this.animate([_.nopacity, _.onepacity], {
             duration,
@@ -535,10 +541,10 @@ let props = Object.getOwnPropertyDescriptors(class _
             iterations: 1
         }).finished
     }
-    fadeFromTo(from, to, {
-        duration = 500,
-        easing = 'ease'
-    } = {}) {
+    fadeFromTo(from, to, settings) {
+        settings ??= {}
+        let duration = settings.duration || 500
+            , easing = settings.easing ?? 'ease'
         return this.animate([{
             opacity: from
         }, {
@@ -589,7 +595,7 @@ let props = Object.getOwnPropertyDescriptors(class _
             case 3: base(this).style.display = 'none'; break
             case 4: this.styles.contentVisibility = 'hidden'; break
             case 5: this.setStyles({
-                opacity: '0', '--user-input': 'none', '--user-focus': 'none', '--user-select': 'none', '--pointer-events': 'none',
+                opacity: '0', '--user-input': 'none', '--user-focus': 'none', '--user-select': 'none', 'pointer-events': 'none',
                 '--user-modify': 'read-only',
             })
                 .setAttr({ _hidden: "true", contenteditable: 'false' })
@@ -609,7 +615,7 @@ let props = Object.getOwnPropertyDescriptors(class _
             case 3: base(this).style.display = ''; break
             case 4: this.styles.contentVisibility = ''; break
             case 5: this.setStyles({
-                opacity: '', '--user-input': '', '--user-focus': '', '--user-select': '', '--pointer-events': '',
+                opacity: '', '--user-input': '', '--user-focus': '', '--user-select': '', 'pointer-events': '',
                 '--user-modify': '',
             })
                 .setAttr({ _hidden: "", contenteditable: '' })
@@ -640,8 +646,8 @@ let props = Object.getOwnPropertyDescriptors(class _
         base(this).prepend(doc)
     }
     //  i tried SO hard to make treewalker useful but it did NOT impress me!
-    treeWalker(filter, whatToShow = NodeFilter.SHOW_ELEMENT) {
-        let walker = document.createTreeWalker(base(this), whatToShow, filter_func)
+    treeWalker(filter, whatToShow) {
+        let walker = document.createTreeWalker(base(this), whatToShow ?? NodeFilter.SHOW_ELEMENT, filter_func)
         filter ??= function () { }
         return out()
         function* out() {
@@ -653,7 +659,8 @@ let props = Object.getOwnPropertyDescriptors(class _
         }
     }
     *[Symbol.iterator]() {
-        yield* Array.from(base(this).getElementsByTagName('*'), prox)
+        let all = base(this).getElementsByTagName('*')
+        for (let { length: i } = all; i--;) yield prox(all[i])
     }
     get [Symbol.toPrimitive]() {
         throw TypeError('Cannot convert Element to a primitive value')
@@ -755,9 +762,12 @@ let props = Object.getOwnPropertyDescriptors(class _
             })
     }
     copyAttr(other) {
-        other = base(other)
-        let me = base(this)
-        for (let attr of other.attributes) me.setAttribute(attr.nodeName, attr.nodeValue)
+        let me = base(this),
+        attr = other.getAttributeNames()
+        for(let {length: i} = attr; i--;) {
+            let name = attr[i]
+            me.setAttribute(name, other.getAttribute(name))
+        } 
     }
 }.prototype)
 const prototype = Object.create(null)
@@ -859,30 +869,30 @@ function MutationObserverCallback(entry) {
         for (let { length: i } = addedNodes; i--;) {
             let node = addedNodes[i]
             if (node instanceof Element || node?.ownerDocument?.defaultView.Element.prototype.isPrototypeOf(node)) {
-              /*  queueMicrotask(() => {
-                    document.dispatchEvent(new CustomEvent('subtree-modified', {
-                        // bubbles: true,
-                        detail: {
-                            node,
-                            added: true,
-                        }
-                    }))
-                })*/
+                /*  queueMicrotask(() => {
+                      document.dispatchEvent(new CustomEvent('subtree-modified', {
+                          // bubbles: true,
+                          detail: {
+                              node,
+                              added: true,
+                          }
+                      }))
+                  })*/
                 observeAll(node)
             }
         }
         for (let { length: i } = removedNodes; i--;) {
             let node = removedNodes[i]
             if (node instanceof Element || node?.ownerDocument?.defaultView.Element.prototype.isPrototypeOf(node)) {
-             /*   queueMicrotask(() => {
-                    document.dispatchEvent(new CustomEvent('subtree-modified', {
-                        // bubbles: true,
-                        detail: {
-                            node,
-                            added: false,
-                        }
-                    }))
-                })*/
+                /*   queueMicrotask(() => {
+                       document.dispatchEvent(new CustomEvent('subtree-modified', {
+                           // bubbles: true,
+                           detail: {
+                               node,
+                               added: false,
+                           }
+                       }))
+                   })*/
                 unobserveAll(node)
             }
         }
@@ -937,7 +947,7 @@ function PerformanceLoop(o) {
         }
             return
         case 'longtask':
-            // console.warn(o)
+        // console.warn(o)
         case "long-animation-frame":
             detail = o
             break
@@ -1035,10 +1045,7 @@ function prox(target) {
                 fromQuery: {
                     value: querySelectorProxy
                 },
-                [computed]:{
-                    value:null,
-                    writable:1
-                },
+                [computed]: reuse.nullThing,
                 [states]: {
                     value: new Map
                 },
@@ -1071,7 +1078,7 @@ function prox(target) {
             )
         if (target instanceof HTMLUnknownElement ||
             target.ownerDocument.defaultView?.HTMLUnknownElement.prototype.isPrototypeOf(target))
-            console.warn(`Unknown element: '${target.tagName}'`)
+            console.warn(`Unknown element: '${target.tagName.toLowerCase()}'`)
         function RevokeAllProxies() {
             //  Make sure we have *NO* possible references left
             revoke(childRevoke(attrRevoke(styleRevoke(querySelectorRevoke()))))
@@ -1160,8 +1167,8 @@ function $(html, props, ...children) {
         var element = prox(document.createElement(html.match(htmlRegex)?.[0]))
         let classes = html.match(classRegex),
             id = html.match(idRegex)?.[0],
-            type = html.match(typeRegex)?.[0]
-        let toSet = {}
+            type = html.match(typeRegex)?.[0],
+            toSet = {}
         classes && (toSet.class = classes.join(' '))
         id && (toSet.id = id)
         type && (toSet.type = type)
@@ -1429,7 +1436,7 @@ try {
             })))
         }
     }
-    Object.getPrototypeOf(customElements).define.call(customElements,'img-sprite', AnimatedSprite)
+    Object.getPrototypeOf(customElements).define.call(customElements, 'img-sprite', AnimatedSprite)
 }
 catch (e) {
     reportError(e)

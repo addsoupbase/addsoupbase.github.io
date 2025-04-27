@@ -1,5 +1,6 @@
 let regex = /[\w\.\-]+\.(?:webp|a?png|gif|jpe?g)/
-function images({ avatars, mons }) {
+
+function images({ avatars, mons, colorful, birthday }) {
     let pop = new Audio('media/pop.mp3')
     // on(document, {
     // visibilitychange() {
@@ -40,9 +41,11 @@ function images({ avatars, mons }) {
         this.flags = 1
         await this.animate([{ transform: '' }, { transform: 'scaleX(2) scaleY(2)', }], { duration: 300, easing: 'ease-in-out', composite: 'accumulate', }).finished
         let [name] = this.firstElementChild.src.match(regex)[0].split(/\.(?:webp|a?png|gif|jpe?g)/)
+        let src = this.firstElementChild.src
+
         let me = $('div.ava .tar', {
             styles: {
-                'backgroundImage': `url(${this.firstElementChild.src})`
+                'backgroundImage': `url(${src})`
             },
             attributes: {
                 _hidden: 'true',
@@ -65,6 +68,9 @@ function images({ avatars, mons }) {
                 width: 50, height: 50
             }, parent
         })
+        if (birthday) {
+            n.setStyles({ 'background-image': `url("${ran.choose(...colorful)}")` })
+        }
         let settings = ran.coin
             ? [{ transform: `translateX(calc(100vw + ${n.offsetWidth}px))` }, { transform: `translateX(calc(-10vw - ${n.offsetWidth}px))` },]
             : [{ transform: `translateX(calc(-10vw - ${n.offsetWidth}px))` }, { transform: `translateX(calc(100vw + ${n.offsetWidth}px))` }]
@@ -119,10 +125,11 @@ function images({ avatars, mons }) {
             case 'wishiwashischool': duration = 50400; break
             case 'kyogre': case 'kyogreprimal': duration = 20000; break
             case 'luvdisc': duration = 10000; break;
-            case 'sharpedo': case 'carvanha': duration = 8300; break
+            // case 'sharpedo': case 'carvanha': duration = 8300; break
             case 'corsola': duration = 25000; break
             case 'wishiwashi': duration = 20_000; break
             case 'qwilfish': duration = 14_000; break
+           case'lanturn':case'bruxish': case 'gorebyss': case 'huntail': case 'jellicent_m': case "jellicent_f": case 'seaking': case 'arctovish': case 'nihilego':case 'lumineon':case'sharpedo':duration *= 2
             //        case 'corsola': element.animate([{transform: 'rotateZ(0deg)'}, {transform: `rotateZ(360deg)`}], {composite:'add',easing:'linear',duration:5000, iterations:1/0,direction:coin?'reverse':'normal'})
         }
         duration *= 1.6
@@ -136,6 +143,9 @@ function images({ avatars, mons }) {
     function makeBubble(x, y) {
         let bubbl = $('<div class="bubble" style="pointer-events:none;"></div>', { parent })
         bubbl.flags = 1
+        if (birthday) bubbl.setStyles({
+            'background-image': `url("${ran.choose(...colorful)}")`
+        })
         let num = ran.range(13, 23)
         bubbl.setStyles({ width: `${num}px`, height: `${num}px`, left: x ?? `${ran.range(0, innerWidth)}px`, top: y ?? '100%' })
         bubbl.animate([{ transform: `translateX(-10px)` }, { transform: 'translateX(10px)' }], { iterations: 1 / 0, duration: 220, direction: 'alternate', easing: 'ease-in-out', composite: 'add' })
@@ -161,7 +171,7 @@ const frame = $.qs('object')
 frame.on({
     _load() {
         (window.requestIdleCallback || queueMicrotask)((deadline) => {
-            deadline ? console.debug(`Did timeout: `,deadline.didTimeout) : console.debug(`requestIdleCallback unsupported`)
+            deadline ? console.debug(`Did timeout: `, deadline.didTimeout) : console.debug(`requestIdleCallback unsupported`)
             import('./images.js').then(images)
             console.debug("🐟 Loading the bg now...")
         }, { timeout: 20000 })
