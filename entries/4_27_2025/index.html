@@ -78,11 +78,11 @@
 
         $.byId.a.delegate({
             $contextmenu() {
-                this.attr.index =( (+this.attr.index - 1) | 0)%8
+                this.attr.index = (+this.attr.index - 1) | 0
                 this.animate([{ transform: '' }, { transform: `rotateZ(${20 * ran.invert}deg)` }, { transform: '' }], anim)
             },
             click() {
-                this.attr.index =( (+this.attr.index + 1) | 0)%8
+                this.attr.index = (+this.attr.index + 1) | 0
                 this.animate([{ transform: '' }, { transform: `rotateZ(${20 * ran.invert}deg)` }, { transform: '' }], anim)
             }
         }, o => o.tagName === 'IMG-SPRITE')

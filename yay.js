@@ -1369,7 +1369,7 @@ try {
             }
             else if (name === 'index') {
                 p.setStyles({
-                    '--axis': nValue | 0
+                    '--axis':(nValue | 0)% (this.#axis === 'horizontal'?p.attr.rows:p.attr.cols) 
                 })
             }
         }
