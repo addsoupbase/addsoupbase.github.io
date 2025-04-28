@@ -646,8 +646,8 @@ let props = Object.getOwnPropertyDescriptors(class _
         base(this).prepend(doc)
     }
     //  i tried SO hard to make treewalker useful but it did NOT impress me!
-    treeWalker(filter, whatToShow) {
-        let walker = document.createTreeWalker(base(this), whatToShow ?? NodeFilter.SHOW_ELEMENT, filter_func)
+    treeWalker(whatToShow, filter) {
+        let walker = document.createTreeWalker(base(this), whatToShow ?? NodeFilter.SHOW_ALL, filter_func)
         filter ??= function () { }
         return out()
         function* out() {
@@ -763,11 +763,11 @@ let props = Object.getOwnPropertyDescriptors(class _
     }
     copyAttr(other) {
         let me = base(this),
-        attr = other.getAttributeNames()
-        for(let {length: i} = attr; i--;) {
+            attr = other.getAttributeNames()
+        for (let { length: i } = attr; i--;) {
             let name = attr[i]
             me.setAttribute(name, other.getAttribute(name))
-        } 
+        }
     }
 }.prototype)
 const prototype = Object.create(null)
