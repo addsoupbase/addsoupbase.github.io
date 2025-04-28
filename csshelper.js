@@ -14,7 +14,7 @@ export function capVendor(prop, val) {
     return toCaps(vendor(toDash(prop), val))
 }
 export const all = new Set
-, has = all.has.bind(all)
+    , has = all.has.bind(all)
 export function vendorValue(prop, val) {
     let without = val.replace(allVendors, '')
         .replace(allVendors2, '')
@@ -448,7 +448,16 @@ export function boxShadow({
         g('column-progression', 'auto', 0),
         g('content-visibility', 'visible', 0),
         // ^ This is a special case just to support older browsers without 'ContentVisibilityAutoStateChangeEvent'
-        g('text-size-adjust', 'auto', true)
+        g('text-size-adjust', 'auto', true),
+        g('border-vertical-spacing', 'auto', false),
+        g('max-logical-height', 'none', false),
+        g('min-logical-height', 'none', false),
+        g('max-logical-width', 'none', false),
+        g('min-logical-width', 'none', false),
+        // g('logical-height','revert',false,'*'),
+        // g('logical-width','revert',false,'*'),
+        g('buffered-rendering', 'auto', false),
+        g('color-rendering', 'auto', false),
         // g('marquee-style','scroll',0)
     ])
 }
