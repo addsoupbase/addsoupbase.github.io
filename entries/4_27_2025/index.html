@@ -29,13 +29,21 @@
     <style>
         #a {
             display: ruby;
+            --user-select: none
         }
+
+        img-sprite {
+            cursor: pointer;
+        }
+
         #two {
             filter: hue-rotate(140deg);
         }
+
         #three {
             filter: hue-rotate(290deg);
         }
+
         #four {
             filter: hue-rotate(58deg)
         }
@@ -49,26 +57,43 @@
             <p>today was your average day... just chilling... oh also i made the pokemon sizes on here more accurate</p>
             <p>Remi is so cool and awesome!!!</p>
             <div>
-            <span id="a" title="Sparky">
-                <img-sprite id="one" src="./shock.png" rows="8" cols="13" width="60" height="60" duration="90" style="image-rendering: pixelated;"
-                class="centerx"></img-sprite>
-                <img-sprite id="two" src="./shock.png" rows="8" cols="13" width="60" height="60" duration="90" style="image-rendering: pixelated;"
-                class="centerx"></img-sprite>
-                <img-sprite id="three" src="./shock.png" rows="8" cols="13" width="60" height="60" duration="90" style="image-rendering: pixelated;"
-                class="centerx"></img-sprite>
-                <img-sprite id="four" src="./shock.png" rows="8" cols="13" width="60" height="60" duration="90" style="image-rendering: pixelated;"
-                class="centerx"></img-sprite>
-            </span>
-        </div>
-        <p>i'm afraid to tell my mom i don't actually want to go to college, she's like doing all the paperwork and stuff and i just want to get a job instead </p>
+                <span id="a" title="Sparky">
+                    <img-sprite id="one" src="./shock.png" rows="8" cols="13" width="60" height="60" duration="90"
+                        style="image-rendering: pixelated;" class="centerx"></img-sprite>
+                    <img-sprite id="two" src="./shock.png" rows="8" cols="13" width="60" height="60" duration="90"
+                        style="image-rendering: pixelated;" class="centerx"></img-sprite>
+                    <img-sprite id="three" src="./shock.png" rows="8" cols="13" width="60" height="60" duration="90"
+                        style="image-rendering: pixelated;" class="centerx"></img-sprite>
+                    <img-sprite id="four" src="./shock.png" rows="8" cols="13" width="60" height="60" duration="90"
+                        style="image-rendering: pixelated;" class="centerx"></img-sprite>
+                </span>
+            </div>
+            <p>i'm afraid to tell my mom i don't actually want to go to college, she's like doing all the paperwork and
+                stuff and i just want to get a job instead </p>
         </article>
     </main>
     <script type="module">
         import $ from '../../yay.js'
+        import ran from '../../random.js'
+
+        $.byId.a.delegate({
+            $contextmenu() {
+                this.attr.index =( (+this.attr.index - 1) | 0)%8
+                this.animate([{ transform: '' }, { transform: `rotateZ(${20 * ran.invert}deg)` }, { transform: '' }], anim)
+            },
+            click() {
+                this.attr.index =( (+this.attr.index + 1) | 0)%8
+                this.animate([{ transform: '' }, { transform: `rotateZ(${20 * ran.invert}deg)` }, { transform: '' }], anim)
+            }
+        }, o => o.tagName === 'IMG-SPRITE')
+        let anim = {
+            easing: 'ease',
+            duration: 200,
+            iterations: 1
+        }
         // import * as h from '../../handle.js'
         // import * as m from '../../num.js'
         // import * as str from '../../str.js'
-        // import ran from '../../random.js'
         // import c from '../../color.js'
     </script>
     <!-- 
