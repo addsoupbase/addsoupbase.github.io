@@ -593,7 +593,7 @@ let props = Object.getOwnPropertyDescriptors(class _
             default: this.setAttr(_.hidden); break
             case 2: base(this).style.visibility = 'hidden'; break
             case 3: base(this).style.display = 'none'; break
-            case 4: this.styles.contentVisibility = 'hidden'; break
+            case 4: this.setStyles({'--content-visibility': 'hidden'}); break
             case 5: this.setStyles({
                 opacity: '0', '--user-input': 'none', '--user-focus': 'none', '--user-select': 'none', 'pointer-events': 'none',
                 '--user-modify': 'read-only',
@@ -613,7 +613,7 @@ let props = Object.getOwnPropertyDescriptors(class _
             default: this.setAttr(_.notHidden); break
             case 2: base(this).style.visibility = 'visible'; break
             case 3: base(this).style.display = ''; break
-            case 4: this.styles.contentVisibility = ''; break
+            case 4: this.setStyles({'--content-visibility': ''}); break
             case 5: this.setStyles({
                 opacity: '', '--user-input': '', '--user-focus': '', '--user-select': '', 'pointer-events': '',
                 '--user-modify': '',
