@@ -75,7 +75,7 @@ const mons =
         'skrelp:4',
         // 'dragalge:5' also looks weird,
     ].map(async function (o) {
-        let [src, Width] = o.split(":")
+        let {0:src, 1:Width} = o.split(":")
         let img = Object.assign(new Image, {
             src: `./media/sprites/${src}.png`,
             [width]: +Width,

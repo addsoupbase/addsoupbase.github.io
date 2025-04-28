@@ -850,9 +850,9 @@ const reuse = {
 /*
 MUTATION OBSERVER STUFFS
 */
-function refreshAttributes(attr) {
+/*function refreshAttributes(attr) {
     this.setAttribute(attr, this.getAttribute(attr))
-}
+}*/
 function observeAll(node) {
     // if (node instanceof CUSTOM_ELEMENT_SPRITE) node.getAttributeNames().forEach(refreshAttributes, node)
     inte?.observe(node)
@@ -1002,7 +1002,7 @@ if (typeof ContentVisibilityAutoStateChangeEvent !== 'function'
         for (let { length: i } = entries; i--;) {
             let me = entries[i],
                 target = me.target
-            if (getComputedStyle(target).getPropertyValue('--content-visibility').trim() === 'auto') {
+            if ($(target).computed.getPropertyValue('--content-visibility').trim() === 'auto') {
                 let event = new CustomEvent('contentvisibilityautostatechange', { bubbles: true, detail: { skipped: !me.isIntersecting } })
                 target.dispatchEvent(event)
             }
@@ -1052,8 +1052,6 @@ function prox(target) {
                 selfRules: {
                     value: Object.create(null)
                 },
-                // beforestatechange: reuse.nullThing,
-                // afterstatechange: reuse.nullThing,
                 state: reuse.state,
                 currentState: reuse.junk,
                 lastState: reuse.junk,
