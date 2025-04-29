@@ -1000,7 +1000,7 @@ h.addCustomEvent(entryTypes)
 /*
 INTERSECTION OBSERVER STUFFS
 */
-let inte
+var inte
 if (typeof ContentVisibilityAutoStateChangeEvent !== 'function'
     || 'mozInnerScreenX' in window  // Firefox is weird again
 ) {
