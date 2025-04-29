@@ -16,7 +16,11 @@ import * as h from './handle.js'
 import * as css from './csshelper.js'
 import { FormDataManager as form } from './proxies.js'
 import * as f from './functions.js'
-Object.hasOwn ??= (obj, prop) => hasOwnProperty.call(obj, prop)
+if (!Object.hasOwn) Object.defineProperty(Object, 'hasOwn', {
+    value: (obj, prop) => [].hasOwnProperty.call(obj, prop),
+    writable:1,
+    configurable:1
+})
 const regex = {
     dot: /\./g,
     space: /\s/g,
@@ -631,6 +635,10 @@ let props = Object.getOwnPropertyDescriptors(class _
         temp.destroy?.()
         return out
     }
+    /**
+     * @deprecated
+     *
+     * */
     initForm() {
         return new form(base(this))
     }
@@ -680,15 +688,16 @@ let props = Object.getOwnPropertyDescriptors(class _
             try {
                 customRules.deleteRule([].indexOf.call(customRules.cssRules, this.selfRules[i]))
             }
-            finally { continue }
+            finally {  }
     }
     addSelfRule(selector, cssStuff) {
         const og = selector
+        let id
         try {
             if (!base(this).hasAttribute('id'))
-                do var id = gen()
+                do id = gen()
                 while (document.getElementById(id))
-            else var id = base(this).getAttribute('id')
+            else id = base(this).getAttribute('id')
             if (selector.includes('::')) selector = css.supportedPElementVendor(selector)
             else if (selector.includes(':')) selector = css.supportedPClassVendor(selector)
             const final = `#${CSS.escape(id)}  ${selector}{${(css.toCSS(cssStuff))}}`
@@ -800,13 +809,12 @@ Reflect.ownKeys(props).forEach(i => {
         let v = props[i],
             { value } = v
         if (typeof value === 'function') {
-            let old = value
             v.value = {
                 [i](...a) {
                     //  This function is for automatically returning the 'this'
                     //  value if the original return value is undefined
                     if (!all.has(base(this))) throw TypeError('Bad input')
-                    let r = old.apply(this, a)
+                    let r = value.apply(this, a)
                     return typeof r === 'undefined' ? this : r
                 }
             }[i]
@@ -992,10 +1000,11 @@ h.addCustomEvent(entryTypes)
 /*
 INTERSECTION OBSERVER STUFFS
 */
+let inte
 if (typeof ContentVisibilityAutoStateChangeEvent !== 'function'
     || 'mozInnerScreenX' in window  // Firefox is weird again
 ) {
-    var inte = new IntersectionObserver(IntersectionObserverCallback, {
+     inte = new IntersectionObserver(IntersectionObserverCallback, {
         threshold: [0, Number.MIN_VALUE]
     })
     function IntersectionObserverCallback(entries) {
@@ -1079,7 +1088,11 @@ function prox(target) {
             console.warn(`Unknown element: '${target.tagName.toLowerCase()}'`)
         function RevokeAllProxies() {
             //  Make sure we have *NO* possible references left
-            revoke(childRevoke(attrRevoke(styleRevoke(querySelectorRevoke()))))
+            revoke()
+            childRevoke()
+            attrRevoke()
+            styleRevoke()
+            querySelectorRevoke()
         }
         revokes.set(proxy, RevokeAllProxies)
         all.set(target, proxy)
@@ -1156,13 +1169,14 @@ it's like being weird for some reason idfk how to use trusted types policy thing
 function $(html, props, ...children) {
     if (getValid(html)) return prox(html) // Redirect
     if (typeof html === 'string') html = html.trim()
+    let element
     if (html[0] === '<' && html.at(-1) === '>') {
         html = safeHTML(html)
-        var element = prox(parseModeMap.get(parseMode)?.(html) ?? parseModeMap.get('')(html))
+         element = prox(parseModeMap.get(parseMode)?.(html) ?? parseModeMap.get('')(html))
     }
     else {
         // html === 'fencedframe' && typeof HTMLFencedFrameElement === 'undefined' && (html = 'iframe')
-        var element = prox(document.createElement(html.match(htmlRegex)?.[0]))
+         element = prox(document.createElement(html.match(htmlRegex)?.[0]))
         let classes = html.match(classRegex),
             id = html.match(idRegex)?.[0],
             type = html.match(typeRegex)?.[0],
