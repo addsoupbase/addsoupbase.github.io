@@ -1,4 +1,4 @@
-let regex = /[\w\.\-]+\.(?:webp|a?png|gif|jpe?g)/
+let regex = /[\w.\-]+\.(?:webp|a?png|gif|jpe?g)/
 
 function images({ avatars, mons, colorful, birthday }) {
     let pop = new Audio('media/pop.mp3')
@@ -36,11 +36,11 @@ function images({ avatars, mons, colorful, birthday }) {
         let { x, y } = e
         this.pauseAnims()
         pop.currentTime = 0
-        pop.play()
+        await Promise.race([pop.play(), h.wait(200)])
         this.fadeOut(300)
         this.flags = 1
         await this.animate([{ transform: '' }, { transform: 'scaleX(2) scaleY(2)', }], { duration: 300, easing: 'ease-in-out', composite: 'accumulate', }).finished
-        let [name] = this.firstElementChild.src.match(regex)[0].split(/\.(?:webp|a?png|gif|jpe?g)/)
+        let {0:name} = this.firstElementChild.src.match(regex)[0].split(/\.(?:webp|a?png|gif|jpe?g)/)
         let src = this.firstElementChild.src
 
         let me = $('div.ava .tar', {
@@ -121,14 +121,14 @@ function images({ avatars, mons, colorful, birthday }) {
                 : [{ transform: `translate(calc(-10vw - ${offsetWidth}px), 0)` }, { transform: `translate(calc(100vw + ${offsetWidth}px), 0)` }],
             duration = 15000
         switch (pick[Symbol.for('name')]) {
-            case 'wailord': duration = 300400; break
-            case 'wishiwashischool': duration = 50400; break
-            case 'kyogre': case 'kyogreprimal': duration = 20000; break
-            case 'luvdisc': duration = 10000; break;
+            case 'wailord': duration *= 20; break
+            case 'wishiwashischool': duration *= 12; break
+            case 'kyogre': case 'kyogreprimal': duration *= 1.5; break
+            case 'luvdisc': duration *= 0.75; break;
             // case 'sharpedo': case 'carvanha': duration = 8300; break
-            case 'corsola': duration = 25000; break
-            case 'wishiwashi': duration = 20_000; break
-            case 'qwilfish': duration = 14_000; break
+            case 'corsola': duration = duration*= 2.5; break
+            case 'wishiwashi': duration *= 4; break
+            case 'qwilfish': duration *= 1.5; break
             case'lanturn':case'bruxish': case 'gorebyss': case 'huntail': case 'jellicent_m': case "jellicent_f": case 'seaking': case 'arctovish': case 'nihilego':case 'lumineon':case'sharpedo':duration *= 2
             //        case 'corsola': element.animate([{transform: 'rotateZ(0deg)'}, {transform: `rotateZ(360deg)`}], {composite:'add',easing:'linear',duration:5000, iterations:1/0,direction:coin?'reverse':'normal'})
         }
@@ -164,7 +164,7 @@ function images({ avatars, mons, colorful, birthday }) {
 import $ from '../yay.js'
 import * as math from '../num.js'
 import * as string from '../str.js'
-// import * as h from '../handle.js'
+import * as h from '../handle.js'
 import ran from '../random.js'
 const frame = $.qs('object')
 //document.body.scrollLeft = innerHeight/2

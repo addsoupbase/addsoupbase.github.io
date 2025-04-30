@@ -4,7 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="i just broke something i dont know what i did :sob:">
+    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="shit">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/whatever/README.md" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/whatever/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/whatever/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/whatever/script.js" beforeDir="false" afterPath="$PROJECT_DIR$/whatever/script.js" afterDir="false" />
@@ -43,23 +44,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "JavaScript Debug.index.html.executor": "Debug",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "main",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "editing.templates",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;JavaScript Debug.index.html.executor&quot;: &quot;Debug&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;editing.templates&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="index.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/addsoupbase.github.io/index.html" useBuiltInWebServerPort="true">
       <method v="2" />
@@ -96,7 +97,8 @@
       <workItem from="1745892358173" duration="167000" />
       <workItem from="1745892586364" duration="1974000" />
       <workItem from="1745894571567" duration="10000" />
-      <workItem from="1745921863093" duration="7256000" />
+      <workItem from="1745921863093" duration="7758000" />
+      <workItem from="1746029161722" duration="4000" />
     </task>
     <task id="LOCAL-00001" summary="uhh i hope this works">
       <option name="closed" value="true" />
@@ -178,7 +180,39 @@
       <option name="project" value="LOCAL" />
       <updated>1746028618191</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="HELP ME WHAT HAVE I DONE">
+      <option name="closed" value="true" />
+      <created>1746028695463</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1746028695463</updated>
+    </task>
+    <task id="LOCAL-00012" summary="AAAA I  NEED TO LEARN HOW TO USE GIT">
+      <option name="closed" value="true" />
+      <created>1746028750100</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1746028750100</updated>
+    </task>
+    <task id="LOCAL-00013" summary="HELP">
+      <option name="closed" value="true" />
+      <created>1746028844230</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1746028844230</updated>
+    </task>
+    <task id="LOCAL-00014" summary="shit">
+      <option name="closed" value="true" />
+      <created>1746029116288</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1746029116288</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -193,6 +227,21 @@
     <MESSAGE value="s" />
     <MESSAGE value="i need help" />
     <MESSAGE value="i just broke something i dont know what i did :sob:" />
-    <option name="LAST_COMMIT_MESSAGE" value="i just broke something i dont know what i did :sob:" />
+    <MESSAGE value="HELP ME WHAT HAVE I DONE" />
+    <MESSAGE value="AAAA I  NEED TO LEARN HOW TO USE GIT" />
+    <MESSAGE value="HELP" />
+    <MESSAGE value="shit" />
+    <option name="LAST_COMMIT_MESSAGE" value="shit" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/scripts/background.js</url>
+          <line>163</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

@@ -154,7 +154,7 @@ export function toCSS(obj, silent) {
     for (let prop in obj) {
         let p = vendorValue(prop, `${obj[prop]}`)
         try { arr.push(`${vendor(toDash(prop), p, silent)}:${p}`) }
-        catch { continue }
+        finally {  }
     }
     return arr.join(';')
 }
@@ -170,19 +170,13 @@ function mapThing(selectr) {
  * @param {String} selector A valid CSS selector (something like . or#)
  * @param {Object} rule An object which describes the selector 
  */
-export async function registerCSS(selector, rule, silent) {
+export function registerCSS(selector, rule, silent) {
     selector = selector.split(',')
         .map(mapThing)
         .join(',')
     const sheet = addedStyleRules ??= getDefaultStyleSheet()
-    return new Promise(res)
-    function res(resolve) {
-        requestAnimationFrame(res)
-        function res() {
             let r = `{${toCSS(rule, silent)}}`
-            return resolve(sheet.insertRule(`${formatStr(selector)}${formatStr(r)}`))
-        }
-    }
+            return sheet.insertRule(`${formatStr(selector)}${formatStr(r)}`)
 }
 let cleanRegex = /\s\s|\n\n/g
 export function formatStr(str) {
@@ -351,7 +345,7 @@ export function boxShadow({
             }
             allProps = null
             beenHereBefore ?
-                addedStyleRules.insertRule(`* {${beenHereBefore}}`) :
+                getDefaultStyleSheet().insertRule(`* {${beenHereBefore}}`) :
                 registerCSS('*', universal, true),
                 sessionStorage.setItem('css', toCSS(universal, true))
         }()

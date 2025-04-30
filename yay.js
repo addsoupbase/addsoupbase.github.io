@@ -14,25 +14,28 @@ Things i learned from 2nd -> 3rd:
 */
 import * as h from './handle.js'
 import * as css from './csshelper.js'
-import { FormDataManager as form } from './proxies.js'
 import * as f from './functions.js'
+
 if (!Object.hasOwn) Object.defineProperty(Object, 'hasOwn', {
     value: (obj, prop) => [].hasOwnProperty.call(obj, prop),
-    writable:1,
-    configurable:1
+    writable: 1,
+    configurable: 1
 })
 const regex = {
-    dot: /\./g,
-    space: /\s/g,
-    onXYZ: /^on\w+$/
-},
+        dot: /\./g,
+        space: /\s/g,
+        onXYZ: /^on\w+$/
+    },
     me = Symbol('base'),
     all = new WeakMap,
     revokes = new WeakMap
+
 function gen() {
     return `${Math.random()}${Math.random()}`.replace(regex.dot, '')
 }
+
 const BoundFunctions = new WeakMap
+
 function bindIfNecessary(maybeFunc, to) {
     // Make sure we just re-use the same function
     /*if (typeof maybeFunc === 'function') {
@@ -51,6 +54,7 @@ function bindIfNecessary(maybeFunc, to) {
     }
     return maybeFunc
 }
+
 function genericGet(t, prop) {
     if (typeof prop !== 'symbol' && !isNaN(prop)) {
         let out = t[prop]
@@ -60,12 +64,14 @@ function genericGet(t, prop) {
     let out = t[prop]
     return bindIfNecessary(out, t)
 }
+
 function ariaOrData(i) {
-    let { 0: char } = i
+    let {0: char} = i
     if (char === '_') i = i.replace(char, 'aria-')
     else if (char === '$') i = i.replace(char, 'data-')
     return i
 }
+
 const customRules = css.getDefaultStyleSheet()
 const handlers = {
     // Other proxies
@@ -75,26 +81,26 @@ const handlers = {
         }
     },
     styles: Object.fromEntries(Object.entries({
-        get(target, prop) {
-            return prop.startsWith('--') ? target.getPropertyValue(prop) :
-                target.getPropertyValue(css.dashVendor(prop, 'inherit'))
-        },
-        set(target, prop, value) {
-            if (prop.startsWith('--')) target.setProperty(prop, value)
-            else value ?
-                target.setProperty(css.dashVendor(prop, value), value) :
-                this.deleteProperty(target, prop)
-            return 7
-        },
-        deleteProperty(target, prop) {
-            return prop.startsWith('--') ? target.removeProperty(prop) :
-                target.removeProperty(css.dashVendor(prop, 'inherit')),
-                3
-        },
-        has(target, prop) {
-            return this.get(target, prop)
-        }
-    })
+            get(target, prop) {
+                return prop.startsWith('--') ? target.getPropertyValue(prop) :
+                    target.getPropertyValue(css.dashVendor(prop, 'inherit'))
+            },
+            set(target, prop, value) {
+                if (prop.startsWith('--')) target.setProperty(prop, value)
+                else value ?
+                    target.setProperty(css.dashVendor(prop, value), value) :
+                    this.deleteProperty(target, prop)
+                return 7
+            },
+            deleteProperty(target, prop) {
+                return prop.startsWith('--') ? target.removeProperty(prop) :
+                    target.removeProperty(css.dashVendor(prop, 'inherit')),
+                    3
+            },
+            has(target, prop) {
+                return this.get(target, prop)
+            }
+        })
         //  Don't know why but below isn't working on firefox only like usual
         /* .map(({ 0: key, 1: value }) => ({
              0: key,
@@ -187,10 +193,12 @@ const handlers = {
     HTMLCollection: {
         get: genericGet,
         set(t, prop, value) {
-            if (!isNaN(prop)) {
+            if (isNaN(prop))
+                t[prop] = value
+            else {
                 let out = t[prop]
                 out && base(out).replaceWith(base(value))
-            } else t[prop] = value
+            }
             return 4
         },
         deleteProperty(t, prop) {
@@ -229,26 +237,33 @@ let props = Object.getOwnPropertyDescriptors(class _
     static cancel(o) {
         o.cancel()
     }
+
     static pause(o) {
         o.pause()
     }
+
     static play(o) {
         o.playState === 'paused' && o.play()
     }
+
     static finish(o) {
         o.finish()
     }
+
     static restart(o) {
         o.play(o.currentTime = 0)
     }
+
     get isVisible() {
         let rect = base(this).getBoundingClientRect()
             , viewHeight = Math.max(document.documentElement.clientHeight, innerHeight)
         return !(rect.bottom < 0 || rect.top - viewHeight >= 0)
     }
+
     get computed() {
         return this[computed] ??= getComputedStyle(base(this))
     }
+
     createState(identifier, child, callback) {
         let t = this[states]
         if (t.has(identifier)) throw Error("Already present")
@@ -262,12 +277,15 @@ let props = Object.getOwnPropertyDescriptors(class _
         })
         return cached.content
     }
+
     getState(identifier) {
         return this[states].get(identifier)?.cached.content ?? null
     }
+
     editState(id, func) {
         func(this[states].get(id).cached.content)
     }
+
     deleteState(identifier) {
         let t = this[states]
         if (t.has(identifier)) {
@@ -276,9 +294,11 @@ let props = Object.getOwnPropertyDescriptors(class _
             t.delete(identifier)
         }
     }
+
     toJSON() {
         return base(this).outerHTML
     }
+
     setState(identifier) {
         if (identifier === null) {
             this.lastState = this.currentState
@@ -293,7 +313,7 @@ let props = Object.getOwnPropertyDescriptors(class _
             reportError(identifier)
             throw TypeError('Invalid state')
         }
-        let { cached: cache, callback } = t.get(identifier)
+        let {cached: cache, callback} = t.get(identifier)
             , frag = cache.content
             , cached = document.importNode(frag, true)
             , staticBatch = [...frag.querySelectorAll('*')]
@@ -305,16 +325,28 @@ let props = Object.getOwnPropertyDescriptors(class _
         base(this).appendChild(cached)
         this.lastState = this.currentState
         this.currentState = identifier
+
         function forEach(el, index) {
             el = prox(el)
             el.hasAttribute('id') && withIds.push(el) // its considered important
-            let { events } = el
+            let {events} = el
             if (!events) return
             let clone = prox(newBatch[index])
             let staticEvents = h.allEvents.get(base(el))
             events.forEach(eventThing)
+
             function eventThing(name) {
-                let { listener, passive, capture, handler, prevents, stopProp, once, stopImmediateProp, onlyTrusted } = staticEvents.get(name)
+                let {
+                    listener,
+                    passive,
+                    capture,
+                    handler,
+                    prevents,
+                    stopProp,
+                    once,
+                    stopImmediateProp,
+                    onlyTrusted
+                } = staticEvents.get(name)
                 if (once) name = `_${name}`
                 if (passive) name = `^${name}`
                 if (capture) name = `%${name}`
@@ -328,33 +360,39 @@ let props = Object.getOwnPropertyDescriptors(class _
             }
         }
     }
+
     get orphans() {
         let me = base(this)
         if (me.tagName === 'TEMPLATE')
             return me.content
         let out = document.createDocumentFragment(),
-            { firstElementChild } = me
+            {firstElementChild} = me
         while (firstElementChild)
-            out.appendChild(me.removeChild(firstElementChild)), { firstElementChild } = me
+            out.appendChild(me.removeChild(firstElementChild)), {firstElementChild} = me
         return out
     }
+
     pass() {
-        let { orphans } = this
+        let {orphans} = this
         this.destroy()
         return orphans
     }
+
     empty() {
         return this.orphans
     }
+
     get clone() {
         return prox(this.cloneNode(true))
     }
+
     /**
-    * @deprecated
-    */
+     * @deprecated
+     */
     kill() {
         return this.destroy()
     }
+
     destroy() {
         this.resetSelfRules()
             .cancelAnims()
@@ -378,19 +416,22 @@ let props = Object.getOwnPropertyDescriptors(class _
         revoke(this)
         return null
     }
+
     /**
-    * @deprecated
-    */
+     * @deprecated
+     */
     killChildren() {
         this.destroyChildren()
     }
+
     destroyChildren() {
-        let { lastElementChild } = this
+        let {lastElementChild} = this
         while (lastElementChild)
-            prox(lastElementChild).destroy(), { lastElementChild } = this
+            prox(lastElementChild).destroy(), {lastElementChild} = this
     }
+
     /**
-     * @deprecated 
+     * @deprecated
      * */
     $(html, props, ...children) {
         debugger
@@ -398,6 +439,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         out.parent = this
         return out
     }
+
     on(events, useHandler) {
         if (typeof events === 'function') events = Object.defineProperty(events.bind(this), h.unbound, {
             value: events
@@ -408,22 +450,26 @@ let props = Object.getOwnPropertyDescriptors(class _
             })
         )
         else for (let i in events) {
-            let value = events[i]
-            Object.defineProperty(events[i] = value.bind(this), h.unbound, {
-                value
-            })
-        }
+                let value = events[i]
+                Object.defineProperty(events[i] = value.bind(this), h.unbound, {
+                    value
+                })
+            }
         h.on(base(this), events, useHandler)
     }
+
     off(...events) {
         h.off(base(this), ...events)
     }
+
     set(prop, val) {
         base(this)[prop] = val
     }
+
     getByTag(tag) {
         return Array.from(base(this).getElementsByTagName(tag), prox)
     }
+
     debounce(events, interval) {
         for (let i in events) {
             let old = events[i]
@@ -431,6 +477,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         }
         this.on(events)
     }
+
     throttle(events, interval) {
         for (let i in events) {
             let old = events[i]
@@ -438,29 +485,35 @@ let props = Object.getOwnPropertyDescriptors(class _
         }
         this.on(events)
     }
+
     delegate(events, filter, includeSelf) {
         let me = base(this)
-        filter ??= function () { }
+        filter ??= function () {
+        }
         for (let i in events) {
             let old = events[i]
             events[i] = DelegationFunction
+
             function DelegationFunction(...args) {
-                let { target } = args[0],
+                let {target} = args[0],
                     pr = prox(target);
                 (me !== target || includeSelf) && (filter(pr) ?? 1) && old.apply(pr, args)
             }
         }
         this.on(events)
     }
+
     get events() {
         return h.getEventNames(base(this))
     }
+
     /**
-    * @deprecated
-    */
+     * @deprecated
+     */
     styleMe(styles) {
         this.setStyles(styles)
     }
+
     setStyles(styles) {
         /* for (let prop in styles) {
              let ogValue = styles[prop]
@@ -473,6 +526,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         Object.assign(this.styles, styles)
         //base(this).style.cssText = out.join(';')
     }
+
     setAttr(attr) {
         let me = base(this)
         for (let i in attr) {
@@ -492,52 +546,65 @@ let props = Object.getOwnPropertyDescriptors(class _
             else me.setAttribute(i, val)
         }
     }
+
     /**
-    * @deprecated
-    */
+     * @deprecated
+     */
     setAttributes(attr) {
         this.setAttr(attr)
     }
+
     get anims() {
         return base(this).getAnimations()
     }
+
     static subtree = {
         subtree: true
     }
+
     get allAnims() {
         return base(this).getAnimations(_.subtree)
     }
+
     cancelAnims() {
         this.allAnims.forEach(_.cancel)
     }
+
     resumeAnims() {
         this.allAnims.forEach(_.play)
     }
+
     pauseAnims() {
         this.allAnims.forEach(_.pause)
     }
+
     finishAnims() {
         this.allAnims.forEach(_.finish)
     }
+
     restartAnims() {
         this.allAnims.forEach(_.restart)
     }
+
     static nopacity = {
         opacity: 0
     }
     static onepacity = {
         opacity: 1
     }
+    static defaultDura = 500
+
     fadeOut(duration) {
-        duration ||= 500
+        duration ||= _.defaultDura
         return this.animate([{}, _.nopacity], {
             duration,
             easing: 'ease',
             iterations: 1
         }).finished.then(() => this.hide(3))
     }
+
     fadeIn(duration) {
-        duration ||= 500
+        duration ||= _.defaultDura
         this.show(3)
         return this.animate([_.nopacity, _.onepacity], {
             duration,
@@ -545,9 +612,10 @@ let props = Object.getOwnPropertyDescriptors(class _
             iterations: 1
         }).finished
     }
+
     fadeFromTo(from, to, settings) {
         settings ??= {}
-        let duration = settings.duration || 500
+        let duration = settings.duration || _.defaultDura
             , easing = settings.easing ?? 'ease'
         return this.animate([{
             opacity: from
@@ -559,20 +627,24 @@ let props = Object.getOwnPropertyDescriptors(class _
             fill: 'forwards'
         })
     }
+
     replace(...elements) {
         base(this).replaceWith(...elements.map(base))
     }
+
     wrap(parent) {
-        let { parent: p } = this
+        let {parent: p} = this
         parent = $(parent)
-            ; (this.parent = parent).parent = p
+        ;(this.parent = parent).parent = p
     }
+
     unwrap() {
-        let { parent } = this
+        let {parent} = this
         let c = this.pass()
         parent.appendChild(c)
         return null
     }
+
     trade(other) {
         other = $(other)
         let o = other.orphans,
@@ -580,101 +652,131 @@ let props = Object.getOwnPropertyDescriptors(class _
         other.appendChild(oo)
         this.appendChild(o)
     }
+
     static hidden = {
         hidden: true
     }
     static notHidden = {
         hidden: false
     }
+
     /**
-    * 
-    * @param {Integer} t
-    * # 1 - 5 
-    */
+     *
+     * @param {int} t
+     * # 1 - 5
+     */
     hide(t) {
         switch (t) {
             case 1:
-            default: this.setAttr(_.hidden); break
-            case 2: base(this).style.visibility = 'hidden'; break
-            case 3: base(this).style.display = 'none'; break
-            case 4: this.setStyles({'--content-visibility': 'hidden'}); break
-            case 5: this.setStyles({
-                opacity: '0', '--user-input': 'none', '--user-focus': 'none', '--user-select': 'none', 'pointer-events': 'none',
-                '--user-modify': 'read-only',
-            })
-                .setAttr({ _hidden: "true", contenteditable: 'false' })
+            default:
+                this.setAttr(_.hidden);
+                break
+            case 2:
+                base(this).style.visibility = 'hidden';
+                break
+            case 3:
+                base(this).style.display = 'none';
+                break
+            case 4:
+                this.setStyles({'--content-visibility': 'hidden'});
+                break
+            case 5:
+                this.setStyles({
+                    opacity: '0',
+                    '--user-input': 'none',
+                    '--user-focus': 'none',
+                    '--user-select': 'none',
+                    'pointer-events': 'none',
+                    '--user-modify': 'read-only',
+                })
+                    .setAttr({_hidden: "true", contenteditable: 'false'})
                 break
         }
     }
+
     /**
-    * 
-    * @param {Integer} t
-    * # 1 - 5
-    */
+     *
+     * @param {int} t
+     * # 1 - 5
+     */
     show(t) {
         switch (t) {
             case 1:
-            default: this.setAttr(_.notHidden); break
-            case 2: base(this).style.visibility = 'visible'; break
-            case 3: base(this).style.display = ''; break
-            case 4: this.setStyles({'--content-visibility': ''}); break
-            case 5: this.setStyles({
-                opacity: '', '--user-input': '', '--user-focus': '', '--user-select': '', 'pointer-events': '',
-                '--user-modify': '',
-            })
-                .setAttr({ _hidden: "", contenteditable: '' })
+            default:
+                this.setAttr(_.notHidden);
+                break
+            case 2:
+                base(this).style.visibility = 'visible';
+                break
+            case 3:
+                base(this).style.display = '';
+                break
+            case 4:
+                this.setStyles({'--content-visibility': ''});
+                break
+            case 5:
+                this.setStyles({
+                    opacity: '', '--user-input': '', '--user-focus': '', '--user-select': '', 'pointer-events': '',
+                    '--user-modify': '',
+                })
+                    .setAttr({_hidden: "", contenteditable: ''})
                 break
         }
     }
+
     get isProxy() {
         return true
     }
+
     equals(other) {
         let temp = $(other)
         let out = base(temp).isEqualNode(base(this))
         temp.destroy?.()
         return out
     }
-    /**
-     * @deprecated
-     *
-     * */
-    initForm() {
-        return new form(base(this))
-    }
+
     static append(child) {
         doc.appendChild(base(child))
     }
+
     push(...args) {
         args.flat(1 / 0).forEach(_.append)
         base(this).appendChild(doc)
     }
+
     unshift(...args) {
         args.flat(1 / 0).forEach(_.append)
         base(this).prepend(doc)
     }
+
     //  i tried SO hard to make treewalker useful but it did NOT impress me!
     treeWalker(whatToShow, filter) {
         let walker = document.createTreeWalker(base(this), whatToShow ?? NodeFilter.SHOW_ALL, filter_func)
-        filter ??= function () { }
+        filter ??= function () {
+        }
         return out()
+
         function* out() {
             let current
             while (current = walker.nextNode()) yield getValid(current) ? prox(current) : current
         }
+
         function filter_func(node) {
             return (filter(node) ?? true) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
         }
     }
-    *[Symbol.iterator]() {
+
+    * [Symbol.iterator]() {
         let all = base(this).getElementsByTagName('*')
-        for (let { length: i } = all; i--;) yield prox(all[i])
+        for (let {length: i} = all; i--;) yield prox(all[i])
     }
+
     get [Symbol.toPrimitive]() {
         throw TypeError('Cannot convert Element to a primitive value')
         // 🔏 Don't want to accidentally convert to a string for stuff like
         //append, prepend, etc.
     }
+
     /*find(selector) {
     return this.treeWalker(func).next().value
     function func(node) { return node.matches(selector) }
@@ -687,17 +789,17 @@ let props = Object.getOwnPropertyDescriptors(class _
         for (let i in this.selfRules)
             try {
                 customRules.deleteRule([].indexOf.call(customRules.cssRules, this.selfRules[i]))
+            } finally {
             }
-            finally {  }
     }
+
     addSelfRule(selector, cssStuff) {
         const og = selector
         let id
         try {
-            if (!base(this).hasAttribute('id'))
-                do id = gen()
-                while (document.getElementById(id))
-            else id = base(this).getAttribute('id')
+            if (base(this).hasAttribute('id')) id = base(this).getAttribute('id')
+            else do id = gen()
+            while (document.getElementById(id))
             if (selector.includes('::')) selector = css.supportedPElementVendor(selector)
             else if (selector.includes(':')) selector = css.supportedPClassVendor(selector)
             const final = `#${CSS.escape(id)}  ${selector}{${(css.toCSS(cssStuff))}}`
@@ -718,6 +820,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         // continue
         // }
     }
+
     static forEach(frame) {
         for (let prop in frame) {
             let val = `${frame[prop]}`
@@ -725,6 +828,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         }
         // Firefox warns of empty string
     }
+
     animate(keyframes, options) {
         options ??= {}
         options.timing ??= 'ease'
@@ -733,35 +837,44 @@ let props = Object.getOwnPropertyDescriptors(class _
         keyframes.forEach(_.forEach)
         return base(this).animate(keyframes, options)
     }
+
     set after(val) {
         base(this).after(base(val))
     }
+
     set before(val) {
         base(this).before(base(val))
     }
+
     get after() {
-        let { nextElementSibling } = base(this)
+        let {nextElementSibling} = base(this)
         return prox(nextElementSibling)
     }
+
     get before() {
-        let { previousElementSibling } = base(this)
+        let {previousElementSibling} = base(this)
         return prox(previousElementSibling)
     }
+
     set parent(parent) {
         parent ? base(parent).appendChild(base(this)) : base(this).remove()
     }
+
     get parent() {
         let parent = base(this).parentElement
         return prox(parent)
     }
+
     get first() {
-        let { firstElementChild } = base(this)
+        let {firstElementChild} = base(this)
         return prox(firstElementChild)
     }
+
     get last() {
-        let { lastElementChild } = base(this)
+        let {lastElementChild} = base(this)
         return prox(lastElementChild)
     }
+
     busy(busy) {
         this.setAttr({
             _busy: `${!!busy}`
@@ -770,10 +883,11 @@ let props = Object.getOwnPropertyDescriptors(class _
                 cursor: busy ? 'progress' : ''
             })
     }
+
     copyAttr(other) {
         let me = base(this),
             attr = other.getAttributeNames()
-        for (let { length: i } = attr; i--;) {
+        for (let {length: i} = attr; i--;) {
             let name = attr[i]
             me.setAttribute(name, other.getAttribute(name))
         }
@@ -807,7 +921,7 @@ HTML_PLACING.forEach(set =>
 Reflect.ownKeys(props).forEach(i => {
     if (i !== 'constructor') {
         let v = props[i],
-            { value } = v
+            {value} = v
         if (typeof value === 'function') {
             v.value = {
                 [i](...a) {
@@ -825,10 +939,12 @@ Reflect.ownKeys(props).forEach(i => {
 })
 // 🖨 Copy everything
 const prototypeDescriptors = Object.getOwnPropertyDescriptors(prototype)
+
 function base(element) {
     // 🌱 Get the root element
     return element[me] ?? element
 }
+
 // Don't mind these objects
 const reuse = {
     flags: {
@@ -858,6 +974,7 @@ const reuse = {
 /*
 MUTATION OBSERVER STUFFS
 */
+
 /*function refreshAttributes(attr) {
     this.setAttribute(attr, this.getAttribute(attr))
 }*/
@@ -866,15 +983,17 @@ function observeAll(node) {
     inte?.observe(node)
     resi.observe(node)
 }
+
 function unobserveAll(node) {
     inte?.unobserve(node)
     resi.unobserve(node)
 }
+
 function MutationObserverCallback(entry) {
-    for (let { length: ii } = entry; ii--;) {
+    for (let {length: ii} = entry; ii--;) {
         let me = entry[ii],
-            { addedNodes, removedNodes } = me
-        for (let { length: i } = addedNodes; i--;) {
+            {addedNodes, removedNodes} = me
+        for (let {length: i} = addedNodes; i--;) {
             let node = addedNodes[i]
             if (node instanceof Element || node?.ownerDocument?.defaultView.Element.prototype.isPrototypeOf(node)) {
                 /*  queueMicrotask(() => {
@@ -889,7 +1008,7 @@ function MutationObserverCallback(entry) {
                 observeAll(node)
             }
         }
-        for (let { length: i } = removedNodes; i--;) {
+        for (let {length: i} = removedNodes; i--;) {
             let node = removedNodes[i]
             if (node instanceof Element || node?.ownerDocument?.defaultView.Element.prototype.isPrototypeOf(node)) {
                 /*   queueMicrotask(() => {
@@ -906,11 +1025,13 @@ function MutationObserverCallback(entry) {
         }
     }
 }
+
 const muta = new MutationObserver(MutationObserverCallback)
 muta.observe(document.documentElement, {
     subtree: true,
     childList: true
 })
+
 /*
 RESIZE OBSERVER STUFFS
 */
@@ -926,14 +1047,18 @@ function ResizeLoop(o) {
         }
     }))
 }
+
 h.addCustomEvent({
     scale: true
 })
+
 function ResizeObserverCallback(entries) {
     entries.forEach(ResizeLoop)
 }
+
 const resi = new ResizeObserver(ResizeObserverCallback)
-    ;[].forEach.call(document.getElementsByTagName('*'), observeAll)
+;[].forEach.call(document.getElementsByTagName('*'), observeAll)
+
 /*
 PERFORMANCE OBSERVER STUFFS
 */
@@ -941,9 +1066,9 @@ function PerformanceLoop(o) {
     let detail
     switch (o.entryType) {
         case 'layout-shift': {
-            let { sources } = o
-            for (let { length: i } = sources; i--;) {
-                let { node, currentRect, previousRect } = sources[i]
+            let {sources} = o
+            for (let {length: i} = sources; i--;) {
+                let {node, currentRect, previousRect} = sources[i]
                 node?.dispatchEvent(new CustomEvent('layout-shift', {
                     bubbles: true,
                     detail: {
@@ -968,24 +1093,27 @@ function PerformanceLoop(o) {
             break
         default:
             break
-        case 'paint': switch (o.name) {
-            case 'first-paint':
-            case 'first-contentful-paint':
-                detail = {
-                    time: o.startTime,
-                    name: o.name
-                }
-                break
-        }
+        case 'paint':
+            switch (o.name) {
+                case 'first-paint':
+                case 'first-contentful-paint':
+                    detail = {
+                        time: o.startTime,
+                        name: o.name
+                    }
+                    break
+            }
             break
     }
     dispatchEvent(new CustomEvent(o.entryType, {
         detail
     }))
 }
+
 function PerformanceObserverCallback(entr) {
     entr.getEntries().forEach(PerformanceLoop)
 }
+
 const entryTypes = {
     paint: 'PerformancePaintTiming' in window,
     'first-input': 'PerformanceEventTiming' in window,
@@ -995,7 +1123,7 @@ const entryTypes = {
     longtask: 'PerformanceLongTaskTiming' in window
 }
 const perf = new PerformanceObserver(PerformanceObserverCallback)
-perf.observe({ entryTypes: Object.keys(entryTypes) })
+perf.observe({entryTypes: Object.keys(entryTypes)})
 h.addCustomEvent(entryTypes)
 /*
 INTERSECTION OBSERVER STUFFS
@@ -1004,15 +1132,19 @@ var inte
 if (typeof ContentVisibilityAutoStateChangeEvent !== 'function'
     || 'mozInnerScreenX' in window  // Firefox is weird again
 ) {
-     inte = new IntersectionObserver(IntersectionObserverCallback, {
+    inte = new IntersectionObserver(IntersectionObserverCallback, {
         threshold: [0, Number.MIN_VALUE]
     })
+
     function IntersectionObserverCallback(entries) {
-        for (let { length: i } = entries; i--;) {
+        for (let {length: i} = entries; i--;) {
             let me = entries[i],
                 target = me.target
             if ($(target).computed.getPropertyValue('--content-visibility').trim() === 'auto') {
-                let event = new CustomEvent('contentvisibilityautostatechange', { bubbles: true, detail: { skipped: !me.isIntersecting } })
+                let event = new CustomEvent('contentvisibilityautostatechange', {
+                    bubbles: true,
+                    detail: {skipped: !me.isIntersecting}
+                })
                 target.dispatchEvent(event)
             }
         }
@@ -1030,6 +1162,7 @@ const baseHandler = {
         return (targ.hasOwnProperty(prop) ? targ : this[0])[prop] = value, 1
     }
 }
+
 function prox(target) {
     if (target === null) return null
     if (target.isProxy) return target
@@ -1043,49 +1176,50 @@ function prox(target) {
     // ✅ Only option is 'Object.create' or { __proto__: ... }
     if (!all.has(target)) {
         // ++$.len
-        let bleh = { value: target }
-            , { revoke: styleRevoke, proxy: styleProxy } = Proxy.revocable(target.style, handlers.styles)
-            , { revoke: childRevoke, proxy: childProxy } = Proxy.revocable(target.children, handlers.HTMLCollection)
-            , { revoke: querySelectorRevoke, proxy: querySelectorProxy } = Proxy.revocable(target, handlers.querySelector)
-            , { revoke: attrRevoke, proxy: attrProxy } = Proxy.revocable(target, handlers.attr)
+        let bleh = {value: target}
+            , {revoke: styleRevoke, proxy: styleProxy} = Proxy.revocable(target.style, handlers.styles)
+            , {revoke: childRevoke, proxy: childProxy} = Proxy.revocable(target.children, handlers.HTMLCollection)
+            , {revoke: querySelectorRevoke, proxy: querySelectorProxy} = Proxy.revocable(target, handlers.querySelector)
+            , {revoke: attrRevoke, proxy: attrProxy} = Proxy.revocable(target, handlers.attr)
             , propertiesToDefine = {
-                ...prototypeDescriptors,
-                [me]: bleh,
-                fromQuery: {
-                    value: querySelectorProxy
-                },
-                [computed]: reuse.nullThing,
-                [states]: {
-                    value: new Map
-                },
-                selfRules: {
-                    value: Object.create(null)
-                },
-                state: reuse.state,
-                currentState: reuse.junk,
-                lastState: reuse.junk,
-                flags: reuse.flags,
-                children: {
-                    value: childProxy
-                },
-                attr: {
-                    value: attrProxy
-                },
-                styles: {
-                    value: styleProxy
-                }
+            ...prototypeDescriptors,
+            [me]: bleh,
+            fromQuery: {
+                value: querySelectorProxy
+            },
+            [computed]: reuse.nullThing,
+            [states]: {
+                value: new Map
+            },
+            selfRules: {
+                value: Object.create(null)
+            },
+            state: reuse.state,
+            currentState: reuse.junk,
+            lastState: reuse.junk,
+            flags: reuse.flags,
+            children: {
+                value: childProxy
+            },
+            attr: {
+                value: attrProxy
+            },
+            styles: {
+                value: styleProxy
             }
-            , { proxy, revoke } = Proxy.revocable(
-                Object.seal(Object.create(target, propertiesToDefine)), Object.create(baseHandler, { 0: { value: target } })
-                // defineProperty(target, prop) {
-                // console.debug(prop)
-                // if (prop in target) return Reflect.defineProperty(...arguments)
-                // throw TypeError('Object not mutable')
-                // }
-            )
+        }
+            , {proxy, revoke} = Proxy.revocable(
+            Object.seal(Object.create(target, propertiesToDefine)), Object.create(baseHandler, {0: {value: target}})
+            // defineProperty(target, prop) {
+            // console.debug(prop)
+            // if (prop in target) return Reflect.defineProperty(...arguments)
+            // throw TypeError('Object not mutable')
+            // }
+        )
         if (target instanceof HTMLUnknownElement ||
             target.ownerDocument.defaultView?.HTMLUnknownElement.prototype.isPrototypeOf(target))
             console.warn(`Unknown element: '${target.tagName.toLowerCase()}'`)
+
         function RevokeAllProxies() {
             //  Make sure we have *NO* possible references left
             revoke()
@@ -1094,6 +1228,7 @@ function prox(target) {
             styleRevoke()
             querySelectorRevoke()
         }
+
         revokes.set(proxy, RevokeAllProxies)
         all.set(target, proxy)
         return proxy
@@ -1107,6 +1242,7 @@ function getValid(target) {
             target.ownerDocument?.defaultView?.Element.prototype.isPrototypeOf(target) ||
             Element.prototype.isPrototypeOf(target))
 }
+
 const doc = document.createDocumentFragment()
 const parser = new DOMParser
 let temp, div, range, parsingDoc, classRegex = /(?<=\.)[\w-]+/g,
@@ -1152,6 +1288,7 @@ const parseModeMap = new Map(Object.entries({
     }
 }))
 let safeHTML = html => html
+
 /*if (window.trustedTypes && window.trustedTypes.createPolicy && !window.trustedTypes.defaultPolicy) {
 it's like being weird for some reason idfk how to use trusted types policy thing    
     let t = trustedTypes.createPolicy("default", {
@@ -1162,19 +1299,18 @@ it's like being weird for some reason idfk how to use trusted types policy thing
     safeHTML = t.createHTML.bind(t)
 }*/
 /**
-* # Be careful of html injection when using a string!!
-*/
+ * # Be careful of html injection when using a string!!
+ */
 function $(html, props, ...children) {
     if (getValid(html)) return prox(html) // Redirect
     if (typeof html === 'string') html = html.trim()
     let element
     if (html[0] === '<' && html.at(-1) === '>') {
         html = safeHTML(html)
-         element = prox(parseModeMap.get(parseMode)?.(html) ?? parseModeMap.get('')(html))
-    }
-    else {
+        element = prox(parseModeMap.get(parseMode)?.(html) ?? parseModeMap.get('')(html))
+    } else {
         // html === 'fencedframe' && typeof HTMLFencedFrameElement === 'undefined' && (html = 'iframe')
-         element = prox(document.createElement(html.match(htmlRegex)?.[0]))
+        element = prox(document.createElement(html.match(htmlRegex)?.[0]))
         let classes = html.match(classRegex),
             id = html.match(idRegex)?.[0],
             type = html.match(typeRegex)?.[0],
@@ -1212,10 +1348,12 @@ function $(html, props, ...children) {
                <afterend>
     */
     if (props && !getValid(props) && typeof props !== 'string') {
-        let { hasOwn } = Object
+        let {hasOwn} = Object
+
         function reuse(p) {
             hasOwn(props, p) && (element[p] = props[p])
         }
+
         reuse('parent')
         hasOwn(props, 'events') && element.on(props.events)
         TEXT_THINGIES.forEach(reuse)
@@ -1225,20 +1363,22 @@ function $(html, props, ...children) {
         (hasOwn(props, 'attr') || hasOwn(props, 'attributes')) && element.setAttr(props.attributes ?? props.attr)
         hasOwn(props, 'styles') && element.setStyles(props.styles)
         hasOwn(props, 'start') && props.start.call(element)
-    }
-    else if (typeof props === 'string' || getValid(props)) {
+    } else if (typeof props === 'string' || getValid(props)) {
         children.unshift(props)
         props = null
     }
     children.length && element.push(children.map(elemIfString))
     return element
 }
+
 function elemIfString(o) {
     return typeof o === 'string' ? $(o) : o
 }
+
 function revoke(targ) {
     revokes.get(targ)?.(revokes.delete(targ))
 }
+
 export default Object.defineProperties($, {
     // random: {
     // value() {
@@ -1309,21 +1449,26 @@ export default Object.defineProperties($, {
     }
 })
 let parseMode = 'mozInnerScreenY' in window ? 'createRange' : ''
+
 //  createRange seems to be *slightly* faster on firefox
 function badAttrName(name) {
     return regex.onXYZ.test(name//.nodeName
     )
 }
+
 function allElementStuff(e) {
     return e.getAttributeNames().some(badAttrName)
     // return [].some.call(e.attributes, badAttrName)
 }
+
 function destroyEach(ch) {
     prox(ch).destroy()
 }
+
 try {
     class AnimatedSprite extends HTMLElement {
         static observedAttributes = 'cols rows src width height duration direction index'.split(' ')
+
         #ANIMATE() {
             let p = prox(this)
             if (this.#axis === 'horizontal') {
@@ -1331,17 +1476,18 @@ try {
                     'background-position-y': `calc((mod(var(--axis), var(--grid-height))*var(--height)) * -1)`,
                     animation: `horizontal ${this.#duration * this.getAttribute('cols') | 0}ms steps(var(--grid-width), end) ${this.#direction} infinite`
                 })
-            }
-            else if (this.#axis === 'vertical') {
+            } else if (this.#axis === 'vertical') {
                 p.setStyles({
                     'background-position-x': `calc((mod(var(--axis), var(--grid-width))*var(--width)) * -1)`,
                     animation: `vertical ${this.#duration * this.getAttribute('rows') | 0}ms steps(var(--grid-height), end) ${this.#direction} infinite`
                 })
             }
         }
+
         #duration = 1000
         #axis = 'horizontal'
         #direction = 'normal'
+
         attributeChangedCallback(name, oValue, nValue) {
             let p = prox(this)
             if (/^(?:cols|rows)$/.test(name)) {
@@ -1349,42 +1495,37 @@ try {
                     [`--grid-${name === 'cols' ? 'width' : 'height'}`]: `${nValue}`
                 })
                 this.#ANIMATE()
-            }
-            else if (/^(?:width|height)$/.test(name)) {
+            } else if (/^(?:width|height)$/.test(name)) {
                 if (!CSS.supports('width', nValue)) nValue += 'px'
                 p.setStyles({
                     [`--${name}`]: nValue
                 })
                 this.#ANIMATE()
 
-            }
-            else if (name === 'src') {
+            } else if (name === 'src') {
                 p.setStyles({
                     '--sprite': `url(${nValue})`
                 })
                 this.#ANIMATE()
-            }
-            else if (name === 'axis') {
+            } else if (name === 'axis') {
                 if (nValue !== 'horizontal' && nValue !== 'vertical') nValue = 'horizontal'
                 this.#axis = nValue
-            }
-            else if (name === 'duration') {
+            } else if (name === 'duration') {
                 this.#duration = nValue
                 this.#ANIMATE()
-            }
-            else if (name === 'direction') {
-                if (!/^(?:normal|reverse|(?:alternate(?:-reverse)?))$/.test(nValue)) nValue = 'normal'
+            } else if (name === 'direction') {
+                if (!/^(?:normal|reverse|alternate(?:-reverse)?)$/.test(nValue)) nValue = 'normal'
                 this.#direction = nValue
                 this.#ANIMATE()
-            }
-            else if (name === 'index') {
+            } else if (name === 'index') {
                 p.setStyles({
-                    '--axis':(nValue | 0)% (this.#axis === 'horizontal'?p.attr.rows:p.attr.cols)
+                    '--axis': (nValue | 0) % (this.#axis === 'horizontal' ? p.attr.rows : p.attr.cols)
                 })
             }
         }
+
         connectedCallback() {
-            this.attachShadow({ mode: 'open' }).appendChild(base($(`style`, {
+            this.attachShadow({mode: 'open'}).appendChild(base($(`style`, {
                 textContent:
                     `
 @property --sprite {
@@ -1446,9 +1587,9 @@ try {
             })))
         }
     }
+
     Object.getPrototypeOf(customElements).define.call(customElements, 'img-sprite', AnimatedSprite)
-}
-catch (e) {
+} catch (e) {
     reportError(e)
 }
 /*export function info(heading, message, parent, yes, no) {
@@ -1513,7 +1654,8 @@ backdrop.fadeIn().then(() => {
     console.log(obj)
 }()
     */
-location.host.includes('localhost') &&
+if (location.host.includes('localhost')) {
     Object.assign(window, {
         $, css
     })
+}

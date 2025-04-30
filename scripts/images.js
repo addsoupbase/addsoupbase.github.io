@@ -16,7 +16,7 @@ let ctx = Object.assign(new OffscreenCanvas(w, h).getContext('2d'), {
 })
 if (birthday) {
     console.log(`OMG ITS MY BIRTHDAY YAYYY 🎂🎂`)
-    for (let i = 340; i -= 10;) {
+    for (let i = 360; i -= 10;) {
         ctx.drawImage(bubble, 0, 0)
         ctx.filter = `hue-rotate(${i}deg)`
         colorful.add(URL.createObjectURL(await ctx.canvas.convertToBlob()))
