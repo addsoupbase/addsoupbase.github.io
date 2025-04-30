@@ -6,7 +6,7 @@ console.log('💿 Booting...')
 await serve(go, { port })
 async function go(req) {
     let out = await serveDir(req, {
-        fsRoot: "./Projects",
+        fsRoot: "",
         urlRoot: "",
         showDirListing: true,
         enableCors: true,
