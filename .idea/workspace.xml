@@ -4,12 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="s">
-      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.html" beforeDir="false" afterPath="$PROJECT_DIR$/main.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/background.js" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/background.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/dom.js" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/dom.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/silence.js" beforeDir="false" afterPath="$PROJECT_DIR$/silence.js" afterDir="false" />
+    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="i need help">
       <change beforePath="$PROJECT_DIR$/whatever/README.md" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/whatever/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/whatever/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/whatever/script.js" beforeDir="false" afterPath="$PROJECT_DIR$/whatever/script.js" afterDir="false" />
@@ -61,7 +56,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "ml.llm.LLMConfigurable",
+    "settings.editor.selected.configurable": "editing.templates",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -101,7 +96,7 @@
       <workItem from="1745892358173" duration="167000" />
       <workItem from="1745892586364" duration="1974000" />
       <workItem from="1745894571567" duration="10000" />
-      <workItem from="1745921863093" duration="6739000" />
+      <workItem from="1745921863093" duration="6954000" />
     </task>
     <task id="LOCAL-00001" summary="uhh i hope this works">
       <option name="closed" value="true" />
@@ -159,7 +154,23 @@
       <option name="project" value="LOCAL" />
       <updated>1746027924202</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="s">
+      <option name="closed" value="true" />
+      <created>1746028022030</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1746028022030</updated>
+    </task>
+    <task id="LOCAL-00009" summary="i need help">
+      <option name="closed" value="true" />
+      <created>1746028074106</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1746028074106</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -172,6 +183,7 @@
     <MESSAGE value="oops" />
     <MESSAGE value="hey there" />
     <MESSAGE value="s" />
-    <option name="LAST_COMMIT_MESSAGE" value="s" />
+    <MESSAGE value="i need help" />
+    <option name="LAST_COMMIT_MESSAGE" value="i need help" />
   </component>
 </project>
