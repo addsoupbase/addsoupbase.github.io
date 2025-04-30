@@ -1,6 +1,6 @@
-let regex = /[\w\.\-]+\.(?:webp|a?png|gif|jpe?g)/
-
-function images({ avatars, mons, colorful, birthday }) {
+let regex = /[\w\.\-]+\.(webp|png|gif|jpe?g)/
+// import { on } from '../handle.js'
+function images({ avatars, mons }) {
     let pop = new Audio('media/pop.mp3')
     // on(document, {
     // visibilitychange() {
@@ -12,43 +12,25 @@ function images({ avatars, mons, colorful, birthday }) {
     const frameDuration = 135
     const duration = 12_000
     const cycle = math.cycle(...ran.shuffle(...avatars))
-    let holding = false
     bg.delegate({
-        pointerdown1: click
+        click
     }, o =>
         o.classList.contains('bubble') && o.flags === 0
-    ).debounce({
-        pointermove({ x, y }) {
-            holding && makeBubble(`${x}px`, `${y}px`).fadeIn(300)
-        }
-    }, 80)
-        .on({
-            pointerup() {
-                holding = false
-            },
-            pointerdown(e) {
-                this.setPointerCapture(e.pointerId)
-                holding = true
-            }
-        })
-    async function click(e) {
-        e.stopImmediatePropagation()
-        let { x, y } = e
+    )
+    async function click({ x, y }) {
         this.pauseAnims()
         pop.currentTime = 0
         pop.play()
         this.fadeOut(300)
         this.flags = 1
         await this.animate([{ transform: '' }, { transform: 'scaleX(2) scaleY(2)', }], { duration: 300, easing: 'ease-in-out', composite: 'accumulate', }).finished
-        let [name] = this.firstElementChild.src.match(regex)[0].split(/\.(?:webp|a?png|gif|jpe?g)/)
-        let src = this.firstElementChild.src
-
+        let [name] = this.firstElementChild.src.match(regex)[0].split(/\.(webp|png|gif|jpe*g)/)
         let me = $('div.ava .tar', {
             styles: {
-                'backgroundImage': `url(${src})`
+                'backgroundImage': `url(${this.firstElementChild.src})`
             },
             attributes: {
-                _hidden: 'true',
+                role: 'presentation',
                 alt: name,
             },
             parent: bg,
@@ -64,13 +46,10 @@ function images({ avatars, mons, colorful, birthday }) {
         const { src } = image
         let n = $('div.bubble', {
             attr: {
-                _hidden: 'true',
+                role: 'presentation',
                 width: 50, height: 50
             }, parent
         })
-        if (birthday) {
-            n.setStyles({ 'background-image': `url("${ran.choose(...colorful)}")` })
-        }
         let settings = ran.coin
             ? [{ transform: `translateX(calc(100vw + ${n.offsetWidth}px))` }, { transform: `translateX(calc(-10vw - ${n.offsetWidth}px))` },]
             : [{ transform: `translateX(calc(-10vw - ${n.offsetWidth}px))` }, { transform: `translateX(calc(100vw + ${n.offsetWidth}px))` }]
@@ -82,7 +61,7 @@ function images({ avatars, mons, colorful, birthday }) {
             attributes: {
                 src,
                 // alt: src,
-                _hidden: 'true',
+                role: 'presentation',
 
                 width: 50,
                 height: 50,
@@ -94,7 +73,7 @@ function images({ avatars, mons, colorful, birthday }) {
     function createAnimationForSpritesheet(image) {
         let me = $(`div.${image[Symbol.for('name')]}.sprite`, {
             parent, attr: {
-                _hidden: 'true',
+                role: 'presentation',
             }
         })
         me.animate([{
@@ -104,7 +83,6 @@ function images({ avatars, mons, colorful, birthday }) {
             'backgroundPositionX': `-${image.width}px`
         }
         ], { easing: `steps(${image[Symbol.for('width')]},end)`, duration: frameDuration * image[Symbol.for('width')], iterations: 1 / 0 })
-        ran.jackpot(1000) && me.classList.add('shiny')
         return me
     }
     async function spawnPkmn() {
@@ -121,15 +99,11 @@ function images({ avatars, mons, colorful, birthday }) {
             : [{ transform: `translate(calc(-10vw - ${offsetWidth}px), 0)` }, { transform: `translate(calc(100vw + ${offsetWidth}px), 0)` }],
             duration = 15000
         switch (pick[Symbol.for('name')]) {
-            case 'wailord': duration = 300400; break
-            case 'wishiwashischool': duration = 50400; break
-            case 'kyogre': case 'kyogreprimal': duration = 20000; break
+            case 'wailord': case 'wishiwashischool': duration = 50400; break
+            case 'kyogre': case 'kyogreprimal': duration = 20000; break;
             case 'luvdisc': duration = 10000; break;
-            // case 'sharpedo': case 'carvanha': duration = 8300; break
+            case 'sharpedo': case 'carvanha': duration = 8300; break
             case 'corsola': duration = 25000; break
-            case 'wishiwashi': duration = 20_000; break
-            case 'qwilfish': duration = 14_000; break
-           case'lanturn':case'bruxish': case 'gorebyss': case 'huntail': case 'jellicent_m': case "jellicent_f": case 'seaking': case 'arctovish': case 'nihilego':case 'lumineon':case'sharpedo':duration *= 2
             //        case 'corsola': element.animate([{transform: 'rotateZ(0deg)'}, {transform: `rotateZ(360deg)`}], {composite:'add',easing:'linear',duration:5000, iterations:1/0,direction:coin?'reverse':'normal'})
         }
         duration *= 1.6
@@ -140,43 +114,28 @@ function images({ avatars, mons, colorful, birthday }) {
     }
     setInterval(bubbleWithAva, 2000)
     spawnPkmn()
-    function makeBubble(x, y) {
-        let bubbl = $('<div class="bubble" style="pointer-events:none;"></div>', { parent })
-        bubbl.flags = 1
-        if (birthday) bubbl.setStyles({
-            'background-image': `url("${ran.choose(...colorful)}")`
-        })
-        let num = ran.range(13, 23)
-        bubbl.setStyles({ width: `${num}px`, height: `${num}px`, left: x ?? `${ran.range(0, innerWidth)}px`, top: y ?? '100%' })
-        bubbl.animate([{ transform: `translateX(-10px)` }, { transform: 'translateX(10px)' }], { iterations: 1 / 0, duration: 220, direction: 'alternate', easing: 'ease-in-out', composite: 'add' })
-        bubbl.animate([{ transform: `translateY(0px)`, }, { transform: `translateY(-110vh)` }], { easing: 'linear', duration: 8000, composite: 'add' }).finished
-            .then(() => bubbl.destroy()
-            )
-        return bubbl
-    }
-    function tinyBubbles(again = true) {
+    async function tinyBubbles(again = true) {
         again && setTimeout(tinyBubbles, ran.range(1000, 1200))
         if (document.hidden) return
-        makeBubble()
+        let bubbl = $('div.bubble', { parent })
+        let num = ran.range(13, 23)
+        bubbl.setStyles({ width: `${num}px`, height: `${num}px`, left: `${ran.range(0, innerWidth)}px`, top: '100%' })
+        bubbl.animate([{ transform: `translateX(-10px)` }, { transform: 'translateX(10px)' }], { iterations: 1 / 0, duration: 220, direction: 'alternate', easing: 'ease-in-out', composite: 'add' })
+        await bubbl.animate([{ transform: `translateY(0px)`, }, { transform: `translateY(-110vh)` }], { easing: 'linear', duration: 8000, composite: 'add' }).finished
+        bubbl.destroy()
     }
     tinyBubbles()
 }
 import $ from '../yay.js'
-import * as math from '../num.js'
-import * as string from '../str.js'
-// import * as h from '../handle.js'
-import ran from '../random.js'
-const frame = $.qs('object')
+import { math, ran, string } from '../misc.js'
+const iframe = $.qs('object')
 //document.body.scrollLeft = innerHeight/2
-frame.on({
-    _load() {
-        (window.requestIdleCallback || queueMicrotask)((deadline) => {
-            deadline ? console.debug(`Did timeout: `, deadline.didTimeout) : console.debug(`requestIdleCallback unsupported`)
-            import('./images.js').then(images)
-            console.debug("🐟 Loading the bg now...")
-        }, { timeout: 20000 })
-    }
-})
+
+window.$ = $
+iframe.contentWindow.final = function () {
+    import('./images.js').then(images)
+    console.debug("🐟 Loading the bg now...")
+}
 const parent = $('div #background', {
     parent: document.body
 })
