@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="s">
+      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.html" beforeDir="false" afterPath="$PROJECT_DIR$/main.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/background.js" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/background.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/dom.js" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/dom.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/silence.js" beforeDir="false" afterPath="$PROJECT_DIR$/silence.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/whatever/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/whatever/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/whatever/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/whatever/script.js" beforeDir="false" afterPath="$PROJECT_DIR$/whatever/script.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/whatever/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/whatever/styles.css" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="UPDATE_TYPE" value="REBASE" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;addsoupbase&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/addsoupbase/addsoupbase.github.io.git&quot;,
+    &quot;accountId&quot;: &quot;550a9eab-83a0-4d4e-9629-b5c98574f35b&quot;
+  }
+}</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 1
+}</component>
+  <component name="ProjectId" id="2wNmZRiWLYsoT5AxKHM5V0Bj1x2" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "JavaScript Debug.index.html.executor": "Debug",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "main",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "ml.llm.LLMConfigurable",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration name="index.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/addsoupbase.github.io/index.html" useBuiltInWebServerPort="true">
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JavaScript Debug.index.html" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-f27c65a3e318-JavaScript-WS-251.23774.424" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="" />
+      <created>1745890462073</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1745890462073</updated>
+      <workItem from="1745890463755" duration="16000" />
+      <workItem from="1745890526581" duration="45000" />
+      <workItem from="1745891438942" duration="281000" />
+      <workItem from="1745891757082" duration="39000" />
+      <workItem from="1745891822393" duration="56000" />
+      <workItem from="1745892179574" duration="31000" />
+      <workItem from="1745892216411" duration="93000" />
+      <workItem from="1745892322003" duration="9000" />
+      <workItem from="1745892358173" duration="167000" />
+      <workItem from="1745892586364" duration="1974000" />
+      <workItem from="1745894571567" duration="10000" />
+      <workItem from="1745921863093" duration="6739000" />
+    </task>
+    <task id="LOCAL-00001" summary="uhh i hope this works">
+      <option name="closed" value="true" />
+      <created>1745894193145</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1745894193145</updated>
+    </task>
+    <task id="LOCAL-00002" summary="uhh i hope this works">
+      <option name="closed" value="true" />
+      <created>1745894269394</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1745894269394</updated>
+    </task>
+    <task id="LOCAL-00003" summary="uhh i hope this works">
+      <option name="closed" value="true" />
+      <created>1745894311773</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1745894311773</updated>
+    </task>
+    <task id="LOCAL-00004" summary="hwy">
+      <option name="closed" value="true" />
+      <created>1745922715231</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1745922715232</updated>
+    </task>
+    <task id="LOCAL-00005" summary="oops">
+      <option name="closed" value="true" />
+      <created>1745922823432</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1745922823432</updated>
+    </task>
+    <task id="LOCAL-00006" summary="hey there">
+      <option name="closed" value="true" />
+      <created>1746027784774</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1746027784774</updated>
+    </task>
+    <task id="LOCAL-00007" summary="s">
+      <option name="closed" value="true" />
+      <created>1746027924202</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1746027924202</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="the" />
+    <MESSAGE value="uhh i hope this works" />
+    <MESSAGE value="hwy" />
+    <MESSAGE value="oops" />
+    <MESSAGE value="hey there" />
+    <MESSAGE value="s" />
+    <option name="LAST_COMMIT_MESSAGE" value="s" />
+  </component>
+</project>
