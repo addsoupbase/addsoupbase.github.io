@@ -1096,8 +1096,6 @@ function prox(target) {
         }
         revokes.set(proxy, RevokeAllProxies)
         all.set(target, proxy)
-        inte?.observe(target)
-        resi.observe(target)
         return proxy
     }
     return all.get(target)
@@ -1352,7 +1350,7 @@ try {
                 })
                 this.#ANIMATE()
             }
-            else if (/^(?:width|height)/.test(name)) {
+            else if (/^(?:width|height)$/.test(name)) {
                 if (!CSS.supports('width', nValue)) nValue += 'px'
                 p.setStyles({
                     [`--${name}`]: nValue
@@ -1381,7 +1379,7 @@ try {
             }
             else if (name === 'index') {
                 p.setStyles({
-                    '--axis':(nValue | 0)% (this.#axis === 'horizontal'?p.attr.rows:p.attr.cols) 
+                    '--axis':(nValue | 0)% (this.#axis === 'horizontal'?p.attr.rows:p.attr.cols)
                 })
             }
         }

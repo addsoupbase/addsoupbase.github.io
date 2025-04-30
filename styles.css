@@ -352,6 +352,18 @@ html {
   text-align: center;
   transition: transform 0.3s ease, background-color 0.3s ease;
 }
+.cute-blue {
+  background-color: #5ACBCD;
+  opacity: 0.8;
+  caret-color: #e66a7f;
+  border: 2px solid #49ABC3;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  color: #000000;
+  text-align: center;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
 
 #submit {
   display: inline-block;
@@ -427,6 +439,16 @@ input.cute-green::placeholder {
 
 .cute-green:hover {
   background-color: #67db71;
+}
+#thingy {
+  transform: scale(4, 4);
+  top: -145%;
+  left: -40%;
+  position: relative;
+  image-rendering: pixelated;
+  mso-shadow-color:  black;
+  content: url(./cute-emojis/emojis/1224927639068741632.gif);
+  display: block;
 }
 
 .kanit-thin {
@@ -660,8 +682,11 @@ body {
 }
 
 #diary {
-  outline: 3px dashed #1275b4;
+  /*outline: 3px dashed #1275b4;*/
   width: 400px;
+  min-width: 150px;
+  min-height: 50px;
+  max-width: 80vw;
   height: 300px;
   overflow-y: scroll;
 }

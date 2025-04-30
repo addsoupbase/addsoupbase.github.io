@@ -41,13 +41,14 @@
             <a class="cute-green-button back" href="main.html" role="button">Back</a>
             <!-- <span> Scrolling could reveal more!</span> -->
 
-            <section class="center" id="diary-container" style="display:grid;justify-items: center;">
+            <section class="center" id="diary-container" style="display:table;justify-items: center;">
                 <time>
                     <input class="cute-green" style="font-size:20px;margin:20px;" id="diary-heading" type="date"
                         min="2025-04-07">
                 </time>
-                <div id="diary"
-                    style="resize:both;width: 154%;resize: both;border-radius:1%;width: 490px;max-width: 90vw;">
+<!--                <img src="./cute-emojis/emojis/1224927639068741632.gif" style>-->
+                <article id="diary" class="cute-blue"
+                    style="resize:both;width: 154%;resize: both;border-radius:1%;width: 490px;    place-self: center;">
                     <h2 id="invalid" hidden>No entry for today &lpar;yet!&rpar;
                         <img height="34" src="./cute-emojis/emojis/1143313874943234058.gif">
                     </h2>
@@ -60,8 +61,8 @@
                     </h2>
                     <iframe aria-live="assertive" id="display" name="Diary" title="Diary"
                         style="width: 100%;height: 100%;border: none;"></iframe>
-                </div>
-                <div style="justify-content: space-around;display: flex;    align-items: end;">
+                </article>
+                <div style="justify-self: center;justify-content:center;display: flex;    align-items: end;">
                     <input id="prev" type="image" title="Turn to previous page" alt="Back" style="transform:scaleX(-1)"
                         src="./cute-emojis/emojis/1321091969635848294.gif">
                     <button class="cute-green-button" id="toToday">Go to today</button>
@@ -76,7 +77,7 @@
     <script type="module">
         // 
         import $ from './yay.js'
-        import * as h from './handle.js'
+        // import * as h from './handle.js'
 
         $.setup()
         let { info, toToday, invalid, error, next, prev, 'diary-heading': diaryHeading, 'diary-container': diaryContainer, display: currentThingy } = $.byId
@@ -187,9 +188,15 @@
                 // else {
 
                 currentThingy.setAttr({ src: url })
+                await new Promise((resolve,reject)=>{
+                    currentThingy.onerror = reject
+                    currentThingy.onload = resolve
+                })
+                currentThingy.onerror = currentThingy.onload =  null
                 // }
             }
             catch (e) {
+                currentThingy.onerror = currentThingy.onload =  null
                 reportError(e)
                 error.fadeIn()
                 error.show()
