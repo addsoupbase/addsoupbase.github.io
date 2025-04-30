@@ -15,7 +15,7 @@ let ctx = Object.assign(new OffscreenCanvas(w, h).getContext('2d'), {
     imageSmoothingQuality: 'high'
 })
 if (birthday) {
-console.log(`OMG ITS MY BIRTHDAY YAYYY 🎂🎂`)
+    console.log(`OMG ITS MY BIRTHDAY YAYYY 🎂🎂`)
     for (let i = 340; i -= 10;) {
         ctx.drawImage(bubble, 0, 0)
         ctx.filter = `hue-rotate(${i}deg)`
