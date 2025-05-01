@@ -6,45 +6,53 @@ function reportError(throwable) {
     }))
     console.error(`${throwable}`)
 }
+
 reportError = window.reportError ?? reportError
+
 export function dashVendor(prop, val) {
     return vendor(toDash(prop), val)
 }
+
 export function capVendor(prop, val) {
     return toCaps(vendor(toDash(prop), val))
 }
+
 export const all = new Set
     , has = all.has.bind(all)
+
 export function vendorValue(prop, val) {
     let without = val.replace(allVendors, '')
         .replace(allVendors2, '')
     switch (without) {
         case 'crisp-edges':
             sup(prop, val = '-webkit-optimize-contrast') ||
-                sup(prop, val = '-moz-crisp-edges') ||
-                sup(prop, val = without)
+            sup(prop, val = '-moz-crisp-edges') ||
+            sup(prop, val = without)
             break
         case 'stretch':
         case 'fill-available':
         case 'available':
             sup(prop, val = '-webkit-fill-available') ||
-                sup(prop, val = '-moz-available') ||
-                sup(prop, val = without)
+            sup(prop, val = '-moz-available') ||
+            sup(prop, val = without)
             break
     }
     return val
 }
+
 const alreadyLogged = new Set
 const beenHereBefore = sessionStorage.getItem('css')
+
 export function badCSS(data, silent) {
     if (silent || alreadyLogged.has(data)) return
     console.warn(data)
     alreadyLogged.add(data)
 }
+
 const allVendors = RegExp(
-    `-(?:${'webkit moz apple khtml konq o ms xv atsc wap ah hp ro rim tc fso icab epub'.replace(/\s/g, '|')})-`
-    // internal
-),
+        `-(?:${'webkit moz apple khtml konq o ms xv atsc wap ah hp ro rim tc fso icab epub'.replace(/\s/g, '|')})-`
+        // internal
+    ),
     allVendors2 = /(?:prince|mso)-/
 const dontRedo = new Map,
     sup = CSS.supports
@@ -111,11 +119,14 @@ export function vendor(prop, val, silent) {
     }
     return prop
 }
+
 const newerProps = /^(?:translate|scale|rotate|zoom)$/
+
 //  (that i have used before)
 function mayNotBeSupported(prop) {
     newerProps.test(prop) && badCSS(`💿 '${prop}' may not be supported on older devices`)
 }
+
 export function importFont(name, src) {
     if (name && src) {
         const font = new FontFace(name, `url(${src})`)
@@ -124,7 +135,9 @@ export function importFont(name, src) {
     }
     throw Error(`Src and name required`)
 }
+
 let defrt = /-./g
+
 export function toCaps(prop) {
     if (prop.includes('-') && !prop.startsWith('--')) { // Ignore custom properties
         if (prop[0] === '-') prop = prop.slice(1)
@@ -132,18 +145,24 @@ export function toCaps(prop) {
     }
     return prop
 }
+
 let azregex = /[A-Z]/g
+
 export function toDash(prop) {
     return prop.startsWith('--') ? prop :
         prop.replace(azregex, tlc)
 }
+
 function tlc(o) {
     return `-${o.toLowerCase()}`
 }
-function tuc({ 1: char }) {
+
+function tuc({1: char}) {
     return char.toUpperCase()
 }
+
 let addedStyleRules = null
+
 /**
  * @param {Object} obj key/value pairs that match CSS
  * @returns {String}
@@ -153,35 +172,43 @@ export function toCSS(obj, silent) {
     if (Array.isArray(obj)) obj = Object.fromEntries(obj)
     for (let prop in obj) {
         let p = vendorValue(prop, `${obj[prop]}`)
-        try { arr.push(`${vendor(toDash(prop), p, silent)}:${p}`) }
-        finally {  }
+        try {
+            arr.push(`${vendor(toDash(prop), p, silent)}:${p}`)
+        } finally {
+        }
     }
     return arr.join(';')
 }
+
 let pseudoElementRegex = /::[\w-]/
 let pseudoClassRegex = /:[\w-]/
+
 function mapThing(selectr) {
-    if (pseudoElementRegex.test(selectr)) selectr = supportedPElementVendor(selectr)
-    else if (pseudoClassRegex.test(selectr)) selectr = supportedPClassVendor(selectr)
+    if (pseudoElementRegex.test(selectr)) selectr = pev(selectr)
+    else if (pseudoClassRegex.test(selectr)) selectr = pcv(selectr)
     return selectr
 }
-/** 
+
+/**
  *  ⚠️ Should only be used for dynamic/default CSS
  * @param {String} selector A valid CSS selector (something like . or#)
- * @param {Object} rule An object which describes the selector 
+ * @param {Object} rule An object which describes the selector
  */
 export function registerCSS(selector, rule, silent) {
     selector = selector.split(',')
         .map(mapThing)
         .join(',')
     const sheet = addedStyleRules ??= getDefaultStyleSheet()
-            let r = `{${toCSS(rule, silent)}}`
-            return sheet.insertRule(`${formatStr(selector)}${formatStr(r)}`)
+    let r = `{${toCSS(rule, silent)}}`
+    return sheet.insertRule(`${formatStr(selector)}${formatStr(r)}`)
 }
+
 let cleanRegex = /\s\s|\n\n/g
+
 export function formatStr(str) {
     return str.trim().replace(cleanRegex, '')
 }
+
 export function getDefaultStyleSheet() {
     return (document.getElementById('addedStyleRules') ?? function () {
         let out = document.createElement('style');
@@ -192,23 +219,33 @@ export function getDefaultStyleSheet() {
         return out
     }()).sheet
 }
+
 export function registerCSSAll(rules) {
-    return Object.keys(rules).map(bleh)
+    Object.keys(rules).map(bleh)
+
     function bleh(r) {
-        return registerCSS(r, rules[r])
+        try {
+            registerCSS(r, rules[r])
+        } catch {
+            // console.debug(e)
+        }
     }
+
     // let out = []
     // for (let rule in rules) out.push(registerCSS(rule, rules[rule]))
     // return out
 }
+
 export function supportsRule(rule) {
     return sup(`selector(${rule})`)
 }
+
 const theNames = `${allVendors}`.match(/\w+/g)
 export const pcv = supportedPClassVendor
+
 export function supportedPClassVendor(className) {
     try {
-        let { 0: before, 1: _class } = className.split(':'),
+        let {0: before, 1: _class} = className.split(':'),
             already = _class
         _class = _class.replace(allVendors, '')
             .replace(allVendors2, '')
@@ -220,15 +257,16 @@ export function supportedPClassVendor(className) {
         if (supportsRule(className = `:prince-${_class}`) ||
             supportsRule(className = `:mso-${_class}`)) return `${before}${className}`
         return `${before}:${_class}`
-    }
-    catch {
+    } catch {
         throw SyntaxError(`Failed to parse '${_class}'`)
     }
 }
+
 export const pev = supportedPElementVendor
+
 export function supportedPElementVendor(element) {
     try {
-        let { 0: before, 1: _element } = element.split('::'),
+        let {0: before, 1: _element} = element.split('::'),
             already = _element
         _element = _element.replace(allVendors, '')
             .replace(allVendors2, '')
@@ -240,28 +278,30 @@ export function supportedPElementVendor(element) {
         if (supportsRule(element = `::prince-${_element}`) ||
             supportsRule(element = `::mso-${_element}`)) return `${before}${element}`
         return `${before}::${_element}`
-    }
-    catch {
+    } catch {
         throw SyntaxError(`Failed to parse '${element}'`)
     }
 }
+
 export function dropShadow({
-    color = '#000000',
-    offsetX = '0px',
-    offsetY = '0px',
-    standardDeviation = ''
-}) {
+                               color = '#000000',
+                               offsetX = '0px',
+                               offsetY = '0px',
+                               standardDeviation = ''
+                           }) {
     return `${color} ${offsetX} ${offsetY} ${standardDeviation}`
 }
+
 export function boxShadow({
-    offsetX = '0px',
-    offsetY = '0px',
-    blurRadius = '',
-    spreadRadius = '',
-    color = '#000000'
-}) {
+                              offsetX = '0px',
+                              offsetY = '0px',
+                              blurRadius = '',
+                              spreadRadius = '',
+                              color = '#000000'
+                          }) {
     return `${color} ${offsetX} ${offsetY} ${blurRadius} ${spreadRadius}`.replaceAll('  ', '')
 }
+
 // export function convertToCSSMethod(value) {
 //     debugger
 //     // Does not work in firefox
@@ -283,38 +323,62 @@ export function boxShadow({
         inherits ??= false
         syntax ??= '*'
         all.add(name)
-        return { name: `--${name}`, initialValue, inherits, syntax }
+        return {name: `--${name}`, initialValue, inherits, syntax}
     }
+
     !function (allProps) {
         //    Some default CSS..
-        registerCSSAll({
-            /*  dialog: {
-                  transition: 'opacity 1s linear',
-                  "font-family": "Arial",
-                  "text-align": "center",
-                  width: "300px",
-                  height: "150px",
-                  "word-break": "break-word"
-              },*/
-            [`button,a,
+        try {
+            registerCSSAll({
+                /*  dialog: {
+                      transition: 'opacity 1s linear',
+                      "font-family": "Arial",
+                      "text-align": "center",
+                      width: "300px",
+                      height: "150px",
+                      "word-break": "break-word"
+                  },*/
+                [`button,a,
                 ${'button checkbox radio submit image reset file'.split(' ').map(o => `input[type=${o}]`).join(',')
                 }`]: {
-                cursor: 'pointer'
-            },
-            '*:disabled': {
-                cursor: 'not-allowed'
-            },
-            '.centerx,.center': {
-                'justify-self': 'center',
-                margin: 'auto',
-                'text-align': 'center'
-            },
-            '.centery,.center': {
-                'align-self': 'center',
-                inset: 0,
-                position: 'fixed'
-            },
-        })
+                    cursor: 'pointer'
+                },
+                'input[type=range]': {
+                    cursor: 'grab'
+                },
+                'input[type=range]:active': {
+                    cursor: 'grabbing'
+                },
+                '*:disabled': {
+                    cursor: 'not-allowed'
+                },
+                '.centerx,.center': {
+                    'justify-self': 'center',
+                    margin: 'auto',
+                    'text-align': 'center'
+                },
+               /* 'img[src]': {
+                    '--content-visibility': 'auto'
+                },*/
+                [`img${pcv(':broken')},img${pcv(':suppressed')}`]: {
+                    '--content-visibility': 'visible',
+                    '--force-broken-image-icon': '1',
+                    content: 'attr(title)'
+                },
+                'img:loading': {
+                    '--content-visibility': 'visible',
+                    cursor: 'wait',
+                    content: 'attr(alt)'
+                },
+                '.centery,.center': {
+                    'align-self': 'center',
+                    inset: 0,
+                    position: 'fixed'
+                },
+            })
+        } catch (e) {
+            console.debug(e)
+        }
         void/*async*/function () {
             // function Yield() {
             // return new Promise(queueMicrotask)
@@ -328,16 +392,16 @@ export function boxShadow({
                 initialValue: 0
             })*/
             const universal = {}
-            let func = CSS.registerProperty ?? function () { }
-            for (let { length: i } = allProps; i--;) {
+            let func = CSS.registerProperty ?? function () {
+            }
+            for (let {length: i} = allProps; i--;) {
                 let prop = allProps[i]
                 try {
                     var o = prop.name
                     universal[vendor(o.slice(2), o = `var(${o})`, true)] = o
                     func(prop)
                     // await Yield()
-                }
-                catch (e) {
+                } catch (e) {
                     if (e.name === 'InvalidModificationError') continue
                     console.log(o)
                     reportError(e)

@@ -1150,6 +1150,7 @@ if (typeof ContentVisibilityAutoStateChangeEvent !== 'function'
         }
     }
 }
+
 const baseHandler = {
     // just create as few closures as possible
     get(targ, prop) {
@@ -1171,7 +1172,7 @@ function prox(target) {
     // 🥅 Goal:
     // 🪪 Make an object with a [[Prototype]] being the target element
     // 🪤 Also put a proxy around said object
-    // 🚫 I can't use class ... extends ..., 
+    // 🚫 I can't use class ... extends ...,
     // ❌ or 'setPrototypeOf' since it's bad i guess?
     // ✅ Only option is 'Object.create' or { __proto__: ... }
     if (!all.has(target)) {
@@ -1290,7 +1291,7 @@ const parseModeMap = new Map(Object.entries({
 let safeHTML = html => html
 
 /*if (window.trustedTypes && window.trustedTypes.createPolicy && !window.trustedTypes.defaultPolicy) {
-it's like being weird for some reason idfk how to use trusted types policy thing    
+it's like being weird for some reason idfk how to use trusted types policy thing
     let t = trustedTypes.createPolicy("default", {
         createHTML: safeHTML,
         createScriptURL: safeHTML,
@@ -1382,7 +1383,7 @@ function revoke(targ) {
 export default Object.defineProperties($, {
     // random: {
     // value() {
-    // return 
+    // return
     // }
     // },
     //len:0,
@@ -1589,6 +1590,73 @@ try {
     }
 
     Object.getPrototypeOf(customElements).define.call(customElements, 'img-sprite', AnimatedSprite)
+
+    /****/
+    class SeekBar extends HTMLElement {
+        connectedCallback() {
+            let p = $(this)
+            let shadow = p.attachShadow({mode: 'open'})
+            let div = $('div #meter')
+            let style = $('style', {
+                textContent:
+                    `
+                #meter {
+                    height: 14px;
+                    --dur: 1s;
+                    transition: width var(--dur) linear;
+                    background-image: 
+                    repeating-linear-gradient(
+                        -45deg, 
+                  transparent, 
+                transparent 1rem,
+                  darkred 1rem,
+                  darkred 2rem
+    );
+                    width: 150px;
+                    background-size: 300px 100%;
+                    border-radius: 10px;
+                      animation: cycle 5s linear infinite;
+                    background-color:red;
+                }
+                @keyframes cycle {
+                100% {
+                background-position-x: -135px
+                }
+                }
+
+                :host {
+                width: 150px;
+                overflow:hidden;
+                box-shadow: 0px 4px 7px 0px rgba(0,0,0,0.3);
+-webkit-box-shadow: 0px 4px 7px 0px rgba(0,0,0,0.3);
+-moz-box-shadow: 0px 4px 7px 0px rgba(0,0,0,0.3);
+                height: 14px;
+                display:block;
+                border-radius:10px;
+                background-color: grey;
+                border: solid 2px black;
+                }
+                `
+            })
+            shadow.appendChild(style.valueOf())
+            shadow.appendChild(div.valueOf())
+            p.on({
+                _click() {
+                    this.animate([
+                        {transform: 'rotateZ(3deg)', 'background-color': 'red'}, {transform: 'rotateZ(-3deg)'}, {}
+                    ], {
+                        duration: 40,
+                        iterations: 4,
+                        easing: 'ease-in'
+                    })
+                    div.style.width = '0'
+                }
+            })
+        }
+    }
+
+    Object.getPrototypeOf(customElements).define.call(customElements, 'seek-bar', SeekBar)
+
 } catch (e) {
     reportError(e)
 }
@@ -1653,7 +1721,22 @@ backdrop.fadeIn().then(() => {
     }
     console.log(obj)
 }()
-    */
+*/
+/*$.body.on({
+    contentvisibilityautostatechange({ target, skipped }) {
+        if (target.matches('img[src]') || target.matches('img[data-src]')) {
+            target = $(target)
+            if (skipped) {
+                let { src } = target.attr
+                target.attr.src = 'data:image/png,'
+                target.setAttr({ $src: src })
+            }
+            else if (target.attr.$src) {
+                target.setAttr({ src: target.attr.$src })
+            }
+        }
+    }
+})*/
 if (location.host.includes('localhost')) {
     Object.assign(window, {
         $, css
