@@ -1560,28 +1560,38 @@ try {
   inherits: false;
 }
 :host {
-  width: var(--width);
-  --axis:0;
-  display:block;
-  height: var(--height);
-  background-image: var(--sprite);
-  background-repeat: no-repeat;
-  background-size: calc(var(--width) * var(--grid-width)) calc(var(--height) * var(--grid-height));
+        ${css.toCSS({
+                        width: 'var(--width)',
+                        '--axis': 0,
+                        display: 'block',
+                        height: 'var(--height)',
+                        'background-image': 'var(--sprite)',
+                        'background-repeat': 'no-repeat',
+                        'background-size': 'calc(var(--width) * var(--grid-width)) calc(var(--height) * var(--grid-height))'
+                    })}
 }
 @keyframes horizontal {
   0% {
-    background-position-x: 0px;
+  ${css.toCSS({
+                        'background-position-x': '0px'
+                    })}
   }
   100% {
-    background-position-x: calc(var(--width) * -1 * var(--grid-width));
+  ${css.toCSS({
+                        'background-position-x': 'calc(var(--width) * -1 * var(--grid-width))'
+                    })}
   }
 }
 @keyframes vertical {
   0% {
-    background-position-y: 0px;
+  ${css.toCSS({
+                        'background-position-y': '0px'
+                    })}
   }
   100% {
-    background-position-y: calc(var(--height) * -1 * var(--grid-height));
+   ${css.toCSS({
+                        'background-position-y': 'calc(var(--height) * -1 * var(--grid-height))'
+                    })}
   }
 }
 `
@@ -1601,40 +1611,35 @@ try {
                 textContent:
                     `
                 #meter {
-                    height: 14px;
-                    --dur: 1s;
-                    transition: width var(--dur) linear;
-                    background-image: 
-                    repeating-linear-gradient(
-                        -45deg, 
-                  transparent, 
-                transparent 1rem,
-                  darkred 1rem,
-                  darkred 2rem
-    );
-                    width: 150px;
-                    background-size: 300px 100%;
-                    border-radius: 10px;
-                      animation: cycle 5s linear infinite;
-                    background-color:red;
+                ${css.toCSS({
+                        height: '14px',
+                        '--dur': '1s',
+                        transition: 'width var(--dur) linear',
+                        'background-image': `repeating-linear-gradient(-45deg, transparent, transparent 1rem,darkred 1rem,darkred 2rem)`,
+                        width: '150px',
+                        'background-size': '300px 100%',
+                        'border-radius': '10px',
+                        animation: 'cycle 5s linear infinite',
+                        'background-color': 'red'
+                    })}
                 }
                 @keyframes cycle {
                 100% {
-                background-position-x: -135px
+                ${css.toCSS({
+                        'background-position-x': '-135px'
+                    })}
                 }
                 }
-
-                :host {
-                width: 150px;
-                overflow:hidden;
-                box-shadow: 0px 4px 7px 0px rgba(0,0,0,0.3);
--webkit-box-shadow: 0px 4px 7px 0px rgba(0,0,0,0.3);
--moz-box-shadow: 0px 4px 7px 0px rgba(0,0,0,0.3);
-                height: 14px;
-                display:block;
-                border-radius:10px;
-                background-color: grey;
-                border: solid 2px black;
+                :host { 
+                ${css.toCSS({
+                        width: '150px',
+                        overflow: 'hidden',
+                        'box-shadow': `0px 4px 7px 0px rgba(0,0,0,0.3)`,
+                        height: '14px',
+                        display: 'block',
+                        'border-radius': '10px',
+                        border: 'solid 2px black'
+                    })}
                 }
                 `
             })
@@ -1656,7 +1661,6 @@ try {
     }
 
     Object.getPrototypeOf(customElements).define.call(customElements, 'seek-bar', SeekBar)
-
 } catch (e) {
     reportError(e)
 }
