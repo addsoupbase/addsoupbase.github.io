@@ -35,8 +35,7 @@ function gen() {
 }
 
 const BoundFunctions = new WeakMap
-
-function bindIfNecessary(maybeFunc, to) {
+function cacheFunction(maybeFunc, to) {
     // Make sure we just re-use the same function
     /*if (typeof maybeFunc === 'function') {
         if (!Object.hasOwn(to, maybeFunc.name)) Object.defineProperty(prox(to), maybeFunc.name, {
@@ -48,9 +47,18 @@ function bindIfNecessary(maybeFunc, to) {
     }*/
     // There was like a catastrophic bug but i fixed it bc im the best
     if (typeof maybeFunc === 'function') {
-        const me = prox(to)
-            , obj = BoundFunctions.get(me) ?? BoundFunctions.set(me, Object.create(null)).get(me)
-        return obj[maybeFunc.name] ??= maybeFunc.bind(to)
+        if (BoundFunctions.has(maybeFunc)) return BoundFunctions.get(maybeFunc)
+        // let wrapper = new Proxy(maybeFunc,handlers.function)
+        const {name} = maybeFunc
+            , wrapper = {
+            [name](...a) {
+                // Regular wrapper function for method,
+                // for usage instead of making a new one for every instance with bind()
+                return maybeFunc.apply(base(this), a)
+            }
+        }[name]  // keep the original function name just in case
+        BoundFunctions.set(maybeFunc, wrapper)
+        return wrapper
     }
     return maybeFunc
 }
@@ -62,7 +70,7 @@ function genericGet(t, prop) {
     }
     if (Array.prototype.hasOwnProperty(prop) && typeof [][prop] === 'function') return [][prop].bind(t)
     let out = t[prop]
-    return bindIfNecessary(out, t)
+    return cacheFunction(out, t)
 }
 
 function ariaOrData(i) {
@@ -75,6 +83,23 @@ function ariaOrData(i) {
 const customRules = css.getDefaultStyleSheet()
 const handlers = {
     // Other proxies
+    main: {
+        // just create as few closures as possible
+        get(targ, prop) {
+            let a = this[0]
+            return targ.hasOwnProperty(prop) ? targ[prop] :
+                cacheFunction(a[prop], a)
+            // ⛓️‍💥 'Illegal invocation' if function is not bound
+        },
+        set(targ, prop, value) {
+            return (targ.hasOwnProperty(prop) ? targ : this[0])[prop] = value, 1
+        }
+    },
+    /* function: {
+         apply(target, thisArg, args) {
+             return Reflect.apply(target, base(thisArg), args)
+         }
+     },*/
     querySelector: {
         get(t, p) {
             return prox(t.querySelector(p))
@@ -491,6 +516,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         filter ??= function () {
         }
         for (let i in events) {
+            if (i.includes('@')) throw SyntaxError("Conflicting usage of a 'currentTarget' only delegating event handler")
             let old = events[i]
             events[i] = DelegationFunction
 
@@ -724,9 +750,6 @@ let props = Object.getOwnPropertyDescriptors(class _
         }
     }
 
-    get isProxy() {
-        return true
-    }
 
     equals(other) {
         let temp = $(other)
@@ -931,8 +954,7 @@ Reflect.ownKeys(props).forEach(i => {
                     let r = value.apply(this, a)
                     return typeof r === 'undefined' ? this : r
                 }
-            }[i]
-            //  Just want to keep the original function name intact
+            }[i] //  Just want to keep the original function name intact
         }
         Object.defineProperty(prototype, i, v)
     }
@@ -1151,22 +1173,10 @@ if (typeof ContentVisibilityAutoStateChangeEvent !== 'function'
     }
 }
 
-const baseHandler = {
-    // just create as few closures as possible
-    get(targ, prop) {
-        let a = this[0]
-        return targ.hasOwnProperty(prop) ? targ[prop] :
-            bindIfNecessary(a[prop], a)
-        // ⛓️‍💥 'Illegal invocation' if function is not bound
-    },
-    set(targ, prop, value) {
-        return (targ.hasOwnProperty(prop) ? targ : this[0])[prop] = value, 1
-    }
-}
 
 function prox(target) {
     if (target === null) return null
-    if (target.isProxy) return target
+    if (target[states]) return target
     if (!getValid(target))
         throw TypeError('Bad input') // get out
     // 🥅 Goal:
@@ -1210,7 +1220,7 @@ function prox(target) {
             }
         }
             , {proxy, revoke} = Proxy.revocable(
-            Object.seal(Object.create(target, propertiesToDefine)), Object.create(baseHandler, {0: {value: target}})
+            Object.seal(Object.create(target, propertiesToDefine)), Object.create(handlers.main, {0: {value: target}})
             // defineProperty(target, prop) {
             // console.debug(prop)
             // if (prop in target) return Reflect.defineProperty(...arguments)
@@ -1322,7 +1332,7 @@ function $(html, props, ...children) {
         element.setAttr(toSet)
     }
     if (Array.from(base(element).querySelectorAll('*'), prox).concat(element).some(allElementStuff)) throw TypeError('Inline event handlers are deprecated')
-    if (element.tagName === 'SCRIPT' || element.querySelector('script')) {
+    if (element.tagName === 'SCRIPT' || base(element).querySelector('script')) {
         debugger
         throw new DOMException('Potential script injection', 'SecurityError')
     }
