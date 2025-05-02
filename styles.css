@@ -238,7 +238,7 @@ a {
 }
 
 #wrapper {
-  display: flex;
+  display: contents;
   width: 100%;
   justify-content: center;
   height: 100vh;
