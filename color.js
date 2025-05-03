@@ -1,14 +1,19 @@
 import * as math from './num.js'
 const { min, max, round } = Math,
     colors = new Map,
-    canvas = new OffscreenCanvas(0, 0).getContext('2d'),
+    canvas = ('HTMLCanvasElement'in globalThis ? Object.assign(document.createElement('canvas'), {
+        width:0,
+        height:0,
+        mozOpaque:true,
+    }) :new OffscreenCanvas(0, 0)).getContext('2d', {
+        alpha:false,
+    }),
     handler = {
         get(target, prop) {
-            'use strict'
             if (CSS.supports('color', prop)) {
                 if (!colors.has(prop)) {
                     canvas.fillStyle = prop
-                    colors.set(prop, Color(canvas.fillStyle))
+                    colors.set(prop, new Color(canvas.fillStyle))
                 }
                 return colors.get(prop)
             }
@@ -16,7 +21,6 @@ const { min, max, round } = Math,
             throw TypeError(`Invalid color '${prop}'`)
         },
         apply(target, _, args) {
-            'use strict'
             return new target(...args)
         }
     }
