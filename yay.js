@@ -35,6 +35,7 @@ function gen() {
 }
 
 const BoundFunctions = new WeakMap
+
 function cacheFunction(maybeFunc, to) {
     // Make sure we just re-use the same function
     /*if (typeof maybeFunc === 'function') {
@@ -95,11 +96,6 @@ const handlers = {
             return (targ.hasOwnProperty(prop) ? targ : this[0])[prop] = value, 1
         }
     },
-    /* function: {
-         apply(target, thisArg, args) {
-             return Reflect.apply(target, base(thisArg), args)
-         }
-     },*/
     querySelector: {
         get(t, p) {
             return prox(t.querySelector(p))
@@ -156,65 +152,7 @@ const handlers = {
             p = ariaOrData(p)
             return t.hasAttribute(p)
         }
-        /*  get(t, prop) {
-              debugger
-              let el = t[ATTR]
-              return prop in t ? t[prop] : el.getAttribute(prop)
-          },
-          set(t, prop, value, r) {
-              debugger
-              let el = t[ATTR]
-              value ? el.setAttribute(prop, value) : this.deleteProperty({
-                  el
-              }, prop)
-              return true
-          },
-          has(t, prop) {
-              debugger
-              let el = t[ATTR]
-              return el.hasAttribute(prop)
-          },
-          deleteProperty(t, prop) {
-              debugger
-              let el = t[ATTR]
-              el.removeAttribute(prop)
-              return true
-          },*/
-
     },
-    /* CSSStyleDeclaration: {
-     get(target, prop) {
-         if (prop in target) return target[prop]
-         if (prop.startsWith('__')) return this.get(target, prop.replace(/_/g, '-'))
-         let out = target[prop]
-             , fixedProp = css.vendor(css.toCaps(prop), 'inherit')
-             , maybe = target.getPropertyValue(fixedProp)
-         if (typeof prop === 'string' && CSS.supports(fixedProp, 'inherit'))
-             return maybe === '' ? null : maybe // && window.CSSStyleValue?.parse(p, maybe) || maybe
-         return bindIfNecessary(out, target)
-     },
-     set(t, prop, value) {
-         if (prop.startsWith('__')) return t[prop.replace(/_/g, '-')] = value
-         let p = css.toCaps(css.vendor(css.toDash(prop), value))
-         if (CSS.supports(css.toDash(p), value))
-             t.setProperty(p, value)
-         else if (prop in t)
-             t[prop] = value
-         else badCSS(prop, value)
-         return true
-     },
-     deleteProperty(t, prop) {
-         if (prop.startsWith('__'))
-             t.removeProperty(prop.replace(/_/g, '-'))
-         else {
-             let fixed = css.vendor(css.toDash(prop), 'inherit')
-             CSS.supports(fixed, 'inherit') ?
-                 t.removeProperty(css.toCaps(fixed))
-                 : delete t[prop]
-         }
-         return true
-     }
-    },*/
     HTMLCollection: {
         get: genericGet,
         set(t, prop, value) {
@@ -234,31 +172,16 @@ const handlers = {
             return 6
         }
     },
-    /*NamedNodeMap: {
-    get(t, prop) {
-        let out = genericGet(t, prop)
-        return out instanceof Attr ? out.value : out
-    },
-    set(t, prop, value) {
-        t.setNamedItem(prop, value)
-        return true
-    },
-    deleteProperty(t, prop) {
-        try {
-            t.removeNamedItem(prop)
-        }
-        finally {
-            return true
-        }
-    },
-    }*/
 }
+
 // Main [[Prototype]] is on this class
 // let ATTR = Symbol('💿')
 let states = Symbol('💾')
 let computed = Symbol('🔬')
+// let shadow = Symbol('🌴')
 let props = Object.getOwnPropertyDescriptors(class _
     extends null {
+
     static cancel(o) {
         o.cancel()
     }
@@ -1206,6 +1129,7 @@ function prox(target) {
                 value: Object.create(null)
             },
             state: reuse.state,
+            // [shadow]: reuse.junk,
             currentState: reuse.junk,
             lastState: reuse.junk,
             flags: reuse.flags,
@@ -1478,7 +1402,7 @@ function destroyEach(ch) {
 
 try {
     class AnimatedSprite extends HTMLElement {
-        static observedAttributes = 'cols rows src width height duration direction index'.split(' ')
+        static observedAttributes = 'cols rows src width height duration direction index alt'.split(' ')
 
         #ANIMATE() {
             let p = prox(this)
@@ -1499,7 +1423,7 @@ try {
         #axis = 'horizontal'
         #direction = 'normal'
 
-        attributeChangedCallback(name, oValue, nValue) {
+        async attributeChangedCallback(name, oValue, nValue) {
             let p = prox(this)
             if (/^(?:cols|rows)$/.test(name)) {
                 p.setStyles({
@@ -1513,10 +1437,30 @@ try {
                 })
                 this.#ANIMATE()
 
-            } else if (name === 'src') {
+            }
+            else if (name === 'alt'){
                 p.setStyles({
-                    '--sprite': `url(${nValue})`
+              '--alt':`"${this.getAttribute('alt')}"`
                 })
+            }
+            else if (name === 'src') {
+                let thingy = {
+                    '--sprite': `url(${nValue})`,
+                }
+                try {
+                    let n = await fetch(nValue)
+                    if (!n.ok) {
+                        thingy['--sprite']=''
+                        thingy['--alt'] =  `"${this.getAttribute('alt')}"`
+                    }
+    else thingy['--alt'] = ''
+                }
+                catch {
+                    thingy['--alt'] = `"${this.getAttribute('alt')}"`
+                }
+                finally {
+                    p.setStyles(thingy)
+                }
                 this.#ANIMATE()
             } else if (name === 'axis') {
                 if (nValue !== 'horizontal' && nValue !== 'vertical') nValue = 'horizontal'
@@ -1564,9 +1508,9 @@ try {
   initial-value: 8;
   inherits: false;
 }
-  @property --axis {
-  syntax: "<integer>";
-  initial-value: 0;
+@property --alt {
+  syntax: "*";
+  initial-value: "";
   inherits: false;
 }
 :host {
@@ -1579,6 +1523,9 @@ try {
                         'background-repeat': 'no-repeat',
                         'background-size': 'calc(var(--width) * var(--grid-width)) calc(var(--height) * var(--grid-height))'
                     })}
+}
+:host::before {
+                        content:var(--alt);
 }
 @keyframes horizontal {
   0% {

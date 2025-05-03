@@ -212,7 +212,7 @@ export function formatStr(str) {
 export function getDefaultStyleSheet() {
     return (document.getElementById('addedStyleRules') ?? function () {
         let out = document.createElement('style');
-        (document.head ?? document.body ?? document.documentElement ?? document.querySelector('*')).appendChild(out)
+        (document.head ?? document.body ?? document.documentElement ?? document.querySelector('*') ?? document).append(out)
         out.sheet.insertRule('@namespace svg url("http://www.w3.org/2000/svg")')
         out.setAttribute('id', 'addedStyleRules')
         out.textContent = 'Check your browser for CSS rules ($0.sheet.cssRules)'
@@ -221,7 +221,7 @@ export function getDefaultStyleSheet() {
 }
 
 export function registerCSSAll(rules) {
-    Object.keys(rules).map(bleh)
+    Object.keys(rules).forEach(bleh)
 
     function bleh(r) {
         try {
@@ -396,8 +396,8 @@ export function boxShadow({
             }
             for (let {length: i} = allProps; i--;) {
                 let prop = allProps[i]
+                    , o = prop.name
                 try {
-                    var o = prop.name
                     universal[vendor(o.slice(2), o = `var(${o})`, true)] = o
                     func(prop)
                     // await Yield()
