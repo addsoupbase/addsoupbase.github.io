@@ -215,7 +215,7 @@ export function getDefaultStyleSheet() {
         (document.head ?? document.body ?? document.documentElement ?? document.querySelector('*') ?? document).append(out)
         out.sheet.insertRule('@namespace svg url("http://www.w3.org/2000/svg")')
         out.setAttribute('id', 'addedStyleRules')
-        out.textContent = 'Check your browser for CSS rules ($0.sheet.cssRules)'
+        out.append(new Comment('Check your browser for CSS rules ($0.sheet.cssRules)'))
         return out
     }()).sheet
 }
