@@ -4,13 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="1. fixed the anchor buttons being hard to press&#10;2. auto abort feature for handle.js">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/csshelper.js" beforeDir="false" afterPath="$PROJECT_DIR$/csshelper.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handle.js" beforeDir="false" afterPath="$PROJECT_DIR$/handle.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/background.js" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/background.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yay.js" beforeDir="false" afterPath="$PROJECT_DIR$/yay.js" afterDir="false" />
-    </list>
+    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="i just love you so much" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -99,7 +93,7 @@
       <workItem from="1745894571567" duration="10000" />
       <workItem from="1745921863093" duration="7758000" />
       <workItem from="1746029161722" duration="4000" />
-      <workItem from="1746177302641" duration="22231000" />
+      <workItem from="1746177302641" duration="22617000" />
     </task>
     <task id="LOCAL-00001" summary="uhh i hope this works">
       <option name="closed" value="true" />
@@ -261,7 +255,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746363476003</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="i just love you so much">
+      <option name="closed" value="true" />
+      <created>1746371496465</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1746371496465</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -286,6 +288,7 @@
     <MESSAGE value="hey" />
     <MESSAGE value="A DElayed dispatchevent feature :)" />
     <MESSAGE value="1. fixed the anchor buttons being hard to press&#10;2. auto abort feature for handle.js" />
-    <option name="LAST_COMMIT_MESSAGE" value="1. fixed the anchor buttons being hard to press&#10;2. auto abort feature for handle.js" />
+    <MESSAGE value="i just love you so much" />
+    <option name="LAST_COMMIT_MESSAGE" value="i just love you so much" />
   </component>
 </project>
