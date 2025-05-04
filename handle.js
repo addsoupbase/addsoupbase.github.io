@@ -154,7 +154,7 @@ const customEvents = new Set
 
 export function addCustomEvent(names) {
     for (let name in names)
-        names[name] && customEvents.add(name.toLowerCase())
+        (names[name] ? customEvents.add : customEvents.delete).call(customEvents,name.toLowerCase())
 }
 
 const formatEventName = /[_$^%&!?@#\d]|bound /g
@@ -404,7 +404,7 @@ export function until(target, eventName, timeout/* = 600000*/) {
                     timeout && clearTimeout(id)
                 }
             }
-        })
+        }, target[handleName] === null)
     }
 }
 

@@ -327,9 +327,10 @@ export function boxShadow({
     }
 
     !function (allProps) {
+        const sheet = getDefaultStyleSheet()
         //    Some default CSS..
         try {
-            registerCSSAll({
+            let all = sessionStorage.getItem('defaultCSS') ?? Object.entries({
                 /*  dialog: {
                       transition: 'opacity 1s linear',
                       "font-family": "Arial",
@@ -357,9 +358,9 @@ export function boxShadow({
                     margin: 'auto',
                     'text-align': 'center'
                 },
-               /* 'img[src]': {
-                    '--content-visibility': 'auto'
-                },*/
+                /* 'img[src]': {
+                     '--content-visibility': 'auto'
+                 },*/
                 [`img${pcv(':broken')},img${pcv(':suppressed')}`]: {
                     '--content-visibility': 'visible',
                     '--force-broken-image-icon': '1',
@@ -375,7 +376,16 @@ export function boxShadow({
                     inset: 0,
                     position: 'fixed'
                 },
+            }).map(({0: key, 1: val}) => {
+                return `${key}{${toCSS(val)}}`
             })
+            if (typeof all === 'string') all = all.split('✕')
+            for (let {length: i} = all; i--;)
+                try {
+                    sheet.insertRule(all[i])
+                } catch {
+                }
+            sessionStorage.setItem('defaultCSS', all.join('✕'))
         } catch (e) {
             console.debug(e)
         }
@@ -409,7 +419,7 @@ export function boxShadow({
             }
             allProps = null
             beenHereBefore ?
-                getDefaultStyleSheet().insertRule(`* {${beenHereBefore}}`) :
+                sheet.insertRule(`* {${beenHereBefore}}`) :
                 registerCSS('*', universal, true),
                 sessionStorage.setItem('css', toCSS(universal, true))
         }()

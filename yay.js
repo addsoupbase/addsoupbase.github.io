@@ -917,6 +917,31 @@ const reuse = {
     }
 }
 /*
+INTERSECTION OBSERVER STUFFS
+*/
+let inte
+if (typeof ContentVisibilityAutoStateChangeEvent !== 'function'
+    || 'mozInnerScreenX' in window  // Firefox is weird again
+) {
+    inte = new IntersectionObserver(IntersectionObserverCallback, {
+        threshold: [0, Number.MIN_VALUE]
+    })
+
+    function IntersectionObserverCallback(entries) {
+        for (let {length: i} = entries; i--;) {
+            let me = entries[i],
+                target = me.target
+            if ($(target).computed.getPropertyValue('--content-visibility').trim() === 'auto') {
+                h.delayedDispatch('contentvisibilityautostatechange', target, new CustomEvent('contentvisibilityautostatechange', {
+                    bubbles: true,
+                    detail: {skipped: !me.isIntersecting}
+                }))
+            }
+        }
+    }
+}
+
+/*
 MUTATION OBSERVER STUFFS
 */
 
@@ -981,6 +1006,7 @@ muta.observe(document.documentElement, {
 RESIZE OBSERVER STUFFS
 */
 let later = []
+
 function ResizeLoop(o) {
     h.delayedDispatch('ResizeObserver', o.target, new CustomEvent('re-scale', {
         bubbles: true,
@@ -997,9 +1023,11 @@ function ResizeLoop(o) {
 h.addCustomEvent({
     're-scale': true
 })
+
 function ResizeObserverCallback(entries) {
     entries.forEach(ResizeLoop)
 }
+
 const resi = new ResizeObserver(ResizeObserverCallback)
 ;[].forEach.call(document.getElementsByTagName('*'), observeAll)
 
@@ -1037,7 +1065,22 @@ function PerformanceLoop(o) {
         case 'largest-contentful-paint':
             detail = o
             break
+        case 'resource':
+            title = 'network-request'
+            detail = o.toJSON()
+            break
+        case 'navigation':
+            title = 'page-navigate'
+            detail = o.toJSON()
+            let {type} = detail
+            delete detail.type
+            detail.navigationType = type
+            break
+        case 'element':
+            title = 'element-load'
+            detail = o
         default:
+            debugger
             break
         case 'paint':
             switch (o.name) {
@@ -1067,39 +1110,32 @@ const entryTypes = {
     'layout-shift': 'LayoutShift' in window,
     'largest-contentful-paint': 'LargestContentfulPaint' in window,
     'long-animation-frame': 'PerformanceLongAnimationFrameTiming' in window,
-    longtask: 'PerformanceLongTaskTiming' in window
+    longtask: 'PerformanceLongTaskTiming' in window,
+    resource: 'PerformanceResourceTiming' in window,
+    navigation: 'PerformanceNavigationTiming' in window,
+    element: 'PerformanceElementTiming' in window
+    // taskattribution: 'TaskAttributionTiming 'in window
 }
 const perf = new PerformanceObserver(PerformanceObserverCallback)
-perf.observe({entryTypes: Object.keys(entryTypes)})
+Object.keys(entryTypes).forEach(key => {
+    perf.observe({type: key, buffered: true})
+})
 h.addCustomEvent(entryTypes)
 h.addCustomEvent({
-    longtask:false,
-    'long-task':true
+    longtask: false,
+    element: false,
+    paint:false,
+    'first-paint':entryTypes.paint,
+    'first-contentful-paint':entryTypes.paint,
+    'element-load': entryTypes.element,
+    'long-task': entryTypes.longtask,
+    'network-request': entryTypes.resource,
+    resource: false,
+    navigation: false,
+    'page-navigate': entryTypes.navigation,
+    // taskattribution: false,
+    // 'task-attribution':true
 })
-/*
-INTERSECTION OBSERVER STUFFS
-*/
-var inte
-if (typeof ContentVisibilityAutoStateChangeEvent !== 'function'
-    || 'mozInnerScreenX' in window  // Firefox is weird again
-) {
-    inte = new IntersectionObserver(IntersectionObserverCallback, {
-        threshold: [0, Number.MIN_VALUE]
-    })
-
-    function IntersectionObserverCallback(entries) {
-        for (let {length: i} = entries; i--;) {
-            let me = entries[i],
-                target = me.target
-            if ($(target).computed.getPropertyValue('--content-visibility').trim() === 'auto') {
-                h.delayedDispatch('contentvisibilityautostatechange', target, new CustomEvent('contentvisibilityautostatechange', {
-                    bubbles: true,
-                    detail: {skipped: !me.isIntersecting}
-                }) )
-            }
-        }
-    }
-}
 
 
 function prox(target) {
@@ -1227,9 +1263,11 @@ const parseModeMap = new Map(Object.entries({
         return document.adoptNode(t.body.firstElementChild)
     }
 }))
+
 function safeHTML(o) {
     return o
 }
+
 /*if (window.trustedTypes && window.trustedTypes.createPolicy && !window.trustedTypes.defaultPolicy) {
 it's like being weird for some reason idfk how to use trusted types policy thing
     let t = trustedTypes.createPolicy("default", {
@@ -1444,28 +1482,23 @@ try {
                 })
                 this.#ANIMATE()
 
-            }
-            else if (name === 'alt'){
+            } else if (name === 'alt') {
                 p.setStyles({
-              '--alt':`"${this.getAttribute('alt')}"`
+                    '--alt': `"${this.getAttribute('alt')}"`
                 })
-            }
-            else if (name === 'src') {
+            } else if (name === 'src') {
                 let thingy = {
                     '--sprite': `url(${nValue})`,
                 }
                 try {
                     let n = await fetch(nValue)
                     if (!n.ok) {
-                        thingy['--sprite']=''
-                        thingy['--alt'] =  `"${this.getAttribute('alt')}"`
-                    }
-    else thingy['--alt'] = ''
-                }
-                catch {
+                        thingy['--sprite'] = ''
+                        thingy['--alt'] = `"${this.getAttribute('alt')}"`
+                    } else thingy['--alt'] = ''
+                } catch {
                     thingy['--alt'] = `"${this.getAttribute('alt')}"`
-                }
-                finally {
+                } finally {
                     p.setStyles(thingy)
                 }
                 this.#ANIMATE()
