@@ -13,8 +13,9 @@ function isValidET(target) {
             || (typeof target.addEventListener === 'function' && typeof target.removeEventListener === 'function' && typeof target.dispatchEvent === 'function'))
     // || target instanceof globalThis.EventTarget
 }
+export let reqFile
 
-if (0/*typeof showOpenFilePicker !== 'undefined'*/) var reqFile = async function supported(accept, multiple) {
+if (0/*typeof showOpenFilePicker !== 'undefined'*/)  reqFile = async function supported(accept, multiple) {
     let settings = {
         multiple,
         id: 602,
@@ -32,7 +33,7 @@ else {
     let f = globalThis.document?.createElement('input')
     if (f) {
         f.type = 'file'
-        var reqFile = (accept, multiple) =>
+         reqFile = (accept, multiple) =>
             new Promise((resolve, oncancel) =>
                 Object.assign(f, {
                     accept,
@@ -43,7 +44,6 @@ else {
             )
     }
 }
-export {reqFile}
 
 //const eventRegistry = new FinalizationRegistry(function ([key, set]) { set.delete(key) })
 function verifyEventName(target, name) {
@@ -54,10 +54,12 @@ function verifyEventName(target, name) {
     if (`onmoz${name}` in target) return `moz${original}`
     if (`onms${name}` in target) return `ms${original}`
     if (/^domcontentloaded$/i.test(original) &&
-        (target instanceof Document
+        (globalThis.Document?.prototype.isPrototypeOf(target)
+            || globalThis.HTMLDocument?.prototype.isPrototypeOf(target)
+            ||target.ownerDocument?.defaultView?.HTMLDocument.prototype.isPrototypeOf(target)
             || target.ownerDocument?.defaultView?.Document.prototype.isPrototypeOf(target))
         ||
-        /^(?:animation(?:cancel|remove))$/i.test(original) && 'onremove' in target)
+        /^(animation(?:cancel|remove))$/i.test(original) && 'onremove' in target)
         return original
     //Some events like the one above don't have a handler
     customEvents.has(name) || queueMicrotask(warn)
@@ -137,7 +139,9 @@ Object.assign(on, {
     '!': 'Stop immediate propagation',
     '?': 'Only trusted events',
     '@': 'Only currentTarget',
+    '#': 'Auto abort',
     currentTarget: '@',
+    abort:'#',
     trusted: '?',
     once: '_',
     preventDefault: '$',
@@ -153,7 +157,7 @@ export function addCustomEvent(names) {
         names[name] && customEvents.add(name.toLowerCase())
 }
 
-const formatEventName = /[_$^%&!?@\d]|bound /g
+const formatEventName = /[_$^%&!?@#\d]|bound /g
 const matchDigits = /\d+/
 
 export function on(target, events, useHandler) {
@@ -194,13 +198,13 @@ export function on(target, events, useHandler) {
                 stopImmediateProp = eventName.includes('!'),
                 onlyTrusted = eventName.includes('?'),
                 onlyCurrentTarget = eventName.includes('@'),
+                autoabort = eventName.includes('#'),
                 options = {
                     capture,
                     //once
                     passive,
                 }
             let signal = eventName.match(matchDigits)?.[0]
-            // if (once && signal) throw TypeError(`Cannot have a one time event with a signal as well`)
             if (manualSignal == null && signal)
                 signal = +signal
             else if (manualSignal != null) signal = manualSignal
@@ -257,6 +261,7 @@ export function on(target, events, useHandler) {
                 stopImmediateProp && event.stopImmediatePropagation(),
                 stopProp && event.stopPropagation(),
                 prevents && (event.cancelable ? event.preventDefault() : warn(`🔊 '${eventName}' events are not cancelable`)),
+                autoabort && Abort(),
                 once && off(event.currentTarget, eventName))
             }
 
@@ -299,7 +304,8 @@ export function on(target, events, useHandler) {
                     prevents,
                     stopProp,
                     once,
-                    stopImmediateProp
+                    stopImmediateProp,
+                    autoabort,
                 })
                 myEvents.add(eventName)
                 useHandler || console.info(`🔔 '${eventName}' event added`)

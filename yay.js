@@ -549,7 +549,7 @@ let props = Object.getOwnPropertyDescriptors(class _
             duration,
             easing: 'ease',
             iterations: 1
-        }).finished.then(() => this.hide(3))
+        }).finished.then(this.hide.bind(this, 3))
     }
 
     fadeIn(duration) {

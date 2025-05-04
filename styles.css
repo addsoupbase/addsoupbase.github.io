@@ -1,12 +1,11 @@
 #background {
   width: 100vw;
   height: 100vh;
-  position: fixed;
   z-index: -1;
-  margin: 0px;
+  margin: 0;
   position: relative;
   --user-select: none;
-  padding: 0px;
+  padding: 0;
   overflow: hidden;
 }
 
@@ -20,8 +19,7 @@
   height: 60px;
   image-rendering: auto;
   background-size: contain;
-  left: 10px;
-  top: 10px;
+
   position: absolute;
   left: 20px;
   top: 20px;
@@ -270,7 +268,7 @@ input[type=image]:active {
   min-height: 100vh;
   opacity: 1;
   display: block;
-  inset: 0px;
+  inset: 0;
   image-rendering: pixelated;
   background-image: url(./media/flowers.webp), url(./media/topdecor.webp), url(./media/roses.webp);
   background-repeat: no-repeat, no-repeat, no-repeat;
@@ -386,7 +384,6 @@ html {
 }
 
 #frame {
-  z-index: 3;
   /* padding: 30px; */
   position: relative;
   --user-select: none;
@@ -654,7 +651,12 @@ body {
   /* Smooth transitions */
 }
 
-
+a.cute-green-button {
+  transition: background-color 0.3s ease;
+}
+a.cute-green-button:active {
+  transform: unset;
+}
 .cute-green-button:hover {
   background-color: #96c15d;
 }
@@ -715,8 +717,8 @@ object {
 @keyframes scaleIn {
   0% {
     opacity: 0;
-    width: 0%;
-    height: 0%;
+    width: 0;
+    height: 0;
   }
 
   100% {
