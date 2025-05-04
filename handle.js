@@ -70,6 +70,37 @@ function verifyEventName(target, name) {
     // throw TypeError(`🔇 Cannot listen for '${original}' events`)
 }
 
+const delayedEvents = new Map
+const giveItSomeTime = function (hold) {
+    let secondparam = 100 //idk some random timeout
+    if (hold.name === 'requestIdleCallback')
+        secondparam = {timeout: 1000}
+    return delay
+    function delay(callback) {
+        return hold(callback, secondparam)
+    }
+}(globalThis.requestIdleCallback ?? globalThis.queueMicrotask ?? globalThis.setImmediate ?? globalThis.setTimeout)
+
+async function dispatchAllDelayed(id) {
+    let all = delayedEvents.get(id)
+    await new Promise(giveItSomeTime)
+    for (let {target, event} of all)
+        target.dispatchEvent(event)
+    all.clear()
+}
+
+export function delayedDispatch(id, target, event) {
+    if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
+    if (!delayedEvents.has(id)) delayedEvents.set(id, new Set)
+    let set = delayedEvents.get(id)
+    set.size || dispatchAllDelayed(id)
+    set.add({
+        target,
+        event
+    })
+
+}
+
 export function wait(ms) {
     return new Promise(res)
 

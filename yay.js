@@ -17,7 +17,7 @@ import * as css from './csshelper.js'
 import * as f from './functions.js'
 
 if (!Object.hasOwn) Object.defineProperty(Object, 'hasOwn', {
-    value: (obj, prop) => [].hasOwnProperty.call(obj, prop),
+    value: (obj, prop) => ({}).hasOwnProperty.call(obj, prop),
     writable: 1,
     configurable: 1
 })
@@ -980,8 +980,9 @@ muta.observe(document.documentElement, {
 /*
 RESIZE OBSERVER STUFFS
 */
+let later = []
 function ResizeLoop(o) {
-    o.target.dispatchEvent(new CustomEvent('scale', {
+    h.delayedDispatch('ResizeObserver', o.target, new CustomEvent('re-scale', {
         bubbles: true,
         detail: {
             borderBoxSize: o.borderBoxSize,
@@ -994,13 +995,11 @@ function ResizeLoop(o) {
 }
 
 h.addCustomEvent({
-    scale: true
+    're-scale': true
 })
-
 function ResizeObserverCallback(entries) {
     entries.forEach(ResizeLoop)
 }
-
 const resi = new ResizeObserver(ResizeObserverCallback)
 ;[].forEach.call(document.getElementsByTagName('*'), observeAll)
 
@@ -1008,13 +1007,14 @@ const resi = new ResizeObserver(ResizeObserverCallback)
 PERFORMANCE OBSERVER STUFFS
 */
 function PerformanceLoop(o) {
-    let detail
-    switch (o.entryType) {
+    let detail,
+        title = o.entryType
+    switch (title) {
         case 'layout-shift': {
             let {sources} = o
             for (let {length: i} = sources; i--;) {
                 let {node, currentRect, previousRect} = sources[i]
-                node?.dispatchEvent(new CustomEvent('layout-shift', {
+                node && h.delayedDispatch('layout-shift', node, new CustomEvent('layout-shift', {
                     bubbles: true,
                     detail: {
                         currentRect,
@@ -1025,6 +1025,7 @@ function PerformanceLoop(o) {
         }
             return
         case 'longtask':
+            title = 'long-task'
         // console.warn(o)
         case "long-animation-frame":
             detail = o
@@ -1042,6 +1043,7 @@ function PerformanceLoop(o) {
             switch (o.name) {
                 case 'first-paint':
                 case 'first-contentful-paint':
+                    title = o.name
                     detail = {
                         time: o.startTime,
                         name: o.name
@@ -1050,7 +1052,7 @@ function PerformanceLoop(o) {
             }
             break
     }
-    dispatchEvent(new CustomEvent(o.entryType, {
+    h.delayedDispatch(o.entryType, window, new CustomEvent(title, {
         detail
     }))
 }
@@ -1070,6 +1072,10 @@ const entryTypes = {
 const perf = new PerformanceObserver(PerformanceObserverCallback)
 perf.observe({entryTypes: Object.keys(entryTypes)})
 h.addCustomEvent(entryTypes)
+h.addCustomEvent({
+    longtask:false,
+    'long-task':true
+})
 /*
 INTERSECTION OBSERVER STUFFS
 */
@@ -1086,11 +1092,10 @@ if (typeof ContentVisibilityAutoStateChangeEvent !== 'function'
             let me = entries[i],
                 target = me.target
             if ($(target).computed.getPropertyValue('--content-visibility').trim() === 'auto') {
-                let event = new CustomEvent('contentvisibilityautostatechange', {
+                h.delayedDispatch('contentvisibilityautostatechange', target, new CustomEvent('contentvisibilityautostatechange', {
                     bubbles: true,
                     detail: {skipped: !me.isIntersecting}
-                })
-                target.dispatchEvent(event)
+                }) )
             }
         }
     }
@@ -1222,8 +1227,9 @@ const parseModeMap = new Map(Object.entries({
         return document.adoptNode(t.body.firstElementChild)
     }
 }))
-let safeHTML = html => html
-
+function safeHTML(o) {
+    return o
+}
 /*if (window.trustedTypes && window.trustedTypes.createPolicy && !window.trustedTypes.defaultPolicy) {
 it's like being weird for some reason idfk how to use trusted types policy thing
     let t = trustedTypes.createPolicy("default", {
@@ -1255,8 +1261,9 @@ function $(html, props, ...children) {
         type && (toSet.type = type)
         element.setAttr(toSet)
     }
-    if (Array.from(base(element).querySelectorAll('*'), prox).concat(element).some(allElementStuff)) throw TypeError('Inline event handlers are deprecated')
-    if (element.tagName === 'SCRIPT' || base(element).querySelector('script')) {
+    let b = base(element)
+    if (Array.from(b.querySelectorAll('*'), prox).concat(element).some(allElementStuff)) throw TypeError('Inline event handlers are deprecated')
+    if (element.tagName === 'SCRIPT' || b.querySelector('script')) {
         debugger
         throw new DOMException('Potential script injection', 'SecurityError')
     }
@@ -1700,6 +1707,6 @@ backdrop.fadeIn().then(() => {
 })*/
 if (location.host.includes('localhost')) {
     Object.assign(window, {
-        $, css
+        $, css, h
     })
 }

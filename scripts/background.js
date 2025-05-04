@@ -170,11 +170,11 @@ const frame = $.qs('object')
 //document.body.scrollLeft = innerHeight/2
 frame.on({
     _load() {
-        (window.requestIdleCallback || queueMicrotask)((deadline) => {
-            deadline ? console.debug(`Did timeout: `, deadline.didTimeout) : console.debug(`requestIdleCallback unsupported`)
+        (window.requestIdleCallback || queueMicrotask)(deadline => {
+            deadline ? console.debug(`Did timeout: `, deadline.didTimeout) : console.debug('requestIdleCallback unsupported :(')
             import('./images.js').then(images)
             console.debug("🐟 Loading the bg now...")
-        }, { timeout: 20000 })
+        }, { timeout: 5000 })
     }
 })
 const parent = $('div #background', {
