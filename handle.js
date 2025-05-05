@@ -9,9 +9,10 @@ function isValidET(target) {
     return target &&
         (target instanceof EventTarget
             || target.ownerDocument?.defaultView?.EventTarget.prototype.isPrototypeOf(target)
-            || EventTarget.prototype.isPrototypeOf(target)
-            || (typeof target.addEventListener === 'function' && typeof target.removeEventListener === 'function' && typeof target.dispatchEvent === 'function'))
-    // || target instanceof globalThis.EventTarget
+            // || EventTarget.prototype.isPrototypeOf(target)
+            || target.defaultView?.EventTarget.prototype.isPrototypeOf(target)
+            // || (typeof target.addEventListener === 'function' && typeof target.removeEventListener === 'function' && typeof target.dispatchEvent === 'function')
+        )
 }
 
 export let reqFile
@@ -87,8 +88,8 @@ const giveItSomeTime = function (hold) {
 
 function dispatchAllDelayed(id) {
     let all = delayedEvents.get(id)
-    giveItSomeTime(func)
-    function func() {
+    giveItSomeTime(emitPendingEvents)
+    function emitPendingEvents() {
         for (let {target, event} of all)
             target.dispatchEvent(event)
         all.clear()
@@ -108,9 +109,9 @@ export function delayedDispatch(id, target, event) {
 }
 
 export function wait(ms) {
-    return new Promise(res)
+    return new Promise(resolveWithDelay)
 
-    function res(resolve) {
+    function resolveWithDelay(resolve) {
         setTimeout(resolve, ms)
     }
 }
@@ -253,7 +254,7 @@ export function on(target, events, useHandler) {
                     let {detail} = event
                     for (let i in detail) {
                         if (i in event) {
-                            warn(`The '${i.toString()}' property of a CustomEvent was ignored since it would overwrite an existing own event property`)
+                            warn(`The '${i}' property of a CustomEvent was ignored since it would overwrite an existing property `, event[i])
                             continue
                         }
                         event[i] = detail[i]
@@ -359,7 +360,7 @@ export function off(target, ...eventNames) {
         for (let {length} = eventNames; length--;) {
             const name = verifyEventName(target, eventNames[length]),
                 {listener, capture, passive, handler} = map.get(name)
-            handler ? (target[`on${name}`] = null) : target.removeEventListener(name, listener, {capture, passive})
+            handler ? (target[`on${name}`] = null) : target.removeEventListener(name, listener, {capture})
             map.has(name) && (handler || console.info(`🔕 '${name}' event removed`))
             map.delete(name)
             mySet.delete(name)
@@ -377,9 +378,9 @@ export function off(target, ...eventNames) {
 }
 
 export function until(target, eventName, timeout/* = 600000*/) {
-    return new Promise(un)
+    return new Promise(UntilClosure)
 
-    function un(resolve, reject) {
+    function UntilClosure(resolve, reject) {
         const id = timeout && setTimeout(err => {
             reject(err)
             off(target, eventName)

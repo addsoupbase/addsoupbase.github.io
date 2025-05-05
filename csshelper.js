@@ -240,7 +240,7 @@ export function supportsRule(rule) {
     return sup(`selector(${rule})`)
 }
 
-const theNames = `${allVendors}`.match(/\w+/g)
+const theNames = new Set(`${allVendors}`.match(/\w+/g))
 export const pcv = supportedPClassVendor
 
 export function supportedPClassVendor(className) {

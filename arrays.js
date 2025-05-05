@@ -49,7 +49,7 @@ async function fallback(src) {
 }
 let s = sessionStorage.getItem('supportsJSONModule')
 export let getJson
-function do1() {
+function TestImportSupport() {
     // Some browsers (Firefox, old) throw with the 'options' parameter
     getJson = fallback.constructor('src',
                                                                 // Some old browsers prefer 'assert' over 'with'
@@ -59,20 +59,20 @@ function do1() {
         .bind(fallback)
     // using bind since the function can't access the module scope
 }
-function do2() {
+function FallbackImport() {
     sessionStorage.setItem("supportsJSONModule", false)
     console.warn(`Your browser does not support 'import()' with json; Switching to fetch.`)
     getJson = fallback
 }
 if (s !== 'false' && s !== 'true') try {
-    do1()
+    TestImportSupport()
 }
     catch (e) {
         if (e.name === "SyntaxError") {
-            do2()
+            FallbackImport()
         }
         else reportError(e)
     }
-else if (s === 'true') do1()
-else do2()
+else if (s === 'true') TestImportSupport()
+else FallbackImport()
 export const jason = getJson

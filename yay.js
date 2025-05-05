@@ -918,6 +918,7 @@ const reuse = {
 }
 /*
 INTERSECTION OBSERVER STUFFS
+(only for firefox and browsers without contentvis...event)
 */
 let inte
 if (typeof ContentVisibilityAutoStateChangeEvent !== 'function'
@@ -1212,8 +1213,9 @@ function prox(target) {
 function getValid(target) {
     return target &&
         (target instanceof Element ||
-            target.ownerDocument?.defaultView?.Element.prototype.isPrototypeOf(target) ||
-            Element.prototype.isPrototypeOf(target))
+            target.ownerDocument?.defaultView?.Element.prototype.isPrototypeOf(target)
+            //|| Element.prototype.isPrototypeOf(target)
+        )
 }
 
 const doc = document.createDocumentFragment()
@@ -1225,7 +1227,8 @@ let temp, div, range, parsingDoc, classRegex = /(?<=\.)[\w-]+/g,
 const parseModeMap = new Map(Object.entries({
     write(html) {
         parsingDoc ??= document.implementation.createHTMLDocument()
-        parsingDoc.write(html)
+        parsingDoc.open().write(html)
+        parsingDoc.close()
         return document.adoptNode(parsingDoc.body.firstElementChild)
     },
     setHTMLUnsafe(html) {
@@ -1592,8 +1595,8 @@ try {
             })))
         }
     }
-
-    Object.getPrototypeOf(customElements).define.call(customElements, 'img-sprite', AnimatedSprite)
+    let define = Object.getPrototypeOf(customElements).define.bind(customElements)
+        define( 'img-sprite', AnimatedSprite)
 
     /****/
     class SeekBar extends HTMLElement {
@@ -1653,8 +1656,7 @@ try {
             })
         }
     }
-
-    Object.getPrototypeOf(customElements).define.call(customElements, 'seek-bar', SeekBar)
+    define('seek-bar', SeekBar)
 } catch (e) {
     reportError(e)
 }
