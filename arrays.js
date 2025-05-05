@@ -52,7 +52,8 @@ export let getJson
 function do1() {
     // Some browsers (Firefox, old) throw with the 'options' parameter
     getJson = fallback.constructor('src',
-        '"use strict";try{let out=(await import(new URL(src,location),{with:{type:"json"}})).default;sessionStorage.setItem("supportsJSONModule",true);return out}catch(e){if(e.name==="TypeError"){sessionStorage.setItem("supportsJSONModule",false);return this(src)}throw e}'
+                                                                // Some old browsers prefer 'assert' over 'with'
+        '"use strict";try{let out=(await import(new URL(src,location),{assert:{type:"json"},with:{type:"json"}})).default;sessionStorage.setItem("supportsJSONModule",true);return out}catch(e){if(e.name==="TypeError"){sessionStorage.setItem("supportsJSONModule",false);return this(src)}throw e}'
     )
         // If the import() thing still fails just use the fallback
         .bind(fallback)
