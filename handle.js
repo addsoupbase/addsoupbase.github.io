@@ -13,9 +13,10 @@ function isValidET(target) {
             || (typeof target.addEventListener === 'function' && typeof target.removeEventListener === 'function' && typeof target.dispatchEvent === 'function'))
     // || target instanceof globalThis.EventTarget
 }
+
 export let reqFile
 
-if (0/*typeof showOpenFilePicker !== 'undefined'*/)  reqFile = async function supported(accept, multiple) {
+if (0/*typeof showOpenFilePicker !== 'undefined'*/) reqFile = async function supported(accept, multiple) {
     let settings = {
         multiple,
         id: 602,
@@ -33,7 +34,7 @@ else {
     let f = globalThis.document?.createElement('input')
     if (f) {
         f.type = 'file'
-         reqFile = (accept, multiple) =>
+        reqFile = (accept, multiple) =>
             new Promise((resolve, oncancel) =>
                 Object.assign(f, {
                     accept,
@@ -56,7 +57,7 @@ function verifyEventName(target, name) {
     if (/^domcontentloaded$/i.test(original) &&
         (globalThis.Document?.prototype.isPrototypeOf(target)
             || globalThis.HTMLDocument?.prototype.isPrototypeOf(target)
-            ||target.ownerDocument?.defaultView?.HTMLDocument.prototype.isPrototypeOf(target)
+            || target.ownerDocument?.defaultView?.HTMLDocument.prototype.isPrototypeOf(target)
             || target.ownerDocument?.defaultView?.Document.prototype.isPrototypeOf(target))
         ||
         /^(animation(?:cancel|remove))$/i.test(original) && 'onremove' in target)
@@ -78,17 +79,20 @@ const giveItSomeTime = function (hold) {
     if (hold.name === 'requestIdleCallback')
         secondparam = {timeout: 1000}
     return delay
+
     function delay(callback) {
         return hold(callback, secondparam)
     }
 }(globalThis.requestIdleCallback ?? globalThis.queueMicrotask ?? globalThis.setImmediate ?? globalThis.setTimeout)
 
-async function dispatchAllDelayed(id) {
+function dispatchAllDelayed(id) {
     let all = delayedEvents.get(id)
-    await new Promise(giveItSomeTime)
-    for (let {target, event} of all)
-        target.dispatchEvent(event)
-    all.clear()
+    giveItSomeTime(func)
+    function func() {
+        for (let {target, event} of all)
+            target.dispatchEvent(event)
+        all.clear()
+    }
 }
 
 export function delayedDispatch(id, target, event) {
@@ -141,7 +145,7 @@ Object.assign(on, {
     '@': 'Only currentTarget',
     '#': 'Auto abort',
     currentTarget: '@',
-    abort:'#',
+    abort: '#',
     trusted: '?',
     once: '_',
     preventDefault: '$',
@@ -154,7 +158,7 @@ const customEvents = new Set
 
 export function addCustomEvent(names) {
     for (let name in names)
-        (names[name] ? customEvents.add : customEvents.delete).call(customEvents,name.toLowerCase())
+        (names[name] ? customEvents.add : customEvents.delete).call(customEvents, name.toLowerCase())
 }
 
 const formatEventName = /[_$^%&!?@#\d]|bound /g

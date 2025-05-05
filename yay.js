@@ -1067,7 +1067,7 @@ function PerformanceLoop(o) {
             break
         case 'resource':
             title = 'network-request'
-            detail = o.toJSON()
+            detail = o
             break
         case 'navigation':
             title = 'page-navigate'
@@ -1079,9 +1079,6 @@ function PerformanceLoop(o) {
         case 'element':
             title = 'element-load'
             detail = o
-        default:
-            debugger
-            break
         case 'paint':
             switch (o.name) {
                 case 'first-paint':
