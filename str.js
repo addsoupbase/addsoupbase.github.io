@@ -50,7 +50,7 @@ export function toOrdinal(o) {
     return `${o}${map.get(me)}`
 }
 export function*groups(str,{source:s,flags:f}) {
-    letv,r=RegExp(s,f)
+    let v,r=RegExp(s,f)
     if(!f.includes('g'))return yield r.exec(str).groups
     while(v=r.exec(str))yield v.groups
 }
