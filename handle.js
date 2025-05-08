@@ -11,6 +11,7 @@ function isValidET(target) {
             || target.ownerDocument?.defaultView?.EventTarget.prototype.isPrototypeOf(target)
             // || EventTarget.prototype.isPrototypeOf(target)
             || target.defaultView?.EventTarget.prototype.isPrototypeOf(target)
+            || target.EventTarget?.prototype.isPrototypeOf(target)
             // || (typeof target.addEventListener === 'function' && typeof target.removeEventListener === 'function' && typeof target.dispatchEvent === 'function')
         )
 }
@@ -89,6 +90,7 @@ const giveItSomeTime = function (hold) {
 function dispatchAllDelayed(id) {
     let all = delayedEvents.get(id)
     giveItSomeTime(emitPendingEvents)
+
     function emitPendingEvents() {
         for (let {target, event} of all)
             target.dispatchEvent(event)
@@ -135,7 +137,9 @@ export function hasEvent(target, eventName) {
     return target[sym]?.has(eventName) ?? false
 }
 
-Object.assign(on, {
+export const {currentTarget, autoAbort, trusted, once, preventDefault, passive,
+    capture, stopPropagation, stopImmediatePropagation
+} = {
     _: 'Event is automatically removed after 1st call',
     $: "Automatically calls 'preventDefault()', if possible",
     '^': 'Passive event listener',
@@ -146,7 +150,7 @@ Object.assign(on, {
     '@': 'Only currentTarget',
     '#': 'Auto abort',
     currentTarget: '@',
-    abort: '#',
+    autoAbort: '#',
     trusted: '?',
     once: '_',
     preventDefault: '$',
@@ -154,7 +158,7 @@ Object.assign(on, {
     capture: '%',
     stopPropagation: '&',
     stopImmediatePropagation: '!',
-})
+}
 const customEvents = new Set
 
 export function addCustomEvent(names) {

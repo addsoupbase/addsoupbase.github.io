@@ -22,7 +22,7 @@ export const all = new Set
 
 export function vendorValue(prop, val) {
     let without = val.replace(allVendors, '')
-        .replace(allVendors2, '')
+    .replace(allVendors2, '')
     switch (without) {
         case 'crisp-edges':
             sup(prop, val = '-webkit-optimize-contrast') ||
@@ -62,8 +62,8 @@ export function vendor(prop, val, silent) {
         return prop
     if (val.trim() && !sup(prop, val)) {
         let prefix = prop = prop
-            .replace(allVendors, '')
-            .replace(allVendors2, '')
+        .replace(allVendors, '')
+        .replace(allVendors2, '')
         if (dontRedo.has(prop)) return dontRedo.get(prop)
         return (
             sup(prefix, val) ||
@@ -196,8 +196,8 @@ function mapThing(selectr) {
  */
 export function registerCSS(selector, rule, silent) {
     selector = selector.split(',')
-        .map(mapThing)
-        .join(',')
+    .map(mapThing)
+    .join(',')
     const sheet = addedStyleRules ??= getDefaultStyleSheet()
     let r = `{${toCSS(rule, silent)}}`
     return sheet.insertRule(`${formatStr(selector)}${formatStr(r)}`)
@@ -248,7 +248,7 @@ export function supportedPClassVendor(className) {
         let {0: before, 1: _class} = className.split(':'),
             already = _class
         _class = _class.replace(allVendors, '')
-            .replace(allVendors2, '')
+        .replace(allVendors2, '')
         if (supportsRule(already = `${before}:${already}`)) return already
         for (let vendor of theNames) {
             let name = `:-${vendor}-${_class}`
@@ -269,7 +269,7 @@ export function supportedPElementVendor(element) {
         let {0: before, 1: _element} = element.split('::'),
             already = _element
         _element = _element.replace(allVendors, '')
-            .replace(allVendors2, '')
+        .replace(allVendors2, '')
         if (supportsRule(already = `${before}::${already}`)) return already
         for (let vendor of theNames) {
             let name = `::-${vendor}-${_element}`
