@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="content-language" content="en">
+    <meta property="og:locale" content="en_US">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+    <meta property="og:image:width" content="750">
+    <meta property="og:image:height" content="500">
+    <meta property="og:image:type" content="image/png">
+    <meta name="twitter:card" content="summary_large_image">
+    <!-- 'summary_large_image', 'summary', 'app', or 'player' -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <meta name="robots" content="index">
+    <meta name="theme-scheme" content="normal">
+    <meta property="og:type" content="website">
+    <link rel="stylesheet" href="styles.css">
+    <meta name="twitter:creator" content="addsoupbase">
+    <meta name="author" content="addsoupbase">
+    <meta property="profile:username" content="addsoupbase">
+    <meta property="og:url" content="YOUR SITE URL">
+    <meta name="twitter:url" content="YOUR SITE URL">
+    <link rel="canonical" href="YOUR SITE URL">
+    <meta property="og:description" content="Auto icon size thingy thing">
+    <meta name="description" content="Auto icon size thingy thing">
+    <meta name="twitter:description" content="Auto icon size thingy thing">
+    <meta property="og:title" content="YOUR TITLE HERE">
+    <meta name="twitter:title" content="YOUR TITLE HERE">
+    <meta property="og:site_name" content="YOUR TITLE HERE">
+
+    <!-- ^ can't be transparent -->
+    <meta name="mobile-web-app-capable" content="no">
+    <!-- ^ yes if the site has stuff like back buttons -->
+    <meta property="og:image" content="YOUR ICON HERE">
+    <meta name="twitter:image" content="YOUR ICON HERE">
+    <script type="module" blocking="render">
+        import '../csshelper.js'
+    </script>
+    <title>YOUR TITLE HERE</title>
+    <!-- https://ogp.me/ https://developer.x.com/en/docs/x-for-websites/cards/overview/markup -->
+</head>
+
+<body>
+<div>
+
+    <h1>Auto icon sizer</h1>
+    <label>
+        Input file image
+        <input type="file" accept="image/*" id="i">
+    </label>
+</div>
+<button disabled id="b">Download</button>
+<script type="module">
+    import $ from '../yay.js'
+    import * as h from "../handle.js"
+
+    let {i: input, b: button} = $.id
+    let images = new Set,
+        sizes = new Set('57 60 72 76 114 120 144 152 180'.split(' ').map(Number))
+    let ctx = $('canvas')
+    ctx.setAttr({'moz-opaque': true})
+    ctx.imageSmoothingEnabled=true
+    ctx.imageSmoothingQuality='high'
+    ctx = ctx.getContext('2d', {
+        alpha: false
+    })
+    input.on({
+        async change() {
+            let file = $('img',
+                {
+                    attr: {
+                        src: URL.createObjectURL(this.files[0])
+                    }
+                }
+            )
+            await Promise.all([h.until(file.valueOf(), 'load'), file.decode()])
+            file = file.valueOf()
+            let zip = JSZip()
+            for (let size of sizes) {
+                $(ctx.canvas).setAttr({
+                    width: size,
+                    height: size
+                })
+                ctx.drawImage(file, 0, 0, size, size)
+                zip.file(`icon-${size}x${size}.png`, await new Promise(ctx.canvas.toBlob.bind(ctx.canvas))
+                )
+            }
+            button.setAttr({disabled: false})
+            .on({
+                async _click() {
+                    this.fadeOut()
+                    h.download(await zip.generateAsync({type: 'blob'}),'icons')
+                }
+            })
+        }
+    })
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" async=""></script>
+</body>
+
+</html>
