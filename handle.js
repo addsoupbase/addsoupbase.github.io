@@ -317,7 +317,7 @@ export function on(target, events, useHandler) {
                     autoabort,
                 })
                 myEvents.add(eventName)
-                useHandler || console.info(`🔔 '${eventName}' event added`)
+                console.info(`🔔 '${eventName}' event added`)
             }
         }
     } catch (e) {
