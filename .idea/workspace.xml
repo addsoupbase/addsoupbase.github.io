@@ -4,21 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="yeah">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handle.js" beforeDir="false" afterPath="$PROJECT_DIR$/handle.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/marbles/edit/editor.css" beforeDir="false" afterPath="$PROJECT_DIR$/marbles/edit/editor.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/marbles/edit/script.js" beforeDir="false" afterPath="$PROJECT_DIR$/marbles/edit/script.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/marbles/play/define.js" beforeDir="false" afterPath="$PROJECT_DIR$/marbles/play/define.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/marbles/play/setup.js" beforeDir="false" afterPath="$PROJECT_DIR$/marbles/play/setup.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/marbles/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/marbles/styles.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/math.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/misc.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/background.js" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/background.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/strings.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yay.js" beforeDir="false" afterPath="$PROJECT_DIR$/yay.js" afterDir="false" />
-    </list>
+    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="some changes" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -113,7 +99,7 @@
       <workItem from="1745894571567" duration="10000" />
       <workItem from="1745921863093" duration="7758000" />
       <workItem from="1746029161722" duration="4000" />
-      <workItem from="1746177302641" duration="42658000" />
+      <workItem from="1746177302641" duration="42974000" />
     </task>
     <task id="LOCAL-00001" summary="uhh i hope this works">
       <option name="closed" value="true" />
@@ -419,14 +405,21 @@
       <option name="project" value="LOCAL" />
       <updated>1746798071462</updated>
     </task>
-    <option name="localTasksCounter" value="39" />
+    <task id="LOCAL-00039" summary="some changes">
+      <option name="closed" value="true" />
+      <created>1746829113660</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1746829113660</updated>
+    </task>
+    <option name="localTasksCounter" value="40" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="uhh i hope this works" />
     <MESSAGE value="hwy" />
     <MESSAGE value="oops" />
     <MESSAGE value="hey there" />
@@ -451,6 +444,7 @@
     <MESSAGE value="ilu" />
     <MESSAGE value="fix" />
     <MESSAGE value="yeah" />
-    <option name="LAST_COMMIT_MESSAGE" value="yeah" />
+    <MESSAGE value="some changes" />
+    <option name="LAST_COMMIT_MESSAGE" value="some changes" />
   </component>
 </project>
