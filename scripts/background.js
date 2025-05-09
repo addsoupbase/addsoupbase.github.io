@@ -1,5 +1,4 @@
 let regex = /[\w.\-]+\.(?:webp|a?png|gif|jpe?g)/
-
 function images({ avatars, mons, colorful, birthday }) {
     let pop = new Audio('media/pop.mp3')
     // on(document, {
@@ -14,9 +13,11 @@ function images({ avatars, mons, colorful, birthday }) {
     const cycle = math.cycle(...ran.shuffle(...avatars))
     let holding = false
     bg.delegate({
-            pointerdown1: click
+            pointerdown: click
         }, o =>
-            o.classList.contains('bubble') && o.flags === 0
+            o.classList.contains('bubble') && o.flags === 0,
+        false,
+        new AbortController()
     ).debounce({
         pointermove({ x, y }) {
             holding && makeBubble(`${x}px`, `${y}px`).fadeIn(300)

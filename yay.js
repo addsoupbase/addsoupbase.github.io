@@ -388,7 +388,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         return out
     }
 
-    on(events, useHandler) {
+    on(events, useHandler, signal) {
         if (typeof events === 'function') events = Object.defineProperty(events.bind(this), h.unbound, {
             value: events
         })
@@ -403,7 +403,7 @@ let props = Object.getOwnPropertyDescriptors(class _
                     value
                 })
             }
-        h.on(base(this), events, useHandler)
+        h.on(base(this), events, useHandler, signal)
     }
 
     off(...events) {
@@ -418,23 +418,23 @@ let props = Object.getOwnPropertyDescriptors(class _
         return Array.from(base(this).getElementsByTagName(tag), prox)
     }
 
-    debounce(events, interval) {
+    debounce(events, interval, signal) {
         for (let i in events) {
             let old = events[i]
             events[i] = f.debounce(old, interval)
         }
-        this.on(events)
+        this.on(events, signal)
     }
 
-    throttle(events, interval) {
+   /* throttle(events, interval) {
         for (let i in events) {
             let old = events[i]
             events[i] = f.throttle(old, interval)
         }
         this.on(events)
-    }
+}*/
 
-    delegate(events, filter, includeSelf) {
+    delegate(events, filter, includeSelf, signal) {
         let me = base(this)
         filter ??= function () {
         }
@@ -449,7 +449,7 @@ let props = Object.getOwnPropertyDescriptors(class _
                 (me !== target || includeSelf) && (filter(pr) ?? 1) && old.apply(pr, args)
             }
         }
-        this.on(events)
+        this.on(events,false,signal)
     }
 
     get events() {

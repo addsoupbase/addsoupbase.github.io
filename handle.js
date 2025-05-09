@@ -1,3 +1,4 @@
+
 const sym = Symbol.for("🔔")
 export const unbound = Symbol('⛓️‍💥')
 //  Don't collide, and make sure its usable across realms!!
@@ -35,19 +36,22 @@ else {
     let f = globalThis.document?.createElement('input')
     if (f) {
         f.type = 'file'
+
         function requestFile(accept, multiple) {
             return new Promise(executor)
+
             function executor(resolve, oncancel) {
                 return Object.assign(f, {
                     accept,
                     multiple,
                     oncancel,
                     onchange() {
-                         multiple ? resolve(f.files) : resolve([].at.call(f.files, -1))
+                        multiple ? resolve(f.files) : resolve([].at.call(f.files, -1))
                     }
                 }).showPicker()
             }
         }
+
         reqFile = requestFile
     }
 }
@@ -110,18 +114,21 @@ export function delayedDispatch(id, target, event) {
 
 export function wait(ms) {
     return new Promise(resolveWithDelay)
+
     function resolveWithDelay(resolve) {
         setTimeout(resolve, ms)
     }
 }
-const AbortSignals = new Map
+
+/*const AbortSignals = new Map
+
 export function abort(id, reason) {
     let signal = AbortSignals.get(id)
     if (!signal) throw TypeError('Signal not found')
     signal.controller.abort(reason)
     signal.count = 0
     console.info('🛜 Aborted on signal', id, reason ? ` with reason: ${reason}.` : ' ')
-}
+}*/
 
 export function getEventNames(target) {
     target.hasOwnProperty(sym) || Object.defineProperty(target, sym, {value: new Set})
@@ -133,9 +140,9 @@ export function hasEvent(target, eventName) {
 }
 
 export const {
-    currentTarget:CURRENT_TARGET, autoAbort:AUTO_ABORT, trusted:TRUSTED, once:ONCE,
-    preventDefault:PREVENT_DEFAULT, passive:PASSIVE,
-    capture:CAPTURE, stopPropagation:STOP_PROPAGATION, stopImmediatePropagation:STOP_IMMEDIATE_PROPAGATION
+    currentTarget: CURRENT_TARGET, autoAbort: AUTO_ABORT, trusted: TRUSTED, once: ONCE,
+    preventDefault: PREVENT_DEFAULT, passive: PASSIVE,
+    capture: CAPTURE, stopPropagation: STOP_PROPAGATION, stopImmediatePropagation: STOP_IMMEDIATE_PROPAGATION
 } = Object.freeze({
     currentTarget: '@', //Only call function if event.target === event.currentTarget
     autoAbort: '#', //Automatically abort all listeners with the same signal
@@ -148,6 +155,7 @@ export const {
     stopImmediatePropagation: '!', //Automatically calls event.stopImmediatePropagation()
 })
 const customEvents = new Set
+export const sig = Symbol.for('🔊')
 
 export function addCustomEvent(names) {
     for (let name in names)
@@ -155,9 +163,7 @@ export function addCustomEvent(names) {
 }
 
 const formatEventName = /[_$^%&!?@#\d]|bound /g
-const matchDigits = /\d+/
-
-export function on(target, events, useHandler) {
+export function on(target, events, useHandler, signal) {
     if (Array.isArray(target)) {
         groupCollapsed('on(...)')
         target.forEach(func)
@@ -201,39 +207,22 @@ export function on(target, events, useHandler) {
                     //once
                     passive,
                 }
-            let signal = eventName.match(matchDigits)?.[0]
-            if (manualSignal == null && signal)
-                signal = +signal
-            else if (manualSignal != null) signal = manualSignal
             eventName = verifyEventName(target, eventName.replace(formatEventName, ''))
             if (myEvents.has(eventName) && signal == null) {
                 queueMicrotask(warn.bind(1, `🔕 Skipped duplicate '${eventName}' listener`))
                 continue
             }
-            let controller
-            if (signal != null && !AbortSignals.has(signal)) {
-                AbortSignals.set(signal, {
-                    __proto__: null,
-                    count: 1,
-                    controller: controller = new AbortController
-                })
-            } else if (signal != null) {
-                let me = AbortSignals.get(signal)
-                controller = me.controller
-                ++me.count
-            }
-            if (controller) {
+            if (signal) {
                 options.once = once
-                options.signal = controller.signal
+                options.signal = signal.signal
             }
-            let Abort = abort.bind(1, signal),
-                Remove = target.removeEventListener.bind(target, eventName, ProxyFunction, options)
-
+            let Remove = target.removeEventListener.bind(target, eventName, ProxyFunction, options),
+                Abort = signal?.abort.bind(signal)
             function ProxyFunction(...args) {
                 let {0: event} = args
                 if (event.constructor.name === 'CustomEvent') {
                     let {detail} = event
-                        // , keys = Reflect.ownKeys(detail)
+                    // , keys = Reflect.ownKeys(detail)
                     for (let i in detail) {
                         // i wish for in included symbols :<
                         if (i in event) {
@@ -243,13 +232,13 @@ export function on(target, events, useHandler) {
                         event[i] = detail[i]
                     }
                 }
-                controller && args.push(Abort, Remove)
+                signal && args.push(Abort, Remove)
                 onlyTrusted && event.isTrusted || !onlyTrusted && (!onlyCurrentTarget || onlyCurrentTarget && event.target === event.currentTarget) &&
                 (func.apply(target, args),
                 stopImmediateProp && event.stopImmediatePropagation(),
                 stopProp && event.stopPropagation(),
                 prevents && (event.cancelable ? event.preventDefault() : warn(`🔊 '${eventName}' events are not cancelable`)),
-                autoabort && Abort(),
+                autoabort && Abort?.(),
                 once && off(event.currentTarget, eventName))
             }
 
@@ -276,7 +265,7 @@ export function on(target, events, useHandler) {
                 // console.warn('Using handler property is deprecated')
                 target[`on${eventName}`] = ProxyFunction
             else target.addEventListener(eventName, ProxyFunction, options)
-            if (controller)
+            if (signal)
                 console.info(`📡 '${eventName}' event added with signal`, signal)
             else {
                 allEvents.has(target) || allEvents.set(target, new Map)
@@ -352,7 +341,7 @@ export function off(target, ...eventNames) {
     }
 }
 
-export function until(target, eventName, timeout/* = 600000*/) {
+export function until(target, eventName, failureName, timeout/* = 600000*/) {
     return new Promise(UntilClosure)
 
     function UntilClosure(resolve, reject) {
@@ -374,8 +363,8 @@ export function until(target, eventName, timeout/* = 600000*/) {
             }
         }
         else */
-        on(target, {
-            [`${eventName}_`](event) {
+        let e = {
+            [`#${eventName}1`](event) {
                 try {
                     resolve(event)
                 } catch (e) {
@@ -384,7 +373,15 @@ export function until(target, eventName, timeout/* = 600000*/) {
                     timeout && clearTimeout(id)
                 }
             }
-        }, target[handleName] === null)
+        }
+        failureName && (e[`#${failureName}1`] = function (e) {
+            try {
+                reject(e)
+            } finally {
+                timeout && clearTimeout(id)
+            }
+        })
+        on(target, e, target[handleName] === null)
     }
 }
 
