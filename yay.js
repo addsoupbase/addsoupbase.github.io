@@ -1428,6 +1428,7 @@ export default Object.defineProperties($, {
         }
     }
 })
+$.id=$.byId
 let parseMode = 'mozInnerScreenY' in window ? 'createRange' : ''
 
 //  createRange seems to be *slightly* faster on firefox
