@@ -266,7 +266,8 @@ export function on(target, events, useHandler, signal) {
                 target[`on${eventName}`] = ProxyFunction
             else target.addEventListener(eventName, ProxyFunction, options)
             if (signal)
-                console.info(`📡 '${eventName}' event added with signal`, signal)
+                console.info(`📡 '${eventName}' event added`)
+            // with signal`, signal)
             else {
                 allEvents.has(target) || allEvents.set(target, new Map)
                 //A Map to hold the names & events
