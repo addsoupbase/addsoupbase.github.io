@@ -83,7 +83,7 @@ function FallbackImport() {
 if (s !== 'false' && s !== 'true') try {
     TestImportSupport()
 } catch (e) {
-    if (e.name === "SyntaxError") {
+    if (e.name === "SyntaxError" || e.name === 'EvalError') {
         FallbackImport()
     } else reportError(e)
 }
