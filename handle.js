@@ -17,7 +17,6 @@ function isValidET(target) {
 }
 
 export let reqFile
-
 if (0/*typeof showOpenFilePicker !== 'undefined'*/) reqFile = async function supported(accept, multiple) {
     let settings = {
         multiple,
@@ -36,15 +35,20 @@ else {
     let f = globalThis.document?.createElement('input')
     if (f) {
         f.type = 'file'
-        reqFile = (accept, multiple) =>
-            new Promise((resolve, oncancel) =>
-                Object.assign(f, {
+        function requestFile(accept, multiple) {
+            return new Promise(executor)
+            function executor(resolve, oncancel) {
+                return Object.assign(f, {
                     accept,
                     multiple,
                     oncancel,
-                    onchange: () => multiple ? resolve(f.files) : resolve([].at.call(f.files, -1))
+                    onchange() {
+                         multiple ? resolve(f.files) : resolve([].at.call(f.files, -1))
+                    }
                 }).showPicker()
-            )
+            }
+        }
+        reqFile = requestFile
     }
 }
 
@@ -65,20 +69,15 @@ function verifyEventName(target, name) {
         /^(animation(?:cancel|remove))$/i.test(original) && 'onremove' in target)
         return original
     //Some events like the one above don't have a handler
-    customEvents.has(name) || queueMicrotask(warn)
+    customEvents.has(name) || queueMicrotask(console.warn.bind(1, `'${original}' events might not be available on the following object:`, target))
     return original
-
-    function warn() {
-        console.warn(`'${original}' events might not be available on the following object:`, target)
-    }
-
     // throw TypeError(`🔇 Cannot listen for '${original}' events`)
 }
 
 const delayedEvents = new Map
 const giveItSomeTime = function (hold) {
     let secondparam = 100 //idk some random timeout
-    if (hold.name === 'requestIdleCallback')
+    if (hold === globalThis.requestIdleCallback)
         secondparam = {timeout: 1000}
     return delay
 
@@ -100,32 +99,28 @@ function dispatchAllDelayed(id) {
 
 export function delayedDispatch(id, target, event) {
     if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
-    if (!delayedEvents.has(id)) delayedEvents.set(id, new Set)
+    delayedEvents.has(id) || delayedEvents.set(id, new Set)
     let set = delayedEvents.get(id)
     set.size || dispatchAllDelayed(id)
     set.add({
         target,
         event
     })
-
 }
 
 export function wait(ms) {
     return new Promise(resolveWithDelay)
-
     function resolveWithDelay(resolve) {
         setTimeout(resolve, ms)
     }
 }
-
 const AbortSignals = new Map
-
 export function abort(id, reason) {
     let signal = AbortSignals.get(id)
-    if (!signal) throw TypeError(`Signal not found`)
+    if (!signal) throw TypeError('Signal not found')
     signal.controller.abort(reason)
     signal.count = 0
-    console.info(`🛜 Aborted on signal`, id, reason ? ` with reason "${reason}".` : ' ')
+    console.info('🛜 Aborted on signal', id, reason ? ` with reason: ${reason}.` : ' ')
 }
 
 export function getEventNames(target) {
@@ -137,28 +132,21 @@ export function hasEvent(target, eventName) {
     return target[sym]?.has(eventName) ?? false
 }
 
-export const {currentTarget, autoAbort, trusted, once, preventDefault, passive,
-    capture, stopPropagation, stopImmediatePropagation
-} = {
-    _: 'Event is automatically removed after 1st call',
-    $: "Automatically calls 'preventDefault()', if possible",
-    '^': 'Passive event listener',
-    '%': 'Capture event',
-    '&': 'Stop propagation',
-    '!': 'Stop immediate propagation',
-    '?': 'Only trusted events',
-    '@': 'Only currentTarget',
-    '#': 'Auto abort',
-    currentTarget: '@',
-    autoAbort: '#',
-    trusted: '?',
-    once: '_',
-    preventDefault: '$',
+export const {
+    currentTarget:CURRENT_TARGET, autoAbort:AUTO_ABORT, trusted:TRUSTED, once:ONCE,
+    preventDefault:PREVENT_DEFAULT, passive:PASSIVE,
+    capture:CAPTURE, stopPropagation:STOP_PROPAGATION, stopImmediatePropagation:STOP_IMMEDIATE_PROPAGATION
+} = Object.freeze({
+    currentTarget: '@', //Only call function if event.target === event.currentTarget
+    autoAbort: '#', //Automatically abort all listeners with the same signal
+    trusted: '?', //Only call function if (event.isTrusted)
+    once: '_', //Automatically removed after first call
+    preventDefault: '$',  //Automatically calls event.preventDefault() if possible
     passive: '^',
     capture: '%',
-    stopPropagation: '&',
-    stopImmediatePropagation: '!',
-}
+    stopPropagation: '&', //Automatically calls event.stopPropagation()
+    stopImmediatePropagation: '!', //Automatically calls event.stopImmediatePropagation()
+})
 const customEvents = new Set
 
 export function addCustomEvent(names) {
@@ -199,15 +187,15 @@ export function on(target, events, useHandler) {
         }
         for (let eventName in events) {
             let func = events[eventName]
-            const once = eventName.includes('_'),
-                prevents = eventName.includes('$'),
-                passive = eventName.includes('^'),
-                capture = eventName.includes('%'),
-                stopProp = eventName.includes('&'),
-                stopImmediateProp = eventName.includes('!'),
-                onlyTrusted = eventName.includes('?'),
-                onlyCurrentTarget = eventName.includes('@'),
-                autoabort = eventName.includes('#'),
+            const once = eventName.includes(ONCE),
+                prevents = eventName.includes(PREVENT_DEFAULT),
+                passive = eventName.includes(PASSIVE),
+                capture = eventName.includes(CAPTURE),
+                stopProp = eventName.includes(STOP_PROPAGATION),
+                stopImmediateProp = eventName.includes(STOP_IMMEDIATE_PROPAGATION),
+                onlyTrusted = eventName.includes(TRUSTED),
+                onlyCurrentTarget = eventName.includes(CURRENT_TARGET),
+                autoabort = eventName.includes(AUTO_ABORT),
                 options = {
                     capture,
                     //once
@@ -219,12 +207,7 @@ export function on(target, events, useHandler) {
             else if (manualSignal != null) signal = manualSignal
             eventName = verifyEventName(target, eventName.replace(formatEventName, ''))
             if (myEvents.has(eventName) && signal == null) {
-                queueMicrotask(w)
-
-                function w() {
-                    warn(`🔕 Skipped duplicate '${eventName}' listener`)
-                }
-
+                queueMicrotask(warn.bind(1, `🔕 Skipped duplicate '${eventName}' listener`))
                 continue
             }
             let controller
@@ -243,22 +226,18 @@ export function on(target, events, useHandler) {
                 options.once = once
                 options.signal = controller.signal
             }
-
-            function Abort() {
-                abort(signal)
-            }
-
-            function Remove() {
-                target.removeEventListener(eventName, ProxyFunction, options)
-            }
+            let Abort = abort.bind(1, signal),
+                Remove = target.removeEventListener.bind(target, eventName, ProxyFunction, options)
 
             function ProxyFunction(...args) {
                 let {0: event} = args
                 if (event.constructor.name === 'CustomEvent') {
                     let {detail} = event
+                        // , keys = Reflect.ownKeys(detail)
                     for (let i in detail) {
+                        // i wish for in included symbols :<
                         if (i in event) {
-                            warn(`The '${i}' property of a CustomEvent was ignored since it would overwrite an existing property `, event[i])
+                            warn(`The '${i.toString()}' property of a CustomEvent was ignored since it would overwrite an existing property `, event[i])
                             continue
                         }
                         event[i] = detail[i]
@@ -321,11 +300,7 @@ export function on(target, events, useHandler) {
             }
         }
     } catch (e) {
-        queueMicrotask(r)
-
-        function r() {
-            reportError(e)
-        }
+        queueMicrotask(reportError.bind(globalThis, e))
     } finally {
         groupEnd()
     }
@@ -365,17 +340,13 @@ export function off(target, ...eventNames) {
             const name = verifyEventName(target, eventNames[length]),
                 {listener, capture, passive, handler} = map.get(name)
             handler ? (target[`on${name}`] = null) : target.removeEventListener(name, listener, {capture})
-            map.has(name) && (handler || console.info(`🔕 '${name}' event removed`))
+            map.has(name) && console.info(`🔕 '${name}' event removed`)
             map.delete(name)
             mySet.delete(name)
             map.size || allEvents.delete(target)
         }
     } catch (e) {
-        queueMicrotask(r)
-
-        function r() {
-            reportError(e)
-        }
+        queueMicrotask(reportError.bind(globalThis, e))
     } finally {
         groupEnd()
     }
@@ -435,6 +406,6 @@ let anchor
 export function download(blob, title) {
     anchor ??= document.createElement('a')
     anchor.download = title || 'download'
-    anchor.href = anchor.src = getObjUrl(blob)
+    anchor.href = getObjUrl(blob)
     anchor.click()
 }

@@ -1115,8 +1115,8 @@ const entryTypes = {
     // taskattribution: 'TaskAttributionTiming 'in window
 }
 const perf = new PerformanceObserver(PerformanceObserverCallback)
-Object.keys(entryTypes).forEach(key => {
-    perf.observe({type: key, buffered: true})
+Object.keys(entryTypes).forEach(type => {
+    perf.observe({type, buffered: true})
 })
 h.addCustomEvent(entryTypes)
 h.addCustomEvent({
