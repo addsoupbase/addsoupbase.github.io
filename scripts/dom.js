@@ -25,7 +25,7 @@ else {
 $.gid('viewbackground').on({
     async _click() {
         await main.fadeOut()
-        let topWindow = parent.document.querySelector('object')
+        let topWindow = parent.document.getElementById('frame')
         topWindow.remove()
     }
 })
