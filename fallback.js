@@ -6,9 +6,9 @@
         remove = err  = null
     }
     var err = function (e) {
-        if (/syntax/i .test(e.error.name)) {
+        if (RegExp('syntax','i') .test(e.error.name)) {
             remove()
-            prompt('You\'re using a *really* old browser, or I messed something up. Please share the message below with me: ',e.message+' @line '+e.lineno + ' col '+ e.colno + ' file ' + e.filename)
+            prompt("You're using a *really* old browser, or I messed something up. Please share the message below with me: ",e.message+' @line '+e.lineno + ' col '+ e.colno + ' file ' + e.filename)
             var template = document.getElementById('template')
             if (template) document.body.innerHTML = template.content ? template.content.firstElementChild.outerHTML : template.firstElementChild.outerHTML
         }

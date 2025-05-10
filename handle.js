@@ -1,4 +1,4 @@
-
+//# allFunctionsCalledOnLoad
 const sym = Symbol.for("🔔")
 export const unbound = Symbol('⛓️‍💥')
 //  Don't collide, and make sure its usable across realms!!
@@ -88,7 +88,7 @@ const giveItSomeTime = function (hold) {
     function delay(callback) {
         return hold(callback, secondparam)
     }
-}(globalThis.requestIdleCallback ?? globalThis.queueMicrotask ?? globalThis.setImmediate ?? globalThis.setTimeout)
+}(globalThis.queueMicrotask ?? globalThis.requestIdleCallback ?? globalThis.setImmediate ?? globalThis.setTimeout)
 
 function dispatchAllDelayed(id) {
     let all = delayedEvents.get(id)
@@ -129,7 +129,6 @@ export function abort(id, reason) {
     signal.count = 0
     console.info('🛜 Aborted on signal', id, reason ? ` with reason: ${reason}.` : ' ')
 }*/
-
 export function getEventNames(target) {
     target.hasOwnProperty(sym) || Object.defineProperty(target, sym, {value: new Set})
     return target[sym]
@@ -155,7 +154,6 @@ export const {
     stopImmediatePropagation: '!', //Automatically calls event.stopImmediatePropagation()
 })
 const customEvents = new Set
-export const sig = Symbol.for('🔊')
 
 export function addCustomEvent(names) {
     for (let name in names)
@@ -163,6 +161,7 @@ export function addCustomEvent(names) {
 }
 
 const formatEventName = /[_$^%&!?@#\d]|bound /g
+
 export function on(target, events, useHandler, signal) {
     if (Array.isArray(target)) {
         groupCollapsed('on(...)')
@@ -185,12 +184,9 @@ export function on(target, events, useHandler, signal) {
             [events.name]: events
         }
         else if (isArray(events)) {
-            // if (2 in events) {
-            // manualSignal = events[2]
-            // delete events[2]
-            // }
             events = Object.fromEntries(events)
         }
+        if (signal) signal.signal.onabort = console.debug.bind(1, 'Aborted: ', signal)
         for (let eventName in events) {
             let func = events[eventName]
             const once = eventName.includes(ONCE),
@@ -218,6 +214,7 @@ export function on(target, events, useHandler, signal) {
             }
             let Remove = target.removeEventListener.bind(target, eventName, ProxyFunction, options),
                 Abort = signal?.abort.bind(signal)
+
             function ProxyFunction(...args) {
                 let {0: event} = args
                 if (event.constructor.name === 'CustomEvent') {
@@ -226,7 +223,7 @@ export function on(target, events, useHandler, signal) {
                     for (let i in detail) {
                         // i wish for in included symbols :<
                         if (i in event) {
-                            warn(`The '${i.toString()}' property of a CustomEvent was ignored since it would overwrite an existing property `, event[i])
+                            warn(`The '${i}' property of a CustomEvent was ignored since it would overwrite an existing property: `, event[i])
                             continue
                         }
                         event[i] = detail[i]
@@ -329,7 +326,7 @@ export function off(target, ...eventNames) {
         for (let {length} = eventNames; length--;) {
             const name = verifyEventName(target, eventNames[length]),
                 {listener, capture, passive, handler} = map.get(name)
-            handler ? (target[`on${name}`] = null) : target.removeEventListener(name, listener, {capture})
+            handler ? (target[`on${name}`] = null) : target.removeEventListener(name, listener, {capture, passive})
             map.has(name) && console.info(`🔕 '${name}' event removed`)
             map.delete(name)
             mySet.delete(name)
@@ -365,7 +362,7 @@ export function until(target, eventName, failureName, timeout/* = 600000*/) {
         }
         else */
         let e = {
-            [`#${eventName}1`](event) {
+            [`#${eventName}`](event) {
                 try {
                     resolve(event)
                 } catch (e) {
@@ -375,14 +372,14 @@ export function until(target, eventName, failureName, timeout/* = 600000*/) {
                 }
             }
         }
-        failureName && (e[`#${failureName}1`] = function (e) {
+        failureName && (e[`#${failureName}`] = function (e) {
             try {
                 reject(e)
             } finally {
                 timeout && clearTimeout(id)
             }
         })
-        on(target, e, target[handleName] === null)
+        on(target, e, target[handleName] === null, new AbortController)
     }
 }
 

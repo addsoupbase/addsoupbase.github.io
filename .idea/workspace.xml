@@ -4,7 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="hehe" />
+    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="more emojis">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fallback.js" beforeDir="false" afterPath="$PROJECT_DIR$/fallback.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handle.js" beforeDir="false" afterPath="$PROJECT_DIR$/handle.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/background.js" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/background.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/images.js" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/images.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/silence.js" beforeDir="false" afterPath="$PROJECT_DIR$/silence.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/styles.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/template.html" beforeDir="false" afterPath="$PROJECT_DIR$/template.html" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -34,7 +43,7 @@
   }
 }</component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="CurrentFile" />
+    <option name="selectedTabId" value="ProjectErrors" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
@@ -57,7 +66,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "editing.templates",
+    "settings.editor.selected.configurable": "terminal",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -99,7 +108,7 @@
       <workItem from="1745894571567" duration="10000" />
       <workItem from="1745921863093" duration="7758000" />
       <workItem from="1746029161722" duration="4000" />
-      <workItem from="1746177302641" duration="44099000" />
+      <workItem from="1746177302641" duration="48110000" />
     </task>
     <task id="LOCAL-00001" summary="uhh i hope this works">
       <option name="closed" value="true" />
@@ -429,14 +438,21 @@
       <option name="project" value="LOCAL" />
       <updated>1746829655642</updated>
     </task>
-    <option name="localTasksCounter" value="42" />
+    <task id="LOCAL-00042" summary="more emojis">
+      <option name="closed" value="true" />
+      <created>1746831101005</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1746831101005</updated>
+    </task>
+    <option name="localTasksCounter" value="43" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="oops" />
     <MESSAGE value="hey there" />
     <MESSAGE value="s" />
     <MESSAGE value="i need help" />
@@ -461,6 +477,7 @@
     <MESSAGE value="yeah" />
     <MESSAGE value="some changes" />
     <MESSAGE value="hehe" />
-    <option name="LAST_COMMIT_MESSAGE" value="hehe" />
+    <MESSAGE value="more emojis" />
+    <option name="LAST_COMMIT_MESSAGE" value="more emojis" />
   </component>
 </project>

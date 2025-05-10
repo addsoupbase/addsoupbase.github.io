@@ -30,6 +30,7 @@
   transform: scale(.75, .75);
   opacity: 0.96;
   transform-origin: center;
+  --user-drag: none;
   pointer-events: none;
 }
 

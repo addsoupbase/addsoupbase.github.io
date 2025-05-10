@@ -17,7 +17,7 @@ function images({ avatars, mons, colorful, birthday }) {
         }, o =>
             o.classList.contains('bubble') && o.flags === 0,
         false,
-        new AbortController()
+        new AbortController
     ).debounce({
         pointermove({ x, y }) {
             holding && makeBubble(`${x}px`, `${y}px`).fadeIn(300)
@@ -37,7 +37,7 @@ function images({ avatars, mons, colorful, birthday }) {
         let { x, y } = e
         this.pauseAnims()
         pop.currentTime = 0
-        await Promise.race([pop.play(), h.wait(200)])
+        await Promise.race([pop.play(), h.wait(600)])
         this.fadeOut(300)
         this.flags = 1
         await this.animate([{ transform: '' }, { transform: 'scaleX(2) scaleY(2)', }], { duration: 300, easing: 'ease-in-out', composite: 'accumulate', }).finished
@@ -171,13 +171,16 @@ const frame = $.qs('object')
 //document.body.scrollLeft = innerHeight/2
 frame.on({
     _load() {
-        (window.requestIdleCallback || queueMicrotask)(deadline => {
+        (window.requestIdleCallback || window.queueMicrotask || setTimeout)(deadline => {
             deadline ? console.debug(`Did timeout: `, deadline.didTimeout) : console.debug('requestIdleCallback unsupported :(')
             import('./images.js').then(images)
             console.debug("🐟 Loading the bg now...")
-        }, { timeout: 5000 })
+        }, { timeout: 3000 })
     }
 })
 const parent = $('div #background', {
-    parent: document.body
+    parent: document.body,
+    attr: {
+        role:'img'
+    }
 })

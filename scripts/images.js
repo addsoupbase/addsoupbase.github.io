@@ -1,6 +1,7 @@
-import { registerCSS } from "../csshelper.js"
-import { until } from "../handle.js"
-import { jason } from '../arrays.js'
+import {registerCSS} from "../csshelper.js"
+import {until} from "../handle.js"
+import {jason} from '../arrays.js'
+
 let bubble = Object.assign(new Image, {
     src: `./media/bubble.webp`
 })
@@ -9,7 +10,7 @@ await bubble.decode()
 export const colorful = new Set
 let today = new Date()
 export const birthday = today.getMonth() === 6 - 1 && today.getDate() === 17
-let { width: w, height: h } = bubble
+let {width: w, height: h} = bubble
 let ctx = Object.assign(new OffscreenCanvas(w, h).getContext('2d'), {
     imageSmoothingEnabled: 'true',
     imageSmoothingQuality: 'high'
@@ -25,17 +26,17 @@ if (birthday) {
 }
 const width = Symbol.for('width'),
     name = Symbol.for('name')
-const avatars = await Promise.all((await jason('./scripts/allava.json')).map(
+const avatars = (await Promise.allSettled((await jason('./scripts/allava.json')).map(
     async function (o) {
         let n = new Image
         n.src = `./media/avatars/${o}`
-        await Promise.all([until(n, 'load'), n.decode()])
+        await Promise.all([until(n, 'load', 'error'), n.decode()])
         return n
     }
-))
-console.debug("🪪 All avatars loaded")
+))).filter(o => o.status === 'fulfilled').map(o => o.value)
+console.debug("🪪 Avatars loaded")
 const mons =
-    await Promise.all([
+    (await Promise.allSettled([
         'horsea:4',
         'qwilfish:4',
         'remoraid:4',
@@ -75,15 +76,17 @@ const mons =
         'skrelp:4',
         // 'dragalge:5' also looks weird,
     ].map(async function (o) {
-        let {0:src, 1:Width} = o.split(":")
+        let {0: src, 1: Width} = o.split(":")
         let img = Object.assign(new Image, {
             src: `./media/sprites/${src}.png`,
             [width]: +Width,
             [name]: src
         })
-        await Promise.all([until(img, 'load'), img.decode()])
+        await Promise.all([until(img, 'load', 'error'), img.decode()])
         return img
-    }))
+    })))
+    .filter(o => o.status === 'fulfilled')
+    .map(({value}) => value)
 mons.forEach(image => {
     registerCSS(`.${image[name]}`, {
         'background-image': `url(${image.src})`,
@@ -94,5 +97,5 @@ mons.forEach(image => {
 // registerCSS('.bubble',{
 // filter: 'hue-rotate(90deg)'
 // })
-console.debug("🐠 All sprites loaded")
-export { avatars, mons }
+console.debug("🐠 Sprites loaded")
+export {avatars, mons}
