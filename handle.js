@@ -17,7 +17,14 @@ function isValidET(target) {
             // || (typeof target.addEventListener === 'function' && typeof target.removeEventListener === 'function' && typeof target.dispatchEvent === 'function')
         )
 }
-
+function getLabel(obj) {
+    try {
+    return obj[Symbol.toStringTag] || obj.constructor?.name || Object.getPrototypeOf(obj).constructor[Symbol.toStringTag] || Object.getPrototypeOf(obj).constructor?.name
+    }
+    catch {
+        return {}.toString.call(obj)
+    }
+}
 export let reqFile
 if (0/*typeof showOpenFilePicker !== 'undefined'*/) reqFile = async function supported(accept, multiple) {
     let settings = {
@@ -80,7 +87,7 @@ function verifyEventName(target, name) {
 }
 
 const delayedEvents = new Map
-const giveItSomeTime = function (hold) {
+    , giveItSomeTime = function (hold) {
     let secondparam = 100 //idk some random timeout
     if (hold === globalThis.requestIdleCallback)
         secondparam = {timeout: 1000}
@@ -142,7 +149,7 @@ export const {
     currentTarget: CURRENT_TARGET, autoAbort: AUTO_ABORT, trusted: TRUSTED, once: ONCE,
     preventDefault: PREVENT_DEFAULT, passive: PASSIVE,
     capture: CAPTURE, stopPropagation: STOP_PROPAGATION, stopImmediatePropagation: STOP_IMMEDIATE_PROPAGATION
-} = Object.freeze({
+} = ({
     currentTarget: '@', //Only call function if event.target === event.currentTarget
     autoAbort: '#', //Automatically abort all listeners with the same signal
     trusted: '?', //Only call function if (event.isTrusted)
@@ -166,7 +173,6 @@ export function on(target, events, useHandler, signal) {
     if (Array.isArray(target)) {
         groupCollapsed('on(...)')
         target.forEach(func)
-
         function func(t) {
             on(t, events, useHandler)
         }
@@ -177,7 +183,7 @@ export function on(target, events, useHandler, signal) {
     if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
     let manualSignal
     try {
-        groupCollapsed(`on(${target[Symbol.toStringTag] || target.constructor?.name || Object.getPrototypeOf(target).constructor[Symbol.toStringTag] || Object.getPrototypeOf(target).constructor.name || target})`)
+        groupCollapsed(`on(${getLabel(target)})`)
         console.dirxml(target)
         const myEvents = getEventNames(target)
         if (typeof events === 'function') events = {
@@ -188,8 +194,8 @@ export function on(target, events, useHandler, signal) {
         }
         if (signal) signal.signal.onabort = console.debug.bind(1, 'Aborted: ', signal)
         for (let eventName in events) {
-            let func = events[eventName]
-            const once = eventName.includes(ONCE),
+            const func = events[eventName],
+             once = eventName.includes(ONCE),
                 prevents = eventName.includes(PREVENT_DEFAULT),
                 passive = eventName.includes(PASSIVE),
                 capture = eventName.includes(CAPTURE),
@@ -217,7 +223,7 @@ export function on(target, events, useHandler, signal) {
 
             function ProxyFunction(...args) {
                 let {0: event} = args
-                if (event.constructor.name === 'CustomEvent') {
+                if (getLabel(event) === 'CustomEvent') {
                     let {detail} = event
                     // , keys = Reflect.ownKeys(detail)
                     for (let i in detail) {
@@ -238,7 +244,6 @@ export function on(target, events, useHandler, signal) {
                 autoabort && Abort(),
                 once && off(event.currentTarget, eventName))
             }
-
             Object.defineProperty(ProxyFunction, unbound, {
                 value: func,
                 configurable: 1,
@@ -278,7 +283,7 @@ export function on(target, events, useHandler, signal) {
     }
     return target
 }
-
+/*
 {
     function a({0: event, 1: name}) {
         return [event, `${name}_`]
@@ -299,7 +304,7 @@ export function on(target, events, useHandler, signal) {
         }
     )
 }
-
+*/
 function AutoAbort() {
     this.abort('Automatic abort')
 }
@@ -308,7 +313,7 @@ export function off(target, ...eventNames) {
     if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
     if (!eventNames.length || !allEvents.has(target)) return null
     try {
-        groupCollapsed(`off(${target[Symbol.toStringTag] || target.constructor?.name || target})`)
+        groupCollapsed(`off(${getLabel(target)})`)
         console.dirxml(target)
         const map = allEvents.get(target),
             mySet = target[sym]
@@ -333,8 +338,8 @@ export function until(target, eventName, failureName, timeout/* = 600000*/) {
     return new Promise(waitForEvent)
 
     function waitForEvent(resolve, reject) {
-        let str = `⏰ Promise for '${eventName}' expired after ${timeout} ms`
-        const id = timeout && setTimeout(err => {
+        const str = `⏰ Promise for '${eventName}' expired after ${timeout} ms`
+            , id = timeout && setTimeout(err => {
             reject(err)
             signal.abort(str)
             // off(target, eventName)

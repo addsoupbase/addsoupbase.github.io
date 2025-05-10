@@ -840,7 +840,7 @@ let props = Object.getOwnPropertyDescriptors(class _
     }
 }.prototype)
 const prototype = Object.create(null)
-const TEXT_THINGIES = new Set('textContent innerText innerHTML outerHTML outerText'.split(' '))
+    , TEXT_THINGIES = new Set('textContent innerText innerHTML outerHTML outerText'.split(' '))
 TEXT_THINGIES.forEach(txt =>
     Object.defineProperty(prototype, txt, {
         get() {
@@ -1219,7 +1219,7 @@ function getValid(target) {
 }
 
 const doc = document.createDocumentFragment()
-const parser = new DOMParser
+    , parser = new DOMParser
 let temp, div, range, parsingDoc, classRegex = /(?<=\.)[\w-]+/g,
     htmlRegex = /[\w-]+/,
     idRegex = /(?<=#)\w+/,

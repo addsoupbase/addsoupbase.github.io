@@ -53,8 +53,8 @@ export function average(...numbers) {
 export function avg(...array) {
     if (!array.length) return NaN
     const sorted = array.sort(sort),
-        { length } = sorted
-    const q1 = sorted[length / 4 | 0],
+        { length } = sorted,
+         q1 = sorted[length / 4 | 0],
         q3 = sorted[3 * length / 4 | 0],
         IQR = q3 - q1,
         upperFence = q3 + 1.5 * IQR,
@@ -96,7 +96,7 @@ export function closest(num, ...nums) {
     return distance
 }
 export function furthest(num, ...nums) {
-    //  Could probably use recude() here
+    //  Could probably use reduce() here
     let distance = 0
     for (let { length } = nums; length--;) {
         let n = nums[length]
@@ -118,7 +118,7 @@ export function cycleFrom(arrayLike) {
     return cycle.apply(1, arrayLike)
 }
 export function lerp(start, end, time) {
-    return start + (end - start) * time
+    return clamp(start + (end - start) * time, start, end)
 }
 export function* derp(start, end, time) {
     let n = start
@@ -299,15 +299,15 @@ class Vector2 {
     }
     static angle(first, second) {
         let { 0: x1, 1: y1 } = first
-        let { 0: x2, 1: y2 } = second
+            , { 0: x2, 1: y2 } = second
         x1 ??= first.x
         y1 ??= first.y
         x2 ??= second.x
         y2 ??= second.y
         const firstAngle = atan2(y1, x1),
-            secondAngle = atan2(y2, x2),
-            angle = secondAngle - firstAngle
-        return angle
+            secondAngle = atan2(y2, x2)
+            // , angle = secondAngle - firstAngle
+        return secondAngle - firstAngle
     }
     static difference(first, second) {
         let { 0: x1, 1: y1 } = first
@@ -387,11 +387,22 @@ class Vector2 {
         yield this.#y
     }
 }
+delete Vector2._
 const v = Object.defineProperty(Object.defineProperties(vect, Object.getOwnPropertyDescriptors(Vector2)), Symbol.hasInstance, {
     value(obj) {
-        return Vector2.prototype.isPrototypeOf(obj)
+        try {
+        let x,y,
+            iterator = obj[Symbol.iterator]?.(),
+            {0: xx, 1:yy} = Object.values(obj)
+        return (typeof obj.x === 'number' || typeof obj[0] === 'number' || typeof xx === 'number' || typeof([x] = iterator) === 'number') &&
+            (typeof obj.y === 'number' || typeof obj[1] === 'number' || typeof yy === 'number' || typeof([y] = iterator) === 'number')
+        }
+        catch {
+            return false
+        }
     }
 })
+
 export function vect(x, y) {
     // new.target && noConstructor()
     return new Vector2(x, y)

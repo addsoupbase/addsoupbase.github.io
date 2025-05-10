@@ -38,7 +38,7 @@ class Random {
     shuffle(...item) {
         for (let i = 0, { length } = item; i < length; ++i) {
             const pick = floor(random() * (i + 1));
-            [item[i], item[pick]] = [item[pick], item[i]]
+            ({0:item[i], 1:item[pick]} = [item[pick], item[i]])
         }
         return item
     }
