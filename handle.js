@@ -1,4 +1,5 @@
 //# allFunctionsCalledOnLoad
+// ^ idk what that actually does
 const sym = Symbol.for("🔔")
 export const unbound = Symbol('⛓️‍💥')
 //  Don't collide, and make sure its usable across realms!!
@@ -93,11 +94,10 @@ const giveItSomeTime = function (hold) {
 function dispatchAllDelayed(id) {
     let all = delayedEvents.get(id)
     giveItSomeTime(emitPendingEvents)
-
     function emitPendingEvents() {
-        for (let {target, event} of all)
-            target.dispatchEvent(event)
-        all.clear()
+        for (let o of all)
+            o.target.dispatchEvent(o.event),
+                all.delete(o)
     }
 }
 
@@ -213,7 +213,7 @@ export function on(target, events, useHandler, signal) {
                 options.signal = signal.signal
             }
             let Remove = target.removeEventListener.bind(target, eventName, ProxyFunction, options),
-                Abort = signal?.abort.bind(signal)
+                Abort = AutoAbort.bind(signal)
 
             function ProxyFunction(...args) {
                 let {0: event} = args
@@ -235,7 +235,7 @@ export function on(target, events, useHandler, signal) {
                 stopImmediateProp && event.stopImmediatePropagation(),
                 stopProp && event.stopPropagation(),
                 prevents && (event.cancelable ? event.preventDefault() : warn(`🔊 '${eventName}' events are not cancelable`)),
-                autoabort && Abort?.(),
+                autoabort && Abort(),
                 once && off(event.currentTarget, eventName))
             }
 
@@ -243,21 +243,6 @@ export function on(target, events, useHandler, signal) {
                 value: func,
                 configurable: 1,
             })
-            /*
-            func = new Proxy(func, {
-                apply(targ, _, args) {
-                    let out = targ.apply(null, args)
-                    once && off(target, eventName)
-                    if (prevents) {
-                        let [event] = args
-                        event.cancelable ?
-                            event.preventDefault() :
-                            queueMicrotask(()=>warn(`🔊 '${eventName}' events are not cancelable`))
-                    }
-                    return out
-                }
-            })*/
-            //    eventRegistry.register(func, [eventName, myEvents])
             if (useHandler)
                 // console.warn('Using handler property is deprecated')
                 target[`on${eventName}`] = ProxyFunction
@@ -315,6 +300,10 @@ export function on(target, events, useHandler, signal) {
     )
 }
 
+function AutoAbort() {
+    this.abort('Automatic abort')
+}
+
 export function off(target, ...eventNames) {
     if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
     if (!eventNames.length || !allEvents.has(target)) return null
@@ -325,8 +314,9 @@ export function off(target, ...eventNames) {
             mySet = target[sym]
         for (let {length} = eventNames; length--;) {
             const name = verifyEventName(target, eventNames[length]),
-                {listener, capture, passive, handler} = map.get(name)
-            handler ? (target[`on${name}`] = null) : target.removeEventListener(name, listener, {capture, passive})
+                settings = map.get(name),
+                {listener, capture, passive, handler} = settings
+            handler ? (target[`on${name}`] = null) : target.removeEventListener(name, listener, settings)
             map.has(name) && console.info(`🔕 '${name}' event removed`)
             map.delete(name)
             mySet.delete(name)
@@ -340,13 +330,15 @@ export function off(target, ...eventNames) {
 }
 
 export function until(target, eventName, failureName, timeout/* = 600000*/) {
-    return new Promise(UntilClosure)
+    return new Promise(waitForEvent)
 
-    function UntilClosure(resolve, reject) {
+    function waitForEvent(resolve, reject) {
+        let str = `⏰ Promise for '${eventName}' expired after ${timeout} ms`
         const id = timeout && setTimeout(err => {
             reject(err)
-            off(target, eventName)
-        }, timeout, RangeError(`⏰ Promise for '${eventName}' expired after ${timeout} ms`))
+            signal.abort(str)
+            // off(target, eventName)
+        }, timeout, RangeError(str))
             , handleName = `on${eventName}`
         /*if (target[handleName] === null) {
             //  Use the handler property if we can
@@ -361,6 +353,7 @@ export function until(target, eventName, failureName, timeout/* = 600000*/) {
             }
         }
         else */
+        let signal = new AbortController
         let e = {
             [`#${eventName}`](event) {
                 try {
@@ -372,14 +365,18 @@ export function until(target, eventName, failureName, timeout/* = 600000*/) {
                 }
             }
         }
-        failureName && (e[`#${failureName}`] = function (e) {
-            try {
-                reject(e)
-            } finally {
-                timeout && clearTimeout(id)
+        failureName && Object.assign(e, {
+            [`#${failureName}`](e) {
+                try {
+                    reject(e)
+                } catch (e) {
+                    reportError(e)
+                } finally {
+                    timeout && clearTimeout(id)
+                }
             }
         })
-        on(target, e, target[handleName] === null, new AbortController)
+        on(target, e, target[handleName] === null, signal)
     }
 }
 

@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="little fix">
-      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/styles.css" afterDir="false" />
+    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="another fix okay im going to bed">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handle.js" beforeDir="false" afterPath="$PROJECT_DIR$/handle.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,7 +37,7 @@
   }
 }</component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="ProjectErrors" />
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
@@ -102,7 +102,7 @@
       <workItem from="1745894571567" duration="10000" />
       <workItem from="1745921863093" duration="7758000" />
       <workItem from="1746029161722" duration="4000" />
-      <workItem from="1746177302641" duration="49972000" />
+      <workItem from="1746177302641" duration="52494000" />
     </task>
     <task id="LOCAL-00001" summary="uhh i hope this works">
       <option name="closed" value="true" />
@@ -456,15 +456,29 @@
       <option name="project" value="LOCAL" />
       <updated>1746841965051</updated>
     </task>
-    <option name="localTasksCounter" value="45" />
+    <task id="LOCAL-00045" summary="fix for accessibility users (sorry!, wont use &lt;object&gt; anymore)">
+      <option name="closed" value="true" />
+      <created>1746842774323</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1746842774323</updated>
+    </task>
+    <task id="LOCAL-00046" summary="another fix okay im going to bed">
+      <option name="closed" value="true" />
+      <created>1746843214262</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1746843214262</updated>
+    </task>
+    <option name="localTasksCounter" value="47" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="s" />
-    <MESSAGE value="i need help" />
     <MESSAGE value="i just broke something i dont know what i did :sob:" />
     <MESSAGE value="HELP ME WHAT HAVE I DONE" />
     <MESSAGE value="AAAA I  NEED TO LEARN HOW TO USE GIT" />
@@ -488,6 +502,8 @@
     <MESSAGE value="more emojis" />
     <MESSAGE value="i love whoever is reading this" />
     <MESSAGE value="little fix" />
-    <option name="LAST_COMMIT_MESSAGE" value="little fix" />
+    <MESSAGE value="fix for accessibility users (sorry!, wont use &lt;object&gt; anymore)" />
+    <MESSAGE value="another fix okay im going to bed" />
+    <option name="LAST_COMMIT_MESSAGE" value="another fix okay im going to bed" />
   </component>
 </project>
