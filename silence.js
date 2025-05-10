@@ -20,7 +20,7 @@ typeof console !== 'undefined' && function () {
                             if (typeof out === 'string' && out.length > 500) out = out.slice(0, 500) + '...'
                             return out
                         }))
-                    } catch {
+                    } catch(e) {
                         old('Object was not logged to prevent a potential memory leak')
                     }
                 }

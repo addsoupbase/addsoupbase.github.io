@@ -6,7 +6,7 @@
         remove = err  = null
     }
     var err = function (e) {
-        if (RegExp('syntax','i') .test(e.error.name)) {
+        if (RegExp('syntax','i') .test('name'in e.error ? e.error.name : e.error.message)) {
             remove()
             prompt("You're using a *really* old browser, or I messed something up. Please share the message below with me: ",e.message+' @line '+e.lineno + ' col '+ e.colno + ' file ' + e.filename)
             var template = document.getElementById('template')
