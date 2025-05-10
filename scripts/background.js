@@ -142,7 +142,10 @@ function images({ avatars, mons, colorful, birthday }) {
     setInterval(bubbleWithAva, 2000)
     spawnPkmn()
     function makeBubble(x, y) {
-        let bubbl = $('<div class="bubble" style="pointer-events:none;"></div>', { parent })
+        let bubbl = $('<div class="bubble" style="pointer-events:none;"></div>', { parent,
+        attr: {
+            _hidden: 'true'
+        }})
         bubbl.flags = 1
         if (birthday) bubbl.setStyles({
             'background-image': `url("${ran.choose(...colorful)}")`
@@ -181,6 +184,7 @@ frame.on({
 const parent = $('div #background', {
     parent: document.body,
     attr: {
+        _label:'Pokemon swimming deep underwater with bubbles',
         role:'img'
     }
 })

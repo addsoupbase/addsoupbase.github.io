@@ -239,7 +239,7 @@ class Vector2 {
     }
     [Symbol.toPrimitive](hint) {
         if (hint === 'string') return this.toString()
-        throw TypeError(`Cannot convert ${this[Symbol.toStringTag]} to ${hint}`)
+        throw TypeError(`Cannot convert #<${this[Symbol.toStringTag]}> to ${hint}`)
     }
     normalize() {
         return this.set(this.normalized)
