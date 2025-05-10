@@ -774,7 +774,9 @@ let props = Object.getOwnPropertyDescriptors(class _
         }
         // Firefox warns of empty string
     }
-
+    until(good, bad, timeout) {
+        return h.until(base(this), good, bad, timeout)
+    }
     animate(keyframes, options) {
         options ??= {}
         options.timing ??= 'ease'

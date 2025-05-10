@@ -4,10 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="fix">
-      <change beforePath="$PROJECT_DIR$/.idea/prettier.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/prettier.xml" afterDir="false" />
+    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="better for screenReaders">
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/num.js" beforeDir="false" afterPath="$PROJECT_DIR$/num.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handle.js" beforeDir="false" afterPath="$PROJECT_DIR$/handle.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marbles/edit/script.js" beforeDir="false" afterPath="$PROJECT_DIR$/marbles/edit/script.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marbles/play/define.js" beforeDir="false" afterPath="$PROJECT_DIR$/marbles/play/define.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marbles/play/setup.js" beforeDir="false" afterPath="$PROJECT_DIR$/marbles/play/setup.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/yay.js" beforeDir="false" afterPath="$PROJECT_DIR$/yay.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -22,7 +26,7 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/marbles" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -48,26 +52,34 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;JavaScript Debug.index.html.executor&quot;: &quot;Debug&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;rsyncConfigurable&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "JavaScript Debug.Marbles.executor": "Debug",
+    "JavaScript Debug.index.html.executor": "Debug",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "inlay.hints",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
-  <component name="RunManager">
+}]]></component>
+  <component name="RunManager" selected="JavaScript Debug.Marbles">
+    <configuration name="Marbles" type="JavascriptDebugType" uri="http://localhost:3000/addsoupbase.github.io/marbles/play/?level=data">
+      <method v="2" />
+    </configuration>
     <configuration name="index.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/addsoupbase.github.io/index.html" useBuiltInWebServerPort="true">
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="JavaScript Debug.Marbles" />
+      <item itemvalue="JavaScript Debug.index.html" />
+    </list>
     <recent_temporary>
       <list>
         <item itemvalue="JavaScript Debug.index.html" />
@@ -103,15 +115,7 @@
       <workItem from="1745921863093" duration="7758000" />
       <workItem from="1746029161722" duration="4000" />
       <workItem from="1746177302641" duration="55817000" />
-      <workItem from="1746885495621" duration="549000" />
-    </task>
-    <task id="LOCAL-00003" summary="uhh i hope this works">
-      <option name="closed" value="true" />
-      <created>1745894311773</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1745894311773</updated>
+      <workItem from="1746885495621" duration="11977000" />
     </task>
     <task id="LOCAL-00004" summary="hwy">
       <option name="closed" value="true" />
@@ -497,7 +501,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746885225573</updated>
     </task>
-    <option name="localTasksCounter" value="52" />
+    <task id="LOCAL-00052" summary="better for screenReaders">
+      <option name="closed" value="true" />
+      <created>1746886454849</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1746886454850</updated>
+    </task>
+    <option name="localTasksCounter" value="53" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -515,7 +527,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="i just broke something i dont know what i did :sob:" />
     <MESSAGE value="HELP ME WHAT HAVE I DONE" />
     <MESSAGE value="AAAA I  NEED TO LEARN HOW TO USE GIT" />
     <MESSAGE value="HELP" />
@@ -540,17 +551,7 @@
     <MESSAGE value="another fix okay im going to bed" />
     <MESSAGE value="hey" />
     <MESSAGE value="fix" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/marbles/play/define.js</url>
-          <line>995</line>
-          <option name="timeStamp" value="10" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <MESSAGE value="better for screenReaders" />
+    <option name="LAST_COMMIT_MESSAGE" value="better for screenReaders" />
   </component>
 </project>

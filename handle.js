@@ -192,7 +192,7 @@ export function on(target, events, useHandler, signal) {
         else if (isArray(events)) {
             events = Object.fromEntries(events)
         }
-        if (signal) signal.signal.onabort = console.debug.bind(1, 'Aborted: ', signal)
+        // if (signal) signal.signal.onabort = console.debug.bind(1, 'Aborted: ', signal)
         for (let eventName in events) {
             const func = events[eventName],
              once = eventName.includes(ONCE),
