@@ -167,7 +167,7 @@ import * as math from '../num.js'
 import * as string from '../str.js'
 import * as h from '../handle.js'
 import ran from '../random.js'
-const frame = $.qs('object')
+const {frame} = $.id
 //document.body.scrollLeft = innerHeight/2
 frame.on({
     _load() {
