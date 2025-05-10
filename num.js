@@ -118,7 +118,7 @@ export function cycleFrom(arrayLike) {
     return cycle.apply(1, arrayLike)
 }
 export function lerp(start, end, time) {
-    return clamp(start + (end - start) * time, start, end)
+    return clamp(start + (end - start) * time, min(start,end), max(start,end))
 }
 export function* derp(start, end, time) {
     let n = start
