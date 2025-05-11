@@ -4,14 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="better for screenReaders">
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="pretend that it works for now">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handle.js" beforeDir="false" afterPath="$PROJECT_DIR$/handle.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/marbles/edit/script.js" beforeDir="false" afterPath="$PROJECT_DIR$/marbles/edit/script.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/marbles/play/define.js" beforeDir="false" afterPath="$PROJECT_DIR$/marbles/play/define.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marbles/play/levels/remi.json" beforeDir="false" afterPath="$PROJECT_DIR$/marbles/play/levels/remi.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/marbles/play/setup.js" beforeDir="false" afterPath="$PROJECT_DIR$/marbles/play/setup.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yay.js" beforeDir="false" afterPath="$PROJECT_DIR$/yay.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marbles/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/marbles/styles.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,7 +23,7 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/marbles" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -115,15 +112,7 @@
       <workItem from="1745921863093" duration="7758000" />
       <workItem from="1746029161722" duration="4000" />
       <workItem from="1746177302641" duration="55817000" />
-      <workItem from="1746885495621" duration="11977000" />
-    </task>
-    <task id="LOCAL-00004" summary="hwy">
-      <option name="closed" value="true" />
-      <created>1745922715231</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1745922715232</updated>
+      <workItem from="1746885495621" duration="18052000" />
     </task>
     <task id="LOCAL-00005" summary="oops">
       <option name="closed" value="true" />
@@ -509,7 +498,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746886454850</updated>
     </task>
-    <option name="localTasksCounter" value="53" />
+    <task id="LOCAL-00053" summary="pretend that it works for now">
+      <option name="closed" value="true" />
+      <created>1746904776784</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1746904776784</updated>
+    </task>
+    <option name="localTasksCounter" value="54" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -527,7 +524,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="HELP ME WHAT HAVE I DONE" />
     <MESSAGE value="AAAA I  NEED TO LEARN HOW TO USE GIT" />
     <MESSAGE value="HELP" />
     <MESSAGE value="shit" />
@@ -552,6 +548,7 @@
     <MESSAGE value="hey" />
     <MESSAGE value="fix" />
     <MESSAGE value="better for screenReaders" />
-    <option name="LAST_COMMIT_MESSAGE" value="better for screenReaders" />
+    <MESSAGE value="pretend that it works for now" />
+    <option name="LAST_COMMIT_MESSAGE" value="pretend that it works for now" />
   </component>
 </project>
