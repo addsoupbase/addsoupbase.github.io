@@ -31,7 +31,7 @@ export function formatWord(str) {
 export function shorten(str, length, tail) {
     if (!length) throw RangeError('Length must be present')
     let out = str.slice(0, length)
-    return str.length > length ? `out${tail || ''}` : out
+    return str.length > length ? `${out}${tail || ''}` : out
 }
 export function clip(str, length) {
     return str.slice(length, str.length - length)
@@ -39,9 +39,7 @@ export function clip(str, length) {
 export function reverse(str) {
     return str.split('').toReversed().join('')
 }
-export function cap(str) {
-    return `${str[0].toUpperCase()}${str.slice(1)}`
-}
+export const cap = upper
 export function toOrdinal(o) {
     const lastTwoDigits = o % 100,
         me = `${o}`.at(-1)

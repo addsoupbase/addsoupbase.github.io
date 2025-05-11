@@ -218,10 +218,10 @@ export function on(target, events, useHandler, signal) {
                 options.once = once
                 options.signal = signal.signal
             }
-            let Remove = target.removeEventListener.bind(target, eventName, ProxyFunction, options),
+            let Remove = target.removeEventListener.bind(target, eventName, EventHandlerWrapperFunction, options),
                 Abort = AutoAbort.bind(signal)
 
-            function ProxyFunction(...args) {
+            function EventHandlerWrapperFunction(...args) {
                 let {0: event} = args
                 if (getLabel(event) === 'CustomEvent') {
                     let {detail} = event
@@ -237,21 +237,21 @@ export function on(target, events, useHandler, signal) {
                 }
                 signal && args.push(Abort, Remove)
                 onlyTrusted && event.isTrusted || !onlyTrusted && (!onlyCurrentTarget || onlyCurrentTarget && event.target === event.currentTarget) &&
-                (func.apply(target, args),
+                (Reflect.apply(func,target, args),
                 stopImmediateProp && event.stopImmediatePropagation(),
                 stopProp && event.stopPropagation(),
                 prevents && (event.cancelable ? event.preventDefault() : warn(`🔊 '${eventName}' events are not cancelable`)),
                 autoabort && Abort(),
                 once && off(event.currentTarget, eventName))
             }
-            Object.defineProperty(ProxyFunction, unbound, {
+            Object.defineProperty(EventHandlerWrapperFunction, unbound, {
                 value: func,
                 configurable: 1,
             })
             if (useHandler)
                 // console.warn('Using handler property is deprecated')
-                target[`on${eventName}`] = ProxyFunction
-            else target.addEventListener(eventName, ProxyFunction, options)
+                target[`on${eventName}`] = EventHandlerWrapperFunction
+            else target.addEventListener(eventName, EventHandlerWrapperFunction, options)
             if (signal)
                 console.info(`📡 '${eventName}' event added`)
             // with signal`, signal)
@@ -264,7 +264,7 @@ export function on(target, events, useHandler, signal) {
                     passive,
                     capture,
                     onlyTrusted,
-                    listener: ProxyFunction,
+                    listener: EventHandlerWrapperFunction,
                     handler: !!useHandler,
                     prevents,
                     stopProp,

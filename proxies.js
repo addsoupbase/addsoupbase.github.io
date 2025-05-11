@@ -13,7 +13,19 @@ class StorageProxy {
             return!target.removeItem(prop)
         },
         set(target, prop, value) {
-            return!target.setItem(prop, value)
+            // i have NO idea why,
+            // but storage events dont fire on
+            // the window that made the change
+            let e = new StorageEvent('storage',{
+                key: prop,
+                newValue: value,
+                oldValue: this.get(target,prop),
+                storageArea: target,
+                url: location
+            })
+            target.setItem(prop, value)
+            dispatchEvent(e)
+            return 1
         }
     }
     constructor(storage) {
