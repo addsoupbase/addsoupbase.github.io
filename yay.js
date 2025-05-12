@@ -1,9 +1,7 @@
 //  The journey begins...
-
 // Most recent attempt
 // Goto quick.js for 2nd attempt
 // Goto favourites/utils.js for 1st attempt
-
 /*
 Things i learned from 2nd -> 3rd:
 • Composition
@@ -55,7 +53,7 @@ function cacheFunction(maybeFunc, to) {
             [name](...a) {
                 // Regular wrapper function for method,
                 // for usage instead of making a new one for every instance with bind()
-                return maybeFunc.apply(base(this), a)
+                return Reflect.apply(maybeFunc, base(this), a)
             }
         }[name]  // keep the original function name just in case
         BoundFunctions.set(maybeFunc, wrapper)
@@ -173,7 +171,6 @@ const handlers = {
         }
     },
 }
-
 // Main [[Prototype]] is on this class
 // let ATTR = Symbol('💿')
 let states = Symbol('💾')
@@ -181,7 +178,6 @@ let computed = Symbol('🔬')
 // let shadow = Symbol('🌴')
 let props = Object.getOwnPropertyDescriptors(class _
     extends null {
-
     static cancel(o) {
         o.cancel()
     }
@@ -256,7 +252,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         let t = this[states]
         if (!t.has(identifier)) {
             this.destroyChildren()
-                .push($('<samp style="font-size:30px; color:red;">INVALID STATE</samp>'))
+            .push($('<samp style="font-size:30px; color:red;">INVALID STATE</samp>'))
                 .currentState = null
             reportError(identifier)
             throw TypeError('Invalid state')
@@ -343,7 +339,7 @@ let props = Object.getOwnPropertyDescriptors(class _
 
     destroy() {
         this.resetSelfRules()
-            .cancelAnims()
+        .cancelAnims()
         let myStates = this[states]
         for (let [key, {
             cached: val
@@ -389,20 +385,22 @@ let props = Object.getOwnPropertyDescriptors(class _
     }
 
     on(events, useHandler, signal) {
-        if (typeof events === 'function') events = Object.defineProperty(events.bind(this), h.unbound, {
-            value: events
-        })
-        else if (Array.isArray(events)) events = events.map(value =>
-            Object.defineProperty(value.bind(this), h.unbound, {
-                value
-            })
-        )
-        else for (let i in events) {
-                let value = events[i]
-                Object.defineProperty(events[i] = value.bind(this), h.unbound, {
-                    value
-                })
+        let me = this
+        if (typeof events === 'function') {
+            let old = events
+            events = ProxyEventWrapperFunction
+
+            function ProxyEventWrapperFunction(...args) {
+                // just avoid bind()
+                Reflect.apply(old, me, args)
             }
+        } else for (let i in events) events[i] = function (old) {
+            return ProxyEventWrapperFunction
+
+            function ProxyEventWrapperFunction(...args) {
+                Reflect.apply(old, me, args)
+            }
+        }(events[i])
         h.on(base(this), events, useHandler, signal)
     }
 
@@ -426,14 +424,13 @@ let props = Object.getOwnPropertyDescriptors(class _
         this.on(events, signal)
     }
 
-   /* throttle(events, interval) {
-        for (let i in events) {
-            let old = events[i]
-            events[i] = f.throttle(old, interval)
-        }
-        this.on(events)
-}*/
-
+    /* throttle(events, interval) {
+         for (let i in events) {
+             let old = events[i]
+             events[i] = f.throttle(old, interval)
+         }
+         this.on(events)
+ }*/
     delegate(events, filter, includeSelf, signal) {
         let me = base(this)
         filter ??= function () {
@@ -446,10 +443,10 @@ let props = Object.getOwnPropertyDescriptors(class _
             function DelegationFunction(...args) {
                 let {target} = args[0],
                     pr = prox(target);
-                (me !== target || includeSelf) && (filter(pr) ?? 1) && old.apply(pr, args)
+                (me !== target || includeSelf) && (filter(pr) ?? 1) && Reflect.apply(old, pr, args)
             }
         }
-        this.on(events,false,signal)
+        this.on(events, false, signal)
     }
 
     get events() {
@@ -638,7 +635,7 @@ let props = Object.getOwnPropertyDescriptors(class _
                     'pointer-events': 'none',
                     '--user-modify': 'read-only',
                 })
-                    .setAttr({_hidden: "true", contenteditable: 'false'})
+                .setAttr({_hidden: "true", contenteditable: 'false'})
                 break
         }
     }
@@ -668,11 +665,10 @@ let props = Object.getOwnPropertyDescriptors(class _
                     opacity: '', '--user-input': '', '--user-focus': '', '--user-select': '', 'pointer-events': '',
                     '--user-modify': '',
                 })
-                    .setAttr({_hidden: "", contenteditable: ''})
+                .setAttr({_hidden: "", contenteditable: ''})
                 break
         }
     }
-
 
     equals(other) {
         let temp = $(other)
@@ -774,9 +770,11 @@ let props = Object.getOwnPropertyDescriptors(class _
         }
         // Firefox warns of empty string
     }
+
     until(good, bad, timeout) {
         return h.until(base(this), good, bad, timeout)
     }
+
     animate(keyframes, options) {
         options ??= {}
         options.timing ??= 'ease'
@@ -827,9 +825,9 @@ let props = Object.getOwnPropertyDescriptors(class _
         this.setAttr({
             _busy: `${!!busy}`
         })
-            .setStyles({
-                cursor: busy ? 'progress' : ''
-            })
+        .setStyles({
+            cursor: busy ? 'progress' : ''
+        })
     }
 
     copyAttr(other) {
@@ -876,7 +874,7 @@ Reflect.ownKeys(props).forEach(i => {
                     //  This function is for automatically returning the 'this'
                     //  value if the original return value is undefined
                     if (!all.has(base(this))) throw TypeError('Bad input')
-                    let r = value.apply(this, a)
+                    let r = Reflect.apply(value, this, a)
                     return typeof r === 'undefined' ? this : r
                 }
             }[i] //  Just want to keep the original function name intact
@@ -943,7 +941,6 @@ if (typeof ContentVisibilityAutoStateChangeEvent !== 'function'
         }
     }
 }
-
 /*
 MUTATION OBSERVER STUFFS
 */
@@ -1004,7 +1001,6 @@ muta.observe(document.documentElement, {
     subtree: true,
     childList: true
 })
-
 /*
 RESIZE OBSERVER STUFFS
 */
@@ -1124,9 +1120,9 @@ h.addCustomEvent(entryTypes)
 h.addCustomEvent({
     longtask: false,
     element: false,
-    paint:false,
-    'first-paint':entryTypes.paint,
-    'first-contentful-paint':entryTypes.paint,
+    paint: false,
+    'first-paint': entryTypes.paint,
+    'first-contentful-paint': entryTypes.paint,
     'element-load': entryTypes.element,
     'long-task': entryTypes.longtask,
     'network-request': entryTypes.resource,
@@ -1136,7 +1132,6 @@ h.addCustomEvent({
     // taskattribution: false,
     // 'task-attribution':true
 })
-
 
 function prox(target) {
     if (target === null) return null
@@ -1430,7 +1425,7 @@ export default Object.defineProperties($, {
         }
     }
 })
-$.id=$.byId
+$.id = $.byId
 let parseMode = 'mozInnerScreenY' in window ? 'createRange' : ''
 
 //  createRange seems to be *slightly* faster on firefox
@@ -1484,7 +1479,6 @@ try {
                     [`--${name}`]: nValue
                 })
                 this.#ANIMATE()
-
             } else if (name === 'alt') {
                 p.setStyles({
                     '--alt': `"${this.getAttribute('alt')}"`
@@ -1598,8 +1592,9 @@ try {
             })))
         }
     }
+
     let define = Object.getPrototypeOf(customElements).define.bind(customElements)
-        define( 'img-sprite', AnimatedSprite)
+    define('img-sprite', AnimatedSprite)
 
     /****/
     class SeekBar extends HTMLElement {
@@ -1659,7 +1654,106 @@ try {
             })
         }
     }
+
     define('seek-bar', SeekBar)
+
+    h.addCustomEvent({
+        move:true,
+        hold:true,
+        release:true
+    })
+    let vect
+        , touching = Symbol('👉')
+        , touchpos = Symbol('📍')
+        , ball = Symbol('🕹')
+        , maxPullDistance = 60
+    class Joystick extends HTMLElement {
+        [ball] = null;
+        [touching] = false
+        x = 0
+        y = 0
+        angle = 0
+        static #import(e) {
+            vect = e.vect
+        }
+
+        static #pointercancel(e) {
+            this[ball].setStyles({
+                transform: `rotateZ(${this.angle}rad)`
+            })
+            this.x = this.y = 0
+            this.releasePointerCapture(e.pointerId)
+            this[touching] = false
+            this.dispatchEvent(new CustomEvent('release'))
+        }
+        static #events = {
+            pointercancel: this.#pointercancel,
+            pointerup: this.#pointercancel,
+            pointermove(e) {
+                if (!this[touching] || !vect) return
+                let {length} = (this[touchpos] ??= vect(0,0)).set(e.offsetX, e.offsetY).subtract(maxPullDistance)
+                if (length > maxPullDistance) {
+                    this[touchpos].x = this[touchpos].x * maxPullDistance / length
+                    this[touchpos].y = this[touchpos].y * maxPullDistance / length
+                }
+
+                let {x,y,angle} = this[touchpos].clone.divide(maxPullDistance)
+                this[ball].setStyles({
+                    transform: `translate${this[touchpos].toString('px')} rotateZ(${angle}rad)`
+                })
+                this.angle = angle
+                this.x = x
+                this.y = y
+                this.dispatchEvent(new CustomEvent('move'))
+            },
+            pointerdown(e) {
+                this[touching] = true
+                this.setPointerCapture(e.pointerId)
+                this.dispatchEvent(new CustomEvent('hold'))
+            }
+        }
+        async connectedCallback() {
+            vect ??= (await import('./num.js')).vect
+        }
+        constructor() {
+            super()
+            let t = $(this)
+            for(let i in Joystick.#events) this[`on${i}`] = Joystick.#events[i]
+            let shadow = t.attachShadow({mode: 'closed'})
+            shadow.appendChild(base($('style', {
+                textContent: `
+                div {
+                ${css.toCSS({
+                    width:'50px',
+                    'border-radius':'100%',
+                    height:'50px',
+                    'background-color':'#000',
+                    position:'relative'
+                })}
+                }
+                :host {
+                ${css.toCSS({
+                    width: '120px',
+                    height: '120px',
+                    'touch-action': 'none',
+                    'place-items': 'center',
+                    'place-content': 'center',
+                    opacity: 0.5,
+                    'background-color': '#6a7b80',
+                    display: 'flex',
+                    // position: 'fixed',
+                    'border-radius': '100%',
+                })}
+                }
+                `
+            })))
+            shadow.appendChild(base(
+                this[ball]=$('<div part="ball"></div>')
+            ))
+        }
+    }
+
+    define('touch-joystick', Joystick)
 } catch (e) {
     reportError(e)
 }
