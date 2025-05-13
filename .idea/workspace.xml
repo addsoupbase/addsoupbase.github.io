@@ -4,13 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="joytsick controls for marble thing and other stuff">
+    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="hooray for joysticks!!!">
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/marbles/play/define.js" beforeDir="false" afterPath="$PROJECT_DIR$/marbles/play/define.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/marbles/play/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/marbles/play/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/marbles/play/setup.js" beforeDir="false" afterPath="$PROJECT_DIR$/marbles/play/setup.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/marbles/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/marbles/styles.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yay.js" beforeDir="false" afterPath="$PROJECT_DIR$/yay.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,23 +51,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "JavaScript Debug.Marbles.executor": "Debug",
-    "JavaScript Debug.index.html.executor": "Debug",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "Settings.JavaScript.Templates",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;JavaScript Debug.Marbles.executor&quot;: &quot;Debug&quot;,
+    &quot;JavaScript Debug.index.html.executor&quot;: &quot;Debug&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;Settings.JavaScript.Templates&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="JavaScript Debug.Marbles">
     <configuration name="Marbles" type="JavascriptDebugType" uri="http://localhost:3000/addsoupbase.github.io/marbles/play/?level=data">
       <method v="2" />
@@ -115,15 +115,8 @@
       <workItem from="1746029161722" duration="4000" />
       <workItem from="1746177302641" duration="55817000" />
       <workItem from="1746885495621" duration="18052000" />
-      <workItem from="1746971915333" duration="25396000" />
-    </task>
-    <task id="LOCAL-00006" summary="hey there">
-      <option name="closed" value="true" />
-      <created>1746027784774</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1746027784774</updated>
+      <workItem from="1746971915333" duration="25813000" />
+      <workItem from="1747094649487" duration="400000" />
     </task>
     <task id="LOCAL-00007" summary="s">
       <option name="closed" value="true" />
@@ -509,7 +502,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746988582961</updated>
     </task>
-    <option name="localTasksCounter" value="55" />
+    <task id="LOCAL-00055" summary="hooray for joysticks!!!">
+      <option name="closed" value="true" />
+      <created>1747014724116</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1747014724116</updated>
+    </task>
+    <option name="localTasksCounter" value="56" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -527,7 +528,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="HELP" />
     <MESSAGE value="shit" />
     <MESSAGE value="Better" />
     <MESSAGE value="tod" />
@@ -552,6 +552,7 @@
     <MESSAGE value="better for screenReaders" />
     <MESSAGE value="pretend that it works for now" />
     <MESSAGE value="joytsick controls for marble thing and other stuff" />
-    <option name="LAST_COMMIT_MESSAGE" value="joytsick controls for marble thing and other stuff" />
+    <MESSAGE value="hooray for joysticks!!!" />
+    <option name="LAST_COMMIT_MESSAGE" value="hooray for joysticks!!!" />
   </component>
 </project>
