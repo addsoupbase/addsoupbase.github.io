@@ -4,13 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="hooray for joysticks!!!">
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="Why">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/marbles/play/define.js" beforeDir="false" afterPath="$PROJECT_DIR$/marbles/play/define.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/marbles/play/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/marbles/play/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/marbles/play/setup.js" beforeDir="false" afterPath="$PROJECT_DIR$/marbles/play/setup.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/marbles/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/marbles/styles.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -25,7 +23,7 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/marbles" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -116,15 +114,7 @@
       <workItem from="1746177302641" duration="55817000" />
       <workItem from="1746885495621" duration="18052000" />
       <workItem from="1746971915333" duration="25813000" />
-      <workItem from="1747094649487" duration="400000" />
-    </task>
-    <task id="LOCAL-00007" summary="s">
-      <option name="closed" value="true" />
-      <created>1746027924202</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1746027924202</updated>
+      <workItem from="1747094649487" duration="3900000" />
     </task>
     <task id="LOCAL-00008" summary="s">
       <option name="closed" value="true" />
@@ -510,7 +500,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747014724116</updated>
     </task>
-    <option name="localTasksCounter" value="56" />
+    <task id="LOCAL-00056" summary="Why">
+      <option name="closed" value="true" />
+      <created>1747095266188</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1747095266188</updated>
+    </task>
+    <option name="localTasksCounter" value="57" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -528,7 +526,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="shit" />
     <MESSAGE value="Better" />
     <MESSAGE value="tod" />
     <MESSAGE value="A DElayed dispatchevent feature :)" />
@@ -553,6 +550,7 @@
     <MESSAGE value="pretend that it works for now" />
     <MESSAGE value="joytsick controls for marble thing and other stuff" />
     <MESSAGE value="hooray for joysticks!!!" />
-    <option name="LAST_COMMIT_MESSAGE" value="hooray for joysticks!!!" />
+    <MESSAGE value="Why" />
+    <option name="LAST_COMMIT_MESSAGE" value="Why" />
   </component>
 </project>
