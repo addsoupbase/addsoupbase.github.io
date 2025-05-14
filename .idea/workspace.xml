@@ -4,11 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="Why">
+    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="Yay i fixed the zoom">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/marbles/play/define.js" beforeDir="false" afterPath="$PROJECT_DIR$/marbles/play/define.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/marbles/play/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/marbles/play/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/marbles/play/setup.js" beforeDir="false" afterPath="$PROJECT_DIR$/marbles/play/setup.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/yay.js" beforeDir="false" afterPath="$PROJECT_DIR$/yay.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,7 +23,7 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/marbles" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -114,15 +114,7 @@
       <workItem from="1746177302641" duration="55817000" />
       <workItem from="1746885495621" duration="18052000" />
       <workItem from="1746971915333" duration="25813000" />
-      <workItem from="1747094649487" duration="3900000" />
-    </task>
-    <task id="LOCAL-00008" summary="s">
-      <option name="closed" value="true" />
-      <created>1746028022030</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1746028022030</updated>
+      <workItem from="1747094649487" duration="6187000" />
     </task>
     <task id="LOCAL-00009" summary="i need help">
       <option name="closed" value="true" />
@@ -508,7 +500,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747095266188</updated>
     </task>
-    <option name="localTasksCounter" value="57" />
+    <task id="LOCAL-00057" summary="Yay i fixed the zoom">
+      <option name="closed" value="true" />
+      <created>1747165468076</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1747165468076</updated>
+    </task>
+    <option name="localTasksCounter" value="58" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -526,7 +526,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Better" />
     <MESSAGE value="tod" />
     <MESSAGE value="A DElayed dispatchevent feature :)" />
     <MESSAGE value="1. fixed the anchor buttons being hard to press&#10;2. auto abort feature for handle.js" />
@@ -551,6 +550,7 @@
     <MESSAGE value="joytsick controls for marble thing and other stuff" />
     <MESSAGE value="hooray for joysticks!!!" />
     <MESSAGE value="Why" />
-    <option name="LAST_COMMIT_MESSAGE" value="Why" />
+    <MESSAGE value="Yay i fixed the zoom" />
+    <option name="LAST_COMMIT_MESSAGE" value="Yay i fixed the zoom" />
   </component>
 </project>

@@ -1836,6 +1836,6 @@ backdrop.fadeIn().then(() => {
 })*/
 if (location.host.includes('localhost')) {
     Object.assign(window, {
-        $, css, h
+        _:$,Css: css, hh:h
     })
 }
