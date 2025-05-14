@@ -1,4 +1,6 @@
-function reportError(throwable) {
+
+
+window.reportError ??= function reportError(throwable) {
     window.dispatchEvent(new ErrorEvent('error', {
         message: throwable.message,
         error: throwable,
@@ -6,9 +8,6 @@ function reportError(throwable) {
     }))
     console.error(`${throwable}`)
 }
-
-reportError = window.reportError ?? reportError
-
 export function dashVendor(prop, val) {
     return vendor(toDash(prop), val)
 }
@@ -22,19 +21,19 @@ export const all = new Set
 
 export function vendorValue(prop, val) {
     let without = val.replace(allVendors, '')
-    .replace(allVendors2, '')
+        .replace(allVendors2, '')
     switch (without) {
         case 'crisp-edges':
             sup(prop, val = '-webkit-optimize-contrast') ||
-            sup(prop, val = '-moz-crisp-edges') ||
-            sup(prop, val = without)
+                sup(prop, val = '-moz-crisp-edges') ||
+                sup(prop, val = without)
             break
         case 'stretch':
         case 'fill-available':
         case 'available':
             sup(prop, val = '-webkit-fill-available') ||
-            sup(prop, val = '-moz-available') ||
-            sup(prop, val = without)
+                sup(prop, val = '-moz-available') ||
+                sup(prop, val = without)
             break
     }
     return val
@@ -50,9 +49,9 @@ export function badCSS(data, silent) {
 }
 
 const allVendors = RegExp(
-        `-(?:${'webkit moz apple khtml konq o ms xv atsc wap ah hp ro rim tc fso icab epub'.replace(/\s/g, '|')})-`
-        // internal
-    ),
+    `-(?:${'webkit moz apple khtml konq o ms xv atsc wap ah hp ro rim tc fso icab epub'.replace(/\s/g, '|')})-`
+    // internal
+),
     allVendors2 = /(?:prince|mso)-/
 const dontRedo = new Map,
     sup = CSS.supports
@@ -62,8 +61,8 @@ export function vendor(prop, val, silent) {
         return prop
     if (val.trim() && !sup(prop, val)) {
         let prefix = prop = prop
-        .replace(allVendors, '')
-        .replace(allVendors2, '')
+            .replace(allVendors, '')
+            .replace(allVendors2, '')
         if (dontRedo.has(prop)) return dontRedo.get(prop)
         return (
             sup(prefix, val) ||
@@ -120,9 +119,8 @@ export function vendor(prop, val, silent) {
     return prop
 }
 
-const newerProps = /^(?:translate|scale|rotate|zoom)$/
-
 //  (that i have used before)
+const newerProps = /^(?:translate|scale|rotate|zoom)$/
 function mayNotBeSupported(prop) {
     newerProps.test(prop) && badCSS(`💿 '${prop}' may not be supported on older devices`)
 }
@@ -157,7 +155,7 @@ function tlc(o) {
     return `-${o.toLowerCase()}`
 }
 
-function tuc({1: char}) {
+function tuc({ 1: char }) {
     return char.toUpperCase()
 }
 
@@ -196,8 +194,8 @@ function mapThing(selectr) {
  */
 export function registerCSS(selector, rule, silent) {
     selector = selector.split(',')
-    .map(mapThing)
-    .join(',')
+        .map(mapThing)
+        .join(',')
     const sheet = addedStyleRules ??= getDefaultStyleSheet()
     let r = `{${toCSS(rule, silent)}}`
     return sheet.insertRule(`${formatStr(selector)}${formatStr(r)}`)
@@ -240,18 +238,19 @@ export function supportsRule(rule) {
     return sup(`selector(${rule})`)
 }
 
-const theNames = new Set(`${allVendors}`.match(/\w+/g))
+const theNames = `${allVendors}`.match(/\w+/g).reverse()
 export const pcv = supportedPClassVendor
 
 export function supportedPClassVendor(className) {
     try {
-        let {0: before, 1: _class} = className.split(':'),
+        let { 0: before, 1: _class } = className.split(':'),
             already = _class
         _class = _class.replace(allVendors, '')
-        .replace(allVendors2, '')
+            .replace(allVendors2, '')
         if (supportsRule(already = `${before}:${already}`)) return already
-        for (let vendor of theNames) {
-            let name = `:-${vendor}-${_class}`
+        for (let { length: i } = theNames; i--;) {
+            let vendor = theNames[i]
+                , name = `:-${vendor}-${_class}`
             if (supportsRule(name)) return `${before}${name}`
         }
         if (supportsRule(className = `:prince-${_class}`) ||
@@ -266,12 +265,13 @@ export const pev = supportedPElementVendor
 
 export function supportedPElementVendor(element) {
     try {
-        let {0: before, 1: _element} = element.split('::'),
+        let { 0: before, 1: _element } = element.split('::'),
             already = _element
         _element = _element.replace(allVendors, '')
-        .replace(allVendors2, '')
+            .replace(allVendors2, '')
         if (supportsRule(already = `${before}::${already}`)) return already
-        for (let vendor of theNames) {
+        for (let { length: i } = theNames; i--;) {
+            let vendor = theNames[i]
             let name = `::-${vendor}-${_element}`
             if (supportsRule(name)) return `${before}${name}`
         }
@@ -284,21 +284,21 @@ export function supportedPElementVendor(element) {
 }
 
 export function dropShadow({
-                               color = '#000000',
-                               offsetX = '0px',
-                               offsetY = '0px',
-                               standardDeviation = ''
-                           }) {
+    color = '#000000',
+    offsetX = '0px',
+    offsetY = '0px',
+    standardDeviation = ''
+}) {
     return `${color} ${offsetX} ${offsetY} ${standardDeviation}`
 }
 
 export function boxShadow({
-                              offsetX = '0px',
-                              offsetY = '0px',
-                              blurRadius = '',
-                              spreadRadius = '',
-                              color = '#000000'
-                          }) {
+    offsetX = '0px',
+    offsetY = '0px',
+    blurRadius = '',
+    spreadRadius = '',
+    color = '#000000'
+}) {
     return `${color} ${offsetX} ${offsetY} ${blurRadius} ${spreadRadius}`.replaceAll('  ', '')
 }
 
@@ -323,7 +323,7 @@ export function boxShadow({
         inherits ??= false
         syntax ??= '*'
         all.add(name)
-        return {name: `--${name}`, initialValue, inherits, syntax}
+        return { name: `--${name}`, initialValue, inherits, syntax }
     }
 
     !function (allProps) {
@@ -341,7 +341,7 @@ export function boxShadow({
                   },*/
                 [`button,a,
                 ${'button checkbox radio submit image reset file'.split(' ').map(o => `input[type=${o}]`).join(',')
-                }`]: {
+                    }`]: {
                     cursor: 'pointer'
                 },
                 'input[type=range]': {
@@ -376,11 +376,11 @@ export function boxShadow({
                     inset: 0,
                     position: 'fixed'
                 },
-            }).map(({0: key, 1: val}) => {
-                return `${key}{${toCSS(val)}}`
-            })
+            }).map(({ 0: key, 1: val }) => 
+                 `${key}{${toCSS(val)}}`
+            )
             if (typeof all === 'string') all = all.split('✕')
-            for (let {length: i} = all; i--;)
+            for (let { length: i } = all; i--;)
                 try {
                     sheet.insertRule(all[i])
                 } catch {
@@ -404,7 +404,7 @@ export function boxShadow({
             const universal = {}
             let func = CSS.registerProperty ?? function () {
             }
-            for (let {length: i} = allProps; i--;) {
+            for (let { length: i } = allProps; i--;) {
                 let prop = allProps[i]
                     , o = prop.name
                 try {
