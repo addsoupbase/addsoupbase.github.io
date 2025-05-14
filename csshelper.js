@@ -1,5 +1,3 @@
-
-
 window.reportError ??= function reportError(throwable) {
     window.dispatchEvent(new ErrorEvent('error', {
         message: throwable.message,
