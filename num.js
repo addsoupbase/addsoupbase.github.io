@@ -51,11 +51,12 @@ export function average(...numbers) {
     return sum(numbers.sort(sort)) / length
 }
 export function avg(...array) {
-    if (!array.length) return NaN
+    const {length} = array
+    if (!length) return NaN
     const sorted = array.sort(sort),
-        { length } = sorted,
-         q1 = sorted[length / 4 | 0],
-        q3 = sorted[3 * length / 4 | 0],
+        g = length/4|0,
+         q1 = sorted[g],
+        q3 = sorted[3 * g],
         IQR = q3 - q1,
         upperFence = q3 + 1.5 * IQR,
         lowerFence = q1 - 1.5 * IQR,
@@ -67,8 +68,9 @@ export function avg(...array) {
 }
 export function median(...numbers) {
     let { length } = numbers
-        , sorted = numbers.sort(sort)
-    return length % 2 ? sorted[length / 2 | 0] : (sorted[length / 2 | 0] + sorted[(length / 2 | 0) - 1]) / 2
+        , sorted = numbers.sort(sort),
+        middle = length / 2 | 0
+    return length % 2 ? sorted[middle] : (sorted[middle] + sorted[middle - 1]) / 2
 }
 function gt(a, b) { return a > b ? a : b }
 function lt(a, b) { return a < b ? a : b }
@@ -122,7 +124,7 @@ export function lerp(start, end, time) {
 }
 export function* derp(start, end, time) {
     let n = start
-    while (start < end) yield clamp(start += (end - n) * time, min(start,end), max(start,end))
+    while (start < end) yield start = lerp(start, end, time)
     return end
 }
 export function clamp(val, MIN, MAX) {
@@ -156,7 +158,7 @@ export function minBigInt(...BigInts) {
 export function maxBigInt(...BigInts) {
     return BigInts.reduce(gt)
 }
-class Vector2 {
+export class Vector2 {
     static get up() {
         return v(0, 1)
     }
@@ -244,11 +246,11 @@ class Vector2 {
     normalize() {
         return this.set(this.normalized)
     }
-    scale(mult = 0) {
-        return this.multiply(mult, mult)
+    scale(mult) {
+        return this.multiply(mult??=0, mult)
     }
-    iScale(mult = 1) {
-        return this.scale(1 / mult)
+    iScale(mult) {
+        return this.scale(1 / (mult??1))
     }
     get magnitude() {
         return abs(this.#x + this.#y)
@@ -346,15 +348,15 @@ class Vector2 {
         this.clampX(minX, maxX)
         return this.clampY(minY, maxY)
     }
-    moveTowards(towards, maxDistance = 1, delta = 1) {
+    moveTowards(towards, maxDistance, delta) {
         let { 0: x, 1: y } = towards
         x ??= towards.x
         y ??= towards.y
         const target = vect(x, y)
             , direction = target.minus(this)
             , { magnitude } = direction
-        if (magnitude <= maxDistance || !magnitude) return target
-        return magnitude < step.magnitude ? this.set(target) : this.add(delta, delta)
+        if (magnitude <= (maxDistance??1) || !magnitude) return target
+        return magnitude < step.magnitude ? this.set(target) : this.add(delta??=1, delta)
     }
     set(x, y) {
         this.#x = clamp(+x, this.#min.x, this.#max.x)
@@ -402,7 +404,6 @@ const v = Object.defineProperty(Object.defineProperties(vect, Object.getOwnPrope
         }
     }
 })
-
 export function vect(x, y) {
     // new.target && noConstructor()
     return new Vector2(x, y)

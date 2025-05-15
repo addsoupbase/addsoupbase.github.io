@@ -5,9 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="fixed error oops">
+      <change afterPath="$PROJECT_DIR$/webcomponents/img-sprite.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webcomponents/seek-bar.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webcomponents/touch-joystick.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/marbles/play/define.js" beforeDir="false" afterPath="$PROJECT_DIR$/marbles/play/define.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/marbles/play/setup.js" beforeDir="false" afterPath="$PROJECT_DIR$/marbles/play/setup.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/csshelper.js" beforeDir="false" afterPath="$PROJECT_DIR$/csshelper.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handle.js" beforeDir="false" afterPath="$PROJECT_DIR$/handle.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/num.js" beforeDir="false" afterPath="$PROJECT_DIR$/num.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/proxies.js" beforeDir="false" afterPath="$PROJECT_DIR$/proxies.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/yay.js" beforeDir="false" afterPath="$PROJECT_DIR$/yay.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -66,6 +71,11 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/webcomponents" />
+    </key>
+  </component>
   <component name="RunManager" selected="JavaScript Debug.Marbles">
     <configuration name="Marbles" type="JavascriptDebugType" uri="http://localhost:3000/addsoupbase.github.io/marbles/play/?level=data">
       <method v="2" />
@@ -115,6 +125,7 @@
       <workItem from="1746885495621" duration="18052000" />
       <workItem from="1746971915333" duration="25813000" />
       <workItem from="1747094649487" duration="10215000" />
+      <workItem from="1747337801168" duration="4618000" />
     </task>
     <task id="LOCAL-00011" summary="HELP ME WHAT HAVE I DONE">
       <option name="closed" value="true" />

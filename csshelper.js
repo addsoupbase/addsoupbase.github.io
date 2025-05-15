@@ -1,5 +1,5 @@
 window.reportError ??= function reportError(throwable) {
-    window.dispatchEvent(new ErrorEvent('error', {
+    dispatchEvent(new ErrorEvent('error', {
         message: throwable.message,
         error: throwable,
         filename: import.meta.url
@@ -9,14 +9,11 @@ window.reportError ??= function reportError(throwable) {
 export function dashVendor(prop, val) {
     return vendor(toDash(prop), val)
 }
-
 export function capVendor(prop, val) {
     return toCaps(vendor(toDash(prop), val))
 }
-
 export const all = new Set
     , has = all.has.bind(all)
-
 export function vendorValue(prop, val) {
     let without = val.replace(allVendors, '')
         .replace(allVendors2, '')
@@ -36,16 +33,13 @@ export function vendorValue(prop, val) {
     }
     return val
 }
-
 const alreadyLogged = new Set
 const beenHereBefore = sessionStorage.getItem('css')
-
 export function badCSS(data, silent) {
     if (silent || alreadyLogged.has(data)) return
     console.warn(data)
     alreadyLogged.add(data)
 }
-
 const allVendors = RegExp(
     `-(?:${'webkit moz apple khtml konq o ms xv atsc wap ah hp ro rim tc fso icab epub'.replace(/\s/g, '|')})-`
     // internal
@@ -53,7 +47,6 @@ const allVendors = RegExp(
     allVendors2 = /(?:prince|mso)-/
 const dontRedo = new Map,
     sup = CSS.supports
-
 export function vendor(prop, val, silent) {
     if (prop.startsWith('--'))
         return prop
@@ -116,24 +109,20 @@ export function vendor(prop, val, silent) {
     }
     return prop
 }
-
 //  (that i have used before)
 const newerProps = /^(?:translate|scale|rotate|zoom)$/
 function mayNotBeSupported(prop) {
     newerProps.test(prop) && badCSS(`💿 '${prop}' may not be supported on older devices`)
 }
-
 export function importFont(name, src) {
     if (name && src) {
         const font = new FontFace(name, `url(${src})`)
         font.load().then(document.fonts.add, console.warn)
         return font
     }
-    throw Error(`Src and name required`)
+    throw Error('Src and name required')
 }
-
 let defrt = /-./g
-
 export function toCaps(prop) {
     if (prop.includes('-') && !prop.startsWith('--')) { // Ignore custom properties
         if (prop[0] === '-') prop = prop.slice(1)
@@ -141,24 +130,18 @@ export function toCaps(prop) {
     }
     return prop
 }
-
 let azregex = /[A-Z]/g
-
 export function toDash(prop) {
     return prop.startsWith('--') ? prop :
         prop.replace(azregex, tlc)
 }
-
 function tlc(o) {
     return `-${o.toLowerCase()}`
 }
-
 function tuc({ 1: char }) {
     return char.toUpperCase()
 }
-
 let addedStyleRules = null
-
 /**
  * @param {Object} obj key/value pairs that match CSS
  * @returns {String}
@@ -175,16 +158,13 @@ export function toCSS(obj, silent) {
     }
     return arr.join(';')
 }
-
 let pseudoElementRegex = /::[\w-]/
 let pseudoClassRegex = /:[\w-]/
-
 function mapThing(selectr) {
     if (pseudoElementRegex.test(selectr)) selectr = pev(selectr)
     else if (pseudoClassRegex.test(selectr)) selectr = pcv(selectr)
     return selectr
 }
-
 /**
  *  ⚠️ Should only be used for dynamic/default CSS
  * @param {String} selector A valid CSS selector (something like . or#)
@@ -198,13 +178,10 @@ export function registerCSS(selector, rule, silent) {
     let r = `{${toCSS(rule, silent)}}`
     return sheet.insertRule(`${formatStr(selector)}${formatStr(r)}`)
 }
-
 let cleanRegex = /\s\s|\n\n/g
-
 export function formatStr(str) {
     return str.trim().replace(cleanRegex, '')
 }
-
 export function getDefaultStyleSheet() {
     return (document.getElementById('addedStyleRules') ?? function () {
         let out = document.createElement('style');
@@ -215,10 +192,8 @@ export function getDefaultStyleSheet() {
         return out
     }()).sheet
 }
-
 export function registerCSSAll(rules) {
     Object.keys(rules).forEach(bleh)
-
     function bleh(r) {
         try {
             registerCSS(r, rules[r])
@@ -226,19 +201,15 @@ export function registerCSSAll(rules) {
             // console.debug(e)
         }
     }
-
     // let out = []
     // for (let rule in rules) out.push(registerCSS(rule, rules[rule]))
     // return out
 }
-
 export function supportsRule(rule) {
     return sup(`selector(${rule})`)
 }
-
 const theNames = `${allVendors}`.match(/\w+/g).reverse()
 export const pcv = supportedPClassVendor
-
 export function supportedPClassVendor(className) {
     try {
         let { 0: before, 1: _class } = className.split(':'),
@@ -255,7 +226,7 @@ export function supportedPClassVendor(className) {
             supportsRule(className = `:mso-${_class}`)) return `${before}${className}`
         return `${before}:${_class}`
     } catch {
-        throw SyntaxError(`Failed to parse '${_class}'`)
+        throw SyntaxError(`Failed to parse '${className}'`)
     }
 }
 
@@ -359,7 +330,7 @@ export function boxShadow({
                 /* 'img[src]': {
                      '--content-visibility': 'auto'
                  },*/
-                [`img${pcv(':broken')},img${pcv(':suppressed')}`]: {
+             /*   [`img${pcv(':broken')},img${pcv(':suppressed')}`]: {
                     '--content-visibility': 'visible',
                     '--force-broken-image-icon': '1',
                     content: 'attr(title)'
@@ -368,7 +339,7 @@ export function boxShadow({
                     '--content-visibility': 'visible',
                     cursor: 'wait',
                     content: 'attr(alt)'
-                },
+                },*/
                 '.centery,.center': {
                     'align-self': 'center',
                     inset: 0,

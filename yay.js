@@ -48,7 +48,7 @@ function cacheFunction(maybeFunc, to) {
     if (typeof maybeFunc === 'function') {
         if (BoundFunctions.has(maybeFunc)) return BoundFunctions.get(maybeFunc)
         // let wrapper = new Proxy(maybeFunc,handlers.function)
-        const { name } = maybeFunc
+        const {name} = maybeFunc
             , wrapper = {
             [name](...a) {
                 // Regular wrapper function for method,
@@ -73,7 +73,7 @@ function genericGet(t, prop) {
 }
 
 function ariaOrData(i) {
-    let { 0: char } = i
+    let {0: char} = i
     if (char === '_') i = i.replace(char, 'aria-')
     else if (char === '$') i = i.replace(char, 'data-')
     return i
@@ -242,11 +242,13 @@ let props = Object.getOwnPropertyDescriptors(class _
     toJSON() {
         return base(this).outerHTML
     }
-    *xpath(xpath, type) {
+
+    * xpath(xpath, type) {
         let i = document.evaluate(xpath, base(this), null, type ?? 0, null),
             el
         while (el = i.iterateNext()) yield el instanceof HTMLElement ? prox(el) : el
     }
+
     setState(identifier) {
         if (identifier === null) {
             this.lastState = this.currentState
@@ -261,7 +263,7 @@ let props = Object.getOwnPropertyDescriptors(class _
             reportError(identifier)
             throw TypeError('Invalid state')
         }
-        let { cached: cache, callback } = t.get(identifier)
+        let {cached: cache, callback} = t.get(identifier)
             , frag = cache.content
             , cached = document.importNode(frag, true)
             , staticBatch = [...frag.querySelectorAll('*')]
@@ -277,7 +279,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         function forEach(el, index) {
             el = prox(el)
             el.hasAttribute('id') && withIds.push(el) // its considered important
-            let { events } = el
+            let {events} = el
             if (!events) return
             let clone = prox(newBatch[index])
             let staticEvents = h.allEvents.get(base(el))
@@ -314,14 +316,14 @@ let props = Object.getOwnPropertyDescriptors(class _
         if (me.tagName === 'TEMPLATE')
             return me.content
         let out = document.createDocumentFragment(),
-            { firstElementChild } = me
+            {firstElementChild} = me
         while (firstElementChild)
-            out.appendChild(me.removeChild(firstElementChild)), { firstElementChild } = me
+            out.appendChild(me.removeChild(firstElementChild)), {firstElementChild} = me
         return out
     }
 
     pass() {
-        let { orphans } = this
+        let {orphans} = this
         this.destroy()
         return orphans
     }
@@ -333,8 +335,6 @@ let props = Object.getOwnPropertyDescriptors(class _
     get clone() {
         return prox(this.cloneNode(true))
     }
-
-
 
     destroy() {
         this.resetSelfRules()
@@ -352,7 +352,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         do my.remove()
         while (my.isConnected /*document.contains(my)*/)
         let myevents = h.getEventNames(my)
-        myevents.size && this.off(...myevents)
+        myevents.size && Reflect.apply(this.off,this,myevents)
         all.delete(my)
         // inte?.unobserve(my)
         // resi.unobserve(my)
@@ -360,11 +360,10 @@ let props = Object.getOwnPropertyDescriptors(class _
         return null
     }
 
-
     destroyChildren() {
-        let { lastElementChild } = this
+        let {lastElementChild} = this
         while (lastElementChild)
-            prox(lastElementChild).destroy(), { lastElementChild } = this
+            prox(lastElementChild).destroy(), {lastElementChild} = this
     }
 
     /**
@@ -398,7 +397,7 @@ let props = Object.getOwnPropertyDescriptors(class _
     }
 
     off(...events) {
-        h.off(base(this), ...events)
+        Reflect.apply(h.off,null,[base(this)].concat(events))
     }
 
     set(prop, val) {
@@ -434,7 +433,7 @@ let props = Object.getOwnPropertyDescriptors(class _
             events[i] = DelegationFunction
 
             function DelegationFunction(...args) {
-                let { target } = args[0],
+                let {target} = args[0],
                     pr = prox(target);
                 (me !== target || includeSelf) && (filter(pr) ?? 1) && Reflect.apply(old, pr, args)
             }
@@ -558,13 +557,13 @@ let props = Object.getOwnPropertyDescriptors(class _
     }
 
     wrap(parent) {
-        let { parent: p } = this
+        let {parent: p} = this
         parent = $(parent)
-        ; (this.parent = parent).parent = p
+        ;(this.parent = parent).parent = p
     }
 
     unwrap() {
-        let { parent } = this
+        let {parent} = this
         let c = this.pass()
         parent.appendChild(c)
         return null
@@ -603,7 +602,7 @@ let props = Object.getOwnPropertyDescriptors(class _
                 base(this).style.display = 'none';
                 break
             case 4:
-                this.setStyles({ '--content-visibility': 'hidden' });
+                this.setStyles({'--content-visibility': 'hidden'});
                 break
             case 5:
                 this.setStyles({
@@ -614,7 +613,7 @@ let props = Object.getOwnPropertyDescriptors(class _
                     'pointer-events': 'none',
                     '--user-modify': 'read-only',
                 })
-                .setAttr({ _hidden: "true", contenteditable: 'false' })
+                .setAttr({_hidden: "true", contenteditable: 'false'})
                 break
         }
     }
@@ -637,14 +636,14 @@ let props = Object.getOwnPropertyDescriptors(class _
                 base(this).style.display = '';
                 break
             case 4:
-                this.setStyles({ '--content-visibility': '' });
+                this.setStyles({'--content-visibility': ''});
                 break
             case 5:
                 this.setStyles({
                     opacity: '', '--user-input': '', '--user-focus': '', '--user-select': '', 'pointer-events': '',
                     '--user-modify': '',
                 })
-                .setAttr({ _hidden: "", contenteditable: '' })
+                .setAttr({_hidden: "", contenteditable: ''})
                 break
         }
     }
@@ -669,21 +668,23 @@ let props = Object.getOwnPropertyDescriptors(class _
         args.flat(1 / 0).forEach(_.append)
         base(this).prepend(doc)
     }
+
     //  i tried SO hard to make treewalker useful but it did NOT impress me!
-    *treeWalker(whatToShow, filter) {
+    * treeWalker(whatToShow, filter) {
         let walker = document.createTreeWalker(base(this), whatToShow ?? NodeFilter.SHOW_ALL, filter_func)
         filter ??= function () {
         }
         let current
         while (current = walker.nextNode()) yield getValid(current) ? prox(current) : current
+
         function filter_func(node) {
             return (filter(node) ?? true) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
         }
     }
 
-    *[Symbol.iterator]() {
+    * [Symbol.iterator]() {
         let all = base(this).getElementsByTagName('*')
-        for (let { length: i } = all; i--;) yield prox(all[i])
+        for (let {length: i} = all; i--;) yield prox(all[i])
     }
 
     get [Symbol.toPrimitive]() {
@@ -766,12 +767,12 @@ let props = Object.getOwnPropertyDescriptors(class _
     }
 
     get after() {
-        let { nextElementSibling } = base(this)
+        let {nextElementSibling} = base(this)
         return prox(nextElementSibling)
     }
 
     get before() {
-        let { previousElementSibling } = base(this)
+        let {previousElementSibling} = base(this)
         return prox(previousElementSibling)
     }
 
@@ -785,12 +786,12 @@ let props = Object.getOwnPropertyDescriptors(class _
     }
 
     get first() {
-        let { firstElementChild } = base(this)
+        let {firstElementChild} = base(this)
         return prox(firstElementChild)
     }
 
     get last() {
-        let { lastElementChild } = base(this)
+        let {lastElementChild} = base(this)
         return prox(lastElementChild)
     }
 
@@ -806,7 +807,7 @@ let props = Object.getOwnPropertyDescriptors(class _
     copyAttr(other) {
         let me = base(this),
             attr = other.getAttributeNames()
-        for (let { length: i } = attr; i--;) {
+        for (let {length: i} = attr; i--;) {
             let name = attr[i]
             me.setAttribute(name, other.getAttribute(name))
         }
@@ -844,7 +845,7 @@ HTML_PLACING.forEach(set =>
 Reflect.ownKeys(props).forEach(i => {
     if (i !== 'constructor') {
         let v = props[i],
-            { value } = v
+            {value} = v
         if (typeof value === 'function') {
             v.value = {
                 [i](...a) {
@@ -862,7 +863,7 @@ Reflect.ownKeys(props).forEach(i => {
 // 🖨 Copy everything
 const prototypeDescriptors = Object.getOwnPropertyDescriptors(prototype)
 
-function base(element) {
+export function base(element) {
     // 🌱 Get the root element
     return element[me] ?? element
 }
@@ -898,21 +899,19 @@ INTERSECTION OBSERVER STUFFS
 (only for firefox and browsers without contentvis...event)
 */
 let inte
-if (typeof ContentVisibilityAutoStateChangeEvent !== 'function'
-    || 'mozInnerScreenX' in window  // Firefox is weird again
-) {
+if (typeof
+        ContentVisibilityAutoStateChangeEvent !== 'function' || 'mozInnerScreenX' in window)  /*Firefox is weird again*/ {
     inte = new IntersectionObserver(IntersectionObserverCallback, {
         threshold: [0, Number.MIN_VALUE]
     })
-
     function IntersectionObserverCallback(entries) {
-        for (let { length: i } = entries; i--;) {
+        for (let {length: i} = entries; i--;) {
             let me = entries[i],
-                target = me.target
+                {target} = me
             if ($(target).computed.getPropertyValue('--content-visibility').trim() === 'auto') {
                 h.delayedDispatch('contentvisibilityautostatechange', target, new CustomEvent('contentvisibilityautostatechange', {
                     bubbles: true,
-                    detail: { skipped: !me.isIntersecting }
+                    detail: {skipped: !me.isIntersecting}
                 }))
             }
         }
@@ -921,11 +920,19 @@ if (typeof ContentVisibilityAutoStateChangeEvent !== 'function'
 /*
 MUTATION OBSERVER STUFFS
 */
-
 /*function refreshAttributes(attr) {
     this.setAttribute(attr, this.getAttribute(attr))
 }*/
+const imported = new Set
+
 function observeAll(node) {
+    let n = node.tagName.toLowerCase()
+    switch (n) {
+        case 'img-sprite':
+        case 'touch-joystick':
+        case 'seek-bar' :
+            imported.has(n) || (import(`./webcomponents/${n}.js`), imported.add(n))
+    }
     // if (node instanceof CUSTOM_ELEMENT_SPRITE) node.getAttributeNames().forEach(refreshAttributes, node)
     inte?.observe(node)
     resi.observe(node)
@@ -937,10 +944,10 @@ function unobserveAll(node) {
 }
 
 function MutationObserverCallback(entry) {
-    for (let { length: ii } = entry; ii--;) {
+    for (let {length: ii} = entry; ii--;) {
         let me = entry[ii],
-            { addedNodes, removedNodes } = me
-        for (let { length: i } = addedNodes; i--;) {
+            {addedNodes, removedNodes} = me
+        for (let {length: i} = addedNodes; i--;) {
             let node = addedNodes[i]
             if (node instanceof Element || node?.ownerDocument?.defaultView.Element.prototype.isPrototypeOf(node)) {
                 /*  queueMicrotask(() => {
@@ -955,7 +962,7 @@ function MutationObserverCallback(entry) {
                 observeAll(node)
             }
         }
-        for (let { length: i } = removedNodes; i--;) {
+        for (let {length: i} = removedNodes; i--;) {
             let node = removedNodes[i]
             if (node instanceof Element || node?.ownerDocument?.defaultView.Element.prototype.isPrototypeOf(node)) {
                 /*   queueMicrotask(() => {
@@ -1015,9 +1022,9 @@ function PerformanceLoop(o) {
         title = o.entryType
     switch (title) {
         case 'layout-shift': {
-            let { sources } = o
-            for (let { length: i } = sources; i--;) {
-                let { node, currentRect, previousRect } = sources[i]
+            let {sources} = o
+            for (let {length: i} = sources; i--;) {
+                let {node, currentRect, previousRect} = sources[i]
                 node && h.delayedDispatch('layout-shift', node, new CustomEvent('layout-shift', {
                     bubbles: true,
                     detail: {
@@ -1048,7 +1055,7 @@ function PerformanceLoop(o) {
         case 'navigation':
             title = 'page-navigate'
             detail = o.toJSON()
-            let { type } = detail
+            let {type} = detail
             delete detail.type
             detail.navigationType = type
             break
@@ -1091,7 +1098,7 @@ const entryTypes = {
 }
 const perf = new PerformanceObserver(PerformanceObserverCallback)
 Object.keys(entryTypes).forEach(type => {
-    perf.observe({ type, buffered: true })
+    perf.observe({type, buffered: true})
 })
 h.addCustomEvent(entryTypes)
 h.addCustomEvent({
@@ -1110,7 +1117,7 @@ h.addCustomEvent({
     // 'task-attribution':true
 })
 
-function prox(target) {
+export function prox(target) {
     if (target === null) return null
     if (target[states]) return target
     if (!getValid(target))
@@ -1123,11 +1130,11 @@ function prox(target) {
     // ✅ Only option is 'Object.create' or { __proto__: ... }
     if (!all.has(target)) {
         // ++$.len
-        let bleh = { value: target }
-            , { revoke: styleRevoke, proxy: styleProxy } = Proxy.revocable(target.style, handlers.styles)
-            , { revoke: childRevoke, proxy: childProxy } = Proxy.revocable(target.children, handlers.HTMLCollection)
-            , { revoke: querySelectorRevoke, proxy: querySelectorProxy } = Proxy.revocable(target, handlers.querySelector)
-            , { revoke: attrRevoke, proxy: attrProxy } = Proxy.revocable(target, handlers.attr)
+        let bleh = {value: target}
+            , {revoke: styleRevoke, proxy: styleProxy} = Proxy.revocable(target.style, handlers.styles)
+            , {revoke: childRevoke, proxy: childProxy} = Proxy.revocable(target.children, handlers.HTMLCollection)
+            , {revoke: querySelectorRevoke, proxy: querySelectorProxy} = Proxy.revocable(target, handlers.querySelector)
+            , {revoke: attrRevoke, proxy: attrProxy} = Proxy.revocable(target, handlers.attr)
             , propertiesToDefine = {
             ...prototypeDescriptors,
             [me]: bleh,
@@ -1156,8 +1163,8 @@ function prox(target) {
                 value: styleProxy
             }
         }
-            , { proxy, revoke } = Proxy.revocable(
-            Object.seal(Object.create(target, propertiesToDefine)), Object.create(handlers.main, { 0: { value: target } })
+            , {proxy, revoke} = Proxy.revocable(
+            Object.seal(Object.create(target, propertiesToDefine)), Object.create(handlers.main, {0: {value: target}})
             // defineProperty(target, prop) {
             // console.debug(prop)
             // if (prop in target) return Reflect.defineProperty(...arguments)
@@ -1196,7 +1203,7 @@ const doc = document.createDocumentFragment()
     , parser = new DOMParser
 let temp, div, range, parsingDoc, classRegex = /(?<=\.)[\w-]+/g,
     htmlRegex = /[\w-]+/,
-    idRegex = /(?<=#)\w+/,
+    idRegex = /(?<=#)[\w-]+/,
     typeRegex = /(?<=%)\w+/
 const parseModeMap = new Map(Object.entries({
     write(html) {
@@ -1302,7 +1309,7 @@ function $(html, props, ...children) {
                <afterend>
     */
     if (props && !getValid(props) && typeof props !== 'string') {
-        let { hasOwn } = Object
+        let {hasOwn} = Object
 
         function reuse(p) {
             hasOwn(props, p) && (element[p] = props[p])
@@ -1398,7 +1405,7 @@ export default Object.defineProperties($, {
     },
     xpath: {
         value(xpath, node, type) {
-            return props.xpath.call(node??document, xpath, type)
+            return props.xpath.call(node ?? document, xpath, type)
         }
     },
     doc: {
@@ -1424,322 +1431,7 @@ function allElementStuff(e) {
 function destroyEach(ch) {
     prox(ch).destroy()
 }
-
-try {
-    class AnimatedSprite extends HTMLElement {
-        static observedAttributes = 'cols rows src width height duration direction index alt'.split(' ')
-
-        #ANIMATE() {
-            let p = prox(this)
-            if (this.#axis === 'horizontal') {
-                p.setStyles({
-                    'background-position-y': `calc((mod(var(--axis), var(--grid-height))*var(--height)) * -1)`,
-                    animation: `horizontal ${this.#duration * this.getAttribute('cols') | 0}ms steps(var(--grid-width), end) ${this.#direction} infinite`
-                })
-            } else if (this.#axis === 'vertical') {
-                p.setStyles({
-                    'background-position-x': `calc((mod(var(--axis), var(--grid-width))*var(--width)) * -1)`,
-                    animation: `vertical ${this.#duration * this.getAttribute('rows') | 0}ms steps(var(--grid-height), end) ${this.#direction} infinite`
-                })
-            }
-        }
-
-        #duration = 1000
-        #axis = 'horizontal'
-        #direction = 'normal'
-
-        async attributeChangedCallback(name, oValue, nValue) {
-            let p = prox(this)
-            if (/^(?:cols|rows)$/.test(name)) {
-                p.setStyles({
-                    [`--grid-${name === 'cols' ? 'width' : 'height'}`]: `${nValue}`
-                })
-                this.#ANIMATE()
-            } else if (/^(?:width|height)$/.test(name)) {
-                if (!CSS.supports('width', nValue)) nValue += 'px'
-                p.setStyles({
-                    [`--${name}`]: nValue
-                })
-                this.#ANIMATE()
-            } else if (name === 'alt') {
-                p.setStyles({
-                    '--alt': `"${this.getAttribute('alt')}"`
-                })
-            } else if (name === 'src') {
-                let thingy = {
-                    '--sprite': `url(${nValue})`,
-                }
-                try {
-                    let n = await fetch(nValue)
-                    if (!n.ok) {
-                        thingy['--sprite'] = ''
-                        thingy['--alt'] = `"${this.getAttribute('alt')}"`
-                    } else thingy['--alt'] = ''
-                } catch {
-                    thingy['--alt'] = `"${this.getAttribute('alt')}"`
-                } finally {
-                    p.setStyles(thingy)
-                }
-                this.#ANIMATE()
-            } else if (name === 'axis') {
-                if (nValue !== 'horizontal' && nValue !== 'vertical') nValue = 'horizontal'
-                this.#axis = nValue
-            } else if (name === 'duration') {
-                this.#duration = nValue
-                this.#ANIMATE()
-            } else if (name === 'direction') {
-                if (!/^(?:normal|reverse|alternate(?:-reverse)?)$/.test(nValue)) nValue = 'normal'
-                this.#direction = nValue
-                this.#ANIMATE()
-            } else if (name === 'index') {
-                p.setStyles({
-                    '--axis': (nValue | 0) % (this.#axis === 'horizontal' ? p.attr.rows : p.attr.cols)
-                })
-            }
-        }
-
-        connectedCallback() {
-            this.attachShadow({ mode: 'open' }).appendChild(base($(`style`, {
-                textContent:
-                    `
-@property --sprite {
-  syntax: "<image>";
-  inherits: false;
-  initial-value: url("");
-}
-@property --width {
-  syntax: "<length-percentage>";
-  inherits: false;
-  initial-value: 30px;
-}
-@property --height {
-  syntax: "<length-percentage>";
-  inherits: false;
-  initial-value: 30px;
-}
-@property --grid-width {
-  syntax: "<integer>";
-  initial-value: 8;
-  inherits: false;
-}
-@property --grid-height {
-  syntax: "<integer>";
-  initial-value: 8;
-  inherits: false;
-}
-@property --alt {
-  syntax: "*";
-  initial-value: "";
-  inherits: false;
-}
-:host {
-        ${css.toCSS({
-                        width: 'var(--width)',
-                        '--axis': 0,
-                        display: 'block',
-                        height: 'var(--height)',
-                        'background-image': 'var(--sprite)',
-                        'background-repeat': 'no-repeat',
-                        'background-size': 'calc(var(--width) * var(--grid-width)) calc(var(--height) * var(--grid-height))'
-                    })}
-}
-:host::before {
-                        content:var(--alt);
-}
-@keyframes horizontal {
-  0% {
-  ${css.toCSS({
-                        'background-position-x': '0px'
-                    })}
-  }
-  100% {
-  ${css.toCSS({
-                        'background-position-x': 'calc(var(--width) * -1 * var(--grid-width))'
-                    })}
-  }
-}
-@keyframes vertical {
-  0% {
-  ${css.toCSS({
-                        'background-position-y': '0px'
-                    })}
-  }
-  100% {
-   ${css.toCSS({
-                        'background-position-y': 'calc(var(--height) * -1 * var(--grid-height))'
-                    })}
-  }
-}
-`
-            })))
-        }
-    }
-
-    let define = Object.getPrototypeOf(customElements).define.bind(customElements)
-    define('img-sprite', AnimatedSprite)
-
-    /****/
-    class SeekBar extends HTMLElement {
-        connectedCallback() {
-            let p = $(this)
-            let shadow = p.attachShadow({ mode: 'open' })
-            let div = $('div #meter')
-            let style = $('style', {
-                textContent:
-                    `
-                #meter {
-                ${css.toCSS({
-                        height: '14px',
-                        '--dur': '1s',
-                        transition: 'width var(--dur) linear',
-                        'background-image': `repeating-linear-gradient(-45deg, transparent, transparent 1rem,darkred 1rem,darkred 2rem)`,
-                        width: '150px',
-                        'background-size': '300px 100%',
-                        'border-radius': '10px',
-                        animation: 'cycle 5s linear infinite',
-                        'background-color': 'red'
-                    })}
-                }
-                @keyframes cycle {
-                100% {
-                ${css.toCSS({
-                        'background-position-x': '-135px'
-                    })}
-                }
-                }
-                :host { 
-                ${css.toCSS({
-                        width: '150px',
-                        overflow: 'hidden',
-                        'box-shadow': `0px 4px 7px 0px rgba(0,0,0,0.3)`,
-                        height: '14px',
-                        display: 'block',
-                        'border-radius': '10px',
-                        border: 'solid 2px black'
-                    })}
-                }
-                `
-            })
-            shadow.appendChild(style.valueOf())
-            shadow.appendChild(div.valueOf())
-            p.on({
-                _click() {
-                    this.animate([
-                        { transform: 'rotateZ(3deg)', 'background-color': 'red' }, { transform: 'rotateZ(-3deg)' }, {}
-                    ], {
-                        duration: 40,
-                        iterations: 4,
-                        easing: 'ease-in'
-                    })
-                    div.style.width = '0'
-                }
-            })
-        }
-    }
-
-    define('seek-bar', SeekBar)
-
-    h.addCustomEvent({
-        move: true,
-        hold: true,
-        release: true
-    })
-    let vect
-        , touching = Symbol('👉')
-        , touchpos = Symbol('📍')
-        , ball = Symbol('🕹')
-        , maxPullDistance = 60
-    class Joystick extends HTMLElement {
-        [ball] = null;
-        [touching] = false
-        x = 0
-        y = 0
-        angle = 0
-        static #import(e) {
-            vect = e.vect
-        }
-
-        static #pointercancel(e) {
-            this[ball].setStyles({
-                transform: `rotateZ(${this.angle}rad)`
-            })
-            this.x = this.y = 0
-            this.releasePointerCapture(e.pointerId)
-            this[touching] = false
-            this.dispatchEvent(new CustomEvent('release'))
-        }
-        static #events = {
-            pointercancel: this.#pointercancel,
-            pointerup: this.#pointercancel,
-            pointermove(e) {
-                if (!this[touching] || !vect) return
-                let { length } = (this[touchpos] ??= vect(0, 0)).set(e.offsetX, e.offsetY).subtract(maxPullDistance)
-                let t = this[touchpos]
-                if (length > maxPullDistance) {
-                    t.x = t.x * maxPullDistance / length
-                    t.y = t.y * maxPullDistance / length
-                }
-
-                let { x, y, angle } = this[touchpos].clone.divide(maxPullDistance)
-                this[ball].setStyles({
-                    transform: `translate${t.toString('px')} rotateZ(${angle}rad)`
-                })
-                this.angle = angle
-                this.x = x
-                this.y = y
-                this.dispatchEvent(new CustomEvent('move'))
-            },
-            pointerdown(e) {
-                this[touching] = true
-                this.setPointerCapture(e.pointerId)
-                this.dispatchEvent(new CustomEvent('hold'))
-            }
-        }
-        async connectedCallback() {
-            vect ??= (await import('./num.js')).vect
-        }
-        constructor() {
-            super()
-            let t = $(this)
-            for (let i in Joystick.#events) this[`on${i}`] = Joystick.#events[i]
-            let shadow = t.attachShadow({ mode: 'closed' })
-            shadow.appendChild(base($('style', {
-                textContent: `
-                div {
-                ${css.toCSS({
-                    width: '50px',
-                    'border-radius': '100%',
-                    height: '50px',
-                    'background-color': '#000',
-                    position: 'relative'
-                })}
-                }
-                :host {
-                ${css.toCSS({
-                    width: '120px',
-                    height: '120px',
-                    'touch-action': 'none',
-                    'place-items': 'center',
-                    'place-content': 'center',
-                    opacity: 0.5,
-                    'background-color': '#6a7b80',
-                    display: 'flex',
-                    // position: 'fixed',
-                    'border-radius': '100%',
-                })}
-                }
-                `
-            })))
-            shadow.appendChild(base(
-                this[ball] = $('<div part="ball"></div>')
-            ))
-        }
-    }
-
-    define('touch-joystick', Joystick)
-} catch (e) {
-    reportError(e)
-}
+export const define = Object.getPrototypeOf(customElements).define.bind(customElements)
 /*export function info(heading, message, parent, yes, no) {
 return new Promise(resolve => {
 parent ??= $.body

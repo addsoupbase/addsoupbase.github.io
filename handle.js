@@ -1,8 +1,8 @@
 //# allFunctionsCalledOnLoad
 // ^ idk what that actually does
 const sym = Symbol.for("🔔")
-export const unbound = Symbol('⛓️‍💥')
 //  Don't collide, and make sure its usable across realms!!
+export const unbound = Symbol('⛓️‍💥')
 let {warn, groupCollapsed, groupEnd} = console,
     {isArray} = Array
 export const allEvents = new WeakMap

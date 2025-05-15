@@ -1,7 +1,7 @@
 class StorageProxy {
     static #handler = {
         get(target, prop) {
-            if (!isNaN(prop) && +prop > -1 && Number.isInteger(+prop))
+            if (!isNaN(prop) && prop > -1 && Number.isInteger(+prop))
                 return target.key(prop)
             if (prop === 'clear' || prop === 'length') return target[prop]
             return target.getItem(prop)
