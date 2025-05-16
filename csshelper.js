@@ -138,8 +138,8 @@ export function toDash(prop) {
 function tlc(o) {
     return `-${o.toLowerCase()}`
 }
-function tuc({ 1: char }) {
-    return char.toUpperCase()
+function tuc({ 1: c }) {
+    return c.toUpperCase()
 }
 let addedStyleRules = null
 /**

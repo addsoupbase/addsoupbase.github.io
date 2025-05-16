@@ -31,7 +31,7 @@ export function formatWord(str) {
 export function shorten(str, length, tail) {
     if (!length) throw RangeError('Length must be present')
     let out = str.slice(0, length)
-    return str.length > length ? `${out}${tail || ''}` : out
+    return str.length > length ? `${out}${tail ?? ''}` : out
 }
 export function clip(str, length) {
     return str.slice(length, str.length - length)
@@ -43,9 +43,7 @@ export const cap = upper
 export function toOrdinal(o) {
     const lastTwoDigits = o % 100,
         me = `${o}`.at(-1)
-    if ((lastTwoDigits >= 11 && lastTwoDigits <= 13) || !map.has(me))
-        return `${o}th`
-    return `${o}${map.get(me)}`
+        return (lastTwoDigits >= 11 && lastTwoDigits <= 13) || !map.has(me) ? `${o}th` : `${o}${map.get(me)}`
 }
 export function*groups(str,{source:s,flags:f}) {
     let v,r=RegExp(s,f)

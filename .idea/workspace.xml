@@ -4,15 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="fixed error oops">
-      <change afterPath="$PROJECT_DIR$/webcomponents/img-sprite.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/webcomponents/seek-bar.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/webcomponents/touch-joystick.js" afterDir="false" />
+    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="YEAHHH">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/csshelper.js" beforeDir="false" afterPath="$PROJECT_DIR$/csshelper.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/handle.js" beforeDir="false" afterPath="$PROJECT_DIR$/handle.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/num.js" beforeDir="false" afterPath="$PROJECT_DIR$/num.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/proxies.js" beforeDir="false" afterPath="$PROJECT_DIR$/proxies.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/dom.js" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/dom.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/str.js" beforeDir="false" afterPath="$PROJECT_DIR$/str.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/yay.js" beforeDir="false" afterPath="$PROJECT_DIR$/yay.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -125,15 +122,7 @@
       <workItem from="1746885495621" duration="18052000" />
       <workItem from="1746971915333" duration="25813000" />
       <workItem from="1747094649487" duration="10215000" />
-      <workItem from="1747337801168" duration="4618000" />
-    </task>
-    <task id="LOCAL-00011" summary="HELP ME WHAT HAVE I DONE">
-      <option name="closed" value="true" />
-      <created>1746028695463</created>
-      <option name="number" value="00011" />
-      <option name="presentableId" value="LOCAL-00011" />
-      <option name="project" value="LOCAL" />
-      <updated>1746028695463</updated>
+      <workItem from="1747337801168" duration="8430000" />
     </task>
     <task id="LOCAL-00012" summary="AAAA I  NEED TO LEARN HOW TO USE GIT">
       <option name="closed" value="true" />
@@ -519,7 +508,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747189289774</updated>
     </task>
-    <option name="localTasksCounter" value="60" />
+    <task id="LOCAL-00060" summary="YEAHHH">
+      <option name="closed" value="true" />
+      <created>1747342957177</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1747342957178</updated>
+    </task>
+    <option name="localTasksCounter" value="61" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -537,7 +534,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="1. fixed the anchor buttons being hard to press&#10;2. auto abort feature for handle.js" />
     <MESSAGE value="i just love you so much" />
     <MESSAGE value="Youre so cool for reading thiks!!" />
     <MESSAGE value="i made a typo like a silly !!" />
@@ -562,6 +558,7 @@
     <MESSAGE value="Yay i fixed the zoom" />
     <MESSAGE value="gn" />
     <MESSAGE value="fixed error oops" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixed error oops" />
+    <MESSAGE value="YEAHHH" />
+    <option name="LAST_COMMIT_MESSAGE" value="YEAHHH" />
   </component>
 </project>

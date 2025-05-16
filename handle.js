@@ -92,7 +92,6 @@ const delayedEvents = new Map
     if (hold === globalThis.requestIdleCallback)
         secondparam = {timeout: 1000}
     return delay
-
     function delay(callback) {
         return hold(callback, secondparam)
     }
@@ -102,12 +101,14 @@ function dispatchAllDelayed(id) {
     let all = delayedEvents.get(id)
     giveItSomeTime(emitPendingEvents)
     function emitPendingEvents() {
-        for (let o of all)
-            o.target.dispatchEvent(o.event),
-                all.delete(o)
+        all.forEach(dispatchAndDelete)
     }
 }
-
+function dispatchAndDelete(val, i, set) {
+    let {target:t, event:e} = val
+    t.dispatchEvent(e)
+    set.delete(val)
+}
 export function delayedDispatch(id, target, event) {
     if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
     delayedEvents.has(id) || delayedEvents.set(id, new Set)

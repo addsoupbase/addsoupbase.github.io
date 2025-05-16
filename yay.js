@@ -79,6 +79,7 @@ function ariaOrData(i) {
     return i
 }
 
+const attrStyleMap = 'StylePropertyMap' in window
 const customRules = css.getDefaultStyleSheet()
 const handlers = {
     // Other proxies
@@ -99,38 +100,41 @@ const handlers = {
             return prox(t.querySelector(p))
         }
     },
-    styles: Object.fromEntries(Object.entries({
-            get(target, prop) {
-                return prop.startsWith('--') ? target.getPropertyValue(prop) :
-                    target.getPropertyValue(css.dashVendor(prop, 'inherit'))
-            },
-            set(target, prop, value) {
-                if (prop.startsWith('--')) target.setProperty(prop, value)
-                else value ?
-                    target.setProperty(css.dashVendor(prop, value), value) :
-                    this.deleteProperty(target, prop)
-                return 7
-            },
-            deleteProperty(target, prop) {
-                return prop.startsWith('--') ? target.removeProperty(prop) :
-                    target.removeProperty(css.dashVendor(prop, 'inherit')),
-                    3
-            },
-            has(target, prop) {
-                return this.get(target, prop)
-            }
-        })
-        //  Don't know why but below isn't working on firefox only like usual
-        /* .map(({ 0: key, 1: value }) => ({
-             0: key,
-             StyleFunction(...args) {
-                 if (args[1] === 'cssFloat') args[1] = 'float'
-                 // there might be some other props on other objects that are/were reserved words, like class
-                 return value.apply(this, args)
-             }
-         })
-     )*/
-    ),
+    styles: attrStyleMap ? {
+        get(target, prop) {
+            return prop.startsWith('--') ? target.get(prop) : target.get(css.dashVendor(prop, 'inherit'))
+        },
+        set(target, prop, value) {
+            if (value == null || value === '') this.deleteProperty(target, prop)
+            else prop.startsWith('--') ? target.set(prop, value) : target.set(css.dashVendor(prop, `${value}`), value)
+            return 7
+        },
+        deleteProperty(target, prop) {
+            return prop.startsWith('--') ? target.delete(prop) :
+                target.delete(css.dashVendor(`${prop}`, 'inherit')),
+                3
+        },
+    } : {
+        get(target, prop) {
+            return prop.startsWith('--') ? target.getPropertyValue(prop) :
+                target.getPropertyValue(css.dashVendor(prop, 'inherit'))
+        },
+        set(target, prop, value) {
+            if (prop.startsWith('--')) target.setProperty(prop, value)
+            else value ?
+                target.setProperty(css.dashVendor(prop, value), value) :
+                this.deleteProperty(target, prop)
+            return 7
+        },
+        deleteProperty(target, prop) {
+            return prop.startsWith('--') ? target.removeProperty(prop) :
+                target.removeProperty(css.dashVendor(prop, 'inherit')),
+                3
+        },
+        has(target, prop) {
+            return this.get(target, prop)
+        }
+    },
     attr: {
         get(t, p) {
             p = ariaOrData(p)
@@ -352,7 +356,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         do my.remove()
         while (my.isConnected /*document.contains(my)*/)
         let myevents = h.getEventNames(my)
-        myevents.size && Reflect.apply(this.off,this,myevents)
+        myevents.size && Reflect.apply(this.off, this, myevents)
         all.delete(my)
         // inte?.unobserve(my)
         // resi.unobserve(my)
@@ -397,7 +401,7 @@ let props = Object.getOwnPropertyDescriptors(class _
     }
 
     off(...events) {
-        Reflect.apply(h.off,null,[base(this)].concat(events))
+        Reflect.apply(h.off, null, [base(this)].concat(events))
     }
 
     set(prop, val) {
@@ -538,8 +542,7 @@ let props = Object.getOwnPropertyDescriptors(class _
     }
 
     fadeFromTo(from, to, settings) {
-        settings ??= {}
-        let duration = settings.duration || _.defaultDura
+        let duration = (settings??={}).duration || _.defaultDura
             , easing = settings.easing ?? 'ease'
         return this.animate([{
             opacity: from
@@ -558,13 +561,12 @@ let props = Object.getOwnPropertyDescriptors(class _
 
     wrap(parent) {
         let {parent: p} = this
-        parent = $(parent)
-        ;(this.parent = parent).parent = p
+        ;(this.parent = $(parent)).parent = p
     }
 
     unwrap() {
         let {parent} = this
-        let c = this.pass()
+            , c = this.pass()
         parent.appendChild(c)
         return null
     }
@@ -750,8 +752,7 @@ let props = Object.getOwnPropertyDescriptors(class _
     }
 
     animate(keyframes, options) {
-        options ??= {}
-        options.timing ??= 'ease'
+        (options ??= {}).timing ??= 'ease'
         options.iterations ??= 1
         options.pseudoElement &&= css.supportedPElementVendor(options.pseudoElement)
         keyframes.forEach(_.forEach)
@@ -900,10 +901,11 @@ INTERSECTION OBSERVER STUFFS
 */
 let inte
 if (typeof
-        ContentVisibilityAutoStateChangeEvent !== 'function' || 'mozInnerScreenX' in window)  /*Firefox is weird again*/ {
+    ContentVisibilityAutoStateChangeEvent !== 'function' || 'mozInnerScreenX' in window)  /*Firefox is weird again*/ {
     inte = new IntersectionObserver(IntersectionObserverCallback, {
         threshold: [0, Number.MIN_VALUE]
     })
+
     function IntersectionObserverCallback(entries) {
         for (let {length: i} = entries; i--;) {
             let me = entries[i],
@@ -1116,6 +1118,7 @@ h.addCustomEvent({
     // taskattribution: false,
     // 'task-attribution':true
 })
+const getStyleThingy = attrStyleMap ? element => element.attributeStyleMap : element => element.style
 
 export function prox(target) {
     if (target === null) return null
@@ -1131,7 +1134,7 @@ export function prox(target) {
     if (!all.has(target)) {
         // ++$.len
         let bleh = {value: target}
-            , {revoke: styleRevoke, proxy: styleProxy} = Proxy.revocable(target.style, handlers.styles)
+            , {revoke: styleRevoke, proxy: styleProxy} = Proxy.revocable(getStyleThingy(target), handlers.styles)
             , {revoke: childRevoke, proxy: childProxy} = Proxy.revocable(target.children, handlers.HTMLCollection)
             , {revoke: querySelectorRevoke, proxy: querySelectorProxy} = Proxy.revocable(target, handlers.querySelector)
             , {revoke: attrRevoke, proxy: attrProxy} = Proxy.revocable(target, handlers.attr)
@@ -1164,7 +1167,7 @@ export function prox(target) {
             }
         }
             , {proxy, revoke} = Proxy.revocable(
-            Object.seal(Object.create(target, propertiesToDefine)), Object.create(handlers.main, {0: {value: target}})
+            Object.seal(Object.create(target, propertiesToDefine)), Object.create(handlers.main, [{value: target}])
             // defineProperty(target, prop) {
             // console.debug(prop)
             // if (prop in target) return Reflect.defineProperty(...arguments)
@@ -1207,24 +1210,23 @@ let temp, div, range, parsingDoc, classRegex = /(?<=\.)[\w-]+/g,
     typeRegex = /(?<=%)\w+/
 const parseModeMap = new Map(Object.entries({
     write(html) {
-        parsingDoc ??= document.implementation.createHTMLDocument()
-        parsingDoc.open().write(html)
+        (parsingDoc ??= document.implementation.createHTMLDocument())
+        .open().write(html)
         parsingDoc.close()
         return document.adoptNode(parsingDoc.body.firstElementChild)
     },
     setHTMLUnsafe(html) {
-        temp ??= document.createElement('template')
-        temp.setHTMLUnsafe(html)
+        (temp ??= document.createElement('template'))
+        .setHTMLUnsafe(html)
         return document.adoptNode(temp.content.firstElementChild)
     },
     innerHTML(html) {
-        div ??= document.createElement('div')
-        div.innerHTML = html
+        (div ??= document.createElement('div'))
+        .innerHTML = html
         return div.removeChild(div.firstElementChild)
     },
     createHTMLDocument(html) {
-        parsingDoc ??= document.implementation.createHTMLDocument()
-        parsingDoc.body.outerHTML = html
+        (parsingDoc ??= document.implementation.createHTMLDocument()).body.outerHTML = html
         return document.adoptNode(parsingDoc.body.firstElementChild)
     },
     createRange(html) {
@@ -1232,8 +1234,7 @@ const parseModeMap = new Map(Object.entries({
     },
     template(html) {
         //  Contender
-        temp ??= document.createElement('template')
-        temp.innerHTML = html
+        (temp ??= document.createElement('template')).innerHTML = html
         return document.adoptNode(temp.content.firstElementChild)
     },
     parseHTMLUnsafe(html) {
@@ -1431,6 +1432,7 @@ function allElementStuff(e) {
 function destroyEach(ch) {
     prox(ch).destroy()
 }
+
 export const define = Object.getPrototypeOf(customElements).define.bind(customElements)
 /*export function info(heading, message, parent, yes, no) {
 return new Promise(resolve => {
