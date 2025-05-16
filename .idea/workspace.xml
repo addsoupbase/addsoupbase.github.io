@@ -4,11 +4,20 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="YEAHHH">
+    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="lol">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/about.html" beforeDir="false" afterPath="$PROJECT_DIR$/about.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/arrays.js" beforeDir="false" afterPath="$PROJECT_DIR$/arrays.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/color.js" beforeDir="false" afterPath="$PROJECT_DIR$/color.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/createEntry.js" beforeDir="false" afterPath="$PROJECT_DIR$/createEntry.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/csshelper.js" beforeDir="false" afterPath="$PROJECT_DIR$/csshelper.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diary.html" beforeDir="false" afterPath="$PROJECT_DIR$/diary.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fallback.js" beforeDir="false" afterPath="$PROJECT_DIR$/fallback.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/handle.js" beforeDir="false" afterPath="$PROJECT_DIR$/handle.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/dom.js" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/dom.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.html" beforeDir="false" afterPath="$PROJECT_DIR$/main.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/num.js" beforeDir="false" afterPath="$PROJECT_DIR$/num.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/silence.js" beforeDir="false" afterPath="$PROJECT_DIR$/silence.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/str.js" beforeDir="false" afterPath="$PROJECT_DIR$/str.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/yay.js" beforeDir="false" afterPath="$PROJECT_DIR$/yay.js" afterDir="false" />
     </list>
@@ -51,23 +60,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;JavaScript Debug.Marbles.executor&quot;: &quot;Debug&quot;,
-    &quot;JavaScript Debug.index.html.executor&quot;: &quot;Debug&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;Settings.JavaScript.Templates&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "JavaScript Debug.Marbles.executor": "Debug",
+    "JavaScript Debug.index.html.executor": "Debug",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "editing.templates",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/webcomponents" />
@@ -122,15 +131,7 @@
       <workItem from="1746885495621" duration="18052000" />
       <workItem from="1746971915333" duration="25813000" />
       <workItem from="1747094649487" duration="10215000" />
-      <workItem from="1747337801168" duration="8430000" />
-    </task>
-    <task id="LOCAL-00012" summary="AAAA I  NEED TO LEARN HOW TO USE GIT">
-      <option name="closed" value="true" />
-      <created>1746028750100</created>
-      <option name="number" value="00012" />
-      <option name="presentableId" value="LOCAL-00012" />
-      <option name="project" value="LOCAL" />
-      <updated>1746028750100</updated>
+      <workItem from="1747337801168" duration="14540000" />
     </task>
     <task id="LOCAL-00013" summary="HELP">
       <option name="closed" value="true" />
@@ -516,7 +517,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747342957178</updated>
     </task>
-    <option name="localTasksCounter" value="61" />
+    <task id="LOCAL-00061" summary="lol">
+      <option name="closed" value="true" />
+      <created>1747374842584</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1747374842584</updated>
+    </task>
+    <option name="localTasksCounter" value="62" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -534,7 +543,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="i just love you so much" />
     <MESSAGE value="Youre so cool for reading thiks!!" />
     <MESSAGE value="i made a typo like a silly !!" />
     <MESSAGE value="heythere" />
@@ -559,6 +567,7 @@
     <MESSAGE value="gn" />
     <MESSAGE value="fixed error oops" />
     <MESSAGE value="YEAHHH" />
-    <option name="LAST_COMMIT_MESSAGE" value="YEAHHH" />
+    <MESSAGE value="lol" />
+    <option name="LAST_COMMIT_MESSAGE" value="lol" />
   </component>
 </project>

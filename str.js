@@ -31,7 +31,7 @@ export function formatWord(str) {
 export function shorten(str, length, tail) {
     if (!length) throw RangeError('Length must be present')
     let out = str.slice(0, length)
-    return str.length > length ? `${out}${tail ?? ''}` : out
+    return str.length > length ? `${out}${tail ?? '…'}` : out
 }
 export function clip(str, length) {
     return str.slice(length, str.length - length)

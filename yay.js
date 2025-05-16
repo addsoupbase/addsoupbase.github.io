@@ -13,6 +13,7 @@ Things i learned from 2nd -> 3rd:
 import * as h from './handle.js'
 import * as css from './csshelper.js'
 import * as f from './functions.js'
+import {delayedDispatch} from "./handle.js";
 
 if (!Object.hasOwn) Object.defineProperty(Object, 'hasOwn', {
     value: (obj, prop) => ({}).hasOwnProperty.call(obj, prop),
@@ -351,8 +352,8 @@ let props = Object.getOwnPropertyDescriptors(class _
             for (let el of val.content.querySelectorAll('*'))
                 prox(el).destroy()
         }
-        this.destroyChildren()
-        let my = base(this)
+        if ($.last === this) $.last = null
+        let my = base(this.destroyChildren())
         do my.remove()
         while (my.isConnected /*document.contains(my)*/)
         let myevents = h.getEventNames(my)
@@ -385,14 +386,12 @@ let props = Object.getOwnPropertyDescriptors(class _
         if (typeof events === 'function') {
             let old = events
             events = ProxyEventWrapperFunction
-
             function ProxyEventWrapperFunction(...args) {
                 // just avoid bind()
                 Reflect.apply(old, me, args)
             }
         } else for (let i in events) events[i] = function (old) {
             return ProxyEventWrapperFunction
-
             function ProxyEventWrapperFunction(...args) {
                 Reflect.apply(old, me, args)
             }
@@ -435,7 +434,6 @@ let props = Object.getOwnPropertyDescriptors(class _
             if (i.includes('@')) throw SyntaxError("Conflicting usage of a 'currentTarget' only delegating event handler")
             let old = events[i]
             events[i] = DelegationFunction
-
             function DelegationFunction(...args) {
                 let {target} = args[0],
                     pr = prox(target);
@@ -718,8 +716,8 @@ let props = Object.getOwnPropertyDescriptors(class _
             if (base(this).hasAttribute('id')) id = base(this).getAttribute('id')
             else do id = gen()
             while (document.getElementById(id))
-            if (selector.includes('::')) selector = css.supportedPElementVendor(selector)
-            else if (selector.includes(':')) selector = css.supportedPClassVendor(selector)
+            if (selector.includes('::')) selector = css.pev(selector)
+            else if (selector.includes(':')) selector = css.pcv(selector)
             const final = `#${CSS.escape(id)}  ${selector}{${(css.toCSS(cssStuff))}}`
             let existing = this.selfRules[css.formatStr(selector.replace(regex.space, ''))]
             // for (let i = 5; i--;) try {
@@ -754,7 +752,7 @@ let props = Object.getOwnPropertyDescriptors(class _
     animate(keyframes, options) {
         (options ??= {}).timing ??= 'ease'
         options.iterations ??= 1
-        options.pseudoElement &&= css.supportedPElementVendor(options.pseudoElement)
+        options.pseudoElement &&= css.pev(options.pseudoElement)
         keyframes.forEach(_.forEach)
         return base(this).animate(keyframes, options)
     }
@@ -1038,7 +1036,10 @@ function PerformanceLoop(o) {
         }
             return
         case 'longtask':
-            title = 'long-task'
+            title = 'long-task';
+            // [top, parent].forEach(o=>o!== window && delayedDispatch(o.entryType,o, new CustomEvent(title, {
+            //     detail
+            // })))
         // console.warn(o)
         case "long-animation-frame":
             detail = o
@@ -1281,6 +1282,7 @@ function $(html, props, ...children) {
         type && (toSet.type = type)
         element.setAttr(toSet)
     }
+    $.last = element
     let b = base(element)
     if (Array.from(b.querySelectorAll('*'), prox).concat(element).some(allElementStuff)) throw TypeError('Inline event handlers are deprecated')
     if (element.tagName === 'SCRIPT' || b.querySelector('script')) {
@@ -1376,6 +1378,10 @@ export default Object.defineProperties($, {
         value(selector) {
             return Array.from(base($.doc).querySelectorAll(selector), prox)
         }
+    },
+    last:{
+        writable:1,
+        value:null,
     },
     setup: {
         value(id) {

@@ -1,11 +1,11 @@
 import * as math from './num.js'
 const { min, max, round } = Math,
     colors = new Map,
-    canvas = ('HTMLCanvasElement'in globalThis ? Object.assign(document.createElement('canvas'), {
+    canvas = ('HTMLCanvasElement'in globalThis?Object.assign(document.createElement('canvas'), {
         width:0,
         height:0,
         mozOpaque:true,
-    }) :new OffscreenCanvas(0, 0)).getContext('2d', {
+    }):new OffscreenCanvas(0, 0)).getContext('2d', {
         alpha:false,
     }),
     handler = {
@@ -33,9 +33,9 @@ const Color = new Proxy(class {
     }
     static opposite(colour) {
         if (0 === colour.indexOf("#") && (colour = colour.slice(1)), 3 === colour.length && (colour = colour[0] + colour[0] + colour[1] + colour[1] + colour[2] + colour[2]), 6 !== colour.length) throw SyntaxError('Invalid HEX color.')
-        let f = (255 - parseInt(colour.slice(0, 2), 16)).toString(16),
-            $ = (255 - parseInt(colour.slice(2, 4), 16)).toString(16),
-            a = (255 - parseInt(colour.slice(4, 6), 16)).toString(16)
+        let f = (255 - parseInt(colour.slice(0,2),16)).toString(16),
+            $ = (255 - parseInt(colour.slice(2,4),16)).toString(16),
+            a = (255 - parseInt(colour.slice(4,6),16)).toString(16)
         return `#${[f, $, a].map(bleh2).join('')}`
     }
     static log(colour) {
@@ -169,8 +169,7 @@ const Color = new Proxy(class {
                     shift = 0 / 60       // R° / (360° / hex sides)
                     if (segment < 0)           // hue > 180, full rotation
                         shift = 360 / 60         // R° / (360° / hex sides)
-
-                    break;
+                    break
                 case g:
                     segment = (b - r) / c
                     shift = 120 / 60     // G° / (360° / hex sides)
@@ -219,7 +218,7 @@ const Color = new Proxy(class {
 }._(), handler)
 export default Color
 function toHex(o) {
-    return (o | 0).toString(16).padStart(2, 0)
+    return (o|0).toString(16).padStart(2, 0)
 }
 export function rgbToHex(r, g, b) {
     return `#${toHex(r)}${toHex(g)}${toHex(b)}`

@@ -159,7 +159,7 @@ export function toCSS(obj, silent) {
     return arr.join(';')
 }
 let pseudoElementRegex = /::[\w-]/
-let pseudoClassRegex = /:[\w-]/
+    , pseudoClassRegex = /:[\w-]/
 function mapThing(selectr) {
     if (pseudoElementRegex.test(selectr)) selectr = pev(selectr)
     else if (pseudoClassRegex.test(selectr)) selectr = pcv(selectr)
@@ -198,12 +198,8 @@ export function registerCSSAll(rules) {
         try {
             registerCSS(r, rules[r])
         } catch {
-            // console.debug(e)
         }
     }
-    // let out = []
-    // for (let rule in rules) out.push(registerCSS(rule, rules[rule]))
-    // return out
 }
 export function supportsRule(rule) {
     return sup(`selector(${rule})`)
@@ -229,9 +225,7 @@ export function supportedPClassVendor(className) {
         throw SyntaxError(`Failed to parse '${className}'`)
     }
 }
-
 export const pev = supportedPElementVendor
-
 export function supportedPElementVendor(element) {
     try {
         let { 0: before, 1: _element } = element.split('::'),
@@ -251,7 +245,6 @@ export function supportedPElementVendor(element) {
         throw SyntaxError(`Failed to parse '${element}'`)
     }
 }
-
 export function dropShadow({
     color = '#000000',
     offsetX = '0px',
@@ -260,7 +253,6 @@ export function dropShadow({
 }) {
     return `${color} ${offsetX} ${offsetY} ${standardDeviation}`
 }
-
 export function boxShadow({
     offsetX = '0px',
     offsetY = '0px',
@@ -270,7 +262,6 @@ export function boxShadow({
 }) {
     return `${color} ${offsetX} ${offsetY} ${blurRadius} ${spreadRadius}`.replaceAll('  ', '')
 }
-
 // export function convertToCSSMethod(value) {
 //     debugger
 //     // Does not work in firefox
@@ -294,20 +285,11 @@ export function boxShadow({
         all.add(name)
         return { name: `--${name}`, initialValue, inherits, syntax }
     }
-
     !function (allProps) {
         const sheet = getDefaultStyleSheet()
         //    Some default CSS..
         try {
             let all = sessionStorage.getItem('defaultCSS') ?? Object.entries({
-                /*  dialog: {
-                      transition: 'opacity 1s linear',
-                      "font-family": "Arial",
-                      "text-align": "center",
-                      width: "300px",
-                      height: "150px",
-                      "word-break": "break-word"
-                  },*/
                 [`button,a,
                 ${'button checkbox radio submit image reset file'.split(' ').map(o => `input[type=${o}]`).join(',')
                     }`]: {

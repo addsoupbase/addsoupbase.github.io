@@ -35,10 +35,10 @@ class Cycle {
     get prev() {
         return this.move(-1)
     }
-    *[Symbol.iterator]() {
-        for (; ;)yield this.next
+    *[Symbol.iterator](){
+        for(;;)yield this.next
     }
-    [Symbol.toPrimitive]() {
+    [Symbol.toPrimitive](){
         return this.#wheel[this.current]
     }
     constructor(...items) {
@@ -48,7 +48,7 @@ class Cycle {
 export function average(...numbers) {
     let { length } = numbers
     if (!length) return NaN
-    return sum(numbers.sort(sort)) / length
+    return sum(numbers.sort(sort))/length
 }
 export function avg(...array) {
     const {length} = array
@@ -72,8 +72,8 @@ export function median(...numbers) {
         middle = length / 2 | 0
     return length % 2 ? sorted[middle] : (sorted[middle] + sorted[middle - 1]) / 2
 }
-function gt(a, b) { return a > b ? a : b }
-function lt(a, b) { return a < b ? a : b }
+function gt(a, b) { return a>b?a:b }
+function lt(a, b) { return a<b?a:b }
 export function mode(...numbers) {
     let obj = []
     for (let { length: i } = numbers; i--;) {
@@ -187,8 +187,7 @@ export class Vector2 {
         return v(this.#y, this.#x)
     }
     toString(unit) {
-        unit ??= ''
-        return `(${this.#x}${unit}, ${this.#y}${unit})`
+        return `(${this.#x}${unit??=''}, ${this.#y}${unit})`
     }
     static _() {
         // Older browsers cant have static init blocks

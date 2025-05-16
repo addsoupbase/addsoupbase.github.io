@@ -6,23 +6,19 @@ export const unbound = Symbol('⛓️‍💥')
 let {warn, groupCollapsed, groupEnd} = console,
     {isArray} = Array
 export const allEvents = new WeakMap
-
 function isValidET(target) {
     return target &&
         (target instanceof EventTarget
             || target.ownerDocument?.defaultView?.EventTarget.prototype.isPrototypeOf(target)
-            // || EventTarget.prototype.isPrototypeOf(target)
             || target.defaultView?.EventTarget.prototype.isPrototypeOf(target)
-            || target.EventTarget?.prototype.isPrototypeOf(target)
-            // || (typeof target.addEventListener === 'function' && typeof target.removeEventListener === 'function' && typeof target.dispatchEvent === 'function')
-        )
+            || target.EventTarget?.prototype.isPrototypeOf(target))
 }
 function getLabel(obj) {
     try {
     return obj[Symbol.toStringTag] || obj.constructor?.name || Object.getPrototypeOf(obj).constructor[Symbol.toStringTag] || Object.getPrototypeOf(obj).constructor?.name
     }
     catch {
-        return {}.toString.call(obj)
+        return{}.toString.call(obj)
     }
 }
 export let reqFile
@@ -44,10 +40,8 @@ else {
     let f = globalThis.document?.createElement('input')
     if (f) {
         f.type = 'file'
-
         function requestFile(accept, multiple) {
             return new Promise(executor)
-
             function executor(resolve, oncancel) {
                 return Object.assign(f, {
                     accept,
@@ -59,33 +53,28 @@ else {
                 }).showPicker()
             }
         }
-
         reqFile = requestFile
     }
 }
-
-//const eventRegistry = new FinalizationRegistry(function ([key, set]) { set.delete(key) })
 function verifyEventName(target, name) {
     let original = name
     name = name.toLowerCase()
-    if (`on${name}` in target) return original
-    if (`onwebkit${name}` in target) return `webkit${original}`
-    if (`onmoz${name}` in target) return `moz${original}`
-    if (`onms${name}` in target) return `ms${original}`
+    if (`on${name}`in target) return original
+    if (`onwebkit${name}`in target) return`webkit${original}`
+    if (`onmoz${name}`in target) return`moz${original}`
+    if (`onms${name}`in target) return`ms${original}`
     if (/^domcontentloaded$/i.test(original) &&
         (globalThis.Document?.prototype.isPrototypeOf(target)
             || globalThis.HTMLDocument?.prototype.isPrototypeOf(target)
             || target.ownerDocument?.defaultView?.HTMLDocument.prototype.isPrototypeOf(target)
             || target.ownerDocument?.defaultView?.Document.prototype.isPrototypeOf(target))
         ||
-        /^(animation(?:cancel|remove))$/i.test(original) && 'onremove' in target)
+        /^(animation(?:cancel|remove))$/i.test(original) && 'onremove'in target)
         return original
     //Some events like the one above don't have a handler
     customEvents.has(name) || queueMicrotask(console.warn.bind(1, `'${original}' events might not be available on the following object:`, target))
     return original
-    // throw TypeError(`🔇 Cannot listen for '${original}' events`)
 }
-
 const delayedEvents = new Map
     , giveItSomeTime = function (hold) {
     let secondparam = 100 //idk some random timeout
@@ -95,8 +84,7 @@ const delayedEvents = new Map
     function delay(callback) {
         return hold(callback, secondparam)
     }
-}(globalThis.queueMicrotask ?? globalThis.requestIdleCallback ?? globalThis.setImmediate ?? globalThis.setTimeout)
-
+}(globalThis.queueMicrotask??globalThis.requestIdleCallback??globalThis.setImmediate??globalThis.setTimeout)
 function dispatchAllDelayed(id) {
     let all = delayedEvents.get(id)
     giveItSomeTime(emitPendingEvents)
@@ -119,33 +107,19 @@ export function delayedDispatch(id, target, event) {
         event
     })
 }
-
 export function wait(ms) {
     return new Promise(resolveWithDelay)
-
     function resolveWithDelay(resolve) {
         setTimeout(resolve, ms)
     }
 }
-
-/*const AbortSignals = new Map
-
-export function abort(id, reason) {
-    let signal = AbortSignals.get(id)
-    if (!signal) throw TypeError('Signal not found')
-    signal.controller.abort(reason)
-    signal.count = 0
-    console.info('🛜 Aborted on signal', id, reason ? ` with reason: ${reason}.` : ' ')
-}*/
 export function getEventNames(target) {
     target.hasOwnProperty(sym) || Object.defineProperty(target, sym, {value: new Set})
     return target[sym]
 }
-
 export function hasEvent(target, eventName) {
     return target[sym]?.has(eventName) ?? false
 }
-
 export const {
     currentTarget: CURRENT_TARGET, autoAbort: AUTO_ABORT, trusted: TRUSTED, once: ONCE,
     preventDefault: PREVENT_DEFAULT, passive: PASSIVE,
@@ -162,14 +136,10 @@ export const {
     stopImmediatePropagation: '!', //Automatically calls event.stopImmediatePropagation()
 })
 const customEvents = new Set
-
 export function addCustomEvent(names) {
-    for (let name in names)
-        (names[name] ? customEvents.add : customEvents.delete).call(customEvents, name.toLowerCase())
+    for(let name in names)(names[name]?customEvents.add:customEvents.delete).call(customEvents,name.toLowerCase())
 }
-
 const formatEventName = /[_$^%&!?@#\d]|bound /g
-
 export function on(target, events, useHandler, signal) {
     if (Array.isArray(target)) {
         groupCollapsed('on(...)')
@@ -177,7 +147,6 @@ export function on(target, events, useHandler, signal) {
         function func(t) {
             on(t, events, useHandler)
         }
-
         console.groupEnd()
         return target
     }
@@ -190,9 +159,8 @@ export function on(target, events, useHandler, signal) {
         if (typeof events === 'function') events = {
             [events.name]: events
         }
-        else if (isArray(events)) {
+        else if (isArray(events))
             events = Object.fromEntries(events)
-        }
         // if (signal) signal.signal.onabort = console.debug.bind(1, 'Aborted: ', signal)
         for (let eventName in events) {
             const func = events[eventName],
@@ -221,12 +189,10 @@ export function on(target, events, useHandler, signal) {
             }
             let Remove = target.removeEventListener.bind(target, eventName, EventHandlerWrapperFunction, options),
                 Abort = AutoAbort.bind(signal)
-
             function EventHandlerWrapperFunction(...args) {
                 let {0: event} = args
                 if (getLabel(event) === 'CustomEvent') {
                     let {detail} = event
-                    // , keys = Reflect.ownKeys(detail)
                     for (let i in detail) {
                         // i wish for in included symbols :<
                         if (i in event) {
@@ -236,18 +202,18 @@ export function on(target, events, useHandler, signal) {
                         event[i] = detail[i]
                     }
                 }
-                signal && args.push(Abort, Remove)
-                onlyTrusted && event.isTrusted || !onlyTrusted && (!onlyCurrentTarget || onlyCurrentTarget && event.target === event.currentTarget) &&
+                signal&&args.push(Abort, Remove)
+                onlyTrusted&&event.isTrusted || !onlyTrusted && (!onlyCurrentTarget || onlyCurrentTarget && event.target === event.currentTarget) &&
                 (Reflect.apply(func,target, args),
                 stopImmediateProp && event.stopImmediatePropagation(),
                 stopProp && event.stopPropagation(),
-                prevents && (event.cancelable ? event.preventDefault() : warn(`🔊 '${eventName}' events are not cancelable`)),
-                autoabort && Abort(),
-                once && off(event.currentTarget, eventName))
+                prevents&&(event.cancelable?event.preventDefault():warn(`🔊 '${eventName}' events are not cancelable`)),
+                autoabort&&Abort(),
+                once&&off(event.currentTarget, eventName))
             }
             Object.defineProperty(EventHandlerWrapperFunction, unbound, {
                 value: func,
-                configurable: 1,
+                configurable: 1
             })
             if (useHandler)
                 // console.warn('Using handler property is deprecated')
@@ -284,32 +250,9 @@ export function on(target, events, useHandler, signal) {
     }
     return target
 }
-/*
-{
-    function a({0: event, 1: name}) {
-        return [event, `${name}_`]
-    }
-
-    Object.assign(on,
-        {
-            once(target, events, useHandler) {
-                if (Array.isArray(events))
-                    events = events.map(a)
-                else for (let n in events) {
-                    let {name} = events[n]
-                    events[`_${n}`] = name
-                    delete events[n]
-                }
-                return on(target, events, useHandler)
-            }
-        }
-    )
-}
-*/
 function AutoAbort() {
     this.abort('Automatic abort')
 }
-
 export function off(target, ...eventNames) {
     if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
     if (!eventNames.length || !allEvents.has(target)) return null
@@ -322,7 +265,7 @@ export function off(target, ...eventNames) {
             const name = verifyEventName(target, eventNames[length]),
                 settings = map.get(name),
                 {listener, capture, passive, handler} = settings
-            handler ? (target[`on${name}`] = null) : target.removeEventListener(name, listener, settings)
+            handler?(target[`on${name}`]=null):target.removeEventListener(name,listener,settings)
             map.has(name) && console.info(`🔕 '${name}' event removed`)
             map.delete(name)
             mySet.delete(name)
@@ -334,33 +277,17 @@ export function off(target, ...eventNames) {
         groupEnd()
     }
 }
-
 export function until(target, eventName, failureName, timeout/* = 600000*/) {
     return new Promise(waitForEvent)
-
     function waitForEvent(resolve, reject) {
         const str = `⏰ Promise for '${eventName}' expired after ${timeout} ms`
             , id = timeout && setTimeout(err => {
             reject(err)
             signal.abort(str)
-            // off(target, eventName)
         }, timeout, RangeError(str))
             , handleName = `on${eventName}`
-        /*if (target[handleName] === null) {
-            //  Use the handler property if we can
-            target[handleName] = handler
-            function handler(event) {
-                try { resolve(event) }
-                catch (e) { reject(e) }
-                finally {
-                    target[handleName] = null
-                    timeout && clearTimeout(id)
-                }
-            }
-        }
-        else */
         let signal = new AbortController
-        let e = {
+            , e = {
             [`#${eventName}`](event) {
                 try {
                     resolve(event)
@@ -385,10 +312,8 @@ export function until(target, eventName, failureName, timeout/* = 600000*/) {
         on(target, e, target[handleName] === null, signal)
     }
 }
-
 let objectURLS,
     registry
-
 export function getObjUrl(thingy) {
     registry ??= new FinalizationRegistry(URL.revokeObjectURL)
     objectURLS ??= new WeakMap
@@ -398,9 +323,7 @@ export function getObjUrl(thingy) {
     objectURLS.set(thingy, url)
     return url
 }
-
 let anchor
-
 export function download(blob, title) {
     anchor ??= document.createElement('a')
     anchor.download = title || 'download'

@@ -3,47 +3,38 @@ export function assemble(arrayLike, ...sequence) {
     for (let {length} = sequence, i = 0; i < length;) out.push(arrayLike.at(sequence[i++]))
     return out
 }
-
 export function forKeys(obj, callback) {
     let keys = Reflect.ownKeys(obj)
     for (let {length} = keys; length--;) callback.call(obj, keys[length])
 }
-
 export function of(length, filler) {
     return typeof filler === 'function' ?
         Array.from({length}, filler) :
         Array(length).fill(filler)
 }
-
 export function* backwards(arrayLike) {
     for (let {length} = arrayLike; length--;) yield arrayLike[length]
 }
-
 export function center(array) {
     return array[(array.length / 2) | 0]
 }
-
 export function insert(array, item, index) {
     return array.splice(index, 0, item)
 }
-
 export function remove(item, index) {
     return typeof item === 'string' ?
         `${item.slice(0, index)}${item.slice(index + 1)}` :
         item.splice(index, 1)
 }
-
 export function swap(item, first, second) {
     return {0: item[first], 1: item[second]} = [item[second], item[first]], item
 }
-
 export function swapInside(item, firstIndex, secondIndex) {
     const slot = item.indexOf(firstIndex),
         slot2 = item.indexOf(secondIndex)
     if (slot !== -1 && slot2 !== -1) return swap(item, slot, slot2)
     throw RangeError("Index out of range")
 }
-
 export function rotate(arr, rotation = 1) {
     let {length} = arr
     if (length < 2) return arr
@@ -53,16 +44,13 @@ export function rotate(arr, rotation = 1) {
     else while (r--) arr.push(arr.shift())
     return arr
 }
-
 async function fallback(src) {
     let n = await fetch(new URL(src, location))
     if (!/application\/json/.test(n.headers.get("Content-Type"))) throw TypeError("Failed to import json")
     return n.json()
 }
-
 let s = sessionStorage.getItem('supportsJSONModule')
 export let getJson
-
 function TestImportSupport() {
     // Some browsers (Firefox, old) throw with the 'options' parameter
     getJson = fallback.constructor('src',
@@ -83,9 +71,9 @@ function FallbackImport() {
 if (s !== 'false' && s !== 'true') try {
     TestImportSupport()
 } catch (e) {
-    if (e.name === "SyntaxError" || e.name === 'EvalError') {
+    if (e.name === "SyntaxError" || e.name === 'EvalError')
         FallbackImport()
-    } else reportError(e)
+     else reportError(e)
 }
 else if (s === 'true') TestImportSupport()
 else FallbackImport()
