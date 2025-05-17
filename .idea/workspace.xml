@@ -6,20 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="lol">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/about.html" beforeDir="false" afterPath="$PROJECT_DIR$/about.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/arrays.js" beforeDir="false" afterPath="$PROJECT_DIR$/arrays.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/color.js" beforeDir="false" afterPath="$PROJECT_DIR$/color.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/createEntry.js" beforeDir="false" afterPath="$PROJECT_DIR$/createEntry.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/csshelper.js" beforeDir="false" afterPath="$PROJECT_DIR$/csshelper.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diary.html" beforeDir="false" afterPath="$PROJECT_DIR$/diary.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fallback.js" beforeDir="false" afterPath="$PROJECT_DIR$/fallback.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handle.js" beforeDir="false" afterPath="$PROJECT_DIR$/handle.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.html" beforeDir="false" afterPath="$PROJECT_DIR$/main.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/num.js" beforeDir="false" afterPath="$PROJECT_DIR$/num.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/silence.js" beforeDir="false" afterPath="$PROJECT_DIR$/silence.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/str.js" beforeDir="false" afterPath="$PROJECT_DIR$/str.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yay.js" beforeDir="false" afterPath="$PROJECT_DIR$/yay.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -131,15 +117,7 @@
       <workItem from="1746885495621" duration="18052000" />
       <workItem from="1746971915333" duration="25813000" />
       <workItem from="1747094649487" duration="10215000" />
-      <workItem from="1747337801168" duration="14540000" />
-    </task>
-    <task id="LOCAL-00013" summary="HELP">
-      <option name="closed" value="true" />
-      <created>1746028844230</created>
-      <option name="number" value="00013" />
-      <option name="presentableId" value="LOCAL-00013" />
-      <option name="project" value="LOCAL" />
-      <updated>1746028844230</updated>
+      <workItem from="1747337801168" duration="17799000" />
     </task>
     <task id="LOCAL-00014" summary="shit">
       <option name="closed" value="true" />
@@ -525,7 +503,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747374842584</updated>
     </task>
-    <option name="localTasksCounter" value="62" />
+    <task id="LOCAL-00062" summary="lol">
+      <option name="closed" value="true" />
+      <created>1747410896592</created>
+      <option name="number" value="00062" />
+      <option name="presentableId" value="LOCAL-00062" />
+      <option name="project" value="LOCAL" />
+      <updated>1747410896592</updated>
+    </task>
+    <option name="localTasksCounter" value="63" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
