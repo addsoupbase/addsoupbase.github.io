@@ -4,8 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="lol">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="Yeah">
+      <change beforePath="$PROJECT_DIR$/entries/5_16_2025/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/entries/5_16_2025/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -117,15 +117,7 @@
       <workItem from="1746885495621" duration="18052000" />
       <workItem from="1746971915333" duration="25813000" />
       <workItem from="1747094649487" duration="10215000" />
-      <workItem from="1747337801168" duration="17799000" />
-    </task>
-    <task id="LOCAL-00014" summary="shit">
-      <option name="closed" value="true" />
-      <created>1746029116288</created>
-      <option name="number" value="00014" />
-      <option name="presentableId" value="LOCAL-00014" />
-      <option name="project" value="LOCAL" />
-      <updated>1746029116288</updated>
+      <workItem from="1747337801168" duration="18499000" />
     </task>
     <task id="LOCAL-00015" summary="Better">
       <option name="closed" value="true" />
@@ -511,7 +503,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747410896592</updated>
     </task>
-    <option name="localTasksCounter" value="63" />
+    <task id="LOCAL-00063" summary="Yeah">
+      <option name="closed" value="true" />
+      <created>1747451706225</created>
+      <option name="number" value="00063" />
+      <option name="presentableId" value="LOCAL-00063" />
+      <option name="project" value="LOCAL" />
+      <updated>1747451706225</updated>
+    </task>
+    <option name="localTasksCounter" value="64" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -529,7 +529,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Youre so cool for reading thiks!!" />
     <MESSAGE value="i made a typo like a silly !!" />
     <MESSAGE value="heythere" />
     <MESSAGE value="yerah" />
@@ -554,6 +553,7 @@
     <MESSAGE value="fixed error oops" />
     <MESSAGE value="YEAHHH" />
     <MESSAGE value="lol" />
-    <option name="LAST_COMMIT_MESSAGE" value="lol" />
+    <MESSAGE value="Yeah" />
+    <option name="LAST_COMMIT_MESSAGE" value="Yeah" />
   </component>
 </project>
