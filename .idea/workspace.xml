@@ -4,8 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="Yeah">
-      <change beforePath="$PROJECT_DIR$/entries/5_16_2025/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/entries/5_16_2025/index.html" afterDir="false" />
+    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="just oms emore">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/color.js" beforeDir="false" afterPath="$PROJECT_DIR$/color.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis.json" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/emojis.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/1216675427716825159.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/1224367815054721044.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/1225820689982947389.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/1296173021081636875.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/80874-gloomybear.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/83944-pinkstarrysparkles.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cute-emojis/sort.html" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/sort.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cute-emojis/sort.js" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -20,7 +31,7 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/cute-emojis" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -117,15 +128,7 @@
       <workItem from="1746885495621" duration="18052000" />
       <workItem from="1746971915333" duration="25813000" />
       <workItem from="1747094649487" duration="10215000" />
-      <workItem from="1747337801168" duration="18499000" />
-    </task>
-    <task id="LOCAL-00015" summary="Better">
-      <option name="closed" value="true" />
-      <created>1746179818375</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1746179818375</updated>
+      <workItem from="1747337801168" duration="23501000" />
     </task>
     <task id="LOCAL-00016" summary="tod">
       <option name="closed" value="true" />
@@ -511,7 +514,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747451706225</updated>
     </task>
-    <option name="localTasksCounter" value="64" />
+    <task id="LOCAL-00064" summary="just oms emore">
+      <option name="closed" value="true" />
+      <created>1747452747916</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1747452747916</updated>
+    </task>
+    <option name="localTasksCounter" value="65" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -529,7 +540,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="i made a typo like a silly !!" />
     <MESSAGE value="heythere" />
     <MESSAGE value="yerah" />
     <MESSAGE value="ilu" />
@@ -554,6 +564,7 @@
     <MESSAGE value="YEAHHH" />
     <MESSAGE value="lol" />
     <MESSAGE value="Yeah" />
-    <option name="LAST_COMMIT_MESSAGE" value="Yeah" />
+    <MESSAGE value="just oms emore" />
+    <option name="LAST_COMMIT_MESSAGE" value="just oms emore" />
   </component>
 </project>

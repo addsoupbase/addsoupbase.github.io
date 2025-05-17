@@ -21,7 +21,7 @@ const { min, max, round } = Math,
             throw TypeError(`Invalid color '${prop}'`)
         },
         apply(target, _, args) {
-            return new target(...args)
+            return Reflect.construct(target, args)
         }
     }
 const Color = new Proxy(class {
