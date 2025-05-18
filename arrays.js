@@ -47,7 +47,7 @@ export function rotate(arr, rotation = 1) {
 async function fallback(src) {
     let n = await fetch(new URL(src, location))
     if (!/application\/json/.test(n.headers.get("Content-Type"))) throw TypeError("Failed to import json")
-    return n.json()
+    return await n.json()
 }
 let s = sessionStorage.getItem('supportsJSONModule')
 export let getJson
