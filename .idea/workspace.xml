@@ -4,11 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="sort thingy for cute-emojis, also added a few emojis">
+    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="nano">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/color.js" beforeDir="false" afterPath="$PROJECT_DIR$/color.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handle.js" beforeDir="false" afterPath="$PROJECT_DIR$/handle.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/allava.json" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/allava.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.html" beforeDir="false" afterPath="$PROJECT_DIR$/main.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/dom.js" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/dom.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/styles.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -120,15 +120,7 @@
       <workItem from="1746885495621" duration="18052000" />
       <workItem from="1746971915333" duration="25813000" />
       <workItem from="1747094649487" duration="10215000" />
-      <workItem from="1747337801168" duration="25023000" />
-    </task>
-    <task id="LOCAL-00017" summary="little fix">
-      <option name="closed" value="true" />
-      <created>1746303485884</created>
-      <option name="number" value="00017" />
-      <option name="presentableId" value="LOCAL-00017" />
-      <option name="project" value="LOCAL" />
-      <updated>1746303485884</updated>
+      <workItem from="1747337801168" duration="30382000" />
     </task>
     <task id="LOCAL-00018" summary="hey">
       <option name="closed" value="true" />
@@ -514,7 +506,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747490173642</updated>
     </task>
-    <option name="localTasksCounter" value="66" />
+    <task id="LOCAL-00066" summary="nano">
+      <option name="closed" value="true" />
+      <created>1747526709795</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1747526709795</updated>
+    </task>
+    <option name="localTasksCounter" value="67" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -532,7 +532,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="yerah" />
     <MESSAGE value="ilu" />
     <MESSAGE value="yeah" />
     <MESSAGE value="some changes" />
@@ -557,6 +556,7 @@
     <MESSAGE value="Yeah" />
     <MESSAGE value="just oms emore" />
     <MESSAGE value="sort thingy for cute-emojis, also added a few emojis" />
-    <option name="LAST_COMMIT_MESSAGE" value="sort thingy for cute-emojis, also added a few emojis" />
+    <MESSAGE value="nano" />
+    <option name="LAST_COMMIT_MESSAGE" value="nano" />
   </component>
 </project>

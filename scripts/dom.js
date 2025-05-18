@@ -1,6 +1,5 @@
 
 import $ from '../yay.js'
-import { FormDataManager } from '../proxies.js'
 import { on, } from "../handle.js"
 
 $.setup()
@@ -35,18 +34,43 @@ $.gid('viewbackground').on({
     title: 'music',
     href: './music.html'
 })*/
-let { submit: form } = $.byId
+let controller = new AbortController
+let { submit: form, send } = $.byId
+// send.replace($(`<input type="image" title="Send" src="http://localhost:3000/addsoupbase.github.io/cute-emojis/emojis/1225244786831659111.gif">`)
+// .on( {
+//     click(a, abort) {
+//         form.name.value&&form.message.value&&(form.submit(), abort())
+//     }
+// }, false,controller)
+// )
 form.on({
         async $submit() {
-            let { name, message } = FormDataManager(this.valueOf())
             // name ||= 'Anonymous'
             await form.fadeOut()
             let hi = $(`<section><h3>Sent!! (hopefully)</h3>
-            <samp>Name: ${name}</samp><br>
-            <samp>Message: ${message}</samp>
+            <samp>Name: ${this.name.value}</samp><br>
+            <samp>Message: ${this.message.value}</samp>
             </section>`)
             form.replace(hi)
             hi.fadeIn()
+            let a
+            try {
+            a = await fetch(this.attr.action, {
+                method:'POST',
+                body: `name=${encodeURIComponent(this.name.value)}&message=${encodeURIComponent(this.message.value)}`,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Accept': 'application/json'
+                    }
+            })
+            }
+            catch {
+                return alert('Failed to send message')
+            }
+            finally {
+                if  (!a.ok)alert('Failed to send message')
+            }
+
             // let loading = $('<img class="delibird" src="./media/loading.webp">')
             // form.before = loading
             // let req = !location.href.startsWith('http://localhost') ? await fetch(`https://formspree.io/f/mqakzlyo`, {
@@ -70,5 +94,5 @@ form.on({
             // }
             // form.destroy()
         }
-    }
+    },false, controller
 )
