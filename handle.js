@@ -315,18 +315,15 @@ export function until(target, eventName, failureName, timeout/* = 600000*/) {
 let objectURLS,
     registry
 export function getObjUrl(thingy) {
-    registry ??= new FinalizationRegistry(URL.revokeObjectURL)
-    objectURLS ??= new WeakMap
-    if (objectURLS.has(thingy)) return objectURLS.get(thingy)
-    let url = URL.createObjectURL(thingy)
-    registry.register(thingy, url)
+    if ((objectURLS ??= new WeakMap).has(thingy)) return objectURLS.get(thingy)
+    let url = URL.createObjectURL(thingy);
+    (registry ??= new FinalizationRegistry(URL.revokeObjectURL)).register(thingy, url)
     objectURLS.set(thingy, url)
     return url
 }
 let anchor
 export function download(blob, title) {
-    anchor ??= document.createElement('a')
-    anchor.download = title || 'download'
+    (anchor ??= document.createElement('a')).download = title ?? 'download'
     anchor.href = getObjUrl(blob)
     anchor.click()
 }

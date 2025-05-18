@@ -24,7 +24,7 @@ const { min, max, round } = Math,
             return Reflect.construct(target, args)
         }
     }
-const Color = new Proxy(class {
+const Color = new Proxy(class ${
     //Darken Hex Colour
     //Don't ask why there's a "k" there
     static dhk(e, f = 40) { let $ = parseInt((e = ('' + e).replace(/^#/, "")).substring(0, 2), 16), a = parseInt(e.substring(2, 4), 16), r = parseInt(e.substring(4, 6), 16); return $ = round($ * (1 - f / 100)), a = round(a * (1 - f / 100)), r = round(r * (1 - f / 100)), $ = min(255, max(0, $)), a = min(255, max(0, a)), r = min(255, max(0, r)), "#" + [$, a, r].map(function (e) { let f = e.toString(16); return 1 === f.length ? "0" + f : f }).join('') }
@@ -127,7 +127,7 @@ const Color = new Proxy(class {
         return Object.assign(this, { r, g, b, a })
     }
     invert() {
-        return this.#copy(Color(Color.opposite(`${this}`)))
+        return this.#copy(new $($.opposite(`${this}`)))
     }
     get 0() {
         return this.r
@@ -202,12 +202,12 @@ const Color = new Proxy(class {
         this.a = a
     }
     get opposite() {
-        let out = Color(`${this}`)
+        let out = new $(`${this}`)
         out.invert()
         return out
     }
     darkenBy(amount) {
-        return this.#copy(Color(Color.dhk(`${this}`, amount)))
+        return this.#copy(new $($.dhk(`${this}`, amount)))
     }
     *[Symbol.iterator]() {
         yield this.r

@@ -4,19 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="just oms emore">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="sort thingy for cute-emojis, also added a few emojis">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/color.js" beforeDir="false" afterPath="$PROJECT_DIR$/color.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis.json" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/emojis.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/1216675427716825159.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/1224367815054721044.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/1225820689982947389.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/1296173021081636875.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/80874-gloomybear.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/83944-pinkstarrysparkles.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/sort.html" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/sort.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/sort.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/handle.js" beforeDir="false" afterPath="$PROJECT_DIR$/handle.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/allava.json" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/allava.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,7 +23,7 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/cute-emojis" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -128,15 +120,7 @@
       <workItem from="1746885495621" duration="18052000" />
       <workItem from="1746971915333" duration="25813000" />
       <workItem from="1747094649487" duration="10215000" />
-      <workItem from="1747337801168" duration="23501000" />
-    </task>
-    <task id="LOCAL-00016" summary="tod">
-      <option name="closed" value="true" />
-      <created>1746302627435</created>
-      <option name="number" value="00016" />
-      <option name="presentableId" value="LOCAL-00016" />
-      <option name="project" value="LOCAL" />
-      <updated>1746302627435</updated>
+      <workItem from="1747337801168" duration="25023000" />
     </task>
     <task id="LOCAL-00017" summary="little fix">
       <option name="closed" value="true" />
@@ -522,7 +506,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747452747916</updated>
     </task>
-    <option name="localTasksCounter" value="65" />
+    <task id="LOCAL-00065" summary="sort thingy for cute-emojis, also added a few emojis">
+      <option name="closed" value="true" />
+      <created>1747490173642</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1747490173642</updated>
+    </task>
+    <option name="localTasksCounter" value="66" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -540,7 +532,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="heythere" />
     <MESSAGE value="yerah" />
     <MESSAGE value="ilu" />
     <MESSAGE value="yeah" />
@@ -565,6 +556,7 @@
     <MESSAGE value="lol" />
     <MESSAGE value="Yeah" />
     <MESSAGE value="just oms emore" />
-    <option name="LAST_COMMIT_MESSAGE" value="just oms emore" />
+    <MESSAGE value="sort thingy for cute-emojis, also added a few emojis" />
+    <option name="LAST_COMMIT_MESSAGE" value="sort thingy for cute-emojis, also added a few emojis" />
   </component>
 </project>
