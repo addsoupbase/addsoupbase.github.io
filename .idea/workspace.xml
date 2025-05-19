@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="yup yup">
+    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="just">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/arrays.js" beforeDir="false" afterPath="$PROJECT_DIR$/arrays.js" afterDir="false" />
     </list>
@@ -118,15 +118,7 @@
       <workItem from="1746885495621" duration="18052000" />
       <workItem from="1746971915333" duration="25813000" />
       <workItem from="1747094649487" duration="10215000" />
-      <workItem from="1747337801168" duration="32714000" />
-    </task>
-    <task id="LOCAL-00020" summary="1. fixed the anchor buttons being hard to press&#10;2. auto abort feature for handle.js">
-      <option name="closed" value="true" />
-      <created>1746363476003</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
-      <option name="project" value="LOCAL" />
-      <updated>1746363476003</updated>
+      <workItem from="1747337801168" duration="34432000" />
     </task>
     <task id="LOCAL-00021" summary="i just love you so much">
       <option name="closed" value="true" />
@@ -512,7 +504,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747616900536</updated>
     </task>
-    <option name="localTasksCounter" value="69" />
+    <task id="LOCAL-00069" summary="just">
+      <option name="closed" value="true" />
+      <created>1747617814404</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1747617814405</updated>
+    </task>
+    <option name="localTasksCounter" value="70" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -530,7 +530,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="some changes" />
     <MESSAGE value="hehe" />
     <MESSAGE value="more emojis" />
     <MESSAGE value="i love whoever is reading this" />
@@ -555,6 +554,7 @@
     <MESSAGE value="nano" />
     <MESSAGE value="fixed, im so smart" />
     <MESSAGE value="yup yup" />
-    <option name="LAST_COMMIT_MESSAGE" value="yup yup" />
+    <MESSAGE value="just" />
+    <option name="LAST_COMMIT_MESSAGE" value="just" />
   </component>
 </project>

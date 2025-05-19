@@ -44,13 +44,16 @@ export function rotate(arr, rotation) {
     else while (r--) arr.push(arr.shift())
     return arr
 }
+const headers = {
+    accept:'application/json,*/*;q=0.5'
+}
 async function fallback(src) {
-    let n = await fetch(new URL(src, location)),
+    let n = await fetch(new URL(src, location), {headers}),
         type = n.headers.get('Content-Type')
     if (!/application\/json/.test(type)) throw TypeError(`Mime type must match 'application/json', instead got '${type}'`)
     return await n.json()
 }
-let s = sessionStorage.getItem('supportsJSONModule')
+let s = sessionStorage.getItem('json')
 export let getJson
 function TestImportSupport() {
     // Some browsers (old) throw with the 'options' parameter
@@ -58,14 +61,14 @@ function TestImportSupport() {
     getJson = fallback.constructor
         // Some, even older browsers, prefer 'assert' over 'with'
         // i sometimes wonder why they changed it in the first place if it works pretty much the same...
-        ('src','"use strict";try{let out=(await import(new URL(src,location),{assert:{type:"json"},with:{type:"json"}})).default;sessionStorage.setItem("supportsJSONModule",true);return out}catch(e){if(e.name==="TypeError"){sessionStorage.setItem("supportsJSONModule",false);return this(src)}throw e}')
+        ('src','"use strict";let a=sessionStorage;try{let out=(await import(new URL(src,location),{assert:{type:"json"},with:{type:"json"}})).default;a.setItem("json",!0);return out}catch(e){if(e.name==="TypeError"){a.setItem("json",!1);return this(src)}throw e}')
         // If the import() thing still fails just use the fallback
         .bind(fallback)
     // using bind since the function can't access the module scope
 }
 
 function FallbackImport() {
-    sessionStorage.setItem("supportsJSONModule", false)
+    sessionStorage.setItem("json", false)
     // console.warn(`Your browser does not support 'import()' with json; Switching to fetch.`)
     getJson = fallback
 }
