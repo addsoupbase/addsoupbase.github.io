@@ -12,9 +12,21 @@ Things i learned from 2nd -> 3rd:
 */
 import * as h from './handle.js'
 import * as css from './csshelper.js'
-import * as f from './functions.js'
-import {delayedDispatch} from "./handle.js";
-
+const f  = {debounce(func, interval) {
+    let waiting = false
+    return DebouncedFunction
+    function enable() {
+        waiting = false
+    }
+    function DebouncedFunction(...args) {
+        if (!waiting) {
+            waiting = true
+            setTimeout(enable, interval)
+            func.apply(this, args)
+        }
+        return !waiting
+    }
+}}
 if (!Object.hasOwn) Object.defineProperty(Object, 'hasOwn', {
     value: (obj, prop) => ({}).hasOwnProperty.call(obj, prop),
     writable: 1,

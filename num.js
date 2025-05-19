@@ -36,13 +36,14 @@ class Cycle {
         return this.move(-1)
     }
     *[Symbol.iterator](){
-        for(;;)yield this.next
+        let a = this.length
+        for(;a--;yield this.next);
     }
     [Symbol.toPrimitive](){
         return this.#wheel[this.current]
     }
     constructor(...items) {
-        this.current = this.length = (this.#wheel = items).length
+        this.current = this.length = (this.#wheel =Object.freeze(items)).length
     }
 }
 export function average(...numbers) {
@@ -93,7 +94,7 @@ export function closest(num, ...nums) {
     for (let { length } = nums; length--;) {
         let n = nums[length]
         let d = diff(num, n)
-        if (d < Math.abs(distance)) distance = n
+        if (d < abs(distance)) distance = n
     }
     return distance
 }
@@ -103,7 +104,7 @@ export function furthest(num, ...nums) {
     for (let { length } = nums; length--;) {
         let n = nums[length]
         let d = diff(num, n)
-        if (d > Math.abs(distance)) distance = n
+        if (d > abs(distance)) distance = n
     }
     return distance
 }
@@ -337,11 +338,11 @@ export class Vector2 {
         y2 ??= second.y
         return x1 === x2 && y1 === y2
     }
-    lerp(pos, time = 0.1, delta = 1) {
+    lerp(pos, time, delta) {
         let { 0: x = 0, 1: y = 0 } = pos
         x ??= pos.x
         y ??= pos.y
-        return this.subtract(this.minus(x, y).scale(time * delta))
+        return this.subtract(this.minus(x, y).scale((time??.1) * (delta??1)))
     }
     clamp({ 0: minX = MIN_SAFE_INTEGER, 1: minY = MIN_SAFE_INTEGER } = {}, { 0: maxX = MAX_SAFE_INTEGER, 1: maxY = MAX_SAFE_INTEGER } = {}) {
         this.clampX(minX, maxX)
