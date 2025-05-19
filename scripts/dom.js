@@ -48,7 +48,7 @@ form.on({
             // name ||= 'Anonymous'
             await form.fadeOut()
             let hi = $(`<section><h3>Sent!! (hopefully)</h3>
-            <samp>Name: ${this.name.value}</samp><br>
+            <samp>Name: ${this.name.value||="Anonymous"}</samp><br>
             <samp>Message: ${this.message.value}</samp>
             </section>`)
             form.replace(hi)
