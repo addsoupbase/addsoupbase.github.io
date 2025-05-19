@@ -35,28 +35,30 @@ export function swapInside(item, firstIndex, secondIndex) {
     if (slot !== -1 && slot2 !== -1) return swap(item, slot, slot2)
     throw RangeError("Index out of range")
 }
-export function rotate(arr, rotation = 1) {
+export function rotate(arr, rotation) {
     let {length} = arr
     if (length < 2) return arr
-    let sign = Math.sign(rotation),
+    let sign = Math.sign(rotation??=1),
         r = Math.abs(rotation | 0) % length
     if (sign > 0) while (r--) arr.unshift(arr.pop())
     else while (r--) arr.push(arr.shift())
     return arr
 }
 async function fallback(src) {
-    let n = await fetch(new URL(src, location))
-    if (!/application\/json/.test(n.headers.get("Content-Type"))) throw TypeError("Failed to import json")
+    let n = await fetch(new URL(src, location)),
+        type = n.headers.get('Content-Type')
+    if (!/application\/json/.test(type)) throw TypeError(`Mime type must match 'application/json', instead got '${type}'`)
     return await n.json()
 }
 let s = sessionStorage.getItem('supportsJSONModule')
 export let getJson
 function TestImportSupport() {
-    // Some browsers (Firefox, old) throw with the 'options' parameter
-    getJson = fallback.constructor('src',
-        // Some old browsers prefer 'assert' over 'with'
-        '"use strict";try{let out=(await import(new URL(src,location),{assert:{type:"json"},with:{type:"json"}})).default;sessionStorage.setItem("supportsJSONModule",true);return out}catch(e){if(e.name==="TypeError"){sessionStorage.setItem("supportsJSONModule",false);return this(src)}throw e}'
-    )
+    // Some browsers (old) throw with the 'options' parameter
+    // Firefox works now thankfully, but opera needs to catch up
+    getJson = fallback.constructor
+        // Some, even older browsers, prefer 'assert' over 'with'
+        // i sometimes wonder why they changed it in the first place if it works pretty much the same...
+        ('src','"use strict";try{let out=(await import(new URL(src,location),{assert:{type:"json"},with:{type:"json"}})).default;sessionStorage.setItem("supportsJSONModule",true);return out}catch(e){if(e.name==="TypeError"){sessionStorage.setItem("supportsJSONModule",false);return this(src)}throw e}')
         // If the import() thing still fails just use the fallback
         .bind(fallback)
     // using bind since the function can't access the module scope
