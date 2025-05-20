@@ -3,13 +3,13 @@ import $ from '../yay.js'
 import { on, } from "../handle.js"
 
 $.setup()
-let { main } = $.byId
+let { main } = $.id
 main.setStyles({ opacity: 0 })
-if (top === window)$.byId.viewframe.destroy()
+if (top === window)$.id.viewframe.destroy()
 on(window, {
     _load() {
         if (top === window) {
-            $.byId.goBack.setAttribute('href', './')
+            $.id.goBack.setAttribute('href', './')
         }
 
     }
@@ -21,10 +21,12 @@ location.hash? main.animate([{ filter: 'blur(2px)', opacity: 0, scale: '0.8 0.8'
     { scale: '' }, { scale: '1.1 1.1' },
 ], { duration: 500, iterations: 4, direction: 'alternate', easing: 'ease-in-out' })*/
 $.gid('viewbackground').on({
-    async _click() {
-        await main.fadeOut()
+     _click() {
+         main.fadeOut()
+        setTimeout(()=>{
         let topWindow = parent.document.getElementById('frame')
         topWindow.remove()
+        },800)
     }
 })
 // buttonholder.$(`<a class="cute-green-button" href="./diary.html">Diary</a>`)
@@ -68,7 +70,7 @@ form.on({
                 return alert('Failed to send message')
             }
             finally {
-                if  (!a.ok)alert('Failed to send message')
+                a.ok||alert('Failed to send message')
             }
 
             // let loading = $('<img class="delibird" src="./media/loading.webp">')

@@ -537,6 +537,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         return this.animate([{}, _.nopacity], {
             duration,
             easing: 'ease',
+            composite:'replace',
             iterations: 1
         }).finished.then(this.hide.bind(this, 3))
     }
@@ -547,7 +548,8 @@ let props = Object.getOwnPropertyDescriptors(class _
         return this.animate([_.nopacity, _.onepacity], {
             duration,
             easing: 'ease',
-            iterations: 1
+            iterations: 1,
+            composite:'replace',
         }).finished
     }
 
