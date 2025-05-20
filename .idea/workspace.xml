@@ -4,13 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="forgot to sort">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/dom.js" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/dom.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yay.js" beforeDir="false" afterPath="$PROJECT_DIR$/yay.js" afterDir="false" />
-    </list>
+    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="Yeah" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -24,7 +18,7 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/cute-emojis" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -122,15 +116,7 @@
       <workItem from="1746885495621" duration="18052000" />
       <workItem from="1746971915333" duration="25813000" />
       <workItem from="1747094649487" duration="10215000" />
-      <workItem from="1747337801168" duration="42085000" />
-    </task>
-    <task id="LOCAL-00024" summary="Youre so cool for reading thiks!!">
-      <option name="closed" value="true" />
-      <created>1746407015067</created>
-      <option name="number" value="00024" />
-      <option name="presentableId" value="LOCAL-00024" />
-      <option name="project" value="LOCAL" />
-      <updated>1746407015068</updated>
+      <workItem from="1747337801168" duration="42416000" />
     </task>
     <task id="LOCAL-00025" summary="i made a typo like a silly !!">
       <option name="closed" value="true" />
@@ -516,7 +502,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747674615198</updated>
     </task>
-    <option name="localTasksCounter" value="73" />
+    <task id="LOCAL-00073" summary="Yeah">
+      <option name="closed" value="true" />
+      <created>1747723070781</created>
+      <option name="number" value="00073" />
+      <option name="presentableId" value="LOCAL-00073" />
+      <option name="project" value="LOCAL" />
+      <updated>1747723070781</updated>
+    </task>
+    <option name="localTasksCounter" value="74" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -550,7 +544,6 @@
     <MESSAGE value="fixed error oops" />
     <MESSAGE value="YEAHHH" />
     <MESSAGE value="lol" />
-    <MESSAGE value="Yeah" />
     <MESSAGE value="just oms emore" />
     <MESSAGE value="sort thingy for cute-emojis, also added a few emojis" />
     <MESSAGE value="nano" />
@@ -559,6 +552,7 @@
     <MESSAGE value="just" />
     <MESSAGE value="some changes" />
     <MESSAGE value="forgot to sort" />
-    <option name="LAST_COMMIT_MESSAGE" value="forgot to sort" />
+    <MESSAGE value="Yeah" />
+    <option name="LAST_COMMIT_MESSAGE" value="Yeah" />
   </component>
 </project>
