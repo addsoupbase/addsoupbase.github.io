@@ -2,7 +2,7 @@
 // ^ idk what that actually does
 const sym = Symbol.for("🔔")
 //  Don't collide, and make sure its usable across realms!!
-export const unbound = Symbol('⛓️‍💥')
+// export const unbound = Symbol('⛓️‍💥')
 let {warn, groupCollapsed, groupEnd} = console,
     {isArray} = Array
 export const allEvents = new WeakMap
@@ -137,7 +137,7 @@ export const {
 })
 const customEvents = new Set
 export function addCustomEvent(names) {
-    for(let name in names)(names[name]?customEvents.add:customEvents.delete).call(customEvents,name.toLowerCase())
+    for(let name in names) customEvents[names[name]?'add':'delete'](name.toLowerCase())
 }
 const formatEventName = /[_$^%&!?@#\d]|bound /g
 export function on(target, events, useHandler, signal) {
@@ -211,10 +211,10 @@ export function on(target, events, useHandler, signal) {
                 autoabort&&Abort(),
                 once&&off(event.currentTarget, eventName))
             }
-            Object.defineProperty(EventHandlerWrapperFunction, unbound, {
+           /* Object.defineProperty(EventHandlerWrapperFunction, unbound, {
                 value: func,
                 configurable: 1
-            })
+            })*/
             if (useHandler)
                 // console.warn('Using handler property is deprecated')
                 target[`on${eventName}`] = EventHandlerWrapperFunction
@@ -265,7 +265,7 @@ export function off(target, ...eventNames) {
             const name = verifyEventName(target, eventNames[length]),
                 settings = map.get(name),
                 {listener, capture, passive, handler} = settings
-            handler?(target[`on${name}`]=null):target.removeEventListener(name,listener,settings)
+            handler?target[`on${name}`]=null:target.removeEventListener(name,listener,settings)
             map.has(name) && console.info(`🔕 '${name}' event removed`)
             map.delete(name)
             mySet.delete(name)

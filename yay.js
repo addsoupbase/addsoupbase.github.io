@@ -224,7 +224,7 @@ let props = Object.getOwnPropertyDescriptors(class _
     get computed() {
         return this[computed] ??= getComputedStyle(base(this))
     }
-
+/*
     createState(identifier, child, callback) {
         let t = this[states]
         if (t.has(identifier)) throw Error("Already present")
@@ -255,17 +255,6 @@ let props = Object.getOwnPropertyDescriptors(class _
             t.delete(identifier)
         }
     }
-
-    toJSON() {
-        return base(this).outerHTML
-    }
-
-    * xpath(xpath, type) {
-        let i = document.evaluate(xpath, base(this), null, type ?? 0, null),
-            el
-        while (el = i.iterateNext()) yield el instanceof HTMLElement ? prox(el) : el
-    }
-
     setState(identifier) {
         if (identifier === null) {
             this.lastState = this.currentState
@@ -327,7 +316,15 @@ let props = Object.getOwnPropertyDescriptors(class _
             }
         }
     }
-
+*/
+    toJSON() {
+        return base(this).outerHTML
+    }
+    * xpath(xpath, type) {
+        let i = document.evaluate(xpath, base(this), null, type ?? 0, null),
+            el
+        while (el = i.iterateNext()) yield el instanceof HTMLElement ? prox(el) : el
+    }
     get orphans() {
         let me = base(this)
         if (me.tagName === 'TEMPLATE')
@@ -563,12 +560,13 @@ let props = Object.getOwnPropertyDescriptors(class _
         }], {
             duration,
             easing,
+            composite:'replace',
             fill: 'forwards'
         })
     }
 
     replace(...elements) {
-        base(this).replaceWith(...elements.map(base))
+       Reflect.apply(HTMLElement.prototype.replaceWith, base(this), elements.map(base))
     }
 
     wrap(parent) {
@@ -732,7 +730,7 @@ let props = Object.getOwnPropertyDescriptors(class _
             while (document.getElementById(id))
             if (selector.includes('::')) selector = css.pev(selector)
             else if (selector.includes(':')) selector = css.pcv(selector)
-            const final = `#${CSS.escape(id)}  ${selector}{${(css.toCSS(cssStuff))}}`
+            const final = `#${CSS.escape(id)} ${selector}{${(css.toCSS(cssStuff))}}`
             let existing = this.selfRules[css.formatStr(selector.replace(regex.space, ''))]
             // for (let i = 5; i--;) try {
             existing ? existing.insertRule(final) :
