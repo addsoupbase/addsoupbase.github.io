@@ -4,25 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="day">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/apple-touch-icon-114x114.png" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/apple-touch-icon-114x114.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/apple-touch-icon-120x120.png" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/apple-touch-icon-120x120.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/apple-touch-icon-144x144.png" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/apple-touch-icon-144x144.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/apple-touch-icon-152x152.png" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/apple-touch-icon-152x152.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/apple-touch-icon-180x180.png" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/apple-touch-icon-180x180.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/apple-touch-icon-57x57.png" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/apple-touch-icon-57x57.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/apple-touch-icon-60x60.png" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/apple-touch-icon-60x60.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/apple-touch-icon-72x72.png" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/apple-touch-icon-72x72.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/apple-touch-icon-76x76.png" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/apple-touch-icon-76x76.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis.json" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/emojis.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/1112054121147666544.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/1224537210775273523.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/1369841733713657966.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/70846-lukaconfused.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/sort.html" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/sort.html" afterDir="false" />
-    </list>
+    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="yeah" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -36,7 +18,7 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/cute-emojis" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -135,15 +117,7 @@
       <workItem from="1746971915333" duration="25813000" />
       <workItem from="1747094649487" duration="10215000" />
       <workItem from="1747337801168" duration="45400000" />
-      <workItem from="1747859650319" duration="1325000" />
-    </task>
-    <task id="LOCAL-00027" summary="heythere">
-      <option name="closed" value="true" />
-      <created>1746472927664</created>
-      <option name="number" value="00027" />
-      <option name="presentableId" value="LOCAL-00027" />
-      <option name="project" value="LOCAL" />
-      <updated>1746472927664</updated>
+      <workItem from="1747859650319" duration="1645000" />
     </task>
     <task id="LOCAL-00028" summary="yerah">
       <option name="closed" value="true" />
@@ -529,7 +503,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747787155890</updated>
     </task>
-    <option name="localTasksCounter" value="76" />
+    <task id="LOCAL-00076" summary="yeah">
+      <option name="closed" value="true" />
+      <created>1747925754057</created>
+      <option name="number" value="00076" />
+      <option name="presentableId" value="LOCAL-00076" />
+      <option name="project" value="LOCAL" />
+      <updated>1747925754058</updated>
+    </task>
+    <option name="localTasksCounter" value="77" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -547,7 +529,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="fix for accessibility users (sorry!, wont use &lt;object&gt; anymore)" />
     <MESSAGE value="another fix okay im going to bed" />
     <MESSAGE value="hey" />
     <MESSAGE value="fix" />
@@ -572,6 +553,7 @@
     <MESSAGE value="Yeah" />
     <MESSAGE value="oops" />
     <MESSAGE value="day" />
-    <option name="LAST_COMMIT_MESSAGE" value="day" />
+    <MESSAGE value="yeah" />
+    <option name="LAST_COMMIT_MESSAGE" value="yeah" />
   </component>
 </project>
