@@ -5,7 +5,7 @@ export function assemble(arrayLike, ...sequence) {
 }
 export function forKeys(obj, callback) {
     let keys = Reflect.ownKeys(obj)
-    for (let {length} = keys; length--;) callback.call(obj, keys[length])
+    for (let {length: i} = keys; i--;) callback.call(obj, keys[i])
 }
 export function of(length, filler) {
     return typeof filler === 'function' ?
@@ -13,7 +13,7 @@ export function of(length, filler) {
         Array(length).fill(filler)
 }
 export function* backwards(arrayLike) {
-    for (let {length} = arrayLike; length--;) yield arrayLike[length]
+    for (let {length: i} = arrayLike; i--;) yield arrayLike[i]
 }
 export function center(array) {
     return array[(array.length / 2) | 0]
@@ -61,7 +61,7 @@ function TestImportSupport() {
     getJson = fallback.constructor
         // Some, even older browsers, prefer 'assert' over 'with'
         // i sometimes wonder why they changed it in the first place if it works pretty much the same...
-        ('u','"use strict";let a=sessionStorage,s={type:"json"},out=(await import(new URL(u,location),{assert:s,with:s})).default;a.setItem("json",!0);return out')
+        ('u','"use strict";let a=sessionStorage,s={type:"json"},h=(await import(new URL(u,location),{assert:s,with:s})).default;a.setItem("json",!0);return h')
 
     /* Not needed:
     .bind(fallback)

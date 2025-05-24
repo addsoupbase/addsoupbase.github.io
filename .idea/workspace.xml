@@ -4,7 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="yeah" />
+    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="fix">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/color.js" beforeDir="false" afterPath="$PROJECT_DIR$/color.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis.json" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/emojis.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/687239678126194690.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cute-emojis/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/num.js" beforeDir="false" afterPath="$PROJECT_DIR$/num.js" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -117,23 +124,8 @@
       <workItem from="1746971915333" duration="25813000" />
       <workItem from="1747094649487" duration="10215000" />
       <workItem from="1747337801168" duration="45400000" />
-      <workItem from="1747859650319" duration="1645000" />
-    </task>
-    <task id="LOCAL-00028" summary="yerah">
-      <option name="closed" value="true" />
-      <created>1746577593099</created>
-      <option name="number" value="00028" />
-      <option name="presentableId" value="LOCAL-00028" />
-      <option name="project" value="LOCAL" />
-      <updated>1746577593099</updated>
-    </task>
-    <task id="LOCAL-00029" summary="yerah">
-      <option name="closed" value="true" />
-      <created>1746577773550</created>
-      <option name="number" value="00029" />
-      <option name="presentableId" value="LOCAL-00029" />
-      <option name="project" value="LOCAL" />
-      <updated>1746577773550</updated>
+      <workItem from="1747859650319" duration="5166000" />
+      <workItem from="1748047747105" duration="3164000" />
     </task>
     <task id="LOCAL-00030" summary="yerah">
       <option name="closed" value="true" />
@@ -511,7 +503,23 @@
       <option name="project" value="LOCAL" />
       <updated>1747925754058</updated>
     </task>
-    <option name="localTasksCounter" value="77" />
+    <task id="LOCAL-00077" summary="fix">
+      <option name="closed" value="true" />
+      <created>1747925930100</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1747925930100</updated>
+    </task>
+    <task id="LOCAL-00078" summary="fix">
+      <option name="closed" value="true" />
+      <created>1747926080804</created>
+      <option name="number" value="00078" />
+      <option name="presentableId" value="LOCAL-00078" />
+      <option name="project" value="LOCAL" />
+      <updated>1747926080804</updated>
+    </task>
+    <option name="localTasksCounter" value="79" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -531,7 +539,6 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="another fix okay im going to bed" />
     <MESSAGE value="hey" />
-    <MESSAGE value="fix" />
     <MESSAGE value="better for screenReaders" />
     <MESSAGE value="pretend that it works for now" />
     <MESSAGE value="joytsick controls for marble thing and other stuff" />
@@ -554,6 +561,7 @@
     <MESSAGE value="oops" />
     <MESSAGE value="day" />
     <MESSAGE value="yeah" />
-    <option name="LAST_COMMIT_MESSAGE" value="yeah" />
+    <MESSAGE value="fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix" />
   </component>
 </project>

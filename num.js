@@ -124,7 +124,6 @@ export function lerp(start, end, time) {
     return clamp(start + (end - start) * time, min(start,end), max(start,end))
 }
 export function* derp(start, end, time) {
-    let n = start
     while (start < end) yield start = lerp(start, end, time)
     return end
 }

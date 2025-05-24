@@ -1,13 +1,13 @@
 import * as math from './num.js'
 const { min, max, round } = Math,
     colors = new Map,
-    canvas = ('HTMLCanvasElement'in globalThis?Object.assign(document.createElement('canvas'), {
-        width:0,
-        height:0,
-        mozOpaque:true,
-    }):new OffscreenCanvas(0, 0)).getContext('2d', {
-        alpha:false,
-    }),
+    canvas =function(canvas){
+    canvas.width=canvas.height=0
+        'HTMLCanvasElement'in globalThis && canvas.toggleAttribute('moz-opaque',true)
+        return canvas.getContext('2d',{
+            alpha:false
+        })
+    }(globalThis.document?.createElement("canvas")??new OffscreenCanvas(0, 0)),
     handler = {
         get(target, prop) {
             if (CSS.supports('color', prop)) {
@@ -20,7 +20,7 @@ const { min, max, round } = Math,
             if (prop in target) return target[prop]
             throw TypeError(`Invalid color '${prop}'`)
         },
-        apply(target, _, args) {
+        apply(...{0:target,2:args}) {
             return Reflect.construct(target, args)
         }
     }
@@ -154,12 +154,12 @@ const Color = new Proxy(class ${
         let r = this.#r / 255,
             g = this.#g / 255,
             b = this.#b / 255
-        let max = Math.max(r, g, b),
+            , max = Math.max(r, g, b),
             min = Math.min(r, g, b)
-        let c = max - min
-        let hue, shift, segment
-        let luminance = (max + min) / 2
-        let saturation = luminance <= 0.5 ? ((max - min) / (max + min)) :
+            , c = max - min
+            , hue, shift, segment
+            , luminance = (max + min) / 2
+            , saturation = luminance <= 0.5 ? ((max - min) / (max + min)) :
             ((max - min) / (2 - max - min))
         if (!c) hue = 0
         else {
