@@ -4,13 +4,22 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="fix">
+    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="oops">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/color.js" beforeDir="false" afterPath="$PROJECT_DIR$/color.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/arrays.js" beforeDir="false" afterPath="$PROJECT_DIR$/arrays.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cute-emojis/emojis.json" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/emojis.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/687239678126194690.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis.zip" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/emojis.zip" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/1216658414504116244.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/1265962622805610559.png" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/emojis/1265962622805610559.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/1265962962049437706.png" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/emojis/1265962962049437706.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/1265963556424384544.png" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/emojis/1265963556424384544.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/1265963838340202567.png" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/emojis/1265963838340202567.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/1265963862071709726.png" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/emojis/1265963862071709726.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/1265963882443440198.png" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/emojis/1265963882443440198.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/1265963901292515359.png" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/emojis/1265963901292515359.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/1313894001677697116.gif" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/cute-emojis/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/num.js" beforeDir="false" afterPath="$PROJECT_DIR$/num.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cute-emojis/sort.html" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/sort.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -126,14 +135,7 @@
       <workItem from="1747337801168" duration="45400000" />
       <workItem from="1747859650319" duration="5166000" />
       <workItem from="1748047747105" duration="3164000" />
-    </task>
-    <task id="LOCAL-00030" summary="yerah">
-      <option name="closed" value="true" />
-      <created>1746578483919</created>
-      <option name="number" value="00030" />
-      <option name="presentableId" value="LOCAL-00030" />
-      <option name="project" value="LOCAL" />
-      <updated>1746578483919</updated>
+      <workItem from="1748103141385" duration="5341000" />
     </task>
     <task id="LOCAL-00031" summary="ilu">
       <option name="closed" value="true" />
@@ -519,7 +521,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747926080804</updated>
     </task>
-    <option name="localTasksCounter" value="79" />
+    <task id="LOCAL-00079" summary="oops">
+      <option name="closed" value="true" />
+      <created>1748103153359</created>
+      <option name="number" value="00079" />
+      <option name="presentableId" value="LOCAL-00079" />
+      <option name="project" value="LOCAL" />
+      <updated>1748103153359</updated>
+    </task>
+    <option name="localTasksCounter" value="80" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -558,10 +568,10 @@
     <MESSAGE value="some changes" />
     <MESSAGE value="forgot to sort" />
     <MESSAGE value="Yeah" />
-    <MESSAGE value="oops" />
     <MESSAGE value="day" />
     <MESSAGE value="yeah" />
     <MESSAGE value="fix" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix" />
+    <MESSAGE value="oops" />
+    <option name="LAST_COMMIT_MESSAGE" value="oops" />
   </component>
 </project>
