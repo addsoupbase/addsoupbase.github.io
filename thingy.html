@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="content-language" content="en">
+    <meta property="og:locale" content="en_US">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+    <meta property="og:image:width" content="750">
+    <meta property="og:image:height" content="500">
+    <meta property="og:image:type" content="image/png">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" type="image/x-icon" href="favicon.ico" defer>
+    <meta name="robots" content="index">
+    <meta name="color-scheme" content="normal">
+    <meta property="og:type" content="website">
+    <!-- <link rel="stylesheet" href="styles.css"> -->
+    <meta name="twitter:creator" content="addsoupbase">
+    <meta name="author" content="addsoupbase">
+    <meta property="profile:username" content="addsoupbase">
+    <meta property="og:url" content="https://addsoupbase.github.io/">
+    <meta name="twitter:url" content="https://addsoupbase.github.io/">
+    <link rel="canonical" href="https://addsoupbase.github.io/">
+    <meta property="og:description" content="Demo of the InputDeviceCapabilities API">
+    <meta name="description" content="Demo of the InputDeviceCapabilities API">
+    <meta name="twitter:description" content="Demo of the InputDeviceCapabilities API">
+    <meta property="og:title" content="InputDeviceCapabilities API">
+    <meta name="twitter:title" content="InputDeviceCapabilities API">
+    <meta property="og:site_name" content="InputDeviceCapabilities API">
+    <!-- <meta property="og:image" content="YOUR ICON HERE.png"> -->
+    <!-- <meta name="twitter:image" content="YOUR ICON HERE.png"> -->
+    <title>InputDeviceCapabilities API</title>
+</head>
+<body>
+    <style>
+        #o {
+            margin:15px
+        }
+        :root{
+            font-family: monospace;
+        }
+        button {
+            border: 2px solid green;
+    border-radius: 5px;
+    background: lightgreen;
+        }
+        button:hover {
+            filter:brightness(90%)
+        }
+        button:active {
+            transform: scale(0.95,0.95);
+        }
+    </style>
+    <h1>InputDeviceCapabilities</h1>
+    <button id="b">Click this button</button>
+    <br>
+    <i><samp id="o"></samp></i>
+    <script type="module">
+        import $ from './yay.js'
+        let {o} = $.byId
+        $.byId.b.on({
+            click(e) {
+                o.textContent = `Your device is ${e.sourceCapabilities.firesTouchEvents ? '' : 'NOT '}touch screen` 
+                o.fadeIn()
+            }
+        })
+    </script>
+</body>
+</html>

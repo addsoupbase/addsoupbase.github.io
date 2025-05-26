@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="content-language" content="en">
+    <meta property="og:locale" content="en_US">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+    <meta property="og:image:width" content="750">
+    <meta property="og:image:height" content="500">
+    <meta property="og:image:type" content="image/png">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" type="image/x-icon" href="favicon.ico" defer>
+    <meta name="robots" content="index">
+    <meta name="color-scheme" content="normal">
+    <meta property="og:type" content="website">
+    <link rel="stylesheet" href="styles.css">
+    <meta name="twitter:creator" content="addsoupbase">
+    <meta name="author" content="addsoupbase">
+    <meta property="profile:username" content="addsoupbase">
+    <meta property="og:url" content="YOUR SITE URL.com">
+    <meta name="twitter:url" content="YOUR SITE URL.com">
+    <link rel="canonical" href="YOUR SITE URL.com">
+    <meta property="og:description" content="YOUR DESC HERE">
+    <meta name="description" content="YOUR DESC HERE">
+    <meta name="twitter:description" content="YOUR DESC HERE">
+    <meta property="og:title" content="YOUR TITLE HERE">
+    <meta name="twitter:title" content="YOUR TITLE HERE">
+    <meta property="og:site_name" content="YOUR TITLE HERE">
+    <meta property="og:image" content="YOUR ICON HERE.png">
+    <meta name="twitter:image" content="YOUR ICON HERE.png">
+    <title>YOUR TITLE HERE</title>
+    <style>
+        :root {
+            font-family: monospace;
+        }
+
+        #sprite {
+            border-color: black;
+            border-width: 1px;
+            border-style: solid;
+            image-rendering: pixelated;
+        }
+        #m {
+            transition: background-color .5s ease;
+            display: inline-grid;
+        }
+        #m > * {
+            margin:5px
+        }
+    </style>
+</head>
+
+<body>
+<script type="module">
+    import $ from '../yay.js'
+    import * as h from '../handle.js'
+    let { file, sprite, gridx, gridy,pixelated, index, m, direction,speed} = $.byId
+    index.on({
+        input() {
+            sprite.attr.index = this.value|0
+        }
+    })
+    speed.on({
+        input() {
+            sprite.attr.duration = this.value
+        }
+    })
+    direction.on({
+        input() {
+            sprite.attr.direction = this.value
+        }
+    })
+    /*h.on(document.body, {
+      paste(e){
+        console.log(e)
+      }
+    })*/
+    pixelated.on({
+        change() {
+            sprite.setStyles({
+                'image-rendering':this.checked?'pixelated':'auto'
+            })
+        }
+    })
+    gridx.on({
+        input(){
+            sprite.attr.rows = this.value | 0
+        }
+    })
+    gridy.on({
+        input() {
+            sprite.attr.cols = this.value | 0
+        }
+    })
+    file.on({
+        change(e) {
+            sprite.attr.src = URL.createObjectURL(this.files[0])
+        },
+
+    })
+    /*m.on({
+      $dragover() {
+        this.setStyles({
+          background:'red'
+        })
+      },
+      $dragleave() {
+        this.setStyles({
+          background:''
+        })
+      },
+      $drop(e){
+        this.setStyles({
+          background:''
+        })
+        console.log(e.dataTransfer.getData('image/*'))
+      }
+    })*/
+</script>
+<main >
+    <section id="m">
+
+        <h1>My OWN WebComponent demo:</h1>
+        <p>I made one that will automatically animate sprite sheets</p>
+        <label>Upload a spritesheet <input type="file" id="file" accept="image/*"></label>
+        <img-sprite id="sprite" direction="horizontal" src="../media/sprites/carvanha.png" duration="100" width="200" cols="4" rows="1" height="200"></img-sprite>
+        <label>Rows <input type="number" id="gridx" placeholder="Rows (horizontal)" value="1"></label>
+        <label>Columns <input type="number" id="gridy" placeholder="Columns (vertical)" value="4"></label>
+        <label>Index <input type="number" id="index" placeholder="Index (where to start)" value="0" min="0"></label>
+        <label>Pixelated <input type="checkbox" id="pixelated" checked></label>
+        <label>Direction <select id="direction">
+            <option value="normal">Normal</option>
+            <option value="reverse">Reverse</option>
+            <option value="alternate">Alternate</option>
+            <option value="alternate-reverse">Alternate-Reverse</option>
+        </select></label>
+        <label>Speed <input type="range" id="speed" min="1" max="1000" value="100"> </label>
+    </section>
+
+</main>
+</body>
+
+</html>

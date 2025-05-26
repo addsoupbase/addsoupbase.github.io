@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="content-language" content="en">
+    <meta property="og:locale" content="en_US">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+    <link rel="stylesheet" href="../../diary.css">
+    <meta name="author" content="addsoupbase">
+    <meta property="profile:username" content="addsoupbase">
+    <title>Wed Apr 23 2025</title>
+    <style>
+        * {
+            color-scheme: dark;
+
+        }
+
+        #smoke {
+            image-rendering: pixelated;
+            animation: t 10s ease-in-out infinite forwards;
+            filter: drop-shadow(0px 0px 6px red);
+        }
+
+        @keyframes t {
+            12.5% {
+                filter: drop-shadow(0px 0px 6px red);
+            }
+
+            25% {
+                filter: drop-shadow(0px 0px 6px #FFA500);
+            }
+
+            37.5% {
+                filter: drop-shadow(0px 0px 6px #FFFF00);
+            }
+
+            50% {
+                filter: drop-shadow(0px 0px 6px #7FFF00);
+            }
+
+            62.5% {
+                filter: drop-shadow(0px 0px 6px #00FFFF);
+            }
+
+            75% {
+                filter: drop-shadow(0px 0px 6px #0000FF);
+            }
+
+            87.5% {
+                filter: drop-shadow(0px 0px 6px #9932CC);
+            }
+
+            100% {
+                filter: drop-shadow(0px 0px 6px #FF1493);
+            }
+        }
+        .star {
+            position:fixed;
+            z-index: -1;
+        }
+        #a {
+            text-shadow: 4px 10px 7px #801a1a;
+        }
+    </style>
+</head>
+
+<body>
+    <main id="m" class="centerx">
+        <h1 id="a">✨ Feeling empty ✨</h1>
+        <img src="../../cute-emojis/emojis/3363-pixel-toro-smoke.gif" id="smoke" width="100" alt="Cat smoking"
+            title="don't do drugs">
+            <p>i don't trust anyone in my family anymore 🥲</p>
+        <div id="d"></div>
+    </main>
+    <script type="module">
+        import $ from '../../yay.js'
+        let { d } = $.byId
+        for(let i = 10; i--;) 
+        setTimeout(() => {
+            let o = $(`<img src="../../cute-emojis/emojis/02665925378628511.gif" class="star">`, {
+                styles: {
+                    top: '-10%',
+                    left: `${ran.range(0,100)}%`
+                }
+            })
+            o.animate([{transform:''},{transform:`translateY(${innerHeight}px)`,opacity:0}],{
+                duration:7000,
+                iterations:1/0,
+                easing:'linear'
+            })
+            d.push(o)
+        }, i * 1200)
+        // import * as h from '../../handle.js'
+        // import * as m from '../../num.js'
+        // import * as str from '../../str.js'
+        import ran from '../../random.js'
+        // import c from '../../color.js'
+    </script>
+    <!-- 
+        have a wonderful day 😊 
+        -->
+
+</body>
+
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="content-language" content="en">
+    <meta property="og:locale" content="en_US">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+    <link rel="stylesheet" href="../../diary.css">
+    <meta name="author" content="addsoupbase">
+    <meta property="profile:username" content="addsoupbase">
+    <meta name="twitter:description" content="📝 i write (almost) daily stuff here! so yeah just enjoy that :&gt;">
+    <meta property="profile:username" content="addsoupbase">
+    <meta name="twitter:creator" content="addsoupbase">
+    <meta name="author" content="addsoupbase">
+    <meta property="og:title" content="📓 My entry for Sun Apr 27 2025">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="addsoupbase.github.io">
+    <meta name="description" content="Sun Apr 27 2025">
+    <meta property="og:description" content="Entry for Sun Apr 27 2025">
+    <meta property="article:published_time" content="2025-04-28T00:39:34.832Z">
+    <meta property="article:author" content="addsoupbase">
+    <title>Sun Apr 27 2025</title>
+    <script type="module" blocking="render">
+        import '../../csshelper.js'
+    </script>
+    <style>
+        #a {
+            display: ruby;
+            --user-select: none
+        }
+
+        img-sprite {
+            cursor: pointer;
+        }
+
+        #two {
+            filter: hue-rotate(140deg);
+        }
+
+        #three {
+            filter: hue-rotate(290deg);
+        }
+
+        #four {
+            filter: hue-rotate(58deg)
+        }
+    </style>
+</head>
+
+<body>
+    <main id="m" class="centerx">
+        <article>
+            <h1>i added like more swimming pokemon sprites!!</h1>
+            <p>today was your average day... just chilling... oh also i made the pokemon sizes on here more accurate</p>
+            <p>Remi is so cool and awesome!!!</p>
+            <div>
+                <span id="a" title="Sparky">
+                    <img-sprite id="one" src="./shock.png" rows="8" cols="13" width="60" height="60" duration="90"
+                        style="image-rendering: pixelated;" class="centerx"></img-sprite>
+                    <img-sprite id="two" src="./shock.png" rows="8" cols="13" width="60" height="60" duration="90"
+                        style="image-rendering: pixelated;" class="centerx"></img-sprite>
+                    <img-sprite id="three" src="./shock.png" rows="8" cols="13" width="60" height="60" duration="90"
+                        style="image-rendering: pixelated;" class="centerx"></img-sprite>
+                    <img-sprite id="four" src="./shock.png" rows="8" cols="13" width="60" height="60" duration="90"
+                        style="image-rendering: pixelated;" class="centerx"></img-sprite>
+                </span>
+            </div>
+            <p>i'm afraid to tell my mom i don't actually want to go to college, she's like doing all the paperwork and
+                stuff and i just want to get a job instead </p>
+        </article>
+    </main>
+    <script type="module">
+        import $ from '../../yay.js'
+        import ran from '../../random.js'
+
+        $.byId.a.delegate({
+            $contextmenu() {
+                this.attr.index = (+this.attr.index - 1) | 0
+                this.animate([{ transform: '' }, { transform: `rotateZ(${20 * ran.invert}deg)` }, { transform: '' }], anim)
+            },
+            click() {
+                this.attr.index = (+this.attr.index + 1) | 0
+                this.animate([{ transform: '' }, { transform: `rotateZ(${20 * ran.invert}deg)` }, { transform: '' }], anim)
+            }
+        }, o => o.tagName === 'IMG-SPRITE')
+        let anim = {
+            easing: 'ease',
+            duration: 200,
+            iterations: 1
+        }
+        // import * as h from '../../handle.js'
+        // import * as m from '../../num.js'
+        // import * as str from '../../str.js'
+        // import c from '../../color.js'
+    </script>
+    <!-- 
+        have a wonderful day 😊 
+        -->
+</body>
+
+</html>

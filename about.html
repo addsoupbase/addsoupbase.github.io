@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Me</title>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+
+<body>
+    <template id="template">
+        <main id="main" class="center cute-green" style="opacity: 0.95;">
+            <section>
+                <div id="maindesc">
+                    <div class="descrHolder">
+                        <p>My name is...</p>
+                        <h1>Misha</h1><i>Миша</i>
+                    </div>
+                    <div class="descrHolder">
+                        <p>I am...</p>
+                        <h1 id="age">~17</h1><time class="small" id="bday">June 17 2007</time>
+                    </div>
+                </div>
+            </section><a role="button" class="cute-green-button back" href="main.html">Back</a>
+            <h1>Favourite pokemon:</h1>
+            <div id="pokemonholder">
+                <img class="pkm spinda" src="./media/sprites/spinda.gif" alt="spinda" title="spinda">
+                <img class="pkm misdreavus" src="./media/sprites/misdreavus.gif" alt="misdreavus" title="misdreavus">
+                <img class="pkm mawile" src="./media/sprites/mawile.gif" alt="mawile" title="mawile">
+                <img class="pkm delcatty" src="./media/sprites/delcatty.gif" alt="delcatty" title="delcatty">
+                <img class="pkm masquerain" src="./media/sprites/masquerain.gif" alt="masquerain" title="masquerain">
+                <img class="pkm shedinja" src="./media/sprites/shedinja.gif" alt="shedinja" title="shedinja">
+                <img class="pkm clamperl" src="./media/sprites/clamperl.gif" alt="clamperl" title="clamperl">
+                <img class="pkm swoobat" src="./media/sprites/swoobat.gif" alt="swoobat" title="swoobat">
+                <img class="pkm gourgeist" src="./media/sprites/gourgeist.gif" alt="gourgeist" title="gourgeist">
+                <img class="pkm minior" src="./media/sprites/minior.gif" alt="minior" title="minior">
+                <img class="pkm trapinch" src="./media/sprites/trapinch.gif" alt="trapinch" title="trapinch">
+                <img class="pkm pheromosa" src="./media/sprites/pheromosa.gif" alt="pheromosa" title="pheromosa">
+                <img class="pkm meloetta" src="./media/sprites/meloetta.gif" alt="meloetta" title="meloetta">
+                <img class="pkm cherrim" src="./media/sprites/cherrim.gif" alt="cherrim" title="cherrim">
+                <img class="pkm aegislash" src="./media/sprites/aegislash.gif" alt="aegislash" title="aegislash">
+                <img class="pkm zygarde" src="./media/sprites/zygarde.gif" alt="zygarde" title="zygarde">
+                <img class="pkm wobbuffet" src="./media/sprites/wobbuffet.gif" alt="wobbuffet" title="wobbuffet">
+                <img class="pkm tinkaton" src="./media/sprites/tinkaton.gif" alt="tinkaton" title="tinkaton">
+                <img class="pkm ogerpon" src="./media/sprites/ogerpon.gif" alt="ogerpon" title="ogerpon">
+                <img class="pkm surskit" src="./media/sprites/surskit.gif" alt="surskit" title="surskit">
+                <img class="pkm darmanitan" src="./media/sprites/darmanitan.gif" alt="darmanitan" title="darmanitan">
+            </div>
+        </main>
+    </template>
+    <script type="module">
+        import $ from './yay.js'
+        import { wait } from './handle.js'
+        $.setup()
+        const { main } = $.byId
+        const bday = new Date(2007, 6 - 1, 17)
+        let div = $("section", {
+            parent: main
+        })
+        main.fadeFromTo(0, .95)
+        $.gid('age').innerHTML = `${Math.floor(new Date().getFullYear() - bday.getFullYear() - (bday.getMonth() / 12))} years old`
+        console.log('spinda misdreavus mawile delcatty masquerain shedinja clamperl swoobat gourgeist minior trapinch pheromosa meloetta cherrim aegislash zygarde wobbuffet tinkaton ogerpon surskit darmanitan'
+            .split(' ').map(generateImages).join('\n'))
+        function generateImages(o) {
+            return `<img class="pkm ${o}" src="./media/sprites/${o}.gif" alt="${o}" title="${o}">`
+        }
+    </script>
+
+</body>
+
+</html>

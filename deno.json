@@ -1,0 +1,11 @@
+{
+    "tasks": {
+        "start": "deno run --allow-all auto.js"
+    },
+    "include": [
+        "cute-emojis",
+        "marbles",
+        "textshortener",
+        "whatever"
+    ]
+}

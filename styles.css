@@ -1,0 +1,733 @@
+#background {
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  margin: 0;
+  position: relative;
+  --user-select: none;
+  padding: 0;
+  overflow: hidden;
+}
+
+.lanturn {
+  filter: drop-shadow(0 0 5px yellow);
+}
+
+#avatar {
+  border-radius: 100%;
+  width: 60px;
+  height: 60px;
+  image-rendering: auto;
+  background-size: contain;
+
+  position: absolute;
+  left: 20px;
+  top: 20px;
+}
+
+.ava {
+  border-radius: 100%;
+  transform: scale(.75, .75);
+  opacity: 0.96;
+  transform-origin: center;
+  --user-drag: none;
+  pointer-events: none;
+}
+
+.displayName {
+  position: absolute;
+  top: 80%;
+  text-align: center;
+}
+
+.tar {
+  background-repeat: no-repeat;
+  background-size: cover;
+  width: 50px;
+  pointer-events: none;
+  height: 50px;
+  position: absolute;
+  display: flex;
+  transform-origin: center;
+  justify-content: center;
+  image-rendering: optimizeQuality;
+  background-position: center;
+}
+
+@supports (-moz-box-direction: inherit) {
+  #background {
+    background-image: url("./media/bg.png") !important;
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+
+  body {
+    background: none !important;
+  }
+}
+
+.terrain {
+  background-position-x: -95px;
+  background-position-y: -416px;
+  width: 193px;
+  height: 64px;
+}
+
+.sea {
+  background-image: url(media/sea.png);
+  image-rendering: pixelated;
+  position: fixed;
+  bottom: 0;
+}
+
+.coral2 {
+  background-position-x: 366px;
+  background-position-y: -782px;
+  width: 30px;
+  height: 38px;
+}
+
+.plant {
+  background-position-x: 1071px;
+  background-position-y: -786px;
+  width: 30px;
+  height: 28px;
+}
+
+.sand {
+  background-position-x: 122px;
+  background-position-y: -628px;
+  width: 54px;
+  height: 24px;
+}
+
+.coral {
+  background-position-x: 430px;
+  background-position-y: -786px;
+  width: 28px;
+  height: 28px;
+}
+
+.seaweed {
+  background-position-x: 864px;
+  background-position-y: -1187px;
+  width: 32px;
+  height: 60px;
+}
+
+.rock {
+  background-position-x: 176px;
+  background-position-y: -373px;
+  width: 30px;
+  height: 23px;
+}
+
+.sprite {
+  position: absolute;
+  z-index: 3;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  scale: 1.5 1.5;
+  pointer-events: none;
+}
+
+.delibird {
+  scale: 1.6 1.6;
+  margin: 5px;
+  image-rendering: pixelated;
+}
+.lumineon.shiny {
+  filter: hue-rotate(198deg);
+}
+.nihilego.shiny {
+  filter: hue-rotate(229deg);
+}
+.kyogreprimal.shiny {
+  filter: hue-rotate(177deg) grayscale(0.5) brightness(1.1);
+}
+.corsola.shiny {
+  filter: hue-rotate(231deg) brightness(1.2);
+}
+a {
+  z-index: 30 !important;
+}
+.manaphy.shiny,.phione.shiny, .mantyke.shiny {
+  filter:hue-rotate(318deg);
+}
+.skrelp {
+  scale: 1.5 1.2
+}
+.skrelp.shiny {
+  filter: hue-rotate(306deg);
+}
+.luvdisc.shiny {
+  filter: hue-rotate(87deg) brightness(1.4);
+}
+.wailord.shiny, .kingdra.shiny {
+  filter: hue-rotate(70deg);
+}
+.wailord {
+  scale: 5.9 5.3
+}
+/* .dragalge {
+  scale: 3 3.2
+} */
+
+.carvanha,
+.seadra {
+  scale: 1.25 1.25
+}
+.kyogre,
+.kyogreprimal,
+.eelektross,
+.jellicent_f,
+.jellicent_m,
+.clawitzer,
+.seaking,
+.arctovish,
+.huntail,
+.gorebyss,
+.nihilego,
+.sharpedo,
+.lumineon,
+.lanturn,
+.wishiwashischool  {
+  scale: 2 2
+}
+
+.luvdisc,
+.corsola,
+.wishiwashi {
+  scale: 1.2 1.2
+}
+
+.qwilfish,.bruxish {
+  scale: 1.5 1.5
+}
+
+.jellicent_f.shiny, .jellicent_m.shiny {
+  filter: hue-rotate(302deg);
+}
+
+/* .name { */
+/* position: relative; */
+/* text-align: center; */
+/* align-self: center; */
+/* } */
+
+.bubble {
+  align-items: center;
+  width: 60px;
+  height: 60px;
+  display: grid;
+  transform-origin: center;
+  position:absolute;
+  justify-content: center;
+  background-size: contain;
+  background-image: url('./media/bubble.webp');
+  background-repeat: no-repeat;
+}
+
+.zygarde {
+  margin-bottom: -50px !important;
+}
+
+.tinkaton {
+  margin: -40px !important;
+}
+
+#wrapper {
+  display: contents;
+  width: 100%;
+  justify-content: center;
+  height: 100vh;
+  --zoom: .8;
+  inset: 0;
+  margin: auto;
+  text-align: center;
+}
+
+input[type=image] {
+  width: 55px;
+  --user-drag: none;
+  image-rendering: pixelated;
+  filter: drop-shadow(2px 4px 6px red) hue-rotate(211deg);
+  --tap-highlight-color: rgba(255, 0, 255, 0.268);
+  transition: scale 0.3s ease;
+  scale: 1 1
+}
+
+input[type=image]:active {
+  scale: 0.9 0.9
+}
+
+#main {
+  width: 100vw;
+  position: relative;
+  box-sizing: border-box;
+  height: fit-content;
+  min-height: 100vh;
+  opacity: 1;
+  display: block;
+  inset: 0;
+  image-rendering: pixelated;
+  background-image: url(./media/flowers.webp), url(./media/topdecor.webp), url(./media/roses.webp);
+  background-repeat: no-repeat, no-repeat, no-repeat;
+  background-size: contain, 130px, 13%;
+  background-position-y: bottom, top;
+  background-position-x: center, right, 80px;
+}
+
+/* #content { */
+/* text-align: center; */
+/* word-break: normal; */
+/* max-width: 50%; */
+/* } */
+
+/* svg { */
+/* background-color: rgb(49, 55, 231, 0.7); */
+/* border-color: rgba(37, 41, 169, 0.7); */
+/* border-style: solid; */
+/* border-radius: 100%; */
+/* } */
+#diary {
+  overflow: hidden !important;
+  resize: both;
+  max-height: 70vh;
+  opacity: 1;
+  backdrop-filter: blur(4px);
+}
+#background {
+  z-index: 2;
+  position: fixed;
+  touch-action: none;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  top: 0;
+  left: 0;
+}
+
+#background::after {
+  content: '';
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgb(14, 132, 228, 0.1);
+  /* Slight blue tint */
+  pointer-events: none;
+  /* Allow clicks to pass through the overlay */
+}
+
+img {
+  border: none;
+}
+
+body,
+html {
+  --tap-highlight-color: rgba(255, 0, 255, 0.268);
+  padding: 0;
+  margin: 0;
+  overflow: scroll;
+}
+
+
+.cute-green {
+  background-color: #4dcd71;
+  opacity: 0.8;
+  caret-color: #e66a7f;
+  border: 2px solid #4ac350;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  color: #000000;
+  text-align: center;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+.cute-blue {
+  background-color: #5ACBCD;
+  opacity: 0.8;
+  caret-color: #e66a7f;
+  border: 2px solid #49ABC3;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  color: #000000;
+  text-align: center;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+#submit {
+  display: inline-block;
+}
+
+#formholder {
+  display: grid;
+}
+
+.lol {
+  justify-content: center;
+  display: grid;
+  text-align: center;
+  justify-items: center;
+}
+
+.username {
+  z-index: 40;
+}
+
+#frame {
+  /* padding: 30px; */
+  position: relative;
+  --user-select: none;
+  width: 90%;
+  max-height:120vh;
+  height: 70%;
+  filter: drop-shadow(0px 0px 5px teal);
+  /* min-width: 100vw; */
+  /* min-width: 65%; */
+  /* max-height: 100vh; */
+  z-index: 3;
+  height: 600px;
+  border: none;
+  width: 700px;
+  margin: auto;
+}
+
+input.cute-green {
+  background-color: #43b363;
+  opacity: 0.8;
+  border: 2px solid #399a3e;
+  margin: 5px;
+  border-radius: 15px;
+  padding: 10px 15px;
+  font-family: 'Choco';
+  color: #000000;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.input {
+  margin: 10px
+}
+
+/* Add some interaction styles */
+input.cute-green:focus {
+  background-color: #4ec367;
+  /* Slightly lighter green on focus */
+  border-color: #5ab149;
+  /* Even darker border on focus */
+  transform: scale(1.02);
+  /* Slight scaling effect on focus */
+  outline: none;
+  /* Remove default outline */
+}
+
+input.cute-green::placeholder {
+  color: #000000;
+  /* Black placeholder text */
+  opacity: 0.6;
+  /* Slightly transparent placeholder */
+}
+
+.cute-green:hover {
+  background-color: #67db71;
+}
+#thingy {
+  transform: scale(4, 4);
+  top: -145%;
+  left: -40%;
+  position: relative;
+  image-rendering: pixelated;
+  mso-shadow-color:  black;
+  content: url(./cute-emojis/emojis/1224927639068741632.gif);
+  display: block;
+}
+
+.kanit-thin {
+  font-family: "Kanit", sans-serif;
+  font-weight: 100;
+  font-style: normal;
+}
+
+.kanit-extralight {
+  font-family: "Kanit", sans-serif;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.kanit-light {
+  font-family: "Kanit", sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.kanit-regular {
+  font-family: "Kanit", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.kanit-medium {
+  font-family: "Kanit", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.kanit-semibold {
+  font-family: "Kanit", sans-serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.kanit-bold {
+  font-family: "Kanit", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.kanit-extrabold {
+  font-family: "Kanit", sans-serif;
+  font-weight: 800;
+  font-style: normal;
+}
+
+.kanit-black {
+  font-family: "Kanit", sans-serif;
+  font-weight: 900;
+  font-style: normal;
+}
+
+.kanit-thin-italic {
+  font-family: "Kanit", sans-serif;
+  font-weight: 100;
+  font-style: italic;
+}
+
+.kanit-extralight-italic {
+  font-family: "Kanit", sans-serif;
+  font-weight: 200;
+  font-style: italic;
+}
+
+.kanit-light-italic {
+  font-family: "Kanit", sans-serif;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.kanit-regular-italic {
+  font-family: "Kanit", sans-serif;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.kanit-medium-italic {
+  font-family: "Kanit", sans-serif;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.kanit-semibold-italic {
+  font-family: "Kanit", sans-serif;
+  font-weight: 600;
+  font-style: italic;
+}
+
+.kanit-bold-italic {
+  font-family: "Kanit", sans-serif;
+  font-weight: 700;
+  font-style: italic;
+}
+
+.kanit-extrabold-italic {
+  font-family: "Kanit", sans-serif;
+  font-weight: 800;
+  font-style: italic;
+}
+
+.kanit-black-italic {
+  font-family: "Kanit", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Choco';
+  font-display: swap;
+  src: url('./media/Chococooky.woff2') format('woff2'),
+    /* Super Modern Browsers */
+    url('/media/Chococooky.woff2') format('woff');
+  /* Pretty Modern Browsers */
+  font-weight: normal;
+  font-style: normal;
+}
+
+h1,
+p,
+h3 {
+  font-family: 'Choco';
+}
+
+:root {
+  font-family: 'Choco';
+}
+
+#mainform {
+  display: contents;
+}
+
+a {
+  font-size: 15px;
+}
+
+body {
+  scrollbar-width: none;
+  /* Firefox */
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+#maindesc {
+  justify-content: center;
+  display: flex;
+}
+
+.descrHolder {
+  margin: 10px;
+  margin-top: 30px;
+  display: flow-root;
+}
+
+.pkm {
+  transform: scale(1.65, 1.65);
+  margin: 10px;
+  image-rendering: pixelated;
+}
+
+#list {
+  display: inline-block;
+}
+
+.pok {
+  image-rendering: crisp-edges;
+}
+
+.small {
+  font-size: 12px;
+}
+
+.cute-green-button {
+  --touch-callout: none;
+  background-color: #b0e57c;
+  /* Match the div's background */
+  text-decoration: none;
+  border: 2px solid #8bc34a;
+  /* Match the div's border */
+  border-radius: 15px;
+  /* Rounded corners */
+  padding: 10px 20px;
+  display: inline-block;
+  /* Button padding */
+  font-family: 'Choco', cursive, sans-serif;
+  /* Playful font */
+  color: #000000;
+  /* White text */
+  cursor: pointer;
+  /* Pointer cursor on hover */
+  text-align: center;
+  /* Center the text */
+  margin: 3px;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+  /* Smooth transitions */
+}
+
+a.cute-green-button {
+  transition: background-color 0.3s ease;
+}
+a.cute-green-button:active {
+  transform: unset;
+}
+.cute-green-button:hover {
+  background-color: #96c15d;
+}
+
+.cute-green-button:active {
+  background-color: #a8db67;
+  /* Darker green on hover */
+  transform: scale(.94, .94)
+    /* Slight scale effect */
+}
+
+.back {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+}
+
+.hello {
+  justify-items: center;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+  text-align: center;
+  display: grid;
+}
+
+#diary {
+  /*outline: 3px dashed #1275b4;*/
+  width: 400px;
+  min-width: 150px;
+  max-height:50vh;
+  min-height: 50px;
+  max-width: 80vw;
+  height: 300px;
+  overflow-y: scroll;
+}
+
+/* #abtbutton::after,
+#abtbutton::before {
+  content: '';
+  background-image: url('https://addsoupbase.github.io/cute-emojis/emojis/1225821658225577984.gif');
+  content: '';
+  display: inline-block;
+  vertical-align: middle;
+  width: 30px;
+  height: 30px;
+  background-size: contain;
+} */
+
+.scale {
+  animation: scaleIn 2s ease 0s normal forwards;
+}
+
+@keyframes scaleIn {
+  0% {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  100% {
+    opacity: 1;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+a {
+  font-family: 'Courier New', Courier, monospace;
+}

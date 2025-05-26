@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Me</title>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+
+<body>
+
+    <script type="module">
+        import $ from './quick.js'
+        const main = $('main,center cute-green', { parent: document.body, id: 'main', })
+        main.fadein()
+
+        let all = $("section", {
+            parent: main,
+            style:'margin-top:50px;'
+        })
+        $('a,cute-green-button back', {
+            parent: main,
+            txt: 'Back',
+            href: 'main.html',
+        })
+        $('h1',{parent:all, txt:'Music that I like'})
+        $('i', {
+            parent:all,
+            txt:`plz dont judge me`
+        })
+        let d = $('div',all)
+        $('iframe', {
+            parent:d,
+            src:'https://www.youtube.com/embed/BjYWwZYLYEs',
+            attributes: {
+                frameborder: 0,
+                allow: `accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share`,
+                referrerpolicy: 'strict-origin-when-cross-origin',
+                allowfullscreen: true,
+            }
+        })
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="content-language" content="en">
+    <meta property="og:locale" content="en_US">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+    <meta property="og:image:width" content="750">
+    <meta property="og:image:height" content="500">
+    <meta property="og:image:type" content="image/png">
+<!--    <meta name="twitter:card" content="summary_large_image">-->
+    <link rel="icon" type="image/x-icon" href="favicon.ico" defer>
+    <meta name="robots" content="index">
+    <meta name="color-scheme" content="normal">
+    <meta property="og:type" content="website">
+    <link rel="stylesheet" href="styles.css">
+    <meta name="twitter:creator" content="addsoupbase">
+    <meta name="author" content="addsoupbase">
+    <meta property="profile:username" content="addsoupbase">
+    <meta property="og:url" content="https://addsoupbase.github.io/">
+    <meta name="twitter:url" content="https://addsoupbase.github.io/">
+    <link rel="canonical" href="https://addsoupbase.github.io/">
+    <meta property="og:description" content="here i write diary entries about my life">
+    <meta name="description" content="here i write diary entries about my life">
+    <meta name="twitter:description" content="here i write diary entries about my life">
+    <meta property="og:title" content="Misha's Diary">
+    <meta name="twitter:title" content="Misha's Diary">
+    <meta property="og:site_name" content="Misha's Diary">
+    <meta property="og:image" content="https://addsoupbase.github.io/cute-emojis/emojis/028220502816824156.gif">
+    <meta name="twitter:image" content="https://addsoupbase.github.io/cute-emojis/emojis/028220502816824156.gif">
+    <title>Diary</title>
+</head>
+
+<body>
+    <template id="template">
+
+        <main class="center cute-green" id="main" >
+            <a class="cute-green-button back" href="main.html" role="button">Back</a>
+            <!-- <span> Scrolling could reveal more!</span> -->
+
+            <section class="center" id="diary-container" style="display:table;justify-items: center;">
+                <time>
+                    <input class="cute-green" style="font-size:20px;margin:20px;" id="diary-heading" type="date"
+                        min="2025-04-07">
+                </time>
+<!--                <img src="./cute-emojis/emojis/1224927639068741632.gif" style>-->
+                <article id="diary" class="cute-blue"
+                    style="resize:both;width: 154%;resize: both;border-radius:1%;width: 490px;    place-self: center;">
+                    <h2 id="invalid" hidden>No entry for today &lpar;yet!&rpar;
+                        <img height="34" src="./cute-emojis/emojis/1143313874943234058.gif">
+                    </h2>
+                    <h2 id="error" hidden>
+                        <img height="50" src="./cute-emojis/emojis/1242581617084465222.gif">
+                        <br>
+                        <samp style="color:#631414;">Error
+                        </samp>
+
+                    </h2>
+                    <iframe aria-live="assertive" id="display" name="Diary" title="Diary"
+                        style="width: 100%;height: 100%;border: none;"></iframe>
+                </article>
+                <div style="justify-self: center;justify-content:center;display: flex;    align-items: end;">
+                    <input id="prev" type="image" title="Turn to previous page" alt="Back" style="transform:scaleX(-1)"
+                        src="./cute-emojis/emojis/1321091969635848294.gif">
+                    <button class="cute-green-button" id="toToday">Go to today</button>
+                    <input id="next" type="image" title="Turn to next page" alt="Forward"
+                        src="./cute-emojis/emojis/1321091969635848294.gif">
+                </div>
+
+            </section>
+        </main>
+    </template>
+    <script type="module">
+        // 
+        import $ from './yay.js'
+        // import * as h from './handle.js'
+
+        $.setup()
+        let { info, toToday, invalid, error, next, prev, 'diary-heading': diaryHeading, 'diary-container': diaryContainer, display: currentThingy } = $.byId
+        // h.on(window, {
+            // _load() {
+                // setTimeout(async () => {
+                    // await info.animate([{opacity:'',opacity:0}],{
+                        // duration: 500,
+                        // easing:'ease-out'
+                    // }).finished
+                    // info.hide(2)
+                // }, 7000)
+            // }
+        // })
+        let today = new Date()
+        diaryHeading
+            .on({
+                change() {
+                    let v = this.value.split('-')
+                    v[2] = (+v[2] + 1).toString().padStart(2, 0)
+                    today = new Date(v.join('-'))
+                    goBy(0)
+                    setEntry(getDate())
+                }
+            })
+            .setAttr({
+                max: getThat(today)
+            })
+        function getDate() {
+            return today.toLocaleDateString('en-US')
+        }
+        function goBy(a) {
+
+            // We need the temporal api quick...
+            today.setDate(today.getDate() + a)
+            if (today.getDate() <= 7 && today.getFullYear() <= 2025 && today.getMonth() <= 3) {
+                // This is before i made any entries
+                prev.hide(2)
+            }
+            else {
+                prev.show(2)
+            }
+            if (getDate() === new Date().toLocaleDateString('en-US') || today >= new Date) {
+                // After today
+                next.hide(2)
+            }
+            else next.show(2)
+        }
+        toToday.on({
+            click() {
+                today = new Date()
+                goBy(0)
+                setEntry(getDate())
+            }
+        })
+        next.debounce({
+            click() {
+                goBy(1)
+                setEntry(getDate())
+            }
+        },300)
+        prev.debounce({
+            click() {
+                goBy(-1)
+                setEntry(getDate())
+            }
+        }, 300)
+        // function getMSThingy() {
+        // return Date.UTC((new Date).getFullYear(), (new Date).getMonth(), (new Date).getDate())
+        // }
+        currentThingy.on({
+            load() {
+                if (!this.contentWindow.document.querySelector('[name="author"][content="addsoupbase"]')) {
+                    invalid.show().fadeIn()
+                    //will work good enough i think
+                }
+                else {
+                    this.fadeIn()
+                }
+                this.parent.busy(false)
+            }
+        })
+        function getThat(d) {
+            return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, 0)}-${d.getDate().toString().padStart(2, 0)}`
+        }
+
+        async function setEntry(date) {
+            let d = new Date(date)
+            diaryHeading.value = getThat(d)
+            currentThingy.hide(3)
+            error.hide()
+            currentThingy.parent.busy(true)
+            invalid.hide()
+            let url = `./entries/${date.replace(/\//g, '_')}`
+            // currentThingy.hide(2)
+            try {
+                // let req = (await fetch(url))
+                // if (!req.ok) {
+                // if (req.status === 404) {
+                // invalid.fadeIn()
+                // invalid.show()
+                // }
+                // else {
+                // error.fadeIn()
+                // error.show()
+                // }
+                // }
+                // else {
+
+                currentThingy.setAttr({ src: url })
+                await new Promise((resolve,reject)=>{
+                    currentThingy.onerror = reject
+                    currentThingy.onload = resolve
+                })
+                currentThingy.onerror = currentThingy.onload =  null
+                // }
+            }
+            catch (e) {
+                currentThingy.onerror = currentThingy.onload =  null
+                reportError(e)
+                error.fadeIn()
+                error.show()
+            }
+            finally {
+                currentThingy.parent.busy(false)
+            }
+        }
+        let diary = $.gid('diary')
+        let m = $.gid('main')
+        goBy(-1)
+        setEntry(getDate())
+        m.animate([{ opacity: 0 }, { opacity: .96 }], { duration: 500, easing: 'ease', fill: 'forwards' })
+    </script>
+</body>
+
+</html>

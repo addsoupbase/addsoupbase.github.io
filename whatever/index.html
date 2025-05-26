@@ -1,0 +1,41 @@
+<!DOCTYPE HTML>
+<html>
+<link href='https://fonts.googleapis.com/css?family=Lexend' rel='stylesheet'>
+
+<head>
+  <title>Whatever</title>
+  <link rel="icon" type="image/x-icon" href="./favicon.ico">
+  <link rel="stylesheet" type="text/css" href="./styles.css">
+
+</head>
+
+<body id='body'>
+  <div class="container2">
+    <div class="bottomDiv">
+      <button class="bottom" onclick="Show('menu2')" id="tweak">Tweak</button>
+      <button class="bottom" onclick="Show('menu1')" id="formula">Formula</button>
+      <button class="bottom" onclick="Show('menu3')" id="save">Save</button>
+
+    </div>
+
+    <div class="grid" id="modif">
+    </div>
+    <div class="grid" id="modif2">
+    </div>
+    <button class="zoomIn" onclick="   zoom += 0.07;">+</button>
+    <button class="scroll" onclick="hideSettings()">Hide</button>
+    <button class="zoomOut" onclick="  zoom -= 0.07;"">-</button>
+
+  </div>
+  <canvas id='canvas' class='bigCanvas' height='500' width='700'>
+
+  </canvas>
+
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="script.js">
+
+  </script>
+</body>
+
+</html>

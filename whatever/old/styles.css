@@ -1,0 +1,211 @@
+.bigCanvas {
+    width: 100%;
+    margin: 0px;
+    border: 0;
+    overflow: hidden;
+    background-color: black;
+    /*  Disable scrollbars */
+    display: block;
+}
+
+p {
+    margin: 0;
+}
+
+label {
+    margin-left: -55px;
+}
+
+body {
+    overflow-y: hidden;
+}
+
+div {
+    max-height: fit-content;
+    align-items: center;
+    max-width: 350px;
+}
+.check {
+    left: -70px;
+}
+input {
+    opacity: 1;
+
+    border-radius: 2px;
+    width: 40%;
+    position: relative;
+    border-style: solid;
+    border-color: green;
+    background-color: #C8C5C5;
+    transition: background-color 0.1s;
+    transition: opacity 0.2s;
+    margin: 10px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+input:focus {
+    background-color: #E7E7E7;
+    transition: background-color 0.1s;
+}
+.f {
+    margin-left: 23px;
+}
+select:focus {
+    background-color: #E7E7E7;
+    transition: background-color 0.1s;
+}
+
+input:disabled {
+    opacity: 0.1;
+    transition: opacity 0.2s
+}
+
+select {
+    background-color: #C8C5C5
+}
+#saveField {
+    width: 300px;
+    height: 20px;
+    vertical-align:text-top;
+    line-height: 1.2; /* Adjust line height if needed */
+}
+.smallCanvas {
+    position: 'fixed';
+    bottom: 0;
+    right: 0;
+    margin: 0px;
+    border: 0;
+    overflow: hidden;
+    border-radius: 10px;
+    background-color: black;
+    /*  Disable scrollbars */
+    display: block;
+}
+
+button {
+    background-color: #73ff00;
+    font-family: lexend;
+    border-color: #479905;
+
+}
+
+.inp {
+    margin-left: 10px;
+}
+
+
+
+button:hover {
+    background-color: #5bc704;
+}
+
+
+
+.container {
+    display: inline-flex;
+    border: 2px solid darkgreen;
+    width: 550px;
+    align-items: center;
+    background-color: rgba(20, 228, 13, 0.63);
+    border-radius: 10px
+}
+
+span {
+    margin: 3px;
+    
+}
+
+p {
+    width: 300px;
+    align-items: center;
+}
+
+#modif2 {
+    margin-top: 30px;
+}
+
+.container2 {
+    /* Change direction to vertical */
+    border: 3px solid rgba(13, 136, 9, 1);
+    max-width: fit-content;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    left: 20px;
+    top: 10%;
+    display: grid;
+    background-color: rgba(20, 228, 13, 0.63);
+}
+
+.scroll {
+    position: absolute;
+    left: 101%;
+    height: 50px;
+    border-radius: 0;
+}
+.zoomIn {
+    position: absolute;
+    left: 101%;
+    height: 30px;
+    width: 30px;
+    top: 60px;
+    
+
+}
+.zoomOut {
+    position: absolute;
+    left: 101%;
+    height: 30px;
+    width: 30px;
+    bottom: 60px;
+    
+
+}
+
+html {
+    font-family: 'Lexend';
+    background-color: grey;
+}
+
+.tile {
+    width: 70px;
+    height: 30px;
+    border-radius: 0px;
+}
+
+
+.deselected {
+    background-color: #4da109;
+    font-family: lexend;
+    border-color: #479905;
+
+}
+
+.selected:hover {
+    background-color: rgb(136, 253, 41);
+
+}
+
+canvas {
+    position: fixed;
+    top: 0%;
+    left: 0%
+}
+
+.bottom {
+    border-radius: 0;
+    height: 30px;
+    position: relative;
+    font-size: 15px;
+    bottom: -35px;
+}
+
+.bottomDiv {
+    position: absolute;
+    left: 28%;
+    align-items: center;
+    display: inline-flex;
+    bottom: 0%;
+    z-index: -1;
+}
