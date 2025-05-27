@@ -1,6 +1,9 @@
 import * as h from '../handle.js'
+
 let folderName
 console.debug('Service worker started.')
+let assets = new Map
+
 async function add(url, file) {
     let c = await caches.open(folderName)
     let req = await fetch(file)
@@ -8,37 +11,52 @@ async function add(url, file) {
     await c.put(url, req)
     // console.log(`${url} added to cache`)
 }
+
 h.on(self, {
     install(event) {
     },
     async message({data}) {
         if (data.type === 'reset') {
+            assets.clear()
             await clearCache()
             folderName = data.folder
             return
         }
         if (data.type === 'cache') {
             try {
-            await add(`live${data.url}`,data.file)
-            }
-            catch(e) {
+                assets.set(new URL(data.url, location).pathname, data.file)
+                // await add(`live${data.url}`,data.file)
+            } catch (e) {
                 console.error(`${data.url} could not be added`)
                 throw e
             }
         }
     },
     fetch(e) {
-        if (new URL(e.request.url).origin !== location.origin) return e.respondWith(fetch(e.request))
-        e.respondWith(caches.open(folderName).then(cache=>{
-            let url = new URL(e.request.url)
-            let a = url.pathname
-            if (!/\..+$/.test(a)) {
-                while (a.at(-1)==='/')a=a.slice(0,a.length-1)
-                let index = `${a}/index.html${url.search}`
-                return Response.redirect(index,301)
-            }
-            return cache.match(url.href.replace(url.search,'')).then(res=>res)
-        }))
+        let url = new URL(e.request.url)
+        if (url.origin !== location.origin) return e.respondWith(fetch(e.request))
+        let path = url.pathname
+        if (!/\..+$/.test(path)) {
+            while (path.at(-1) === '/') path = path.slice(0, path.length - 1)
+            let index = `${path}/index.html${url.search}`
+            return e.respondWith(Response.redirect(index, 301))
+        }
+        return e.respondWith(
+            caches.open(folderName).then(cache => {
+                return cache.match(e.request).then(cachedResponse => {
+                    if (cachedResponse)
+                        return cachedResponse
+                    let assetUrl = assets.get(path.slice(20))
+                    return fetch(assetUrl).then(response => {
+                        if (response.ok)
+                            cache.put(e.request, response.clone())
+
+                        return response
+                    }).catch(error => {
+                        throw error
+                    })
+                })
+            }))
     }
 })
 

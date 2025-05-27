@@ -1,5 +1,5 @@
 import $ from '../yay.js'
-
+import * as h from '../handle.js'
 let handle
 acorn.defaultOptions.ecmaVersion = 'latest'
 const {button, goto, progress} = $.id
@@ -25,7 +25,11 @@ button.on({
         await handleDirectory(handle)
         goto.show().fadeIn()
         progress.hide()
-
+        h.on(window, {
+            beforeunload(e){
+                return e.returnValue=1
+            }
+        })
     }
 }, false, new AbortController)
 let result = await navigator.serviceWorker.register('./sw.js', {
@@ -46,7 +50,6 @@ async function handleDirectory(dir, base = '') {
         }
        else {
             let url = `${base}/${entry.name}`
-            console.warn(url)
             let raw = await entry.getFile()
             if (entry.name.endsWith('.js')) {
                 let text = await raw.text()
@@ -68,7 +71,6 @@ async function handleDirectory(dir, base = '') {
                             let {raw} = v.source.quasis[0].value
                             let u = new URL(raw, `${location.href}live${url}`)
                             text = text.replace(raw, `${u}`)
-                            console.warn(u)
                         } else {
                             let u = new URL(v.source.value, `${location.href}live${url}`)
                             text = text.replace(v.source.raw, `"${u}"`)

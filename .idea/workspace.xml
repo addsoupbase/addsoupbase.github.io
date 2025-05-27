@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="lets go">
+    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="changes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/browser-server/script.js" beforeDir="false" afterPath="$PROJECT_DIR$/browser-server/script.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/browser-server/sw.js" beforeDir="false" afterPath="$PROJECT_DIR$/browser-server/sw.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -133,15 +134,7 @@
       <workItem from="1748294820445" duration="36000" />
       <workItem from="1748294892896" duration="2000" />
       <workItem from="1748295161091" duration="14916000" />
-      <workItem from="1748317912080" duration="1577000" />
-    </task>
-    <task id="LOCAL-00091" summary="oh god">
-      <option name="closed" value="true" />
-      <created>1748284813020</created>
-      <option name="number" value="00091" />
-      <option name="presentableId" value="LOCAL-00091" />
-      <option name="project" value="LOCAL" />
-      <updated>1748284813020</updated>
+      <workItem from="1748317912080" duration="5596000" />
     </task>
     <task id="LOCAL-00092" summary="lets hope this works submodules thing">
       <option name="closed" value="true" />
@@ -527,7 +520,15 @@
       <option name="project" value="LOCAL" />
       <updated>1748317968498</updated>
     </task>
-    <option name="localTasksCounter" value="140" />
+    <task id="LOCAL-00140" summary="changes">
+      <option name="closed" value="true" />
+      <created>1748320358930</created>
+      <option name="number" value="00140" />
+      <option name="presentableId" value="LOCAL-00140" />
+      <option name="project" value="LOCAL" />
+      <updated>1748320358930</updated>
+    </task>
+    <option name="localTasksCounter" value="141" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -551,7 +552,6 @@
       <path value="$PROJECT_DIR$/textshortener" />
       <path value="$PROJECT_DIR$/whatever" />
     </ignored-roots>
-    <MESSAGE value="day" />
     <MESSAGE value="fix" />
     <MESSAGE value="oops" />
     <MESSAGE value="yeah" />
@@ -576,6 +576,7 @@
     <MESSAGE value="i hope this works" />
     <MESSAGE value="i completely fucked everything up" />
     <MESSAGE value="lets go" />
-    <option name="LAST_COMMIT_MESSAGE" value="lets go" />
+    <MESSAGE value="changes" />
+    <option name="LAST_COMMIT_MESSAGE" value="changes" />
   </component>
 </project>
