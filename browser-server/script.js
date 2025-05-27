@@ -34,12 +34,17 @@ let result = await navigator.serviceWorker.register('./sw.js', {
 })
 await result.update()
 const post = result.active.postMessage.bind(result.active)
+let files = 0
 
 async function handleDirectory(dir, base = '') {
     let all = await Array.fromAsync(dir.values())
-    for (let entry of all) {
-        if (entry instanceof FileSystemDirectoryHandle) handleDirectory(entry, `${base}/${entry.name}`)
-        else {
+    for (let {length: i} = all; i--;) {
+        let entry = all[i]
+        if (entry instanceof FileSystemDirectoryHandle) {
+        handleDirectory(entry, `${base}/${entry.name}`)
+            continue
+        }
+       else {
             let url = `${base}/${entry.name}`
             console.warn(url)
             let raw = await entry.getFile()
@@ -81,9 +86,9 @@ async function handleDirectory(dir, base = '') {
                         type: 'text/javascript'
                     }))
                 })
-                continue
+
             }
-            post({
+           else post({
                 type: 'cache',
                 url,
                 file: URL.createObjectURL(raw)
