@@ -56,6 +56,7 @@ else {
         reqFile = requestFile
     }
 }
+export const file = reqFile
 function verifyEventName(target, name) {
     let original = name
     name = name.toLowerCase()
@@ -140,18 +141,17 @@ export function addCustomEvent(names) {
     for(let name in names) customEvents[names[name]?'add':'delete'](name.toLowerCase())
 }
 const formatEventName = /[_$^%&!?@#\d]|bound /g
-export function on(target, events, useHandler, signal) {
+export function on(target, events, unused, signal) {
     if (Array.isArray(target)) {
         groupCollapsed('on(...)')
         target.forEach(func)
         function func(t) {
-            on(t, events, useHandler)
+            on(t, events)
         }
         console.groupEnd()
         return target
     }
     if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
-    let manualSignal
     try {
         groupCollapsed(`on(${getLabel(target)})`)
         console.dirxml(target)
@@ -205,9 +205,9 @@ export function on(target, events, useHandler, signal) {
                 signal&&args.push(Abort, Remove)
                 onlyTrusted&&event.isTrusted || !onlyTrusted && (!onlyCurrentTarget || onlyCurrentTarget && event.target === event.currentTarget) &&
                 (Reflect.apply(func,target, args),
-                stopImmediateProp && event.stopImmediatePropagation(),
-                stopProp && event.stopPropagation(),
                 prevents&&(event.cancelable?event.preventDefault():warn(`🔊 '${eventName}' events are not cancelable`)),
+                stopProp && event.stopPropagation(),
+                stopImmediateProp && event.stopImmediatePropagation(),
                 autoabort&&Abort(),
                 once&&off(event.currentTarget, eventName))
             }
@@ -215,10 +215,7 @@ export function on(target, events, useHandler, signal) {
                 value: func,
                 configurable: 1
             })*/
-            if (useHandler)
-                // console.warn('Using handler property is deprecated')
-                target[`on${eventName}`] = EventHandlerWrapperFunction
-            else target.addEventListener(eventName, EventHandlerWrapperFunction, options)
+            target.addEventListener(eventName, EventHandlerWrapperFunction, options)
             if (signal)
                 console.info(`📡 '${eventName}' event added`)
             // with signal`, signal)
@@ -232,7 +229,6 @@ export function on(target, events, useHandler, signal) {
                     capture,
                     onlyTrusted,
                     listener: EventHandlerWrapperFunction,
-                    handler: !!useHandler,
                     prevents,
                     stopProp,
                     once,
@@ -264,8 +260,8 @@ export function off(target, ...eventNames) {
         for (let {length} = eventNames; length--;) {
             const name = verifyEventName(target, eventNames[length]),
                 settings = map.get(name),
-                {listener, capture, passive, handler} = settings
-            handler?target[`on${name}`]=null:target.removeEventListener(name,listener,settings)
+                {listener} = settings
+            target.removeEventListener(name,listener,settings)
             map.has(name) && console.info(`🔕 '${name}' event removed`)
             map.delete(name)
             mySet.delete(name)

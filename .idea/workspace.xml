@@ -6,9 +6,13 @@
   <component name="ChangeListManager">
     <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="changes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/num.js" beforeDir="false" afterPath="$PROJECT_DIR$/num.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/str.js" beforeDir="false" afterPath="$PROJECT_DIR$/str.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yay.js" beforeDir="false" afterPath="$PROJECT_DIR$/yay.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis.json" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/emojis.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/1216658592674091028.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/1368437370961006754.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cute-emojis/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handle.js" beforeDir="false" afterPath="$PROJECT_DIR$/handle.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/avatars/nano.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/allava.json" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/allava.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -135,15 +139,7 @@
       <workItem from="1748294820445" duration="36000" />
       <workItem from="1748294892896" duration="2000" />
       <workItem from="1748295161091" duration="14916000" />
-      <workItem from="1748317912080" duration="11030000" />
-    </task>
-    <task id="LOCAL-00093" summary="hope it works now">
-      <option name="closed" value="true" />
-      <created>1748286600067</created>
-      <option name="number" value="00093" />
-      <option name="presentableId" value="LOCAL-00093" />
-      <option name="project" value="LOCAL" />
-      <updated>1748286600067</updated>
+      <workItem from="1748317912080" duration="11532000" />
     </task>
     <task id="LOCAL-00094" summary="ugh">
       <option name="closed" value="true" />
@@ -529,7 +525,15 @@
       <option name="project" value="LOCAL" />
       <updated>1748362825967</updated>
     </task>
-    <option name="localTasksCounter" value="142" />
+    <task id="LOCAL-00142" summary="changes">
+      <option name="closed" value="true" />
+      <created>1748500414242</created>
+      <option name="number" value="00142" />
+      <option name="presentableId" value="LOCAL-00142" />
+      <option name="project" value="LOCAL" />
+      <updated>1748500414242</updated>
+    </task>
+    <option name="localTasksCounter" value="143" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

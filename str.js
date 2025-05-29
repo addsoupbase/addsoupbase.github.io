@@ -29,9 +29,9 @@ export function formatWord(str) {
     return /[aeiou]/i.test(str[0]) ? `an ${str}` : `a ${str}`
 }
 export function shorten(str, length, tail) {
-    if (!length) throw RangeError('Length must be present')
+    if (typeof length !=='number') throw RangeError('Length must be present')
     let out = str.slice(0, length)
-    return str.length > length ? `${out}${tail ?? '…'}` : out
+    return str.length>length?`${out}${tail??'…'}`:out
 }
 export function plural(singular, plural, count) {
 return Math.sign(count=+count)===count&&count?`${count} ${singular}`:`${count.toLocaleString()} ${plural}`
