@@ -1,7 +1,7 @@
 
 const map = new Map(Object.entries({ 1: 'st', 2: 'nd', 3: 'rd' }))
 export const ALPHABET = 'abcdefghijklmnopqrstuvwxyz'.toUpperCase(),
-    alphabet = 'abcdefghijklmnopqrstuvwxyz',
+    alphabet = ALPHABET.toLowerCase(),
     numbers = '0123456789',
     months = 'January February March April May June July August September October November December'
         .split(' '),
@@ -32,6 +32,9 @@ export function shorten(str, length, tail) {
     if (!length) throw RangeError('Length must be present')
     let out = str.slice(0, length)
     return str.length > length ? `${out}${tail ?? '…'}` : out
+}
+export function plural(singular, plural, count) {
+return Math.sign(count=+count)===count&&count?`${count} ${singular}`:`${count.toLocaleString()} ${plural}`
 }
 export function clip(str, length) {
     return str.slice(length, str.length - length)

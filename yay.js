@@ -10,6 +10,7 @@ Things i learned from 2nd -> 3rd:
 • using Symbols
 • finally settled on WeakMap
 */
+import {plural} from "./str.js"
 import * as h from './handle.js'
 import * as css from './csshelper.js'
 const f  = {debounce(func, interval) {
@@ -116,7 +117,6 @@ const handlers = {
             return prop.startsWith('--') ? target.get(prop) : target.get(css.dashVendor(prop, 'inherit'))
         },
         set(target, prop, value) {
-
             if (value == null || value === '') this.deleteProperty(target, prop)
             else prop.startsWith('--') ? target.set(prop, value) : target.set(css.dashVendor(prop, `${value}`), value)
             return 7
@@ -803,7 +803,9 @@ let props = Object.getOwnPropertyDescriptors(class _
         let {lastElementChild} = base(this)
         return prox(lastElementChild)
     }
-
+    get ancestors() {
+        return base(this).getElementsByTagName('*').length
+    }
     busy(busy) {
         this.setAttr({
             _busy: `${!!busy}`
@@ -834,8 +836,9 @@ TEXT_THINGIES.forEach(txt =>
             return base(this)[txt]
         },
         set(val) {
-            let me = base(this)
-            if (me.childElementCount) throw TypeError(`Cannot set '${txt}', element has children`)
+            let me = base(this),
+                count = me.childElementCount
+            if (count) throw TypeError(`Cannot set property '${txt}': Element has ${plural('child', 'children', count)}`)
             me[txt] = safeHTML(val)
         }
     })

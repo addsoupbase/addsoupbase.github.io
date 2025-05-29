@@ -116,6 +116,9 @@ export function cycle(...wheel) {
     // new.target && noConstructor()
     return new Cycle(...wheel)
 }
+export function signed(n) {
+    return typeof n==='bigint'?n===0n?0n:n<0n?-1n:1n:sign(n)
+}
 export function cycleFrom(arrayLike) {
     // new.target && noConstructor()
     return cycle.apply(1, arrayLike)
