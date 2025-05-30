@@ -16,7 +16,24 @@ async function go(req) {
     try {
         let url = new URL(req.url, `http://localhost:${port}`)
         // Serve files from the same directory as server.js
-        if(url.pathname.startsWith('/cute-emojis')) return Response.redirect(new URL(url.pathname,'https://addsoupbase.github.io/'), 301)
+        if(url.pathname.startsWith('/cute-emojis'))
+        return new URL(url.pathname,'https://addsoupbase.github.io/')
+
+        if(url.pathname.startsWith('/marbles/play')) {
+            if (url.searchParams.has('level')) {
+                let level = url.searchParams.get('level')
+                let {title, author} = JSON.parse(await Deno.readTextFile(`marbles/play/levels/${level}/info.json`))
+                return new Response((await Deno.readTextFile('marbles/play/index.html'))
+                    .replace(/LEVEL_TITLE/g, title)
+                    .replace(/LEVEL_ID/g, level)
+                    .replace(/LEVEL_AUTHOR/g, author)
+                    ,{
+                    headers: {
+                        'Content-Type':'text/html'
+                    }
+                })
+            }
+        }
         let out = await serveDir(req, {
             fsRoot: serverDir,
             showDirListing: true,

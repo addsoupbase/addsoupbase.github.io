@@ -1294,7 +1294,7 @@ if (levelName) {
         }
     })
     overlay.push(settings)
-    getLevelFromJSON(await getJson(`./levels/${levelName}.json`))
+    getLevelFromJSON(await getJson(`./levels/${levelName}/level.json`))
 }
 /* function dataURItoBlob(dataURI) {
     // convert base64 to raw binary data held in a string
