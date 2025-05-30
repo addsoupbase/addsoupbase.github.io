@@ -4,16 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="changes">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis.json" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/emojis.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/1216658592674091028.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/emojis/1368437370961006754.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cute-emojis/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/cute-emojis/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handle.js" beforeDir="false" afterPath="$PROJECT_DIR$/handle.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media/avatars/nano.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/allava.json" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/allava.json" afterDir="false" />
-    </list>
+    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="changes" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -139,15 +130,7 @@
       <workItem from="1748294820445" duration="36000" />
       <workItem from="1748294892896" duration="2000" />
       <workItem from="1748295161091" duration="14916000" />
-      <workItem from="1748317912080" duration="11532000" />
-    </task>
-    <task id="LOCAL-00094" summary="ugh">
-      <option name="closed" value="true" />
-      <created>1748286743984</created>
-      <option name="number" value="00094" />
-      <option name="presentableId" value="LOCAL-00094" />
-      <option name="project" value="LOCAL" />
-      <updated>1748286743984</updated>
+      <workItem from="1748317912080" duration="11815000" />
     </task>
     <task id="LOCAL-00095" summary="ugh">
       <option name="closed" value="true" />
@@ -533,7 +516,15 @@
       <option name="project" value="LOCAL" />
       <updated>1748500414242</updated>
     </task>
-    <option name="localTasksCounter" value="143" />
+    <task id="LOCAL-00143" summary="changes">
+      <option name="closed" value="true" />
+      <created>1748526221966</created>
+      <option name="number" value="00143" />
+      <option name="presentableId" value="LOCAL-00143" />
+      <option name="project" value="LOCAL" />
+      <updated>1748526221966</updated>
+    </task>
+    <option name="localTasksCounter" value="144" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
