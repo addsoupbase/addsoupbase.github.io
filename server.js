@@ -1,29 +1,37 @@
 import { serve } from "https://deno.land/std@0.150.0/http/server.ts"
 import { serveDir } from "https://deno.land/std/http/file_server.ts"
 import { join } from "https://deno.land/std@0.150.0/path/mod.ts"
-
+const cache = await caches.open('server')
 let port = 3000
-console.log('💿 Booting...')
 console.clear()
+console.log('💿 Booting...')
 let html = /(?:\.html?|\/)$/
 // i had to resort to ai because i got so lost
 // Get the directory where this server.js file is located
 const serverDir = './'
-console.log(import.meta.url)
+const htmlHeaders = {
+    'Content-Type':'text/html',
+    // 'Document-Policy':'js-profiling'
+}
 await serve(go, { port })
-
+async function response(req,...data) {
+    let out = Reflect.construct(Response, data)
+    await cache.put(req, out)
+    return out
+}
 async function go(req) {
     try {
+        const cached = await cache.match(req)
+        if (cached)
+            return cached
         let url = new URL(req.url, `http://localhost:${port}`)
-        // Serve files from the same directory as server.js
         if(url.pathname.startsWith('/cute-emojis'))
-        return new URL(url.pathname,'https://addsoupbase.github.io/')
-
-        if(url.pathname.startsWith('/marbles/play')) {
+        return Response.redirect(new URL(url.pathname,'https://addsoupbase.github.io/'),301)
+      /*  if(url.pathname.startsWith('/marbles/play')) {
             if (url.searchParams.has('level')) {
                 let level = url.searchParams.get('level')
                 let {title, author} = JSON.parse(await Deno.readTextFile(`marbles/play/levels/${level}/info.json`))
-                return new Response((await Deno.readTextFile('marbles/play/index.html'))
+                return new response((await Deno.readTextFile('marbles/play/index.html'))
                     .replace(/LEVEL_TITLE/g, title)
                     .replace(/LEVEL_ID/g, level)
                     .replace(/LEVEL_AUTHOR/g, author)
@@ -33,34 +41,36 @@ async function go(req) {
                     }
                 })
             }
-        }
+        }*/
         let out = await serveDir(req, {
             fsRoot: serverDir,
             showDirListing: true,
             enableCors: true,
         })
-
-        // Handle JavaScript files
         if (out.headers.get('content-type')?.includes('javascript') || /\.js(?:\?.*)?$/.test(url.pathname)) {
             let jsContent = await getStrFromFile(url.pathname, 'js')
             if (jsContent) {
-                return new Response(jsContent, {
+                return  response(req, jsContent, {
                     headers: {
-                        'Content-Type': 'text/javascript'
+                        'content-type': 'text/javascript',
                     }
                 })
             }
         }
 
-        // Handle HTML files
-        if (html.test(url.pathname)) {
-            let htmlPath = url.pathname === '/' ? '/index.html' : url.pathname
-            let htmlContent = await getStrFromFile(htmlPath, 'html')
-            if (htmlContent) {
-                return new Response(htmlContent, {
-                    headers: {
-                        'Content-Type': 'text/html'
-                    }
+        if (html.test(url.pathname) || url.pathname.at(-1)==='/') {
+            let htmlPath = url.pathname.at(-1) === '/' ? `${url.pathname}/index.html` : url.pathname
+            try {
+                let htmlContent = await getStrFromFile(htmlPath, 'html')
+                if (htmlContent) {
+                    return  response(req,htmlContent, {
+                        headers: htmlHeaders
+                    })
+                }
+            }
+            catch {
+                return  response(req,`Not found`, {
+                    headers: htmlHeaders
                 })
             }
         }
@@ -68,7 +78,7 @@ async function go(req) {
         return out
     } catch (error) {
         console.error('Server error:', error)
-        return new Response('Internal Server Error', { status: 500 })
+        return  response(`${error}`, { status: 500 })
     }
 }
 
@@ -80,7 +90,6 @@ async function getStrFromFile(pathname, type) {
 
         let fullPath = join(serverDir, fileName)
         let text = await Deno.readTextFile(fullPath)
-
         switch (type) {
             case 'js': return modifyJS(text, pathname)
             case 'html': return modifyHTML(text)

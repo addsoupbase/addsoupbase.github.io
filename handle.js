@@ -207,7 +207,7 @@ export function on(target, events, unused, signal) {
                 (Reflect.apply(func,target, args),
                 prevents&&(event.cancelable?event.preventDefault():warn(`🔊 '${eventName}' events are not cancelable`)),
                 stopProp && event.stopPropagation(),
-                stopImmediateProp && event.stopImmediatePropagation(),
+                stopImmediateProp&&event.stopImmediatePropagation(),
                 autoabort&&Abort(),
                 once&&off(event.currentTarget, eventName))
             }
