@@ -305,7 +305,7 @@ export function until(target, eventName, failureName, timeout/* = 600000*/) {
                 }
             }
         })
-        on(target, e, target[handleName] === null, signal)
+        on(target, e, 1, signal)
     }
 }
 let objectURLS,

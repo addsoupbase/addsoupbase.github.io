@@ -10,7 +10,10 @@ Things i learned from 2nd -> 3rd:
 • using Symbols
 • finally settled on WeakMap
 */
-import {plural} from "./str.js"
+// import {plural} from "./str.js"
+function plural(singular, plural, count) {
+    return Math.sign(count=+count)===count&&count?`${count} ${singular}`:`${count.toLocaleString()} ${plural}`
+}
 import * as h from './handle.js'
 import * as css from './csshelper.js'
 const f  = {debounce(func, interval) {
@@ -23,12 +26,12 @@ const f  = {debounce(func, interval) {
         if (!waiting) {
             waiting = true
             setTimeout(enable, interval)
-            func.apply(this, args)
+            Reflect.apply(func, this, args)
         }
         return !waiting
     }
 }}
-if (!Object.hasOwn) Object.defineProperty(Object, 'hasOwn', {
+Object.hasOwn ?? Object.defineProperty(Object, 'hasOwn', {
     value: (obj, prop) => ({}).hasOwnProperty.call(obj, prop),
     writable: 1,
     configurable: 1
