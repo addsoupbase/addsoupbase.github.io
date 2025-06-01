@@ -21,7 +21,7 @@ async function response(req,...data) {
 }
 async function go(req) {
     try {
-        const cached = await cache.match(req)
+       const cached = await cache.match(req)
         if (cached)
             return cached
         let url = new URL(req.url, `http://localhost:${port}`)

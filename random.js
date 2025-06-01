@@ -11,6 +11,9 @@ class Random {
     choose(...deck) {
         return deck[floor(random() * deck.length)]
     }
+    chooseFrom(deck) {
+        return this.choose.apply(0, deck)
+    }
     jackpot(range) {
         return !this.frange(0, range)
     }

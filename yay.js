@@ -10,27 +10,34 @@ Things i learned from 2nd -> 3rd:
 • using Symbols
 • finally settled on WeakMap
 */
+
 // import {plural} from "./str.js"
 function plural(singular, plural, count) {
-    return Math.sign(count=+count)===count&&count?`${count} ${singular}`:`${count.toLocaleString()} ${plural}`
+    return Math.sign(count = +count) === count && count ? `${count} ${singular}` : `${count.toLocaleString()} ${plural}`
 }
+
 import * as h from './handle.js'
 import * as css from './csshelper.js'
-const f  = {debounce(func, interval) {
-    let waiting = false
-    return DebouncedFunction
-    function enable() {
-        waiting = false
-    }
-    function DebouncedFunction(...args) {
-        if (!waiting) {
-            waiting = true
-            setTimeout(enable, interval)
-            Reflect.apply(func, this, args)
+
+const f = {
+    debounce(func, interval) {
+        let waiting = false
+        return DebouncedFunction
+
+        function enable() {
+            waiting = false
         }
-        return !waiting
+
+        function DebouncedFunction(...args) {
+            if (!waiting) {
+                waiting = true
+                setTimeout(enable, interval)
+                Reflect.apply(func, this, args)
+            }
+            return !waiting
+        }
     }
-}}
+}
 Object.hasOwn ?? Object.defineProperty(Object, 'hasOwn', {
     value: (obj, prop) => ({}).hasOwnProperty.call(obj, prop),
     writable: 1,
@@ -51,7 +58,7 @@ function gen() {
 
 const BoundFunctions = new WeakMap
 
-function cacheFunction(maybeFunc, to) {
+function cacheFunction(maybeFunc) {
     // Make sure we just re-use the same function
     /*if (typeof maybeFunc === 'function') {
         if (!Object.hasOwn(to, maybeFunc.name)) Object.defineProperty(prox(to), maybeFunc.name, {
@@ -95,8 +102,8 @@ function ariaOrData(i) {
 }
 
 const attrStyleMap = 'StylePropertyMap' in window
-const customRules = css.getDefaultStyleSheet()
-const handlers = {
+    , customRules = css.getDefaultStyleSheet()
+    , handlers = {
     // Other proxies
     main: {
         // just create as few closures as possible
@@ -192,6 +199,7 @@ const handlers = {
 // let ATTR = Symbol('💿')
 // let states = Symbol('💾')
 let computed = Symbol('🔬')
+let styles = Symbol('🖌')
 // let shadow = Symbol('🌴')
 let props = Object.getOwnPropertyDescriptors(class _
     extends null {
@@ -225,107 +233,110 @@ let props = Object.getOwnPropertyDescriptors(class _
     get computed() {
         return this[computed] ??= getComputedStyle(base(this))
     }
-/*
-    createState(identifier, child, callback) {
-        let t = this[states]
-        if (t.has(identifier)) throw Error("Already present")
-        //if (!(typeof identifier).match(/number|string|symbol|bigint/)) throw TypeError(`State must be a primitive`)
-        // console.assert(/number|string|symbol|bigint/.test(typeof identifier), `State should be a primitive:\n %o`, identifier)
-        let cached = $('template')
-        cached.content.appendChild(base(child))
-        t.set(identifier, {
-            cached,
-            callback
-        })
-        return cached.content
-    }
 
-    getState(identifier) {
-        return this[states].get(identifier)?.cached.content ?? null
-    }
-
-    editState(id, func) {
-        func(this[states].get(id).cached.content)
-    }
-
-    deleteState(identifier) {
-        let t = this[states]
-        if (t.has(identifier)) {
-            let state = t.get(identifier).cached;
-            [].forEach.call(state.content.querySelectorAll('*'), destroyEach)
-            t.delete(identifier)
+    /*
+        createState(identifier, child, callback) {
+            let t = this[states]
+            if (t.has(identifier)) throw Error("Already present")
+            //if (!(typeof identifier).match(/number|string|symbol|bigint/)) throw TypeError(`State must be a primitive`)
+            // console.assert(/number|string|symbol|bigint/.test(typeof identifier), `State should be a primitive:\n %o`, identifier)
+            let cached = $('template')
+            cached.content.appendChild(base(child))
+            t.set(identifier, {
+                cached,
+                callback
+            })
+            return cached.content
         }
-    }
-    setState(identifier) {
-        if (identifier === null) {
-            this.lastState = this.currentState
-            this.currentState = null
-            return this.destroyChildren()
-        }
-        let t = this[states]
-        if (!t.has(identifier)) {
-            this.destroyChildren()
-            .push($('<samp style="font-size:30px; color:red;">INVALID STATE</samp>'))
-                .currentState = null
-            reportError(identifier)
-            throw TypeError('Invalid state')
-        }
-        let {cached: cache, callback} = t.get(identifier)
-            , frag = cache.content
-            , cached = document.importNode(frag, true)
-            , staticBatch = [...frag.querySelectorAll('*')]
-            , newBatch = [...cached.querySelectorAll('*')]
-            , withIds = []
-        staticBatch.forEach(forEach)
-        this.destroyChildren()
-        callback?.apply(cached, withIds)
-        base(this).appendChild(cached)
-        this.lastState = this.currentState
-        this.currentState = identifier
 
-        function forEach(el, index) {
-            el = prox(el)
-            el.hasAttribute('id') && withIds.push(el) // its considered important
-            let {events} = el
-            if (!events) return
-            let clone = prox(newBatch[index])
-            let staticEvents = h.allEvents.get(base(el))
-            events.forEach(eventThing)
+        getState(identifier) {
+            return this[states].get(identifier)?.cached.content ?? null
+        }
 
-            function eventThing(name) {
-                let {
-                    listener,
-                    passive,
-                    capture,
-                    handler,
-                    prevents,
-                    stopProp,
-                    once,
-                    stopImmediateProp,
-                    onlyTrusted
-                } = staticEvents.get(name)
-                if (once) name = `_${name}`
-                if (passive) name = `^${name}`
-                if (capture) name = `%${name}`
-                if (stopProp) name = `&${name}`
-                if (prevents) name = `$${name}`
-                if (onlyTrusted) name = `?${name}`
-                if (stopImmediateProp) name = `!${name}`
-                clone.on({
-                    [name]: listener[h.unbound][h.unbound]
-                }, handler)
+        editState(id, func) {
+            func(this[states].get(id).cached.content)
+        }
+
+        deleteState(identifier) {
+            let t = this[states]
+            if (t.has(identifier)) {
+                let state = t.get(identifier).cached;
+                [].forEach.call(state.content.querySelectorAll('*'), destroyEach)
+                t.delete(identifier)
             }
         }
-    }
-*/
+        setState(identifier) {
+            if (identifier === null) {
+                this.lastState = this.currentState
+                this.currentState = null
+                return this.destroyChildren()
+            }
+            let t = this[states]
+            if (!t.has(identifier)) {
+                this.destroyChildren()
+                .push($('<samp style="font-size:30px; color:red;">INVALID STATE</samp>'))
+                    .currentState = null
+                reportError(identifier)
+                throw TypeError('Invalid state')
+            }
+            let {cached: cache, callback} = t.get(identifier)
+                , frag = cache.content
+                , cached = document.importNode(frag, true)
+                , staticBatch = [...frag.querySelectorAll('*')]
+                , newBatch = [...cached.querySelectorAll('*')]
+                , withIds = []
+            staticBatch.forEach(forEach)
+            this.destroyChildren()
+            callback?.apply(cached, withIds)
+            base(this).appendChild(cached)
+            this.lastState = this.currentState
+            this.currentState = identifier
+
+            function forEach(el, index) {
+                el = prox(el)
+                el.hasAttribute('id') && withIds.push(el) // its considered important
+                let {events} = el
+                if (!events) return
+                let clone = prox(newBatch[index])
+                let staticEvents = h.allEvents.get(base(el))
+                events.forEach(eventThing)
+
+                function eventThing(name) {
+                    let {
+                        listener,
+                        passive,
+                        capture,
+                        handler,
+                        prevents,
+                        stopProp,
+                        once,
+                        stopImmediateProp,
+                        onlyTrusted
+                    } = staticEvents.get(name)
+                    if (once) name = `_${name}`
+                    if (passive) name = `^${name}`
+                    if (capture) name = `%${name}`
+                    if (stopProp) name = `&${name}`
+                    if (prevents) name = `$${name}`
+                    if (onlyTrusted) name = `?${name}`
+                    if (stopImmediateProp) name = `!${name}`
+                    clone.on({
+                        [name]: listener[h.unbound][h.unbound]
+                    }, handler)
+                }
+            }
+        }
+    */
     toJSON() {
         return base(this).outerHTML
     }
+
     * xpath(xpath, type) {
         let i = document.evaluate(xpath, base(this), null, type ?? 0, null),
             el
         while (el = i.iterateNext()) yield el instanceof HTMLElement ? prox(el) : el
     }
+
     get orphans() {
         let me = base(this)
         if (me.tagName === 'TEMPLATE')
@@ -396,12 +407,14 @@ let props = Object.getOwnPropertyDescriptors(class _
         if (typeof events === 'function') {
             let old = events
             events = ProxyEventWrapperFunction
+
             function ProxyEventWrapperFunction(...args) {
                 // just avoid bind()
                 Reflect.apply(old, me, args)
             }
         } else for (let i in events) events[i] = function (old) {
             return ProxyEventWrapperFunction
+
             function ProxyEventWrapperFunction(...args) {
                 Reflect.apply(old, me, args)
             }
@@ -444,6 +457,7 @@ let props = Object.getOwnPropertyDescriptors(class _
             if (i.includes('@')) throw SyntaxError("Conflicting usage of a 'currentTarget' only delegating event handler")
             let old = events[i]
             events[i] = DelegationFunction
+
             function DelegationFunction(...args) {
                 let {target} = args[0],
                     pr = prox(target);
@@ -535,7 +549,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         return this.animate([{}, _.nopacity], {
             duration,
             easing: 'ease',
-            composite:'replace',
+            composite: 'replace',
             iterations: 1
         }).finished.then(this.hide.bind(this, 3))
     }
@@ -547,12 +561,12 @@ let props = Object.getOwnPropertyDescriptors(class _
             duration,
             easing: 'ease',
             iterations: 1,
-            composite:'replace',
+            composite: 'replace',
         }).finished
     }
 
     fadeFromTo(from, to, settings) {
-        let duration = (settings??={}).duration || _.defaultDura
+        let duration = (settings ??= {}).duration || _.defaultDura
             , easing = settings.easing ?? 'ease'
         return this.animate([{
             opacity: from
@@ -561,13 +575,13 @@ let props = Object.getOwnPropertyDescriptors(class _
         }], {
             duration,
             easing,
-            composite:'replace',
+            composite: 'replace',
             fill: 'forwards'
         })
     }
 
     replace(...elements) {
-       Reflect.apply(HTMLElement.prototype.replaceWith, base(this), elements.map(base))
+        Reflect.apply(HTMLElement.prototype.replaceWith, base(this), elements.map(base))
     }
 
     wrap(parent) {
@@ -806,9 +820,11 @@ let props = Object.getOwnPropertyDescriptors(class _
         let {lastElementChild} = base(this)
         return prox(lastElementChild)
     }
+
     get ancestors() {
         return base(this).getElementsByTagName('*').length
     }
+
     busy(busy) {
         this.setAttr({
             _busy: `${!!busy}`
@@ -856,6 +872,24 @@ HTML_PLACING.forEach(set =>
         }
     })
 )
+'offsetLeft offsetTop offsetWidth offsetHeight offsetParent clientLeft clientTop clientWidth clientHeight scrollWidth scrollHeight'
+.split(' ').forEach(prop => {
+    // Reading these properties causes reflows/layout-shift/repaint whatever its called
+    let cached = null,
+        queued = false
+    function resetThingy() {
+        cached = null
+        queued = false
+        reads = 0
+    }
+    Object.defineProperty(prototype, prop, {
+        get() {
+            ++reads
+            queued || (requestAnimationFrame(resetThingy), queued = true)
+            return cached ??= base(this)[prop]
+        }
+    })
+})
 // i just like using emojis sorry
 Reflect.ownKeys(props).forEach(i => {
     if (i !== 'constructor') {
@@ -1004,8 +1038,6 @@ muta.observe(document.documentElement, {
 /*
 RESIZE OBSERVER STUFFS
 */
-let later = []
-
 function ResizeLoop(o) {
     h.delayedDispatch('ResizeObserver', o.target, new CustomEvent('re-scale', {
         bubbles: true,
@@ -1053,9 +1085,9 @@ function PerformanceLoop(o) {
             return
         case 'longtask':
             title = 'long-task';
-            // [top, parent].forEach(o=>o!== window && delayedDispatch(o.entryType,o, new CustomEvent(title, {
-            //     detail
-            // })))
+        // [top, parent].forEach(o=>o!== window && delayedDispatch(o.entryType,o, new CustomEvent(title, {
+        //     detail
+        // })))
         // console.warn(o)
         case "long-animation-frame":
             detail = o
@@ -1137,6 +1169,53 @@ h.addCustomEvent({
 })
 const getStyleThingy = attrStyleMap ? element => element.attributeStyleMap : element => element.style
 
+function ApplyBatchedStyles(value, key, map) {
+    try {
+        this[key] = value
+        map.delete(key)
+    } catch {
+        // Proxy is likely revoked
+        map.clear()
+    }
+}
+
+function BatchStyle(target) {
+    const handler = {
+        get(t, p) {
+            ++reads
+            p = css.toCaps(p)
+            let val = cached.get(p)
+            return val ?? (cached.set(p, val = t[p]), val)
+        },
+        set(t, p, v) {
+            ++writes
+            p = css.toCaps(p)
+            cached.set(p, v)
+            QueueBatchThing()
+            return 1
+        },
+        deleteProperty(t, p) {
+            return this.set(t, p, '')
+        }
+    }
+    let queued = false
+        , cached = new Map
+
+    function QueueBatchThing() {
+        queued || (requestAnimationFrame(HandleStyleUpdates), queued = true)
+    }
+
+    function HandleStyleUpdates() {
+        queued = false
+        cached.forEach(ApplyBatchedStyles.bind(target))
+        writes = reads = 0
+    }
+
+    return new Proxy(target, handler)
+}
+
+let writes = 0, reads = 0
+
 export function prox(target) {
     if (target === null) return null
     if (target[computed]) return target
@@ -1155,6 +1234,7 @@ export function prox(target) {
             , {revoke: childRevoke, proxy: childProxy} = Proxy.revocable(target.children, handlers.HTMLCollection)
             , {revoke: querySelectorRevoke, proxy: querySelectorProxy} = Proxy.revocable(target, handlers.querySelector)
             , {revoke: attrRevoke, proxy: attrProxy} = Proxy.revocable(target, handlers.attr)
+            , batchStyleProxy = BatchStyle(styleProxy)
             , propertiesToDefine = {
             ...prototypeDescriptors,
             [me]: bleh,
@@ -1162,9 +1242,9 @@ export function prox(target) {
                 value: querySelectorProxy
             },
             [computed]: reuse.nullThing,
-          /*  [states]: {
-                value: new Map
-            },*/
+            /*  [states]: {
+                  value: new Map
+              },*/
             selfRules: {
                 value: Object.create(null)
             },
@@ -1180,6 +1260,9 @@ export function prox(target) {
                 value: attrProxy
             },
             styles: {
+                value: batchStyleProxy
+            },
+            [styles]: {
                 value: styleProxy
             }
         }
@@ -1239,7 +1322,7 @@ const parseModeMap = new Map(Object.entries({
     },
     innerHTML(html) {
         (div ??= document.createElement('div'))
-        .innerHTML = html
+            .innerHTML = html
         return div.removeChild(div.firstElementChild)
     },
     createHTMLDocument(html) {
@@ -1383,6 +1466,16 @@ export default Object.defineProperties($, {
             }
         })
     },
+    reads: {
+        get() {
+            return reads
+        }
+    },
+    writes: {
+        get() {
+            return writes
+        }
+    },
     byQuery: {
         value: new Proxy(document, {
             get(t, p) {
@@ -1395,9 +1488,9 @@ export default Object.defineProperties($, {
             return Array.from(base($.doc).querySelectorAll(selector), prox)
         }
     },
-    last:{
-        writable:1,
-        value:null,
+    last: {
+        writable: 1,
+        value: null,
     },
     setup: {
         value(id) {
@@ -1451,9 +1544,6 @@ function allElementStuff(e) {
     // return [].some.call(e.attributes, badAttrName)
 }
 
-function destroyEach(ch) {
-    prox(ch).destroy()
-}
 
 export const define = Object.getPrototypeOf(customElements).define.bind(customElements)
 /*export function info(heading, message, parent, yes, no) {

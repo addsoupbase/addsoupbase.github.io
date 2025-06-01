@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="changes" />
+    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="Mhm">
+      <change beforePath="$PROJECT_DIR$/random.js" beforeDir="false" afterPath="$PROJECT_DIR$/random.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/server.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/yay.js" beforeDir="false" afterPath="$PROJECT_DIR$/yay.js" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -132,54 +136,7 @@
       <workItem from="1748295161091" duration="14916000" />
       <workItem from="1748317912080" duration="13786000" />
       <workItem from="1748636981274" duration="30000" />
-    </task>
-    <task id="LOCAL-00097" summary="WHY WONT THIS WORK DUDE">
-      <option name="closed" value="true" />
-      <created>1748287508612</created>
-      <option name="number" value="00097" />
-      <option name="presentableId" value="LOCAL-00097" />
-      <option name="project" value="LOCAL" />
-      <updated>1748287508612</updated>
-    </task>
-    <task id="LOCAL-00098" summary="hELP">
-      <option name="closed" value="true" />
-      <created>1748287646203</created>
-      <option name="number" value="00098" />
-      <option name="presentableId" value="LOCAL-00098" />
-      <option name="project" value="LOCAL" />
-      <updated>1748287646203</updated>
-    </task>
-    <task id="LOCAL-00099" summary="kill me dude">
-      <option name="closed" value="true" />
-      <created>1748287888527</created>
-      <option name="number" value="00099" />
-      <option name="presentableId" value="LOCAL-00099" />
-      <option name="project" value="LOCAL" />
-      <updated>1748287888527</updated>
-    </task>
-    <task id="LOCAL-00100" summary="kill me dude">
-      <option name="closed" value="true" />
-      <created>1748287971746</created>
-      <option name="number" value="00100" />
-      <option name="presentableId" value="LOCAL-00100" />
-      <option name="project" value="LOCAL" />
-      <updated>1748287971746</updated>
-    </task>
-    <task id="LOCAL-00101" summary="UGH">
-      <option name="closed" value="true" />
-      <created>1748288119644</created>
-      <option name="number" value="00101" />
-      <option name="presentableId" value="LOCAL-00101" />
-      <option name="project" value="LOCAL" />
-      <updated>1748288119644</updated>
-    </task>
-    <task id="LOCAL-00102" summary="lets see...">
-      <option name="closed" value="true" />
-      <created>1748289480685</created>
-      <option name="number" value="00102" />
-      <option name="presentableId" value="LOCAL-00102" />
-      <option name="project" value="LOCAL" />
-      <updated>1748289480685</updated>
+      <workItem from="1748637170960" duration="16717000" />
     </task>
     <task id="LOCAL-00103" summary="lets see...">
       <option name="closed" value="true" />
@@ -525,7 +482,55 @@
       <option name="project" value="LOCAL" />
       <updated>1748636989501</updated>
     </task>
-    <option name="localTasksCounter" value="146" />
+    <task id="LOCAL-00146" summary="its being stupid">
+      <option name="closed" value="true" />
+      <created>1748637619025</created>
+      <option name="number" value="00146" />
+      <option name="presentableId" value="LOCAL-00146" />
+      <option name="project" value="LOCAL" />
+      <updated>1748637619025</updated>
+    </task>
+    <task id="LOCAL-00147" summary="separate cute emojis to its own thingy, to save spacde">
+      <option name="closed" value="true" />
+      <created>1748638175430</created>
+      <option name="number" value="00147" />
+      <option name="presentableId" value="LOCAL-00147" />
+      <option name="project" value="LOCAL" />
+      <updated>1748638175430</updated>
+    </task>
+    <task id="LOCAL-00148" summary="testing stuff">
+      <option name="closed" value="true" />
+      <created>1748641383134</created>
+      <option name="number" value="00148" />
+      <option name="presentableId" value="LOCAL-00148" />
+      <option name="project" value="LOCAL" />
+      <updated>1748641383134</updated>
+    </task>
+    <task id="LOCAL-00149" summary="testing stuff">
+      <option name="closed" value="true" />
+      <created>1748653493848</created>
+      <option name="number" value="00149" />
+      <option name="presentableId" value="LOCAL-00149" />
+      <option name="project" value="LOCAL" />
+      <updated>1748653493848</updated>
+    </task>
+    <task id="LOCAL-00150" summary="Mhm">
+      <option name="closed" value="true" />
+      <created>1748663969995</created>
+      <option name="number" value="00150" />
+      <option name="presentableId" value="LOCAL-00150" />
+      <option name="project" value="LOCAL" />
+      <updated>1748663969995</updated>
+    </task>
+    <task id="LOCAL-00151" summary="Mhm">
+      <option name="closed" value="true" />
+      <created>1748757737960</created>
+      <option name="number" value="00151" />
+      <option name="presentableId" value="LOCAL-00151" />
+      <option name="project" value="LOCAL" />
+      <updated>1748757737960</updated>
+    </task>
+    <option name="localTasksCounter" value="152" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -549,10 +554,6 @@
       <path value="$PROJECT_DIR$/textshortener" />
       <path value="$PROJECT_DIR$/whatever" />
     </ignored-roots>
-    <MESSAGE value="fix" />
-    <MESSAGE value="oops" />
-    <MESSAGE value="yeah" />
-    <MESSAGE value="grah" />
     <MESSAGE value="just" />
     <MESSAGE value="heh" />
     <MESSAGE value="heyyy" />
@@ -574,6 +575,10 @@
     <MESSAGE value="i completely fucked everything up" />
     <MESSAGE value="lets go" />
     <MESSAGE value="changes" />
-    <option name="LAST_COMMIT_MESSAGE" value="changes" />
+    <MESSAGE value="its being stupid" />
+    <MESSAGE value="separate cute emojis to its own thingy, to save spacde" />
+    <MESSAGE value="testing stuff" />
+    <MESSAGE value="Mhm" />
+    <option name="LAST_COMMIT_MESSAGE" value="Mhm" />
   </component>
 </project>
