@@ -105,6 +105,33 @@ const attrStyleMap = 'StylePropertyMap' in window
     , customRules = css.getDefaultStyleSheet()
     , handlers = {
     // Other proxies
+    batchThing: {
+        QueueBatchThing() {
+            this.queued || (requestAnimationFrame(this.HandleStyleUpdates.bind(this)), this.queued = true)
+        },
+        HandleStyleUpdates() {
+            this.queued = false
+            this.cached.forEach(ApplyBatchedStyles, this.target)
+            writes = reads = 0
+        },
+        get(t, p) {
+            ++reads
+            p = css.toCaps(p)
+            let val = this.cached.get(p)
+            return val ?? (this.cached.set(p, val = t[p]), val)
+        },
+        set(t, p, v) {
+            ++writes
+            p = css.toCaps(p)
+            if (v === this.cached.get(p)) return 1
+            this.cached.set(p, v)
+            this.QueueBatchThing()
+            return 1
+        },
+        deleteProperty(t, p) {
+            return this.set(t, p, '')
+        }
+    },
     main: {
         // just create as few closures as possible
         get(targ, prop) {
@@ -359,7 +386,7 @@ let props = Object.getOwnPropertyDescriptors(class _
     }
 
     get clone() {
-        return prox(this.cloneNode(true))
+        return prox(base(this).cloneNode(true))
     }
 
     destroy() {
@@ -714,7 +741,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         for (let {length: i} = all; i--;) yield prox(all[i])
     }
 
-    get [Symbol.toPrimitive]() {
+    [Symbol.toPrimitive]() {
         throw TypeError('Cannot convert Element to a primitive value')
         // 🔏 Don't want to accidentally convert to a string for stuff like
         //append, prepend, etc.
@@ -874,7 +901,7 @@ HTML_PLACING.forEach(set =>
 )
 'offsetLeft offsetTop offsetWidth offsetHeight offsetParent clientLeft clientTop clientWidth clientHeight scrollWidth scrollHeight'
 .split(' ').forEach(prop => {
-    // Reading these properties causes reflows/layout-shift/repaint whatever its called
+    // Reading these properties causes reflows/layout-shift/repaint whatever its called idk
     let cached = null,
         queued = false
     function resetThingy() {
@@ -929,14 +956,14 @@ const reuse = {
         value: null,
         writable: 1
     },
-    state: {
+ /*   state: {
         get() {
             return this.currentState
         },
         set(val) {
             this.setState(val)
         }
-    },
+    },*/
     junk: {
         value: null,
         enumerable: 1,
@@ -1035,6 +1062,7 @@ muta.observe(document.documentElement, {
     subtree: true,
     childList: true
 })
+
 /*
 RESIZE OBSERVER STUFFS
 */
@@ -1180,45 +1208,19 @@ function ApplyBatchedStyles(value, key, map) {
 }
 
 function BatchStyle(target) {
-    const handler = {
-        get(t, p) {
-            ++reads
-            p = css.toCaps(p)
-            let val = cached.get(p)
-            return val ?? (cached.set(p, val = t[p]), val)
-        },
-        set(t, p, v) {
-            ++writes
-            p = css.toCaps(p)
-            cached.set(p, v)
-            QueueBatchThing()
-            return 1
-        },
-        deleteProperty(t, p) {
-            return this.set(t, p, '')
-        }
-    }
-    let queued = false
-        , cached = new Map
-
-    function QueueBatchThing() {
-        queued || (requestAnimationFrame(HandleStyleUpdates), queued = true)
-    }
-
-    function HandleStyleUpdates() {
-        queued = false
-        cached.forEach(ApplyBatchedStyles.bind(target))
-        writes = reads = 0
-    }
-
-    return new Proxy(target, handler)
+    return new Proxy(target, {
+        __proto__: handlers.batchThing,
+        queued: false,
+        cached: new Map,
+        target,
+    })
 }
 
 let writes = 0, reads = 0
 
 export function prox(target) {
     if (target === null) return null
-    if (target[computed]) return target
+    if (target[styles]) return target
     if (!getValid(target))
         throw TypeError('Bad input') // get out
     // 🥅 Goal:
@@ -1248,7 +1250,7 @@ export function prox(target) {
             selfRules: {
                 value: Object.create(null)
             },
-            state: reuse.state,
+            // state: reuse.state,
             // [shadow]: reuse.junk,
             currentState: reuse.junk,
             lastState: reuse.junk,
@@ -1370,7 +1372,6 @@ function $(html, props, ...children) {
         html = safeHTML(html)
         element = prox(parseModeMap.get(parseMode)?.(html) ?? parseModeMap.get('')(html))
     } else {
-        // html === 'fencedframe' && typeof HTMLFencedFrameElement === 'undefined' && (html = 'iframe')
         element = prox(document.createElement(html.match(htmlRegex)?.[0]))
         let classes = html.match(classRegex),
             id = html.match(idRegex)?.[0],
@@ -1543,7 +1544,6 @@ function allElementStuff(e) {
     return e.getAttributeNames().some(badAttrName)
     // return [].some.call(e.attributes, badAttrName)
 }
-
 
 export const define = Object.getPrototypeOf(customElements).define.bind(customElements)
 /*export function info(heading, message, parent, yes, no) {

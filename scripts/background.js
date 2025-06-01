@@ -35,10 +35,11 @@ async function images({ time, colorful, birthday }) {
         })
     async function click(e) {
         e.stopImmediatePropagation()
-        let { x, y } = e
+        let {transform} = this.computed
+        debugger
         this.pauseAnims()
         pop.currentTime = 0
-        await Promise.race([pop.play(), h.wait(600)])
+        await Promise.race([pop.play(), h.wait(350)])
         this.fadeOut(300)
         this.flags = 1
         await this.animate([{ transform: '' }, { transform: 'scaleX(2) scaleY(2)', }], { duration: 300, easing: 'ease-in-out', composite: 'accumulate', }).finished
@@ -57,7 +58,7 @@ async function images({ time, colorful, birthday }) {
         }, $('p.displayName', { txt: '@' + string.upper(name) }))
         this.remove()
         me.fadeIn()
-        me.setStyles({ transform: `translate(${x - 25}px, ${y - 25}px)` })
+        me.setStyles({ transform })
         await me.animate([{}, { opacity: 0, filter: 'blur(20px) brightness(-100%)' }], { duration: 1000, delay: 2000 }).finished
         me.destroy()
     }
