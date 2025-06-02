@@ -36,7 +36,6 @@ async function images({ time, colorful, birthday }) {
     async function click(e) {
         e.stopImmediatePropagation()
         let {transform} = this.computed
-        debugger
         this.pauseAnims()
         pop.currentTime = 0
         await Promise.race([pop.play(), h.wait(350)])
@@ -71,9 +70,9 @@ async function images({ time, colorful, birthday }) {
                 width: 50, height: 50
             }, parent
         })
-        if (birthday) {
+        birthday&&
             n.setStyles({ 'background-image': `url("${ran.choose(...colorful)}")` })
-        }
+
         let settings = ran.coin
             ? [{ transform: `translateX(calc(100vw + ${n.offsetWidth}px))` }, { transform: `translateX(calc(-10vw - ${n.offsetWidth}px))` },]
             : [{ transform: `translateX(calc(-10vw - ${n.offsetWidth}px))` }, { transform: `translateX(calc(100vw + ${n.offsetWidth}px))` }]
@@ -177,9 +176,9 @@ const {frame} = $.id
 frame.on({
     _load() {
         (window.requestIdleCallback || window.queueMicrotask || setTimeout)(deadline => {
-            deadline ? console.debug(`Did timeout: `, deadline.didTimeout) : console.debug('requestIdleCallback unsupported :(')
             import('./images.js').then(images)
             console.debug("🐟 Loading the bg now...")
+            deadline ? console.debug(`Did timeout: `, deadline?.didTimeout) : console.debug('requestIdleCallback unsupported :(')
         }, { timeout: 3000 })
     }
 })
