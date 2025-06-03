@@ -152,6 +152,7 @@ export function on(target, events, unused, signal) {
         return target
     }
     if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
+    if (!Object.keys(events).length) return target
     try {
         groupCollapsed(`on(${getLabel(target)})`)
         console.dirxml(target)

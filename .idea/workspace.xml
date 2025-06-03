@@ -4,9 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="Mhm">
-      <change beforePath="$PROJECT_DIR$/random.js" beforeDir="false" afterPath="$PROJECT_DIR$/random.js" afterDir="false" />
+    <list default="true" id="29f9a90b-bdf7-470f-924f-4062610d8e4f" name="Changes" comment="i">
+      <change afterPath="$PROJECT_DIR$/eldraine/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/eldraine/styles.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/about.html" beforeDir="false" afterPath="$PROJECT_DIR$/about.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diary.html" beforeDir="false" afterPath="$PROJECT_DIR$/diary.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handle.js" beforeDir="false" afterPath="$PROJECT_DIR$/handle.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.html" beforeDir="false" afterPath="$PROJECT_DIR$/main.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/server.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/stuff.html" beforeDir="false" afterPath="$PROJECT_DIR$/stuff.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/yay.js" beforeDir="false" afterPath="$PROJECT_DIR$/yay.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -17,8 +26,9 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="HTML File" />
         <option value="JavaScript File" />
+        <option value="HTML File" />
+        <option value="CSS File" />
       </list>
     </option>
   </component>
@@ -49,26 +59,27 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
-    &quot;JavaScript Debug.Marbles.executor&quot;: &quot;Debug&quot;,
-    &quot;JavaScript Debug.index.html.executor&quot;: &quot;Debug&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/interface/Projects/addsoupbase.github.io&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;vcs.Git&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "DefaultHtmlFileTemplate": "HTML File",
+    "JavaScript Debug.Marbles.executor": "Debug",
+    "JavaScript Debug.index.html.executor": "Debug",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "/home/interface/Projects/addsoupbase.github.io",
+    "list.type.of.created.stylesheet": "CSS",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "reference.settingsdialog.project.grazie",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/bleh/icons" />
@@ -136,39 +147,8 @@
       <workItem from="1748295161091" duration="14916000" />
       <workItem from="1748317912080" duration="13786000" />
       <workItem from="1748636981274" duration="30000" />
-      <workItem from="1748637170960" duration="16717000" />
-    </task>
-    <task id="LOCAL-00103" summary="lets see...">
-      <option name="closed" value="true" />
-      <created>1748289874863</created>
-      <option name="number" value="00103" />
-      <option name="presentableId" value="LOCAL-00103" />
-      <option name="project" value="LOCAL" />
-      <updated>1748289874863</updated>
-    </task>
-    <task id="LOCAL-00104" summary="lets see...">
-      <option name="closed" value="true" />
-      <created>1748290086960</created>
-      <option name="number" value="00104" />
-      <option name="presentableId" value="LOCAL-00104" />
-      <option name="project" value="LOCAL" />
-      <updated>1748290086960</updated>
-    </task>
-    <task id="LOCAL-00105" summary="lets see...">
-      <option name="closed" value="true" />
-      <created>1748290165875</created>
-      <option name="number" value="00105" />
-      <option name="presentableId" value="LOCAL-00105" />
-      <option name="project" value="LOCAL" />
-      <updated>1748290165875</updated>
-    </task>
-    <task id="LOCAL-00106" summary="lets see...">
-      <option name="closed" value="true" />
-      <created>1748290350923</created>
-      <option name="number" value="00106" />
-      <option name="presentableId" value="LOCAL-00106" />
-      <option name="project" value="LOCAL" />
-      <updated>1748290350923</updated>
+      <workItem from="1748637170960" duration="20929000" />
+      <workItem from="1748830915750" duration="10984000" />
     </task>
     <task id="LOCAL-00107" summary="lets see...">
       <option name="closed" value="true" />
@@ -530,7 +510,39 @@
       <option name="project" value="LOCAL" />
       <updated>1748757737960</updated>
     </task>
-    <option name="localTasksCounter" value="152" />
+    <task id="LOCAL-00152" summary="performance improvements">
+      <option name="closed" value="true" />
+      <created>1748805991656</created>
+      <option name="number" value="00152" />
+      <option name="presentableId" value="LOCAL-00152" />
+      <option name="project" value="LOCAL" />
+      <updated>1748805991656</updated>
+    </task>
+    <task id="LOCAL-00153" summary="yuz">
+      <option name="closed" value="true" />
+      <created>1748821493697</created>
+      <option name="number" value="00153" />
+      <option name="presentableId" value="LOCAL-00153" />
+      <option name="project" value="LOCAL" />
+      <updated>1748821493697</updated>
+    </task>
+    <task id="LOCAL-00154" summary="entry">
+      <option name="closed" value="true" />
+      <created>1748822126460</created>
+      <option name="number" value="00154" />
+      <option name="presentableId" value="LOCAL-00154" />
+      <option name="project" value="LOCAL" />
+      <updated>1748822126460</updated>
+    </task>
+    <task id="LOCAL-00155" summary="i">
+      <option name="closed" value="true" />
+      <created>1748830936301</created>
+      <option name="number" value="00155" />
+      <option name="presentableId" value="LOCAL-00155" />
+      <option name="project" value="LOCAL" />
+      <updated>1748830936302</updated>
+    </task>
+    <option name="localTasksCounter" value="156" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -554,10 +566,6 @@
       <path value="$PROJECT_DIR$/textshortener" />
       <path value="$PROJECT_DIR$/whatever" />
     </ignored-roots>
-    <MESSAGE value="just" />
-    <MESSAGE value="heh" />
-    <MESSAGE value="heyyy" />
-    <MESSAGE value="fixes for performance and fixes" />
     <MESSAGE value="im gonna try the deno deploy thing" />
     <MESSAGE value="uhh" />
     <MESSAGE value="Please work" />
@@ -579,6 +587,10 @@
     <MESSAGE value="separate cute emojis to its own thingy, to save spacde" />
     <MESSAGE value="testing stuff" />
     <MESSAGE value="Mhm" />
-    <option name="LAST_COMMIT_MESSAGE" value="Mhm" />
+    <MESSAGE value="performance improvements" />
+    <MESSAGE value="yuz" />
+    <MESSAGE value="entry" />
+    <MESSAGE value="i" />
+    <option name="LAST_COMMIT_MESSAGE" value="i" />
   </component>
 </project>
