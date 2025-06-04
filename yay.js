@@ -1208,7 +1208,7 @@ function ApplyBatchedStyles(value, key, map) {
 }
 
 function BatchStyle(target) {
-    return new Proxy(target, {
+    return Proxy.revocable(target, {
         __proto__: handlers.batchThing,
         queued: false,
         cached: new Map,
@@ -1236,7 +1236,7 @@ export function prox(target) {
             , {revoke: childRevoke, proxy: childProxy} = Proxy.revocable(target.children, handlers.HTMLCollection)
             , {revoke: querySelectorRevoke, proxy: querySelectorProxy} = Proxy.revocable(target, handlers.querySelector)
             , {revoke: attrRevoke, proxy: attrProxy} = Proxy.revocable(target, handlers.attr)
-            , batchStyleProxy = BatchStyle(styleProxy)
+            , {proxy:batchStyleProxy, revoke: batchRevoke} = BatchStyle(styleProxy)
             , propertiesToDefine = {
             ...prototypeDescriptors,
             [me]: bleh,
@@ -1286,6 +1286,7 @@ export function prox(target) {
             childRevoke()
             attrRevoke()
             styleRevoke()
+            batchRevoke()
             querySelectorRevoke()
         }
 
