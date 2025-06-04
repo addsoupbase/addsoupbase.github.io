@@ -35,6 +35,7 @@
 </head>
 
 <body>
+<script src="fallback.js"></script>
     <template id="template">
 
         <main class="center cute-green" id="main" >
@@ -46,14 +47,13 @@
                     <input class="cute-green" style="font-size:20px;margin:20px;" id="diary-heading" type="date"
                         min="2025-04-07">
                 </time>
-<!--                <img src="./cute-emojis/emojis/1224927639068741632.gif" style>-->
                 <article id="diary" class="cute-blue"
-                    style="resize:both;width: 154%;resize: both;border-radius:1%;width: 490px;    place-self: center;">
+                    style="resize:both;width: 154%;border-radius:1%;width: 490px;    place-self: center;">
                     <h2 id="invalid" hidden>No entry for today &lpar;yet!&rpar;
-                        <img height="34" src="./cute-emojis/emojis/1143313874943234058.gif">
+                        <img style="image-rendering: pixelated" alt="tangled speech balloon" height="34" src="./cute-emojis/emojis/1143313874943234058.gif">
                     </h2>
                     <h2 id="error" hidden>
-                        <img height="50" src="./cute-emojis/emojis/1242581617084465222.gif">
+                        <img alt="error" height="50" src="./cute-emojis/emojis/1242581617084465222.gif">
                         <br>
                         <samp style="color:#631414;">Error
                         </samp>
@@ -79,7 +79,7 @@
         // import * as h from './handle.js'
 
         $.setup()
-        let { info, toToday, invalid, error, next, prev, 'diary-heading': diaryHeading, 'diary-container': diaryContainer, display: currentThingy } = $.byId
+        let {  toToday, invalid, error, next, prev, 'diary-heading': diaryHeading, display: currentThingy } = $.id
         // h.on(window, {
             // _load() {
                 // setTimeout(async () => {
@@ -95,6 +95,7 @@
         diaryHeading
             .on({
                 change() {
+                    if (!this.value?.trim()) return
                     let v = this.value.split('-')
                     v[2] = (+v[2] + 1).toString().padStart(2, 0)
                     today = new Date(v.join('-'))
@@ -127,28 +128,33 @@
         }
         toToday.on({
             click() {
+                if (!canMove) return
                 today = new Date()
                 goBy(0)
                 setEntry(getDate())
             }
         })
-        next.debounce({
+        next.on({
             click() {
+                if (!canMove) return
                 goBy(1)
                 setEntry(getDate())
             }
-        },300)
-        prev.debounce({
+        })
+        prev.on({
             click() {
+                if (!canMove) return
                 goBy(-1)
                 setEntry(getDate())
             }
-        }, 300)
+        })
         // function getMSThingy() {
         // return Date.UTC((new Date).getFullYear(), (new Date).getMonth(), (new Date).getDate())
         // }
+        let canMove = false
         currentThingy.on({
             load() {
+                canMove = true
                 if (!this.contentWindow.document.querySelector('[name="author"][content="addsoupbase"]')) {
                     invalid.show().fadeIn()
                     //will work good enough i think
@@ -170,6 +176,7 @@
             error.hide()
             currentThingy.parent.busy(true)
             invalid.hide()
+            canMove=false
             let url = `./entries/${date.replace(/\//g, '_')}`
             // currentThingy.hide(2)
             try {
@@ -199,8 +206,10 @@
                 reportError(e)
                 error.fadeIn()
                 error.show()
+
             }
             finally {
+                canMove=true
                 currentThingy.parent.busy(false)
             }
         }

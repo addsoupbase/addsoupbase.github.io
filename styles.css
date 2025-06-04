@@ -642,7 +642,7 @@ body {
   padding: 10px 20px;
   display: inline-block;
   /* Button padding */
-  font-family: 'Choco', cursive, sans-serif;
+  font-family: 'Choco', monospace, sans-serif;
   /* Playful font */
   color: #000000;
   /* White text */
