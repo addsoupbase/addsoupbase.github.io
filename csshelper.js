@@ -197,7 +197,7 @@ export function registerCSS(selector, rule, silent) {
     .join(',')
     const sheet = addedStyleRules ??= getDefaultStyleSheet()
     let r = `{${toCSS(rule, silent)}}`
-    return sheet.insertRule(`${formatStr(selector)}${formatStr(r)}`)
+    return sheet.textContent = `${sheet.textContent}${formatStr(selector)}${formatStr(r)}`
 }
 
 let cleanRegex = /\s\s|\n\n/g
@@ -210,16 +210,15 @@ export function getDefaultStyleSheet() {
     return (document.getElementById('addedStyleRules') ?? function () {
         let out = document.createElement('style');
         (document.head ?? document.body ?? document.documentElement ?? document.querySelector('*') ?? document).append(out)
-        out.sheet.insertRule('@namespace svg url("http://www.w3.org/2000/svg")')
+        out.textContent='@namespace svg url("http://www.w3.org/2000/svg");'
         out.setAttribute('id', 'addedStyleRules')
         out.append(document.createComment('Check your browser for CSS rules ($0.sheet.cssRules)'))
         return out
-    }()).sheet
+    }())
 }
 
 export function registerCSSAll(rules) {
     Object.keys(rules).forEach(bleh)
-
     function bleh(r) {
         try {
             registerCSS(r, rules[r])
@@ -326,8 +325,7 @@ export function boxShadow({
         //    Some default CSS..
         try {
             let all = sessionStorage.getItem('defaultCSS') ?? Object.entries({
-                [`button,a,
-                ${'button checkbox radio submit image reset file'.split(' ').map(o => `input[type=${o}]`).join(',')
+                [`button,a,${'button checkbox radio submit image reset file'.split(' ').map(o => `input[type=${o}]`).join(',')
                 }`]: {
                     cursor: 'pointer'
                 },
@@ -369,7 +367,7 @@ export function boxShadow({
             if (typeof all === 'string') all = all.split('✕')
             for (let {length: i} = all; i--;)
                 try {
-                    sheet.insertRule(all[i])
+                    sheet.textContent = `${sheet.textContent}${all[i]}`
                 } catch {
                 }
             sessionStorage.setItem('defaultCSS', all.join('✕'))
@@ -406,7 +404,7 @@ export function boxShadow({
             }
             allProps = null
             beenHereBefore ?
-                sheet.insertRule(`* {${beenHereBefore}}`) :
+                sheet.textContent = `${sheet.textContent}*{${beenHereBefore}}` :
                 registerCSS('*', universal, true),
                 sessionStorage.setItem('css', toCSS(universal, true))
         }()
