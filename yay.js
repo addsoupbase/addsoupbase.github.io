@@ -870,10 +870,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         }
     }
 }.prototype)
-props.setAttributes = props.setAttr
-props.kill = props.destroy
-props.killChildren = props.destroyChildren
-props.styleMe = props.setStyle = props.setStyles
+
 const prototype = Object.create(null)
     , TEXT_THINGIES = new Set('outerHTML outerText innerHTML innerText textContent'.split(' '))
 TEXT_THINGIES.forEach(txt =>
@@ -934,9 +931,31 @@ Reflect.ownKeys(props).forEach(i => {
                 }
             }[i] //  Just want to keep the original function name intact
         }
+       /* else {
+            let { set, get } = v
+             v.set &&= {
+                [set.name](val) {
+                    let b = base(this), me = prox(this)
+                    if (!getValid(b) || !all.has(b)) throw TypeError('Invalid calling object')
+                    set.call(me, val)
+                }
+            }[set.name]
+            v.get &&= {
+                [get.name]() {
+                    let b = base(this), me = prox(this)
+                    if (!getValid(b) || !all.has(b)) throw TypeError('Invalid calling object')
+                    return get.call(b)
+                }
+            }[get.name]
+        }*/
         Object.defineProperty(prototype, i, v)
     }
 })
+
+prototype.setAttributes = prototype.setAttr
+prototype.kill = prototype.destroy
+prototype.killChildren = prototype.destroyChildren
+prototype.styleMe = prototype.setStyle = prototype.setStyles
 // 🖨 Copy everything
 const prototypeDescriptors = Object.getOwnPropertyDescriptors(prototype)
 
