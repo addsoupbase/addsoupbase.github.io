@@ -953,9 +953,14 @@ Reflect.ownKeys(props).forEach(i => {
 })
 
 prototype.setAttributes = prototype.setAttr
-prototype.kill = prototype.destroy
-prototype.killChildren = prototype.destroyChildren
-prototype.styleMe = prototype.setStyle = prototype.setStyles
+Object.defineProperties(prototype,
+    {
+        kill:Reflect.getOwnPropertyDescriptor(prototype, 'destroy'),
+        killChildren:Reflect.getOwnPropertyDescriptor(prototype, 'destroyChildren'),
+        styleMe:Reflect.getOwnPropertyDescriptor(prototype, 'setStyles'),
+        setStyle:Reflect.getOwnPropertyDescriptor(prototype, 'setStyles')
+    }
+)
 // 🖨 Copy everything
 const prototypeDescriptors = Object.getOwnPropertyDescriptors(prototype)
 
