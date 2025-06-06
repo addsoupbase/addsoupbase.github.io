@@ -1,6 +1,7 @@
-import $,{define} from '../yay.js'
+import $, {define} from '../yay.js'
 import * as css from '../csshelper.js'
 import {vect} from '../num.js'
+
 let touching = Symbol('👉')
     , touchpos = Symbol('📍')
     , ball = Symbol('🕹')
@@ -17,14 +18,28 @@ class Joystick extends HTMLElement {
         vect = e.vect
     }
 
+    get sticky() {
+        return this.hasAttribute('sticky')
+    }
+
+    set sticky(val) {
+        this.toggleAttribute('sticky', !!val)
+    }
+
+    angle = 0
+    x = 0
+    y = 0
+
     static #pointercancel(e) {
-        this[ball].setStyles({
-            transform: `rotateZ(${this.angle}rad)`
-        })
-        this.x = this.y = 0
-        this.releasePointerCapture(e.pointerId)
+        if (!this.sticky) {
+            this[ball].setStyles({
+                transform: `rotateZ(${this.angle}rad)`
+            })
+            this.x = this.y = 0
+            this.releasePointerCapture(e.pointerId)
+            this.dispatchEvent(new CustomEvent('release'))
+        }
         this[touching] = false
-        this.dispatchEvent(new CustomEvent('release'))
     }
 
     static #events = {
@@ -53,7 +68,6 @@ class Joystick extends HTMLElement {
             this.dispatchEvent(new CustomEvent('hold'))
         }
     }
-
 
     constructor() {
         super()
@@ -92,4 +106,5 @@ class Joystick extends HTMLElement {
         )
     }
 }
+
 define('touch-joystick', Joystick)
