@@ -6,21 +6,23 @@ const sym = Symbol.for("🔔")
 let {warn, groupCollapsed, groupEnd} = console,
     {isArray} = Array
 export const allEvents = new WeakMap
-function isValidET(target) {   
+
+function isValidET(target) {
     return target &&
         (target instanceof EventTarget
             || target.ownerDocument?.defaultView?.EventTarget.prototype.isPrototypeOf(target)
             || target.defaultView?.EventTarget.prototype.isPrototypeOf(target)
             || target.EventTarget?.prototype.isPrototypeOf(target))
 }
+
 function getLabel(obj) {
     try {
-    return obj[Symbol.toStringTag] || obj.constructor?.name || Object.getPrototypeOf(obj).constructor[Symbol.toStringTag] || Object.getPrototypeOf(obj).constructor?.name
-    }
-    catch {
-        return{}.toString.call(obj)
+        return obj[Symbol.toStringTag] || obj.constructor?.name || Object.getPrototypeOf(obj).constructor[Symbol.toStringTag] || Object.getPrototypeOf(obj).constructor?.name
+    } catch {
+        return {}.toString.call(obj)
     }
 }
+
 export let reqFile
 if (0/*typeof showOpenFilePicker !== 'undefined'*/) reqFile = async function supported(accept, multiple) {
     let settings = {
@@ -40,8 +42,10 @@ else {
     let f = globalThis.document?.createElement('input')
     if (f) {
         f.type = 'file'
+
         function requestFile(accept, multiple) {
             return new Promise(executor)
+
             function executor(resolve, oncancel) {
                 return Object.assign(f, {
                     accept,
@@ -53,51 +57,70 @@ else {
                 }).showPicker()
             }
         }
+
         reqFile = requestFile
     }
 }
 export const file = reqFile
+
+
 function verifyEventName(target, name) {
     let original = name
     name = name.toLowerCase()
-    if (`on${name}`in target) return original
-    if (`onwebkit${name}`in target) return`webkit${original}`
-    if (`onmoz${name}`in target) return`moz${original}`
-    if (`onms${name}`in target) return`ms${original}`
-    if (/^domcontentloaded$/i.test(original) &&
+    if (!(`on${name}` in target) || (/^domcontentloaded$/i.test(original) &&
         (globalThis.Document?.prototype.isPrototypeOf(target)
             || globalThis.HTMLDocument?.prototype.isPrototypeOf(target)
             || target.ownerDocument?.defaultView?.HTMLDocument.prototype.isPrototypeOf(target)
             || target.ownerDocument?.defaultView?.Document.prototype.isPrototypeOf(target))
         ||
-        /^(animation(?:cancel|remove))$/i.test(original) && 'onremove'in target)
-        return original
+        /^(animation(?:cancel|remove))$/i.test(original) && 'onremove' in target)) {
+        if (`onwebkit${name}` in target) name = `webkit${original}`
+        else if (`onmoz${name}` in target) name = `moz${original}`
+        else if (`onms${name}` in target) name = `ms${original}`
+        else {
+            if (name.startsWith('pointer')) name = `mouse${name.slice(7)}`
+            else if (name === 'wheel') {
+                if('onmousewheel'in target)name='mousewheel'
+                else if('MouseScrollEvent' in window)name='DOMMouseScroll'
+                else name= 'MozMousePixelScroll'
+            }
+            else name = original
+        }
+        customEvents.has(name) || queueMicrotask(console.warn.bind(1, `'${original}' events might not be available on the following object:`, target))
+        return name
+    } else if (`on${name}` in target) return original
     //Some events like the one above don't have a handler
-    customEvents.has(name) || queueMicrotask(console.warn.bind(1, `'${original}' events might not be available on the following object:`, target))
+    customEvents.has(original) || queueMicrotask(console.warn.bind(1, `'${original}' events might not be available on the following object:`, target))
     return original
 }
+
 const delayedEvents = new Map
     , giveItSomeTime = function (hold) {
     let secondparam = 100 //idk some random timeout
     if (hold === globalThis.requestIdleCallback)
         secondparam = {timeout: 1000}
     return delay
+
     function delay(callback) {
         return hold(callback, secondparam)
     }
-}(globalThis.queueMicrotask??globalThis.requestIdleCallback??globalThis.setImmediate??globalThis.setTimeout)
+}(globalThis.queueMicrotask ?? globalThis.requestIdleCallback ?? globalThis.setImmediate ?? globalThis.setTimeout)
+
 function dispatchAllDelayed(id) {
     let all = delayedEvents.get(id)
     giveItSomeTime(emitPendingEvents)
+
     function emitPendingEvents() {
         all.forEach(dispatchAndDelete)
     }
 }
+
 function dispatchAndDelete(val, i, set) {
-    let {target:t, event:e} = val
+    let {target: t, event: e} = val
     t.dispatchEvent(e)
     set.delete(val)
 }
+
 export function delayedDispatch(id, target, event) {
     if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
     delayedEvents.has(id) || delayedEvents.set(id, new Set)
@@ -108,19 +131,24 @@ export function delayedDispatch(id, target, event) {
         event
     })
 }
+
 export function wait(ms) {
     return new Promise(resolveWithDelay)
+
     function resolveWithDelay(resolve) {
         setTimeout(resolve, ms)
     }
 }
+
 export function getEventNames(target) {
     target.hasOwnProperty(sym) || Object.defineProperty(target, sym, {value: new Set})
     return target[sym]
 }
+
 export function hasEvent(target, eventName) {
     return target[sym]?.has(eventName) ?? false
 }
+
 export const {
     currentTarget: CURRENT_TARGET, autoAbort: AUTO_ABORT, trusted: TRUSTED, once: ONCE,
     preventDefault: PREVENT_DEFAULT, passive: PASSIVE,
@@ -137,18 +165,22 @@ export const {
     stopImmediatePropagation: '!', //Automatically calls event.stopImmediatePropagation()
 })
 const customEvents = new Set
-export function addCustomEvent(names) {
-    for(let name in names) customEvents[names[name]?'add':'delete'](name.toLowerCase())
-}
-const formatEventName = /[_$^%&!?@#\d]|bound /g
-export function on(target, events, unused, signal) {
 
+export function addCustomEvent(names) {
+    for (let name in names) customEvents[names[name] ? 'add' : 'delete'](name.toLowerCase())
+}
+
+const formatEventName = /[_$^%&!?@#\d]|bound /g
+
+export function on(target, events, unused, signal) {
     if (Array.isArray(target)) {
         groupCollapsed('on(...)')
         target.forEach(func)
+
         function func(t) {
             on(t, events)
         }
+
         console.groupEnd()
         return target
     }
@@ -167,7 +199,7 @@ export function on(target, events, unused, signal) {
         // if (signal) signal.signal.onabort = console.debug.bind(1, 'Aborted: ', signal)
         for (let eventName in events) {
             const func = events[eventName],
-             once = eventName.includes(ONCE),
+                once = eventName.includes(ONCE),
                 prevents = eventName.includes(PREVENT_DEFAULT),
                 passive = eventName.includes(PASSIVE),
                 capture = eventName.includes(CAPTURE),
@@ -204,20 +236,29 @@ export function on(target, events, unused, signal) {
                         }
                         event[i] = detail[i]
                     }
+                } else if (getLabel(event) === 'MouseScrollEvent') {
+                    event.deltaZ = 0
+                    if (event.axis === 2)
+                        event.deltaX = 0,
+                        event.deltaY = 50 * event.detail
+                     else if (event.axis === 1)
+                        event.deltaX = 50 * event.detail,
+                        event.deltaY = 0
                 }
-                signal&&args.push(Abort, Remove)
-                onlyTrusted&&event.isTrusted || !onlyTrusted && (!onlyCurrentTarget || onlyCurrentTarget && event.target === event.currentTarget) &&
-                (Reflect.apply(func,target, args),
-                prevents&&(event.cancelable?event.preventDefault():warn(`🔊 '${eventName}' events are not cancelable`)),
+                signal && args.push(Abort, Remove)
+                onlyTrusted && event.isTrusted || !onlyTrusted && (!onlyCurrentTarget || onlyCurrentTarget && event.target === event.currentTarget) &&
+                (Reflect.apply(func, target, args),
+                prevents && (event.cancelable ? event.preventDefault() : warn(`🔊 '${eventName}' events are not cancelable`)),
                 stopProp && event.stopPropagation(),
-                stopImmediateProp&&event.stopImmediatePropagation(),
-                autoabort&&Abort(),
-                once&&off(event.currentTarget, eventName))
+                stopImmediateProp && event.stopImmediatePropagation(),
+                autoabort && Abort(),
+                once && off(event.currentTarget, eventName))
             }
-           /* Object.defineProperty(EventHandlerWrapperFunction, unbound, {
-                value: func,
-                configurable: 1
-            })*/
+
+            /* Object.defineProperty(EventHandlerWrapperFunction, unbound, {
+                 value: func,
+                 configurable: 1
+             })*/
             target.addEventListener(eventName, EventHandlerWrapperFunction, options)
             if (signal)
                 console.info(`📡 '${eventName}' event added`)
@@ -249,9 +290,11 @@ export function on(target, events, unused, signal) {
     }
     return target
 }
+
 function AutoAbort() {
     this.abort('Automatic abort')
 }
+
 export function off(target, ...eventNames) {
     if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
     if (!eventNames.length || !allEvents.has(target)) return null
@@ -264,7 +307,7 @@ export function off(target, ...eventNames) {
             const name = verifyEventName(target, eventNames[length]),
                 settings = map.get(name),
                 {listener} = settings
-            target.removeEventListener(name,listener,settings)
+            target.removeEventListener(name, listener, settings)
             map.has(name) && console.info(`🔕 '${name}' event removed`)
             map.delete(name)
             mySet.delete(name)
@@ -276,8 +319,10 @@ export function off(target, ...eventNames) {
         groupEnd()
     }
 }
+
 export function until(target, eventName, failureName, timeout/* = 600000*/) {
     return new Promise(waitForEvent)
+
     function waitForEvent(resolve, reject) {
         const str = `⏰ Promise for '${eventName}' expired after ${timeout} ms`
             , id = timeout && setTimeout(err => {
@@ -311,8 +356,10 @@ export function until(target, eventName, failureName, timeout/* = 600000*/) {
         on(target, e, 1, signal)
     }
 }
+
 let objectURLS,
     registry
+
 export function getObjUrl(thingy) {
     if ((objectURLS ??= new WeakMap).has(thingy)) return objectURLS.get(thingy)
     let url = URL.createObjectURL(thingy);
@@ -320,7 +367,9 @@ export function getObjUrl(thingy) {
     objectURLS.set(thingy, url)
     return url
 }
+
 let anchor
+
 export function download(blob, title) {
     (anchor ??= document.createElement('a')).download = title ?? 'download'
     anchor.href = getObjUrl(blob)
