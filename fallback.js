@@ -5,4 +5,4 @@
         var t=d.getElementById('template')
         t&&(d.body.innerHTML=(t.content||t).firstElementChild.outerHTML)}}
     a(l,u)
-    a(o,f)}(addEventListener,removeEventListener,sessionStorage,document,'error','load')
+    a(o,f)}(self.addEventListener||self.attachEvent,self.removeEventListener||self.detachEvent,self.sessionStorage||{},document,'error','load')
