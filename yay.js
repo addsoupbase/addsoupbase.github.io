@@ -253,8 +253,12 @@ let props = Object.getOwnPropertyDescriptors(class _
 
     get isVisible() {
         let rect = base(this).getBoundingClientRect()
-            , viewHeight = Math.max(document.documentElement.clientHeight, innerHeight)
+            , viewHeight = Math.max($(document.documentElement)?.clientHeight || 0, innerHeight)
         return !(rect.bottom < 0 || rect.top - viewHeight >= 0)
+    }
+
+    getComputedStyle() {
+        return this.computed
     }
 
     get computed() {
@@ -429,7 +433,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         return out
     }
 
-    on(events, useHandler, signal) {
+    on(events, unused, signal) {
         let me = this
         if (typeof events === 'function') {
             let old = events
@@ -446,7 +450,7 @@ let props = Object.getOwnPropertyDescriptors(class _
                 Reflect.apply(old, me, args)
             }
         }(events[i])
-        h.on(base(this), events, useHandler, signal)
+        h.on(base(this), events, unused, signal)
     }
 
     off(...events) {
@@ -838,6 +842,13 @@ let props = Object.getOwnPropertyDescriptors(class _
         return prox(parent)
     }
 
+   /* get gc() {
+   // Ensure objects are being properly garbage collected
+        return new Promise(callback => {
+            cleanup.register(base(this), {age:this.age,callback})
+        })
+    }*/
+
     get first() {
         let { firstElementChild } = base(this)
         return prox(firstElementChild)
@@ -870,7 +881,6 @@ let props = Object.getOwnPropertyDescriptors(class _
         }
     }
 }.prototype)
-
 const prototype = Object.create(null)
     , TEXT_THINGIES = new Set('outerHTML outerText innerHTML innerText textContent'.split(' '))
 TEXT_THINGIES.forEach(txt =>
@@ -901,11 +911,13 @@ HTML_PLACING.forEach(set =>
         // Reading these properties causes reflows/layout-shift/repaint whatever its called idk
         let cached = null,
             queued = false
+
         function resetThingy() {
             cached = null
             queued = false
             reads = 0
         }
+
         Object.defineProperty(prototype, prop, {
             get() {
                 ++reads
@@ -931,34 +943,33 @@ Reflect.ownKeys(props).forEach(i => {
                 }
             }[i] //  Just want to keep the original function name intact
         }
-       /* else {
-            let { set, get } = v
-             v.set &&= {
-                [set.name](val) {
-                    let b = base(this), me = prox(this)
-                    if (!getValid(b) || !all.has(b)) throw TypeError('Invalid calling object')
-                    set.call(me, val)
-                }
-            }[set.name]
-            v.get &&= {
-                [get.name]() {
-                    let b = base(this), me = prox(this)
-                    if (!getValid(b) || !all.has(b)) throw TypeError('Invalid calling object')
-                    return get.call(b)
-                }
-            }[get.name]
-        }*/
+        /* else {
+             let { set, get } = v
+              v.set &&= {
+                 [set.name](val) {
+                     let b = base(this), me = prox(this)
+                     if (!getValid(b) || !all.has(b)) throw TypeError('Invalid calling object')
+                     set.call(me, val)
+                 }
+             }[set.name]
+             v.get &&= {
+                 [get.name]() {
+                     let b = base(this), me = prox(this)
+                     if (!getValid(b) || !all.has(b)) throw TypeError('Invalid calling object')
+                     return get.call(b)
+                 }
+             }[get.name]
+         }*/
         Object.defineProperty(prototype, i, v)
     }
 })
-
-prototype.setAttributes = prototype.setAttr
 Object.defineProperties(prototype,
     {
-        kill:Reflect.getOwnPropertyDescriptor(prototype, 'destroy'),
-        killChildren:Reflect.getOwnPropertyDescriptor(prototype, 'destroyChildren'),
-        styleMe:Reflect.getOwnPropertyDescriptor(prototype, 'setStyles'),
-        setStyle:Reflect.getOwnPropertyDescriptor(prototype, 'setStyles')
+        setAttributes: Reflect.getOwnPropertyDescriptor(prototype, 'setAttr'),
+        kill: Reflect.getOwnPropertyDescriptor(prototype, 'destroy'),
+        killChildren: Reflect.getOwnPropertyDescriptor(prototype, 'destroyChildren'),
+        styleMe: Reflect.getOwnPropertyDescriptor(prototype, 'setStyles'),
+        setStyle: Reflect.getOwnPropertyDescriptor(prototype, 'setStyles')
     }
 )
 // 🖨 Copy everything
@@ -1222,14 +1233,16 @@ h.addCustomEvent({
 })
 const getStyleThingy = function () {
     return attrStyleMap ? a : b
+
     function a(e) {
         return e.attributeStyleMap
     }
+
     function b(e) {
         return e.style
     }
-
 }()
+
 function ApplyBatchedStyles(value, key, map) {
     try {
         this[key] = value
@@ -1249,8 +1262,12 @@ function BatchStyle(target) {
     })
 }
 
-let writes = 0, reads = 0
 
+let writes = 0, reads = 0
+/*const cleanup = new FinalizationRegistry(({callback, age})=>{
+    callback(performance.now() -age)
+})
+*/
 export function prox(target) {
     if (target === null) return null
     if (target[styles]) return target
@@ -1288,6 +1305,9 @@ export function prox(target) {
                 currentState: reuse.junk,
                 lastState: reuse.junk,
                 flags: reuse.flags,
+                age: {
+                    value: performance.now()
+                },
                 children: {
                     value: childProxy
                 },
@@ -1337,8 +1357,7 @@ function getValid(target) {
                 target.ownerDocument?.defaultView?.Element.prototype.isPrototypeOf(target)
                 //|| Element.prototype.isPrototypeOf(target)
             )
-    }
-    catch {
+    } catch {
         return false
     }
 }

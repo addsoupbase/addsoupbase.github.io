@@ -1,20 +1,8 @@
-!function () {
-    'use strict'
-    var remove = function () {
-        removeEventListener('error', err)
-        removeEventListener('load', remove)
-        remove = err = null
-    }
-    var err = function (e) {
-        if (RegExp('syntax', 'i').test('name' in e.error ? e.error.name : e.error.message)) {
-            remove()
-            if (sessionStorage.getItem('err') !== 'yeah')
-                prompt("You're using a *really* old browser, or I messed something up. Please share the message below with me: ", e.message + ' @line ' + e.lineno + ' col ' + e.colno + ' file ' + e.filename)
-            var template = document.getElementById('template')
-            sessionStorage.setItem('err', 'yeah')
-            if (template) document.body.innerHTML = template.content ? template.content.firstElementChild.outerHTML : template.firstElementChild.outerHTML
-        }
-    }
-    addEventListener('load', remove)
-    addEventListener('error', err)
-}()
+!function(a,r,s,d,o,l){'use strict'
+    var u=function(){r(o,f)
+        r(l,u)
+        u=f=1},f=function(e,n){if(/syntax/i.test('name'in(n=e.error)?n.name:n.message)){s.h!=(s.h=u())&&prompt("A parsing error has occured. Please share the message below with me: ",e.message+' @line '+e.lineno+' col '+e.colno+' file '+e.filename)
+        var t=d.getElementById('template')
+        t&&(d.body.innerHTML=(t.content||t).firstElementChild.outerHTML)}}
+    a(l,u)
+    a(o,f)}(addEventListener,removeEventListener,sessionStorage,document,'error','load')

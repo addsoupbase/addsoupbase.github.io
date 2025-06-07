@@ -142,6 +142,7 @@ export function addCustomEvent(names) {
 }
 const formatEventName = /[_$^%&!?@#\d]|bound /g
 export function on(target, events, unused, signal) {
+
     if (Array.isArray(target)) {
         groupCollapsed('on(...)')
         target.forEach(func)
@@ -151,6 +152,7 @@ export function on(target, events, unused, signal) {
         console.groupEnd()
         return target
     }
+    if (typeof unused !== 'undefined') debugger
     if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
     if (!Object.keys(events).length) return target
     try {
