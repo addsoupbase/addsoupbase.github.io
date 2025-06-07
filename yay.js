@@ -10,7 +10,77 @@ Things i learned from 2nd -> 3rd:
 • using Symbols
 • finally settled on WeakMap
 */
+window.Proxy = window.Proxy || function () {
+    // i just made this one because i was bored lol
+    'use strict'
+    var spreadArgs = function (args) {
+        var arr = [].slice.call(args)
+        arr.unshift(1)
+        return arr
+    }
+    function revocable(target, handler) {
+        if (this instanceof Proxy || this instanceof revocable) throw TypeError("Proxy.revocable is not a constructor")
+        if (target === null || (typeof target !== 'object' && typeof target !== 'function') || handler === null || (typeof handler !== 'object' && typeof handler !== 'function')) throw TypeError('Cannot create proxy with a non-object as target or handler')
+        var original = target
+            , define = typeof target === 'function' ? function () {
+                var obj = {}
+                    , func = obj[target.name] = function () {
+                    if (this instanceof func) {
+                        if (revoked) throw TypeError("Cannot perform 'construct' on a proxy that has been revoked")
+                        if ('construct' in handler) return handler.construct(func, arguments, this.constructor)
+                        return new (func.bind.apply(func, spreadArgs(arguments)))()
+                    } else {
+                        if (revoked) throw TypeError("Cannot perform 'apply' on a proxy that has been revoked")
+                        if ('apply' in handler) return handler.apply(func, this, arguments)
+                        return func.apply(obj, arguments)
+                    }
+                }
+                return Object.setPrototypeOf(func, target)
+            }() : {__proto__: target},
+            revoked = false,
+            has = {}.hasOwnProperty.bind(define)
+        do {
+            var props = Object.getOwnPropertyDescriptors(target),
+                doThing = function (i) {
+                    if (!has(i))
+                        Object.defineProperty(define, i, {
+                            enumerable: props.enumerable,
+                            get: function () {
+                                if (revoked) throw TypeError("Cannot perform 'get' on a proxy that has been revoked")
+                                if ('get' in handler) return handler.get(original, i, original)
+                                var val = original[i]
+                                return typeof val === 'function' ? val.bind(original) : val
+                            },
+                            set: function (value) {
+                                if (revoked) throw TypeError("Cannot perform 'set' on a proxy that has been revoked")
+                                if ('set' in handler) {
+                                    var r = handler.set(original, i, value, original)
+                                    if (!r) throw TypeError("'set' on proxy: trap returned falsish for property '" + i + "'")
+                                } else original[i] = value
+                            }
+                        })
+                }
+            for (var i in props) doThing(i)
+        }
+        while (target = Object.getPrototypeOf(target))
+        return {
+            proxy: define,
+            revoke: 1&&function () {
+                revoked = target = handler = original = define = true
+            }
+        }
+    }
 
+    function Proxy(target, handler) {
+        if (!(this instanceof Proxy)) throw TypeError("Constructor Proxy requires 'new'")
+        return revocable(target, handler).proxy
+    }
+    return Object.defineProperty(Proxy, 'revocable', {
+        value: revocable,
+        writable: 1,
+        configurable: 1,
+    })
+}()
 // import {plural} from "./str.js"
 function plural(singular, plural, count) {
     return Math.sign(count = +count) === count && count ? `${count} ${singular}` : `${count.toLocaleString()} ${plural}`
@@ -44,10 +114,10 @@ Object.hasOwn ?? Object.defineProperty(Object, 'hasOwn', {
     configurable: 1
 })
 const regex = {
-    dot: /\./g,
-    space: /\s/g,
-    onXYZ: /^on\w+$/
-},
+        dot: /\./g,
+        space: /\s/g,
+        onXYZ: /^on\w+$/
+    },
     me = Symbol('base'),
     all = new WeakMap,
     revokes = new WeakMap
@@ -72,14 +142,14 @@ function cacheFunction(maybeFunc) {
     if (typeof maybeFunc === 'function') {
         if (BoundFunctions.has(maybeFunc)) return BoundFunctions.get(maybeFunc)
         // let wrapper = new Proxy(maybeFunc,handlers.function)
-        const { name } = maybeFunc
+        const {name} = maybeFunc
             , wrapper = {
-                [name](...a) {
-                    // Regular wrapper function for method,
-                    // for usage instead of making a new one for every instance with bind()
-                    return Reflect.apply(maybeFunc, base(this), a)
-                }
-            }[name]  // keep the original function name just in case
+            [name](...a) {
+                // Regular wrapper function for method,
+                // for usage instead of making a new one for every instance with bind()
+                return Reflect.apply(maybeFunc, base(this), a)
+            }
+        }[name]  // keep the original function name just in case
         BoundFunctions.set(maybeFunc, wrapper)
         return wrapper
     }
@@ -95,7 +165,7 @@ function genericGet(t, prop) {
 }
 
 function ariaOrData(i) {
-    let { 0: char } = i
+    let {0: char} = i
     if (char === '_') return i.replace(char, 'aria-')
     if (char === '$') return i.replace(char, 'data-')
     return i
@@ -104,124 +174,124 @@ function ariaOrData(i) {
 const attrStyleMap = 'StylePropertyMap' in window
     , customRules = css.getDefaultStyleSheet()
     , handlers = {
-        // Other proxies
-        batchThing: {
-            QueueBatchThing() {
-                this.queued || (requestAnimationFrame(this.HandleStyleUpdates.bind(this)), this.queued = true)
-            },
-            HandleStyleUpdates() {
-                this.queued = false
-                this.cached.forEach(ApplyBatchedStyles, this.target)
-                writes = reads = 0
-            },
-            get(t, p) {
-                ++reads
-                p = css.toCaps(p)
-                let val = this.cached.get(p)
-                return val ?? (this.cached.set(p, val = t[p]), val)
-            },
-            set(t, p, v) {
-                ++writes
-                p = css.toCaps(p)
-                if (v === this.cached.get(p)) return 1
-                this.cached.set(p, v)
-                this.QueueBatchThing()
-                return 1
-            },
-            deleteProperty(t, p) {
-                return this.set(t, p, '')
-            }
+    // Other proxies
+    batchThing: {
+        QueueBatchThing() {
+            this.queued || (requestAnimationFrame(this.HandleStyleUpdates.bind(this)), this.queued = true)
         },
-        main: {
-            // just create as few closures as possible
-            get(targ, prop) {
-                let a = this[0]
-                return targ.hasOwnProperty(prop) ? targ[prop] :
-                    cacheFunction(a[prop], a)
-                // ⛓️‍💥 'Illegal invocation' if function is not bound
-            },
-            set(targ, prop, value) {
-                return (targ.hasOwnProperty(prop) ? targ : this[0])[prop] = value, 1
-            }
+        HandleStyleUpdates() {
+            this.queued = false
+            this.cached.forEach(ApplyBatchedStyles, this.target)
+            writes = reads = 0
         },
-        querySelector: {
-            get(t, p) {
-                return prox(t.querySelector(p))
-            }
+        get(t, p) {
+            ++reads
+            p = css.toCaps(p)
+            let val = this.cached.get(p)
+            return val ?? (this.cached.set(p, val = t[p]), val)
         },
-        styles: attrStyleMap ? {
-            get(target, prop) {
-                return prop.startsWith('--') ? target.get(prop) : target.get(css.dashVendor(prop, 'inherit'))
-            },
-            set(target, prop, value) {
-                if (value == null || value === '') this.deleteProperty(target, prop)
-                else prop.startsWith('--') ? target.set(prop, value) : target.set(css.dashVendor(prop, `${value}`), value)
-                return 7
-            },
-            deleteProperty(target, prop) {
-                return prop.startsWith('--') ? target.delete(prop) :
-                    target.delete(css.dashVendor(`${prop}`, 'inherit')),
-                    3
-            },
-        } : {
-            get(target, prop) {
-                return prop.startsWith('--') ? target.getPropertyValue(prop) :
-                    target.getPropertyValue(css.dashVendor(prop, 'inherit'))
-            },
-            set(target, prop, value) {
-                if (prop.startsWith('--')) target.setProperty(prop, value)
-                else target.setProperty(css.dashVendor(prop, `${value}`), value)
-                return 7
-            },
-            deleteProperty(target, prop) {
-                return prop.startsWith('--') ? target.removeProperty(prop) :
-                    target.removeProperty(css.dashVendor(prop, 'inherit')),
-                    3
-            },
-            has(target, prop) {
-                return this.get(target, prop)
-            }
+        set(t, p, v) {
+            ++writes
+            p = css.toCaps(p)
+            if (v === this.cached.get(p)) return 1
+            this.cached.set(p, v)
+            this.QueueBatchThing()
+            return 1
         },
-        attr: {
-            get(t, p) {
-                p = ariaOrData(p)
-                return prox(t).getAttribute(p)
-            },
-            set(t, p, v) {
-                return prox(t).setAttr({
-                    [p]: v
-                })
-            },
-            deleteProperty(t, p) {
-                return prox(t).setAttr({
-                    [p]: ''
-                })
-            },
-            has(t, p) {
-                p = ariaOrData(p)
-                return t.hasAttribute(p)
-            }
+        deleteProperty(t, p) {
+            return this.set(t, p, '')
+        }
+    },
+    main: {
+        // just create as few closures as possible
+        get(targ, prop) {
+            let a = this[0]
+            return targ.hasOwnProperty(prop) ? targ[prop] :
+                cacheFunction(a[prop], a)
+            // ⛓️‍💥 'Illegal invocation' if function is not bound
         },
-        HTMLCollection: {
-            get: genericGet,
-            set(t, prop, value) {
-                if (isNaN(prop))
-                    t[prop] = value
-                else {
-                    let out = t[prop]
-                    out && base(out).replaceWith(base(value))
-                }
-                return 4
-            },
-            deleteProperty(t, prop) {
-                if (!isNaN((prop))) {
-                    let obj = this.get(t, prop)
-                    obj && prox(obj).destroy()
-                }
-                return 6
-            }
+        set(targ, prop, value) {
+            return (targ.hasOwnProperty(prop) ? targ : this[0])[prop] = value, 1
+        }
+    },
+    querySelector: {
+        get(t, p) {
+            return prox(t.querySelector(p))
+        }
+    },
+    styles: attrStyleMap ? {
+        get(target, prop) {
+            return prop.startsWith('--') ? target.get(prop) : target.get(css.dashVendor(prop, 'inherit'))
         },
-    }
+        set(target, prop, value) {
+            if (value == null || value === '') this.deleteProperty(target, prop)
+            else prop.startsWith('--') ? target.set(prop, value) : target.set(css.dashVendor(prop, `${value}`), value)
+            return 7
+        },
+        deleteProperty(target, prop) {
+            return prop.startsWith('--') ? target.delete(prop) :
+                target.delete(css.dashVendor(`${prop}`, 'inherit')),
+                3
+        },
+    } : {
+        get(target, prop) {
+            return prop.startsWith('--') ? target.getPropertyValue(prop) :
+                target.getPropertyValue(css.dashVendor(prop, 'inherit'))
+        },
+        set(target, prop, value) {
+            if (prop.startsWith('--')) target.setProperty(prop, value)
+            else target.setProperty(css.dashVendor(prop, `${value}`), value)
+            return 7
+        },
+        deleteProperty(target, prop) {
+            return prop.startsWith('--') ? target.removeProperty(prop) :
+                target.removeProperty(css.dashVendor(prop, 'inherit')),
+                3
+        },
+        has(target, prop) {
+            return this.get(target, prop)
+        }
+    },
+    attr: {
+        get(t, p) {
+            p = ariaOrData(p)
+            return prox(t).getAttribute(p)
+        },
+        set(t, p, v) {
+            return prox(t).setAttr({
+                [p]: v
+            })
+        },
+        deleteProperty(t, p) {
+            return prox(t).setAttr({
+                [p]: ''
+            })
+        },
+        has(t, p) {
+            p = ariaOrData(p)
+            return t.hasAttribute(p)
+        }
+    },
+    HTMLCollection: {
+        get: genericGet,
+        set(t, prop, value) {
+            if (isNaN(prop))
+                t[prop] = value
+            else {
+                let out = t[prop]
+                out && base(out).replaceWith(base(value))
+            }
+            return 4
+        },
+        deleteProperty(t, prop) {
+            if (!isNaN((prop))) {
+                let obj = this.get(t, prop)
+                obj && prox(obj).destroy()
+            }
+            return 6
+        }
+    },
+}
 // Main [[Prototype]] is on this class
 // let ATTR = Symbol('💿')
 // let states = Symbol('💾')
@@ -373,14 +443,14 @@ let props = Object.getOwnPropertyDescriptors(class _
         if (me.tagName === 'TEMPLATE')
             return me.content
         let out = document.createDocumentFragment(),
-            { firstElementChild } = me
+            {firstElementChild} = me
         while (firstElementChild)
-            out.appendChild(me.removeChild(firstElementChild)), { firstElementChild } = me
+            out.appendChild(me.removeChild(firstElementChild)), {firstElementChild} = me
         return out
     }
 
     pass() {
-        let { orphans } = this
+        let {orphans} = this
         this.destroy()
         return orphans
     }
@@ -395,7 +465,7 @@ let props = Object.getOwnPropertyDescriptors(class _
 
     destroy() {
         this.resetSelfRules()
-            .cancelAnims()
+        .cancelAnims()
         // let myStates = this[states]
         /*for (let [key, {
             cached: val
@@ -418,9 +488,9 @@ let props = Object.getOwnPropertyDescriptors(class _
     }
 
     destroyChildren() {
-        let { lastElementChild } = this
+        let {lastElementChild} = this
         while (lastElementChild)
-            prox(lastElementChild).destroy(), { lastElementChild } = this
+            prox(lastElementChild).destroy(), {lastElementChild} = this
     }
 
     /**
@@ -490,7 +560,7 @@ let props = Object.getOwnPropertyDescriptors(class _
             events[i] = DelegationFunction
 
             function DelegationFunction(...args) {
-                let { target } = args[0],
+                let {target} = args[0],
                     pr = prox(target);
                 (me !== target || includeSelf) && (filter(pr) ?? 1) && Reflect.apply(old, pr, args)
             }
@@ -616,12 +686,12 @@ let props = Object.getOwnPropertyDescriptors(class _
     }
 
     wrap(parent) {
-        let { parent: p } = this
-            ; (this.parent = $(parent)).parent = p
+        let {parent: p} = this
+        ;(this.parent = $(parent)).parent = p
     }
 
     unwrap() {
-        let { parent } = this
+        let {parent} = this
             , c = this.pass()
         parent.appendChild(c)
         return null
@@ -660,7 +730,7 @@ let props = Object.getOwnPropertyDescriptors(class _
                 base(this).style.display = 'none';
                 break
             case 4:
-                this.setStyles({ '--content-visibility': 'hidden' });
+                this.setStyles({'--content-visibility': 'hidden'});
                 break
             case 5:
                 this.setStyles({
@@ -671,7 +741,7 @@ let props = Object.getOwnPropertyDescriptors(class _
                     'pointer-events': 'none',
                     '--user-modify': 'read-only',
                 })
-                    .setAttr({ _hidden: "true", contenteditable: 'false' })
+                .setAttr({_hidden: "true", contenteditable: 'false'})
                 break
         }
     }
@@ -694,14 +764,14 @@ let props = Object.getOwnPropertyDescriptors(class _
                 base(this).style.display = '';
                 break
             case 4:
-                this.setStyles({ '--content-visibility': '' });
+                this.setStyles({'--content-visibility': ''});
                 break
             case 5:
                 this.setStyles({
                     opacity: '', '--user-input': '', '--user-focus': '', '--user-select': '', 'pointer-events': '',
                     '--user-modify': '',
                 })
-                    .setAttr({ _hidden: "", contenteditable: '' })
+                .setAttr({_hidden: "", contenteditable: ''})
                 break
         }
     }
@@ -740,9 +810,9 @@ let props = Object.getOwnPropertyDescriptors(class _
         }
     }
 
-    *[Symbol.iterator]() {
+    * [Symbol.iterator]() {
         let all = base(this).getElementsByTagName('*')
-        for (let { length: i } = all; i--;) yield prox(all[i])
+        for (let {length: i} = all; i--;) yield prox(all[i])
     }
 
     [Symbol.toPrimitive]() {
@@ -824,12 +894,12 @@ let props = Object.getOwnPropertyDescriptors(class _
     }
 
     get after() {
-        let { nextElementSibling } = base(this)
+        let {nextElementSibling} = base(this)
         return prox(nextElementSibling)
     }
 
     get before() {
-        let { previousElementSibling } = base(this)
+        let {previousElementSibling} = base(this)
         return prox(previousElementSibling)
     }
 
@@ -842,20 +912,19 @@ let props = Object.getOwnPropertyDescriptors(class _
         return prox(parent)
     }
 
-   /* get gc() {
-   // Ensure objects are being properly garbage collected
-        return new Promise(callback => {
-            cleanup.register(base(this), {age:this.age,callback})
-        })
-    }*/
-
+    /* get gc() {
+    // Ensure objects are being properly garbage collected
+         return new Promise(callback => {
+             cleanup.register(base(this), {age:this.age,callback})
+         })
+     }*/
     get first() {
-        let { firstElementChild } = base(this)
+        let {firstElementChild} = base(this)
         return prox(firstElementChild)
     }
 
     get last() {
-        let { lastElementChild } = base(this)
+        let {lastElementChild} = base(this)
         return prox(lastElementChild)
     }
 
@@ -867,15 +936,15 @@ let props = Object.getOwnPropertyDescriptors(class _
         this.setAttr({
             _busy: `${!!busy}`
         })
-            .setStyles({
-                cursor: busy ? 'progress' : ''
-            })
+        .setStyles({
+            cursor: busy ? 'progress' : ''
+        })
     }
 
     copyAttr(other) {
         let me = base(this),
             attr = other.getAttributeNames()
-        for (let { length: i } = attr; i--;) {
+        for (let {length: i} = attr; i--;) {
             let name = attr[i]
             me.setAttribute(name, other.getAttribute(name))
         }
@@ -907,30 +976,30 @@ HTML_PLACING.forEach(set =>
     })
 )
 'offsetLeft offsetTop offsetWidth offsetHeight offsetParent clientLeft clientTop clientWidth clientHeight scrollWidth scrollHeight'
-    .split(' ').forEach(prop => {
-        // Reading these properties causes reflows/layout-shift/repaint whatever its called idk
-        let cached = null,
-            queued = false
+.split(' ').forEach(prop => {
+    // Reading these properties causes reflows/layout-shift/repaint whatever its called idk
+    let cached = null,
+        queued = false
 
-        function resetThingy() {
-            cached = null
-            queued = false
-            reads = 0
+    function resetThingy() {
+        cached = null
+        queued = false
+        reads = 0
+    }
+
+    Object.defineProperty(prototype, prop, {
+        get() {
+            ++reads
+            queued || (requestAnimationFrame(resetThingy), queued = true)
+            return cached ??= base(this)[prop]
         }
-
-        Object.defineProperty(prototype, prop, {
-            get() {
-                ++reads
-                queued || (requestAnimationFrame(resetThingy), queued = true)
-                return cached ??= base(this)[prop]
-            }
-        })
     })
+})
 // i just like using emojis sorry
 Reflect.ownKeys(props).forEach(i => {
     if (i !== 'constructor') {
         let v = props[i],
-            { value } = v
+            {value} = v
         if (typeof value === 'function') {
             v.value = {
                 [i](...a) {
@@ -1018,13 +1087,13 @@ if (typeof
     })
 
     function IntersectionObserverCallback(entries) {
-        for (let { length: i } = entries; i--;) {
+        for (let {length: i} = entries; i--;) {
             let me = entries[i],
-                { target } = me
+                {target} = me
             if ($(target).computed.getPropertyValue('--content-visibility').trim() === 'auto') {
                 h.delayedDispatch('contentvisibilityautostatechange', target, new CustomEvent('contentvisibilityautostatechange', {
                     bubbles: true,
-                    detail: { skipped: !me.isIntersecting }
+                    detail: {skipped: !me.isIntersecting}
                 }))
             }
         }
@@ -1057,10 +1126,10 @@ function unobserveAll(node) {
 }
 
 function MutationObserverCallback(entry) {
-    for (let { length: ii } = entry; ii--;) {
+    for (let {length: ii} = entry; ii--;) {
         let me = entry[ii],
-            { addedNodes, removedNodes } = me
-        for (let { length: i } = addedNodes; i--;) {
+            {addedNodes, removedNodes} = me
+        for (let {length: i} = addedNodes; i--;) {
             let node = addedNodes[i]
             if (node instanceof Element || node?.ownerDocument?.defaultView.Element.prototype.isPrototypeOf(node)) {
                 /*  queueMicrotask(() => {
@@ -1075,7 +1144,7 @@ function MutationObserverCallback(entry) {
                 observeAll(node)
             }
         }
-        for (let { length: i } = removedNodes; i--;) {
+        for (let {length: i} = removedNodes; i--;) {
             let node = removedNodes[i]
             if (node instanceof Element || node?.ownerDocument?.defaultView.Element.prototype.isPrototypeOf(node)) {
                 /*   queueMicrotask(() => {
@@ -1124,7 +1193,7 @@ function ResizeObserverCallback(entries) {
 }
 
 const resi = new ResizeObserver(ResizeObserverCallback)
-    ;[].forEach.call(document.getElementsByTagName('*'), observeAll)
+;[].forEach.call(document.getElementsByTagName('*'), observeAll)
 
 /*
 PERFORMANCE OBSERVER STUFFS
@@ -1134,9 +1203,9 @@ function PerformanceLoop(o) {
         title = o.entryType
     switch (title) {
         case 'layout-shift': {
-            let { sources } = o
-            for (let { length: i } = sources; i--;) {
-                let { node, currentRect, previousRect } = sources[i]
+            let {sources} = o
+            for (let {length: i} = sources; i--;) {
+                let {node, currentRect, previousRect} = sources[i]
                 node && h.delayedDispatch('layout-shift', node, new CustomEvent('layout-shift', {
                     bubbles: true,
                     detail: {
@@ -1170,7 +1239,7 @@ function PerformanceLoop(o) {
         case 'navigation':
             title = 'page-navigate'
             detail = o.toJSON()
-            let { type } = detail
+            let {type} = detail
             delete detail.type
             detail.navigationType = type
             break
@@ -1213,7 +1282,7 @@ const entryTypes = {
 }
 const perf = new PerformanceObserver(PerformanceObserverCallback)
 Object.keys(entryTypes).forEach(type => {
-    perf.observe({ type, buffered: true })
+    perf.observe({type, buffered: true})
 })
 h.addCustomEvent(entryTypes)
 h.addCustomEvent({
@@ -1262,8 +1331,8 @@ function BatchStyle(target) {
     })
 }
 
-
 let writes = 0, reads = 0
+
 /*const cleanup = new FinalizationRegistry(({callback, age})=>{
     callback(performance.now() -age)
 })
@@ -1281,12 +1350,12 @@ export function prox(target) {
     // ✅ Only option is 'Object.create' or { __proto__: ... }
     if (!all.has(target)) {
         // ++$.len
-        let bleh = { value: target }
-            , { revoke: styleRevoke, proxy: styleProxy } = Proxy.revocable(getStyleThingy(target), handlers.styles)
-            , { revoke: childRevoke, proxy: childProxy } = Proxy.revocable(target.children, handlers.HTMLCollection)
-            , { revoke: querySelectorRevoke, proxy: querySelectorProxy } = Proxy.revocable(target, handlers.querySelector)
-            , { revoke: attrRevoke, proxy: attrProxy } = Proxy.revocable(target, handlers.attr)
-            , { proxy: batchStyleProxy, revoke: batchRevoke } = BatchStyle(styleProxy)
+        let bleh = {value: target}
+            , {revoke: styleRevoke, proxy: styleProxy} = Proxy.revocable(getStyleThingy(target), handlers.styles)
+            , {revoke: childRevoke, proxy: childProxy} = Proxy.revocable(target.children, handlers.HTMLCollection)
+            , {revoke: querySelectorRevoke, proxy: querySelectorProxy} = Proxy.revocable(target, handlers.querySelector)
+            , {revoke: attrRevoke, proxy: attrProxy} = Proxy.revocable(target, handlers.attr)
+            , {proxy: batchStyleProxy, revoke: batchRevoke} = BatchStyle(styleProxy)
             , propertiesToDefine = {
                 ...prototypeDescriptors,
                 [me]: bleh,
@@ -1321,17 +1390,17 @@ export function prox(target) {
                     value: styleProxy
                 }
             }
-            , { proxy, revoke } = Proxy.revocable(
-                Object.seal(Object.create(target, propertiesToDefine)), Object.create(handlers.main, [{ value: target }])
+            , {proxy, revoke} = Proxy.revocable(
+                Object.seal(Object.create(target, propertiesToDefine)), Object.create(handlers.main, [{value: target}])
                 // defineProperty(target, prop) {
                 // console.debug(prop)
                 // if (prop in target) return Reflect.defineProperty(...arguments)
                 // throw TypeError('Object not mutable')
                 // }
             )
-            ; (target instanceof HTMLUnknownElement ||
-                target.ownerDocument.defaultView?.HTMLUnknownElement.prototype.isPrototypeOf(target)) &&
-                console.warn(`Unknown element: '${target.tagName.toLowerCase()}'`)
+        ;(target instanceof HTMLUnknownElement ||
+            target.ownerDocument.defaultView?.HTMLUnknownElement.prototype.isPrototypeOf(target)) &&
+        console.warn(`Unknown element: '${target.tagName.toLowerCase()}'`)
 
         function RevokeAllProxies() {
             //  Make sure we have *NO* possible references left
@@ -1371,13 +1440,13 @@ let temp, div, range, parsingDoc, classRegex = /(?<=\.)[\w-]+/g,
 const parseModeMap = new Map(Object.entries({
     write(html) {
         (parsingDoc ??= document.implementation.createHTMLDocument())
-            .open().write(html)
+        .open().write(html)
         parsingDoc.close()
         return document.adoptNode(parsingDoc.body.firstElementChild)
     },
     setHTMLUnsafe(html) {
         (temp ??= document.createElement('template'))
-            .setHTMLUnsafe(html)
+        .setHTMLUnsafe(html)
         return document.adoptNode(temp.content.firstElementChild)
     },
     innerHTML(html) {
@@ -1470,7 +1539,7 @@ function $(html, props, ...children) {
                <afterend>
     */
     if (props && !getValid(props) && typeof props !== 'string') {
-        let { hasOwn } = Object
+        let {hasOwn} = Object
 
         function reuse(p) {
             hasOwn(props, p) && (element[p] = props[p])

@@ -67,13 +67,15 @@ export const file = reqFile
 function verifyEventName(target, name) {
     let original = name
     name = name.toLowerCase()
-    if (!(`on${name}` in target) || (/^domcontentloaded$/i.test(original) &&
+    if (!(`on${name}` in target) && !(/^domcontentloaded$/i.test(original) &&
         (globalThis.Document?.prototype.isPrototypeOf(target)
             || globalThis.HTMLDocument?.prototype.isPrototypeOf(target)
             || target.ownerDocument?.defaultView?.HTMLDocument.prototype.isPrototypeOf(target)
             || target.ownerDocument?.defaultView?.Document.prototype.isPrototypeOf(target))
         ||
-        /^(animation(?:cancel|remove))$/i.test(original) && 'onremove' in target)) {
+        /^(animation(?:cancel|remove))$/i.test(original) && 'onremove' in target)
+        && !(/^focus(?:in|out)$/.test(name))
+    ) {
         if (`onwebkit${name}` in target) name = `webkit${original}`
         else if (`onmoz${name}` in target) name = `moz${original}`
         else if (`onms${name}` in target) name = `ms${original}`
