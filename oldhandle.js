@@ -1,7 +1,9 @@
 !function(globalThis) {
     'use strict'
+    if (globalThis.EventTarget) {
     EventTarget.prototype.addEventListener = EventTarget.prototype.addEventListener || EventTarget.prototype.attachEvent
     EventTarget.prototype.removeEventListener = EventTarget.prototype.removeEventListener || EventTarget.prototype.detachEvent
+    }
     String.prototype.includes || Object.defineProperty(String.prototype, 'includes', {
         writable: 1,
         configurable: 1,
@@ -31,12 +33,10 @@
     else gen = gen.for
     var sym = gen("🔔")
 //  Don't collide, and make sure its usable across realms!!
-    var groupCollapsed = console.groupCollapsed,
-        warn = console.warn,
-        groupEnd = console.groupEnd,
-        isArray = Array.isArray
+    var isArray = Array.isArray
         , allEvents = new WeakMap
         , isValidET = function (target) {
+        return !!(target.addEventListener && target.removeEventListener)
         if (target) {
             if (target instanceof EventTarget) return true
             var ownerDocument = target.ownerDocument
@@ -98,11 +98,11 @@
                     else name = 'MozMousePixelScroll'
                 } else name = original
             }
-            customEvents.has(name) || queueMicrotask(console.warn.bind(1, ["'", original, "'", 'events might not be available on the following object:'].join(''), target))
+            // customEvents.has(name) || queueMicrotask(console.warn.bind(1, ["'", original, "'", 'events might not be available on the following object:'].join(''), target))
             return name
         } else if (('on' + name) in target) return original
         //Some events like the one above don't have a handler
-        customEvents.has(original) || queueMicrotask(console.warn.bind(1, ["'", original, "'", 'events might not be available on the following object:'].join(''), target))
+        // customEvents.has(original) || queueMicrotask(console.warn.bind(1, ["'", original, "'", 'events might not be available on the following object:'].join(''), target))
         return original
     }
 
@@ -176,8 +176,8 @@
         if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
         if (!Object.keys(events).length) return target
         try {
-            groupCollapsed(['on(', getLabel(target), ')'].join(''))
-            console.log(target)
+            // groupCollapsed(['on(', getLabel(target), ')'].join(''))
+            // console.log(target)
             var myEvents = getEventNames(target)
             if (typeof events === 'function') {
                 var temp1 = events.name,
@@ -205,7 +205,7 @@
                     }
                 eventName = verifyEventName(target, eventName.replace(formatEventName, ''))
                 if (myEvents.has(eventName) && signal == null) {
-                    queueMicrotask(warn.bind(1, ["🔕 Skipped duplicate '", eventName, "' listener"].join('')))
+                    // queueMicrotask(warn.bind(1, ["🔕 Skipped duplicate '", eventName, "' listener"].join('')))
                     continue
                 }
                 if (signal) {
@@ -220,7 +220,7 @@
                         for (var i in detail) {
                             // i wish for in included symbols :<
                             if (i in event) {
-                                warn(["The '", i, "' property of a CustomEvent was ignored since it would overwrite an existing property: "].join(''), event[i])
+                                // warn(["The '", i, "' property of a CustomEvent was ignored since it would overwrite an existing property: "].join(''), event[i])
                                 continue
                             }
                             event[i] = detail[i]
@@ -237,7 +237,7 @@
                     signal && args.push(Abort, Remove)
                     onlyTrusted && event.isTrusted || !onlyTrusted && (!onlyCurrentTarget || onlyCurrentTarget && event.target === event.currentTarget) &&
                     (func.apply(target, args),
-                    prevents && (event.cancelable ? event.preventDefault() : warn(["🔊 '", eventName, "' events are not cancelable"].join(''))),
+                    prevents && (event.cancelable ? event.preventDefault() : 1/*warn(["🔊 '", eventName, "' events are not cancelable"].join('')*/),
                     stopProp && event.stopPropagation(),
                     stopImmediateProp && event.stopImmediatePropagation(),
                     autoabort && Abort(),
@@ -247,15 +247,8 @@
                     Abort = AutoAbort.bind(signal)
 
 
-                /* Object.defineProperty(EventHandlerWrapperFunction, unbound, {
-                     value: func,
-                     configurable: 1
-                 })*/
+
                 target.addEventListener(eventName, EventHandlerWrapperFunction, options)
-                if (signal)
-                    console.info(["📡 '",eventName,"' event added"].join(''))
-                // with signal`, signal)
-                else {
                     allEvents.has(target) || allEvents.set(target, new Map)
                     //A Map to hold the names & events
                     var myGlobalEventMap = allEvents.get(target)
@@ -272,13 +265,13 @@
                         autoabort: autoabort,
                     })
                     myEvents.add(eventName)
-                    console.info(["🔔 '", eventName, "' event added"].join(''))
-                }
+                    // console.info(["🔔 '", eventName, "' event added"].join(''))
+
             }
         } catch (e) {
-            queueMicrotask(console.error.bind(globalThis, e))
+            // queueMicrotask(console.error.bind(globalThis, e))
         } finally {
-            groupEnd()
+            // groupEnd()
         }
         return target
     }
@@ -292,8 +285,8 @@
         if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
         if (!eventNames.length || !allEvents.has(target)) return null
         try {
-            groupCollapsed(["off(", getLabel(target), ")"].join(''))
-            console.log(target)
+            // groupCollapsed(["off(", getLabel(target), ")"].join(''))
+            // console.log(target)
             var map = allEvents.get(target),
                 mySet = target[sym]
             for (var length = eventNames.length; length--;) {
@@ -301,15 +294,15 @@
                     settings = map.get(name),
                     listener = settings.listener
                 target.removeEventListener(name, listener, settings)
-                map.has(name) && console.info(["🔕 '", name, "' event removed"].join(''))
+                // map.has(name) && console.info(["🔕 '", name, "' event removed"].join(''))
                 map.delete(name)
                 mySet.delete(name)
                 map.size || allEvents.delete(target)
             }
         } catch (e) {
-            queueMicrotask(console.error.bind(globalThis, e))
+            // queueMicrotask(console.error.bind(globalThis, e))
         } finally {
-            groupEnd()
+            // groupEnd()
         }
     }
     /*export function until(target, eventName, failureName, timeout) {
