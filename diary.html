@@ -127,7 +127,7 @@
             else next.show(2)
         }
         toToday.on({
-            click() {
+            '%&click'() {
                 if (!canMove) return
                 today = new Date()
                 goBy(0)
@@ -135,14 +135,14 @@
             }
         })
         next.on({
-            click() {
+            '%&click'() {
                 if (!canMove) return
                 goBy(1)
                 setEntry(getDate())
             }
         })
         prev.on({
-            click() {
+            '%&click'() {
                 if (!canMove) return
                 goBy(-1)
                 setEntry(getDate())
@@ -219,6 +219,41 @@
         setEntry(getDate())
         m.animate([{ opacity: 0 }, { opacity: .96 }], { duration: 500, easing: 'ease', fill: 'forwards' })
     </script>
+<script>
+    document.addEventListener('DOMContentLoaded',function () {
+        'use strict'
+        var goToToday = document.getElementById('toToday')
+            , heading = document.getElementById('diary-heading')
+            , update = function () {
+                var date = [today.getMonth() + 1, today.getDate(), today.getFullYear()].join('_')
+                frame.src = 'https://addsoupbase.github.io/entries/' + date
+                heading.value = today.toLocaleDateString()
+            }
+            , frame = document.getElementById('display')
+            , today = new Date
+            , add = function (target, type, listener) {
+                (target.addEventListener || target.attachEvent).call(target, type, listener)
+            }
+            , remove = function (target, type, listener) {
+                (target.removeEventListener || target.detachEvent).call(target, type, listener)
+            }
+            , prev = document.getElementById('prev'),
+            next = document.getElementById('next')
+        add(prev, 'click', function () {
+            today.setDate(today.getDate() - 1)
+            update()
+        })
+        add(next, 'click', function () {
+            today.setDate(today.getDate() + 1)
+            update()
+        })
+        add(goToToday, 'click', function () {
+            today = new Date()
+            update()
+        })
+    })
+</script>
+
 </body>
 
 </html>

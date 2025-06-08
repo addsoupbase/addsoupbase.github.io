@@ -3,13 +3,14 @@ export function assemble(arrayLike, ...sequence) {
     for (let {length} = sequence, i = 0; i < length;) out.push(arrayLike.at(sequence[i++]))
     return out
 }
-
 export function forKeys(obj, callback) {
     let keys = Reflect.ownKeys(obj)
     for (let {length: i} = keys; i--;) callback.call(obj, keys[i])
 }
-
- export function of(length, filler) {
+export function fresh(obj) {
+    return!Reflect.ownKeys(obj).length
+}
+export function of(length, filler) {
     return typeof filler === 'function' ?
         Array.from({length}, filler) :
         Array(length).fill(filler)

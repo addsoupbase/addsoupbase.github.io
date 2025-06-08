@@ -822,7 +822,10 @@ let props = Object.getOwnPropertyDescriptors(class _
     set before(val) {
         base(this).before(base(val))
     }
-
+    eval(script) {
+        // mimic inline event handlers (rarely needed)
+        return Function('with(document)with(this)return eval(arguments[0]   )').call(base(this),script)
+    }
     get after() {
         let {nextElementSibling} = base(this)
         return prox(nextElementSibling)
@@ -1351,7 +1354,7 @@ export function prox(target) {
 
 function getValid(target) {
     try {
-        return target &&
+        return!!target &&
             (target instanceof Element ||
                 target.ownerDocument?.defaultView?.Element.prototype.isPrototypeOf(target)
                 //|| Element.prototype.isPrototypeOf(target)
