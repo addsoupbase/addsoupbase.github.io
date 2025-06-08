@@ -24,7 +24,7 @@
     var gen = globalThis.Symbol
     if (gen == null) gen = function (desc) {
         desc = ((desc+'') || 'oiemrnebh').split('').map(function (n) {
-            return n.repeat(10)
+            return n+n+n+n+n+n+n+n+n+n
         }).join('')
         return desc.split('').map(function (n) {
             return n.charCodeAt()
