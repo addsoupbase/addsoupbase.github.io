@@ -169,7 +169,7 @@ async function images({ time, colorful, birthday }) {
 import $ from '../yay.js'
 import * as math from '../num.js'
 import * as string from '../str.js'
-import * as h from '../handle.js'
+    import * as h from '../handle.js'
 import ran from '../random.js'
 const {frame} = $.id
 //document.body.scrollLeft = innerHeight/2

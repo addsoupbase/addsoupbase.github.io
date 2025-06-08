@@ -27,7 +27,46 @@ export function center(array) {
 export function insert(array, item, index) {
     return array.splice(index, 0, item)
 }
-
+export function*edgeCases(...rest) {
+    // First 21 are primitives
+    yield true
+    yield false
+    yield 0
+    yield 1
+    yield-0
+    yield-1
+    yield 1.5
+    yield-1.5
+    yield 1/0
+    yield-1/0
+    yield 0/0
+    yield 0n
+    yield 1n
+    yield-1n
+    yield null
+    yield;
+    yield''
+    yield'string'
+    yield'1'
+    yield'                    '
+    yield Symbol('symbol')
+    yield Symbol.for('symbol')
+    // The rest are object/function/whatever you want
+    yield{}
+    yield{__proto__:null}
+    {
+        let obj = {}
+        obj.property = obj
+        yield obj
+    }
+    if('document'in globalThis)yield document.all
+    yield function(){}
+    yield()=>{}
+    yield async function(){}
+    yield async()=>{}
+    yield*rest
+}
+window.edge=edgeCases
 export function remove(item, index) {
     return typeof item === 'string' ?
         `${item.slice(0, index)}${item.slice(index + 1)}` :

@@ -109,8 +109,7 @@ export function furthest(num, ...nums) {
     return distance
 }
 export function isPrimitive(val) {
-    let type = typeof val
-    return type !== 'function' && type !== 'object' || val === null
+    return Object(val)!==val
 }
 export function cycle(...wheel) {
     // new.target && noConstructor()
