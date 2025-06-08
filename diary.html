@@ -228,7 +228,7 @@
             var n = new XMLHttpRequest()
             n.open('GET', './oldhandle.js')
             n.onload = function () {
-                var h = Function(n.responseText)()
+                Function(n.responseText)()
                 alert('Something went wrong, downgrading :(')
                 var goToToday = document.getElementById('toToday')
                     , heading = document.getElementById('diary-heading')
