@@ -1,9 +1,9 @@
 
 import $ from '../yay.js'
 import { on, } from "../handle.js"
-
 $.setup()
 let { main } = $.id
+
 main.setStyles({ opacity: 0 })
 if (top === window)$.id.viewframe.destroy()
 on(window, {
@@ -37,7 +37,7 @@ $.gid('viewbackground').on({
     href: './music.html'
 })*/
 let controller = new AbortController
-let { submit: form, send } = $.byId
+let { submit: form } = $.byId
 // send.replace($(`<input type="image" title="Send" src="http://localhost:3000/addsoupbase.github.io/cute-emojis/emojis/1225244786831659111.gif">`)
 // .on( {
 //     click(a, abort) {

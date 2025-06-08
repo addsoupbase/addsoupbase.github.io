@@ -670,8 +670,9 @@ let props = Object.getOwnPropertyDescriptors(class _
                     '--user-select': 'none',
                     'pointer-events': 'none',
                     '--user-modify': 'read-only',
+                    '--interactivity':'inert'
                 })
-                .setAttr({_hidden: "true", contenteditable: 'false'})
+                .setAttr({_hidden: "true", contenteditable: 'false',inert:true})
                 break
         }
     }
@@ -700,8 +701,9 @@ let props = Object.getOwnPropertyDescriptors(class _
                 this.setStyles({
                     opacity: '', '--user-input': '', '--user-focus': '', '--user-select': '', 'pointer-events': '',
                     '--user-modify': '',
+                    '--interactivity':''
                 })
-                .setAttr({_hidden: "", contenteditable: ''})
+                .setAttr({_hidden: "", contenteditable: '',inert: false})
                 break
         }
     }

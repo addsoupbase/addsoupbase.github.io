@@ -7,7 +7,8 @@ let bubble = Object.assign(new Image, {
 
 export let colorful = new Set
 let today = new Date()
-export const birthday = today.getMonth() === 6 - 1 && today.getDate() === 17
+export const birthday =
+     today.getMonth() === 6 - 1 && today.getDate() === 17
 
 const width = Symbol.for('width'),
     name = Symbol.for('name')
@@ -15,7 +16,7 @@ let avatars, mons
 export let time = new Promise( async(resolve) => {
 
 
-        avatars = (await Promise.allSettled((await jason('./scripts/allava.json')).map(
+        avatars = (await Promise.allSettled((await jason('./allava.json')).map(
             async function (o) {
                 let n = new Image
                 n.src = `./media/avatars/${o}`
@@ -25,18 +26,18 @@ export let time = new Promise( async(resolve) => {
         ))).filter(o => o.status === 'fulfilled').map(o => o.value)
         console.debug("🪪 Avatars loaded")
         if (birthday) {
-            console.log(`OMG ITS MY BIRTHDAY YAYYY 🎂🎂`)
+            console.log('%cOMG ITS MY BIRTHDAY YAYYY 🎂🎂','font-size:2em;')
             if (!bubble.complete)await Promise.all([until(bubble, 'load'), bubble.decode()])
             let {width: w, height: h} = bubble
-            let ctx = Object.assign(new OffscreenCanvas(w, h).getContext('2d'), {
+            let ctx = Object.assign(new OffscreenCanvas(w,h).getContext('2d'), {
                 imageSmoothingEnabled: 'true',
                 imageSmoothingQuality: 'high'
             })
-
             for (let i = 360; i -= 10;) {
-                ctx.drawImage(bubble, 0, 0)
                 ctx.filter = `hue-rotate(${i}deg)`
-                colorful.add(URL.createObjectURL(await ctx.canvas.convertToBlob()))
+                ctx.drawImage(bubble, 0, 0, w, h)
+                let image = URL.createObjectURL(await ctx.canvas.convertToBlob())
+                  colorful.add(image)
                 ctx.clearRect(0, 0, w, h)
             }
         }
@@ -70,6 +71,7 @@ export let time = new Promise( async(resolve) => {
                 'kyogreprimal:10',
                 'goldeen:8',
                 'arctovish:4',
+                'groudon:4',
                 // 'barboach:6', it looks weird
                 // 'eelektrik:10', it also looks weird
                 'inkay:4',
@@ -90,7 +92,7 @@ export let time = new Promise( async(resolve) => {
                 await Promise.all([until(img, 'load', 'error'), img.decode()])
                 return img
             })))
-            .filter(o => o.status === 'fulfilled')
+            .filter(o =>  o.status === 'fulfilled')
             .map(({value}) => value)
         mons.forEach(image => {
             registerCSS(`.${image[name]}`, {
