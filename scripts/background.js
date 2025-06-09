@@ -1,4 +1,8 @@
 let regex = /[\w.\-]+\.(?:webp|a?png|gif|jpe?g)/
+function isHidden() {
+    return hidden||!!document.fullscreenElement || document.hidden || document.visibilityState === 'hidden'
+}
+
 async function images({time, colorful, birthday}) {
     let pop = new Audio('media/pop.mp3')
     let {avatars, mons} = await time
@@ -70,7 +74,7 @@ async function images({time, colorful, birthday}) {
     }
 
     function bubbleWithAva(image = cycle.next) {
-        if (document.hidden || document.fullscreenElement) return
+        if (isHidden()) return
         const {src} = image
         let n = $('div.bubble', {
             attr: {
@@ -146,7 +150,7 @@ async function images({time, colorful, birthday}) {
 
     async function spawnPkmn() {
         setTimeout(spawnPkmn, ran.range(500, 2000))
-        if (document.hidden || document.fullscreenElement || !mons) return
+        if (isHidden() || !mons) return
         let pick = ran.choose(...mons)
         if (ran.jackpot(10_000)) pick = [...mons].find(o=>o.src.includes('groudon'))
         const element = createAnimationForSpritesheet(pick)
@@ -254,7 +258,7 @@ async function images({time, colorful, birthday}) {
 
     function tinyBubbles(again = true) {
         again && setTimeout(tinyBubbles, ran.range(1000, 1200))
-        if (document.hidden || document.fullscreenElement) return
+        if (isHidden()) return
         makeBubble()
     }
 
@@ -266,7 +270,21 @@ import * as math from '../num.js'
 import * as string from '../str.js'
 import * as h from '../handle.js'
 import ran from '../random.js'
-
+let hidden = false
+h.on(window, {
+    /*blur(){
+        hidden = true
+    },
+    focus(){
+        hidden = false
+    },*/
+    pagehide() {
+        hidden = true
+    },
+    pageshow() {
+        hidden = false
+    }
+})
 const {frame} = $.id
 //document.body.scrollLeft = innerHeight/2
 frame.on({

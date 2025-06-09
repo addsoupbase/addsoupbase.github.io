@@ -11,6 +11,7 @@ sum = Math.sumPrecise ?? sum
 function sort(a, b) {
     return a - b
 }
+
 // function noConstructor() {
 // console.warn("Use this as a factory function instead of the constructor")
 // }
@@ -49,7 +50,7 @@ class Cycle {
 export function average(...numbers) {
     let { length } = numbers
     if (!length) return NaN
-    return sum(numbers.sort(sort))/length
+    return sum(numbers)/length
 }
 export function avg(...array) {
     const {length} = array
