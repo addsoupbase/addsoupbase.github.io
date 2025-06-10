@@ -42,7 +42,7 @@ export let time = new Promise( async(resolve) => {
             }
         }
         mons =
-            (await Promise.allSettled([
+           (await Promise.allSettled([
                 'horsea:4',
                 'qwilfish:4',
                 'remoraid:4',
@@ -101,6 +101,7 @@ export let time = new Promise( async(resolve) => {
                 height: `${(image.height)}px`
             })
         })
+    mons = new Set(mons)
         resolve({avatars,mons})
         console.debug("🐠 Sprites loaded")
 

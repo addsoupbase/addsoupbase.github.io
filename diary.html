@@ -42,12 +42,12 @@
         <a class="cute-green-button back" href="main.html" role="button" rel="prev">Back</a>
         <!-- <span> Scrolling could reveal more!</span> -->
 
-        <section class="center" id="diary-container" style="display:table;justify-items: center;">
+        <div class="center" id="diary-container" style="display:table;justify-items: center;">
             <time>
                 <input class="cute-green" style="font-size:20px;margin:20px;" id="diary-heading" type="date"
                        min="2025-04-07">
             </time>
-            <article id="diary" class="cute-blue"
+            <section id="diary" class="cute-blue"
                      style="resize:both;width: 154%;border-radius:1%;width: 490px;    place-self: center;">
                 <h2 id="invalid" hidden>No entry for today &lpar;yet!&rpar;
                     <img style="image-rendering: pixelated" alt="tangled speech balloon" height="34"
@@ -62,7 +62,7 @@
                 </h2>
                 <iframe aria-live="assertive" id="display" name="Diary" title="Diary"
                         style="width: 100%;height: 100%;border: none;"></iframe>
-            </article>
+            </section>
             <div style="justify-self: center;justify-content:center;display: flex;    align-items: end;">
                 <input id="prev" type="image" title="Turn to previous page" alt="Back" style="transform:scaleX(-1)"
                        src="./cute-emojis/emojis/1321091969635848294.gif">
@@ -71,17 +71,14 @@
                        src="./cute-emojis/emojis/1321091969635848294.gif">
             </div>
 
-        </section>
+        </div>
     </main>
 </template>
 <script type="module">
-    //
     import $ from './yay.js'
     import * as h from './handle.js'
-
     h.on(document, {
-        '%&DOMContentLoaded'() {
-        }
+        '%&DOMContentLoaded'(){}
     })
     $.setup()
     let {toToday, invalid, error, next, prev, 'diary-heading': diaryHeading, display: currentThingy} = $.id
@@ -219,7 +216,6 @@
     let m = $.gid('main')
     goBy(-1)
     setEntry(getDate())
-    m.animate([{opacity: 0}, {opacity: .96}], {duration: 500, easing: 'ease', fill: 'forwards'})
 </script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {

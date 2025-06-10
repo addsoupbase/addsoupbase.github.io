@@ -518,6 +518,7 @@ let props = Object.getOwnPropertyDescriptors(class _
     setAttr(attr) {
         let me = base(this)
         for (let i in attr) {
+            let n = i.split(',')
             let val = attr[i]
             if (regex.onXYZ.test(i)) throw TypeError('Inline event handlers are deprecated')
             i = ariaOrData(i)
@@ -529,9 +530,12 @@ let props = Object.getOwnPropertyDescriptors(class _
                    case 'readonly': me.setAttribute('aria-readonly', !!val); break
                    case 'placeholder': me.setAttribute('aria-placeholder', val); break
                }*/
-            if (typeof val === 'boolean') me.toggleAttribute(i, val)
-            else if (val === '' || val == null) me.removeAttribute(i)
-            else me.setAttribute(i, val)
+            for(let {length: a} = n; a--;) {
+                let prop =  n[a]
+            if (typeof val === 'boolean') me.toggleAttribute(prop, val)
+            else if (val === '' || val == null) me.removeAttribute(prop)
+            else me.setAttribute(prop, val)
+            }
         }
     }
 
@@ -580,7 +584,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         return this.animate([{}, _.nopacity], {
             duration,
             easing: 'ease',
-            composite: 'replace',
+            // composite: 'replace',
             iterations: 1
         }).finished.then(this.hide.bind(this, 3))
     }
@@ -592,7 +596,7 @@ let props = Object.getOwnPropertyDescriptors(class _
             duration,
             easing: 'ease',
             iterations: 1,
-            composite: 'replace',
+            // composite: 'replace',
         }).finished
     }
 
@@ -699,9 +703,7 @@ let props = Object.getOwnPropertyDescriptors(class _
                 break
             case 5:
                 this.setStyles({
-                    opacity: '', '--user-input': '', '--user-focus': '', '--user-select': '', 'pointer-events': '',
-                    '--user-modify': '',
-                    '--interactivity':''
+                    opacity: '', '--user-input,--user-focus,--user-select,pointer-events,--user-modify,--interactivity': '',
                 })
                 .setAttr({_hidden: "", contenteditable: '',inert: false})
                 break

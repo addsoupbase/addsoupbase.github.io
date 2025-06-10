@@ -66,7 +66,7 @@ async function images({time, colorful, birthday}) {
         this.remove()
         me.fadeIn()
         me.setStyles({transform})
-        await me.animate([{}, {opacity: 0, filter: 'blur(20px) brightness(-100%)'}], {
+        await me.animate([{}, {opacity: 0, filter: 'grayscale(100%) blur(20px) brightness(-100%)'}], {
             duration: 1000,
             delay: 2000
         }).finished
@@ -108,6 +108,9 @@ async function images({time, colorful, birthday}) {
         })
         $('img.ava', {
             parent: n,
+            styles:{
+                '--user-drag':'none'
+            },
             attributes: {
                 src,
                 // alt: src,
@@ -147,12 +150,14 @@ async function images({time, colorful, birthday}) {
         ran.jackpot(1000) && me.classList.add('shiny')
         return me
     }
-
+    let groudon = [...mons].find(o=>o.src.includes('groudon'))
+    mons.delete(groudon)
     async function spawnPkmn() {
         setTimeout(spawnPkmn, ran.range(500, 2000))
         if (isHidden() || !mons) return
         let pick = ran.choose(...mons)
-        if (ran.jackpot(10_000)) pick = [...mons].find(o=>o.src.includes('groudon'))
+        if (ran.jackpot(10_000))
+        pick = groudon
         const element = createAnimationForSpritesheet(pick)
         element.fadeIn()
         let {coin} = ran
@@ -164,30 +169,30 @@ async function images({time, colorful, birthday}) {
             duration = 15000
         switch (pick[Symbol.for('name')]) {
             case 'wailord':
-                duration *= 20;
+                duration *= 20
                 break
             case 'groudon':
                 duration *= 8
                 break
             case 'wishiwashischool':
-                duration *= 12;
+                duration *= 12
                 break
             case 'kyogre':
             case 'kyogreprimal':
-                duration *= 1.5;
+                duration *= 1.5
                 break
             case 'luvdisc':
-                duration *= 0.75;
-                break;
+                duration *= 0.75
+                break
             // case 'sharpedo': case 'carvanha': duration = 8300; break
             case 'corsola':
-                duration = duration *= 2.5;
+                duration = duration *= 2.5
                 break
             case 'wishiwashi':
-                duration *= 4;
+                duration *= 4
                 break
             case 'qwilfish':
-                duration *= 1.5;
+                duration *= 1.5
                 break
             case'lanturn':
             case'bruxish':
@@ -201,6 +206,7 @@ async function images({time, colorful, birthday}) {
             case 'lumineon':
             case'sharpedo':
                 duration *= 2
+                break
             //        case 'corsola': element.animate([{transform: 'rotateZ(0deg)'}, {transform: `rotateZ(360deg)`}], {composite:'add',easing:'linear',duration:5000, iterations:1/0,direction:coin?'reverse':'normal'})
         }
         duration *= 1.6
@@ -295,8 +301,8 @@ frame.on({
             deadline ? console.debug(`Did timeout: `, deadline?.didTimeout) : console.debug('requestIdleCallback unsupported :(')
         }, {timeout: 3000})
     }
-})
-const parent = $('div #background', {
+},false,new AbortController())
+const parent = $('div #background .BG', {
     parent: document.body,
     attr: {
         _label: 'Pokemon swimming deep underwater with bubbles',

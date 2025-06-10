@@ -68,10 +68,10 @@
     </script>
 </head>
 
-<body style="background: rgb(2,101,226);background:linear-gradient(52deg, rgba(2, 101, 226, 1) 0%, rgba(0, 212, 255, 1) 100%) no-repeat;">
+<body style="background: rgb(24 161 220);background:linear-gradient(52deg, rgba(2, 101, 226, 1) 0%, rgba(0, 212, 255, 1) 100%) no-repeat;" class="BG">
 <main id="wrapper">
     <iframe id="frame" name="content" aria-atomic="true" aria-live="assertive" aria-relevant="all" title="content"
-            class="center" src=" ./main.html#1"></iframe>
+            class="center" src=" ./main.html"></iframe>
 </main>
 <!-- <div class="sand sea" style="
 transform: translate(290px, 0px);
@@ -84,6 +84,52 @@ transform: translate(300px, -10px);
 "></div>
 <div class="sea terrain"></div> -->
 <script src="./scripts/background.js" type="module" async></script>
+<script type="module">
+    import * as h from './handle.js'
+    import $ from './yay.js'
+    let unloading = false
+    h.on(window, {
+        '%beforeunload'(){
+            unloading = true
+        },
+        _load() {
+            let f = $.id.frame
+            f.styles.display = ''
+            f.animate([{translate:'0px -50px',transform: 'scale(0.9,0.9)'}, {}], {
+                duration: 500,
+                iterations: 1,
+                easing:'ease'
+            })
+        }
+    })
+    doThing()
+
+    function doThing(e) {
+        let f = frames[0].frameElement
+       $(f).hide(3)
+        h.on(f, {
+            _load() {
+                let me = $(this)
+                me.fadeIn()
+
+                let controller = new AbortController
+                h.on(this.contentWindow, {
+                    '#_beforeunload'(){
+                   unloading || doThing()
+                    },
+                }, false, controller)
+                this.contentWindow.navigation && h.on(this.contentWindow.navigation, {
+                    '#_navigate': doThing
+                }, false, controller)
+                /* if (top === window) {
+                     $.id.goBack.setAttribute('href', './')
+                 }*/
+            }
+        })
+
+    }
+
+</script>
 <script>
     'use strict'
     location.host.includes('localhost') || import('./silence.js')

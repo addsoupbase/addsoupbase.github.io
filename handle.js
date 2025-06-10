@@ -12,7 +12,27 @@ function isValidET(target) {
         (target instanceof EventTarget
             || target.ownerDocument?.defaultView?.EventTarget.prototype.isPrototypeOf(target)
             || target.defaultView?.EventTarget.prototype.isPrototypeOf(target)
-            || target.EventTarget?.prototype.isPrototypeOf(target))
+            || target.EventTarget?.prototype.isPrototypeOf(target)
+            || lastResort(target) /*'addEventListener removeEventListener dispatchEvent'.split(' ').every(lastResort, target)*/)
+}
+
+function lastResort(target) {
+    try {
+        let {toString} = Function.prototype
+        do if (target[Symbol.toStringTag] === 'EventTarget'
+            && target.constructor.name === 'EventTarget'
+            && typeof target.addEventListener === 'function'
+            && typeof target.removeEventListener === 'function'
+            && typeof target.dispatchEvent === 'function'
+            && toString.call(target.addEventListener) === `${addEventListener}`
+            && toString.call(target.dispatchEvent) === `${dispatchEvent}`
+            && toString.call(target.removeEventListener) === `${removeEventListener}`)
+            return true
+        while (target = Object.getPrototypeOf(target))
+        return false
+    } catch {
+        return false
+    }
 }
 
 function getLabel(obj) {
@@ -63,17 +83,16 @@ else {
 }
 export const file = reqFile
 
-
 function verifyEventName(target, name) {
     let original = name
     name = name.toLowerCase()
     if (!(`on${name}` in target) && !(/^domcontentloaded$/i.test(original) &&
-        (globalThis.Document?.prototype.isPrototypeOf(target)
-            || globalThis.HTMLDocument?.prototype.isPrototypeOf(target)
-            || target.ownerDocument?.defaultView?.HTMLDocument.prototype.isPrototypeOf(target)
-            || target.ownerDocument?.defaultView?.Document.prototype.isPrototypeOf(target))
-        ||
-        /^(animation(?:cancel|remove))$/i.test(original) && 'onremove' in target)
+            (globalThis.Document?.prototype.isPrototypeOf(target)
+                || globalThis.HTMLDocument?.prototype.isPrototypeOf(target)
+                || target.ownerDocument?.defaultView?.HTMLDocument.prototype.isPrototypeOf(target)
+                || target.ownerDocument?.defaultView?.Document.prototype.isPrototypeOf(target))
+            ||
+            /^(animation(?:cancel|remove))$/i.test(original) && 'onremove' in target)
         && !(/^focus(?:in|out)$/.test(name))
     ) {
         if (`onwebkit${name}` in target) name = `webkit${original}`
@@ -82,11 +101,10 @@ function verifyEventName(target, name) {
         else {
             if (name.startsWith('pointer')) name = `mouse${name.slice(7)}`
             else if (name === 'wheel') {
-                if('onmousewheel'in target)name='mousewheel'
-                else if('MouseScrollEvent' in window)name='DOMMouseScroll'
-                else name= 'MozMousePixelScroll'
-            }
-            else name = original
+                if ('onmousewheel' in target) name = 'mousewheel'
+                else if ('MouseScrollEvent' in window) name = 'DOMMouseScroll'
+                else name = 'MozMousePixelScroll'
+            } else name = original
         }
         customEvents.has(name) || queueMicrotask(console.warn.bind(1, `'${original}' events might not be available on the following object:`, target))
         return name
@@ -226,6 +244,7 @@ export function on(target, events, unused, signal) {
             }
             let Remove = target.removeEventListener.bind(target, eventName, EventHandlerWrapperFunction, options),
                 Abort = AutoAbort.bind(signal)
+
             function EventHandlerWrapperFunction(...args) {
                 let {0: event} = args
                 if (getLabel(event) === 'CustomEvent') {
@@ -242,10 +261,10 @@ export function on(target, events, unused, signal) {
                     event.deltaZ = 0
                     if (event.axis === 2)
                         event.deltaX = 0,
-                        event.deltaY = 50 * event.detail
-                     else if (event.axis === 1)
+                            event.deltaY = 50 * event.detail
+                    else if (event.axis === 1)
                         event.deltaX = 50 * event.detail,
-                        event.deltaY = 0
+                            event.deltaY = 0
                 }
                 signal && args.push(Abort, Remove)
                 onlyTrusted && event.isTrusted || !onlyTrusted && (!onlyCurrentTarget || onlyCurrentTarget && event.target === event.currentTarget) &&
