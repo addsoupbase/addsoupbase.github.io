@@ -197,9 +197,17 @@ export function registerCSS(selector, rule, silent) {
     .join(',')
     const sheet = addedStyleRules ??= getDefaultStyleSheet()
     let r = `{${toCSS(rule, silent)}}`
-    return sheet.textContent = `${sheet.textContent}${formatStr(selector)}${formatStr(r)}`
+     sheet.textContent = `${sheet.textContent}${formatStr(selector)}${formatStr(r)}`
+    return sheet
 }
-
+/**
+ * @param {String} rule The rule(s)
+ */
+export function registerCSSRaw(rules) {
+    const sheet=addedStyleRules ??= getDefaultStyleSheet()
+    sheet.textContent=`${sheet.textContent}${rules}`
+    return sheet
+}
 let cleanRegex = /\s\s|\n\n/g
 
 export function formatStr(str) {
@@ -207,7 +215,7 @@ export function formatStr(str) {
 }
 
 export function getDefaultStyleSheet() {
-    return (document.getElementById('addedStyleRules') ?? function () {
+    return(document.getElementById('addedStyleRules') ?? function () {
         let out = document.createElement('style');
         (document.head ?? document.body ?? document.documentElement ?? document.querySelector('*') ?? document).append(out)
         out.textContent='@namespace svg url("http://www.w3.org/2000/svg");'
@@ -320,7 +328,7 @@ export function boxShadow({
         return {name: `--${name}`, initialValue, inherits, syntax}
     }
 
-    !function (allProps) {
+    !function (...allProps) {
         const sheet = getDefaultStyleSheet()
         //    Some default CSS..
         try {
@@ -408,7 +416,7 @@ export function boxShadow({
                 registerCSS('*', universal, true),
                 sessionStorage.setItem('css', toCSS(universal, true))
         }()
-    }([
+    }(
         //  Fallback stuff
         g("user-select", "auto", true), // Most important one
         g("user-modify", "auto", 0),
@@ -512,5 +520,5 @@ export function boxShadow({
         g('buffered-rendering', 'auto', false),
         g('color-rendering', 'auto', false),
         // g('marquee-style','scroll',0)
-    ])
+    )
 }

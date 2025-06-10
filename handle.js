@@ -15,7 +15,6 @@ function isValidET(target) {
             || target.EventTarget?.prototype.isPrototypeOf(target)
             || lastResort(target) /*'addEventListener removeEventListener dispatchEvent'.split(' ').every(lastResort, target)*/)
 }
-
 function lastResort(target) {
     try {
         let {toString} = Function.prototype
@@ -192,18 +191,8 @@ export function addCustomEvent(names) {
 
 const formatEventName = /[_$^%&!?@#\d]|bound /g
 
-export function on(target, events, unused, signal) {
-    if (Array.isArray(target)) {
-        groupCollapsed('on(...)')
-        target.forEach(func)
-
-        function func(t) {
-            on(t, events)
-        }
-
-        console.groupEnd()
-        return target
-    }
+export function on(target, events, signal) {
+    if (arguments.length > 3 && getLabel(signal) !== 'AbortController') signal = arguments[3]
     if (typeof unused !== 'undefined') debugger
     if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
     if (!Object.keys(events).length) return target

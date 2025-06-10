@@ -433,7 +433,8 @@ let props = Object.getOwnPropertyDescriptors(class _
         return out
     }
 
-    on(events, unused, signal) {
+    on(events, signal) {
+        if (arguments.length > 2) signal = arguments[2]
         let me = this
         if (typeof events === 'function') {
             let old = events
@@ -450,7 +451,7 @@ let props = Object.getOwnPropertyDescriptors(class _
                 Reflect.apply(old, me, args)
             }
         }(events[i])
-        h.on(base(this), events, unused, signal)
+        h.on(base(this), events, signal)
     }
 
     off(...events) {
@@ -521,7 +522,6 @@ let props = Object.getOwnPropertyDescriptors(class _
             let n = i.split(',')
             let val = attr[i]
             if (regex.onXYZ.test(i)) throw TypeError('Inline event handlers are deprecated')
-            i = ariaOrData(i)
             /*   switch (i) {
                    case 'disabled': me.setAttribute('aria-disabled', !!val); break
                    case 'checked': me.setAttribute('aria-checked', !!val); break
@@ -531,7 +531,7 @@ let props = Object.getOwnPropertyDescriptors(class _
                    case 'placeholder': me.setAttribute('aria-placeholder', val); break
                }*/
             for(let {length: a} = n; a--;) {
-                let prop =  n[a]
+                let prop =  ariaOrData(n[a])
             if (typeof val === 'boolean') me.toggleAttribute(prop, val)
             else if (val === '' || val == null) me.removeAttribute(prop)
             else me.setAttribute(prop, val)
@@ -732,15 +732,18 @@ let props = Object.getOwnPropertyDescriptors(class _
     }
 
     //  i tried SO hard to make treewalker useful but it did NOT impress me!
-    * treeWalker(whatToShow, filter) {
+    //*
+    treeWalker(whatToShow, callback, filter, thisArg) {
         let walker = document.createTreeWalker(base(this), whatToShow ?? NodeFilter.SHOW_ALL, filter_func)
         filter ??= function () {
+            return 1
         }
-        let current
-        while (current = walker.nextNode()) yield getValid(current) ? prox(current) : current
-
+        let current,
+            i = 0,skip = NodeFilter.FILTER_SKIP,
+            accept  = NodeFilter.FILTER_ACCEPT
+        while (++i, current = walker.nextNode())  callback.call(thisArg ?? this, getValid(current) ? prox(current) : current, i, walker)
         function filter_func(node) {
-            return (filter(node) ?? true) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
+            return filter(node)?accept:skip
         }
     }
 
