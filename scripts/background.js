@@ -177,9 +177,10 @@ async function images({time, colorful, birthday}) {
             case 'wishiwashischool':
                 duration *= 12
                 break
-            case 'kyogre':
             case 'kyogreprimal':
-                duration *= 1.5
+                duration *= 3
+            case 'kyogre':
+                duration *= 2
                 break
             case 'luvdisc':
                 duration *= 0.75

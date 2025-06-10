@@ -178,8 +178,13 @@ a {
 .seadra {
   scale: 1.25 1.25
 }
-.kyogre,
-.kyogreprimal,
+.kyogre {
+  scale: 3 3
+}
+.kyogreprimal {
+  scale: 5 5
+}
+
 .eelektross,
 .jellicent_f,
 .jellicent_m,
