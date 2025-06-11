@@ -1282,7 +1282,7 @@ export function prox(target) {
     if (target === null) return null
     if (target[styles]) return target
     if (!getValid(target))
-        throw TypeError(`Target must implement the 'Element' interface`)
+        throw TypeError("Target must implement the 'Element' interface")
     // 🥅 Goal:
     // 🪪 Make an object with a [[Prototype]] being the target element
     // 🪤 Also put a proxy around said object

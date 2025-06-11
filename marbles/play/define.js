@@ -27,7 +27,7 @@ import {
     inEditor,
     customVertices,
     msg,
-    mobileTouching, doAudioThing
+    mobileTouching, doAudioThing, playRandomMusic
 } from './setup.js'
 import {lstorage} from '../../proxies.js'
 import ran from '../../random.js'
@@ -35,7 +35,7 @@ import * as str from '../../str.js'
 import * as math from '../../num.js'
 import * as h from '../../handle.js'
 import $ from '../../yay.js'
-import {getJson} from '../../arrays.js'
+import {getJson as jason} from '../../arrays.js'
 import color from '../../color.js'
 // function defineFuncs(obj, funcs) {
 // return Object.defineProperties(obj, Object.getOwnPropertyDescriptors(funcs))
@@ -1125,29 +1125,32 @@ async function cacheImageAndSet(url, index) {
     let n = new Image
     n.src = url
     await h.until(n, 'load')
-    let context = new OffscreenCanvas(256, 256).getContext('2d')
+    let context = $('<canvas width="256" height="256"></canvas>').getContext('2d')
     context.drawImage(n, 0, 0, 256, 256)
-    let blob = URL.createObjectURL(await context.canvas.convertToBlob())
+    let blob = URL.createObjectURL(await new Promise(context.canvas.toBlob.bind(context.canvas)))
     images.set(index, blob)
     return blob
 }
 
 window.getLevelFromJSON =
-    async function getLevelFromJSON(json) {
-        if (inEditor) {
-            let {settings} = json
+    async function getLevelFromJSON(id) {
+        let summary = await jason(`./levels/${id}/info.json`)
+        if (!inEditor) {
+            document.title = `${$.gid('title').textContent = str.shorten(summary.title || 'Level', 32)} - Marbles`
+            $.gid('author').textContent = str.shorten(summary.author || 'Unknown', 16)
+        }
+        else {
+            let {settings} = summary
             marbleDensity.value = settings.density
             marbleFriction.value = settings.friction
             marbleFrictionair.value = settings.frictionAir
             marbleRestitution.value = settings.restitution
             marbleSize.value = settings.radius
-        } else {
-            document.title = `${$.gid('title').textContent = str.shorten(json.title || 'Level', 32)} - Marbles`
-            $.gid('author').textContent = str.shorten(json.author || 'Unknown', 16)
         }
+        let data = await jason(`./levels/${id}/level.json`)
         marbles.clear()
         Composite.clear(world, false, true)
-        let {images: imgs, map, racers, settings, shapes} = json
+        let {images: imgs, map, racers, settings, shapes} = data
         Object.assign(marbleStats, settings)
         for (const o of racers) {
             const i = racers.indexOf(o)
@@ -1183,7 +1186,7 @@ window.getLevelFromJSON =
                     msg({
                         data: {
                             svg: `<svg xmlns="http://www.w3.org/2000/svg">
-                           ${json.shapes[digit].split('|').map(o => `<path d="${o}"></path>`).join('')}
+                           ${data.shapes[digit].split('|').map(o => `<path d="${o}"></path>`).join('')}
                            </svg>`, title: digit
                         }
                     })
@@ -1217,7 +1220,13 @@ if (levelName) {
         $('<h1 id="title">Level</h1>'),
         $('<cite id="author">Unknown</cite>'),
         $("div", null,
-            play = $('<button class="cute-green-button" style="width: 95px;height: 41px;" id="yay" disabled autofocus>Play</button>',)
+            play = $('<button class="cute-green-button" style="width: 95px;height: 41px;" id="yay" disabled autofocus>Play</button>', {
+                events: {
+                     _click(){
+                        setTimeout(playRandomMusic, 1000)
+                    }
+                }
+            })
         )
     )
     play.on({
@@ -1294,7 +1303,7 @@ if (levelName) {
         }
     })
     overlay.push(settings)
-    getLevelFromJSON(await getJson(`./levels/${levelName}/level.json`))
+    getLevelFromJSON(levelName)
 }
 /* function dataURItoBlob(dataURI) {
     // convert base64 to raw binary data held in a string

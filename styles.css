@@ -61,7 +61,9 @@
     background-size: cover;
     background-repeat: no-repeat;
   }
-
+#frame {
+  filter:none !important;
+}
   body {
     background: none !important;
   }

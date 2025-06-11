@@ -52,7 +52,7 @@ function error() {
     this.destroy()
 }
 
-function playRandomMusic() {
+export function playRandomMusic() {
     let {all} = music
     let pick = ran.choose(...all)
     if (this && all.size > 1) while (pick === this) pick = ran.choose(...all)
@@ -79,12 +79,19 @@ export function doAudioThing() {
             return out
         }
     )
+    /*if ('userActivation'in navigator) {
     let doplay = setInterval(() => {
         if (navigator.userActivation.hasBeenActive) {
             clearInterval(doplay)
             playRandomMusic()
         }
     }, 2000)
+    }
+    else {
+    h.on(window, {
+        '_first-input':playRandomMusic
+    })
+    }*/
     'click confirm pop'.split(' ').map(src => {
             let out = $(`<audio src="../audio/${src}.mp3" data-name="${src}" preload="auto"></audio>`)
             .on({
@@ -259,7 +266,6 @@ canvas.on({
         let n = Math.sign(deltaY) / 80
         cam.targetZoom -= n
         cam.targetZoom = math.clamp(cam.targetZoom, 0.01, 10)
-
     },
     pointerdown(event) {
         let {offsetX: x, offsetY: y, button, pointerId} = event
@@ -271,7 +277,7 @@ canvas.on({
             mobileTouching = true
             return
         }
-        this.setPointerCapture(event.pointerId)
+        this.setPointerCapture(pointerId)
         switch (button) {
             case 0:
                 if (inEditor) {   // Left Click
@@ -314,7 +320,7 @@ canvas.on({
     pointermove(e) {
         let touch = e.pointerType === 'touch'
         if (joystick && touch) return
-        let {offsetX: x, offsetY: y, clientX, clientY, screenX, screenY} = e
+        let {offsetX: x, offsetY: y, clientX, clientY, } = e
         let pos = vect(x, y)
         mouse.cursor.set(pos)
         //  'movementX' and 'movementY' are, like,
@@ -483,7 +489,7 @@ void function start(ignore) {
                         let {
                             title,
                             author: authorName
-                        } = await arr.jason(`levels/${id}.json`)
+                        } = await arr.jason(`levels/${id}/info.json`)
                         message.textContent = str.shorten(title || 'Level', 32),
                             author.textContent = str.shorten(authorName || 'Unknown', 16),
                             message.fadeIn()

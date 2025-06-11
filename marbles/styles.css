@@ -5,7 +5,9 @@ canvas {
     pointer-events: auto;
     touch-action: none;
 }
-
+:disabled {
+    filter: opacity(50%);
+}
 #overlay {
     z-index: 2;
     max-width: 60vw;
