@@ -218,9 +218,8 @@
     setEntry(getDate())
 </script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    (document.addEventListener||document.attachEvent)('DOMContentLoaded', function () {
         'use strict'
-
         if (typeof h === 'undefined') {
             var n = new XMLHttpRequest()
             n.open('GET', './oldhandle.js')
