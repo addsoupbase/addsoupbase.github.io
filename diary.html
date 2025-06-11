@@ -173,7 +173,7 @@
 
     async function setEntry(date) {
         let d = new Date(date)
-        diaryHeading.value = getThat(d)
+        diaryHeading.attr.value = getThat(d)
         currentThingy.hide(3)
         error.hide()
         currentThingy.parent.busy(true)
@@ -220,6 +220,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         'use strict'
+
         if (typeof h === 'undefined') {
             var n = new XMLHttpRequest()
             n.open('GET', './oldhandle.js')
