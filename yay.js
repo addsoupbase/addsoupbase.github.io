@@ -106,6 +106,7 @@ const attrStyleMap = 'StylePropertyMap' in window
     , handlers = {
     // Other proxies
     batchThing: {
+        cached: null,
         QueueBatchThing() {
             this.queued || (requestAnimationFrame(this.HandleStyleUpdates.bind(this)), this.queued = true)
         },
@@ -362,10 +363,11 @@ let props = Object.getOwnPropertyDescriptors(class _
         return base(this).outerHTML
     }
 
-    * xpath(xpath, type) {
+    xpath(xpath, callback, type, thisArg) {
         let i = document.evaluate(xpath, base(this), null, type ?? 0, null),
-            el
-        while (el = i.iterateNext()) yield el instanceof HTMLElement ? prox(el) : el
+            el,
+            n = 0
+        while (el = i.iterateNext())  callback.call(thisArg, el instanceof HTMLElement ? prox(el) : el, n++, i)
     }
 
     get orphans() {
@@ -741,7 +743,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         let current,
             i = 0,skip = NodeFilter.FILTER_SKIP,
             accept  = NodeFilter.FILTER_ACCEPT
-        while (++i, current = walker.nextNode())  callback.call(thisArg ?? this, getValid(current) ? prox(current) : current, i, walker)
+        while (current = walker.nextNode())  callback.call(thisArg ?? this, getValid(current) ? prox(current) : current, i++, walker)
         function filter_func(node) {
             return filter(node)?accept:skip
         }
@@ -831,7 +833,7 @@ let props = Object.getOwnPropertyDescriptors(class _
     }
     eval(script) {
         // mimic inline event handlers (rarely needed)
-        return Function('with(document)with(this)return eval(arguments[0]   )').call(base(this),script)
+        return Function('with(document)with(this)return eval(arguments[0])').call(base(this),script)
     }
     get after() {
         let {nextElementSibling} = base(this)
@@ -983,7 +985,6 @@ Object.defineProperties(prototype,
 )
 // 🖨 Copy everything
 const prototypeDescriptors = Object.getOwnPropertyDescriptors(prototype)
-
 export function base(element) {
     // 🌱 Get the root element
     return element[me] ?? element

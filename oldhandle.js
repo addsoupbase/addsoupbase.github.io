@@ -30,7 +30,7 @@
             return n.charCodeAt()
         }).join(desc)
     }
-    else gen = gen.for
+    else gen = gen['for']
     var sym = gen("🔔")
 //  Don't collide, and make sure its usable across realms!!
     var isArray = Array.isArray
@@ -127,7 +127,7 @@
         var t = val.target,
             e = val.event
         t.dispatchEvent(e)
-        set.delete(val)
+        set['delete'](val)
     }
 
     var delayedDispatch = function (id, t, e) {
@@ -135,10 +135,7 @@
         delayedEvents.has(id) || delayedEvents.set(id, new Set)
         var set = delayedEvents.get(id)
         set.size || dispatchAllDelayed(id)
-        set.add({
-            target: t,
-            event: e,
-        })
+        set.add({target: t,event: e})
     }
     var wait = function (ms) {
         return {
@@ -148,8 +145,7 @@
                 } catch (e) {
                     typeof fail === 'function' && fail(e)
                 }
-            },
-        }
+            }}
     }
     var getEventNames = function (target) {
         target.hasOwnProperty(sym) || Object.defineProperty(target, sym, {value: new Set})
@@ -169,7 +165,7 @@
         STOP_IMMEDIATE_PROPAGATION = '!',
         customEvents = new Set
     var addCustomEvent = function (names) {
-        for (let name in names) customEvents[names[name] ? 'add' : 'delete'](name.toLowerCase())
+        for (var name in names) customEvents[names[name] ? 'add' : 'delete'](name.toLowerCase())
     }
     var formatEventName = /[_$^%&!?@#\d]|bound /g
     var on = function (target, events, unused, signal) {
@@ -187,8 +183,8 @@
             } else if (isArray(events))
                 events = Object.fromEntries(events)
             // if (signal) signal.signal.onabort = console.debug.bind(1, 'Aborted: ', signal)
-            for (let eventName in events) {
-                const func = events[eventName],
+            for (var eventName in events) !function(eventName)  {
+                var func = events[eventName],
                     once = eventName.includes(ONCE),
                     prevents = eventName.includes(PREVENT_DEFAULT),
                     passive = eventName.includes(PASSIVE),
@@ -201,18 +197,18 @@
                     options = {
                         capture: capture,
                         //once
-                        passive: passive,
+                        passive: passive
                     }
                 eventName = verifyEventName(target, eventName.replace(formatEventName, ''))
                 if (myEvents.has(eventName) && signal == null) {
                     // queueMicrotask(warn.bind(1, ["🔕 Skipped duplicate '", eventName, "' listener"].join('')))
-                    continue
+                    return
                 }
                 if (signal) {
                     options.once = once
                     options.signal = signal.signal
                 }
-                var EventHandlerWrapperFunction = function() {
+                var EventHandlerWrapperFunction = function () {
                     var args = [].slice.call(arguments)
                         , event = args[0]
                     if (getLabel(event) === 'CustomEvent') {
@@ -262,12 +258,11 @@
                         stopProp: stopProp,
                         once: once,
                         stopImmediateProp: stopImmediateProp,
-                        autoabort: autoabort,
+                        autoabort: autoabort
                     })
                     myEvents.add(eventName)
                     // console.info(["🔔 '", eventName, "' event added"].join(''))
-
-            }
+            }(eventName)
         } catch (e) {
             // queueMicrotask(console.error.bind(globalThis, e))
         } finally {
@@ -295,9 +290,9 @@
                     listener = settings.listener
                 target.removeEventListener(name, listener, settings)
                 // map.has(name) && console.info(["🔕 '", name, "' event removed"].join(''))
-                map.delete(name)
-                mySet.delete(name)
-                map.size || allEvents.delete(target)
+                map['delete'](name)
+                mySet['delete'](name)
+                map.size || allEvents['delete'](target)
             }
         } catch (e) {
             // queueMicrotask(console.error.bind(globalThis, e))
@@ -314,7 +309,7 @@
                 signal.abort(str)
             }, timeout, RangeError(str))
                 , handleName = `on${eventName}`
-            let signal = new AbortController
+            var signal = new AbortController
                 , e = {
                 [`#${eventName}`](event) {
                     try {
@@ -368,4 +363,4 @@
         on: on,
         off: off
     })
-}((Object.defineProperty(constructor.prototype,"__global__",{configurable:1,get:function(){delete Object.getPrototypeOf(this).__global__;return this}}),__global__))
+}(this||(Object.defineProperty(constructor.prototype,"__global__",{configurable:1,get:function(){delete Object.getPrototypeOf(this).__global__;return this}}),__global__))

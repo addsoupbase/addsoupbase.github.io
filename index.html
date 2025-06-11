@@ -69,6 +69,7 @@
 </head>
 
 <body style="background: rgb(24 161 220);background:linear-gradient(52deg, rgba(2, 101, 226, 1) 0%, rgba(0, 212, 255, 1) 100%) no-repeat;" class="BG">
+
 <main id="wrapper">
     <iframe id="frame" name="content" aria-atomic="true" aria-live="assertive" aria-relevant="all" title="content"
             class="center" src=" ./main.html"></iframe>
@@ -135,6 +136,17 @@ transform: translate(300px, -10px);
     location.host.includes('localhost') || import('./silence.js')
     console.log('%c🆓 Sprites credit: https://sprites.pmdcollab.org/', 'font-size:2em')
 </script>
+
+<!--[if IE ]>
+<script>
+    'use strict'
+    alert('⚠️ For your security, it is crucial that you switch to a modern browser immediately.')
+    document.bgColor =document.body.bgColor = '#FFFFFF'
+    document.body.innerHTML='<a href="https://www.google.com/chrome/fallback/?brand=CHNY&utm_campaign=en&utm_source=en-et-youtube&utm_medium=et"><big>Download Chrome</big></a>'
+    document.body.style.background = '#FFFFFF'
+</script>
+<![endif]-->
+
 </body>
 
 </html>

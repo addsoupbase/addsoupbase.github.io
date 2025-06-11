@@ -10,10 +10,11 @@ let {addEventListener, removeEventListener, dispatchEvent} = globalThis.EventTar
 if (globalThis.document)
     try {
         // in case they monkeypatch the EventTarget.prototype
-        let n = document.createElement('iframe');
-        (document.head ?? document).append(n),
-            {addEventListener, removeEventListener, dispatchEvent} = n.contentWindow,
-            (document.head ?? document).removeChild(n)
+        let n = document.createElement('iframe'),
+            el = document.head ?? document
+        el.append(n),
+            {addEventListener, removeEventListener, dispatchEvent} = n.contentWindow
+            el.removeChild(n)
         n = null
     } catch (e) {
         console.debug(e)
@@ -352,7 +353,6 @@ export function until(target, eventName, failureName, timeout/* = 600000*/) {
             reject(err)
             signal.abort(str)
         }, timeout, RangeError(str))
-            , handleName = `on${eventName}`
         let signal = new AbortController
             , e = {
             [`#${eventName}`](event) {
