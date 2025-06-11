@@ -245,8 +245,8 @@
                 var change = function() {
                     if (!this.value.trim()) return
                     var v = this.value.split('-')
-                    let aaa = v[2] = (+v[2] + 1).toString()
-                    while(a.length < 2) aaa = 0 + aaa
+                    var aaa = v[2] = (+v[2] + 1).toString()
+                    while(aaa.length < 2) aaa = 0 + aaa
                     today = new Date(v.join('-'))
                     update()
                 }
