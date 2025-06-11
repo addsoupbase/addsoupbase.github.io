@@ -1,6 +1,8 @@
 export function assemble(arrayLike, ...sequence) {
     const out = []
-    for (let {length} = sequence, i = 0; i < length;) out.push(arrayLike.at(sequence[i++]))
+        ,push = [].push.bind(out),
+        at = [].at.bind(out)
+    for (let {length} = sequence, i = 0; i < length;) push(at(sequence[i++]))
     return out
 }
 export function forKeys(obj, callback) {
@@ -48,7 +50,7 @@ export function*edgeCases(...rest) {
     yield''
     yield'string'
     yield'1'
-    yield'                    '
+    yield' \n\t\v\f\r'
     yield Symbol('symbol')
     yield Symbol.for('symbol')
     // The rest are object/function/whatever you want
@@ -66,13 +68,11 @@ export function*edgeCases(...rest) {
     yield async()=>{}
     yield*rest
 }
-window.edge=edgeCases
 export function remove(item, index) {
     return typeof item === 'string' ?
         `${item.slice(0, index)}${item.slice(index + 1)}` :
         item.splice(index, 1)
 }
-
 export function swap(item, first, second) {
     return {0: item[first], 1: item[second]} = [item[second], item[first]], item
 }
@@ -94,24 +94,31 @@ export function cursedJSONParse(maybeJSON) {
     `)()
 }
 */
+let {Sign, abs} = Math
 export function rotate(arr, rotation) {
     let {length} = arr
     if (length < 2) return arr
-    let sign = Math.sign(rotation ??= 1),
-        r = Math.abs(rotation | 0) % length
-    if (sign > 0) while (r--) arr.unshift(arr.pop())
-    else while (r--) arr.push(arr.shift())
+    let sign = Sign(rotation ??= 1),
+        r = abs(rotation | 0) % length
+    if (sign > 0) {
+    let unshift = [].unshift.bind(arr)
+    while (r--) unshift(arr.pop())
+    }
+    else {
+        let push = [].push.bind(arr)
+        while (r--) push(arr.shift())
+    }
     return arr
 }
 
-const headers = {
+const headers = {headers:{
     accept: 'application/json,*/*;q=0.5'
-}
+}}
 
 async function fallback(src) {
-    let n = await fetch(new URL(src, location), {headers}),
+    let n = await fetch(new URL(src, location), headers),
         type = n.headers.get('Content-Type')
-    if (!/application\/json/.test(type)) throw TypeError(`Mime type must match 'application/json', instead got '${type}'`)
+    if (!/application\/json/.test(type)) throw TypeError(`Failed to load module script: Expected a JSON module script but the server responded with a MIME type of "${type}". Strict MIME type checking is enforced for module scripts per HTML spec.`)
     return await n.json()
 }
 
@@ -125,7 +132,7 @@ function TestImportSupport() {
     // Some, even older browsers, prefer 'assert' over 'with'
     // i sometimes wonder why they changed it in the first place if it works pretty much the same...
     ('u', '"use strict";let a=sessionStorage,s={type:"json"},h=(await import(new URL(u,location),{assert:s,with:s})).default;a.setItem("json",!0);return h')
-    /* Not needed:
+    /*
     .bind(fallback)
      using bind since the function can't access the module scope
      */
@@ -133,7 +140,6 @@ function TestImportSupport() {
 
 function FallbackImport() {
     sessionStorage.setItem("json", false)
-    // console.warn(`Your browser does not support 'import()' with json; Switching to fetch.`)
     getJson = fallback
 }
 
