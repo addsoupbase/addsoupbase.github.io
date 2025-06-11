@@ -1,3 +1,5 @@
+import {registerCSS, registerCSSAll} from "../csshelper.js"
+
 let regex = /[\w.\-]+\.(?:webp|a?png|gif|jpe?g)/
 function isHidden() {
     return hidden||!!document.fullscreenElement || document.hidden || document.visibilityState === 'hidden'
@@ -44,6 +46,11 @@ async function images({time, colorful, birthday}) {
         this.pauseAnims()
         pop.currentTime = 0
         await Promise.race([pop.play(), h.wait(350)])
+        POP()
+
+
+
+
         this.fadeOut(300)
         this.flags = 1
         await this.animate([{transform: ''}, {transform: 'scaleX(2) scaleY(2)',}], {
@@ -66,9 +73,10 @@ async function images({time, colorful, birthday}) {
         this.remove()
         me.fadeIn()
         me.setStyles({transform})
-        await me.animate([{}, {opacity: 0, filter: 'grayscale(100%) blur(20px) brightness(-100%)'}], {
+        await me.animate([{}, {opacity: 0, filter: 'opacity(0%) grayscale(100%) blur(20px) brightness(-100%)'}], {
             duration: 1000,
-            delay: 2000
+            delay: 2000,
+            composite:'add'
         }).finished
         me.destroy()
     }
@@ -292,7 +300,24 @@ h.on(window, {
         hidden = false
     }
 })
-const {frame} = $.id
+const {frame, count} = $.id
+let popped = 0
+let POP = window.POP = function() {
+    popped++ || count.fadeIn()
+    debugger
+    count.textContent =`🫧 ${popped.toLocaleString()}`
+    switch(popped) {
+        case 100: registerCSSAll({'.bubble':{filter:'drop-shadow(0px 0px 6px red)'}})
+            break
+        case 200: registerCSS('.sprite', {
+            '--box-reflect': 'left'
+        })
+            break
+        case 300:
+            document.body.style.background = `linear-gradient(52deg, rgb(178 2 226) 0%, rgb(0 38 255) 100%) no-repeat`
+            break
+    }
+}
 //document.body.scrollLeft = innerHeight/2
 frame.on({
     _load() {

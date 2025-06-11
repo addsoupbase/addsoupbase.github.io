@@ -6,6 +6,18 @@ const sym = Symbol.for("🔔")
 let {warn, groupCollapsed, groupEnd} = console,
     {isArray} = Array
 export const allEvents = new WeakMap
+let {addEventListener, removeEventListener, dispatchEvent} = globalThis.EventTarget?.prototype ?? AbortSignal.prototype
+if (globalThis.document)
+    try {
+        // in case they monkeypatch the EventTarget.prototype
+        let n = document.createElement('iframe');
+        (document.head ?? document).append(n),
+            {addEventListener, removeEventListener, dispatchEvent} = n.contentWindow,
+            (document.head ?? document).removeChild(n)
+        n = null
+    } catch (e) {
+        console.debug(e)
+    }
 
 function isValidET(target) {
     return target &&
@@ -13,8 +25,9 @@ function isValidET(target) {
             || target.ownerDocument?.defaultView?.EventTarget.prototype.isPrototypeOf(target)
             || target.defaultView?.EventTarget.prototype.isPrototypeOf(target)
             || target.EventTarget?.prototype.isPrototypeOf(target)
-            || lastResort(target) /*'addEventListener removeEventListener dispatchEvent'.split(' ').every(lastResort, target)*/)
+            || lastResort(target)) /*'addEventListener removeEventListener dispatchEvent'.split(' ').every(lastResort, target)*/
 }
+
 function lastResort(target) {
     try {
         let {toString} = Function.prototype
@@ -85,11 +98,11 @@ export const file = reqFile
 function verifyEventName(target, name) {
     let original = name
     name = name.toLowerCase()
-    if (!(`on${name}` in target) && !(/^domcontentloaded$/i.test(original) &&
-            (globalThis.Document?.prototype.isPrototypeOf(target)
-                || globalThis.HTMLDocument?.prototype.isPrototypeOf(target)
-                || target.ownerDocument?.defaultView?.HTMLDocument.prototype.isPrototypeOf(target)
-                || target.ownerDocument?.defaultView?.Document.prototype.isPrototypeOf(target))
+    if (!(`on${name}` in target) && !((/^domcontentloaded$/i.test(original) &&
+                (globalThis.Document?.prototype.isPrototypeOf(target)
+                    || globalThis.HTMLDocument?.prototype.isPrototypeOf(target)
+                    || target.ownerDocument?.defaultView?.HTMLDocument.prototype.isPrototypeOf(target)
+                    || target.ownerDocument?.defaultView?.Document.prototype.isPrototypeOf(target)))
             ||
             /^(animation(?:cancel|remove))$/i.test(original) && 'onremove' in target)
         && !(/^focus(?:in|out)$/.test(name))
@@ -136,7 +149,7 @@ function dispatchAllDelayed(id) {
 
 function dispatchAndDelete(val, i, set) {
     let {target: t, event: e} = val
-    t.dispatchEvent(e)
+    dispatchEvent.call(t, e)
     set.delete(val)
 }
 
@@ -269,7 +282,7 @@ export function on(target, events, signal) {
                  value: func,
                  configurable: 1
              })*/
-            target.addEventListener(eventName, EventHandlerWrapperFunction, options)
+            addEventListener.call(target, eventName, EventHandlerWrapperFunction, options)
             if (signal)
                 console.info(`📡 '${eventName}' event added`)
             // with signal`, signal)
@@ -317,7 +330,7 @@ export function off(target, ...eventNames) {
             const name = verifyEventName(target, eventNames[length]),
                 settings = map.get(name),
                 {listener} = settings
-            target.removeEventListener(name, listener, settings)
+            removeEventListener.call(target, name, listener, settings)
             map.has(name) && console.info(`🔕 '${name}' event removed`)
             map.delete(name)
             mySet.delete(name)

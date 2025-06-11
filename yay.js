@@ -134,14 +134,14 @@ const attrStyleMap = 'StylePropertyMap' in window
     },
     main: {
         // just create as few closures as possible
-        get(targ, prop) {
+        get(targ, prop, r) {
             let a = this[0]
-            return targ.hasOwnProperty(prop) ? targ[prop] :
-                cacheFunction(a[prop], a)
+            return targ.hasOwnProperty(prop) ? Reflect.get(targ, prop, r) :
+                cacheFunction(Reflect.get(a, prop , a), a)
             // ⛓️‍💥 'Illegal invocation' if function is not bound
         },
         set(targ, prop, value) {
-            return (targ.hasOwnProperty(prop) ? targ : this[0])[prop] = value, 1
+            return Reflect.set(targ.hasOwnProperty(prop) ? targ : this, prop, value)
         }
     },
     querySelector: {

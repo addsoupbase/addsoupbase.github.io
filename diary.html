@@ -230,12 +230,28 @@
                     , heading = document.getElementById('diary-heading')
                     , update = function () {
                         var date = [today.getMonth() + 1, today.getDate(), today.getFullYear()].join('_')
+                            , dd  = ''+today.getDate()
+                            , mm = ''+(today.getMonth()+1)
+                    if (mm.length === 1) mm = 0 + mm
+                        if (dd.length === 1) dd = 0 + dd
                         frame.src = 'https://addsoupbase.github.io/entries/' + date
-                        heading.value = today.toLocaleDateString()
+                        heading.value = [today.getFullYear(),mm,dd].join('-')
                     }, frame = document.getElementById('display')
                     , today = new Date
                     , prev = document.getElementById('prev'),
                     next = document.getElementById('next')
+                    heading.setAttribute('max', frame.src)
+                var change = function() {
+                    if (!this.value.trim()) return
+                    var v = this.value.split('-')
+                    v[2] = (+v[2] + 1).toString().padStart(2, 0)
+                    today = new Date(v.join('-'))
+                    update()
+                }
+                h.on(heading,{
+                    change:change,
+                    textInput:change
+                })
                 h.on(prev, {
                     click: function () {
                         today.setDate(today.getDate() - 1)

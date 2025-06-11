@@ -289,11 +289,20 @@ input[type=image]:active {
 .groudon {
   scale: 3 3
 }
+#count {
+  position: absolute;
+  left: 0%;
+  bottom: 0%;
+  color:white;
+  font-size: 2em;
+  z-index: 4;
+  margin: 30px;
+}
 #main {
   width: 100vw;
   position: relative;
   box-sizing: border-box;
-  height: auto;
+  height: 80%;
   min-height: 550px;
   opacity: 1;
   display: block;
@@ -363,6 +372,7 @@ img {
 
 body,
 html {
+
   --tap-highlight-color: rgba(255, 0, 255, 0.268);
   padding: 0;
   margin: 0;
