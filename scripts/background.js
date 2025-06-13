@@ -73,10 +73,10 @@ async function images({time, colorful, birthday}) {
         this.remove()
         me.fadeIn()
         me.setStyles({transform})
-        await me.animate([{}, {opacity: 0, filter: 'opacity(0%) grayscale(100%) blur(20px) brightness(-100%)'}], {
+        await me.animate([{opacity:1}, {opacity: 0, filter: 'opacity(0%) grayscale(100%) blur(20px) brightness(-100%)'}], {
             duration: 1000,
             delay: 2000,
-            composite:'add'
+            composite:'replace'
         }).finished
         me.destroy()
     }
