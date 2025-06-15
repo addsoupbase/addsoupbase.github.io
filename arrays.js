@@ -94,7 +94,7 @@ export function cursedJSONParse(maybeJSON) {
     `)()
 }
 */
-let {Sign, abs} = Math
+let {sign:Sign, abs} = Math
 export function rotate(arr, rotation) {
     let {length} = arr
     if (length < 2) return arr
