@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.150.0/http/server.ts"
 import { serveDir } from "https://deno.land/std/http/file_server.ts"
 import { join } from "https://deno.land/std@0.150.0/path/mod.ts"
-const cache = await caches.open('server')
+// const cache = await caches.open('server')
 let port = 3000
 console.clear()
 console.log('💿 Booting...')
@@ -16,14 +16,14 @@ const htmlHeaders = {
 await serve(go, { port })
 async function response(req,...data) {
     let out = Reflect.construct(Response, data)
-    await cache.put(req, out)
+    // await cache.put(req, out)
     return out
 }
 async function go(req) {
     try {
-       const cached = await cache.match(req)
-        if (cached)
-            return cached
+    //    const cached = await cache.match(req)
+    //     if (cached)
+            // return cached
         let url = new URL(req.url, `http://localhost:${port}`)
         if(url.pathname.startsWith('/cute-emojis'))
         return Response.redirect(new URL(url.pathname,'https://addsoupbase.github.io/'),301)
