@@ -10,6 +10,7 @@ let today = new Date()
 export const birthday =
      today.getMonth() === 6 - 1 && today.getDate() === 17
 
+
 const width = Symbol.for('width'),
     name = Symbol.for('name')
 let avatars, mons

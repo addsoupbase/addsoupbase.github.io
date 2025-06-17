@@ -64,11 +64,14 @@
 #frame {
   filter:none !important;
 }
-  body {
+  #hiii {
     background: none !important;
   }
 }
-
+#count::before {
+  content:'🫧';
+  margin:5px;
+}
 .terrain {
   background-position-x: -95px;
   background-position-y: -416px;
@@ -260,7 +263,7 @@ input[type=image] {
   width: 55px;
   --user-drag: none;
   image-rendering: pixelated;
-  filter: drop-shadow(2px 4px 6px red) hue-rotate(211deg);
+  /*filter: drop-shadow(2px 4px 6px red) hue-rotate(211deg);*/
   --tap-highlight-color: rgba(255, 0, 255, 0.268);
   transition: scale 0.3s ease;
   scale: 1 1
@@ -304,8 +307,7 @@ input[type=image]:active {
   width: 100vw;
   position: relative;
   box-sizing: border-box;
-  height: 80%;
-  min-height: 550px;
+  height: 100vh;
   opacity: 1;
   display: block;
   inset: 0;
@@ -438,7 +440,8 @@ html {
   /* min-width: 65%; */
    max-height: 90vh;
   z-index: 3;
-  height: inherit;
+  height: 570px;
+border-radius: 15px;
   border: none;
   width: 700px;
   margin: auto;
@@ -633,13 +636,15 @@ a {
 }
 
 body {
-  scrollbar-width: none;
+  /*scrollbar-width: none;*/
   /* Firefox */
   height: 90vh;
   width: 100vw;
   display: flex;
 }
-
+.center {
+  position: relative !important;
+}
 ::-webkit-scrollbar {
   display: none;
 }
@@ -719,11 +724,13 @@ a.cute-green-button:active {
 }
 
 .back {
-  position: absolute;
+  position: fixed;
   top: 20px;
   left: 20px;
 }
-
+main {
+  overflow-y: scroll;
+}
 .hello {
   justify-items: center;
   justify-content: center;

@@ -1,13 +1,21 @@
 import {registerCSS, registerCSSAll} from "../csshelper.js"
 
 let regex = /[\w.\-]+\.(?:webp|a?png|gif|jpe?g)/
+let all = document.getElementsByTagName('*')
 function isHidden() {
-    return hidden||!!document.fullscreenElement || document.hidden || document.visibilityState === 'hidden'
+    return all.length > 135 || hidden||!!document.fullscreenElement || document.hidden || document.visibilityState === 'hidden'
 }
 
 async function images({time, colorful, birthday}) {
     let pop = new Audio('media/pop.mp3')
     let {avatars, mons} = await time
+    if (birthday) {
+        $.body.animate([{'backdrop-filter':'hue-rotate(0deg)',},{'backdrop-filter':'hue-rotate(360deg)'}], {
+            duration:50_000,
+            iterations:1/0,
+            easing: 'linear',
+        })
+    }
     // on(document, {
     // visibilitychange() {
     // let func = document.hidden ? o => o.pauseAnims() : o => o.resumeAnims()
@@ -285,6 +293,7 @@ import * as math from '../num.js'
 import * as string from '../str.js'
 import * as h from '../handle.js'
 import ran from '../random.js'
+
 let hidden = false
 h.on(window, {
     /*blur(){
@@ -304,8 +313,8 @@ const {frame, count} = $.id
 let popped = 0
 let POP = window.POP = function() {
     popped++ || count.fadeIn()
-    debugger
-    count.textContent =`🫧 ${popped.toLocaleString()}`
+    count.show()
+    count.textContent =popped.toLocaleString()
     switch(popped) {
         case 100: registerCSSAll({'.bubble':{filter:'drop-shadow(0px 0px 6px red)'}})
             break

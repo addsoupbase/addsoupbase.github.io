@@ -16,16 +16,12 @@ if (top === window) $.id.viewframe.destroy()
 ], { duration: 500, iterations: 4, direction: 'alternate', easing: 'ease-in-out' })*/
 if (top === window) {
     $.id.goBack.setAttr({href:'../'})
-
 }
 else $.gid('viewbackground').on({
     _click() {
-        main.fadeOut()
-
+        $.body.parent.fadeOut()
         setTimeout(() => {
-
             let topWindow = parent.document.getElementById('frame')
-
             topWindow.remove()
         }, 800)
     }
