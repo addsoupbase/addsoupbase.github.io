@@ -60,3 +60,17 @@ const formProxyHandler = {
         return !target.delete(prop)
     }
 }
+export function Realm() {
+    let frame = document.createElement('iframe');
+    (document.head ??document).append(frame)
+    let out = frame.contentWindow
+    frame.remove()
+    out.call = Function('return eval(`(${arguments[0].toString})(...arguments)`)')
+    // out.eval = Function('with(this) return eval(typeof arguments[0]==="function"?`(${arguments[0].toString})()`:arguments[0])').bind(out)
+    return out
+}
+const RealmHandler = {
+    get(target, prop) {
+        if (prop === 'eval') return target.eval
+    }
+}

@@ -17,6 +17,17 @@ export function of(length, filler) {
         Array.from({length}, filler) :
         Array(length).fill(filler)
 }
+export function from(ArrayLike, map, thisArg) {
+    // Array.from checks @@iterator first, which would be slower in cases where it is a callable function
+    return'length'in ArrayLike?map?[].map.call(ArrayLike,map,thisArg):[].slice.call(ArrayLike):map?Array.from(ArrayLike,map,thisArg):[...ArrayLike]
+}
+export function forEach(ArrayLike, callback, thisArg) {
+    if ('length' in ArrayLike) return [].forEach.call(ArrayLike, callback, thisArg)
+    if (ArrayLike[Symbol.toStringTag] === 'Set') return
+}
+export function filterForEach(arrayLike, map, thisArg) {
+
+}
 export {of as with}
 export function* backwards(arrayLike) {
     for (let {length: i} = arrayLike; i--;) yield arrayLike[i]

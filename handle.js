@@ -3,7 +3,23 @@
 const sym = Symbol.for("🔔")
 //  Don't collide, and make sure its usable across realms!!
 // export const unbound = Symbol('⛓️‍💥')
-let { warn, groupCollapsed, groupEnd } = console,
+const logger = {__proto__:null}
+for(let i in console) {
+    // Because the groupCollapsed() method was suppressing errors, delay them instead
+    let old = console[i]
+    if (typeof old !== 'function') continue
+    logger[i] = DelayedLog
+    logger[`${i}Late`] = LogOutOfGroup
+    function DelayedLog(...args) {
+        args.unshift(1)
+        queueMicrotask(old.bind.apply(old, args))
+    }
+    function LogOutOfGroup(...args) {
+        args.unshift(1)
+        setTimeout(old.bind.apply(old, args))
+    }
+}
+let { warn, groupCollapsed, groupEnd } = logger,
     { isArray } = Array
 export const allEvents = new WeakMap
 let { addEventListener, removeEventListener, dispatchEvent } = globalThis.EventTarget?.prototype ?? AbortSignal.prototype
@@ -17,9 +33,8 @@ if (globalThis.document)
         el.removeChild(n)
         n = null
     } catch (e) {
-        console.debug(e)
+        logger.debug(e)
     }
-
 function isValidET(target) {
     return target &&
         (target instanceof EventTarget
@@ -117,11 +132,11 @@ function verifyEventName(target, name) {
                 else name = 'MozMousePixelScroll'
             } else name = original
         }
-        customEvents.has(name) || queueMicrotask(console.warn.bind(1, `'${original}' events might not be available on the following object:`, target))
+        customEvents.has(name) || logger.warnLate(`'${original}' events might not be available on the following object:`, target)
         return name
     } else if (`on${name}` in target || valid) return original
     //Some events like the one above don't have a handler
-    customEvents.has(original) || queueMicrotask(console.warn.bind(1, `'${original}' events might not be available on the following object:`, target))
+    customEvents.has(original) || logger.warnLate(`'${original}' events might not be available on the following object:`, target)
     return original
 }
 
@@ -209,7 +224,7 @@ export function on(target, events, signal) {
     if (!Object.keys(events).length) return target
     try {
         groupCollapsed(`on(${getLabel(target)})`)
-        console.dirxml(target)
+        logger.dirxml(target)
         const myEvents = getEventNames(target)
         if (typeof events === 'function') events = {
             [events.name]: events
@@ -235,7 +250,7 @@ export function on(target, events, signal) {
                 }
             eventName = verifyEventName(target, eventName.replace(formatEventName, ''))
             if (myEvents.has(eventName) && signal == null) {
-                queueMicrotask(warn.bind(1, `🔕 Skipped duplicate '${eventName}' listener`))
+                logger.warnLate(`🔕 Skipped duplicate '${eventName}' listener`)
                 continue
             }
             if (signal) {
@@ -252,7 +267,7 @@ export function on(target, events, signal) {
                     for (let i in detail) {
                         // i wish for in included symbols :<
                         if (i in event) {
-                            warn(`The '${i}' property of a CustomEvent was ignored since it would overwrite an existing property: `, event[i])
+                            logger.warnLate(`The '${i}' property of a CustomEvent was ignored since it would overwrite an existing property: `, event[i])
                             continue
                         }
                         event[i] = detail[i]
@@ -277,7 +292,7 @@ export function on(target, events, signal) {
             }
             addEventListener.call(target, eventName, EventHandlerWrapperFunction, options)
             if (signal)
-                console.info(`📡 '${eventName}' event added`)
+                logger.info(`📡 '${eventName}' event added`)
             else {
                 allEvents.has(target) || allEvents.set(target, new Map)
                 //A Map to hold the names & events
@@ -295,7 +310,7 @@ export function on(target, events, signal) {
                     autoabort
                 })
                 myEvents.add(eventName)
-                console.info(`🔔 '${eventName}' event added`)
+                logger.info(`🔔 '${eventName}' event added`)
             }
         }
     } catch (e) {
@@ -316,7 +331,7 @@ export function off(target, ...eventNames) {
     if (!eventNames.length || !allEvents.has(target)) return null
     try {
         groupCollapsed(`off(${getLabel(target)})`)
-        console.dirxml(target)
+        logger.dirxml(target)
         const map = allEvents.get(target),
             mySet = target[sym]
         for (let { length } = eventNames; length--;) {
@@ -324,7 +339,7 @@ export function off(target, ...eventNames) {
                 settings = map.get(name),
                 { listener } = settings
             removeEventListener.call(target, name, listener, settings)
-            map.has(name) && console.info(`🔕 '${name}' event removed`)
+            map.has(name) && logger.info(`🔕 '${name}' event removed`)
             map.delete(name)
             mySet.delete(name)
             map.size || allEvents.delete(target)
