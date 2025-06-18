@@ -37,14 +37,24 @@ export function vendorValue(prop, val) {
     }
     return val
 }
-
+try {
+    var {sessionStorage} = globalThis
+}
+catch {
+    function oops(){
+        return oops
+    }
+    sessionStorage = new Proxy(oops, {
+        get:oops
+    })
+}
 const alreadyLogged = new Set,
     beenHereBefore = sessionStorage.getItem('css'),
     allVendors = RegExp(
-        `-(?:${'webkit moz apple khtml konq o ms xv atsc wap ah hp ro rim tc fso icab epub'.replace(/\s/g, '|')})-`
+        `^-(?:${'webkit moz apple khtml konq o ms xv atsc wap ah hp ro rim tc fso icab epub'.replace(/\s/g, '|')})-`
         // internal
     ),
-    allVendors2 = /(?:prince|mso)-/,
+    allVendors2 = /^(?:prince|mso)-/,
     dontRedo = new Map,
     sup = CSS.supports,
     //  (that i have used before)
@@ -74,7 +84,7 @@ export function vendor(prop, val, silent) {
             sup(prefix = `-moz-osx-${prop}`, val) ||
             // Firefox
             sup(prefix = `-apple-${prop}`, val) ||
-            // Apple!
+            // Apple
             sup(prefix = `-o-${prop}`, val) ||
             // Opera
             sup(prefix = `-ms-${prop}`, val) ||
@@ -129,7 +139,7 @@ export function importFont(name, src) {
         font.load().then(document.fonts.add, console.warn)
         return font
     }
-    throw Error('Src and name required')
+    throw Error('Source and name required')
 }
 
 const defrt = /-./g,
@@ -273,7 +283,7 @@ export function supportedPElementVendor(element) {
         if (supportsRule(already = `${before}::${already}`)) return already
         for (let {length: i} = theNames; i--;) {
             let vendor = theNames[i]
-            let name = `::-${vendor}-${_element}`
+                , name = `::-${vendor}-${_element}`
             if (supportsRule(name)) return `${before}${name}`
         }
         if (supportsRule(element = `::prince-${_element}`) ||
@@ -327,7 +337,6 @@ export function boxShadow({
         all.add(name)
         return {name: `--${name}`, initialValue, inherits, syntax}
     }
-
     !function (...allProps) {
         const sheet = getDefaultStyleSheet()
         //    Some default CSS..
@@ -380,8 +389,9 @@ export function boxShadow({
                 }
             sessionStorage.setItem('defaultCSS', all.join('✕'))
         } catch (e) {
-            console.debug(e)
+            console.error(e)
         }
+
         void/*async*/function () {
 
             // function Yield() {
@@ -411,7 +421,7 @@ export function boxShadow({
                 }
             }
             allProps = null
-            beenHereBefore ?
+            typeof beenHereBefore==='string'?
                 sheet.textContent = `${sheet.textContent}*{${beenHereBefore}}` :
                 registerCSS('*', universal, true),
                 sessionStorage.setItem('css', toCSS(universal, true))

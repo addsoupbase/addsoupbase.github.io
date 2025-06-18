@@ -29,15 +29,24 @@ class StorageProxy {
         }
     }
     constructor(storage) {
-        if (storage instanceof Storage)
+        // if (storage instanceof Storage)
             return new Proxy(storage, StorageProxy.#handler)
-        throw TypeError("Illegal constructor")
+        // throw TypeError("Illegal constructor")
     }
 }
-
-export const lstorage = globalThis.localStorage &&
+export let lstorage, sstorage
+try {
+    lstorage = localStorage
+    sstorage = sessionStorage
+}
+catch {
+    alert('Please enable storage permissions.')
+    lstorage = {}
+    sstorage = {}
+}
+lstorage =
     new StorageProxy(localStorage),
-    sstorage = globalThis.sessionStorage &&
+    sstorage =
         new StorageProxy(sessionStorage)
 /**
  * @deprecated

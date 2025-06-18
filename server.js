@@ -25,8 +25,8 @@ async function go(req) {
     //     if (cached)
             // return cached
         let url = new URL(req.url, `http://localhost:${port}`)
-        if(url.pathname.startsWith('/cute-emojis'))
-        return Response.redirect(new URL(url.pathname,'https://addsoupbase.github.io/'),301)
+        // if(url.pathname.startsWith('/cute-emojis'))
+        // return Response.redirect(new URL(url.pathname,'https://addsoupbase.github.io/'),301)
       /*  if(url.pathname.startsWith('/marbles/play')) {
             if (url.searchParams.has('level')) {
                 let level = url.searchParams.get('level')
