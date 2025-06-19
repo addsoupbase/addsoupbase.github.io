@@ -102,7 +102,9 @@ async function getStrFromFile(pathname, type) {
 }
 
 function modifyJS(script, url) {
-    return `console.time('${url}');${script};console.timeEnd('${url}')`
+    return `console.time('${url}');
+    ${script};
+    console.timeEnd('${url}')`
 }
 
 function modifyHTML(html) {

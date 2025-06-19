@@ -12,7 +12,7 @@
     <meta property="og:image:height" content="500">
     <meta property="og:image:type" content="image/png">
     <!--    <meta name="twitter:card" content="summary_large_image">-->
-    <link rel="icon" type="image/x-icon" href="favicon.ico" defer>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <meta name="robots" content="index">
     <meta name="color-scheme" content="normal">
     <meta property="og:type" content="website">
@@ -195,6 +195,7 @@
             // }
             // else {
             currentThingy.setAttr({src: url})
+            // currentThingy.contentWindow.location.assign(url)
             await new Promise((resolve, reject) => {
                 currentThingy.onerror = reject
                 currentThingy.onload = resolve
@@ -212,8 +213,7 @@
         }
     }
 
-    let diary = $.gid('diary')
-    let m = $.gid('main')
+    let {diary, main:m} = $.id
     goBy(-1)
     setEntry(getDate())
 </script>

@@ -49,6 +49,7 @@ const regex = {
         onXYZ: /^on\w+$/
     },
     me = Symbol('base'),
+    saved = Symbol('Saved attributes'),
     all = new WeakMap,
     revokes = new WeakMap
 
@@ -138,7 +139,7 @@ const attrStyleMap = 'StylePropertyMap' in window
         get(targ, prop, r) {
             let a = this[0]
             return targ.hasOwnProperty(prop) ? Reflect.get(targ, prop, r) :
-                cacheFunction(Reflect.get(a, prop , a), a)
+                cacheFunction(Reflect.get(a, prop, a), a)
             // ⛓️‍💥 'Illegal invocation' if function is not bound
         },
         set(targ, prop, value) {
@@ -230,668 +231,730 @@ let computed = Symbol('🔬')
 let styles = Symbol('🖌')
 // let shadow = Symbol('🌴')
 let props = Object.getOwnPropertyDescriptors(class _
-    extends null {
-    static cancel(o) {
-        o.cancel()
-    }
-
-    static pause(o) {
-        o.pause()
-    }
-
-    static play(o) {
-        o.playState === 'paused' && o.play()
-    }
-
-    static finish(o) {
-        o.finish()
-    }
-
-    static restart(o) {
-        o.currentTime = 0
-        o.play()
-    }
-
-    get isVisible() {
-        let rect = base(this).getBoundingClientRect()
-            , viewHeight = Math.max($(document.documentElement)?.clientHeight || 0, innerHeight)
-        return !(rect.bottom < 0 || rect.top - viewHeight >= 0)
-    }
-
-    getComputedStyle() {
-        return this.computed
-    }
-
-    get computed() {
-        return this[computed] ??= getComputedStyle(base(this))
-    }
-
-    /*
-        createState(identifier, child, callback) {
-            let t = this[states]
-            if (t.has(identifier)) throw Error("Already present")
-            //if (!(typeof identifier).match(/number|string|symbol|bigint/)) throw TypeError(`State must be a primitive`)
-            // console.assert(/number|string|symbol|bigint/.test(typeof identifier), `State should be a primitive:\n %o`, identifier)
-            let cached = $('template')
-            cached.content.appendChild(base(child))
-            t.set(identifier, {
-                cached,
-                callback
-            })
-            return cached.content
+        extends null {
+        static cancel(o) {
+            o.cancel()
         }
 
-        getState(identifier) {
-            return this[states].get(identifier)?.cached.content ?? null
+        static pause(o) {
+            o.pause()
         }
 
-        editState(id, func) {
-            func(this[states].get(id).cached.content)
+        static play(o) {
+            o.playState === 'paused' && o.play()
         }
 
-        deleteState(identifier) {
-            let t = this[states]
-            if (t.has(identifier)) {
-                let state = t.get(identifier).cached;
-                [].forEach.call(state.content.querySelectorAll('*'), destroyEach)
-                t.delete(identifier)
+        static finish(o) {
+            o.finish()
+        }
+
+        static restart(o) {
+            o.currentTime = 0
+            o.play()
+        }
+
+        get isVisible() {
+            let rect = base(this).getBoundingClientRect()
+                , viewHeight = Math.max($(document.documentElement)?.clientHeight || 0, innerHeight)
+            return !(rect.bottom < 0 || rect.top - viewHeight >= 0)
+        }
+
+        getComputedStyle() {
+            return this.computed
+        }
+
+        get computed() {
+            return this[computed] ??= getComputedStyle(base(this))
+        }
+
+        /*
+            createState(identifier, child, callback) {
+                let t = this[states]
+                if (t.has(identifier)) throw Error("Already present")
+                //if (!(typeof identifier).match(/number|string|symbol|bigint/)) throw TypeError(`State must be a primitive`)
+                // console.assert(/number|string|symbol|bigint/.test(typeof identifier), `State should be a primitive:\n %o`, identifier)
+                let cached = $('template')
+                cached.content.appendChild(base(child))
+                t.set(identifier, {
+                    cached,
+                    callback
+                })
+                return cached.content
             }
-        }
-        setState(identifier) {
-            if (identifier === null) {
-                this.lastState = this.currentState
-                this.currentState = null
-                return this.destroyChildren()
+
+            getState(identifier) {
+                return this[states].get(identifier)?.cached.content ?? null
             }
-            let t = this[states]
-            if (!t.has(identifier)) {
+
+            editState(id, func) {
+                func(this[states].get(id).cached.content)
+            }
+
+            deleteState(identifier) {
+                let t = this[states]
+                if (t.has(identifier)) {
+                    let state = t.get(identifier).cached;
+                    [].forEach.call(state.content.querySelectorAll('*'), destroyEach)
+                    t.delete(identifier)
+                }
+            }
+            setState(identifier) {
+                if (identifier === null) {
+                    this.lastState = this.currentState
+                    this.currentState = null
+                    return this.destroyChildren()
+                }
+                let t = this[states]
+                if (!t.has(identifier)) {
+                    this.destroyChildren()
+                    .push($('<samp style="font-size:30px; color:red;">INVALID STATE</samp>'))
+                        .currentState = null
+                    reportError(identifier)
+                    throw TypeError('Invalid state')
+                }
+                let {cached: cache, callback} = t.get(identifier)
+                    , frag = cache.content
+                    , cached = document.importNode(frag, true)
+                    , staticBatch = [...frag.querySelectorAll('*')]
+                    , newBatch = [...cached.querySelectorAll('*')]
+                    , withIds = []
+                staticBatch.forEach(forEach)
                 this.destroyChildren()
-                .push($('<samp style="font-size:30px; color:red;">INVALID STATE</samp>'))
-                    .currentState = null
-                reportError(identifier)
-                throw TypeError('Invalid state')
+                callback?.apply(cached, withIds)
+                base(this).appendChild(cached)
+                this.lastState = this.currentState
+                this.currentState = identifier
+
+                function forEach(el, index) {
+                    el = prox(el)
+                    el.hasAttribute('id') && withIds.push(el) // its considered important
+                    let {events} = el
+                    if (!events) return
+                    let clone = prox(newBatch[index])
+                    let staticEvents = h.allEvents.get(base(el))
+                    events.forEach(eventThing)
+
+                    function eventThing(name) {
+                        let {
+                            listener,
+                            passive,
+                            capture,
+                            handler,
+                            prevents,
+                            stopProp,
+                            once,
+                            stopImmediateProp,
+                            onlyTrusted
+                        } = staticEvents.get(name)
+                        if (once) name = `_${name}`
+                        if (passive) name = `^${name}`
+                        if (capture) name = `%${name}`
+                        if (stopProp) name = `&${name}`
+                        if (prevents) name = `$${name}`
+                        if (onlyTrusted) name = `?${name}`
+                        if (stopImmediateProp) name = `!${name}`
+                        clone.on({
+                            [name]: listener[h.unbound][h.unbound]
+                        }, handler)
+                    }
+                }
             }
-            let {cached: cache, callback} = t.get(identifier)
-                , frag = cache.content
-                , cached = document.importNode(frag, true)
-                , staticBatch = [...frag.querySelectorAll('*')]
-                , newBatch = [...cached.querySelectorAll('*')]
-                , withIds = []
-            staticBatch.forEach(forEach)
-            this.destroyChildren()
-            callback?.apply(cached, withIds)
-            base(this).appendChild(cached)
-            this.lastState = this.currentState
-            this.currentState = identifier
+        */
+        toJSON() {
+            return base(this).outerHTML
+        }
 
-            function forEach(el, index) {
-                el = prox(el)
-                el.hasAttribute('id') && withIds.push(el) // its considered important
-                let {events} = el
-                if (!events) return
-                let clone = prox(newBatch[index])
-                let staticEvents = h.allEvents.get(base(el))
-                events.forEach(eventThing)
+        xpath(xpath, callback, type, thisArg) {
+            let i = document.evaluate(xpath, base(this), null, type ?? 0, null),
+                el,
+                n = 0
+            while (el = i.iterateNext()) callback.call(thisArg, el instanceof HTMLElement ? prox(el) : el, n++, i)
+        }
 
-                function eventThing(name) {
-                    let {
-                        listener,
-                        passive,
-                        capture,
-                        handler,
-                        prevents,
-                        stopProp,
-                        once,
-                        stopImmediateProp,
-                        onlyTrusted
-                    } = staticEvents.get(name)
-                    if (once) name = `_${name}`
-                    if (passive) name = `^${name}`
-                    if (capture) name = `%${name}`
-                    if (stopProp) name = `&${name}`
-                    if (prevents) name = `$${name}`
-                    if (onlyTrusted) name = `?${name}`
-                    if (stopImmediateProp) name = `!${name}`
-                    clone.on({
-                        [name]: listener[h.unbound][h.unbound]
-                    }, handler)
+        get orphans() {
+            let me = base(this)
+            if (me.tagName === 'TEMPLATE')
+                return me.content
+            let out = document.createDocumentFragment(),
+                {firstElementChild} = me
+            while (firstElementChild)
+                out.appendChild(me.removeChild(firstElementChild)), {firstElementChild} = me
+            return out
+        }
+
+        pass() {
+            let {orphans} = this
+            this.destroy()
+            return orphans
+        }
+
+        empty() {
+            return this.orphans
+        }
+
+        get clone() {
+            return prox(base(this).cloneNode(true))
+        }
+
+        destroy() {
+            this.resetSelfRules()
+            .cancelAnims()
+            // let myStates = this[states]
+            /*for (let [key, {
+                cached: val
+            }] of myStates) {
+                myStates.delete(key)
+                for (let el of val.content.querySelectorAll('*'))
+                    prox(el).destroy()
+            }*/
+            if ($.last === this) $.last = null
+            let my = base(this.destroyChildren())
+            do my.remove()
+            while (my.isConnected /*document.contains(my)*/)
+            let myevents = h.getEventNames(my)
+            myevents.size && Reflect.apply(this.off, this, myevents)
+            all.delete(my)
+            // inte?.unobserve(my)
+            // resi.unobserve(my)
+            revoke(this)
+            return null
+        }
+
+        destroyChildren() {
+            let {lastElementChild} = this
+            while (lastElementChild)
+                prox(lastElementChild).destroy(), {lastElementChild} = this
+        }
+
+        /**
+         * @deprecated
+         * */
+        $(html, props, ...children) {
+            debugger
+            let out = $(html, props, ...children)
+            out.parent = this
+            return out
+        }
+
+        on(events, signal) {
+            if (arguments.length > 2) signal = arguments[2]
+            let me = this
+            if (typeof events === 'function') {
+                let old = events
+                events = ProxyEventWrapperFunction
+
+                function ProxyEventWrapperFunction(...args) {
+                    // just avoid bind()
+                    Reflect.apply(old, me, args)
+                }
+            } else for (let i in events) events[i] = function (old) {
+                return ProxyEventWrapperFunction
+
+                function ProxyEventWrapperFunction(...args) {
+                    Reflect.apply(old, me, args)
+                }
+            }(events[i])
+            h.on(base(this), events, signal)
+        }
+
+        off(...events) {
+            Reflect.apply(h.off, null, [base(this)].concat(events))
+        }
+
+        set(prop, val) {
+            base(this)[prop] = val
+        }
+
+        getByTag(tag) {
+            return Array.from(base(this).getElementsByTagName(tag), prox)
+        }
+
+        debounce(events, interval, signal) {
+            for (let i in events) {
+                let old = events[i]
+                events[i] = f.debounce(old, interval)
+            }
+            this.on(events, signal)
+        }
+
+        /* throttle(events, interval) {
+             for (let i in events) {
+                 let old = events[i]
+                 events[i] = f.throttle(old, interval)
+             }
+             this.on(events)
+     }*/
+        delegate(events, filter, includeSelf, signal) {
+            let me = base(this)
+            filter ??= function () {
+            }
+            for (let i in events) {
+                if (i.includes('@')) throw SyntaxError("Conflicting usage of a 'currentTarget' only delegating event handler")
+                let old = events[i]
+                events[i] = DelegationFunction
+
+                function DelegationFunction(...args) {
+                    let {target} = args[0],
+                        pr = prox(target);
+                    (me !== target || includeSelf) && (filter(pr) ?? 1) && Reflect.apply(old, pr, args)
+                }
+            }
+            this.on(events, false, signal)
+        }
+
+        get events() {
+            return h.getEventNames(base(this))
+        }
+
+        setStyles(styles) {
+            /* for (let prop in styles) {
+                 let ogValue = styles[prop]
+                 let fixedProp = css.toCaps(css.vendor(css.toDash(prop), ogValue))
+                 ogValue ? this.style[fixedProp] = ogValue //out.push(`${fixedProp}: ${ogValue}`)
+                     :
+                     delete this.style[fixedProp]
+             }
+             return this*/
+            Object.assign(this.styles, styles)
+            //base(this).style.cssText = out.join(';')
+        }
+
+        static canBeDisabled = /^HTML(?:Button|FieldSet|OptGroup|Option|Select|TextArea|Input)Element$/
+
+        disable() {
+            if (_.canBeDisabled.test(h.getLabel(base(this)))) this.setAttr({disabled: true})
+            else this.saveAttr('contenteditable','inert')
+            .setAttr({
+                _disabled: 'true',
+                contenteditable: false,
+                inert: true
+            }).setStyles({
+                // '--user-focus':'none',
+                '--user-modify': 'read-only',
+                '--user-input': 'none',
+                // 'pointer-events': 'none',
+                '--interactivity': 'inert'
+            })
+        }
+
+        enable() {
+            if (_.canBeDisabled.test(h.getLabel(base(this)))) this.setAttr({disabled: false})
+            else this.restoreAttr('contenteditable','inert')
+            .setAttr({_disabled: 'false'})
+            .setStyles({
+                '--user-modify':'','--user-input':'',
+                // 'pointer-events':'',
+                '--interactivity': ''
+            })
+        }
+
+        saveAttr(...attributes) {
+            let me = base(this)
+            if (!attributes.length) {
+                let s = this[saved] = {__proto__: null},
+                    attributes = me.getAttributeNames()
+                for (let {length: i} = attributes; i--;) {
+                    let attr = attributes[i],
+                        val = me.getAttribute(attr)
+                    s[attr] = val || true
+                }
+            } else {
+                let s = this[saved]
+                for (let {length: i} = attributes; i--;) {
+                    let attr = attributes[i],
+                        val = me.getAttribute(attr)
+                    s[attr] = val === '' ? true : me.getAttribute(attr)
                 }
             }
         }
-    */
-    toJSON() {
-        return base(this).outerHTML
-    }
 
-    xpath(xpath, callback, type, thisArg) {
-        let i = document.evaluate(xpath, base(this), null, type ?? 0, null),
-            el,
-            n = 0
-        while (el = i.iterateNext())  callback.call(thisArg, el instanceof HTMLElement ? prox(el) : el, n++, i)
-    }
-
-    get orphans() {
-        let me = base(this)
-        if (me.tagName === 'TEMPLATE')
-            return me.content
-        let out = document.createDocumentFragment(),
-            {firstElementChild} = me
-        while (firstElementChild)
-            out.appendChild(me.removeChild(firstElementChild)), {firstElementChild} = me
-        return out
-    }
-
-    pass() {
-        let {orphans} = this
-        this.destroy()
-        return orphans
-    }
-
-    empty() {
-        return this.orphans
-    }
-
-    get clone() {
-        return prox(base(this).cloneNode(true))
-    }
-
-    destroy() {
-        this.resetSelfRules()
-        .cancelAnims()
-        // let myStates = this[states]
-        /*for (let [key, {
-            cached: val
-        }] of myStates) {
-            myStates.delete(key)
-            for (let el of val.content.querySelectorAll('*'))
-                prox(el).destroy()
-        }*/
-        if ($.last === this) $.last = null
-        let my = base(this.destroyChildren())
-        do my.remove()
-        while (my.isConnected /*document.contains(my)*/)
-        let myevents = h.getEventNames(my)
-        myevents.size && Reflect.apply(this.off, this, myevents)
-        all.delete(my)
-        // inte?.unobserve(my)
-        // resi.unobserve(my)
-        revoke(this)
-        return null
-    }
-
-    destroyChildren() {
-        let {lastElementChild} = this
-        while (lastElementChild)
-            prox(lastElementChild).destroy(), {lastElementChild} = this
-    }
-
-    /**
-     * @deprecated
-     * */
-    $(html, props, ...children) {
-        debugger
-        let out = $(html, props, ...children)
-        out.parent = this
-        return out
-    }
-
-    on(events, signal) {
-        if (arguments.length > 2) signal = arguments[2]
-        let me = this
-        if (typeof events === 'function') {
-            let old = events
-            events = ProxyEventWrapperFunction
-
-            function ProxyEventWrapperFunction(...args) {
-                // just avoid bind()
-                Reflect.apply(old, me, args)
-            }
-        } else for (let i in events) events[i] = function (old) {
-            return ProxyEventWrapperFunction
-
-            function ProxyEventWrapperFunction(...args) {
-                Reflect.apply(old, me, args)
-            }
-        }(events[i])
-        h.on(base(this), events, signal)
-    }
-
-    off(...events) {
-        Reflect.apply(h.off, null, [base(this)].concat(events))
-    }
-
-    set(prop, val) {
-        base(this)[prop] = val
-    }
-
-    getByTag(tag) {
-        return Array.from(base(this).getElementsByTagName(tag), prox)
-    }
-
-    debounce(events, interval, signal) {
-        for (let i in events) {
-            let old = events[i]
-            events[i] = f.debounce(old, interval)
-        }
-        this.on(events, signal)
-    }
-
-    /* throttle(events, interval) {
-         for (let i in events) {
-             let old = events[i]
-             events[i] = f.throttle(old, interval)
-         }
-         this.on(events)
- }*/
-    delegate(events, filter, includeSelf, signal) {
-        let me = base(this)
-        filter ??= function () {
-        }
-        for (let i in events) {
-            if (i.includes('@')) throw SyntaxError("Conflicting usage of a 'currentTarget' only delegating event handler")
-            let old = events[i]
-            events[i] = DelegationFunction
-
-            function DelegationFunction(...args) {
-                let {target} = args[0],
-                    pr = prox(target);
-                (me !== target || includeSelf) && (filter(pr) ?? 1) && Reflect.apply(old, pr, args)
+        restoreAttr(...attributes) {
+            let s = this[saved]
+            if (!attributes.length) attributes = base(this).getAttributeNames()
+            for (let {length: i} = attributes; i--;) {
+                let attr = attributes[i]
+                this.setAttr({[attr]: s[attr]})
             }
         }
-        this.on(events, false, signal)
-    }
 
-    get events() {
-        return h.getEventNames(base(this))
-    }
-
-    setStyles(styles) {
-        /* for (let prop in styles) {
-             let ogValue = styles[prop]
-             let fixedProp = css.toCaps(css.vendor(css.toDash(prop), ogValue))
-             ogValue ? this.style[fixedProp] = ogValue //out.push(`${fixedProp}: ${ogValue}`)
-                 :
-                 delete this.style[fixedProp]
-         }
-         return this*/
-        Object.assign(this.styles, styles)
-        //base(this).style.cssText = out.join(';')
-    }
-
-    setAttr(attr) {
-        let me = base(this)
-        for (let i in attr) {
-            let n = i.split(',')
-            let val = attr[i]
-            if (regex.onXYZ.test(i)) throw TypeError('Inline event handlers are deprecated')
-            /*   switch (i) {
-                   case 'disabled': me.setAttribute('aria-disabled', !!val); break
-                   case 'checked': me.setAttribute('aria-checked', !!val); break
-                   case 'hidden': me.setAttribute('aria-hidden', !!val); break
-                   case 'required': me.setAttribute('aria-required', !!val); break
-                   case 'readonly': me.setAttribute('aria-readonly', !!val); break
-                   case 'placeholder': me.setAttribute('aria-placeholder', val); break
-               }*/
-            for(let {length: a} = n; a--;) {
-                let prop =  ariaOrData(n[a])
-            if (typeof val === 'boolean') me.toggleAttribute(prop, val)
-            else if (val === '' || val == null) me.removeAttribute(prop)
-            else me.setAttribute(prop, val)
+        setAttr(attr) {
+            let me = base(this)
+            for (let i in attr) {
+                let n = i.split(',')
+                let val = attr[i]
+                if (regex.onXYZ.test(i)) throw TypeError('Inline event handlers are deprecated')
+                /*   switch (i) {
+                       case 'disabled': me.setAttribute('aria-disabled', !!val); break
+                       case 'checked': me.setAttribute('aria-checked', !!val); break
+                       case 'hidden': me.setAttribute('aria-hidden', !!val); break
+                       case 'required': me.setAttribute('aria-required', !!val); break
+                       case 'readonly': me.setAttribute('aria-readonly', !!val); break
+                       case 'placeholder': me.setAttribute('aria-placeholder', val); break
+                   }*/
+                for (let {length: a} = n; a--;) {
+                    let prop = ariaOrData(n[a])
+                    if (typeof val === 'boolean') me.toggleAttribute(prop, val)
+                    else if (val === '' || val == null) me.removeAttribute(prop)
+                    else me.setAttribute(prop, val)
+                }
             }
         }
-    }
 
-    get anims() {
-        return base(this).getAnimations()
-    }
-
-    static subtree = {
-        subtree: true
-    }
-
-    get allAnims() {
-        return base(this).getAnimations(_.subtree)
-    }
-
-    cancelAnims() {
-        this.allAnims.forEach(_.cancel)
-    }
-
-    resumeAnims() {
-        this.allAnims.forEach(_.play)
-    }
-
-    pauseAnims() {
-        this.allAnims.forEach(_.pause)
-    }
-
-    finishAnims() {
-        this.allAnims.forEach(_.finish)
-    }
-
-    restartAnims() {
-        this.allAnims.forEach(_.restart)
-    }
-
-    static nopacity = {
-        opacity: 0
-    }
-    static onepacity = {
-        opacity: 1
-    }
-    static defaultDura = 500
-
-    fadeOut(duration) {
-        duration ||= _.defaultDura
-        return this.animate([{}, _.nopacity], {
-            duration,
-            easing: 'ease',
-            // composite: 'replace',
-            iterations: 1
-        }).finished.then(this.hide.bind(this, 3))
-    }
-
-    fadeIn(duration) {
-        duration ||= _.defaultDura
-        this.show(3)
-        return this.animate([_.nopacity, _.onepacity], {
-            duration,
-            easing: 'ease',
-            iterations: 1,
-            // composite: 'replace',
-        }).finished
-    }
-
-    fadeFromTo(from, to, settings) {
-        let duration = (settings ??= {}).duration || _.defaultDura
-            , easing = settings.easing ?? 'ease'
-        return this.animate([{
-            opacity: from
-        }, {
-            opacity: to
-        }], {
-            duration,
-            easing,
-            composite: 'replace',
-            fill: 'forwards'
-        })
-    }
-
-    replace(...elements) {
-        Reflect.apply(HTMLElement.prototype.replaceWith, base(this), elements.map(base))
-    }
-
-    wrap(parent) {
-        let {parent: p} = this
-        ;(this.parent = $(parent)).parent = p
-    }
-
-    unwrap() {
-        let {parent} = this
-            , c = this.pass()
-        parent.appendChild(c)
-        return null
-    }
-
-    trade(other) {
-        other = $(other)
-        let o = other.orphans,
-            oo = this.orphans
-        other.appendChild(oo)
-        this.appendChild(o)
-    }
-
-    static hidden = {
-        hidden: true
-    }
-    static notHidden = {
-        hidden: false
-    }
-
-    /**
-     *
-     * @param {int} t
-     * # 1 - 5
-     */
-    hide(t) {
-        switch (t) {
-            case 1:
-            default:
-                this.setAttr(_.hidden);
-                break
-            case 2:
-                base(this).style.visibility = 'hidden';
-                break
-            case 3:
-                base(this).style.display = 'none';
-                break
-            case 4:
-                this.setStyles({'--content-visibility': 'hidden'});
-                break
-            case 5:
-                this.setStyles({
-                    opacity: '0',
-                    '--user-input': 'none',
-                    '--user-focus': 'none',
-                    '--user-select': 'none',
-                    'pointer-events': 'none',
-                    '--user-modify': 'read-only',
-                    '--interactivity':'inert'
-                })
-                .setAttr({_hidden: "true", contenteditable: 'false',inert:true})
-                break
+        get anims() {
+            return base(this).getAnimations()
         }
-    }
 
-    /**
-     *
-     * @param {int} t
-     * # 1 - 5
-     */
-    show(t) {
-        switch (t) {
-            case 1:
-            default:
-                this.setAttr(_.notHidden);
-                break
-            case 2:
-                base(this).style.visibility = 'visible';
-                break
-            case 3:
-                base(this).style.display = '';
-                break
-            case 4:
-                this.setStyles({'--content-visibility': ''});
-                break
-            case 5:
-                this.setStyles({
-                    opacity: '', '--user-input,--user-focus,--user-select,pointer-events,--user-modify,--interactivity': '',
-                })
-                .setAttr({_hidden: "", contenteditable: '',inert: false})
-                break
+        static subtree = {
+            subtree: true
         }
-    }
 
-    equals(other) {
-        let temp = $(other)
-        let out = base(temp).isEqualNode(base(this))
-        temp.destroy?.()
-        return out
-    }
-
-    static append(child) {
-        doc.appendChild(base(child))
-    }
-
-    push(...args) {
-        args.flat(1 / 0).forEach(_.append)
-        base(this).appendChild(doc)
-    }
-
-    unshift(...args) {
-        args.flat(1 / 0).forEach(_.append)
-        base(this).prepend(doc)
-    }
-
-    //  i tried SO hard to make treewalker useful but it did NOT impress me!
-    //*
-    treeWalker(whatToShow, callback, filter, thisArg) {
-        let walker = document.createTreeWalker(base(this), whatToShow ?? NodeFilter.SHOW_ALL, filter_func)
-        filter ??= function () {
-            return 1
+        get allAnims() {
+            return base(this).getAnimations(_.subtree)
         }
-        let current,
-            i = 0,skip = NodeFilter.FILTER_SKIP,
-            accept  = NodeFilter.FILTER_ACCEPT
-        while (current = walker.nextNode())  callback.call(thisArg ?? this, getValid(current) ? prox(current) : current, i++, walker)
-        function filter_func(node) {
-            return filter(node)?accept:skip
+
+        cancelAnims() {
+            this.allAnims.forEach(_.cancel)
         }
-    }
 
-    * [Symbol.iterator]() {
-        let all = base(this).getElementsByTagName('*')
-        for (let {length: i} = all; i--;) yield prox(all[i])
-    }
+        resumeAnims() {
+            this.allAnims.forEach(_.play)
+        }
 
-    [Symbol.toPrimitive]() {
-        throw TypeError('Cannot convert Element to a primitive value')
-        // 🔏 Don't want to accidentally convert to a string for stuff like
-        //append, prepend, etc.
-    }
+        pauseAnims() {
+            this.allAnims.forEach(_.pause)
+        }
 
-    /*find(selector) {
-    return this.treeWalker(func).next().value
-    function func(node) { return node.matches(selector) }
-    }
-    findAll(selector) {
-    return [...this.treeWalker(func)]
-    function func(node) { return node.matches(selector) }
-    }*/
-    resetSelfRules() {
-        for (let i in this.selfRules)
-            try {
-                customRules.deleteRule([].indexOf.call(customRules.cssRules, this.selfRules[i]))
-            } finally {
-            }
-    }
+        finishAnims() {
+            this.allAnims.forEach(_.finish)
+        }
 
-    addSelfRule(selector, cssStuff) {
-        const og = selector
-        let id
-        try {
-            if (base(this).hasAttribute('id')) id = base(this).getAttribute('id')
-            else do id = gen()
-            while (document.getElementById(id))
-            if (selector.includes('::')) selector = css.pev(selector)
-            else if (selector.includes(':')) selector = css.pcv(selector)
-            const final = `#${CSS.escape(id)} ${selector}{${(css.toCSS(cssStuff))}}`
-            let existing = this.selfRules[css.formatStr(selector.replace(regex.space, ''))]
-            // for (let i = 5; i--;) try {
-            existing ? existing.insertRule(final) :
-                (this.selfRules[css.formatStr(selector.replace(regex.space, ''))] = customRules.cssRules[customRules.insertRule(final)])
-            this.setAttr({
-                id
+        restartAnims() {
+            this.allAnims.forEach(_.restart)
+        }
+
+        static nopacity = {
+            opacity: 0
+        }
+        static onepacity = {
+            opacity: 1
+        }
+        static defaultDura = 500
+
+        fadeOut(duration) {
+            duration ||= _.defaultDura
+            return this.animate([{}, _.nopacity], {
+                duration,
+                easing: 'ease',
+                // composite: 'replace',
+                iterations: 1
+            }).finished.then(this.hide.bind(this, 3))
+        }
+
+        fadeIn(duration) {
+            duration ||= _.defaultDura
+            this.show(3)
+            return this.animate([_.nopacity, _.onepacity], {
+                duration,
+                easing: 'ease',
+                iterations: 1,
+                // composite: 'replace',
+            }).finished
+        }
+
+        fadeFromTo(from, to, settings) {
+            let duration = (settings ??= {}).duration || _.defaultDura
+                , easing = settings.easing ?? 'ease'
+            return this.animate([{
+                opacity: from
+            }, {
+                opacity: to
+            }], {
+                duration,
+                easing,
+                composite: 'replace',
+                fill: 'forwards'
             })
-        } catch {
-            css.badCSS(`⛓️‍💥 Unrecognized CSS rule at '${og}'`)
         }
-        // }
-        // catch(e) {
-        // if (!i) throw e
-        // await new Promise(requestAnimationFrame)
-        // continue
-        // }
-    }
 
-    static forEach(frame) {
-        for (let prop in frame) {
-            let val = `${frame[prop]}`
-            frame[css.capVendor(prop, val)] ??= val
+        replace(...elements) {
+            Reflect.apply(HTMLElement.prototype.replaceWith, base(this), elements.map(base))
         }
-        // Firefox warns of empty string
-    }
 
-    until(good, bad, timeout) {
-        return h.until(base(this), good, bad, timeout)
-    }
-
-    animate(keyframes, options) {
-        (options ??= {}).timing ??= 'ease'
-        options.iterations ??= 1
-        options.pseudoElement &&= css.pev(options.pseudoElement)
-        keyframes.forEach(_.forEach)
-        return base(this).animate(keyframes, options)
-    }
-
-    set after(val) {
-        base(this).after(base(val))
-    }
-
-    set before(val) {
-        base(this).before(base(val))
-    }
-    eval(script) {
-        // mimic inline event handlers (rarely needed)
-        return Function('with(document)with(this)return eval(arguments[0])').call(base(this),script)
-    }
-    get after() {
-        let {nextElementSibling} = base(this)
-        return prox(nextElementSibling)
-    }
-
-    get before() {
-        let {previousElementSibling} = base(this)
-        return prox(previousElementSibling)
-    }
-
-    set parent(parent) {
-        parent ? base(parent).appendChild(base(this)) : base(this).remove()
-    }
-
-    get parent() {
-        let parent = base(this).parentElement
-        return prox(parent)
-    }
-
-    /* get gc() {
-    // Ensure objects are being properly garbage collected
-         return new Promise(callback => {
-             cleanup.register(base(this), {age:this.age,callback})
-         })
-     }*/
-    get first() {
-        let {firstElementChild} = base(this)
-        return prox(firstElementChild)
-    }
-
-    get last() {
-        let {lastElementChild} = base(this)
-        return prox(lastElementChild)
-    }
-
-    get ancestors() {
-        return base(this).getElementsByTagName('*').length
-    }
-
-    busy(busy) {
-        this.setAttr({
-            _busy: `${!!busy}`
-        })
-        .setStyles({
-            cursor: busy ? 'progress' : ''
-        })
-    }
-
-    copyAttr(other) {
-        let me = base(this),
-            attr = other.getAttributeNames()
-        for (let {length: i} = attr; i--;) {
-            let name = attr[i]
-            me.setAttribute(name, other.getAttribute(name))
+        wrap(parent) {
+            let {parent: p} = this
+            ;(this.parent = $(parent)).parent = p
         }
-    }
-}.prototype)
+
+        unwrap() {
+            let {parent} = this
+                , c = this.pass()
+            parent.appendChild(c)
+            return null
+        }
+
+        trade(other) {
+            other = $(other)
+            let o = other.orphans,
+                oo = this.orphans
+            other.appendChild(oo)
+            this.appendChild(o)
+        }
+
+        static hidden = {
+            hidden: true
+        }
+        static notHidden = {
+            hidden: false
+        }
+
+        /**
+         *
+         * @param {int} t
+         * # 1 - 5
+         */
+        hide(t) {
+            switch (t) {
+                case 1:
+                default:
+                    this.setAttr(_.hidden);
+                    break
+                case 2:
+                    base(this).style.visibility = 'hidden';
+                    break
+                case 3:
+                    base(this).style.display = 'none';
+                    break
+                case 4:
+                    this.setStyles({'--content-visibility': 'hidden'});
+                    break
+                case 5:
+                    this.setStyles({
+                        opacity: '0',
+                        '--user-input': 'none',
+                        '--user-focus': 'none',
+                        '--user-select': 'none',
+                        'pointer-events': 'none',
+                        '--user-modify': 'read-only',
+                        '--interactivity': 'inert'
+                    })
+                    .setAttr({_hidden: "true", contenteditable: 'false', inert: true})
+                    break
+            }
+        }
+
+        /**
+         *
+         * @param {int} t
+         * # 1 - 5
+         */
+        show(t) {
+            switch (t) {
+                case 1:
+                default:
+                    this.setAttr(_.notHidden);
+                    break
+                case 2:
+                    base(this).style.visibility = 'visible';
+                    break
+                case 3:
+                    base(this).style.display = '';
+                    break
+                case 4:
+                    this.setStyles({'--content-visibility': ''});
+                    break
+                case 5:
+                    this.setStyles({
+                        opacity: '',
+                        '--user-input,--user-focus,--user-select,pointer-events,--user-modify,--interactivity': '',
+                    })
+                    .setAttr({_hidden: "", contenteditable: '', inert: false})
+                    break
+            }
+        }
+
+        equals(other) {
+            let temp = $(other)
+            let out = base(temp).isEqualNode(base(this))
+            temp.destroy?.()
+            return out
+        }
+
+        static append(child) {
+            doc.appendChild(base(child))
+        }
+
+        push(...args) {
+            args.flat(1 / 0).forEach(_.append)
+            base(this).appendChild(doc)
+        }
+
+        unshift(...args) {
+            args.flat(1 / 0).forEach(_.append)
+            base(this).prepend(doc)
+        }
+
+        //  i tried SO hard to make treewalker useful but it did NOT impress me!
+        treeWalker(whatToShow, callback, filter, thisArg) {
+            let walker = document.createTreeWalker(base(this), whatToShow ?? NodeFilter.SHOW_ALL, filter_func)
+            filter ??= function () {
+                return 1
+            }
+            let current,
+                i = 0, skip = NodeFilter.FILTER_SKIP,
+                accept = NodeFilter.FILTER_ACCEPT
+            while (current = walker.nextNode()) callback.call(thisArg ?? this, getValid(current) ? prox(current) : current, i++, walker)
+
+            function filter_func(node) {
+                return filter(node) ? accept : skip
+            }
+        }
+
+        * [Symbol.iterator]() {
+            let all = base(this).getElementsByTagName('*')
+            for (let {length: i} = all; i--;) yield prox(all[i])
+        }
+
+        [Symbol.toPrimitive]() {
+            throw TypeError('Cannot convert Element to a primitive value')
+            // Don't want to accidentally convert to a string for stuff like
+            //append, prepend, etc.
+        }
+
+        /*find(selector) {
+        return this.treeWalker(func).next().value
+        function func(node) { return node.matches(selector) }
+        }
+        findAll(selector) {
+        return [...this.treeWalker(func)]
+        function func(node) { return node.matches(selector) }
+        }*/
+        resetSelfRules() {
+            for (let i in this.selfRules)
+                try {
+                    customRules.deleteRule([].indexOf.call(customRules.cssRules, this.selfRules[i]))
+                } finally {
+                }
+        }
+
+        addSelfRule(selector, cssStuff) {
+            const og = selector
+            let id
+            try {
+                if (base(this).hasAttribute('id')) id = base(this).getAttribute('id')
+                else do id = gen()
+                while (document.getElementById(id))
+                if (selector.includes('::')) selector = css.pev(selector)
+                else if (selector.includes(':')) selector = css.pcv(selector)
+                const final = `#${CSS.escape(id)} ${selector}{${(css.toCSS(cssStuff))}}`
+                let existing = this.selfRules[css.formatStr(selector.replace(regex.space, ''))]
+                // for (let i = 5; i--;) try {
+                existing ? existing.insertRule(final) :
+                    (this.selfRules[css.formatStr(selector.replace(regex.space, ''))] = customRules.cssRules[customRules.insertRule(final)])
+                this.setAttr({
+                    id
+                })
+            } catch {
+                css.badCSS(`⛓️‍💥 Unrecognized CSS rule at '${og}'`)
+            }
+            // }
+            // catch(e) {
+            // if (!i) throw e
+            // await new Promise(requestAnimationFrame)
+            // continue
+            // }
+        }
+
+        static forEach(frame) {
+            for (let prop in frame) {
+                let val = `${frame[prop]}`
+                frame[css.capVendor(prop, val)] ??= val
+            }
+            // Firefox warns of empty string
+        }
+
+        until(good, bad, timeout) {
+            return h.until(base(this), good, bad, timeout)
+        }
+
+        animate(keyframes, options) {
+            (options ??= {}).timing ??= 'ease'
+            options.iterations ??= 1
+            options.pseudoElement &&= css.pev(options.pseudoElement)
+            keyframes.forEach(_.forEach)
+            return base(this).animate(keyframes, options)
+        }
+
+        set after(val) {
+            base(this).after(base(val))
+        }
+
+        set before(val) {
+            base(this).before(base(val))
+        }
+
+        eval(script) {
+            // mimic inline event handlers (rarely needed)
+            return Function('with(document)with(this)return eval(arguments[0])').call(base(this), script)
+        }
+
+        get after() {
+            let {nextElementSibling} = base(this)
+            return prox(nextElementSibling)
+        }
+
+        get before() {
+            let {previousElementSibling} = base(this)
+            return prox(previousElementSibling)
+        }
+
+        set parent(parent) {
+            parent ? base(parent).appendChild(base(this)) : base(this).remove()
+        }
+
+        get parent() {
+            let parent = base(this).parentElement
+            return prox(parent)
+        }
+
+        /* get gc() {
+        // Ensure objects are being properly garbage collected
+             return new Promise(callback => {
+                 cleanup.register(base(this), {age:this.age,callback})
+             })
+         }*/
+        get first() {
+            let {firstElementChild} = base(this)
+            return prox(firstElementChild)
+        }
+
+        get last() {
+            let {lastElementChild} = base(this)
+            return prox(lastElementChild)
+        }
+
+        get ancestors() {
+            return base(this).getElementsByTagName('*').length
+        }
+
+        busy(busy) {
+            this.setAttr({
+                _busy: `${!!busy}`
+            })
+            .setStyles({
+                cursor: busy ? 'progress' : ''
+            })
+        }
+
+        copyAttr(other) {
+            let me = base(this),
+                attr = other.getAttributeNames()
+            for (let {length: i} = attr; i--;) {
+                let name = attr[i]
+                me.setAttribute(name, other.getAttribute(name))
+            }
+        }
+    }.prototype
+)
 const prototype = Object.create(null)
     , TEXT_THINGIES = new Set('outerHTML outerText innerHTML innerText textContent'.split(' '))
 TEXT_THINGIES.forEach(txt =>
@@ -985,6 +1048,7 @@ Object.defineProperties(prototype,
 )
 // 🖨 Copy everything
 const prototypeDescriptors = Object.getOwnPropertyDescriptors(prototype)
+
 export function base(element) {
     // 🌱 Get the root element
     return element[me] ?? element
@@ -1303,6 +1367,9 @@ export function prox(target) {
                 fromQuery: {
                     value: querySelectorProxy
                 },
+                [saved]: {
+                    value: {__proto__: null}
+                },
                 [computed]: reuse.nullThing,
                 /*  [states]: {
                       value: new Map
@@ -1362,7 +1429,7 @@ export function prox(target) {
 
 function getValid(target) {
     try {
-        return!!target &&
+        return !!target &&
             (target instanceof Element ||
                 target.ownerDocument?.defaultView?.Element.prototype.isPrototypeOf(target)
                 //|| Element.prototype.isPrototypeOf(target)
@@ -1828,6 +1895,7 @@ window.Proxy = window.Proxy || function () {
         if (!(this instanceof Proxy)) throw TypeError("Constructor Proxy requires 'new'")
         return revocable(target, handler).proxy
     }
+
     return Object.defineProperty(Proxy, 'revocable', {
         value: revocable,
         writable: 1,

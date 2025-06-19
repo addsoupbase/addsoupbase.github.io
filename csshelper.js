@@ -352,7 +352,7 @@ export function boxShadow({
                 'input[type=range]:active': {
                     cursor: 'grabbing'
                 },
-                '*:disabled': {
+                '*:disabled,*[aria-disabled="true"]': {
                     cursor: 'not-allowed'
                 },
                 '.centerx,.center': {
