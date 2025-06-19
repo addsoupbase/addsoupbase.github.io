@@ -744,9 +744,9 @@ main {
   /*outline: 3px dashed #1275b4;*/
   width: 400px;
   min-width: 150px;
-  /*max-height:50vh;*/
+  max-height:50vh;
   min-height: 50px;
-  /*max-width: 80vw;*/
+  max-width: 80vw;
   height: 300px;
   overflow-y: scroll;
 }
