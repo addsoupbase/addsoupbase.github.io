@@ -1,10 +1,10 @@
-import $ from '../../yay.js'
-import *as str from '../../str.js'
-import color from '../../color.js'
-import { on, until, download, reqFile,  } from '../../handle.js'
-import * as math from '../../num.js'
-import { registerCSS } from '../../csshelper.js'
-import { getJson } from '../../arrays.js'
+import $ from 'https://addsoupbase.github.io/yay.js'
+import *as str from 'https://addsoupbase.github.io/str.js'
+import color from 'https://addsoupbase.github.io/color.js'
+import { on, until, download, reqFile,  } from 'https://addsoupbase.github.io/handle.js'
+import * as math from 'https://addsoupbase.github.io/num.js'
+import { registerCSS } from 'https://addsoupbase.github.io/csshelper.js'
+import { getJson } from 'https://addsoupbase.github.io/arrays.js'
 registerCSS('input[type="color"]::color-swatch', {
     'border-radius': '100%'
 })
@@ -12,27 +12,27 @@ function setSelected(prop, val) {
     selected.spawn[prop] = val
     selected.reset()
 }
-let leftControls = $.gid('left-controls')
+let {'left-controls':leftControls} = $.id
 // Body name
-const bodyname = $.gid('bodyname')
+const {bodyname} = $.id
 
 // Color picker thingy
-const colorpicker = $.gid('color-input')
-    .on({
+const {'color-input':colorpicker} = $.id
+colorpicker.on({
         input() {
             setSelected('color', this.value)
         }
     })
 // Bounciness
-const bounciness = $.gid('bouncy')
-    .on({
+const {bouncy: bounciness} = $.id
+bounciness.on({
         input() {
             setSelected('restitution', this.value)
         }
     })
 // Density
-const density = $.gid('density')
-    .on({
+const {density} = $.id
+   density.on({
         input() {
             setSelected('density', this.value)
         }
@@ -57,8 +57,8 @@ const spawnInterval = $.gid('spawninterval')
         }
     })
 // Opacity
-const opacity = $.gid('opacity')
-    .on({
+const {opacity} = $.id
+opacity.on({
         input() {
             setSelected('opacity', this.value)
         }
@@ -67,8 +67,9 @@ const opacity = $.gid('opacity')
 let setAngleThingy = function () {
     setSelected('angle', math.toRad(angleSlider.value = angle.value = this.value))
 }
-const angle = $.gid('angle').on({ input: setAngleThingy }),
-    angleSlider = $.gid('angle-alt').on({ input: setAngleThingy })
+const {angle,'angle-alt':angleSlider} = $.id
+     angleSlider.on({ input: setAngleThingy })
+    angle.on({ input: setAngleThingy })
 
 // Image Picker
 const imagePicker = $.gid('select-image')
@@ -79,8 +80,8 @@ const imagePicker = $.gid('select-image')
         }
     })
 // Static Checkbox
-const isStatic = $.gid('isStatic')
-    .on({
+const {isStatic} = $.id
+    isStatic.on({
         input() {
             setSelected('isStatic', this.checked)
         }
@@ -178,7 +179,6 @@ let exportMenu = $.gid('exportmenu')
                 )
             }
             let allImages = []
-            let outShapes = []
             let seenImages = new Map
             let allShapes = []
             let seenShapes = new Map
@@ -222,7 +222,6 @@ let exportMenu = $.gid('exportmenu')
                         } else {
                             seenShapes.set(data, -(allShapes.length + 1))
                             allShapes.push(data)
-                            outShapes.push(data)
                             n.shape = -(allShapes.length)
                         }
                     }
@@ -497,7 +496,7 @@ function addMarble({ name, image, color: col }, noadd) {
                     })
             )
         ),
-        $(`<button class="cute-green-button red">Delete</button>`, {
+        $('<button class="cute-green-button red">Delete</button>', {
             events: {
                 click() {
                     marbles.delete(this.parent.flags)

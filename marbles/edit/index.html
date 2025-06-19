@@ -8,21 +8,21 @@
     <meta http-equiv="content-language" content="en">
     <meta property="og:locale" content="en_US">
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0 user-scalable=no">
     <meta name="twitter:creator" content="addsoupbase">
     <meta name="author" content="addsoupbase">
     <meta property="profile:username" content="addsoupbase">
     <meta name="robots" content="index">
-    <meta name="color-scheme" content="normal">
+    <meta name="theme-color" content="#28a745">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://addsoupbase.github.io/marbles/edit" />
-    <meta property="og:description" content="Marbles!!!" />
-    <meta property="og:title" content="Marbles" />
+    <meta property="og:url" content="https://addsoupbase.github.io/marbles/edit"/>
+    <meta property="og:description" content="Marbles!!!"/>
+    <meta property="og:title" content="Marbles"/>
     <meta property="og:site_name" content="Marbles">
     <meta property="og:image:height" content="500">
     <meta property="og:image:width" content="750">
-    <meta property="og:image" content="your icon here.png" />
+    <meta property="og:image" content="your icon here.png"/>
     <meta name="description" content="Marbles!!!">
     <meta property="og:image:type" content="image/png">
     <meta name="twitter:card" content="summary_large_image">
@@ -39,44 +39,61 @@
 </head>
 
 <body style="display:none">
-    <main>
-        <h3>its not done so dont expect everything to work</h3>
-        <div class="center" id="hol-der">
-            <div class="centery menu" id="left-controls">
-                <div>
+<main>
+    <h3>its not done so dont expect everything to work</h3>
+    <div class="center" id="hol-der">
+        <div class="centery menu" id="left-controls">
+            <div>
 
                 <section style="display:grid;" id="left-controls-menu">
                     <h2 name="title" id="bodyname">Unknown</h2>
                     <label title="Color" class="stat" for="color-input">Color <input type="color" id="color-input"
-                            name="color" title="Color" value="#808080" placeholder="">
+                                                                                     name="color" title="Color"
+                                                                                     value="#808080" placeholder="">
                     </label>
                     <label title="Bounciness" class="stat" for="bouncy">Bounciness <input type="number" min="0"
-                            placeholder="Bounciness" value="" id="bouncy">
+                                                                                          placeholder="Bounciness"
+                                                                                          value="" id="bouncy">
                     </label>
                     <label title="Density" class="stat" for="density">Density <input type="number" min="0"
-                            placeholder="Density" value="" id="density">
+                                                                                     placeholder="Density" value=""
+                                                                                     id="density">
                     </label>
                     <label title="Scale" class="stat" for="scalex">Width<input type="number" max="9007199254740991"
-                            min="-9007199254740991" placeholder="Negative = Mirrored" value="" id="scalex">
+                                                                               min="-9007199254740991"
+                                                                               placeholder="Negative = Mirrored"
+                                                                               value="" id="scalex">
                     </label>
                     <label title="Scale" class="stat" for="scaley">Height<input type="number" max="9007199254740991"
-                            min="-9007199254740991" placeholder="Negative = Mirrored" value="" id="scaley">
+                                                                                min="-9007199254740991"
+                                                                                placeholder="Negative = Mirrored"
+                                                                                value="" id="scaley">
                     </label>
-                    <label title="Spawn Interval" class="stat" for="spawninterval">Spawn Interval<input type="number" max="9007199254740991"
-                        min="-9007199254740991" placeholder="Negative = Mirrored" value="" id="spawninterval">
-                </label>
+                    <label title="Spawn Interval" class="stat" for="spawninterval">Spawn Interval<input type="number"
+                                                                                                        max="9007199254740991"
+                                                                                                        min="-9007199254740991"
+                                                                                                        placeholder="Negative = Mirrored"
+                                                                                                        value=""
+                                                                                                        id="spawninterval">
+                    </label>
                     <label title="opacity" class="stat" for="opacity">Opacity <input class="uhh" min="0" max="1"
-                            step="0.05" type="range" placeholder="opacity" id="opacity" value="">
+                                                                                     step="0.05" type="range"
+                                                                                     placeholder="opacity" id="opacity"
+                                                                                     value="">
                     </label>
                     <label class="stat uhh standout" title="angle in degrees" for="angle">Angle° <input type="range"
-                            id="angle" min="-180" step="1" max="180" value="">
+                                                                                                        id="angle"
+                                                                                                        min="-180"
+                                                                                                        step="1"
+                                                                                                        max="180"
+                                                                                                        value="">
                         <input type="number" id="angle-alt" placeholder="deg" min="-180" step="1" max="180" value="">
                     </label>
                     <label for="select-image" title="Image" class="stat">Image <small>
-                            <i>
-                                <small>(will not animate in game)</small>
-                            </i>
-                        </small>
+                        <i>
+                            <small>(will not animate in game)</small>
+                        </i>
+                    </small>
                         <select title="select image" id="select-image">
                             <option value="none">None</option>
                         </select>
@@ -89,63 +106,63 @@
                 </section>
             </div>
 
+        </div>
+        <div class="centery menu" id="right-controls">
+            <!-- <button class="cute-green-button" id="right-button">Hide</button> -->
+            <div id="right-menu" style="display:inline-block">
+                <section style="display:inline">
+                    <label for="upload-images" style="display:inline-grid">
+                        <h2>
+                            Images
+                        </h2>
+                        <button id="upload-images" class="cute-green-button">
+                            Upload
+                        </button>
+                        <input type="file" accept="image/*" multiple hidden>
+                    </label>
+                </section>
+                <section>
+                    <h2>Marbles</h2>
+                    <div id="racer-holder" class="menu cute-green">
+                        <h3>No marbles added :&lpar;</h3>
+                    </div>
+                    <button class="cute-green-button" id="add-marble-button">Add</button>
+                </section>
+                <section>
+                    <h2>Marble settings</h2>
+                    <label for="marble-size" class="stat">
+                        Radius
+                        <input id="marble-size" type="number" value="25" step="1">
+                    </label>
+                    <label for="marble-rest" class="stat">
+                        Bounciness
+                        <input id="marble-rest" type="number" value="1.25" step="0.25">
+                    </label>
+                    <label for="marble-friction" class="stat">
+                        Friction
+                        <input id="marble-friction" type="number" value="0.1" step="0.1">
+                    </label>
+                    <label for="marble-density" class="stat">
+                        Density
+                        <input id="marble-density" type="number" value="1">
+                    </label>
+                    <label for="marble-frictionair" class="stat">
+                        Friction Air
+                        <input id="marble-frictionair" type="number" value="0.01">
+                    </label>
+                    <label for="marble-collide" title="can marbles collide with other marbles?" class="stat">
+                        Collide
+                        <input id="marble-collide" type="checkbox" checked disabled>
+                    </label>
+                </section>
             </div>
-            <div class="centery menu" id="right-controls">
-                <!-- <button class="cute-green-button" id="right-button">Hide</button> -->
-                <div id="right-menu" style="display:inline-block">
-                    <section style="display:inline">
-                        <label for="upload-images" style="display:inline-grid">
-                            <h2>
-                                Images
-                            </h2>
-                            <button id="upload-images" class="cute-green-button">
-                                Upload
-                            </button>
-                            <input type="file" accept="image/*" multiple hidden>
-                        </label>
-                    </section>
-                    <section>
-                        <h2>Marbles</h2>
-                        <div id="racer-holder" class="menu cute-green">
-                            <h3>No marbles added :&lpar;</h3>
-                        </div>
-                        <button class="cute-green-button" id="add-marble-button">Add</button>
-                    </section>
-                    <section>
-                        <h2>Marble settings</h2>
-                        <label for="marble-size" class="stat">
-                            Radius
-                            <input id="marble-size" type="number" value="25" step="1">
-                        </label>
-                        <label for="marble-rest" class="stat">
-                            Bounciness
-                            <input id="marble-rest" type="number" value="1.25" step="0.25">
-                        </label>
-                        <label for="marble-friction" class="stat">
-                            Friction
-                            <input id="marble-friction" type="number" value="0.1" step="0.1">
-                        </label>
-                        <label for="marble-density" class="stat">
-                            Density
-                            <input id="marble-density" type="number" value="1">
-                        </label>
-                        <label for="marble-frictionair" class="stat">
-                            Friction Air
-                            <input id="marble-frictionair" type="number" value="0.01">
-                        </label>
-                        <label for="marble-collide" title="can marbles collide with other marbles?" class="stat">
-                            Collide
-                            <input id="marble-collide" type="checkbox" checked disabled>
-                        </label>
-                    </section>
-                </div>
-            </div>
-            <iframe src="../play/index.html" title="content" name="content" id="content"></iframe>
-            <div id="controls">
+        </div>
+        <iframe src="../play/index.html" title="content" name="content" id="content"></iframe>
+        <div id="controls">
 
-                <button class="cute-green-button" id="play-button">Play</button>
-                <button class="cute-blue-button cute-green-button" id="place-toggle">Placing</button>
-                <span>
+            <button class="cute-green-button" id="play-button">Play</button>
+            <button class="cute-blue-button cute-green-button" id="place-toggle">Placing</button>
+            <span>
                     <select id="place-entity" title="Select an entity to place">
                         <option value="square">Square</option>
                         <option value="triangle">Triangle</option>
@@ -157,27 +174,27 @@
                         <option value="svg">Custom Shape</option>
                     </select>
                 </span>
-                <button class="cute-green-button" id="reset-cam">Reset Camera</button>
-                <button class="cute-green-button" id="export-button">Export</button>
-                <button class="cute-green-button" id="import-button">Import</button>
-            </div>
+            <button class="cute-green-button" id="reset-cam">Reset Camera</button>
+            <button class="cute-green-button" id="export-button">Export</button>
+            <button class="cute-green-button" id="import-button">Import</button>
         </div>
-
-        <!-- <script src="matter.min.js"></script> -->
-    </main>
-    <div id="exportmenuholder" style="display: none;">
-
-        <form class="center menu" id="exportmenu">
-            <section style="display: grid;">
-
-                <h2>Export</h2>
-                <input maxlength="32" class="cute-green" id="leveltitle" placeholder="Title" name="title" required>
-                <input maxlength="16" class="cute-green" id="levelauthor" placeholder="Author" name="author" required>
-            </section>
-            <button class="cute-green-button">Export</button>
-            <input type="button" id="cancel-export" class="red cute-green-button" value="Cancel"></button>
-        </form>
     </div>
+
+    <!-- <script src="matter.min.js"></script> -->
+</main>
+<div id="exportmenuholder" style="display: none;">
+
+    <form class="center menu" id="exportmenu">
+        <section style="display: grid;">
+
+            <h2>Export</h2>
+            <input maxlength="32" class="cute-green" id="leveltitle" placeholder="Title" name="title" required>
+            <input maxlength="16" class="cute-green" id="levelauthor" placeholder="Author" name="author" required>
+        </section>
+        <button class="cute-green-button">Export</button>
+        <input type="button" id="cancel-export" class="red cute-green-button" value="Cancel"></button>
+    </form>
+</div>
 </body>
 
 </html>

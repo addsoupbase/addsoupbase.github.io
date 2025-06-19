@@ -1,10 +1,10 @@
-import $ from '../../yay.js'
-import * as h from '../../handle.js'
-import * as math from '../../num.js'
-import * as arr from '../../arrays.js'
-import {lstorage} from '../../proxies.js'
-import * as str from '../../str.js'
-import ran from '../../random.js'
+import $ from 'https://addsoupbase.github.io/yay.js'
+import * as h from 'https://addsoupbase.github.io/handle.js'
+import * as math from 'https://addsoupbase.github.io/num.js'
+import * as arr from 'https://addsoupbase.github.io/arrays.js'
+import {lstorage} from 'https://addsoupbase.github.io/proxies.js'
+import * as str from 'https://addsoupbase.github.io/str.js'
+import ran from 'https://addsoupbase.github.io/random.js'
 
 export let joystick = (lstorage.joystick ??= `${!!navigator.maxTouchPoints}`) === 'true'
 lstorage.music ??= .5
@@ -350,6 +350,7 @@ function toggleJoystick() {
 
 toggleJoystick()
 let first = false
+
 h.on(window, {
     '_first-contentful-paint'() {
         if (inEditor) return
@@ -536,11 +537,10 @@ $(`<div>
 function init() {
     import('./define.js')
 }
-
-
 let inEditor
 try {
-    if (RegExp(/\/marbles\/edit/).test(top.location + ''))
+
+    if (/^\/edit/.test(top.location.pathname))
         inEditor = top !== window
     else inEditor = false
 } catch {

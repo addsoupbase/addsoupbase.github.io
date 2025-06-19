@@ -29,14 +29,14 @@ import {
     msg,
     mobileTouching, doAudioThing, playRandomMusic
 } from './setup.js'
-import {lstorage} from '../../proxies.js'
-import ran from '../../random.js'
-import * as str from '../../str.js'
-import * as math from '../../num.js'
-import * as h from '../../handle.js'
-import $ from '../../yay.js'
-import {getJson as jason} from '../../arrays.js'
-import color from '../../color.js'
+import {lstorage} from 'https://addsoupbase.github.io/proxies.js'
+import ran from 'https://addsoupbase.github.io/random.js'
+import * as str from 'https://addsoupbase.github.io/str.js'
+import * as math from 'https://addsoupbase.github.io/num.js'
+import * as h from 'https://addsoupbase.github.io/handle.js'
+import $ from 'https://addsoupbase.github.io/yay.js'
+import {getJson as jason} from 'https://addsoupbase.github.io/arrays.js'
+import color from 'https://addsoupbase.github.io/color.js'
 // function defineFuncs(obj, funcs) {
 // return Object.defineProperties(obj, Object.getOwnPropertyDescriptors(funcs))
 // }
@@ -1136,8 +1136,8 @@ window.getLevelFromJSON =
     async function getLevelFromJSON(id) {
         let summary = await jason(`./levels/${id}/info.json`)
         if (!inEditor) {
-            document.title = `${$.gid('title').textContent = str.shorten(summary.title || 'Level', 32)} - Marbles`
-            $.gid('author').textContent = str.shorten(summary.author || 'Unknown', 16)
+            $.gid('title').textContent = str.shorten(summary.title || 'Untitled', 32)
+            $.id.author.textContent = str.shorten(summary.author || 'Unknown', 16)
         }
         else {
             let {settings} = summary
@@ -1204,7 +1204,7 @@ window.getLevelFromJSON =
                     new goal(o)
                     break
             }
-            $.id['yay'].setAttr({disabled: ''})
+            $.id.yay.setAttr({disabled: ''})
         }
     }
 if (levelName) {
@@ -1217,7 +1217,7 @@ if (levelName) {
     }, false, signal)
     let play
     overlay.push(
-        $('<h1 id="title">Level</h1>'),
+        $('<h1 id="title">Untitled</h1>'),
         $('<cite id="author">Unknown</cite>'),
         $("div", null,
             play = $('<button class="cute-green-button" style="width: 95px;height: 41px;" id="yay" disabled autofocus>Play</button>', {

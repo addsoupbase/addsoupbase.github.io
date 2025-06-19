@@ -3,8 +3,8 @@
 const sym = Symbol.for("🔔")
 //  Don't collide, and make sure its usable across realms!!
 // export const unbound = Symbol('⛓️‍💥')
-const logger = {__proto__:null}
-for(let i in console) {
+const logger = { __proto__: null }
+for (let i in console) {
     // Because the groupCollapsed() method was suppressing errors, delay them instead
     let old = console[i]
     if (typeof old !== 'function') continue
@@ -23,7 +23,8 @@ let { warn, groupCollapsed, groupEnd } = logger,
     { isArray } = Array
 export const allEvents = new WeakMap
 let { addEventListener, removeEventListener, dispatchEvent } = globalThis.EventTarget?.prototype ?? AbortSignal.prototype
-if (globalThis.document)
+if (0 && globalThis.document)
+    // this adds about 20ms, which i don't like!
     try {
         // in case they monkeypatch the EventTarget.prototype
         let n = document.createElement('iframe'),
@@ -70,51 +71,28 @@ function getLabel(obj) {
         return {}.toString.call(obj)
     }
 }
-
-export let reqFile
-if (0/*typeof showOpenFilePicker !== 'undefined'*/) reqFile = async function supported(accept, multiple) {
-    let settings = {
-        multiple,
-        id: 602,
-        startIn: 'downloads'
-    }
-    if (accept) settings.types = [{
-        accept: {
-            [accept]: []
-        }
-    }]
-    let out = await showOpenFilePicker(settings)
-    return multiple ? out : [].at.call(out, -1)
-}
-else {
-    let f = globalThis.document?.createElement('input')
-    if (f) {
-        f.type = 'file'
-
-        function requestFile(accept, multiple) {
-            return new Promise(executor)
-
-            function executor(resolve, oncancel) {
-                return Object.assign(f, {
-                    accept,
-                    multiple,
-                    oncancel,
-                    onchange() {
-                        multiple ? resolve(f.files) : resolve([].at.call(f.files, -1))
-                    }
-                }).showPicker()
+let f
+export function requestFile(accept, multiple) {
+    f ??= Object.assign(document.createElement('input'), {
+        type: 'file'
+    })
+    return new Promise(executor)
+    function executor(resolve, oncancel) {
+        return Object.assign(f, {
+            accept,
+            multiple,
+            oncancel,
+            onchange() {
+                multiple ? resolve(f.files) : resolve([].at.call(f.files, -1))
             }
-        }
-
-        reqFile = requestFile
+        }).showPicker()
     }
 }
-export const file = reqFile
-
+export const reqFile = requestFile
 function verifyEventName(target, name) {
     let original = name
     name = name.toLowerCase()
-    let valid = (`on${name}` in target ||
+    let valid = (customEvents.has(name) || `on${name}` in target ||
         ((/^DOMContentLoaded$/.test(original) && (globalThis.Document?.prototype.isPrototypeOf(target) || target.contentWindow?.EventTarget.prototype.isPrototypeOf(target) || globalThis.HTMLDocument?.prototype.isPrototypeOf(target) || target.ownerDocument?.defaultView?.HTMLDocument.prototype.isPrototypeOf(target) || target.ownerDocument?.defaultView?.Document.prototype.isPrototypeOf(target)))
             || (/^(animation(?:cancel|remove))$/i.test(original) && 'onremove' in target)
             || /^(?:focus(?:in|out))$/i.test(original)
@@ -132,11 +110,10 @@ function verifyEventName(target, name) {
                 else name = 'MozMousePixelScroll'
             } else name = original
         }
-        customEvents.has(name) || logger.warnLate(`'${original}' events might not be available on the following object:`, target)
-        return name
-    } else if (`on${name}` in target || valid) return original
+        original = name
+    } 
     //Some events like the one above don't have a handler
-    customEvents.has(original) || logger.warnLate(`'${original}' events might not be available on the following object:`, target)
+    valid || logger.warnLate(`'${original}' events might not be available on the following object:`, target)
     return original
 }
 

@@ -5,6 +5,9 @@ export function assemble(arrayLike, ...sequence) {
     for (let {length} = sequence, i = 0; i < length;) push(at(sequence[i++]))
     return out
 }
+export function parse(str) {
+    return{__proto__: null, ...JSON.parse(str)}
+}
 export function forKeys(obj, callback) {
     let keys = Reflect.ownKeys(obj)
     for (let {length: i} = keys; i--;) callback.call(obj, keys[i])
@@ -21,10 +24,10 @@ export function from(ArrayLike, map, thisArg) {
     // Array.from checks @@iterator first, which would be slower in cases where it is a callable function
     return'length'in ArrayLike?map?[].map.call(ArrayLike,map,thisArg):[].slice.call(ArrayLike):map?Array.from(ArrayLike,map,thisArg):[...ArrayLike]
 }
-export function forEach(ArrayLike, callback, thisArg) {
+/*export function forEach(ArrayLike, callback, thisArg) {
     if ('length' in ArrayLike) return [].forEach.call(ArrayLike, callback, thisArg)
     if (ArrayLike[Symbol.toStringTag] === 'Set') return
-}
+}*/
 export function filterForEach(arrayLike, map, thisArg) {
 
 }

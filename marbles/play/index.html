@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>LEVEL_TITLE</title>
+    <title>LEVEL_TITLE by LEVEL_AUTHOR - Marbles</title>
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../animations.css">
     <meta charset="UTF-8">
@@ -15,7 +15,7 @@
     <meta name="author" content="addsoupbase">
     <meta property="profile:username" content="addsoupbase">
     <meta name="robots" content="index">
-    <meta name="color-scheme" content="normal">
+    <meta name="theme-color" content="#28a745">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://addsoupbase.github.io/marbles/play">
     <meta property="og:description" content="LEVEL_TITLE by LEVEL_AUTHOR">
@@ -32,22 +32,22 @@
     <meta name="twitter:description" content="Marbles">
     <meta name="twitter:image" content="Twitter icon thing.png">
     <link rel="canonical" href="https://addsoupbase.github.io/marbles/play?level=LEVEL_ID">
-    <link rel="icon" type="image/x-icon" href="favicon.ico" defer>
-    <script src="../../silence.js" defer></script>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <script src="http://localhost:3000/silence.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/pathseg@1.2.1/pathseg.min.js"></script>
 </head>
 <body style="display:flex">
-    <noscript>
-        You have a really bad browser :&lpar;
-    </noscript>
-    <script nomodule>
-        alert('You have a really bad browser :(')
-    </script>
-    <main>
-      <div id="overlay" class="center mainmenu" style="display: none;" role="alertdialog"></div>
+<noscript>
+    You have a really bad browser :&lpar;
+</noscript>
+<script nomodule>
+    alert('You have a really bad browser :(')
+</script>
+<main>
+    <div id="overlay" class="center mainmenu" style="display: none;" role="alertdialog"></div>
     <canvas id="can-vas" style="width:100vw;height:100vh;"></canvas>
-        <touch-joystick class="center" style="display:none" id="mobile-joystick"></touch-joystick>
-        </div>
+    <touch-joystick class="center" style="display:none" id="mobile-joystick"></touch-joystick>
+    </div>
     <!-- <script src="matter.min.js"></script> -->
 </main>
 <script src="./setup.js" type="module"></script>

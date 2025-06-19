@@ -17,6 +17,14 @@ export function getCodePoints(string) {
 export function upper(string) {
     return `${string[0].toUpperCase()}${string.slice(1)}`
 }
+export function escapeHTML(str) {
+    return str
+    .replace(/>/g, '&gt;')
+    .replace(/</g, '&lt;')
+    .replace(/&/g,'&amp;')
+    .replace(/'/g,'&apos;')
+    .replace(/"/g,'&quot;')
+}
 export function replace(string, ...subs) {
     let allMatches = string.match(RegExp(`\\${placeholder}`, 'g'))
     if (subs.length !== allMatches?.length) throw RangeError("Invalid input")
@@ -34,7 +42,7 @@ export function shorten(str, length, tail) {
     return str.length>length?`${out}${tail??'…'}`:out
 }
 export function plural(singular, plural, count) {
-return Math.sign(count=+count)===count&&count?`${count} ${singular}`:`${count.toLocaleString()} ${plural}`
+return Math.sign(count= +count)===count&&count?`${count} ${singular}`:`${count.toLocaleString()} ${plural}`
 }
 export function clip(str, length) {
     return str.slice(length, str.length - length)
