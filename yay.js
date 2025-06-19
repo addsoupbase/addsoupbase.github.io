@@ -1528,6 +1528,9 @@ export default Object.defineProperties($, {
             return prox(base($.doc).querySelector(selector))
         }
     },
+    /**
+     *  @deprecated
+     */
     byId: {
         value: new Proxy(document, {
             get(t, p) {
@@ -1568,6 +1571,9 @@ export default Object.defineProperties($, {
             te.destroy()
         }
     },
+    /**
+     *  @deprecated
+     */
     gid: {
         value(id) {
             return prox(document.getElementById(id))
