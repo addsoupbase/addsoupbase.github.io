@@ -303,6 +303,11 @@ input[type=image]:active {
   z-index: 4;
   margin: 30px;
 }
+.garfield{
+  image-rendering: pixelated;
+  transform:scale(0.3, 0.3);
+  margin:-35px;
+}
 #main {
   width: 100vw;
   position: relative;
