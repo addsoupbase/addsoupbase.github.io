@@ -1,6 +1,6 @@
 import {registerCSS, registerCSSAll} from "../csshelper.js"
 
-let regex = /[\w.\-]+\.(?:webp|a?png|gif|jpe?g)/
+let regex = /[\w.\-%汝起亚]+\.(?:webp|a?png|gif|jpe?g)/
 let all = document.getElementsByTagName('*')
 function isHidden() {
     return all.length > 135 || hidden||!!document.fullscreenElement || document.hidden || document.visibilityState === 'hidden'
@@ -67,6 +67,7 @@ async function images({time, colorful, birthday}) {
             composite: 'accumulate',
         }).finished
         let {0: name} = this.firstElementChild.src.match(regex)[0].split(/\.(?:webp|a?png|gif|jpe?g)/)
+        if (name.includes('%')) name = decodeURIComponent(name)
         let src = this.firstElementChild.src
         let me = $('div.ava .tar', {
             styles: {

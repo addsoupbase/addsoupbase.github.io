@@ -48,8 +48,8 @@ const regex = {
         space: /\s/g,
         onXYZ: /^on\w+$/
     },
-    me = Symbol('base'),
-    saved = Symbol('Saved attributes'),
+    me = Symbol('do not touch'),
+    saved = Symbol('触らないでください'),
     all = new WeakMap,
     revokes = new WeakMap
 
@@ -227,8 +227,8 @@ const attrStyleMap = 'StylePropertyMap' in window
 // Main [[Prototype]] is on this class
 // let ATTR = Symbol('💿')
 // let states = Symbol('💾')
-let computed = Symbol('🔬')
-let styles = Symbol('🖌')
+let computed = Symbol('no')
+let styles = Symbol('stop')
 // let shadow = Symbol('🌴')
 let props = Object.getOwnPropertyDescriptors(class _
         extends null {
