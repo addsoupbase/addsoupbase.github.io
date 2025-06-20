@@ -39,7 +39,7 @@
 <template id="template">
 
     <main class="center " >
-        <a class="cute-green-button back" href="main.html" role="button" rel="prev">Back</a>
+        <a accesskey="b"  class="cute-green-button back" href="main.html" role="button" rel="prev">Back</a>
         <!-- <span> Scrolling could reveal more!</span> -->
 
         <div class="center" id="diary-container" style="display:contents;justify-items: center;">
@@ -64,10 +64,10 @@
                         style="width: 100%;height: 100%;border: none;"></iframe>
             </section>
             <div style="justify-self: center;justify-content:center;display: flex;    align-items: end;">
-                <input id="prev" type="image" title="Turn to previous page" alt="Back" style="transform:scaleX(-1)"
+                <input accesskey="p"  id="prev" type="image" title="Turn to previous page" alt="Back" style="transform:scaleX(-1)"
                        src="./cute-emojis/emojis/1321091969635848294.gif">
                 <button class="cute-green-button" id="toToday">Go to today</button>
-                <input id="next" type="image" title="Turn to next page" alt="Forward"
+                <input accesskey="n"  id="next" type="image" title="Turn to next page" alt="Forward"
                        src="./cute-emojis/emojis/1321091969635848294.gif">
             </div>
 
@@ -119,13 +119,14 @@
         if (today.getDate() <= 7 && today.getFullYear() <= 2025 && today.getMonth() <= 3) {
             // This is before i made any entries
             prev.hide(2)
+            .setAttr({disabled:true})
         } else {
-            prev.show(2)
+            prev.show(2).setAttr({disabled:false})
         }
         if (getDate() === new Date().toLocaleDateString('en-US') || today >= new Date) {
             // After today
-            next.hide(2)
-        } else next.show(2)
+            next.hide(2).setAttr({disabled:true})
+        } else { next.show(2).setAttr({disabled:false})}
     }
 
     toToday.on({

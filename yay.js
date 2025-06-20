@@ -521,33 +521,35 @@ let props = Object.getOwnPropertyDescriptors(class _
 
         static canBeDisabled = /^HTML(?:Button|FieldSet|OptGroup|Option|Select|TextArea|Input)Element$/
 
-        disable() {
-            if (_.canBeDisabled.test(h.getLabel(base(this)))) this.setAttr({disabled: true})
-            else this.saveAttr('contenteditable','inert')
-            .setAttr({
-                _disabled: 'true',
-                contenteditable: false,
-                inert: true
-            }).setStyles({
-                // '--user-focus':'none',
-                '--user-modify': 'read-only',
-                '--user-input': 'none',
-                // 'pointer-events': 'none',
-                '--interactivity': 'inert'
-            })
+        set disabled(val) {
+            if (val) {
+                if (_.canBeDisabled.test(h.getLabel(base(this)))) this.setAttr({disabled: true})
+                else this.saveAttr('contenteditable', 'inert')
+                .setAttr({
+                    _disabled: 'true',
+                    contenteditable: false,
+                    inert: true
+                }).setStyles({
+                    // '--user-focus':'none',
+                    '--user-modify': 'read-only',
+                    '--user-input': 'none',
+                    // 'pointer-events': 'none',
+                    '--interactivity': 'inert'
+                })
+            } else {
+                if (_.canBeDisabled.test(h.getLabel(base(this)))) this.setAttr({disabled: false})
+                else this.restoreAttr('contenteditable', 'inert')
+                .setAttr({_disabled: 'false'})
+                .setStyles({
+                    '--user-modify': '', '--user-input': '',
+                    // 'pointer-events':'',
+                    '--interactivity': ''
+                })
+            }
         }
-
-        enable() {
-            if (_.canBeDisabled.test(h.getLabel(base(this)))) this.setAttr({disabled: false})
-            else this.restoreAttr('contenteditable','inert')
-            .setAttr({_disabled: 'false'})
-            .setStyles({
-                '--user-modify':'','--user-input':'',
-                // 'pointer-events':'',
-                '--interactivity': ''
-            })
+        get disabled() {
+            return 'disabled'in this.attr || 'aria-disabled'in this.attr
         }
-
         saveAttr(...attributes) {
             let me = base(this)
             if (!attributes.length) {
