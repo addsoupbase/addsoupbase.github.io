@@ -42,31 +42,19 @@ let {submit: form} = $.byId
 //     }
 // }, false,controller)
 // )
+let out = $('<iframe name="hi"></iframe>')
 form.on({
-        async $submit() {
+         submit() {
             // name ||= 'Anonymous'
-            await form.fadeOut()
-            let hi = $(`<section><h3>Sent!! (hopefully)</h3>
-            <samp>Name: ${this.name.value ||= "Anonymous"}</samp><br>
-            <samp>Message: ${this.message.value}</samp>
-            </section>`)
+             !async function(){
+             await form.fadeOut()
+            let hi = $(`<section><h3>Sent!! (hopefully)</h3></section>`)
+                 hi.push($('samp',{textContent:`Name: ${this.name.value || "Anonymous"}`}),$('br'),
+                     $('samp', {textContent:`Message: ${this.message.value}`}))
             form.replace(hi)
             hi.fadeIn()
-            let a
-            try {
-                a = await fetch(this.attr.action, {
-                    method: 'POST',
-                    body: `name=${encodeURIComponent(this.name.value)}&message=${encodeURIComponent(this.message.value)}`,
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'Accept': 'application/json'
-                    }
-                })
-            } catch {
-                return alert('Failed to send message')
-            } finally {
-                a.ok || alert('Failed to send message')
-            }
+             $.id.prevent.destroy()
+            }.call(this)
             // let loading = $('<img class="delibird" src="./media/loading.webp">')
             // form.before = loading
             // let req = !location.href.startsWith('http://localhost') ? await fetch(`https://formspree.io/f/mqakzlyo`, {
