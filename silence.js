@@ -22,7 +22,7 @@ typeof console !== 'undefined' && function () {
                             return out
                         }))
                     } catch(e) {
-                        old('Object was not logged to prevent a potential memory leak')
+                        old('#<',{}.toString.call(arguments[0]).slice(8,-1),'>')
                     }
                 }
             }(console[i])

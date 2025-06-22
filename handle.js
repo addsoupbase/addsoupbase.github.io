@@ -84,7 +84,7 @@ export function getLabel(obj) {
         let proto
         return obj[Symbol.toStringTag] || obj.constructor?.name || (proto=Object.getPrototypeOf(obj)).constructor[Symbol.toStringTag] || proto.constructor?.name
     } catch {
-        return{}.toString.call(obj).slice(8, -1)  ?? 'Unknown'
+        return{}.toString.call(obj).slice(8, -1)  || 'Unknown'
     }
 }
 

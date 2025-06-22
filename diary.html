@@ -175,7 +175,7 @@
     async function setEntry(date) {
         let d = new Date(date)
         let t =  getThat(d)
-        diaryHeading.attr.value= diaryHeading.valueOf().value = t
+        diaryHeading.value=  t
         currentThingy.hide(3)
         error.hide()
         currentThingy.parent.busy(true)

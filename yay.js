@@ -15,7 +15,7 @@ Things i learned from 2nd -> 3rd:
 function plural(singular, plural, count) {
     return Math.sign(count = +count) === count && count ? `${count} ${singular}` : `${count.toLocaleString()} ${plural}`
 }
-
+const {get,set,apply, getOwnPropertyDescriptor} = Reflect
 import * as h from './handle.js'
 import * as css from './csshelper.js'
 
@@ -32,7 +32,7 @@ const f = {
             if (!waiting) {
                 waiting = true
                 setTimeout(enable, interval)
-                Reflect.apply(func, this, args)
+                apply(func, this, args)
             }
             return !waiting
         }
@@ -78,7 +78,7 @@ function cacheFunction(maybeFunc) {
             [name](...a) {
                 // Regular wrapper function for method,
                 // for usage instead of making a new one for every instance with bind()
-                return Reflect.apply(maybeFunc, base(this), a)
+                return apply(maybeFunc, base(this), a)
             }
         }[name]  // keep the original function name just in case
         BoundFunctions.set(maybeFunc, wrapper)
@@ -138,12 +138,13 @@ const attrStyleMap = 'StylePropertyMap' in window
         // just create as few closures as possible
         get(targ, prop, r) {
             let a = this[0]
-            return targ.hasOwnProperty(prop) ? Reflect.get(targ, prop, r) :
-                cacheFunction(Reflect.get(a, prop, a), a)
+            return targ.hasOwnProperty(prop) ? get(targ, prop, r) :
+                cacheFunction(get(a, prop, a), a)
             // ⛓️‍💥 'Illegal invocation' if function is not bound
         },
         set(targ, prop, value) {
-            return Reflect.set(targ.hasOwnProperty(prop) ? targ : this, prop, value)
+            let t = targ.hasOwnProperty(prop) ? targ : this[0]
+            return set(t, prop, value, t)
         }
     },
     querySelector: {
@@ -412,7 +413,7 @@ let props = Object.getOwnPropertyDescriptors(class _
             do my.remove()
             while (my.isConnected /*document.contains(my)*/)
             let myevents = h.getEventNames(my)
-            myevents.size && Reflect.apply(this.off, this, myevents)
+            myevents.size && apply(this.off, this, myevents)
             all.delete(my)
             // inte?.unobserve(my)
             // resi.unobserve(my)
@@ -445,20 +446,20 @@ let props = Object.getOwnPropertyDescriptors(class _
 
                 function ProxyEventWrapperFunction(...args) {
                     // just avoid bind()
-                    Reflect.apply(old, me, args)
+                    apply(old, me, args)
                 }
             } else for (let i in events) events[i] = function (old) {
                 return ProxyEventWrapperFunction
 
                 function ProxyEventWrapperFunction(...args) {
-                    Reflect.apply(old, me, args)
+                    apply(old, me, args)
                 }
             }(events[i])
             h.on(base(this), events, signal)
         }
 
         off(...events) {
-            Reflect.apply(h.off, null, [base(this)].concat(events))
+            apply(h.off, null, [base(this)].concat(events))
         }
 
         set(prop, val) {
@@ -496,7 +497,7 @@ let props = Object.getOwnPropertyDescriptors(class _
                 function DelegationFunction(...args) {
                     let {target} = args[0],
                         pr = prox(target);
-                    (me !== target || includeSelf) && (filter(pr) ?? 1) && Reflect.apply(old, pr, args)
+                    (me !== target || includeSelf) && (filter(pr) ?? 1) && apply(old, pr, args)
                 }
             }
             this.on(events, false, signal)
@@ -681,7 +682,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         }
 
         replace(...elements) {
-            Reflect.apply(HTMLElement.prototype.replaceWith, base(this), elements.map(base))
+            apply(HTMLElement.prototype.replaceWith, base(this), elements.map(base))
         }
 
         wrap(parent) {
@@ -984,7 +985,7 @@ HTML_PLACING.forEach(set =>
         }
     })
 )
-'offsetLeft offsetTop offsetWidth offsetHeight offsetParent clientLeft clientTop clientWidth clientHeight scrollWidth scrollHeight'
+'offsetLeft offsetTop offsetWidth offsetHeight offsetParent clientLeft clientTop clientWidth clientHeight scrollWidth scrollHeight scrollTopMax scrollLeftMax'
 .split(' ').forEach(prop => {
     // Reading these properties causes reflows/layout-shift/repaint whatever its called idk
     let cached = null,
@@ -1016,7 +1017,7 @@ Reflect.ownKeys(props).forEach(i => {
                     //  value if the original return value is undefined
                     let me = prox(this), b = base(this)
                     if (!getValid(b) || !all.has(b)) throw TypeError('Invalid calling object')
-                    let r = Reflect.apply(value, me, a)
+                    let r = apply(value, me, a)
                     return typeof r === 'undefined' ? me : r
                 }
             }[i] //  Just want to keep the original function name intact
@@ -1043,11 +1044,11 @@ Reflect.ownKeys(props).forEach(i => {
 })
 Object.defineProperties(prototype,
     {
-        setAttributes: Reflect.getOwnPropertyDescriptor(prototype, 'setAttr'),
-        kill: Reflect.getOwnPropertyDescriptor(prototype, 'destroy'),
-        killChildren: Reflect.getOwnPropertyDescriptor(prototype, 'destroyChildren'),
-        styleMe: Reflect.getOwnPropertyDescriptor(prototype, 'setStyles'),
-        setStyle: Reflect.getOwnPropertyDescriptor(prototype, 'setStyles')
+        setAttributes: getOwnPropertyDescriptor(prototype, 'setAttr'),
+        kill: getOwnPropertyDescriptor(prototype, 'destroy'),
+        killChildren: getOwnPropertyDescriptor(prototype, 'destroyChildren'),
+        styleMe: getOwnPropertyDescriptor(prototype, 'setStyles'),
+        setStyle: getOwnPropertyDescriptor(prototype, 'setStyles')
     }
 )
 // 🖨 Copy everything
