@@ -133,7 +133,7 @@
         '%&click'() {
             if (!canMove) return
             today = new Date()
-            goBy(0)
+            goBy(-0)
             setEntry(getDate())
         }
     })
@@ -174,7 +174,8 @@
 
     async function setEntry(date) {
         let d = new Date(date)
-        diaryHeading.attr.value = getThat(d)
+        let t =  getThat(d)
+        diaryHeading.attr.value= diaryHeading.valueOf().value = t
         currentThingy.hide(3)
         error.hide()
         currentThingy.parent.busy(true)

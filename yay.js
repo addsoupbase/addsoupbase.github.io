@@ -547,9 +547,11 @@ let props = Object.getOwnPropertyDescriptors(class _
                 })
             }
         }
+
         get disabled() {
-            return 'disabled'in this.attr || 'aria-disabled'in this.attr
+            return 'disabled' in this.attr || 'aria-disabled' in this.attr
         }
+
         saveAttr(...attributes) {
             let me = base(this)
             if (!attributes.length) {
@@ -1691,7 +1693,21 @@ function allElementStuff(e) {
     // return [].some.call(e.attributes, badAttrName)
 }
 
-export const define = Object.getPrototypeOf(customElements).define.bind(customElements)
+export const define = function () {
+    let dfn
+    return define
+    function define(...args) {
+        if (!dfn) {
+            let n = $('iframe', {
+                parent: document.head
+            })
+            dfn = n.contentWindow.customElements.define.bind(customElements)
+            n.destroy()
+            n=null
+        }
+        return dfn.apply(1, args)
+    }
+}()
 /*export function info(heading, message, parent, yes, no) {
 return new Promise(resolve => {
 parent ??= $.body

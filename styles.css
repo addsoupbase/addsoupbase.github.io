@@ -303,6 +303,7 @@ input[type=image]:active {
   z-index: 4;
   margin: 30px;
 }
+
 .garfield{
   image-rendering: pixelated;
   transform:scale(0.3, 0.3);
@@ -342,8 +343,12 @@ input[type=image]:active {
   resize: both;
   max-height: 70vh;
   opacity: 1;
-  backdrop-filter: blur(4px);
+  /*backdrop-filter: blur(4px);*/
   margin:auto;
+  /*transition: filter 1s ease;*/
+}
+#diary[aria-busy="true"] {
+  /*filter: brightness(60%);*/
 }
 #background {
   z-index: 2;
