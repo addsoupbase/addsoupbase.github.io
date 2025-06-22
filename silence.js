@@ -22,7 +22,7 @@ typeof console !== 'undefined' && function () {
                             return out
                         }))
                     } catch(e) {
-                        old('#<',{}.toString.call(arguments[0]).slice(8,-1),'>')
+                        old({}.toString.call(arguments[0]).slice(8,-1))
                     }
                 }
             }(console[i])

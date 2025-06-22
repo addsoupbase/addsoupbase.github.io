@@ -169,8 +169,14 @@ a {
 .luvdisc.shiny {
   filter: hue-rotate(87deg) brightness(1.4);
 }
-.wailord.shiny, .kingdra.shiny {
+.wailord.shiny, .kingdra.shiny, .wailmer.shiny {
   filter: hue-rotate(70deg);
+}
+.tentacool.shiny {
+  filter:hue-rotate(92deg)
+}
+.mantine {
+  scale: 2 2
 }
 .wailord {
   scale: 5.9 5.3

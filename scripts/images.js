@@ -82,6 +82,9 @@ export let time = new Promise( async(resolve) => {
                 'seaking:4',
                 'tynamo:4',
                 'skrelp:4',
+                'mantine:10',
+                'tentacool:4',
+                'wailmer:7'
                 // 'dragalge:5' also looks weird,
             ].map(async function (o) {
                 let {0: src, 1: Width} = o.split(":")
