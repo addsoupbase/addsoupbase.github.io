@@ -38,9 +38,12 @@
 .displayName {
   position: absolute;
   top: 80%;
+  width:max-content;
   text-align: center;
 }
-
+.Cole {
+filter: drop-shadow(5px 5px 5px red) drop-shadow(-5px -5px 5px blue)
+}
 .tar {
   background-repeat: no-repeat;
   background-size: cover;

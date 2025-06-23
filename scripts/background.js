@@ -69,7 +69,7 @@ async function images({time, colorful, birthday}) {
         let {0: name} = this.firstElementChild.src.match(regex)[0].split(/\.(?:webp|a?png|gif|jpe?g)/)
         if (name.includes('%')) name = decodeURIComponent(name)
         let src = this.firstElementChild.src
-        let me = $('div.ava .tar', {
+        let me = $(`div.ava .tar .${name}`, {
             styles: {
                 'backgroundImage': `url(${src})`
             },
