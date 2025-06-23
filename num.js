@@ -210,7 +210,6 @@ export class Vector2 {
                     y = x.y ?? x[1]
                     x = x.x ?? x[0]
                 }
-
                 return old.call(this, x, y)
             }
         }
