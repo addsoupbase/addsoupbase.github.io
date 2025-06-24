@@ -85,7 +85,7 @@ async function images({time, colorful, birthday}) {
         await me.animate([{opacity:1}, {opacity: 0, filter: 'opacity(0%) grayscale(100%) blur(20px) brightness(-100%)'}], {
             duration: 1000,
             delay: 2000,
-            composite:'replace'
+            composite:'add'
         }).finished
         me.destroy()
     }
