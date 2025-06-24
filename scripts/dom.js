@@ -118,10 +118,10 @@ draw.on({
    this.styles.zoom = Math.min(Math.max((+this.styles.zoom || 1) - Math.sign(a)/30,.5), 3)
        },*/
     // touchstart: pointerdown,
-    touchmove(a){
+   /* touchmove(a){
         pointermove.call(this,a)
         touched ||= !!this.off('pointermove')
-    } ,
+    } ,*/
     // touchcancel: cancel,
     // touchend: cancel,
     // mousedown: pointerdown,
