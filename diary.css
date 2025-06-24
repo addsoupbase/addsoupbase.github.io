@@ -16,9 +16,7 @@
 
     overflow-x: hidden;
   }
-  * {
-      word-break: break-all;
-  }
+
   :root {
     font-family: 'Choco';
   }
