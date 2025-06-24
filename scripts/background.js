@@ -260,6 +260,7 @@ async function images({time, colorful, birthday}) {
         bubbl.setStyles({
             width: `${num}px`,
             height: `${num}px`,
+
             left: x ?? `${ran.range(0, innerWidth)}px`,
             top: y ?? '100%'
         })

@@ -3,6 +3,8 @@ import {wait} from '../handle.js'
 
 $.setup()
 let {main, drawInstead, send1, send2, draw, drawcontrols, undoDraw, submitDrawing} = $.id
+
+$.id.pickAColor
 drawInstead.on({
     _click() {
         this.before.destroy()
@@ -77,36 +79,56 @@ Object.assign(ctx, {
 })
 ctx.fillRect(0, 0, 250, 250)
 ctx.fillStyle = 'black'
+function pointermove({offsetX: x, offsetY: y}) {
+    if (down) {
+        if (arguments[0].touches) {
+            let touches = arguments[0].touches[0]
+            x = touches.clientX-this.offsetLeft - touches.radiusX
+            y =  touches.clientY-this.offsetTop - touches.radiusY
+        }
+        ctx.beginPath()
+        let {currentCSSZoom: zoom} = this
+        ctx.moveTo(last.x / zoom, last.y / zoom)
+        ctx.lineTo(x / zoom, y / zoom)
+        ctx.stroke()
+        last.x = x
+        last.y = y
+    }
+}
+function pointerdown(p) {
+    undoBuffer.push(ctx.getImageData(0, 0, 250, 250))
+    while(undoBuffer.length > 20) undoBuffer.shift()
+    down = true
+    if ('pointerId' in p)
+    this.setPointerCapture(p.pointerId)
+    last.x = p.offsetX
+    last.y = p.offsetY
+    ctx.beginPath()
+    let {currentCSSZoom: zoom} = this
+    ctx.arc(last.x,last.y,0,0,6)
+    ctx.stroke()
+    ctx.fill()
+    // ctx.strokeRect(p.offsetX/zoom, p.offsetY/zoom, .5,.5)
+}
+let touched = false
 draw.on({
     //Do it later
     /*   wheel({deltaY: a}){
            console.log(arguments[0])
    this.styles.zoom = Math.min(Math.max((+this.styles.zoom || 1) - Math.sign(a)/30,.5), 3)
        },*/
-    pointerdown(p) {
-        undoBuffer.push(ctx.getImageData(0, 0, 250, 250))
-        down = true
-        this.setPointerCapture(p.pointerId)
-        last.x = p.offsetX
-        last.y = p.offsetY
-        ctx.beginPath()
-        let {currentCSSZoom: zoom} = this
-        ctx.arc(last.x,last.y,1,0,6)
-        ctx.stroke()
-        ctx.fill()
-        // ctx.strokeRect(p.offsetX/zoom, p.offsetY/zoom, .5,.5)
-    },
-    pointermove({offsetX: x, offsetY: y}) {
-        if (down) {
-            ctx.beginPath()
-            let {currentCSSZoom: zoom} = this
-            ctx.moveTo(last.x / zoom, last.y / zoom)
-            ctx.lineTo(x / zoom, y / zoom)
-            ctx.stroke()
-            last.x = x
-            last.y = y
-        }
-    },
+    // touchstart: pointerdown,
+    touchmove(a){
+        pointermove.call(this,a)
+        touched ||= !!this.off('pointermove')
+    } ,
+    // touchcancel: cancel,
+    // touchend: cancel,
+    // mousedown: pointerdown,
+    // mousemove:pointermove,
+    // mouseup: cancel,
+    pointerdown,
+    pointermove,
     pointerup: cancel,
     pointercancel: cancel
 })
@@ -159,7 +181,7 @@ function disableForm(res) {
 }
 
 form.on({
-        submit() {
+        _submit() {
             // name ||= 'Anonymous'
             !async function () {
                 await form.fadeOut()
