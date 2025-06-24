@@ -53,7 +53,7 @@ drawcontrols.delegate({
             }
                 break
             case 'color': {
-                ctx.strokeStyle = this.value
+                ctx.strokeStyle =ctx.fillStyle = this.value
             }
                 break
         }
@@ -69,13 +69,14 @@ let last = {
 }
 let undoBuffer = []
 let zoom = 1
-window.undo = undoBuffer
 Object.assign(ctx, {
     lineJoin: 'round',
     lineCap: 'round',
-    fillStyle: 'white'
+    fillStyle: 'white',
+
 })
 ctx.fillRect(0, 0, 250, 250)
+ctx.fillStyle = 'black'
 draw.on({
     //Do it later
     /*   wheel({deltaY: a}){
@@ -90,6 +91,9 @@ draw.on({
         last.y = p.offsetY
         ctx.beginPath()
         let {currentCSSZoom: zoom} = this
+        ctx.arc(last.x,last.y,1,0,6)
+        ctx.stroke()
+        ctx.fill()
         // ctx.strokeRect(p.offsetX/zoom, p.offsetY/zoom, .5,.5)
     },
     pointermove({offsetX: x, offsetY: y}) {
