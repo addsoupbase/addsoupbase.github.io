@@ -34,7 +34,23 @@
   --user-drag: none;
   pointer-events: none;
 }
+#drawcontrols > * {
+  margin:5px;
+  margin-bottom: 0 !important;
+}
 
+#draw {
+  background-color: white;
+  resize: both;
+
+  --user-select:none;
+  cursor:crosshair;
+  touch-action: none;
+image-rendering: auto;
+}
+#drawInstead {
+  width:80px;
+}
 .displayName {
   position: absolute;
   top: 80%;
@@ -440,10 +456,13 @@ html {
 .lol {
   justify-content: center;
   display: grid;
+  place-content: center;
   text-align: center;
   justify-items: center;
 }
-
+#send2 {
+  place-items: center;
+}
 .username {
   z-index: 40;
 }

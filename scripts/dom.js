@@ -1,10 +1,117 @@
 import $ from '../yay.js'
-import {on,} from "../handle.js"
+import {wait} from '../handle.js'
 
 $.setup()
-let {main} = $.id
-if (top === window) $.id.viewframe.destroy()
+let {main, drawInstead, send1, send2, draw, drawcontrols, undoDraw, submitDrawing} = $.id
+drawInstead.on({
+    _click() {
+        this.before.destroy()
+        this.destroy()
+        send2.fadeIn()
+        send1.hide(3)
+    }
+})
+send2.on({
+    async $_submit() {
+        let pencil = $('<img src="./cute-emojis/emojis/1216660171951046746.gif">')
+        !async function () {
+            await this.fadeOut()
+            this.replace(pencil)
+            pencil.busy(true)
+            pencil.fadeIn()
+        }.call(this)
+        let data = draw.toDataURL().slice(22)
+        let res = await fetch(this.attr.$action, {
+            mode: 'cors',
+            method: 'post',
+            headers: {'Content-Type': 'text/plain'},
+            body: data
+        })
+        if (res.ok) {
+            await wait(1000)
+            let yay = $('<samp>Sent... YAYYYYY!!</samp>')
+            await pencil.fadeOut()
+            pencil.replace(yay)
+            yay.fadeIn()
+            yay.styles.display = "block"
+            yay.animate([{transform: 'scale(2,2)'}, {transform: ''}], {duration: 500, iterations: 1, easing: 'ease'})
+        }
+    }
+})
+undoDraw.on({
+    click() {
+        if (!undoBuffer.length) return
+        ctx.clearRect(0, 0, 250, 250)
+        ctx.putImageData(undoBuffer.pop(), 0, 0)
+    }
+})
+drawcontrols.delegate({
+    change() {
+        switch (this.type) {
+            case 'range': {
+                ctx.lineWidth = this.value
+            }
+                break
+            case 'color': {
+                ctx.strokeStyle = this.value
+            }
+                break
+        }
+    }
+})
+let down = false
+let ctx = draw.getContext('2d', {
+    willReadFrequently: true,
+})
+let last = {
+    x: 0 / 0,
+    y: 0 / 0,
+}
+let undoBuffer = []
+let zoom = 1
+window.undo = undoBuffer
+Object.assign(ctx, {
+    lineJoin: 'round',
+    lineCap: 'round',
+    fillStyle: 'white'
+})
+ctx.fillRect(0, 0, 250, 250)
+draw.on({
+    //Do it later
+    /*   wheel({deltaY: a}){
+           console.log(arguments[0])
+   this.styles.zoom = Math.min(Math.max((+this.styles.zoom || 1) - Math.sign(a)/30,.5), 3)
+       },*/
+    pointerdown(p) {
+        undoBuffer.push(ctx.getImageData(0, 0, 250, 250))
+        down = true
+        this.setPointerCapture(p.pointerId)
+        last.x = p.offsetX
+        last.y = p.offsetY
+        ctx.beginPath()
+        let {currentCSSZoom: zoom} = this
+        // ctx.strokeRect(p.offsetX/zoom, p.offsetY/zoom, .5,.5)
+    },
+    pointermove({offsetX: x, offsetY: y}) {
+        if (down) {
+            ctx.beginPath()
+            let {currentCSSZoom: zoom} = this
+            ctx.moveTo(last.x / zoom, last.y / zoom)
+            ctx.lineTo(x / zoom, y / zoom)
+            ctx.stroke()
+            last.x = x
+            last.y = y
+        }
+    },
+    pointerup: cancel,
+    pointercancel: cancel
+})
 
+function cancel() {
+    down = false
+}
+
+if (top === window) $.id.viewframe.destroy()
 /*location.hash ? main.animate([{filter: 'blur(2px)', opacity: 0, scale: '0.8 0.8', translate: '0 -40px'}, {
         filter: '',
         opacity: .96
@@ -15,9 +122,8 @@ if (top === window) $.id.viewframe.destroy()
     { scale: '' }, { scale: '1.1 1.1' },
 ], { duration: 500, iterations: 4, direction: 'alternate', easing: 'ease-in-out' })*/
 if (top === window) {
-    $.id.goBack.setAttr({href:'../'})
-}
-else $.gid('viewbackground').on({
+    $.id.goBack.setAttr({href: '../'})
+} else $.gid('viewbackground').on({
     _click() {
         $.body.parent.fadeOut()
         setTimeout(() => {
@@ -43,17 +149,22 @@ let {submit: form} = $.byId
 // }, false,controller)
 // )
 let out = $('<iframe name="hi"></iframe>')
+
+function disableForm(res) {
+    if (!res?.ok) form.replace($(`<samp>Something went wrong... try again later love :(</samp>`)).destroy()
+}
+
 form.on({
-         submit() {
+        submit() {
             // name ||= 'Anonymous'
-             !async function(){
-             await form.fadeOut()
-            let hi = $(`<section><h3>Sent!! (hopefully)</h3></section>`)
-                 hi.push($('samp',{textContent:`Name: ${this.name.value || "Anonymous"}`}),$('br'),
-                     $('samp', {textContent:`Message: ${this.message.value}`}))
-            form.replace(hi)
-            hi.fadeIn()
-             $.id.prevent.destroy()
+            !async function () {
+                await form.fadeOut()
+                let hi = $(`<section><h3>Sent!! (hopefully)</h3></section>`)
+                hi.push($('samp', {textContent: `Name: ${this.name.value || "Anonymous"}`}), $('br'),
+                    $('samp', {textContent: `Message: ${this.message.value}`}))
+                form.replace(hi)
+                hi.fadeIn()
+                $.id.prevent.destroy()
             }.call(this)
             // let loading = $('<img class="delibird" src="./media/loading.webp">')
             // form.before = loading
@@ -80,3 +191,7 @@ form.on({
         }
     }, false, controller
 )
+
+fetch('https://misha-mail-85.deno.dev', {
+    mode:'cors'
+}).then(disableForm, disableForm)
