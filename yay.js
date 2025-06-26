@@ -1120,9 +1120,10 @@ const imported = new Set
 function observeAll(node) {
     let n = node.tagName.toLowerCase()
     switch (n) {
-        case 'img-sprite':
-        case 'touch-joystick':
-        case 'seek-bar':
+        case'img-sprite':
+        case'touch-joystick':
+        case'seek-bar':
+        case'paper-canvas':
             imported.has(n) || (import(`./webcomponents/${n}.js`), imported.add(n))
     }
     // if (node instanceof CUSTOM_ELEMENT_SPRITE) node.getAttributeNames().forEach(refreshAttributes, node)
@@ -1590,6 +1591,12 @@ export default Object.defineProperties($, {
     // }
     // },
     //len:0,
+    push: {
+        value(node, ...children) {
+            node.append.apply(node, children.map(base))
+            return node
+        }
+    },
     0: {
         get() {
             return $(window.$0 ?? document.activeElement)

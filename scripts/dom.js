@@ -15,7 +15,7 @@ drawInstead.on({
 })
 send2.on({
     async $_submit() {
-        let pencil = $('<img src="./cute-emojis/emojis/1216660171951046746.gif">')
+        let pencil = $('<img src="./cute-emojis/emojis/1216660171951046746.gif" alt="pencil loading icon">')
         !async function () {
             await this.fadeOut()
             this.replace(pencil)
