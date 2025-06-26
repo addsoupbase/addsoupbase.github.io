@@ -220,7 +220,7 @@
     setEntry(getDate())
 </script>
 <script>
-    (document.addEventListener||document.attachEvent)('DOMContentLoaded', function () {
+    (document.addEventListener||document.attachEvent).call(document,'DOMContentLoaded', function () {
         'use strict'
         if (typeof h === 'undefined') {
             var n = new XMLHttpRequest()
