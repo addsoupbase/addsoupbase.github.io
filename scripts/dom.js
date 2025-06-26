@@ -127,10 +127,10 @@ draw.on({
     // mousedown: pointerdown,
     // mousemove:pointermove,
     // mouseup: cancel,
-    pointerdown,
-    pointermove,
-    pointerup: cancel,
-    pointercancel: cancel
+    '^pointerdown':pointerdown,
+    '^pointermove':pointermove,
+    '^pointerup': cancel,
+    '^pointercancel': cancel
 })
 
 function cancel() {

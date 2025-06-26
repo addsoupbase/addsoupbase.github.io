@@ -28,21 +28,21 @@ async function images({time, colorful, birthday}) {
     const cycle = math.cycle(...ran.shuffle(...avatars))
     let holding = false
     bg.delegate({
-            pointerdown: click
+            '^pointerdown': click
         }, o =>
             o.classList.contains('bubble') && o.flags === 0,
         false,
         new AbortController
     ).debounce({
-        pointermove({x, y}) {
+        '^pointermove'({x, y}) {
             holding && makeBubble(`${x}px`, `${y}px`).fadeIn(300)
         }
     }, 80)
     .on({
-        pointerup() {
+        '^pointerup'() {
             holding = false
         },
-        pointerdown(e) {
+        '^pointerdown'(e) {
             this.setPointerCapture(e.pointerId)
             holding = true
         }

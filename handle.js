@@ -10,7 +10,6 @@ for (let i in console) {
     if (typeof old !== 'function') continue
     logger[i] = DelayedLog
     logger[`${i}Late`] = LogOutOfGroup
-
     function DelayedLog(...args) {
         args.unshift(1)
         queueMicrotask(old.bind.apply(old, args))
@@ -48,7 +47,7 @@ function isValidET(target) {
             || target.EventTarget?.prototype.isPrototypeOf(target)
             || lastResort(target)) /*'addEventListener removeEventListener dispatchEvent'.split(' ').every(lastResort, target)*/
     bool && (verified.has(target) || verified.add(target))
-    return bool
+    return !!bool
 }
 
 function lastResort(target) {
@@ -247,9 +246,10 @@ export function on(target, events, signal) {
                     //once
                     passive,
                 }
+                if (prevents && passive) throw TypeError("Cannot call 'preventDefault' on a passive function")
             eventName = verifyEventName(target, eventName.replace(formatEventName, ''))
             if (myEvents.has(eventName) && signal == null) {
-                logger.warnLate(`🔕 Skipped duplicate '${eventName}' listener`)
+                logger.warnLate(`🔕 Skipped duplicate '${eventName}' listener. Call on() again with the signal parameter to bypass this.`)
                 continue
             }
             if (signal) {
@@ -281,10 +281,11 @@ export function on(target, events, signal) {
                             event.deltaY = 0
                 }
                 signal && args.push(Abort, Remove)
-                onlyTrusted && event.isTrusted || !onlyTrusted && (!onlyCurrentTarget || onlyCurrentTarget && event.target === event.currentTarget) &&
+                'returnValue'in event && prevents && (event.returnValue = !prevents)
+                onlyTrusted && event.isTrusted || !onlyTrusted && (!onlyCurrentTarget || onlyCurrentTarget && (event.target ?? event.srcElement) === event.currentTarget) &&
                 (Reflect.apply(func, target, args),
-                prevents && (event.cancelable ? event.preventDefault() : warn(`🔊 '${eventName}' events are not cancelable`)),
-                stopProp && event.stopPropagation(),
+                prevents && (event.cancelable ? event.defaultPrevented ? warn(`'${eventName}' event has already been cancelled`) : event.preventDefault() : warn(`🔊 '${eventName}' events are not cancelable`)),
+                stopProp && event.stopPropagation() && (event.cancelBubble = true),
                 stopImmediateProp && event.stopImmediatePropagation(),
                 autoabort && Abort(),
                 once && off(event.currentTarget, eventName))
@@ -405,4 +406,18 @@ export function download(blob, title) {
     (anchor ??= document.createElement('a')).download = title ?? 'download'
     anchor.href = getObjUrl(blob)
     anchor.click()
+}
+function nothing(){}
+export function delegate(me, events, filter, includeSelf, signal) {
+    filter ??= nothing
+    for (let i in events) {
+        if (i.includes('@')) throw SyntaxError("Conflicting usage of a 'currentTarget' only delegating event handler")
+        let old = events[i]
+        events[i] = DelegationFunction
+        function DelegationFunction(...args) {
+            let {target} = args[0];
+            (me !== target || includeSelf) && (filter(target) ?? 1) && Reflect.apply(old, target, args)
+        }
+    }
+    on(me, events, false, signal)
 }

@@ -278,7 +278,7 @@ a {
   width: 100%;
   justify-content: center;
   height: 100vh;
-  --zoom: .8;
+  /*--zoom: .8;*/
   inset: 0;
   margin: auto;
   text-align: center;
@@ -472,6 +472,8 @@ html {
   position: relative;
   --user-select: none;
   /*width: 90%;*/
+  transform:scale(.8);
+
   /*max-height:120vh;*/
   /*height: 70%;*/
   filter: drop-shadow(0px 0px 10px green);
