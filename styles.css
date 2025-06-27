@@ -473,7 +473,7 @@ html {
   position: relative;
   --user-select: none;
   /*width: 90%;*/
-  transform:scale(.8);
+  /*transform:scale(.8);*/
 
   /*max-height:120vh;*/
   /*height: 70%;*/
