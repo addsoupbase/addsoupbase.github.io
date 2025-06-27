@@ -42,7 +42,7 @@
 #draw {
   background-color: white;
   resize: both;
-
+display: block;
   --user-select:none;
   cursor:crosshair;
   touch-action: none;
@@ -462,6 +462,7 @@ html {
 }
 #send2 {
   place-items: center;
+  backdrop-filter: blur(3px);
 }
 .username {
   z-index: 40;

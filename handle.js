@@ -230,7 +230,9 @@ export function on(target, events, signal) {
         else if (isArray(events))
             events = Object.fromEntries(events)
         // if (signal) signal.signal.onabort = console.debug.bind(1, 'Aborted: ', signal)
-        for (let eventName in events) {
+        let names = Reflect.ownKeys(events)
+        for (let {length:i} = names; i--;) {
+            let eventName = names[i]
             const func = events[eventName],
                 once = eventName.includes(ONCE),
                 prevents = eventName.includes(PREVENT_DEFAULT),
@@ -314,10 +316,8 @@ export function on(target, events, signal) {
                 logger.info(`🔔 '${eventName}' event added`)
             }
         }
-    } catch (e) {
-        throw e
-        // queueMicrotask(reportError.bind(globalThis, e))
-    } finally {
+    }
+    finally {
         groupEnd()
     }
     return target
@@ -345,10 +345,8 @@ export function off(target, ...eventNames) {
             mySet.delete(name)
             map.size || allEvents.delete(target)
         }
-    } catch (e) {
-        throw e
-        // queueMicrotask(reportError.bind(globalThis, e))
-    } finally {
+    }
+    finally {
         groupEnd()
     }
 }

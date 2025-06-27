@@ -87,9 +87,9 @@ function pointermove({offsetX: x, offsetY: y}) {
             y =  touches.clientY-this.offsetTop - touches.radiusY
         }
         ctx.beginPath()
-        let {currentCSSZoom: zoom} = this
-        ctx.moveTo(last.x / zoom, last.y / zoom)
-        ctx.lineTo(x / zoom, y / zoom)
+        // let {currentCSSZoom: zoom} = this
+        ctx.moveTo(last.x , last.y )
+        ctx.lineTo(x , y )
         ctx.stroke()
         last.x = x
         last.y = y

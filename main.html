@@ -61,7 +61,7 @@
                         </form>
                     </div>
                     <form id="send2" style="display: none;touch-action:none !important;" data-action="https://misha-mail-85.deno.dev/" method="post" enctype="text/plain">
-                        <div style="width:250px; height:250px;overflow: hidden;place-content: center;margin:5px;touch-action:none !important;">
+                        <div style="overflow: hidden;place-content: center;margin:5px;touch-action:none !important;">
                             <button class="cute-green-button" id="submitDrawing">Send</button>
                             <canvas name="drawing" aria-label="Canvas to draw on" width="250" height="250" id="draw"
                                     aria-required="true">Canvas is not supported.
@@ -69,9 +69,18 @@
                         </div>
                         <div>
                             <div style="margin:20px;display: flex" id="drawcontrols">
+                                <label style="display: grid">
+                                    Color
                                 <input id="pickAColor" type="color" placeholder="pick a color" title="choose a color">
+                                </label>
+                                <label style="display:grid">
+                                    Undo
                                 <input type="button" value="↩️" id="undoDraw" title="undo" aria-label="Undo">
+                                </label>
+                                <label style="display:grid">
+                                    Brush Size
                                 <input type="range" min="1" max="20" value="1">
+                                </label>
                             </div>
                         </div>
                     </form>

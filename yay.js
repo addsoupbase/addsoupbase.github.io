@@ -15,10 +15,13 @@ Things i learned from 2nd -> 3rd:
 function plural(singular, plural, count) {
     return Math.sign(count = +count) === count && count ? `${count} ${singular}` : `${count.toLocaleString()} ${plural}`
 }
-const {get,set,apply, getOwnPropertyDescriptor} = Reflect
+const {get,set,apply,getOwnPropertyDescriptor} = Reflect
 import * as h from './handle.js'
 import * as css from './csshelper.js'
-
+function from(ArrayLike, map, thisArg) {
+        // Array.from checks @@iterator first, which would be slower in cases where it is callable
+    return ArrayLike.length>=0?map?[].map.call(ArrayLike,map,thisArg):[].slice.call(ArrayLike):map?Array.from(ArrayLike,map,thisArg): typeof ArrayLike[Symbol.iterator]!=='undefined'?[...ArrayLike]:[]
+}
 const f = {
     debounce(func, interval) {
         let waiting = false
@@ -459,7 +462,8 @@ let props = Object.getOwnPropertyDescriptors(class _
         }
 
         off(...events) {
-            apply(h.off, null, [base(this)].concat(events))
+            events.unshift(base(this))
+            apply(h.off, null, events)
         }
 
         set(prop, val) {
@@ -467,7 +471,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         }
 
         getByTag(tag) {
-            return Array.from(base(this).getElementsByTagName(tag), prox)
+            return from(base(this).getElementsByTagName(tag), prox)
         }
 
         debounce(events, interval, signal) {
@@ -520,7 +524,7 @@ let props = Object.getOwnPropertyDescriptors(class _
             //base(this).style.cssText = out.join(';')
         }
 
-        static canBeDisabled = /^HTML(?:Button|FieldSet|OptGroup|Option|Select|TextArea|Input)Element$/
+        static canBeDisabled = /^HTML(?:Button|FieldSet|Opt(?:Group|tion)|Select|TextArea|Input)Element$/
 
         set disabled(val) {
             if (val) {
@@ -1116,16 +1120,10 @@ MUTATION OBSERVER STUFFS
     this.setAttribute(attr, this.getAttribute(attr))
 }*/
 const imported = new Set
-
+let has = Set.prototype.has.bind(new Set('img-sprite touch-joystick seek-bar paper-canvas'.split(' ')))
 function observeAll(node) {
     let n = node.tagName.toLowerCase()
-    switch (n) {
-        case'img-sprite':
-        case'touch-joystick':
-        case'seek-bar':
-        case'paper-canvas':
-            imported.has(n) || (import(`./webcomponents/${n}.js`), imported.add(n))
-    }
+    has(n)&&(imported.has(n)||(import(`./webcomponents/${n}.js`),imported.add(n)))
     // if (node instanceof CUSTOM_ELEMENT_SPRITE) node.getAttributeNames().forEach(refreshAttributes, node)
     inte?.observe(node)
     resi.observe(node)
@@ -1525,7 +1523,7 @@ function $(html, props, ...children) {
     }
     $.last = element
     let b = base(element)
-    if (Array.from(b.querySelectorAll('*'), prox).concat(element).some(allElementStuff)) throw TypeError('Inline event handlers are deprecated')
+    if (from(b.querySelectorAll('*'), prox).concat(element).some(allElementStuff)) throw TypeError('Inline event handlers are deprecated')
     if (element.tagName === 'SCRIPT' || b.querySelector('script')) {
         debugger
         throw new DOMException('Potential script injection', 'SecurityError')
@@ -1636,7 +1634,7 @@ export default Object.defineProperties($, {
     },
     qsa: {
         value(selector) {
-            return Array.from(base($.doc).querySelectorAll(selector), prox)
+            return from(base($.doc).querySelectorAll(selector), prox)
         }
     },
     last: {
@@ -1795,11 +1793,10 @@ backdrop.fadeIn().then(() => {
 })*/
 if (location.host.includes('localhost')) {
     Object.assign(window, {
-        $: {
-            h, css, $
-        }
+        $,h,css
     })
 }
+/*
 window.Proxy = window.Proxy || function () {
     // i just made this one because i was bored lol
     'use strict'
@@ -1928,3 +1925,4 @@ window.Proxy = window.Proxy || function () {
         configurable: 1,
     })
 }()
+*/

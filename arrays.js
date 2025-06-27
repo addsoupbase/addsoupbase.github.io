@@ -41,18 +41,14 @@ export function of(length, filler) {
 
 export function from(ArrayLike, map, thisArg) {
     // Array.from checks @@iterator first, which would be slower in cases where it is callable
-    return'length'in ArrayLike?map?[].map.call(ArrayLike,map,thisArg):[].slice.call(ArrayLike):map?Array.from(ArrayLike,map,thisArg):[...ArrayLike]
+    return ArrayLike.length>=0?map?[].map.call(ArrayLike,map,thisArg):[].slice.call(ArrayLike):map?Array.from(ArrayLike,map,thisArg): typeof ArrayLike[Symbol.iterator]!=='undefined'?[...ArrayLike]:[]
 }
 
 /*export function forEach(ArrayLike, callback, thisArg) {
     if ('length' in ArrayLike) return [].forEach.call(ArrayLike, callback, thisArg)
     if (ArrayLike[Symbol.toStringTag] === 'Set') return
 }*/
-export function filterForEach(arrayLike, map, thisArg) {
-}
-
 export { of as with }
-
 export function* backwards(arrayLike) {
     for (let { length: i } = arrayLike; yield arrayLike[i--];);
 }
@@ -143,7 +139,7 @@ const headers = {
 async function fallback(src) {
     let n = await fetch(new URL(src, location), headers),
         type = n.headers.get('Content-Type')
-    if (/application\/json/.test(type)) return await n.json()
+    if (/(?:application|text)\/json/.test(type)) return await n.json()
     throw TypeError(`Failed to load module script: Expected a JSON module script but the server responded with a MIME type of "${type}". Strict MIME type checking is enforced for module scripts per HTML spec.`)
 }
 
