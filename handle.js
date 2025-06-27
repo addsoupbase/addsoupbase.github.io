@@ -126,7 +126,7 @@ function verifyEventName(target, name) {
         if (name === 'wheel') {
                 if ('onmousewheel' in target) return'mousewheel'
                 if (typeof MouseScrollEvent === 'function') return'DOMMouseScroll'
-                 return 'MozMousePixelScroll'
+                 return'MozMousePixelScroll'
         }
     }
     //Some events like the one above don't have a handler
@@ -135,26 +135,21 @@ function verifyEventName(target, name) {
 }
 
 const delayedEvents = new Map
-    , giveItSomeTime = function (hold) {
-    let secondparam = 100 //idk some random timeout
+    , giveItSomeTime = function (hold, secondparam) {
     if (hold === globalThis.requestIdleCallback)
         secondparam = {timeout: 1000}
     return delay
-
     function delay(callback) {
         return hold(callback, secondparam)
     }
-}(globalThis.queueMicrotask ?? globalThis.requestIdleCallback ?? globalThis.setImmediate ?? globalThis.setTimeout)
+}(globalThis.queueMicrotask ?? globalThis.requestIdleCallback ?? globalThis.setImmediate ?? globalThis.setTimeout, 100)
 
 function dispatchAllDelayed(id) {
-    let all = delayedEvents.get(id)
-    giveItSomeTime(emitPendingEvents)
-
-    function emitPendingEvents() {
-        all.forEach(dispatchAndDelete)
-    }
+    giveItSomeTime(emitPendingEvents.bind(delayedEvents.get(id)))
 }
-
+function emitPendingEvents() {
+    this.forEach(dispatchAndDelete)
+}
 function dispatchAndDelete(val, i, set) {
     let {target: t, event: e} = val
     dispatchEvent.call(t, e)
@@ -173,27 +168,26 @@ export function delayedDispatch(id, target, event) {
 }
 
 export function wait(ms) {
-    return new Promise(resolveWithDelay)
+    return new Promise(resolveWithDelay.bind(1, ms))
 
-    function resolveWithDelay(resolve) {
-        setTimeout(resolve, ms)
-    }
 }
-
+function resolveWithDelay(ms, resolve) {
+    setTimeout(resolve, ms)
+}
 export function getEventNames(target) {
     target.hasOwnProperty(sym) || Object.defineProperty(target, sym, {value: new Set})
     return target[sym]
 }
 
 export function hasEvent(target, eventName) {
-    return target[sym]?.has(eventName) ?? false
+    return !!target[sym]?.has(eventName)
 }
 
 export const {
     currentTarget: CURRENT_TARGET, autoAbort: AUTO_ABORT, trusted: TRUSTED, once: ONCE,
     preventDefault: PREVENT_DEFAULT, passive: PASSIVE,
     capture: CAPTURE, stopPropagation: STOP_PROPAGATION, stopImmediatePropagation: STOP_IMMEDIATE_PROPAGATION
-} = ({
+} = {
     currentTarget: '@', //Only call function if event.target === event.currentTarget
     autoAbort: '#', //Automatically abort all listeners with the same signal
     trusted: '?', //Only call function if (event.isTrusted)
@@ -203,7 +197,7 @@ export const {
     capture: '%',
     stopPropagation: '&', //Automatically calls event.stopPropagation()
     stopImmediatePropagation: '!', //Automatically calls event.stopImmediatePropagation()
-})
+}
 const customEvents = new Set
 
 export function addCustomEvent(names) {
@@ -214,7 +208,6 @@ const formatEventName = /[_$^%&!?@#\d]|bound /g
 
 export function on(target, events, signal) {
     if (arguments.length > 3 && getLabel(signal) !== 'AbortController') signal = arguments[3]
-    // if (typeof unused !== 'undefined') debugger
     if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
     if (!Object.keys(events).length) return target
     try {
@@ -226,7 +219,6 @@ export function on(target, events, signal) {
         }
         else if (isArray(events))
             events = Object.fromEntries(events)
-        // if (signal) signal.signal.onabort = console.debug.bind(1, 'Aborted: ', signal)
         let names = Reflect.ownKeys(events)
         for (let {length:i} = names; i--;) {
             let eventName = names[i]
@@ -280,7 +272,7 @@ export function on(target, events, signal) {
                             event.deltaY = 0
                 }
                 signal && args.push(Abort, Remove)
-                'returnValue'in event && prevents && (event.returnValue = !prevents)
+                'returnValue'in event&&prevents&&(event.returnValue=!prevents)
                 onlyTrusted && event.isTrusted || !onlyTrusted && (!onlyCurrentTarget || onlyCurrentTarget && (event.target ?? event.srcElement) === event.currentTarget) &&
                 (Reflect.apply(func, target, args),
                 prevents && (event.cancelable ? event.defaultPrevented ? warn(`'${eventName}' event has already been cancelled`) : event.preventDefault() : warn(`🔊 '${eventName}' events are not cancelable`)),

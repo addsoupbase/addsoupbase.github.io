@@ -1095,7 +1095,7 @@ INTERSECTION OBSERVER STUFFS
 */
 let inte
 if (typeof
-    ContentVisibilityAutoStateChangeEvent !== 'function' || 'mozInnerScreenX' in window)  /*Firefox is weird again*/ {
+    ContentVisibilityAutoStateChangeEvent !== 'function' || typeof mozInnerScreenX === 'number')  /*Firefox is weird again*/ {
     inte = new IntersectionObserver(IntersectionObserverCallback, {
         threshold: [0, Number.MIN_VALUE]
     })
@@ -1226,7 +1226,7 @@ function PerformanceLoop(o) {
         }
             return
         case 'longtask':
-            title = 'long-task';
+            title = 'long-task'
         // [top, parent].forEach(o=>o!== window && delayedDispatch(o.entryType,o, new CustomEvent(title, {
         //     detail
         // })))
@@ -1325,7 +1325,8 @@ function ApplyBatchedStyles(value, key, map) {
     try {
         this[key] = value
         map.delete(key)
-    } catch {
+    } catch (e) {
+        console.debug(e)
         // Proxy is likely revoked
         map.clear()
     }
