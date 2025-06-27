@@ -472,8 +472,8 @@ html {
   /* padding: 30px; */
   position: relative;
   --user-select: none;
-  /*width: 90%;*/
-  /*transform:scale(.8);*/
+  width: 100%;
+  scale:.8;
 
   /*max-height:120vh;*/
   /*height: 70%;*/

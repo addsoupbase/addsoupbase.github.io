@@ -1507,7 +1507,7 @@ function $(html, props, ...children) {
     if (getValid(html)) return prox(html) // Redirect
     if (typeof html === 'string') html = html.trim()
     let element
-    if (html[0] === '<' && html.endsWith('>')) {
+    if (html?.[0] === '<' && html.endsWith('>')) {
         html = safeHTML(html)
         element = prox(parseModeMap.get(parseMode)?.(html) ?? parseModeMap.get('')(html))
     } else {

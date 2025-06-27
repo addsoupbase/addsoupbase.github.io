@@ -119,18 +119,15 @@ function verifyEventName(target, name) {
             || (/^(?:DOM(?:Activate|MouseScroll|Focus(?:In|Out)|(?:Attr|CharacterData|Subtree)Modified|NodeInserted(?:IntoDocument)?|NodeRemoved(?:FromDocument)?))$/.test(original)))
     )
     if (!valid) {
-        if (`onwebkit${name}` in target) name = `webkit${original}`
-        else if (`onmoz${name}` in target) name = `moz${original}`
-        else if (`onms${name}` in target) name = `ms${original}`
-        else {
-            if (name.startsWith('pointer')) name = `mouse${name.slice(7)}`
-            else if (name === 'wheel') {
-                if ('onmousewheel' in target) name = 'mousewheel'
-                else if ('MouseScrollEvent' in window) name = 'DOMMouseScroll'
-                else name = 'MozMousePixelScroll'
-            } else name = original
+        if (`onwebkit${name}` in target) return`webkit${original}`
+         if (`onmoz${name}` in target) return`moz${original}`
+         if (`onms${name}` in target) return`ms${original}`
+        if (name.startsWith('pointer')) return`mouse${name.slice(7)}`
+        if (name === 'wheel') {
+                if ('onmousewheel' in target) return'mousewheel'
+                if (typeof MouseScrollEvent === 'function') return'DOMMouseScroll'
+                 return 'MozMousePixelScroll'
         }
-        original = name
     }
     //Some events like the one above don't have a handler
     valid || logger.warnLate(`'${original}' events might not be available on the following object:`, target)
