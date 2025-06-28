@@ -3,7 +3,8 @@
 const sym = Symbol.for("🔔")
 //  Don't collide, and make sure its usable across realms!!
 // export const unbound = Symbol('⛓️‍💥')
-const logger = {__proto__: null}
+const {apply, getPrototypeOf: gpo, getOwnPropertyDescriptor: gopd, defineProperty: dp, ownKeys}  = Reflect
+const logger = { __proto__: null }
 for (let i in console) {
     // Because the groupCollapsed() method was suppressing errors, delay them instead
     let old = console[i]
@@ -20,10 +21,10 @@ for (let i in console) {
         setTimeout(old.bind.apply(old, args))
     }
 }
-let {warn, groupCollapsed, groupEnd} = logger,
-    {isArray} = Array
+let { warn, groupCollapsed, groupEnd } = logger,
+    { isArray } = Array
 export const allEvents = new WeakMap
-let {addEventListener, removeEventListener, dispatchEvent} = globalThis.EventTarget?.prototype ?? AbortSignal.prototype
+let { addEventListener, removeEventListener, dispatchEvent } = globalThis.EventTarget?.prototype ?? AbortSignal.prototype
 if (0 && globalThis.document)
     // this adds about 20ms, which i don't like!
     try {
@@ -31,7 +32,7 @@ if (0 && globalThis.document)
         let n = document.createElement('iframe'),
             el = document.head ?? document
         el.append(n),
-            {addEventListener, removeEventListener, dispatchEvent} = n.contentWindow
+            { addEventListener, removeEventListener, dispatchEvent } = n.contentWindow
         el.removeChild(n)
         n = null
     } catch (e) {
@@ -54,14 +55,13 @@ function lastResort(target) {
     let a = `${addEventListener}`,
         d = `${dispatchEvent}`,
         r = `${removeEventListener}`,
-        {getPrototypeOf: gPOf, getOwnPropertyDescriptor: gOwn} = Object,
-         {toString} = Function.prototype
+        { toString } = Function.prototype
     try {
         do {
-            let ael = gOwn(target, 'addEventListener')?.value,
-                rel = gOwn(target, 'removeEventListener')?.value,
-                de = gOwn(target, 'dispatchEvent')?.value,
-                label = gOwn(target, Symbol.toStringTag)?.value
+            let ael = gopd(target, 'addEventListener')?.value,
+                rel = gopd(target, 'removeEventListener')?.value,
+                de = gopd(target, 'dispatchEvent')?.value,
+                label = gopd(target, Symbol.toStringTag)?.value
             if (label === 'EventTarget'
                 // && target.constructor.name === 'EventTarget'
                 // && typeof ael === 'function'
@@ -72,7 +72,7 @@ function lastResort(target) {
                 && toString.call(rel) === r)
                 return true
         }
-        while (target = gPOf(target))return false
+        while (target = gpo(target)) return false
     } catch {
         return false
     }
@@ -81,9 +81,9 @@ function lastResort(target) {
 export function getLabel(obj) {
     try {
         let proto
-        return obj[Symbol.toStringTag] || obj.constructor?.name || (proto=Object.getPrototypeOf(obj)).constructor[Symbol.toStringTag] || proto.constructor?.name
+        return obj[Symbol.toStringTag] || obj.constructor?.name || (proto = gpo(obj)).constructor[Symbol.toStringTag] || proto.constructor?.name
     } catch {
-        return{}.toString.call(obj).slice(8, -1)  || 'Unknown'
+        return {}.toString.call(obj).slice(8, -1) || 'Unknown'
     }
 }
 
@@ -113,36 +113,36 @@ function verifyEventName(target, name) {
     let original = name
     name = name.toLowerCase()
     let valid = (customEvents.has(name) || `on${name}` in target ||
-        ((/^DOMContentLoaded$/.test(original) && (target instanceof Document || target instanceof HTMLDocument || target.ownerDocument?.defaultView?.HTMLDocument.prototype.isPrototypeOf(target) || target.ownerDocument?.defaultView?.Document.prototype.isPrototypeOf(target) || target.defaultView?.Document.prototype.isPrototypeOf(target) || target.defaultView?.HTMLDocument?.prototype.isPrototypeOf(target)))
-            || (/^(animation(?:cancel|remove))$/i.test(original) && 'onremove' in target)
-            || /^(?:focus(?:in|out))$/i.test(original)
-            || (/^(?:DOM(?:Activate|MouseScroll|Focus(?:In|Out)|(?:Attr|CharacterData|Subtree)Modified|NodeInserted(?:IntoDocument)?|NodeRemoved(?:FromDocument)?))$/.test(original)))
+        ((original === 'DOMContentLoaded' && (target instanceof Document || target instanceof HTMLDocument || target.ownerDocument?.defaultView?.HTMLDocument.prototype.isPrototypeOf(target) || target.ownerDocument?.defaultView?.Document.prototype.isPrototypeOf(target) || target.defaultView?.Document.prototype.isPrototypeOf(target) || target.defaultView?.HTMLDocument?.prototype.isPrototypeOf(target)))
+        || (/^(animation(?:cancel|remove))$/i.test(original) && 'onremove' in target)
+        || /^(?:focus(?:in|out))$/i.test(original)
+        || (/^(?:DOM(?:Activate|MouseScroll|Focus(?:In|Out)|(?:Attr|CharacterData|Subtree)Modified|NodeInserted(?:IntoDocument)?|NodeRemoved(?:FromDocument)?))$/.test(original)))
+        //Some events like the ones above don't have a handler
     )
     if (!valid) {
-        if (`onwebkit${name}` in target) return`webkit${original}`
-         if (`onmoz${name}` in target) return`moz${original}`
-         if (`onms${name}` in target) return`ms${original}`
-        if (name.startsWith('pointer')) return`mouse${name.slice(7)}`
+        if (`onwebkit${name}` in target) return `webkit${original}`
+        if (`onmoz${name}` in target) return `moz${original}`
+        if (`onms${name}` in target) return `ms${original}`
+        if (name.startsWith('pointer')) original = verifyEventName(target, `mouse${name.slice(7)}`)
         if (name === 'wheel') {
-                if ('onmousewheel' in target) return'mousewheel'
-                if (typeof MouseScrollEvent === 'function') return'DOMMouseScroll'
-                 return'MozMousePixelScroll'
+            if ('onmousewheel' in target) return 'mousewheel'
+            if (typeof MouseScrollEvent === 'function') return 'DOMMouseScroll'
+            return 'MozMousePixelScroll'
         }
+        logger.warnLate(`'${original}' events might not be available on the following object:`, target)
     }
-    //Some events like the one above don't have a handler
-    valid || logger.warnLate(`'${original}' events might not be available on the following object:`, target)
     return original
 }
 
 const delayedEvents = new Map
     , giveItSomeTime = function (hold, secondparam) {
-    if (hold === globalThis.requestIdleCallback)
-        secondparam = {timeout: 1000}
-    return delay
-    function delay(callback) {
-        return hold(callback, secondparam)
-    }
-}(globalThis.queueMicrotask ?? globalThis.requestIdleCallback ?? globalThis.setImmediate ?? globalThis.setTimeout, 100)
+        if (hold === globalThis.requestIdleCallback)
+            secondparam = { timeout: 1000 }
+        return delay
+        function delay(callback) {
+            return hold(callback, secondparam)
+        }
+    }(globalThis.queueMicrotask ?? globalThis.requestIdleCallback ?? globalThis.setImmediate ?? globalThis.setTimeout, 100)
 
 function dispatchAllDelayed(id) {
     giveItSomeTime(emitPendingEvents.bind(delayedEvents.get(id)))
@@ -151,7 +151,7 @@ function emitPendingEvents() {
     this.forEach(dispatchAndDelete)
 }
 function dispatchAndDelete(val, i, set) {
-    let {target: t, event: e} = val
+    let { target: t, event: e } = val
     dispatchEvent.call(t, e)
     set.delete(val)
 }
@@ -175,12 +175,12 @@ function resolveWithDelay(ms, resolve) {
     setTimeout(resolve, ms)
 }
 export function getEventNames(target) {
-    target.hasOwnProperty(sym) || Object.defineProperty(target, sym, {value: new Set})
+    target.hasOwnProperty(sym) || dp(target, sym, { value: new Set })
     return target[sym]
 }
 
 export function hasEvent(target, eventName) {
-    return !!target[sym]?.has(eventName)
+    return!!target[sym]?.has(eventName)
 }
 
 export const {
@@ -209,7 +209,8 @@ const formatEventName = /[_$^%&!?@#\d]|bound /g
 export function on(target, events, signal) {
     if (arguments.length > 3 && getLabel(signal) !== 'AbortController') signal = arguments[3]
     if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
-    if (!Object.keys(events).length) return target
+    let names = ownKeys(events)
+    if (!names.length) return target
     try {
         groupCollapsed(`on(${getLabel(target)})`)
         logger.dirxml(target)
@@ -219,8 +220,7 @@ export function on(target, events, signal) {
         }
         else if (isArray(events))
             events = Object.fromEntries(events)
-        let names = Reflect.ownKeys(events)
-        for (let {length:i} = names; i--;) {
+        for (let { length: i } = names; i--;) {
             let eventName = names[i]
             const func = events[eventName],
                 once = eventName.includes(ONCE),
@@ -237,7 +237,7 @@ export function on(target, events, signal) {
                     //once
                     passive,
                 }
-                if (prevents && passive) throw TypeError("Cannot call 'preventDefault' on a passive function")
+            if (prevents && passive) throw TypeError("Cannot call 'preventDefault' on a passive function")
             eventName = verifyEventName(target, eventName.replace(formatEventName, ''))
             if (myEvents.has(eventName) && signal == null) {
                 logger.warnLate(`🔕 Skipped duplicate '${eventName}' listener. Call on() again with the signal parameter to bypass this.`)
@@ -247,13 +247,15 @@ export function on(target, events, signal) {
                 options.once = once
                 options.signal = signal.signal
             }
-            let Remove = target.removeEventListener.bind(target, eventName, EventHandlerWrapperFunction, options),
+            let Remove = removeEventListener.bind(target, eventName, EventHandlerWrapperFunction, options),
                 Abort = AutoAbort.bind(signal)
 
             function EventHandlerWrapperFunction(...args) {
-                let {0: event} = args
-                if (getLabel(event) === 'CustomEvent') {
-                    let {detail} = event
+                let { 0: event } = args,
+                    label = getLabel(event),
+                    {currentTarget} = event
+                if (label === 'CustomEvent') {
+                    let { detail } = event
                     for (let i in detail) {
                         // i wish for in included symbols :<
                         if (i in event) {
@@ -262,7 +264,7 @@ export function on(target, events, signal) {
                         }
                         event[i] = detail[i]
                     }
-                } else if (getLabel(event) === 'MouseScrollEvent') {
+                } else if (label === 'MouseScrollEvent') {
                     event.deltaZ = 0
                     if (event.axis === 2)
                         event.deltaX = 0,
@@ -272,24 +274,23 @@ export function on(target, events, signal) {
                             event.deltaY = 0
                 }
                 signal && args.push(Abort, Remove)
-                'returnValue'in event&&prevents&&(event.returnValue=!prevents)
-                onlyTrusted && event.isTrusted || !onlyTrusted && (!onlyCurrentTarget || onlyCurrentTarget && (event.target ?? event.srcElement) === event.currentTarget) &&
-                (Reflect.apply(func, target, args),
-                prevents && (event.cancelable ? event.defaultPrevented ? warn(`'${eventName}' event has already been cancelled`) : event.preventDefault() : warn(`🔊 '${eventName}' events are not cancelable`)),
-                stopProp && event.stopPropagation() && (event.cancelBubble = true),
-                stopImmediateProp && event.stopImmediatePropagation(),
-                autoabort && Abort(),
-                once && off(event.currentTarget, eventName))
+                'returnValue' in event && prevents&&(event.returnValue = !prevents)
+                onlyTrusted && event.isTrusted || !onlyTrusted && (!onlyCurrentTarget || onlyCurrentTarget && (event.target ?? event.srcElement) === currentTarget) &&
+                    (apply(func, target, args),
+                        prevents && (event.cancelable ? event.defaultPrevented ? warn(`'${eventName}' event has already been cancelled`) : event.preventDefault() : warn(`🔊 '${eventName}' events are not cancelable`)),
+                        stopProp && (event.cancelBubble = true, event.stopPropagation()),
+                        stopImmediateProp && event.stopImmediatePropagation(),
+                        autoabort && Abort(),
+                        once && off(currentTarget, eventName))
             }
 
             addEventListener.call(target, eventName, EventHandlerWrapperFunction, options)
-            if (signal)
-                logger.info(`📡 '${eventName}' event added`)
+            if (signal) logger.info(`📡 '${eventName}' event added`)
             else {
                 allEvents.has(target) || allEvents.set(target, new Map)
                 //A Map to hold the names & events
                 const myGlobalEventMap = allEvents.get(target)
-                myGlobalEventMap.set(eventName, {
+                myGlobalEventMap.set(eventName, {__proto__: null,
                     onlyCurrentTarget,
                     passive,
                     capture,
@@ -324,13 +325,12 @@ export function off(target, ...eventNames) {
         logger.dirxml(target)
         const map = allEvents.get(target),
             mySet = target[sym]
-        for (let {length} = eventNames; length--;) {
+        for (let { length } = eventNames; length--;) {
             const name = verifyEventName(target, eventNames[length]),
                 settings = map.get(name),
-                {listener} = settings
+                { listener } = settings
             removeEventListener.call(target, name, listener, settings)
-            map.has(name) && logger.info(`🔕 '${name}' event removed`)
-            map.delete(name)
+            map.delete(name) && logger.info(`🔕 '${name}' event removed`)
             mySet.delete(name)
             map.size || allEvents.delete(target)
         }
@@ -346,21 +346,21 @@ export function until(target, eventName, failureName, timeout/* = 600000*/) {
     function waitForEvent(resolve, reject) {
         const str = `⏰ Promise for '${eventName}' expired after ${timeout} ms`
             , id = timeout && setTimeout(err => {
-            reject(err)
-            signal.abort(str)
-        }, timeout, RangeError(str))
+                reject(err)
+                signal.abort(str)
+            }, timeout, RangeError(str))
         let signal = new AbortController
             , e = {
-            [`#${eventName}`](event) {
-                try {
-                    resolve(event)
-                } catch (e) {
-                    reject(e)
-                } finally {
-                    timeout && clearTimeout(id)
+                [`#${eventName}`](event) {
+                    try {
+                        resolve(event)
+                    } catch (e) {
+                        reject(e)
+                    } finally {
+                        timeout && clearTimeout(id)
+                    }
                 }
             }
-        }
         failureName && Object.assign(e, {
             [`#${failureName}`](e) {
                 try {
@@ -394,7 +394,7 @@ export function download(blob, title) {
     anchor.href = getObjUrl(blob)
     anchor.click()
 }
-function nothing(){}
+function nothing() { }
 export function delegate(me, events, filter, includeSelf, signal) {
     filter ??= nothing
     for (let i in events) {
@@ -402,8 +402,8 @@ export function delegate(me, events, filter, includeSelf, signal) {
         let old = events[i]
         events[i] = DelegationFunction
         function DelegationFunction(...args) {
-            let {target} = args[0];
-            (me !== target || includeSelf) && (filter(target) ?? 1) && Reflect.apply(old, target, args)
+            let { target } = args[0];
+            (me !== target || includeSelf) && (filter(target) ?? 1) && apply(old, target, args)
         }
     }
     on(me, events, false, signal)
