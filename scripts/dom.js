@@ -15,6 +15,7 @@ drawInstead.on({
 })
 send2.on({
     async $_submit() {
+        try{
         let pencil = $('<img src="./cute-emojis/emojis/1216660171951046746.gif" alt="pencil loading icon">')
         !async function () {
             await this.fadeOut()
@@ -38,6 +39,11 @@ send2.on({
             yay.styles.display = "block"
             yay.animate([{transform: 'scale(2,2)'}, {transform: ''}], {duration: 500, iterations: 1, easing: 'ease'})
         }
+        else alert('Failed to send :(')
+    }
+    catch(e) {
+            prompt('failed to send:(', e)
+    }
     }
 })
 undoDraw.on({
