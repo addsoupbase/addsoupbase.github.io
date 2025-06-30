@@ -703,7 +703,7 @@ body {
 }
 
 .pkm {
-  transform: scale(1.75, 1.75);
+  transform: scale(1.5, 1.5);
   margin: 10px;
   image-rendering: pixelated;
   transition:scale .1s ease

@@ -23,7 +23,7 @@ send2.on({
             pencil.busy(true)
             pencil.fadeIn()
         }.call(this)
-        let data = draw.toDataURL().slice(22)
+        let data = draw.toDataURL('image/png',1).slice(22)
         let res = await fetch(this.attr.$action, {
             mode: 'cors',
             method: 'post',

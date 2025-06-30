@@ -160,8 +160,8 @@ const attrStyleMap = 'StylePropertyMap' in window
             return prop.startsWith('--') ? target.get(prop) : target.get(css.dashVendor(prop, 'inherit'))
         },
         set(target, prop, value) {
-            if (value == null || value === '') this.deleteProperty(target, prop)
-            else prop.startsWith('--') ? target.set(prop, value) : target.set(css.dashVendor(prop, `${value}`), value)
+            (value == null || value === '') ? this.deleteProperty(target, prop)
+            : prop.startsWith('--') ? target.set(prop, value) : target.set(css.dashVendor(prop, `${value}`), value)
             return 7
         },
         deleteProperty(target, prop) {
@@ -175,8 +175,8 @@ const attrStyleMap = 'StylePropertyMap' in window
                 target.getPropertyValue(css.dashVendor(prop, 'inherit'))
         },
         set(target, prop, value) {
-            if (prop.startsWith('--')) target.setProperty(prop, value)
-            else target.setProperty(css.dashVendor(prop, `${value}`), value)
+            prop.startsWith('--') ? target.setProperty(prop, value)
+            : target.setProperty(css.dashVendor(prop, `${value}`), value)
             return 7
         },
         deleteProperty(target, prop) {
@@ -401,8 +401,8 @@ let props = Object.getOwnPropertyDescriptors(class _
         }
 
         destroy() {
-            this.resetSelfRules()
-            .cancelAnims()
+            let my = base(this.resetSelfRules()
+            .cancelAnims().destroyChildren())
             // let myStates = this[states]
             /*for (let [key, {
                 cached: val
@@ -411,8 +411,7 @@ let props = Object.getOwnPropertyDescriptors(class _
                 for (let el of val.content.querySelectorAll('*'))
                     prox(el).destroy()
             }*/
-            if ($.last === this) $.last = null
-            let my = base(this.destroyChildren())
+            $.last === this&& ($.last = null)
             do my.remove()
             while (my.isConnected /*document.contains(my)*/)
             let myevents = h.getEventNames(my)
@@ -441,7 +440,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         }
 
         on(events, signal) {
-            if (arguments.length > 2) signal = arguments[2]
+            arguments.length > 2 && (signal = arguments[2])
             let me = this
             if (typeof events === 'function') {
                 let old = events
@@ -1434,11 +1433,11 @@ export function prox(target) {
 
 function getValid(target) {
     try {
-        return !!target &&
+        return!!(target &&
             (target instanceof Element ||
                 target.ownerDocument?.defaultView?.Element.prototype.isPrototypeOf(target)
                 //|| Element.prototype.isPrototypeOf(target)
-            )
+            ))
     } catch {
         return false
     }
@@ -1506,7 +1505,7 @@ it's like being weird for some reason idfk how to use trusted types policy thing
  */
 function $(html, props, ...children) {
     if (getValid(html)) return prox(html) // Redirect
-    if (typeof html === 'string') html = html.trim()
+    typeof html === 'string' && (html = html.trim())
     let element
     if (html?.[0] === '<' && html.endsWith('>')) {
         html = safeHTML(html)
