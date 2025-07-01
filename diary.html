@@ -39,7 +39,7 @@
 <template id="template">
 
     <main class="center " style="width:fit-content">
-        <a accesskey="b"  class="cute-green-button back" href="main.html" role="button" rel="prev">Back</a>
+        <a accesskey="b" class="cute-green-button back" href="main.html" role="button" rel="prev">Back</a>
         <!-- <span> Scrolling could reveal more!</span> -->
 
         <div class="center" id="diary-container" style="display:contents;justify-items: center;">
@@ -60,14 +60,15 @@
                     </samp>
 
                 </h2>
-                <iframe aria-relevant="all"  aria-live="assertive" id="display" name="Diary" title="Diary"
+                <iframe aria-relevant="all" aria-live="assertive" id="display" name="Diary" title="Diary"
                         style="width: 100%;height: 100%;border: none;"></iframe>
             </section>
             <div style="justify-self: center;justify-content:center;display: flex;    align-items: end;">
-                <input accesskey="p"  id="prev" type="image" title="Turn to previous page" alt="Back" style="transform:scaleX(-1)"
+                <input accesskey="p" id="prev" type="image" title="Turn to previous page" alt="Back"
+                       style="transform:scaleX(-1)"
                        src="./cute-emojis/emojis/1321091969635848294.gif">
                 <button class="cute-green-button" id="toToday">Go to today</button>
-                <input accesskey="n"  id="next" type="image" title="Turn to next page" alt="Forward"
+                <input accesskey="n" id="next" type="image" title="Turn to next page" alt="Forward"
                        src="./cute-emojis/emojis/1321091969635848294.gif">
             </div>
 
@@ -77,8 +78,10 @@
 <script type="module">
     import $ from './yay.js'
     import * as h from './handle.js'
+
     h.on(document, {
-        '%&DOMContentLoaded'(){}
+        '%&DOMContentLoaded'() {
+        }
     })
     $.setup()
     let {toToday, invalid, error, next, prev, 'diary-heading': diaryHeading, display: currentThingy} = $.id
@@ -119,14 +122,16 @@
         if (today.getDate() <= 7 && today.getFullYear() <= 2025 && today.getMonth() <= 3) {
             // This is before i made any entries
             prev.hide(2)
-            .setAttr({disabled:true})
+            .setAttr({disabled: true})
         } else {
-            prev.show(2).setAttr({disabled:false})
+            prev.show(2).setAttr({disabled: false})
         }
         if (getDate() === new Date().toLocaleDateString('en-US') || today >= new Date) {
             // After today
-            next.hide(2).setAttr({disabled:true})
-        } else { next.show(2).setAttr({disabled:false})}
+            next.hide(2).setAttr({disabled: true})
+        } else {
+            next.show(2).setAttr({disabled: false})
+        }
     }
 
     toToday.on({
@@ -174,8 +179,8 @@
 
     async function setEntry(date) {
         let d = new Date(date)
-        let t =  getThat(d)
-        diaryHeading.value=  t
+        let t = getThat(d)
+        diaryHeading.value = t
         currentThingy.hide(3)
         error.hide()
         currentThingy.parent.busy(true)
@@ -215,70 +220,46 @@
         }
     }
 
-    let {diary, main:m} = $.id
+    let {diary, main: m} = $.id
     goBy(-1)
     setEntry(getDate())
 </script>
-<script>
-    (document.addEventListener||document.attachEvent).call(document,'DOMContentLoaded', function () {
-        'use strict'
-        if (typeof h === 'undefined') {
-            var n = new XMLHttpRequest()
-            n.open('GET', './oldhandle.js')
-            n.onload = function () {
-                Function(n.responseText)()
-                alert('Something went wrong, downgrading :(')
-                var goToToday = document.getElementById('toToday')
-                    , heading = document.getElementById('diary-heading')
-                    , update = function () {
-                        var date = [today.getMonth() + 1, today.getDate(), today.getFullYear()].join('_')
-                            , dd  = ''+today.getDate()
-                            , mm = ''+(today.getMonth()+1)
-                    if (mm.length === 1) mm = 0 + mm
-                        if (dd.length === 1) dd = 0 + dd
-                        frame.src = 'https://addsoupbase.github.io/entries/' + date
-                        heading.value = [today.getFullYear(),mm,dd].join('-')
-                    }, frame = document.getElementById('display')
-                    , today = new Date
-                    , prev = document.getElementById('prev'),
-                    next = document.getElementById('next')
-                    heading.setAttribute('max', frame.src)
-                var change = function() {
-                    if (!this.value.trim()) return
-                    var v = this.value.split('-')
-                    var aaa = v[2] = (+v[2] + 1).toString()
-                    while(aaa.length < 2) aaa = 0 + aaa
-                    today = new Date(v.join('-'))
-                    update()
+<!-- if something somehow goes wrong, and this function is fired successfully -->
+<script>(document.addEventListener || document.attachEvent).call(document, "DOMContentLoaded", function () {
+    "use strict";
+    if ("undefined" == typeof h) {
+        var e = new XMLHttpRequest;
+        e.open("GET", "./oldhandle.js"), e.onload = function () {
+            Function(e.responseText)(), alert("Something went wrong, downgrading :(");
+            var t = document.getElementById("toToday"), n = document.getElementById("diary-heading"), o = function () {
+                    var e = [i.getMonth() + 1, i.getDate(), i.getFullYear()].join("_"), t = "" + i.getDate(),
+                        o = "" + (i.getMonth() + 1);
+                    1 === o.length && (o = 0 + o), 1 === t.length && (t = 0 + t), a.src = "https://addsoupbase.github.io/entries/" + e, n.value = [i.getFullYear(), o, t].join("-")
+                }, a = document.getElementById("display"), i = new Date, l = document.getElementById("prev"),
+                g = document.getElementById("next");
+            n.setAttribute("max", a.src);
+            var d = function () {
+                if (this.value.trim()) {
+                    for (var e = this.value.split("-"), t = e[2] = (+e[2] + 1).toString(); t.length < 2;) t = 0 + t;
+                    i = new Date(e.join("-")), o()
                 }
-                h.on(heading,{
-                    change:change,
-                    textInput:change
-                })
-                h.on(prev, {
-                    click: function () {
-                        today.setDate(today.getDate() - 1)
-                        update()
-                    }
-                })
-                h.on(next, {
-                    click: function () {
-                        today.setDate(today.getDate() + 1)
-                        update()
-                    }
-                })
-                h.on(goToToday, {
-                    click: function () {
-                        today = new Date()
-                        update()
-                    }
-                })
-            }
-            n.send()
-        }
-    })
-</script>
-
+            };
+            h.on(n, {change: d, textInput: d}), h.on(l, {
+                click: function () {
+                    i.setDate(i.getDate() - 1), o()
+                }
+            }), h.on(g, {
+                click: function () {
+                    i.setDate(i.getDate() + 1), o()
+                }
+            }), h.on(t, {
+                click: function () {
+                    i = new Date, o()
+                }
+            })
+        }, e.send()
+    }
+})</script>
 </body>
 
 </html>
