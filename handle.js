@@ -81,7 +81,7 @@ function lastResort(target) {
 export function getLabel(obj) {
     try {
         let proto
-        return obj[Symbol.toStringTag] || obj.constructor?.name || (proto = gpo(obj)).constructor[Symbol.toStringTag] || proto.constructor?.name
+        return obj[Symbol.toStringTag] || obj.constructor?.name || (proto = gpo(obj)).constructor[Symbol.toStringTag] || proto.constructor?.name || 'Object'
     } catch {
         return {}.toString.call(obj).slice(8, -1) || 'Unknown'
     }
@@ -120,14 +120,14 @@ function verifyEventName(target, name) {
         //Some events like the ones above don't have a handler
     )
     if (!valid) {
-        if (`onwebkit${name}` in target) return `webkit${original}`
-        if (`onmoz${name}` in target) return `moz${original}`
-        if (`onms${name}` in target) return `ms${original}`
-        if (name.startsWith('pointer')) original = verifyEventName(target, `mouse${name.slice(7)}`)
+        if (`onwebkit${name}` in target) return`webkit${original}`
+        if (`onmoz${name}` in target) return`moz${original}`
+        if (`onms${name}` in target) return`ms${original}`
+        if (name.startsWith('pointer')) return`mouse${name.slice(7)}` // Better than nothing
         if (name === 'wheel') {
-            if ('onmousewheel' in target) return 'mousewheel'
-            if (typeof MouseScrollEvent === 'function') return 'DOMMouseScroll'
-            return 'MozMousePixelScroll'
+            if ('onmousewheel' in target) return'mousewheel' // iOS doesn't support 'wheel' events yet
+            if (typeof MouseScrollEvent === 'function') return'DOMMouseScroll' // If they don't support the first 2, this one will work ~100% of the time
+            return'MozMousePixelScroll' // The last resort, since there's no way to detect support with this one
         }
         logger.warnLate(`'${original}' events might not be available on the following object:`, target)
     }
@@ -274,10 +274,9 @@ export function on(target, events, signal) {
                             event.deltaY = 0
                 }
                 signal && args.push(Abort, Remove)
-                'returnValue' in event && prevents&&(event.returnValue = !prevents)
                 onlyTrusted && event.isTrusted || !onlyTrusted && (!onlyCurrentTarget || onlyCurrentTarget && (event.target ?? event.srcElement) === currentTarget) &&
                     (apply(func, target, args),
-                        prevents && (event.cancelable ? event.defaultPrevented ? warn(`'${eventName}' event has already been cancelled`) : event.preventDefault() : warn(`🔊 '${eventName}' events are not cancelable`)),
+                        prevents && (event.cancelable ? event.defaultPrevented ? warn(`'${eventName}' event has already been cancelled`) : event.preventDefault() : warn(`🔊 '${eventName}' events are not cancelable`), event.returnValue = !prevents),
                         stopProp && (event.cancelBubble = true, event.stopPropagation()),
                         stopImmediateProp && event.stopImmediatePropagation(),
                         autoabort && Abort(),
