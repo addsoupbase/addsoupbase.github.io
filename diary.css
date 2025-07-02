@@ -15,7 +15,9 @@
   body {
     overflow-x: hidden;
   }
-
+main {
+    word-break: break-word;
+}
   :root {
     font-family: 'Choco';
   }

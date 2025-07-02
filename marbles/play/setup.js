@@ -5,7 +5,7 @@ import * as arr from 'https://addsoupbase.github.io/arrays.js'
 import {lstorage} from 'https://addsoupbase.github.io/proxies.js'
 import * as str from 'https://addsoupbase.github.io/str.js'
 import ran from 'https://addsoupbase.github.io/random.js'
-
+$.importWebComponent?.('touch-joystick')
 export let joystick = (lstorage.joystick ??= `${!!navigator.maxTouchPoints}`) === 'true'
 lstorage.music ??= .5
 lstorage.sound ??= .7

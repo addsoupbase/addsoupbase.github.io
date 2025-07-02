@@ -152,7 +152,7 @@ function TestImportSupport() {
     getJson = fallback.constructor
         // Some, even older browsers, prefer 'assert' over 'with'
         // i sometimes wonder why they changed it in the first place if it works pretty much the same...
-        ('u', '"use strict";let a=sessionStorage,s={type:"json"},h=(await import(new URL(u,location),{assert:s,with:s})).default;a.setItem("json",!0);return h')
+        ('u','"use strict";let a=sessionStorage,s={type:"json"},h=(await import(new URL(u,location),{assert:s,with:s})).default;a.setItem("json",!0);return h')
     /*
     .bind(fallback)
      using bind since the function can't access the module scope
@@ -167,6 +167,7 @@ function FallbackImport() {
 if (s !== 'false' && s !== 'true') try {
     TestImportSupport()
 } catch (e) {
+    console.error(e)
     e.name === "SyntaxError" || e.name === 'EvalError'
         ? FallbackImport() : reportError(e)
 }

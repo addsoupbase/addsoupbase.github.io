@@ -3,29 +3,32 @@
 const sym = Symbol.for("🔔")
 //  Don't collide, and make sure its usable across realms!!
 // export const unbound = Symbol('⛓️‍💥')
-const {apply, getPrototypeOf: gpo, getOwnPropertyDescriptor: gopd, defineProperty: dp, ownKeys}  = Reflect
-const logger = { __proto__: null }
+    , {apply, getPrototypeOf: gpo, getOwnPropertyDescriptor: gopd, defineProperty: dp, ownKeys}  = Reflect
+    , logger = { __proto__: null }
+{
+    function DelayedLog(...args) {
+        args.unshift(1)
+        queueMicrotask(this.bind.apply(this, args))
+    }
+    function LogOutOfGroup(...args) {
+        args.unshift(1)
+        setTimeout(this.bind.apply(this, args))
+    }
 for (let i in console) {
     // Because the groupCollapsed() method was suppressing errors, delay them instead
     let old = console[i]
     if (typeof old !== 'function') continue
-    logger[i] = DelayedLog
-    logger[`${i}Late`] = LogOutOfGroup
-    function DelayedLog(...args) {
-        args.unshift(1)
-        queueMicrotask(old.bind.apply(old, args))
-    }
-
-    function LogOutOfGroup(...args) {
-        args.unshift(1)
-        setTimeout(old.bind.apply(old, args))
-    }
+    logger[i] = DelayedLog.bind(old)
+    logger[`${i}Late`] = LogOutOfGroup.bind(old)
 }
+    // str.push(`${i}(...args)${DelayedLog.toString().match(/\{.*}/s)[0].replace('old.bind.apply(old',`super.${i}.bind(1`)}, ${i}Late(...args)${LogOutOfGroup.toString().match(/\{.*}/s)[0].replace('old.bind.apply(old',`super.${i}.bind(1`)}`)
+}
+// console.debug(str.join(','))
 let { warn, groupCollapsed, groupEnd } = logger,
     { isArray } = Array
 export const allEvents = new WeakMap
 let { addEventListener, removeEventListener, dispatchEvent } = globalThis.EventTarget?.prototype ?? AbortSignal.prototype
-if (0 && globalThis.document)
+/*if (globalThis.document)
     // this adds about 20ms, which i don't like!
     try {
         // in case they monkeypatch the EventTarget.prototype
@@ -37,7 +40,7 @@ if (0 && globalThis.document)
         n = null
     } catch (e) {
         logger.debug(e)
-    }
+    }*/
 let verified = new WeakSet
 
 function isValidET(target) {
@@ -79,16 +82,16 @@ function lastResort(target) {
 }
 
 export function getLabel(obj) {
+    return{}.toString.call(obj).slice(8, -1)||'Object'
+    /*
     try {
         let proto
         return obj[Symbol.toStringTag] || obj.constructor?.name || (proto = gpo(obj)).constructor[Symbol.toStringTag] || proto.constructor?.name || 'Object'
     } catch {
         return {}.toString.call(obj).slice(8, -1) || 'Unknown'
-    }
+    }*/
 }
-
 let f
-
 export function requestFile(accept, multiple) {
     f ??= Object.assign(document.createElement('input'), {
         type: 'file'
@@ -136,8 +139,8 @@ function verifyEventName(target, name) {
 
 const delayedEvents = new Map
     , giveItSomeTime = function (hold, secondparam) {
-        if (hold === globalThis.requestIdleCallback)
-            secondparam = { timeout: 1000 }
+        hold === globalThis.requestIdleCallback&&
+        (secondparam = { timeout: 1000 })
         return delay
         function delay(callback) {
             return hold(callback, secondparam)
@@ -148,14 +151,13 @@ function dispatchAllDelayed(id) {
     giveItSomeTime(emitPendingEvents.bind(delayedEvents.get(id)))
 }
 function emitPendingEvents() {
-    this.forEach(dispatchAndDelete)
+    this.forEach(dispatchAndDelete, this)
 }
-function dispatchAndDelete(val, i, set) {
+function dispatchAndDelete(val) {
     let { target: t, event: e } = val
     dispatchEvent.call(t, e)
-    set.delete(val)
+    this.delete(val)
 }
-
 export function delayedDispatch(id, target, event) {
     if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
     delayedEvents.has(id) || delayedEvents.set(id, new Set)
@@ -169,7 +171,6 @@ export function delayedDispatch(id, target, event) {
 
 export function wait(ms) {
     return new Promise(resolveWithDelay.bind(1, ms))
-
 }
 function resolveWithDelay(ms, resolve) {
     setTimeout(resolve, ms)
@@ -221,17 +222,18 @@ export function on(target, events, signal) {
         else if (isArray(events))
             events = Object.fromEntries(events)
         for (let { length: i } = names; i--;) {
-            let eventName = names[i]
+            let eventName = names[i],
+                includes = ''.includes.bind(eventName)
             const func = events[eventName],
-                once = eventName.includes(ONCE),
-                prevents = eventName.includes(PREVENT_DEFAULT),
-                passive = eventName.includes(PASSIVE),
-                capture = eventName.includes(CAPTURE),
-                stopProp = eventName.includes(STOP_PROPAGATION),
-                stopImmediateProp = eventName.includes(STOP_IMMEDIATE_PROPAGATION),
-                onlyTrusted = eventName.includes(TRUSTED),
-                onlyCurrentTarget = eventName.includes(CURRENT_TARGET),
-                autoabort = eventName.includes(AUTO_ABORT),
+                once = includes(ONCE),
+                prevents = includes(PREVENT_DEFAULT),
+                passive = includes(PASSIVE),
+                capture = includes(CAPTURE),
+                stopProp = includes(STOP_PROPAGATION),
+                stopImmediateProp = includes(STOP_IMMEDIATE_PROPAGATION),
+                onlyTrusted = includes(TRUSTED),
+                onlyCurrentTarget = includes(CURRENT_TARGET),
+                autoabort = includes(AUTO_ABORT),
                 options = {
                     capture,
                     //once

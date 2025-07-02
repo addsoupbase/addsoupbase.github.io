@@ -967,6 +967,7 @@ const prototype = Object.create(null)
     , TEXT_THINGIES = new Set('outerHTML outerText innerHTML innerText textContent'.split(' '))
 TEXT_THINGIES.forEach(txt =>
     Object.defineProperty(prototype, txt, {
+        configurable:false,
         get() {
             return base(this)[txt]
         },
@@ -981,6 +982,7 @@ TEXT_THINGIES.forEach(txt =>
 const HTML_PLACING = new Set('beforebegin afterbegin beforeend afterend'.split(' '))
 HTML_PLACING.forEach(set =>
     Object.defineProperty(prototype, set, {
+        configurable:false,
         set(val) {
             typeof val === 'object' ?
                 base(this).insertAdjacentElement(set, base(val)) :
@@ -1001,6 +1003,7 @@ HTML_PLACING.forEach(set =>
     }
 
     Object.defineProperty(prototype, prop, {
+        configurable:false,
         get() {
             ++reads
             queued || (requestAnimationFrame(resetThingy), queued = true)
@@ -1013,6 +1016,7 @@ Reflect.ownKeys(props).forEach(i => {
     if (i !== 'constructor') {
         let v = props[i],
             {value} = v
+        v.configurable=false
         if (typeof value === 'function') {
             v.value = {
                 [i](...a) {
@@ -1045,18 +1049,20 @@ Reflect.ownKeys(props).forEach(i => {
         Object.defineProperty(prototype, i, v)
     }
 })
+{
+let styleMe = getOwnPropertyDescriptor(prototype, 'setStyles')
 Object.defineProperties(prototype,
     {
         setAttributes: getOwnPropertyDescriptor(prototype, 'setAttr'),
         kill: getOwnPropertyDescriptor(prototype, 'destroy'),
         killChildren: getOwnPropertyDescriptor(prototype, 'destroyChildren'),
-        styleMe: getOwnPropertyDescriptor(prototype, 'setStyles'),
-        setStyle: getOwnPropertyDescriptor(prototype, 'setStyles')
+        styleMe,
+        setStyle: styleMe
     }
 )
+}
 // 🖨 Copy everything
 const prototypeDescriptors = Object.getOwnPropertyDescriptors(prototype)
-
 export function base(element) {
     // 🌱 Get the root element
     return element[me] ?? element
@@ -1119,10 +1125,13 @@ MUTATION OBSERVER STUFFS
     this.setAttribute(attr, this.getAttribute(attr))
 }*/
 const imported = new Set
-let has = Set.prototype.has.bind(new Set('img-sprite touch-joystick seek-bar paper-canvas'.split(' ')))
+let waitingForImport = Set.prototype.has.bind(new Set('img-sprite touch-joystick seek-bar paper-canvas'.split(' ')))
+export async function importWebComponent(name) {
+    (imported.has(name)|| await import(`./webcomponents/${name}.js`), imported.add(name), waitingForImport.delete(name))
+}
 function observeAll(node) {
     let n = node.tagName.toLowerCase()
-    has(n)&&(imported.has(n)||(import(`./webcomponents/${n}.js`),imported.add(n)))
+    waitingForImport(n)&&importWebComponent(n)
     // if (node instanceof CUSTOM_ELEMENT_SPRITE) node.getAttributeNames().forEach(refreshAttributes, node)
     inte?.observe(node)
     resi.observe(node)
@@ -1288,9 +1297,10 @@ const entryTypes = {
     element: 'PerformanceElementTiming' in window
     // taskattribution: 'TaskAttributionTiming 'in window
 }
-const perf = new PerformanceObserver(PerformanceObserverCallback)
+const perf = new PerformanceObserver(PerformanceObserverCallback),
+    supported = new Set(PerformanceObserver.supportedEntryTypes)
 Object.keys(entryTypes).forEach(type => {
-    perf.observe({type, buffered: true})
+    supported.has(type) && perf.observe({type, buffered: true})
 })
 h.addCustomEvent(entryTypes)
 h.addCustomEvent({
@@ -1403,7 +1413,7 @@ export function prox(target) {
                 }
             }
             , {proxy, revoke} = Proxy.revocable(
-                Object.seal(Object.create(target, propertiesToDefine)), Object.create(handlers.main, [{value: target}])
+                Object.preventExtensions(Object.create(target, propertiesToDefine)), Object.create(handlers.main, [{value: target}])
                 // defineProperty(target, prop) {
                 // console.debug(prop)
                 // if (prop in target) return Reflect.defineProperty(...arguments)
