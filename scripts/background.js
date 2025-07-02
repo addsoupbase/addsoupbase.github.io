@@ -3,7 +3,7 @@ import {registerCSS, registerCSSAll} from "../csshelper.js"
 let regex = /[\w.\-%汝起亚]+\.(?:webp|a?png|gif|jpe?g)/
 let all = document.getElementsByTagName('*')
 function isHidden() {
-    return all.length > 135 || hidden||!!document.fullscreenElement || document.hidden || document.visibilityState === 'hidden'
+    return violations >= 10 || all.length > 135 || hidden||!!document.fullscreenElement || document.hidden || document.visibilityState === 'hidden'
 }
 
 async function images({time, colorful, birthday}) {
@@ -35,7 +35,7 @@ async function images({time, colorful, birthday}) {
         new AbortController
     ).debounce({
         '^pointermove'({x, y}) {
-            holding && makeBubble(`${x}px`, `${y}px`).fadeIn(300)
+            violations < 10 && holding && makeBubble(`${x}px`, `${y}px`).fadeIn(300)
         }
     }, 80)
     .on({
@@ -344,5 +344,15 @@ const parent = $('div #background .BG', {
     attr: {
         _label: 'Pokemon swimming deep underwater with bubbles',
         role: 'img'
+    }
+})
+let violations = 0
+h.on(window, {
+    'long-task'() {
+        if (++violations === 10) {
+        console.warn('Background disabled to improve user experience')
+        h.off(window, 'long-task')
+            parent.destroyChildren()
+        }
     }
 })

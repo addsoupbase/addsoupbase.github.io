@@ -108,6 +108,7 @@ function modifyJS(script, url) {
 }
 
 function modifyHTML(html) {
+    return html
     return`${html.replace('<head>', `<head>
     <script>!function(){"use strict";var e=function(){removeEventListener("error",r),removeEventListener("load",e),e=r=null},r=function(r){if(/syntax/i.test("name"in r.error?r.error.name:r.error.message)){e(),"yeah"!==sessionStorage.getItem("err")&&prompt("You're using a *really* old browser, or I messed something up. Please share the message below with me: ",r.message+" @line "+r.lineno+" col "+r.colno+" file "+r.filename);var t=document.getElementById("template");sessionStorage.setItem("err","yeah"),t&&(document.body.innerHTML=t.content?t.content.firstElementChild.outerHTML:t.firstElementChild.outerHTML)}};addEventListener("load",e),addEventListener("error",r)}();</script>`)}`
 }

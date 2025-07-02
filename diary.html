@@ -34,7 +34,7 @@
     <title>Diary</title>
 </head>
 
-<body class="cute-green" id="main">
+<body class="cute-green" id="main" style="justify-items: center">
 <script src="fallback.js"></script>
 <template id="template">
 
@@ -220,7 +220,7 @@
     setEntry(getDate())
 </script>
 <!-- if something somehow goes wrong, and this function is fired successfully -->
-<script>(document.addEventListener||document.attachEvent).call(document,"DOMContentLoaded",function(){"use strict";if("undefined"==typeof h){var e=new XMLHttpRequest;e.open("GET","./oldhandle.js"),e.onload=function(){Function(e.responseText)(),alert("Something went wrong, downgrading :(");var t=document.getElementById("toToday"),n=document.getElementById("diary-heading"),o=function(){var e=[i.getMonth()+1,i.getDate(),i.getFullYear()].join("_"),t=""+i.getDate(),o=""+(i.getMonth()+1);1===o.length&&(o=0+o),1===t.length&&(t=0+t),a.src="https://addsoupbase.github.io/entries/"+e,n.value=[i.getFullYear(),o,t].join("-")},a=document.getElementById("display"),i=new Date,l=document.getElementById("prev"),g=document.getElementById("next");n.setAttribute("max",a.src);var d=function(){if(this.value.trim()){for(var e=this.value.split("-"),t=e[2]=(+e[2]+1).toString();t.length<2;)t=0+t;i=new Date(e.join("-")),o()}};h.on(n,{change:d,textInput:d}),h.on(l,{click:function(){i.setDate(i.getDate()-1),o()}}),h.on(g,{click:function(){i.setDate(i.getDate()+1),o()}}),h.on(t,{click:function(){i=new Date,o()}})},e.send()}})</script>
+<script>(document.addEventListener||document.attachEvent).call(document,"DOMContentLoaded",function(){"use strict";if("undefined"==typeof h){var e=new XMLHttpRequest;e.open("GET","./oldhandle.js"),e.onload=function(){Function(e.responseText)();var t=document.getElementById("toToday"),n=document.getElementById("diary-heading"),o=function(){var e=[i.getMonth()+1,i.getDate(),i.getFullYear()].join("_"),t=""+i.getDate(),o=""+(i.getMonth()+1);1===o.length&&(o=0+o),1===t.length&&(t=0+t),a.src="https://addsoupbase.github.io/entries/"+e,n.value=[i.getFullYear(),o,t].join("-")},a=document.getElementById("display"),i=new Date,l=document.getElementById("prev"),g=document.getElementById("next");n.setAttribute("max",a.src);var d=function(){if(this.value.trim()){for(var e=this.value.split("-"),t=e[2]=(+e[2]+1).toString();t.length<2;)t=0+t;i=new Date(e.join("-")),o()}};h.on(n,{change:d,textInput:d}),h.on(l,{click:function(){i.setDate(i.getDate()-1),o()}}),h.on(g,{click:function(){i.setDate(i.getDate()+1),o()}}),h.on(t,{click:function(){i=new Date,o()}})},e.send()}})</script>
 </body>
 
 </html>

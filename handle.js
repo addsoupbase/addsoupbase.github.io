@@ -6,12 +6,13 @@ const sym = Symbol.for("🔔")
     , {apply, getPrototypeOf: gpo, getOwnPropertyDescriptor: gopd, defineProperty: dp, ownKeys}  = Reflect
     , logger = { __proto__: null }
 {
+    let {0:c,1:cc} = '%c@handle.js +color:pink;'.split('+')
     function DelayedLog(...args) {
-        args.unshift(1)
+        args.unshift(1,c,cc)
         queueMicrotask(this.bind.apply(this, args))
     }
     function LogOutOfGroup(...args) {
-        args.unshift(1)
+        args.unshift(1,c,cc)
         setTimeout(this.bind.apply(this, args))
     }
 for (let i in console) {
@@ -408,4 +409,19 @@ export function delegate(me, events, filter, includeSelf, signal) {
         }
     }
     on(me, events, false, signal)
+}
+if(`${location}`.includes('localhost')) {
+    try {
+        let log = console.debug.bind(1,'%c[PressureObserver] ','color:pink;')
+        function callback(changes) {
+    log(changes)
+        }
+        let observer = new PressureObserver(callback)
+        await observer.observe('cpu', {
+            sampleInterval: 1000,
+        })
+    }
+    catch (e) {
+        console.error(e)
+    }
 }
