@@ -359,9 +359,10 @@ function downgrade({type}, abort) {
         parent.hide(3)
         parent.destroyChildren()
         parent.show(3)
+        clearInterval(lower)
     }
 }
 function lowerViolations(){
     violations && --violations
 }
-setInterval(lowerViolations, 1000)
+let lower = setInterval(lowerViolations, 1000)
