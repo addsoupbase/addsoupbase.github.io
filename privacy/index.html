@@ -76,6 +76,10 @@
         <h2>Available:</h2>
         <div id="yes">
         </div>
+        <h2>Headers:</h2>
+        <div id="headers" class="sect">
+            <progress></progress>
+        </div>
     </section>
     <section>
         <h2>Unavailable:</h2>
@@ -85,9 +89,9 @@
 </div>
 <script type="module">
     import $ from '../yay.js'
-    import {getLabel} from "../handle.js"
+    import {jason} from '../arrays.js'
 
-    let {yes, no, redo} = $.id
+    let {yes, no, redo, headers} = $.id
     redo.on({
         click: go
     })
@@ -106,14 +110,15 @@
             'screenY',
             'mozInnerScreenX',
             'mozInnerScreenY',
-            'devicePixelRatio', 'top', 'parent', 'locationbar', 'menubar', 'personalbar', 'statusbar', 'toolbar', 'originAgentCluster',].forEach(function (o) {
+            // 'isSecureContext',
+            'devicePixelRatio', 'top', 'parent', 'locationbar', 'menubar', 'personalbar', 'statusbar', 'toolbar', 'originAgentCluster',].sort().forEach(function (o) {
             main.call(window, o, 'Window')
         })
         addSect('Date');
         ['now'].forEach(function (o) {
             main.call(Date, o, 'Date')
         });
-        ['toGMTString', 'toTimeString', 'toUTCString', 'toLocaleTimeString', 'toLocaleDateString'].forEach(function (o) {
+        ['toGMTString', 'toTimeString', 'toUTCString', 'toLocaleTimeString', 'toLocaleDateString'].sort().forEach(function (o) {
             main.call(Date.prototype, o, 'Date')
         })
         addSect('Navigator');
@@ -137,15 +142,16 @@
             'productSub',
             'storage',
             'userAgent',
-            'userAgentData'].forEach(function (o) {
+            'userAgentData',
+            'webdriver'].sort().forEach(function (o) {
             main.call(navigator, o, 'Navigator')
         })
         addSect('Screen');
-        ['availHeight', 'availWidth', 'colorDepth', 'height', 'isExtended', 'mozBrightness', 'mozEnabled', 'orientation', 'pixelDepth', 'width'].forEach(function (o) {
+        ['availHeight', 'availWidth', 'colorDepth', 'height', 'isExtended', 'mozBrightness', 'mozEnabled', 'orientation', 'pixelDepth', 'width'].sort().forEach(function (o) {
             main.call(screen, o, 'Screen')
         })
         addSect('Document');
-        ['cookie', 'referrer'].forEach(function (o) {
+        ['cookie', 'referrer'].sort().forEach(function (o) {
             addToYes.call(document, o, 'Document')
         })
         try {
@@ -202,7 +208,7 @@
                         }
                         if (typeof val.angle === 'number')
                             val.angle += '°'
-                    }
+                    } else val += '°'
                     break
                 case 'battery':
                     val = {
@@ -303,6 +309,18 @@
     }
 
     go()
+    try {
+        let n = await jason('https://my-headers.deno.dev')
+        headers.destroyChildren()
+        for (let i in n) {
+            headers.push($('p', {
+                textContent: `${i}: ${n[i]}`
+            }))
+        }
+    } catch(e) {
+        headers.destroyChildren()
+        headers.push($(`<samp>Failed to load headers: ${e}</samp>`))
+    }
 </script>
 </body>
 
