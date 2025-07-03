@@ -64,31 +64,58 @@
     }
 
     :root {
+        word-break: break-word;
         font-family: arial, sans-serif;
     }
 </style>
 <div>
     <h1>Privacy</h1>
     <p>Note: some information may be incorrect</p>
-    <section id="yes">
+    <button id="redo">Refresh</button>
+    <section>
         <h2>Available:</h2>
+        <div id="yes">
+        </div>
     </section>
-    <section id="no">
+    <section>
         <h2>Unavailable:</h2>
+        <div id="no">
+        </div>
     </section>
 </div>
 <script type="module">
     import $ from '../yay.js'
     import {getLabel} from "../handle.js"
 
-    let {yes, no} = $.id
+    let {yes, no, redo} = $.id
+    redo.on({
+        click: go
+    })
 
     function addSect(type) {
         yes.push($(`<section id="sect-${type}" class="sect"><h3>${type}:</h3></section>`))
     }
 
     async function go() {
+        yes.destroyChildren()
+        no.destroyChildren()
         // navigator:
+        addSect('Window');
+        ['orientation', 'name', 'innerWidth', 'innerHeight', 'outerWidth', 'outerHeight',
+            'screenX',
+            'screenY',
+            'mozInnerScreenX',
+            'mozInnerScreenY',
+            'devicePixelRatio', 'top', 'parent', 'locationbar', 'menubar', 'personalbar', 'statusbar', 'toolbar', 'originAgentCluster',].forEach(function (o) {
+            main.call(window, o, 'Window')
+        })
+        addSect('Date');
+        ['now'].forEach(function (o) {
+            main.call(Date, o, 'Date')
+        });
+        ['toGMTString', 'toTimeString', 'toUTCString', 'toLocaleTimeString', 'toLocaleDateString'].forEach(function (o) {
+            main.call(Date.prototype, o, 'Date')
+        })
         addSect('Navigator');
         ["appVersion",
             "buildID",
@@ -116,9 +143,11 @@
         addSect('Screen');
         ['availHeight', 'availWidth', 'colorDepth', 'height', 'isExtended', 'mozBrightness', 'mozEnabled', 'orientation', 'pixelDepth', 'width'].forEach(function (o) {
             main.call(screen, o, 'Screen')
-        },)
-        addSect('Document')
-        addToYes.call(document, 'referrer', 'Document')
+        })
+        addSect('Document');
+        ['cookie', 'referrer'].forEach(function (o) {
+            addToYes.call(document, o, 'Document')
+        })
         try {
             let a = await document.featurePolicy.allowedFeatures()
             addToYes.call({featurePolicy: a.join(' ')}, 'featurePolicy', 'Document')
@@ -140,13 +169,40 @@
         async function addToYes(prop, sect) {
             let val = this[prop] ?? prop
             switch (prop) {
+                case 'now':
+                    val = Date.now()
+                    break
+                case 'toGMTString':
+                case 'toTimeString':
+                case 'toUTCString':
+                case 'toLocaleTimeString':
+                case 'toLocaleDateString':
+                    val = new Date()[prop]()
+                    break
+                case 'date':
+                    val = new Date
+                    break
+                case'locationbar':
+                case 'menubar':
+                case 'personalbar':
+                case 'toolbar':
+                case 'statusbar':
+                    val = val.visible
+                    break
+                case 'parent':
+                case 'top':
+                case 'opener':
+                    val = val.location.href
+                    break
                 case'orientation':
-                    val = {
-                        angle: val.angle,
-                        type: val.type,
+                    if (this !== window) {
+                        val = {
+                            angle: val.angle,
+                            type: val.type,
+                        }
+                        if (typeof val.angle === 'number')
+                            val.angle += '°'
                     }
-                    if (typeof val.angle === 'number')
-                        val.angle += '°'
                     break
                 case 'battery':
                     val = {
@@ -171,7 +227,7 @@
                     break
                 case 'keyboard':
                     let a = await val.getLayoutMap()
-                    val = `Keys detected are: ${[...a.values()].sort().join(' ')}`
+                    val = `${[...a.values()].sort().join(' ')}`
                     break
                 case 'doNotTrack':
                     switch (val) {
@@ -220,10 +276,13 @@
                         textContent: `${i}: ${t}`
                     }))
                 }
-            } else targ.push($('p', {
-                textContent: `${prop}: ${val}`
-            }))
-            if (typeof val === 'string' && !val.trim()) val = `"${val}"`
+            } else {
+                if (typeof val === 'string' && !val.trim()) val = `"${val}"`
+                console.log(prop, val)
+                targ.push($('p', {
+                    textContent: `${prop}: ${val}`
+                }))
+            }
         }
 
         function addToNo(prop, reason) {
