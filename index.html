@@ -57,6 +57,11 @@
     <script type="module" blocking="render">
         import './csshelper.js'
     </script>
+    <script>
+        'use strict'
+        import('./silence.js')
+        console.log('%c🆓 Sprites credit: https://sprites.pmdcollab.org/', 'font-size:2em')
+    </script>
 </head>
 
 <body id="hiii"
@@ -136,11 +141,7 @@ transform: translate(300px, -10px);
 <div class="sea terrain"></div> -->
 <script src="./scripts/background.js" type="module" async></script>
 
-<script>
-    'use strict'
-    location.host.includes('localhost') || import('./silence.js')
-    console.log('%c🆓 Sprites credit: https://sprites.pmdcollab.org/', 'font-size:2em')
-</script>
+
 
 <!--[if IE ]>
 <script>

@@ -246,13 +246,10 @@ export function on(target, events, signal) {
                 logger.warnLate(`🔕 Skipped duplicate '${eventName}' listener. Call on() again with the signal parameter to bypass this.`)
                 continue
             }
-            if (signal) {
-                options.once = once
-                options.signal = signal.signal
-            }
+            signal&&(options.once = once, options.signal = signal.signal)
             let Remove = removeEventListener.bind(target, eventName, EventHandlerWrapperFunction, options),
                 Abort = signal?.abort.bind(signal, 'Automatic abort')
-
+            if (autoabort && getLabel(signal) !== 'AbortController') throw TypeError("AbortController required if '#' (autoabort) is present")
             function EventHandlerWrapperFunction(...args) {
                 let { 0: event } = args,
                     label = getLabel(event),

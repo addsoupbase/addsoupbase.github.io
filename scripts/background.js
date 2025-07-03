@@ -260,7 +260,6 @@ async function images({time, colorful, birthday}) {
         bubbl.setStyles({
             width: `${num}px`,
             height: `${num}px`,
-
             left: x ?? `${ran.range(0, innerWidth)}px`,
             top: y ?? '100%'
         })
@@ -291,9 +290,9 @@ async function images({time, colorful, birthday}) {
 }
 
 import $ from '../yay.js'
-import * as math from '../num.js'
-import * as string from '../str.js'
-import * as h from '../handle.js'
+import*as math from '../num.js'
+import*as string from '../str.js'
+import*as h from '../handle.js'
 import ran from '../random.js'
 
 let hidden = false
@@ -357,8 +356,8 @@ function downgrade({type}, abort) {
         console.warn('Background disabled to improve user experience')
        abort()
         parent.hide(3)
-        parent.destroyChildren()
-        parent.show(3)
+        .destroyChildren()
+        .show(3)
         clearInterval(lower)
     }
 }
