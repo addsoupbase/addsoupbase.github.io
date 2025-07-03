@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="content-language" content="en">
+    <meta property="og:locale" content="en_US">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+    <meta name="description" content="YOUR DESC HERE">
+    <meta property="og:image:width" content="750">
+    <meta property="og:image:height" content="500">
+    <meta property="og:image:type" content="image/*">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="YOUR ICON HERE">
+    <meta property="og:url" content="ABSOLUTE URL HERE">
+    <meta property="og:description" content="YOUR DESC HERE">
+    <meta property="og:title" content="YOUR TITLE HERE">
+    <meta property="og:site_name" content="YOUR TITLE HERE">
+    <meta name="twitter:title" content="YOUR TITLE HERE">
+    <meta name="twitter:description" content="YOUR DESC HERE">
+    <meta name="twitter:url" content="ABSOLUTE URL HERE">
+    <meta name="twitter:creator" content="addsoupbase">
+    <meta name="twitter:image" content="YOUR ICON HERE">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta property="profile:username" content="addsoupbase">
+    <!-- 'summary_large_image', 'summary', 'app', or 'player' -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <meta name="robots" content="index">
+    <meta name="theme-color" content="YOUR COLOR HERE">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="author" content="addsoupbase">
+    <link rel="canonical" href="ABSOLUTE URL HERE">
+    <link rel="apple-touch-icon" sizes="57x57" href="./apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="./apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="./apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="./apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="./apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="./apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="./apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="./apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon-180x180.png">
+    <!-- ^ can't be transparent -->
+    <meta name="mobile-web-app-capable" content="no">
+    <meta name="apple-mobile-web-app-capable" content="no">
+    <!-- ^ yes if the site has stuff like back buttons -->
+    <meta name="apple-mobile-web-app-title" content="YOUR TITLE HERE">
+    <link rel="apple-touch-startup-image" href="favicon.ico">
+    <script type="module" blocking="render">
+        import '../csshelper.js'
+    </script>
+    <link rel="stylesheet" href="styles.css">
+    <title>YOUR TITLE HERE</title>
+    <!-- https://ogp.me/ https://developer.x.com/en/docs/x-for-websites/cards/overview/markup -->
+</head>
+
+<body>
+<style>
+    .sect {
+        border: 1px solid black;
+        padding: 10px;
+        margin: 5px;
+    }
+
+    :root {
+        font-family: arial, sans-serif;
+    }
+</style>
+<div>
+    <h1>Privacy</h1>
+    <p>Note: some information may be incorrect</p>
+    <section id="yes">
+        <h2>Available:</h2>
+    </section>
+    <section id="no">
+        <h2>Unavailable:</h2>
+    </section>
+</div>
+<script type="module">
+    import $ from '../yay.js'
+    import {getLabel} from "../handle.js"
+
+    let {yes, no} = $.id
+
+    function addSect(type) {
+        yes.push($(`<section id="sect-${type}" class="sect"><h3>${type}:</h3></section>`))
+    }
+
+    async function go() {
+        // navigator:
+        addSect('Navigator');
+        ["appVersion",
+            "buildID",
+            "connection",
+            "cookieEnabled",
+            "deviceMemory",
+            "devicePosture",
+            "doNotTrack",
+            "globalPrivacyControl",
+            "hardwareConcurrency",
+            "keyboard",
+            "language",
+            'languages',
+            'maxTouchPoints',
+            'onLine',
+            'oscpu',
+            'pdfViewerEnabled',
+            'platform',
+            'productSub',
+            'storage',
+            'userAgent',
+            'userAgentData'].forEach(function (o) {
+            main.call(navigator, o, 'Navigator')
+        })
+        addSect('Screen');
+        ['availHeight', 'availWidth', 'colorDepth', 'height', 'isExtended', 'mozBrightness', 'mozEnabled', 'orientation', 'pixelDepth', 'width'].forEach(function (o) {
+            main.call(screen, o, 'Screen')
+        },)
+        addSect('Document')
+        addToYes.call(document, 'referrer', 'Document')
+        try {
+            let a = await document.featurePolicy.allowedFeatures()
+            addToYes.call({featurePolicy: a.join(' ')}, 'featurePolicy', 'Document')
+        } catch (e) {
+            addToNo('featurePolicy', e)
+        }
+        try {
+            let a = await navigator.getBattery()
+            addToYes.call({battery: a}, 'battery', 'Navigator')
+        } catch (e) {
+            if (e.name === 'TypeError') addToNo('getBattery()', 'Unsupported')
+        }
+
+        function cleanse(obj) {
+            for (let i in obj)
+                typeof obj[i] === 'undefined' && delete obj[i]
+        }
+
+        async function addToYes(prop, sect) {
+            let val = this[prop] ?? prop
+            switch (prop) {
+                case'orientation':
+                    val = {
+                        angle: val.angle,
+                        type: val.type,
+                    }
+                    if (typeof val.angle === 'number')
+                        val.angle += '°'
+                    break
+                case 'battery':
+                    val = {
+                        charging: val.charging,
+                        chargingTime: val.chargingTime,
+                        dischargingTime: val.dischargingTime,
+                        level: `${val.level * 100}%`
+                    }
+                    break
+                case 'userAgentData':
+                    val = await val.getHighEntropyValues('architecture bitness formFactor fullVersionList model platformVersion uaFullVersion wow64'.split(' '))
+                    break
+                case'storage':
+                    val = {
+                        estimate: await val.estimate(),
+                        persist: await val.persist(),
+                        persisted: await val.persisted(),
+                    }
+                    break
+                case'languages':
+                    val = val.join(' ')
+                    break
+                case 'keyboard':
+                    let a = await val.getLayoutMap()
+                    val = `Keys detected are: ${[...a.values()].sort().join(' ')}`
+                    break
+                case 'doNotTrack':
+                    switch (val) {
+                        case '0':
+                        case 'no':
+                            val = 'true'
+                            break
+                        case '1':
+                        case 'yes':
+                            val = 'false'
+                            break
+                        default:
+                            val = 'unspecified'
+                            break
+                    }
+                    break
+                case 'devicePosture':
+                    val = val.type
+                    break
+                case 'deviceMemory':
+                    val = `at least ${val}GB`
+                    break
+                case'connection':
+                    val = {
+                        downLink: val.downLink,
+                        downlinkMax: val.downlinkMax,
+                        effectiveType: val.effectiveType,
+                        rtt: val.rtt,
+                        saveData: val.saveData,
+                        type: val.type,
+                    }
+                    break
+            }
+            cleanse(val)
+            let targ = $.id[`sect-${sect}`]
+            if (typeof val === 'object') {
+                let s = $.id[`sect-${sect}-${prop}`] ?? $('section .sect', {
+                    id: `sect-${sect}-${prop}`,
+                    parent: targ
+                }, $('h4', {
+                    textContent: `${prop[0].toUpperCase()}${prop.slice(1)}:`
+                }))
+                for (let i in val) {
+                    let v = val[i], t = typeof v === 'string' ? v : JSON.stringify(v)
+                    s.push($('p', {
+                        textContent: `${i}: ${t}`
+                    }))
+                }
+            } else targ.push($('p', {
+                textContent: `${prop}: ${val}`
+            }))
+            if (typeof val === 'string' && !val.trim()) val = `"${val}"`
+        }
+
+        function addToNo(prop, reason) {
+            no.push($('p', {
+                textContent: `${prop} (${reason})`
+            }))
+        }
+
+        async function main(prop, sect) {
+            if (prop in this) {
+                try {
+                    await addToYes.call(this, prop, sect)
+                } catch (e) {
+                    addToNo.call(this, prop, e.message)
+                }
+            } else addToNo.call(this, prop, 'Unsupported')
+        }
+    }
+
+    go()
+</script>
+</body>
+
+</html>
