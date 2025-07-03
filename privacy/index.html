@@ -306,21 +306,22 @@
                 }
             } else addToNo.call(this, prop, 'Unsupported')
         }
+        try {
+            let n = await jason('https://my-headers.deno.dev')
+            headers.destroyChildren()
+            for (let i in n) {
+                headers.push($('p', {
+                    textContent: `${i}: ${n[i]}`
+                }))
+            }
+        } catch(e) {
+            headers.destroyChildren()
+            headers.push($(`<samp>Failed to load headers: ${e}</samp>`))
+        }
     }
 
     go()
-    try {
-        let n = await jason('https://my-headers.deno.dev')
-        headers.destroyChildren()
-        for (let i in n) {
-            headers.push($('p', {
-                textContent: `${i}: ${n[i]}`
-            }))
-        }
-    } catch(e) {
-        headers.destroyChildren()
-        headers.push($(`<samp>Failed to load headers: ${e}</samp>`))
-    }
+
 </script>
 </body>
 
