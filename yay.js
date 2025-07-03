@@ -104,7 +104,18 @@ function ariaOrData(i) {
     if (char === '$') return i.replace(char, 'data-')
     return i
 }
-
+let vendorRegex = /^(?:webkit|moz|ms)/
+function doVendor(target, prop, r) {
+    if (typeof prop === 'symbol') return this.apply(1, arguments)
+    let p = prop
+    prop = prop.replace(vendorRegex, '')
+    if (p in target) return this.apply(1, arguments)
+    if ((p=`webkit${prop[0].toUpperCase()}${prop.slice(1)}`)in target) return this(target, p, r)
+    if ((p = `moz${prop[0].toUpperCase()}${prop.slice(1)}`)in target) return this(target, p, r)
+    if ((p = `ms${prop[0].toUpperCase()}${prop.slice(1)}`)in target) return this(target, p, r)
+}
+let getVendor = doVendor.bind(get),
+    setVendor = doVendor.bind(set)
 const attrStyleMap = 'StylePropertyMap' in window
     , customRules = css.getDefaultStyleSheet()
     , handlers = {
@@ -142,12 +153,12 @@ const attrStyleMap = 'StylePropertyMap' in window
         get(targ, prop, r) {
             let a = this[0]
             return targ.hasOwnProperty(prop) ? get(targ, prop, r) :
-                cacheFunction(get(a, prop, a), a)
+                cacheFunction(getVendor(a, prop, a), a)
             // ⛓️‍💥 'Illegal invocation' if function is not bound
         },
         set(targ, prop, value) {
             let t = targ.hasOwnProperty(prop) ? targ : this[0]
-            return set(t, prop, value, t)
+            return setVendor(t, prop, value, t)
         }
     },
     querySelector: {

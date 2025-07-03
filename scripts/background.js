@@ -361,3 +361,7 @@ function downgrade({type}, abort) {
         parent.show(3)
     }
 }
+function lowerViolations(){
+    --violations
+}
+setInterval(lowerViolations, 2000)
