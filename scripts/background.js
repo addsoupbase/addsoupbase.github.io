@@ -362,6 +362,6 @@ function downgrade({type}, abort) {
     }
 }
 function lowerViolations(){
-    --violations
+    violations && --violations
 }
 setInterval(lowerViolations, 1000)
