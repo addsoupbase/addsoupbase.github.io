@@ -353,7 +353,7 @@ h.on(window, {
 }, new AbortController)
 function downgrade({type}, abort) {
     console.debug(`%cPerformance Violations: ${++violations}`,'color:red;')
-    if (violations === 10) {
+    if (violations === 23) {
         console.warn('Background disabled to improve user experience')
        abort()
         parent.hide(3)
@@ -364,4 +364,4 @@ function downgrade({type}, abort) {
 function lowerViolations(){
     --violations
 }
-setInterval(lowerViolations, 2000)
+setInterval(lowerViolations, 1000)
