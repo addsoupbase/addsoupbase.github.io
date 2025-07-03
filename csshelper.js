@@ -228,13 +228,14 @@ export function getDefaultStyleSheet() {
     return(document.getElementById('addedStyleRules') ?? function () {
         let out = document.createElement('style');
         (document.head ?? document.body ?? document.documentElement ?? document.querySelector('*') ?? document).append(out)
-        out.textContent='@namespace svg url("http://www.w3.org/2000/svg");'
+        out.textContent=
+            '@namespace svg url("http://www.w3.org/2000/svg");@property --opacity {syntax:"*";inherits:false;initial-value: 1}@property --blur {syntax:"<length>";inherits:false;initial-value: 0px}@property --brightness {syntax:"*";inherits:false;initial-value: 1}@property --contrast {syntax:"*";inherits:false;initial-value: 1}@property --grayscale {syntax:"*";inherits:false;initial-value: 0%}@property --hue-rotate {syntax:"*";inherits:false;initial-value: 0deg}@property --invert {syntax:"*";inherits:false;initial-value: 0%}@property --saturate {syntax:"*";inherits:false;initial-value: 1}@property --sepia {syntax:"*";inherits:false;initial-value: 0%}@media (prefers-reduced-transparency){*{opacity:1 !important;--opacity: 1 !important;}}*{filter: blur(var(--blur)) brightness(var(--brightness)) contrast(var(--contrast)) grayscale(var(--grayscale)) hue-rotate(var(--hue-rotate)) invert(var(--invert)) opacity(var(--opacity)) saturate(var(--saturate)) sepia(var(--sepia))}'
         out.setAttribute('id', 'addedStyleRules')
         out.append(document.createComment('Check your browser for CSS rules ($0.sheet.cssRules)'))
         return out
     }())
 }
-
+export const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)')
 export function registerCSSAll(rules) {
     Object.keys(rules).forEach(bleh)
     function bleh(r) {

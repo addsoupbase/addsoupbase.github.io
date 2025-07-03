@@ -351,7 +351,9 @@ input[type=image]:active {
   background-position-y: bottom, top;
   background-position-x: center, right, 80px;
 }
-
+main {
+  display: contents;
+}
 /* #content { */
 /* text-align: center; */
 /* word-break: normal; */

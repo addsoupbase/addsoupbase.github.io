@@ -894,12 +894,20 @@ let props = Object.getOwnPropertyDescriptors(class _
         until(good, bad, timeout) {
             return h.until(base(this), good, bad, timeout)
         }
-
+        static badForReducedMotion = /^(?:transform|scale|zoom|translate|rotate)$/
         animate(keyframes, options) {
             (options ??= {}).timing ??= 'ease'
             options.iterations ??= 1
             options.pseudoElement &&= css.pev(options.pseudoElement)
             keyframes.forEach(_.forEach)
+            if (css.reducedMotion.matches)
+                loop: for(let i = keyframes.length; i--;) {
+                    let val = keyframes[i]
+                    for(let i in val) if (_.badForReducedMotion.test(i)) {
+                        options.duration = 0
+                        break loop
+                    }
+                }
             return base(this).animate(keyframes, options)
         }
 
