@@ -251,7 +251,7 @@ export function on(target, events, signal) {
                 options.signal = signal.signal
             }
             let Remove = removeEventListener.bind(target, eventName, EventHandlerWrapperFunction, options),
-                Abort = AutoAbort.bind(signal)
+                Abort = signal?.abort.bind(signal, 'Automatic abort')
 
             function EventHandlerWrapperFunction(...args) {
                 let { 0: event } = args,
@@ -315,9 +315,7 @@ export function on(target, events, signal) {
     return target
 }
 
-function AutoAbort() {
-    this.abort('Automatic abort')
-}
+
 
 export function off(target, ...eventNames) {
     if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
@@ -410,11 +408,11 @@ export function delegate(me, events, filter, includeSelf, signal) {
     }
     on(me, events, false, signal)
 }
-if(`${location}`.includes('localhost')) {
+/*if(`${location}`.includes('localhost')) {
     try {
         let log = console.debug.bind(1,'%c[PressureObserver] ','color:pink;')
         function callback(changes) {
-    log(changes)
+    log.apply(1,changes)
         }
         let observer = new PressureObserver(callback)
         await observer.observe('cpu', {
@@ -424,4 +422,4 @@ if(`${location}`.includes('localhost')) {
     catch (e) {
         console.error(e)
     }
-}
+}*/

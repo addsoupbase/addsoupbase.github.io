@@ -37,7 +37,7 @@ async function images({time, colorful, birthday}) {
         '^pointermove'({x, y}) {
             violations < 10 && holding && makeBubble(`${x}px`, `${y}px`).fadeIn(300)
         }
-    }, 80)
+    }, 60)
     .on({
         '^pointerup'() {
             holding = false
@@ -348,11 +348,16 @@ const parent = $('div #background .BG', {
 })
 let violations = 0
 h.on(window, {
-    'long-task'() {
-        if (++violations === 10) {
+    'long-task':downgrade,
+    // 'long-animation-frame':downgrade
+}, new AbortController)
+function downgrade({type}, abort) {
+    console.debug(`%cPerformance Violations: ${++violations}`,'color:red;')
+    if (violations === 10) {
         console.warn('Background disabled to improve user experience')
-        h.off(window, 'long-task')
-            parent.destroyChildren()
-        }
+       abort()
+        parent.hide(3)
+        parent.destroyChildren()
+        parent.show(3)
     }
-})
+}
