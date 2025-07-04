@@ -306,6 +306,15 @@
                 }
             } else addToNo.call(this, prop, 'Unsupported')
         }
+        let media = $("section.sect")
+        yes.parent.push($("<h2>Media Queries:</h2>"),media);
+        ['(any-hover: hover)','(grid: 0)','(hover:hover)','(inverted-colors:inverted)','(prefers-reduced-data:reduce)',
+        '(prefers-reduced-motion: reduce)','(prefers-reduced-transparency: reduce)','(shape: rect)','(video-dynamic-range: standard)'].map(matchMedia).forEach(o=>{
+            media.push($(`<p class="${CSS.escape(o.media)}"></p>`, {
+                class:o.media,
+                textContent:`${o.media}: ${o.matches}`
+            }))
+        })
         try {
             let n = await jason('https://my-headers.deno.dev')
             headers.destroyChildren()
@@ -318,6 +327,7 @@
             headers.destroyChildren()
             headers.push($(`<samp>Failed to load headers: ${e}</samp>`))
         }
+
     }
 
     go()
