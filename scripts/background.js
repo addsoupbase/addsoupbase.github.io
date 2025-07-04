@@ -53,12 +53,8 @@ async function images({time, colorful, birthday}) {
         let {transform} = this.computed
         this.pauseAnims()
         pop.currentTime = 0
-        await Promise.race([pop.play(), h.wait(350)])
+        pop.play()
         POP()
-
-
-
-
         this.fadeOut(300)
         this.flags = 1
         await this.animate([{transform: ''}, {transform: 'scaleX(2) scaleY(2)',}], {
