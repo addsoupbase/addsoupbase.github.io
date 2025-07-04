@@ -351,9 +351,7 @@ input[type=image]:active {
   background-position-y: bottom, top;
   background-position-x: center, right, 80px;
 }
-main {
-  display: contents;
-}
+
 /* #content { */
 /* text-align: center; */
 /* word-break: normal; */
@@ -769,11 +767,12 @@ a.cute-green-button:active {
 
 .back {
   position: fixed;
-  top: 20px;
-  left: 20px;
+  top: 0;
+  left: 0;
 }
 main {
   overflow-y: scroll;
+  width:100%
 }
 .hello {
   justify-items: center;
