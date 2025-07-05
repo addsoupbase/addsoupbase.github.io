@@ -1,4 +1,4 @@
-globalThis.console&&!/localhost|127\.0\.0\.1/.test(location.host)&&function(l,g,m,k,x,r,c){'use strict'
+globalThis.console&&/localhost|127\.0\.0\.1/.test(location.host)||function(l,g,m,k,x,r,c){'use strict'
 setInterval(g.clear,18e4)
 for(var i in g){if(typeof g[i]!=r||x.test(i))continue
 g[i]=function(w){return function(z){try{w.apply(g,[].map.call(z=arguments,function(o){(typeof o==r||o[c]!={}[c])&&!l(o)?o+='':o&&typeof o=='object'&&k in o?o=o[k]:o=JSON.stringify(o)||o+''
