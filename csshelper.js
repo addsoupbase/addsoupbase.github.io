@@ -223,7 +223,36 @@ let cleanRegex = /\s\s|\n\n/g
 export function formatStr(str) {
     return str.trim().replace(cleanRegex, '')
 }
+export function importCSS(url) {
+    // idk why i didn't just think of this
+    let n = document.createElement('link')
+    n.setAttribute('rel', 'stylesheet')
+    n.setAttribute('type', 'text/css')
+    n.setAttribute('href', url);
+    (document.head||document.body||document.documentElement||document.querySelector('*')).append(n)
+    return n
+}
+    /*= function(){
+    return withImport
+    async function withFetch(source) {
+        let res = await(await fetch(new URL(source,location))).text(),
+            sheet = getDefaultStyleSheet()
+        sheet.textContent = `${sheet.textContent}${res}`
+    }
 
+    function withImport(source) {
+        try {
+        return(importCSS = async function(){}.constructor(`"use strict";function map(o){return o.cssText}let a = (await import(new URL(src,location), {with:{type:"css"},assert:{type:"css"}})).default
+        this.textContent+=[].map.call(a.cssRules||a.rules, map)
+        `,'src').bind(getDefaultStyleSheet()))(source)
+        }
+        catch(e) {
+            if (e.name === 'SyntaxError' || e.name === 'EvalError')
+                return(importCSS = withFetch)(source)
+            else throw e
+        }
+    }
+}()*/
 export function getDefaultStyleSheet() {
     return(document.getElementById('addedStyleRules') ?? function () {
         let out = document.createElement('style');

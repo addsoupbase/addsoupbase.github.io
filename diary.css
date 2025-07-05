@@ -12,6 +12,9 @@
   figure {
     justify-self: center;
   }
+#m{
+    place-items: center;
+}
   body {
     overflow-x: hidden;
   }

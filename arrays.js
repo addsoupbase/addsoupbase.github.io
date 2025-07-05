@@ -35,7 +35,7 @@ export function fresh(obj) {
 
 export function of(length, filler) {
     return typeof filler === 'function' ?
-        Array.from({ length }, filler) :
+        from({ length }, filler) :
         Array(length).fill(filler)
 }
 

@@ -1820,11 +1820,6 @@ backdrop.fadeIn().then(() => {
         }
     }
 })*/
-if (location.host.includes('localhost')) {
-    Object.assign(window, {
-        $,h,css
-    })
-}
 /*
 window.Proxy = window.Proxy || function () {
     // i just made this one because i was bored lol
@@ -1955,3 +1950,6 @@ window.Proxy = window.Proxy || function () {
     })
 }()
 */
+// diary stuff
+if (location.pathname.startsWith('/entries') && (location.host === 'localhost:3000' || location.host === 'addsoupbase.github.io'))
+    document.querySelector('script[src="../../diary.js"]') ?? await import('./diary.js')
