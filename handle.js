@@ -209,7 +209,7 @@ export function addCustomEvent(names) {
 const formatEventName = /[_$^%&!?@#\d]|bound /g
 
 export function on(target, events, signal) {
-    if (arguments.length > 3 && getLabel(signal) !== 'AbortController') signal = arguments[3]
+    arguments.length > 3 && getLabel(signal) !== 'AbortController'  && (signal = arguments[3])
     if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
     let names = ownKeys(events)
     if (!names.length) return target
@@ -253,9 +253,9 @@ export function on(target, events, signal) {
             function EventHandlerWrapperFunction(...args) {
                 let { 0: event } = args,
                     label = getLabel(event),
-                    {currentTarget} = event
-                if (label === 'CustomEvent') {
-                    let { detail } = event
+                    {currentTarget} = event,
+                     { detail } = event
+                if (label === 'CustomEvent')
                     for (let i in detail) {
                         // i wish for in included symbols :<
                         if (i in event) {
@@ -264,16 +264,13 @@ export function on(target, events, signal) {
                         }
                         event[i] = detail[i]
                     }
-                } else if (label === 'MouseScrollEvent') {
-                    event.deltaZ = 0
-                    if (event.axis === 2)
-                        event.deltaX = 0,
-                            event.deltaY = 50 * event.detail
-                    else if (event.axis === 1)
-                        event.deltaX = 50 * event.detail,
-                            event.deltaY = 0
-                }
-                signal && args.push(Abort, Remove)
+             else if (label === 'MouseScrollEvent')
+                    event.deltaZ = 0,
+                    event.axis === 2?
+                        (event.deltaX = 0, event.deltaY = 50 * detail): event.axis === 1&&
+                    (event.deltaX = 50 * detail, event.deltaY = 0)
+                signal && args.push(Abort)
+                args.push(Remove)
                 onlyTrusted && event.isTrusted || !onlyTrusted && (!onlyCurrentTarget || onlyCurrentTarget && (event.target ?? event.srcElement) === currentTarget) &&
                     (apply(func, target, args),
                         prevents && (event.cancelable ? event.defaultPrevented ? warn(`'${eventName}' event has already been cancelled`) : event.preventDefault() : warn(`🔊 '${eventName}' events are not cancelable`), event.returnValue = !prevents),
