@@ -1144,13 +1144,13 @@ MUTATION OBSERVER STUFFS
     this.setAttribute(attr, this.getAttribute(attr))
 }*/
 const imported = new Set
-let waitingForImport = Set.prototype.has.bind(new Set('img-sprite touch-joystick seek-bar paper-canvas'.split(' ')))
+let waitingForImport = new Set('img-sprite touch-joystick seek-bar paper-canvas'.split(' '))
 export async function importWebComponent(name) {
-    (imported.has(name)|| await import(`./webcomponents/${name}.js`), imported.add(name), waitingForImport.delete(name))
+    (imported.has(name) || (await import(`./webcomponents/${name}.js`), imported.add(name), waitingForImport.delete(name)))
 }
 function observeAll(node) {
     let n = node.tagName.toLowerCase()
-    waitingForImport(n)&&importWebComponent(n)
+    waitingForImport.has(n)&&importWebComponent(n)
     // if (node instanceof CUSTOM_ELEMENT_SPRITE) node.getAttributeNames().forEach(refreshAttributes, node)
     inte?.observe(node)
     resi.observe(node)
@@ -1702,7 +1702,7 @@ export default Object.defineProperties($, {
     },
     xpath: {
         value(xpath, node, type) {
-            return props.xpath.call(node ?? document, xpath, type)
+            return props.xpath.value.call(node ?? document, xpath, type)
         }
     },
     prototype: {
@@ -1736,7 +1736,7 @@ export const define = function () {
             let n = $('iframe', {
                 parent: document.head
             })
-            dfn = n.contentWindow.customElements.define.bind(customElements)
+            dfn = n.contentWindow.CustomElementRegistry.prototype.define.bind(customElements)
             n.destroy()
             n=null
         }

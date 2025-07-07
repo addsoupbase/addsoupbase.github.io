@@ -61,7 +61,7 @@ function lastResort(target) {
         r = `${removeEventListener}`,
         { toString } = Function.prototype
     try {
-        do {
+        while (target = gpo(target)) {
             let ael = gopd(target, 'addEventListener')?.value,
                 rel = gopd(target, 'removeEventListener')?.value,
                 de = gopd(target, 'dispatchEvent')?.value,
@@ -76,7 +76,7 @@ function lastResort(target) {
                 && toString.call(rel) === r)
                 return true
         }
-        while (target = gpo(target)) return false
+            return false
     } catch {
         return false
     }
