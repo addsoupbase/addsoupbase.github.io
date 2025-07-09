@@ -54,8 +54,8 @@
         <h1>This is like my favourite moment of ALL TIME IN MY FAVOURITE GAME EVER</h1>
         <small>please play it with sound</small>
         <figure>
-            <video preload="auto" controls>
-                <source id="src" type='video/webm'>
+            <video id="src" preload="auto" controls>
+              
             </video>
             <figcaption><cite>Kirby's Return to Dream Land (2011)</cite></figcaption>
         </figure>
@@ -77,9 +77,8 @@
 <script>
     'use strict'
     addEventListener('load', function(){
-        var src = document.getElementById('src')
-        src.setAttribute('src',"https://cdn.glitch.me/2cbd797e-32d2-4626-a58b-6728ec3cdf1c/kirby.webm")
-        src.parentElement.appendChild(src)
+         document.getElementById('src')
+        .setAttribute('src',"https://cdn.glitch.me/2cbd797e-32d2-4626-a58b-6728ec3cdf1c/kirby.webm")
     }, {once:true})
 </script>
 <!--
