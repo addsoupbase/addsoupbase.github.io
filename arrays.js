@@ -28,7 +28,6 @@ export function forKeys(obj, callback) {
     let keys = Reflect.ownKeys(obj)
     for (let { length: i } = keys; i--;) callback.call(obj, keys[i])
 }
-
 export function fresh(obj) {
     return !Reflect.ownKeys(obj).length
 }
