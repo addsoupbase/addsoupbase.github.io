@@ -58,9 +58,6 @@ image-rendering: auto;
   width:max-content;
   text-align: center;
 }
-.Cole {
-filter: drop-shadow(5px 5px 5px red) drop-shadow(-5px -5px 5px blue)
-}
 .tar {
   background-repeat: no-repeat;
   background-size: cover;
@@ -669,8 +666,8 @@ body {
 
 .back {
   position: fixed;
-  top: 0;
-  left: 0;
+  top: 15px;
+  left: 15px;
 }
 main {
   overflow-y: scroll;

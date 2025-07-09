@@ -5,7 +5,6 @@ let all = document.getElementsByTagName('*')
 function isHidden() {
     return violations >= 10 || all.length > 135 || hidden||!!document.fullscreenElement || document.hidden || document.visibilityState === 'hidden'
 }
-
 async function images({time, colorful, birthday}) {
     let pop = new Audio('media/pop.mp3')
     let {avatars, mons} = await time
@@ -91,6 +90,7 @@ async function images({time, colorful, birthday}) {
         const {src} = image
         let n = $('div.bubble', {
             attr: {
+                style:'z-index:3',
                 _hidden: 'true',
                 width: 50, height: 50
             }, parent
@@ -333,7 +333,7 @@ frame.on({
             deadline ? console.debug(`Did timeout: `, deadline?.didTimeout) : console.debug('requestIdleCallback unsupported :(')
         }, {timeout: 3000})
     }
-},false,new AbortController())
+},false,new AbortController)
 const parent = $('div #background .BG', {
     parent: document.body,
     attr: {
@@ -346,7 +346,7 @@ h.on(window, {
     'long-task':downgrade,
     // 'long-animation-frame':downgrade
 }, new AbortController)
-function downgrade({type}, abort) {
+function downgrade(_, abort) {
     console.debug(`%cPerformance Violations: ${++violations}`,'color:red;')
     if (violations === 23) {
         console.warn('Background disabled to improve user experience')

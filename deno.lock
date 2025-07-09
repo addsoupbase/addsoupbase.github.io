@@ -1,5 +1,5 @@
 {
-  "version": "4",
+  "version": "5",
   "specifiers": {
     "jsr:@std/fs@*": "1.0.15"
   },
@@ -12,6 +12,7 @@
     "https://deno.land/std/http/file_server.ts": "https://deno.land/std@0.224.0/http/file_server.ts"
   },
   "remote": {
+    "https://addsoupbase.github.io/str.js": "74671b6d30854f552ba822054724cf48a73f35ee829a7ad87f62770554f5eb77",
     "https://deno.land/std@0.150.0/_util/assert.ts": "e94f2eb37cebd7f199952e242c77654e43333c1ac4c5c700e929ea3aa5489f74",
     "https://deno.land/std@0.150.0/_util/os.ts": "3b4c6e27febd119d36a416d7a97bd3b0251b77c88942c8f16ee5953ea13e2e49",
     "https://deno.land/std@0.150.0/async/abortable.ts": "87aa7230be8360c24ad437212311c9e8d4328854baec27b4c7abb26e85515c06",

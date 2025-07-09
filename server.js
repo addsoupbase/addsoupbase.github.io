@@ -52,6 +52,8 @@ async function go(req) {
             if (jsContent) {
                 return  response(req, jsContent, {
                     headers: {
+                        'access-control-allow-origin':'*',
+                        'access-control-allow-private-network':"true",
                         'content-type': 'text/javascript',
                     }
                 })

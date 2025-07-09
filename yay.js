@@ -1618,6 +1618,11 @@ export default Object.defineProperties($, {
     // }
     // },
     //len:0,
+    hasFullscreen:{
+        get() {
+            return !!(document.fullscreen || document.fullscreenElement || window.fullScreen)
+        }
+    },
     push: {
         value(node, ...children) {
             node.append.apply(node, children.map(base))
@@ -1730,7 +1735,9 @@ function allElementStuff(e) {
 
 export const define = function () {
     let dfn
-    return define
+    if (Function.prototype.toString.call(customElements.define) === `${Function.prototype}`.replace('function ','function define')) return customElements.define.bind(customElements)
+        console.warn("Monkeypatch detected: ", customElements.define)
+        return define
     function define(...args) {
         if (!dfn) {
             let n = $('iframe', {
@@ -1743,213 +1750,6 @@ export const define = function () {
         return dfn.apply(1, args)
     }
 }()
-/*export function info(heading, message, parent, yes, no) {
-return new Promise(resolve => {
-parent ??= $.body
-let backdrop = $('div.alertbackdrop', {
-    parent
-})
-let p = $('<form class="alertdialog" aria-modal="true" role="alertdialog"></form>', {
-    parent: backdrop
-})
-let section = p.$('section')
-let head = typeof heading === 'string' ? $('h1', {
-    textContent: heading,
-}) : heading
-head.parent = section
-let msg = typeof message === 'string' ? $('p', {
-        textContent: message
-    }) :
-    msg
-msg.parent = section
-let button = typeof yes === 'undefined' ? $(`<button class="cute-green-button" autofocus>Okay</button>`) : yes
-backdrop.push(button)
-backdrop.fadeIn().then(() => {
-    button.on({
-        async _click() {
-            this.fadeOut(300)
-            await p.fadeOut(300)
-            await backdrop.fadeOut(300)
-            backdrop.destroy()
-            resolve()
-        }
-    })
-})
-})
-}*/
-// function reduce(a, b) {
-// return a + b
-// }
-/*
-1 || async function () {
-    console.log("Test enabled")
-    if (location.href.startsWith('http://localhost')) window.test = function (count = 1000, mode = parseMode) {
-        parseMode = mode
-        let time = performance.now()
-        //  console.time(parseMode)
-        while (count--) $('<div><p>hello</p></div>').destroy()
-        // console.timeEnd(parseMode)
-        return performance.now() - time
-    }
-    let obj = {}
-    let {
-        default: a
-    } = await import('./math.js')
-    for (let n of `template createRange createHTMLDocument innerHTML parseHTMLUnsafe default template setHTMLUnsafe write`.split(' ')) {
-        obj[n] = []
-        for (let i = 4; i--;) {
-            obj[n].push(test(3000, n))
-        }
-        obj[n] = a.average(...obj[n])
-    }
-    console.log(obj)
-}()
-*/
-/*$.body.on({
-    contentvisibilityautostatechange({ target, skipped }) {
-        if (target.matches('img[src]') || target.matches('img[data-src]')) {
-            target = $(target)
-            if (skipped) {
-                let { src } = target.attr
-                target.attr.src = 'data:image/png,'
-                target.setAttr({ $src: src })
-            }
-            else if (target.attr.$src) {
-                target.setAttr({ src: target.attr.$src })
-            }
-        }
-    }
-})*/
-/*
-window.Proxy = window.Proxy || function () {
-    // i just made this one because i was bored lol
-    'use strict'
-    var old
-    try {
-        // Works on rhino engine
-        ({
-            __proto__: null, __noSuchMethod__: function () {
-            }
-        }).a()
-        old = true
-    } catch (e) {
-        old = false
-    }
-    var spreadArgs = function (args) {
-        var arr = [].slice.call(args)
-        arr.unshift(1)
-        return arr
-    }
-
-    function revocable(target, handler) {
-        if (this instanceof Proxy || this instanceof revocable) throw TypeError("Proxy.revocable is not a constructor")
-        if (target === null || (typeof target !== 'object' && typeof target !== 'function') || handler === null || (typeof handler !== 'object' && typeof handler !== 'function')) throw TypeError('Cannot create proxy with a non-object as target or handler')
-        var original = target
-            , define = typeof target === 'function' ? function () {
-                var obj = {}
-                    , func = obj[original.name] = function () {
-                    if (this instanceof func) {
-                        if (revoked) throw TypeError("Cannot perform 'construct' on a proxy that has been revoked")
-                        if ('construct' in handler) {
-                            var o = handler.construct(original, [].slice.call(arguments), this.constructor)
-                            if (o === null || (typeof o !== 'object' && typeof o !== 'function')) throw TypeError("'construct' on proxy: trap returned non-object ('" + (o && (o.toString || {}.toString).call(o)) + "')")
-                            return o
-                        }
-                        return new (original.bind.apply(original, spreadArgs(arguments)))()
-                    } else {
-                        if (revoked) throw TypeError("Cannot perform 'apply' on a proxy that has been revoked")
-                        if ('apply' in handler) return handler.apply(original, this, arguments)
-                        return original.apply(obj, arguments)
-                    }
-                }
-                var poisonPill = function () {
-                    throw TypeError("'caller', 'callee', and 'arguments' properties may not be accessed on strict mode functions or the arguments objects for calls to them")
-                }
-                poisonPill = {
-                    get: poisonPill,
-                    set: poisonPill
-                }
-                return Object.defineProperty(Object.defineProperty(Object.defineProperty(Object.defineProperty(Object.defineProperty(Object.defineProperty(Object.defineProperty((Object.setPrototypeOf || function (func, target) {
-                                (Object.getOwnPropertyDescriptor(Object.prototype, '__proto__') || {
-                                    set: function () {
-                                    }
-                                }).set.call(func, target)
-                                return func
-                            })(func, original),
-                            'bind', {
-                                value: Function.prototype.bind
-                            }), 'call', {
-                            value: Function.prototype.call
-                        }), 'apply', {
-                            value: Function.prototype.apply
-                        }), 'name', {
-                            value: original.name
-                        }), 'caller', Object.getOwnPropertyDescriptor(Function.prototype, 'caller') || poisonPill),
-                        'arguments', Object.getOwnPropertyDescriptor(Function.prototype, 'arguments') || poisonPill),
-                    'length', {
-                        value: original
-                    })
-            }() : {__proto__: original},
-            revoked = false,
-            has = {}.hasOwnProperty.bind(define)
-        if (old && 'get' in handler) Object.defineProperty(define, '__noSuchMethod__', {
-            configurable: 1,
-            value: 1 && function (prop, args) {
-                return handler.get(define, prop, define, true).apply(1, args)
-            }
-        })
-        do {
-            var props = Object.getOwnPropertyNames(target).map(function (prop) {
-                    var o = Object.getOwnPropertyDescriptor(target, prop)
-                        , out = {}
-                        , obj = out[prop] = {}
-                    for (var p in o) obj[p] = o[p]
-                    return out
-                }),
-                doThing = function (i) {
-                    if (!has(i))
-                        Object.defineProperty(define, i, {
-                            enumerable: props.enumerable,
-                            get: function () {
-                                if (revoked) throw TypeError("Cannot perform 'get' on a proxy that has been revoked")
-                                if ('get' in handler) return handler.get(original, i, original)
-                                var val = original[i]
-                                return typeof val === 'function' ? val.bind(original) : val
-                            },
-                            set: function (value) {
-                                if (revoked) throw TypeError("Cannot perform 'set' on a proxy that has been revoked")
-                                if ('set' in handler) {
-                                    var r = handler.set(original, i, value, original)
-                                    if (!r) throw TypeError("'set' on proxy: trap returned falsish for property '" + i + "'")
-                                } else original[i] = value
-                            }
-                        })
-                }
-            props.forEach(function (prop) {
-                for (var i in prop) doThing(i)
-            })
-        }
-        while (target = Object.getPrototypeOf(target))
-        return {
-            proxy: define,
-            revoke: 1 && function () {
-                revoked = target = handler = original = define = true
-            }
-        }
-    }
-
-    function Proxy(target, handler) {
-        if (!(this instanceof Proxy)) throw TypeError("Constructor Proxy requires 'new'")
-        return revocable(target, handler).proxy
-    }
-
-    return Object.defineProperty(Proxy, 'revocable', {
-        value: revocable,
-        writable: 1,
-        configurable: 1,
-    })
-}()
-*/
 // diary stuff
 if (location.pathname.startsWith('/entries') && (location.host === 'localhost:3000' || location.host === 'addsoupbase.github.io'))
     document.querySelector('script[src="../../diary.js"]') ?? await import('./diary.js')

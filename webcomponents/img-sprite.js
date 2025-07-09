@@ -71,7 +71,9 @@ class AnimatedSprite extends HTMLElement {
             })
         }
     }
-
+    disconnectedCallback(){
+       $(this).cancelAnims()
+    }
     connectedCallback() {
         this.attachShadow({mode: 'open'}).appendChild(base($(`style`, {
             textContent:

@@ -29,19 +29,21 @@ let { warn, groupCollapsed, groupEnd } = logger,
     { isArray } = Array
 export const allEvents = new WeakMap
 let { addEventListener, removeEventListener, dispatchEvent } = globalThis.EventTarget?.prototype ?? AbortSignal.prototype
-/*if (globalThis.document)
-    // this adds about 20ms, which i don't like!
+if (Function.prototype.toString.call(addEventListener) !== Function.prototype.toString().replace('function ', 'function addEventListener'))
+    // adds ~20ms
     try {
+        console.warn('Monkeypatch detected: ',addEventListener)
         // in case they monkeypatch the EventTarget.prototype
         let n = document.createElement('iframe'),
             el = document.head ?? document
         el.append(n),
             { addEventListener, removeEventListener, dispatchEvent } = n.contentWindow
-        el.removeChild(n)
+            n.contentWindow.close()
+            el.removeChild(n)
         n = null
     } catch (e) {
-        logger.debug(e)
-    }*/
+        logger.error(e)
+    }
 let verified = new WeakSet
 
 function isValidET(target) {
@@ -256,14 +258,9 @@ export function on(target, events, signal) {
                     {currentTarget} = event,
                      { detail } = event
                 if (label === 'CustomEvent')
-                    for (let i in detail) {
+                    for (let i in detail) 
                         // i wish for in included symbols :<
-                        if (i in event) {
-                            logger.warnLate(`The '${i}' property of a CustomEvent was ignored since it would overwrite an existing property: `, event[i])
-                            continue
-                        }
-                        event[i] = detail[i]
-                    }
+                        i in event?console.warn(`The '${i}' property of a CustomEvent was ignored since it would overwrite an existing property: `, event[i]):event[i] = detail[i]
              else if (label === 'MouseScrollEvent')
                     event.deltaZ = 0,
                     event.axis === 2?
@@ -273,7 +270,7 @@ export function on(target, events, signal) {
                 args.push(Remove)
                 onlyTrusted && event.isTrusted || !onlyTrusted && (!onlyCurrentTarget || onlyCurrentTarget && (event.target ?? event.srcElement) === currentTarget) &&
                     (apply(func, target, args),
-                        prevents && (event.cancelable ? event.defaultPrevented ? warn(`'${eventName}' event has already been cancelled`) : event.preventDefault() : warn(`🔊 '${eventName}' events are not cancelable`), event.returnValue = !prevents),
+                        prevents && (event.cancelable ? event.defaultPrevented ? console.warn(`'${eventName}' event has already been cancelled`) : event.preventDefault() : warn(`🔊 '${eventName}' events are not cancelable`), event.returnValue = !prevents),
                         stopProp && (event.cancelBubble = true, event.stopPropagation()),
                         stopImmediateProp && event.stopImmediatePropagation(),
                         autoabort && Abort(),
@@ -400,7 +397,7 @@ export function delegate(me, events, filter, includeSelf, signal) {
             (me !== target || includeSelf) && (filter(target) ?? 1) && apply(old, target, args)
         }
     }
-    on(me, events, false, signal)
+   return on(me, events, signal)
 }
 /*if(`${location}`.includes('localhost')) {
     try {
