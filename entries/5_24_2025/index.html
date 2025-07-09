@@ -23,7 +23,7 @@
     <meta property="og:description" content="Entry for Sat May 24 2025">
     <meta property="article:published_time" content="2025-05-25T02:44:22.181Z">
     <meta property="article:author" content="addsoupbase">
-    <link rel="preload" as="video" href="https://cdn.glitch.me/2cbd797e-32d2-4626-a58b-6728ec3cdf1c/kirby.webm" crossorigin="anonymous" type="video/webm" fetchpriority="high">
+    <!-- <link rel="preload" as="video" href="https://cdn.glitch.me/2cbd797e-32d2-4626-a58b-6728ec3cdf1c/kirby.webm" crossorigin="anonymous" type="video/webm" fetchpriority="high"> -->
     <title>Sat May 24 2025</title>
     <script type="module" blocking="render">
         import '../../csshelper.js'
@@ -55,7 +55,7 @@
         <small>please play it with sound</small>
         <figure>
             <video preload="auto" controls>
-                <source src="https://cdn.glitch.me/2cbd797e-32d2-4626-a58b-6728ec3cdf1c/kirby.webm" type='video/webm'>
+                <source id="src" type='video/webm'>
             </video>
             <figcaption><cite>Kirby's Return to Dream Land (2011)</cite></figcaption>
         </figure>
@@ -73,6 +73,14 @@
     // import * as str from '../../str.js'
     // import ran from '../../random.js'
     // import c from '../../color.js'
+</script>
+<script>
+    'use strict'
+    addEventListener('load', function(){
+        var src = document.getElementById('src')
+        src.setAttribute('src',"https://cdn.glitch.me/2cbd797e-32d2-4626-a58b-6728ec3cdf1c/kirby.webm")
+        src.parentElement.appendChild(src)
+    }, {once:true})
 </script>
 <!--
     have a wonderful day 😊
