@@ -422,7 +422,7 @@ let props = Object.getOwnPropertyDescriptors(class _
                 for (let el of val.content.querySelectorAll('*'))
                     prox(el).destroy()
             }*/
-            $.last === this&& ($.last = null)
+            // $.last === this&& ($.last = null)
             do my.remove()
             while (my.isConnected /*document.contains(my)*/)
             let myevents = h.getEventNames(my)
@@ -982,7 +982,7 @@ let props = Object.getOwnPropertyDescriptors(class _
         }
     }.prototype
 )
-const prototype = Object.create(null)
+const prototype = {__proto__:null}
     , TEXT_THINGIES = new Set('outerHTML outerText innerHTML innerText textContent'.split(' '))
 TEXT_THINGIES.forEach(txt =>
     Object.defineProperty(prototype, txt, {
@@ -1408,7 +1408,7 @@ export function prox(target) {
                       value: new Map
                   },*/
                 selfRules: {
-                    value: Object.create(null)
+                    value:{__proto__:null}
                 },
                 // state: reuse.state,
                 // [shadow]: reuse.junk,
@@ -1550,7 +1550,7 @@ function $(html, props, ...children) {
         type && (toSet.type = type)
         element.setAttr(toSet)
     }
-    $.last = element
+    // $.last = element
     let b = base(element)
     if (from(b.querySelectorAll('*'), prox).concat(element).some(allElementStuff)) throw TypeError('Inline event handlers are deprecated')
     if (element.tagName === 'SCRIPT' || b.querySelector('script')) {
@@ -1671,10 +1671,11 @@ export default Object.defineProperties($, {
             return from(base($.doc).querySelectorAll(selector), prox)
         }
     },
+    /*
     last: {
         writable: 1,
         value: null,
-    },
+    },*/
     setup: {
         value(id) {
             let te = prox(document.getElementById(id) ?? document.querySelector('template'))

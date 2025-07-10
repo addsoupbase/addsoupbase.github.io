@@ -5,21 +5,21 @@ export function assemble(arrayLike, ...sequence) {
     for (let { length } = sequence, i = 0; i < length;) push(at(sequence[i++]))
     return out
 }
-    export function pr(target, ...props) {
-        let handler = {__proto__:null}
-        props.length || (props = Object.getOwnPropertyNames(Reflect))
-        for(let {length: i}= props; i--;) {
-            let key = props[i],
-                fn = console.log.bind(1,`${key}: `),
-                act = Reflect[key]
-            handler[key] = log
-            function log(...args) {
-                fn.apply(1,args.slice(1))
-                return Reflect.apply(act, target, args)
-            }
+export function pr(target, ...props) {
+    let handler = { __proto__: null }
+    props.length || (props = Object.getOwnPropertyNames(Reflect))
+    for (let { length: i } = props; i--;) {
+        let key = props[i],
+            fn = console.log.bind(1, `${key}: `),
+            act = Reflect[key]
+        handler[key] = log
+        function log(...args) {
+            fn.apply(1, args.slice(1))
+            return Reflect.apply(act, target, args)
         }
-        return new Proxy(target, handler)
     }
+    return new Proxy(target, handler)
+}
 export function parse(str) {
     return { __proto__: null, ...JSON.parse(str) }
 }
@@ -40,7 +40,7 @@ export function of(length, filler) {
 
 export function from(ArrayLike, map, thisArg) {
     // Array.from checks @@iterator first, which would be slower in cases where it is callable
-    return ArrayLike.length>=0?map?[].map.call(ArrayLike,map,thisArg):[].slice.call(ArrayLike):map?Array.from(ArrayLike,map,thisArg): typeof ArrayLike[Symbol.iterator]!=='undefined'?[...ArrayLike]:[]
+    return ArrayLike.length >= 0 ? map ? [].map.call(ArrayLike, map, thisArg) : [].slice.call(ArrayLike) : map ? Array.from(ArrayLike, map, thisArg) : typeof ArrayLike[Symbol.iterator] !== 'undefined' ? [...ArrayLike] : []
 }
 
 /*export function forEach(ArrayLike, callback, thisArg) {
@@ -64,8 +64,8 @@ export function* edgeCases(...rest) {
     let obj = {}
     obj.property = obj
     let all = [true, false, 0, 1, -0, -1, 1.5, -1.5, 1 / 0, -1 / 0, 0 / 0, 0n, 1n, -1n, null, , '', 'string', '1', ' \n\t\v\f\r', Symbol('symbol'), Symbol.for('symbol'), {}, { __proto__: null }, obj, function () { }, () => { }, async function () { }, async () => { }, ...rest]
-    if ('document' in globalThis) all.push(document.all)
-    for (let i=0,{length:n}=all;i<n;yield all[++i]);
+    'document' in globalThis&&all.push(document.all)
+    for (let i = 0, { length: n } = all; i < n; yield all[++i]);
 }
 /*export function mapFn(obj, callback, thisArg) {
     let out = {},
@@ -124,8 +124,8 @@ export function rotate(arr, rotation) {
         return arr
     }
     let push = [].push.bind(arr),
-            shift = [].shift.bind(arr)
-        while (r--) push(shift())
+        shift = [].shift.bind(arr)
+    while (r--) push(shift())
     return arr
 }
 
@@ -151,7 +151,7 @@ function TestImportSupport() {
     getJson = fallback.constructor
         // Some, even older browsers, prefer 'assert' over 'with'
         // i sometimes wonder why they changed it in the first place if it works pretty much the same...
-        ('u','"use strict";let a=sessionStorage,s={type:"json"},h=(await import(new URL(u,location),{assert:s,with:s})).default;a.setItem("json",!0);return h')
+        ('u', '"use strict";let a=sessionStorage,s={type:"json"},h=(await import(new URL(u,location),{assert:s,with:s})).default;a.setItem("json",!0);return h')
     /*
     .bind(fallback)
      using bind since the function can't access the module scope
@@ -173,3 +173,12 @@ if (s !== 'false' && s !== 'true') try {
 else if (s === 'true') TestImportSupport()
 else FallbackImport()
 export const jason = getJson
+export function syncImport(src) {
+    var n = new XMLHttpRequest,
+        x = eval
+    n.open('GET', src, !1)
+    n.send()
+    var res = n.getResponseHeader('Content-Type')
+    if (/(?:text|application)\/(?:x-)?(?:j(?:ava)?|ecma|live)script(?:1\.[0-5])?/.test(res) && n.status === 'OK') return x(n.responseText)
+    throw TypeError('Failed to load script')
+}

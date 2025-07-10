@@ -13,6 +13,7 @@ async function standalone() {
     let {default: $} = await import('./yay.js'),
         css = await import('./csshelper.js')
     css.importCSS('../../cute-green.css')
+    css.importCSS(`data:text/css,main{opacity: 1 !important;}`)
     let main = $.qs('main')
     main.classList.add('cute-green')
     main.styles.height='100%'
@@ -29,6 +30,8 @@ async function standalone() {
                 if (n.ok) location.assign(`../${month}_${day}_${year}/index.html`)
                 else {
                 }
+                name
+                
             }
         }
     })
