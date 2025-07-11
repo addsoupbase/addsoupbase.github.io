@@ -90,7 +90,7 @@ async function images({time, colorful, birthday}) {
         const {src} = image
         let n = $('div.bubble', {
             attr: {
-                style:'z-index:3',
+                style:'z-index:3;will-change:transform,opacity;',
                 _hidden: 'true',
                 width: 50, height: 50
             }, parent
@@ -278,8 +278,7 @@ async function images({time, colorful, birthday}) {
 
     function tinyBubbles(again = true) {
         again && setTimeout(tinyBubbles, ran.range(1000, 1200))
-        if (isHidden()) return
-        makeBubble()
+        isHidden()||makeBubble()
     }
 
     tinyBubbles()
@@ -351,9 +350,7 @@ function downgrade(_, abort) {
     if (violations === 23) {
         console.warn('Background disabled to improve user experience')
        abort()
-        parent.hide(3)
-        .destroyChildren()
-        .show(3)
+        parent.hide(3).destroy()
         clearInterval(lower)
     }
 }
