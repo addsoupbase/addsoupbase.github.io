@@ -447,7 +447,7 @@ html {
   position: relative;
   --user-select: none;
   width: 120vw;
-   --zoom:.8; 
+   transform:scale(.8, .8); 
 
   max-width:700px;
   /*max-height:120vh;*/
@@ -462,7 +462,12 @@ border-radius: 15px;
   border: none;
   margin: auto;
 }
-
+@supports (zoom: 1) {
+  #frame {
+    transform: unset;
+    --zoom: 0.8
+  }
+}
 .input {
   margin: 10px
 }
