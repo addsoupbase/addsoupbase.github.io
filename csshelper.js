@@ -469,8 +469,8 @@ export function boxShadow({
         // g('logical-width','revert',false,'*'),
         g('buffered-rendering', 'auto', false),
         g('color-rendering', 'auto', false),
-        g('--stretch', '-moz-available -webkit-fill-available stretch'.split(' ').find(o => sup('width', o)), false, '*'),
-        g('--crisp-edges', '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(o => sup('image-rendering', o)), true, "*")
+        g('stretch', '-moz-available -webkit-fill-available stretch'.split(' ').find(o => sup('width', o)), false, '*'),
+        g('crisp-edges', '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(o => sup('image-rendering', o)), true, "*")
     ]
     // g('marquee-style','scroll',0)
     const sheet = getDefaultStyleSheet()
