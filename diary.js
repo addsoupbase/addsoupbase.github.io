@@ -1,12 +1,10 @@
 console.log('Welcome to my diary lol')
 // basically, if i want to run JS for every entry, it would go in this file
-
     let ran = false
 document.prerendering&&console.log(`Prerendering started for ${location}`)
 if (top === window)
     // User is viewing file by itself
     standalone()
-
 async function standalone() {
     if (ran) return
     ran = true
@@ -30,12 +28,10 @@ async function standalone() {
                 if (n.ok) location.assign(`../${month}_${day}_${year}/index.html`)
                 else {
                 }
-                name
-                
             }
         }
     })
-main.afterbegin=($(`<div style="margin:30px;transform:scale(1.7,1.7);display:flex;justify-content: center"></div>`, null, input))
+main.afterbegin=$(`<div style="margin:30px;transform:scale(1.7,1.7);display:flex;justify-content: center"></div>`, null, input)
     /*
     let regex = /\//g
     let style = 'position:fixed;display:none;'

@@ -288,102 +288,9 @@ let props = getOwnPropertyDescriptors(class _
     get computed() {
         return this[computed] ??= getComputedStyle(base(this))
     }
-
-    /*
-        createState(identifier, child, callback) {
-            let t = this[states]
-            if (t.has(identifier)) throw Error("Already present")
-            //if (!(typeof identifier).match(/number|string|symbol|bigint/)) throw TypeError(`State must be a primitive`)
-            // console.assert(/number|string|symbol|bigint/.test(typeof identifier), `State should be a primitive:\n %o`, identifier)
-            let cached = $('template')
-            cached.content.appendChild(base(child))
-            t.set(identifier, {
-                cached,
-                callback
-            })
-            return cached.content
-        }
-
-        getState(identifier) {
-            return this[states].get(identifier)?.cached.content ?? null
-        }
-
-        editState(id, func) {
-            func(this[states].get(id).cached.content)
-        }
-
-        deleteState(identifier) {
-            let t = this[states]
-            if (t.has(identifier)) {
-                let state = t.get(identifier).cached;
-                [].forEach.call(state.content.querySelectorAll('*'), destroyEach)
-                t.delete(identifier)
-            }
-        }
-        setState(identifier) {
-            if (identifier === null) {
-                this.lastState = this.currentState
-                this.currentState = null
-                return this.destroyChildren()
-            }
-            let t = this[states]
-            if (!t.has(identifier)) {
-                this.destroyChildren()
-                .push($('<samp style="font-size:30px; color:red;">INVALID STATE</samp>'))
-                    .currentState = null
-                reportError(identifier)
-                throw TypeError('Invalid state')
-            }
-            let {cached: cache, callback} = t.get(identifier)
-                , frag = cache.content
-                , cached = document.importNode(frag, true)
-                , staticBatch = [...frag.querySelectorAll('*')]
-                , newBatch = [...cached.querySelectorAll('*')]
-                , withIds = []
-            staticBatch.forEach(forEach)
-            this.destroyChildren()
-            callback?.apply(cached, withIds)
-            base(this).appendChild(cached)
-            this.lastState = this.currentState
-            this.currentState = identifier
-
-            function forEach(el, index) {
-                el = prox(el)
-                el.hasAttribute('id') && withIds.push(el) // its considered important
-                let {events} = el
-                if (!events) return
-                let clone = prox(newBatch[index])
-                let staticEvents = h.allEvents.get(base(el))
-                events.forEach(eventThing)
-
-                function eventThing(name) {
-                    let {
-                        listener,
-                        passive,
-                        capture,
-                        handler,
-                        prevents,
-                        stopProp,
-                        once,
-                        stopImmediateProp,
-                        onlyTrusted
-                    } = staticEvents.get(name)
-                    if (once) name = `_${name}`
-                    if (passive) name = `^${name}`
-                    if (capture) name = `%${name}`
-                    if (stopProp) name = `&${name}`
-                    if (prevents) name = `$${name}`
-                    if (onlyTrusted) name = `?${name}`
-                    if (stopImmediateProp) name = `!${name}`
-                    clone.on({
-                        [name]: listener[h.unbound][h.unbound]
-                    }, handler)
-                }
-            }
-        }
-    */
     toJSON() {
-        return base(this).outerHTML
+        let me = base(this)
+        return me.getHTML?.({serializableShadowRoots:true}) ?? me.outerHTML
     }
 
     xpath(xpath, callback, type, thisArg) {
@@ -1335,14 +1242,7 @@ h.addCustomEvent({
 })
 const getStyleThingy = function () {
     return attrStyleMap ? a : b
-
-    function a(e) {
-        return e.attributeStyleMap
-    }
-
-    function b(e) {
-        return e.style
-    }
+    function a(e) {return e.attributeStyleMap}function b(e) {return e.style}
 }()
 
 function ApplyBatchedStyles(value, key, map) {

@@ -1,8 +1,8 @@
 import $ from '../yay.js'
-import {wait} from '../handle.js'
+import { wait } from '../handle.js'
 
 $.setup()
-let {main, drawInstead, send1, send2, draw, drawcontrols, undoDraw, submitDrawing} = $.id
+let { main, drawInstead, send1, send2, draw, drawcontrols, undoDraw, submitDrawing } = $.id
 
 $.id.pickAColor
 drawInstead.on({
@@ -15,35 +15,35 @@ drawInstead.on({
 })
 send2.on({
     async $_submit() {
-        try{
-        let pencil = $('<img src="./cute-emojis/emojis/1216660171951046746.gif" alt="pencil loading icon">')
-        !async function () {
-            await this.fadeOut()
-            this.replace(pencil)
-            pencil.busy(true)
-            pencil.fadeIn()
-        }.call(this)
-        let data = draw.toDataURL('image/png',1).slice(22)
-        let res = await fetch(this.attr.$action, {
-            mode: 'cors',
-            method: 'post',
-            headers: {'Content-Type': 'text/plain'},
-            body: data
-        })
-        if (res.ok) {
-            await wait(1000)
-            let yay = $('<samp>Sent... YAYYYYY!!</samp>')
-            await pencil.fadeOut()
-            pencil.replace(yay)
-            yay.fadeIn()
-            yay.styles.display = "block"
-            yay.animate([{transform: 'scale(2,2)'}, {transform: ''}], {duration: 500, iterations: 1, easing: 'ease'})
+        try {
+            let pencil = $('<img src="./cute-emojis/emojis/1216660171951046746.gif" alt="pencil loading icon">')
+            !async function () {
+                await this.fadeOut()
+                this.replace(pencil)
+                pencil.busy(true)
+                pencil.fadeIn()
+            }.call(this)
+            let data = draw.toDataURL('image/png', 1).slice(22)
+            let res = await fetch(this.attr.$action, {
+                mode: 'cors',
+                method: 'post',
+                headers: { 'Content-Type': 'text/plain' },
+                body: data
+            })
+            if (res.ok) {
+                await wait(1000)
+                let yay = $('<samp>Sent... YAYYYYY!!</samp>')
+                await pencil.fadeOut()
+                pencil.replace(yay)
+                yay.fadeIn()
+                yay.styles.display = "block"
+                yay.animate([{ transform: 'scale(2,2)' }, { transform: '' }], { duration: 500, iterations: 1, easing: 'ease' })
+            }
+            else alert('Failed to send :(')
         }
-        else alert('Failed to send :(')
-    }
-    catch(e) {
+        catch (e) {
             prompt('failed to send:(', e)
-    }
+        }
     }
 })
 undoDraw.on({
@@ -61,7 +61,7 @@ drawcontrols.delegate({
             }
                 break
             case 'color': {
-                ctx.strokeStyle =ctx.fillStyle = this.value
+                ctx.strokeStyle = ctx.fillStyle = this.value
             }
                 break
         }
@@ -85,17 +85,17 @@ Object.assign(ctx, {
 })
 ctx.fillRect(0, 0, 250, 250)
 ctx.fillStyle = 'black'
-function pointermove({offsetX: x, offsetY: y}) {
+function pointermove({ offsetX: x, offsetY: y }) {
     if (down) {
         if (arguments[0].touches) {
             let touches = arguments[0].touches[0]
-            x = touches.clientX-this.offsetLeft - touches.radiusX
-            y =  touches.clientY-this.offsetTop - touches.radiusY
+            x = touches.clientX - this.offsetLeft - touches.radiusX
+            y = touches.clientY - this.offsetTop - touches.radiusY
         }
         ctx.beginPath()
         // let {currentCSSZoom: zoom} = this
-        ctx.moveTo(last.x , last.y )
-        ctx.lineTo(x , y )
+        ctx.moveTo(last.x, last.y)
+        ctx.lineTo(x, y)
         ctx.stroke()
         last.x = x
         last.y = y
@@ -103,15 +103,15 @@ function pointermove({offsetX: x, offsetY: y}) {
 }
 function pointerdown(p) {
     undoBuffer.push(ctx.getImageData(0, 0, 250, 250))
-    while(undoBuffer.length > 20) undoBuffer.shift()
+    while (undoBuffer.length > 20) undoBuffer.shift()
     down = true
     if ('pointerId' in p)
-    this.setPointerCapture(p.pointerId)
+        this.setPointerCapture(p.pointerId)
     last.x = p.offsetX
     last.y = p.offsetY
     ctx.beginPath()
-    let {currentCSSZoom: zoom} = this
-    ctx.arc(last.x,last.y,0,0,6)
+    let { currentCSSZoom: zoom } = this
+    ctx.arc(last.x, last.y, 0, 0, 6)
     ctx.stroke()
     ctx.fill()
     // ctx.strokeRect(p.offsetX/zoom, p.offsetY/zoom, .5,.5)
@@ -124,17 +124,17 @@ draw.on({
    this.styles.zoom = Math.min(Math.max((+this.styles.zoom || 1) - Math.sign(a)/30,.5), 3)
        },*/
     // touchstart: pointerdown,
-   /* touchmove(a){
-        pointermove.call(this,a)
-        touched ||= !!this.off('pointermove')
-    } ,*/
+    /* touchmove(a){
+         pointermove.call(this,a)
+         touched ||= !!this.off('pointermove')
+     } ,*/
     // touchcancel: cancel,
     // touchend: cancel,
     // mousedown: pointerdown,
     // mousemove:pointermove,
     // mouseup: cancel,
-    '^pointerdown':pointerdown,
-    '^pointermove':pointermove,
+    '^pointerdown': pointerdown,
+    '^pointermove': pointermove,
     '^pointerup': cancel,
     '^pointercancel': cancel
 })
@@ -153,17 +153,24 @@ if (top === window) $.id.viewframe.destroy()
 /*.animate([
     { scale: '' }, { scale: '1.1 1.1' },
 ], { duration: 500, iterations: 4, direction: 'alternate', easing: 'ease-in-out' })*/
+let show = $(top.document.getElementById('show'))
+    .debounce({
+        click() {
+            let frame = $(parent.document.getElementById('frame'))
+            frame.fadeIn()
+            this.fadeOut()
+        }
+    },1500)
 if (top === window) {
-    $.id.goBack.setAttr({href: '../'})
-} else $.gid('viewbackground').on({
-    _click() {
-        $.body.parent.fadeOut()
-        setTimeout(() => {
-            let topWindow = parent.document.getElementById('frame')
-            topWindow.remove()
-        }, 800)
+    $.id.goBack.setAttr({ href: '../' })
+} else $.gid('viewbackground').debounce({
+    click() {
+        let frame = $(parent.document.getElementById('frame'))
+        frame.fadeOut()
+        show.fadeIn()
+        show.focus()
     }
-})
+},1500)
 // buttonholder.$(`<a class="cute-green-button" href="./diary.html">Diary</a>`)
 /*$('a,cute-green-button', {
     parent: buttonholder,
@@ -172,7 +179,7 @@ if (top === window) {
     href: './music.html'
 })*/
 let controller = new AbortController
-let {submit: form} = $.byId
+let { submit: form } = $.byId
 // send.replace($(`<input type="image" title="Send" src="http://localhost:3000/addsoupbase.github.io/cute-emojis/emojis/1225244786831659111.gif">`)
 // .on( {
 //     click(a, abort) {
@@ -187,43 +194,43 @@ function disableForm(res) {
 }
 
 form.on({
-        _submit() {
-            // name ||= 'Anonymous'
-            !async function () {
-                await form.fadeOut()
-                let hi = $(`<section><h3>Sent!! (hopefully)</h3></section>`)
-                hi.push($('samp', {textContent: `Name: ${this.name.value || "Anonymous"}`}), $('br'),
-                    $('samp', {textContent: `Message: ${this.message.value}`}))
-                form.replace(hi)
-                hi.fadeIn()
-                $.id.prevent.destroy()
-            }.call(this)
-            // let loading = $('<img class="delibird" src="./media/loading.webp">')
-            // form.before = loading
-            // let req = !location.href.startsWith('http://localhost') ? await fetch(`https://formspree.io/f/mqakzlyo`, {
-            // method: 'POST',
-            // body: `name=${encodeURIComponent(name)}&message=${encodeURIComponent(message)}`,
-            // headers: {
-            // 'Content-Type': 'application/x-www-form-urlencoded',
-            // 'Accept': 'application/json'
-            // }
-            // }) : { ok: 1 }
-            // if (req.ok) {
-            // loading.src = './media/yay.webp'
-            // await wait(1000)
-            // await loading.fadeOut()
-            // loading.destroy()
-            // let f = $('<h1>Message sent :)</h1>',)
-            // form.replaceWith(f)
-            // f.fadeIn()
-            // } else {
-            // Alert("for some reason, your message could not be sent :(")
-            // }
-            // form.destroy()
-        }
-    }, false, controller
+    _submit() {
+        // name ||= 'Anonymous'
+        !async function () {
+            await form.fadeOut()
+            let hi = $(`<section><h3>Sent!! (hopefully)</h3></section>`)
+            hi.push($('samp', { textContent: `Name: ${this.name.value || "Anonymous"}` }), $('br'),
+                $('samp', { textContent: `Message: ${this.message.value}` }))
+            form.replace(hi)
+            hi.fadeIn()
+            $.id.prevent.destroy()
+        }.call(this)
+        // let loading = $('<img class="delibird" src="./media/loading.webp">')
+        // form.before = loading
+        // let req = !location.href.startsWith('http://localhost') ? await fetch(`https://formspree.io/f/mqakzlyo`, {
+        // method: 'POST',
+        // body: `name=${encodeURIComponent(name)}&message=${encodeURIComponent(message)}`,
+        // headers: {
+        // 'Content-Type': 'application/x-www-form-urlencoded',
+        // 'Accept': 'application/json'
+        // }
+        // }) : { ok: 1 }
+        // if (req.ok) {
+        // loading.src = './media/yay.webp'
+        // await wait(1000)
+        // await loading.fadeOut()
+        // loading.destroy()
+        // let f = $('<h1>Message sent :)</h1>',)
+        // form.replaceWith(f)
+        // f.fadeIn()
+        // } else {
+        // Alert("for some reason, your message could not be sent :(")
+        // }
+        // form.destroy()
+    }
+}, false, controller
 )
 
 fetch('https://misha-mail-85.deno.dev', {
-    mode:'cors'
+    mode: 'cors'
 }).then(disableForm, disableForm)

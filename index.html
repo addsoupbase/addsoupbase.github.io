@@ -6,15 +6,15 @@
     <meta http-equiv="content-language" content="en">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
     <meta property="og:url" content="https://addsoupbase.github.io/">
-    <meta property="og:description" content="addsoupbase/misha's page yay  🫧">
-    <meta name="description" content="addsoupbase's underwater themed page!!">
+    <meta property="og:description" content="addsoupbase's page yay  🫧">
+    <meta name="description" content="addsoupbase's underwater pokemon themed page!">
     <meta property="og:title" content="addsoupbase's page">
     <meta property="og:image" content="https://addsoupbase.github.io/media/preview.png">
-    <meta property="og:image:width" content="1280">
-    <meta property="og:image:height" content="800">
+    <meta property="og:image:width" content="1920">
+    <meta property="og:image:height" content="1080">
     <meta property="og:image:type" content="image/png">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="theme-color" content="#0265e2">
+    <meta name="theme-color" content="#0265E2">
     <link rel="apple-touch-icon" href="./media/IMG_0748.png">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -27,11 +27,13 @@
     <meta name="robots" content="index">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://addsoupbase.github.io/">
-    <meta property="og:description" content="i love ramen">
+    <meta property="og:description"
+        content="addsoupbase's underwater, pokemon themed page, featuring user avatars as bubbles!">
     <meta name="twitter:url" content="https://addsoupbase.github.io/">
     <meta property="og:site_name" content="addsoupbase.github.io">
     <meta name="twitter:title" content="addsoupbase.github.io">
-    <meta name="twitter:description" content="i love ramen">
+    <meta name="twitter:description"
+        content="addsoupbase's underwater, pokemon themed page, featuring user avatars as bubbles!">
     <meta name="twitter:image" content="https://addsoupbase.github.io/media/preview.png">
     <meta name="twitter:site" content="@addsoupbase">
     <link rel="canonical" href="https://addsoupbase.github.io/">
@@ -40,7 +42,7 @@
     <title>addsoupbase🍜</title>
     <link rel="preload" as="document" crossorigin="anonymous" href="./main.html">
     <link rel="preload" as="font" href="./media/Chococooky.woff2" crossorigin="anonymous" type="font/woff2"
-          fetchpriority="high">
+        fetchpriority="high">
     <link rel="apple-touch-icon" sizes="57x57" href="./icon-57x57.png">
     <link rel="apple-touch-icon" sizes="60x60" href="./icon-60x60.png">
     <link rel="apple-touch-icon" sizes="72x72" href="./icon-72x72.png">
@@ -50,87 +52,75 @@
     <link rel="apple-touch-icon" sizes="144x144" href="./icon-144x144.png">
     <link rel="apple-touch-icon" sizes="152x152" href="./icon-152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="./icon-180x180.png">
-
     <link rel="modulepreload" href="./yay.js">
     <link rel="modulepreload" href="./handle.js">
-
     <script type="module" blocking="render">
         import './csshelper.js'
-        
-    </script>
-    <script>
-        'use strict'
-        import('./silence.js')
-        console.log('%c🆓 Sprites credit: https://sprites.pmdcollab.org/', 'font-size:2em')
     </script>
 </head>
-
 <body id="hiii"
-      style="height:100vh;background: rgb(24 161 220);background:linear-gradient(52deg, rgba(2, 101, 226, 1) 0%, rgba(0, 212, 255, 1) 100%) no-repeat;"
-      class="BG">
+    style="height:100vh;background: rgb(24 161 220);background:linear-gradient(52deg, rgba(2, 101, 226, 1) 0%, rgba(0, 212, 255, 1) 100%) no-repeat;"
+    class="BG">
 
-<main id="wrapper" style="display:grid;z-index: 3;pointer-events: none;overflow-x: hidden">
-    <iframe id="frame" name="content" aria-atomic="true" aria-live="assertive" aria-relevant="all" title="content"
+    <main id="wrapper" style="display:grid;z-index: 3;pointer-events: none;overflow-x: hidden">
+        <iframe id="frame" name="content" aria-atomic="true" aria-live="assertive" aria-relevant="all" title="content"
             class="center" src=" ./main.html" style="pointer-events: all !important;"></iframe>
-</main>
-<script type="module">
-    import * as h from './handle.js'
-    import $ from './yay.js'
+    </main>
+    <script type="module">
+        import * as h from './handle.js'
+        import $ from './yay.js'
 
-    let unloading = false
-    !function doThing(e) {
-        let f = $(frames[0].frameElement)
-        f.hide(3)
+        let unloading = false
+        !function doThing(e) {
+            let f = $(frames[0].frameElement)
+            f.hide(3)
 
-        function _load() {
-            let me = f
-            me.fadeIn()
-            let controller = new AbortController
+            function _load() {
+                let me = f
+                me.fadeIn()
+                let controller = new AbortController
+                h.on(f.contentWindow, {
+                    '#_beforeunload'() {
+                        unloading || doThing()
+                    },
+                }, controller)
+                /*
+                this.contentWindow.navigation && h.on(this.contentWindow.navigation, {
+                    '#_navigate': doThing
+                }, false, controller)*/
+                /* if (top === window) {
+                     $.id.goBack.setAttribute('href', './')
+                 }*/
+            }
+
+            let c = new AbortController
+            f.on({
+                '#load': _load
+            }, c)
+            h.on(f.contentWindow.document, {
+                '#DOMContentLoaded': _load
+            }, c)
             h.on(f.contentWindow, {
-                '#_beforeunload'() {
-                    unloading || doThing()
-                },
-            }, controller)
-            /*
-            this.contentWindow.navigation && h.on(this.contentWindow.navigation, {
-                '#_navigate': doThing
-            }, false, controller)*/
-            /* if (top === window) {
-                 $.id.goBack.setAttribute('href', './')
-             }*/
-        }
-
-        let c = new AbortController
-        f.on({
-            '#load': _load
-        }, c)
-        h.on(f.contentWindow.document, {
-            '#DOMContentLoaded': _load
-        }, c)
-        h.on(f.contentWindow, {
-            '#load': _load
-        }, c)
-    }()
-    h.on(window, {
-        '%beforeunload'() {
-            unloading = true
-        },
-        _load() {
-            let f = $.id.frame
-            f.styles.display = ''
-            f.animate([{translate: '0px -50px', transform: 'scale(0.7,0.7)'}, {}], {
-                duration: 500,
-                iterations: 1,
-                easing: 'ease'
-            })
-        }
-    })
-
-
-</script>
-
-<span id="count" hidden></span>
-<!-- <div class="sand sea" style="
+                '#load': _load
+            }, c)
+        }()
+        h.on(window, {
+            '%beforeunload'() {
+                unloading = true
+            },
+            _load() {
+                let f = $.id.frame
+                f.styles.display = ''
+                f.animate([{ translate: '0px -50px', transform: 'scale(0.7,0.7)' }, {}], {
+                    duration: 500,
+                    iterations: 1,
+                    easing: 'ease'
+                })
+            }
+        })
+    </script>
+    <span id="count" hidden></span>
+    <!-- <div class="sand sea" style="
 transform: translate(290px, 0px);
 "></div>
 <div class="sand sea" style="
@@ -140,11 +130,8 @@ transform: translate(220px, -3px) scale(-1.5,1.5);
 transform: translate(300px, -10px);
 "></div>
 <div class="sea terrain"></div> -->
-<script src="./scripts/background.js" type="module" async></script>
-
-
-
-<!--[if IE ]>
+    <script src="./scripts/background.js" type="module" async></script>
+    <!--[if IE ]>
 <script>
     'use strict'
     alert('⚠️ For your security, it is crucial that you switch to a modern browser immediately.')
@@ -153,7 +140,9 @@ transform: translate(300px, -10px);
     document.body.style.background = '#FFFFFF'
 </script>
 <![endif]-->
-
+    <script>console.log('%c🆓 Sprites credit: https://sprites.pmdcollab.org/', 'font-size:2em')</script>
+    <script async defer src="silence.js"></script>
+    <button class="cute-green-button" id="show" style="position: fixed;bottom:15px;right:15px;display:none;z-index: 5;">Show</button>
 </body>
 
 </html>
