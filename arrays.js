@@ -86,8 +86,9 @@ export function* edgeCases(...rest) {
     return out
 }*/
 export function remove(item, index) {
+    let slice = [].slice.bind(item)
     return typeof item === 'string' ?
-        `${item.slice(0, index)}${item.slice(index + 1)}` :
+        `${slice(0, index)}${slice(index + 1)}` :
         item.splice(index, 1)
 }
 
@@ -96,9 +97,10 @@ export function swap(item, first, second) {
 }
 
 export function swapInside(item, firstIndex, secondIndex) {
-    const slot = item.indexOf(firstIndex),
-        slot2 = item.indexOf(secondIndex)
-    if (slot !== -1 && slot2 !== -1) return swap(item, slot, slot2)
+    const indexOf = [].indexOf.bind(item),
+     slot = indexOf(firstIndex),
+        slot2 = indexOf(secondIndex)
+    if (~slot && ~slot2) return swap(item, slot, slot2)
     throw RangeError("Index out of range")
 }
 
@@ -151,11 +153,12 @@ export let getJson
 function TestImportSupport() {
     // Some browsers (old) throw with the 'options' parameter
     // Firefox works now thankfully, but opera needs to catch up
+    let s = {type:'json'}
     getJson = fallback.constructor
         // Some, even older browsers, prefer 'assert' over 'with'
         // i sometimes wonder why they changed it in the first place if it works pretty much the same...
-        ('u', '"use strict";let s={type:"json"},h=(await import(new URL(u,location),{assert:s,with:s})).default;this.json=!0;return h')
-    .bind(sessionStorage)
+        ('t,a,l,r,u','"use strict";let h=(await import(new r(u,l),t)).default;this.json=!0;return a(h)?h:{__proto__:null,...h}')
+    .bind(sessionStorage,{assert:s,with:s},Array.isArray,location,URL)
 }
 
 function FallbackImport() {
