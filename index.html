@@ -66,10 +66,18 @@
         <iframe id="frame" name="content" aria-atomic="true" aria-live="assertive" aria-relevant="all" title="content"
             class="center" src=" ./main.html" style="pointer-events: all !important;"></iframe>
     </main>
+    <button class="cute-green-button" id="show" style="position: fixed;bottom:15px;right:15px;display:none;z-index: 5;">Show</button>
     <script type="module">
         import * as h from './handle.js'
         import $ from './yay.js'
+  let {show, frame} = $.id
 
+  show.debounce({
+        click() {
+            frame.fadeIn()
+            this.fadeOut()
+        }
+    },1500)
         let unloading = false
         !function doThing(e) {
             let f = $(frames[0].frameElement)
@@ -142,7 +150,6 @@ transform: translate(300px, -10px);
 <![endif]-->
     <script>console.log('%c🆓 Sprites credit: https://sprites.pmdcollab.org/', 'font-size:2em')</script>
     <script async defer src="silence.js"></script>
-    <button class="cute-green-button" id="show" style="position: fixed;bottom:15px;right:15px;display:none;z-index: 5;">Show</button>
 </body>
 
 </html>

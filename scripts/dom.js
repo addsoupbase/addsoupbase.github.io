@@ -153,25 +153,14 @@ if (top === window) $.id.viewframe.destroy()
 /*.animate([
     { scale: '' }, { scale: '1.1 1.1' },
 ], { duration: 500, iterations: 4, direction: 'alternate', easing: 'ease-in-out' })*/
-let show 
-on(window,{
-    _load(){
-        show = $(top.document.getElementById('show'))
-    .debounce({
-        click() {
-            let frame = $(parent.document.getElementById('frame'))
-            frame.fadeIn()
-            this.fadeOut()
-        }
-    },1500)
-    }
-})
+
 if (top === window) {
     $.id.goBack.setAttr({ href: '../' })
 } else $.gid('viewbackground').debounce({
     click() {
         let frame = $(parent.document.getElementById('frame'))
         frame.fadeOut()
+        let show = $(top.document.getElementById('show'))
         show.fadeIn()
         show.focus()
     }
