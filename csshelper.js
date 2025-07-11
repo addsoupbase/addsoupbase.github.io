@@ -17,8 +17,9 @@ export function capVendor(prop, val) {
 
 export const all = new Set
     , has = all.has.bind(all)
-
+/*
 export function vendorValue(prop, val) {
+    
     let without = val.replace(allVendors, '')
         .replace(allVendors2, '')
     switch (without) {
@@ -37,6 +38,7 @@ export function vendorValue(prop, val) {
     }
     return val
 }
+*/
 try {
     var { sessionStorage } = globalThis
 }
@@ -178,7 +180,7 @@ export function toCSS(obj, silent) {
     const arr = []
     if (Array.isArray(obj)) obj = Object.fromEntries(obj)
     for (let prop in obj) {
-        let p = vendorValue(prop, `${obj[prop]}`)
+        let p = `${obj[prop]}`
         try {
             arr.push(`${vendor(toDash(prop), p, silent)}:${p}`)
         } catch {
@@ -258,7 +260,7 @@ export function getDefaultStyleSheet() {
         let out = document.createElement('style');
         (document.head ?? document.body ?? document.documentElement ?? document.querySelector('*') ?? document).append(out)
         out.textContent =
-            '@namespace svg url("http://www.w3.org/2000/svg");{*{opacity:1 !important;}}'
+            '@namespace svg url("http://www.w3.org/2000/svg");@media (prefers-reduced-transparency: reduce){*{opacity:1 !important;}}'
         out.setAttribute('id', 'addedStyleRules')
         out.append(document.createComment('Check your browser for CSS rules ($0.sheet.cssRules)'))
         return out
@@ -469,18 +471,23 @@ export function boxShadow({
         // g('logical-width','revert',false,'*'),
         g('buffered-rendering', 'auto', false),
         g('color-rendering', 'auto', false),
-        g('stretch', '-moz-available -webkit-fill-available stretch'.split(' ').find(o => sup('width', o)), false, '*'),
-        g('crisp-edges', '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(o => sup('image-rendering', o)), true, "*")
     ]
+    // g('crisp-edges', '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(o => sup('image-rendering', o)), true, "*")
+    // g('stretch', '-moz-available -webkit-fill-available stretch'.split(' ').find(o => sup('width', o)), false, '*')
     // g('marquee-style','scroll',0)
     const sheet = getDefaultStyleSheet()
-    //    Some default CSS..
+    //    Some default CSS...
     try {
         let all = sessionStorage.getItem('defaultCSS') ?? Object.entries({
             [`button,a,${'button checkbox radio submit image reset file'.split(' ').map(o => `input[type=${o}]`).join(',')
                 }`]: {
                 cursor: 'pointer'
             },
+            ':root': {
+                '--crisp-edges':  '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(o => sup('image-rendering', o)),
+                '--stretch':  '-moz-available -webkit-fill-available stretch'.split(' ').find(o => sup('max-width', o))
+            },
+            
             img: {
                 '--force-broken-image-icon': 1,
             },
@@ -552,3 +559,4 @@ export function boxShadow({
         registerCSS(selector, universal, true),
         sessionStorage.setItem('css', toCSS(universal, true))
 }
+sessionStorage.clear()

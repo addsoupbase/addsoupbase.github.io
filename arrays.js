@@ -1,10 +1,12 @@
-export function assemble(arrayLike, ...sequence) {
+/*export function assemble(arrayLike, ...sequence) {
     const out = []
         , push = [].push.bind(out),
         at = [].at.bind(out)
     for (let { length } = sequence, i = 0; i < length;) push(at(sequence[i++]))
     return out
 }
+*/
+/*
 export function pr(target, ...props) {
     let handler = { __proto__: null }
     props.length || (props = Object.getOwnPropertyNames(Reflect))
@@ -20,6 +22,7 @@ export function pr(target, ...props) {
     }
     return new Proxy(target, handler)
 }
+*/
 export function parse(str) {
     return { __proto__: null, ...JSON.parse(str) }
 }
@@ -48,10 +51,10 @@ export function from(ArrayLike, map, thisArg) {
     if (ArrayLike[Symbol.toStringTag] === 'Set') return
 }*/
 export { of as with }
+/*
 export function* backwards(arrayLike) {
     for (let { length: i } = arrayLike; yield arrayLike[i--];);
-}
-
+}*/
 export function center(array) {
     return array[(array.length / 2) | 0]
 }
@@ -59,14 +62,14 @@ export function center(array) {
 export function insert(array, item, index) {
     return array.splice(index, 0, item)
 }
-
+/*
 export function* edgeCases(...rest) {
     let obj = {}
     obj.property = obj
     let all = [true, false, 0, 1, -0, -1, 1.5, -1.5, 1 / 0, -1 / 0, 0 / 0, 0n, 1n, -1n, null, , '', 'string', '1', ' \n\t\v\f\r', Symbol('symbol'), Symbol.for('symbol'), {}, { __proto__: null }, obj, function () { }, () => { }, async function () { }, async () => { }, ...rest]
     'document' in globalThis && all.push(document.all)
     for (let i = 0, { length: n } = all; i < n; yield all[++i]);
-}
+}*/
 /*export function mapFn(obj, callback, thisArg) {
     let out = {},
         keys = Reflect.ownKeys(obj)
@@ -142,7 +145,7 @@ async function fallback(src) {
     throw TypeError(`Failed to load module script: Expected a JSON module script but the server responded with a MIME type of "${type}". Strict MIME type checking is enforced for module scripts per HTML spec.`)
 }
 
-let s = sessionStorage.getItem('json')
+let s = sessionStorage.json
 export let getJson
 
 function TestImportSupport() {
@@ -151,11 +154,8 @@ function TestImportSupport() {
     getJson = fallback.constructor
         // Some, even older browsers, prefer 'assert' over 'with'
         // i sometimes wonder why they changed it in the first place if it works pretty much the same...
-        ('u', '"use strict";let a=sessionStorage,s={type:"json"},h=(await import(new URL(u,location),{assert:s,with:s})).default;a.setItem("json",!0);return h')
-    /*
-    .bind(fallback)
-     using bind since the function can't access the module scope
-     */
+        ('u', '"use strict";let s={type:"json"},h=(await import(new URL(u,location),{assert:s,with:s})).default;this.json=!0;return h')
+    .bind(sessionStorage)
 }
 
 function FallbackImport() {
@@ -173,6 +173,7 @@ if (s !== 'false' && s !== 'true') try {
 else if (s === 'true') TestImportSupport()
 else FallbackImport()
 export const jason = getJson
+/*
 export function syncImport(src) {
     var n = new XMLHttpRequest,
         x = eval
@@ -181,7 +182,7 @@ export function syncImport(src) {
     var res = n.getResponseHeader('Content-Type')
     if (/(?:text|application)\/(?:x-)?(?:j(?:ava)?|ecma|live)script(?:1\.[0-5])?/.test(res) && n.status === 'OK') return x(n.responseText)
     throw TypeError('Failed to load script')
-}
+}*/
 export function bind(target) {
     return new Proxy(target, handler)
 }

@@ -28,24 +28,29 @@ const sym = Symbol.for("🔔")
 let { warn, groupCollapsed, groupEnd } = logger,
     { isArray } = Array
 export const allEvents = new WeakMap
-let { addEventListener, removeEventListener, dispatchEvent } = globalThis.EventTarget?.prototype ?? AbortSignal.prototype
-if (Function.prototype.toString.call(addEventListener) !== Function.prototype.toString().replace('function ', 'function addEventListener'))
-    // adds ~20ms
+let add,remove,dispatch
+{
+    let { addEventListener, removeEventListener, dispatchEvent } = globalThis.EventTarget?.prototype ?? AbortSignal.prototype
+    if (Function.prototype.toString.call(addEventListener) !== Function.prototype.toString().replace('function ', 'function addEventListener'))
+        // adds ~20ms
     try {
         console.warn('Monkeypatch detected: ', addEventListener)
         // in case they monkeypatch the EventTarget.prototype
         let n = document.createElement('iframe'),
-            el = document.head ?? document
+        el = document.head ?? document
         el.append(n),
-            { addEventListener, removeEventListener, dispatchEvent } = n.contentWindow
+        { addEventListener, removeEventListener, dispatchEvent } = n.contentWindow
         n.contentWindow.close()
         el.removeChild(n)
         n = null
     } catch (e) {
-        logger.error(e)
+        console.error(e)
     }
+    add = addEventListener.call.bind(addEventListener)
+    remove = removeEventListener.call.bind(removeEventListener)
+    dispatch = dispatchEvent.call.bind(dispatchEvent)
+}
 let verified = new WeakSet
-
 function isValidET(target) {
     let bool = target &&
         (verified.has(target) || target instanceof EventTarget
@@ -53,7 +58,7 @@ function isValidET(target) {
             || target.defaultView?.EventTarget.prototype.isPrototypeOf(target)
             || target.EventTarget?.prototype.isPrototypeOf(target)
             || lastResort(target)) /*'addEventListener removeEventListener dispatchEvent'.split(' ').every(lastResort, target)*/
-    bool && (verified.has(target) || verified.add(target))
+    bool && verified.add(target)
     return !!bool
 }
 
@@ -158,7 +163,7 @@ function emitPendingEvents() {
 }
 function dispatchAndDelete(val) {
     let { target: t, event: e } = val
-    dispatchEvent.call(t, e)
+    dispatch(t, e)
     this.delete(val)
 }
 export function delayedDispatch(id, target, event) {
@@ -261,7 +266,7 @@ export function on(target, events, signal) {
                 eventName,
             )
             if (autoabort && getLabel(signal) !== 'AbortController') throw TypeError("AbortController required if '#' (autoabort) is present")
-            addEventListener.call(target, eventName, listener, options)
+            add(target, eventName, listener, options)
             if (signal) logger.info(`📡 '${eventName}' event added`)
             else {
                 allEvents.has(target) || allEvents.set(target, new Map)
@@ -328,7 +333,7 @@ export function off(target, ...eventNames) {
             const name = verifyEventName(target, eventNames[length]),
                 settings = map.get(name),
                 { listener } = settings
-            removeEventListener.call(target, name, listener, settings)
+            remove(target, name, listener, settings)
             map.delete(name) && logger.info(`🔕 '${name}' event removed`)
             mySet.delete(name)
             map.size || allEvents.delete(target)

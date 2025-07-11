@@ -13,8 +13,8 @@ Things i learned from 2nd -> 3rd:
 
 // import {plural} from "./str.js"
 function plural(singular, plural, count) {
-    return Math.sign(count=+count)===count&&count?`${count} ${singular}`:`${count.toLocaleString()} ${plural}`
-} 
+    return Math.sign(count = +count) === count && count ? `${count} ${singular}` : `${count.toLocaleString()} ${plural}`
+}
 function bind(target) {
     return new Proxy(target, bindHandler)
 }
@@ -26,8 +26,8 @@ let bindHandler = {
 const { get, set, apply, getOwnPropertyDescriptor, ownKeys } = Reflect,
     { revocable } = Proxy,
     { create, preventExtensions, defineProperty, defineProperties, getOwnPropertyDescriptors, assign } = Object
-import*as h from'./handle.js'
-import*as css from'./csshelper.js'
+import *as h from './handle.js'
+import *as css from './csshelper.js'
 function from(ArrayLike, map, thisArg) {
     // Array.from checks @@iterator first, which would be slower in cases where it is callable
     return ArrayLike.length >= 0 ? map ? [].map.call(ArrayLike, map, thisArg) : [].slice.call(ArrayLike) : map ? Array.from(ArrayLike, map, thisArg) : typeof ArrayLike[Symbol.iterator] !== 'undefined' ? [...ArrayLike] : []
@@ -70,7 +70,7 @@ function gen() {
     return `${Math.random()}${Math.random()}`.replace(regex.dot, '')
 }
 
-const {get: BoundGet, set:BoundSet, has:BoundHas} = bind(new WeakMap)
+const { get: BoundGet, set: BoundSet, has: BoundHas } = bind(new WeakMap)
 function cacheFunction(maybeFunc) {
     // Make sure we just re-use the same function
     /*if (typeof maybeFunc === 'function') {
@@ -116,18 +116,23 @@ function ariaOrData(i) {
 let vendorRegex = /^(?:webkit|moz|ms)/
 function doVendor(target, prop, r) {
     if (typeof prop === 'symbol') return this.apply(1, arguments)
-    let p = prop
-    prop = prop.replace(vendorRegex, '')
-    let slice = prop.slice(1),
-    tuc = prop[0].toUpperCase()
-    if (p in target) return this.apply(1, arguments)
-    if ((p = `webkit${tuc}${slice}`) in target) return this(target, p, r)
-    if ((p = `moz${tuc}${slice}`) in target) return this(target, p, r)
-    if ((p = `ms${tuc}${slice}`) in target) return this(target, p, r)
+    try {
+        let p = prop
+        prop = prop.replace(vendorRegex, '')
+        let slice = prop.slice(1),
+            tuc = prop[0].toUpperCase()
+        if (p in target) return this.apply(1, arguments)
+        if ((p = `webkit${tuc}${slice}`) in target) return this(target, p, r)
+        if ((p = `moz${tuc}${slice}`) in target) return this(target, p, r)
+        if ((p = `ms${tuc}${slice}`) in target) return this(target, p, r)
+    }
+    catch {
+        return this.apply(1,arguments)
+    }
 }
 let getVendor = doVendor.bind(get),
     setVendor = doVendor.bind(set)
-const attrStyleMap = 'StylePropertyMap'in window
+const attrStyleMap = 'StylePropertyMap' in window
     , customRules = css.getDefaultStyleSheet()
     , handlers = {
         // Other proxies
@@ -467,7 +472,7 @@ let props = getOwnPropertyDescriptors(class _
     }
 
     get disabled() {
-        return 'disabled'in this.attr || 'aria-disabled'in this.attr
+        return 'disabled' in this.attr || 'aria-disabled' in this.attr
     }
 
     saveAttr(...attributes) {
@@ -501,11 +506,11 @@ let props = getOwnPropertyDescriptors(class _
 
     setAttr(attr) {
         let me = base(this),
-            { onXYZ } = regex
+            test = / /.test.bind(regex.onXYZ)
         for (let i in attr) {
             let n = i.split(',')
                 , val = attr[i]
-            if (onXYZ.test(i)) throw TypeError('Inline event handlers are deprecated')
+            if (test(i)) throw TypeError('Inline event handlers are deprecated')
             /*   switch (i) {
                    case 'disabled': me.setAttribute('aria-disabled', !!val); break
                    case 'checked': me.setAttribute('aria-checked', !!val); break
@@ -797,10 +802,10 @@ let props = getOwnPropertyDescriptors(class _
         options.pseudoElement &&= css.pev(options.pseudoElement)
         keyframes.forEach(_.forEach)
         if (css.reducedMotion.matches) {
-            let { badForReducedMotion } = _
+            let test = / /.test.bind(_.badForReducedMotion)
             loop: for (let i = keyframes.length; i--;) {
                 let val = keyframes[i]
-                for (let i in val) if (badForReducedMotion.test(i)) {
+                for (let i in val) if (test(i)) {
                     options.duration = 0
                     break loop
                 }
@@ -815,11 +820,6 @@ let props = getOwnPropertyDescriptors(class _
 
     set before(val) {
         base(this).before(base(val))
-    }
-
-    eval(script) {
-        // mimic inline event handlers (rarely needed)
-        return apply(Function('with(document)with(this)return eval(arguments[0])'), this, arguments)
     }
 
     get after() {
@@ -1195,15 +1195,15 @@ function PerformanceObserverCallback(entr) {
 }
 
 const entryTypes = {
-    paint: 'PerformancePaintTiming'in window,
-    'first-input': 'PerformanceEventTiming'in window,
-    'layout-shift': 'LayoutShift'in window,
-    'largest-contentful-paint': 'LargestContentfulPaint'in window,
-    'long-animation-frame': 'PerformanceLongAnimationFrameTiming'in window,
-    longtask: 'PerformanceLongTaskTiming'in window,
-    resource: 'PerformanceResourceTiming'in window,
-    navigation: 'PerformanceNavigationTiming'in window,
-    element: 'PerformanceElementTiming'in window
+    paint: 'PerformancePaintTiming' in window,
+    'first-input': 'PerformanceEventTiming' in window,
+    'layout-shift': 'LayoutShift' in window,
+    'largest-contentful-paint': 'LargestContentfulPaint' in window,
+    'long-animation-frame': 'PerformanceLongAnimationFrameTiming' in window,
+    longtask: 'PerformanceLongTaskTiming' in window,
+    resource: 'PerformanceResourceTiming' in window,
+    navigation: 'PerformanceNavigationTiming' in window,
+    element: 'PerformanceElementTiming' in window
     // taskattribution: 'TaskAttributionTiming 'in window
 }
 const perf = new PerformanceObserver(PerformanceObserverCallback)
@@ -1408,7 +1408,9 @@ it's like being weird for some reason idfk how to use trusted types policy thing
  */
 function $(html, props, ...children) {
     if (getValid(html)) return prox(html) // Redirect
-    typeof html === 'string' && (html = html.trim())
+    let type = typeof html
+    if (type === 'number') return prox(document.getElementsByTagName('*')[html])
+     type === 'string' && (html = html.trim())
     let element
     if (html?.[0] === '<' && html.endsWith('>')) {
         html = safeHTML(html)
@@ -1579,7 +1581,7 @@ export default defineProperties($, {
 })
 $.id = $.byId
 //  createRange seems to be *slightly* faster on firefox
-let parseMode = 'mozInnerScreenY'in window ? 'createRange' : ''
+let parseMode = 'mozInnerScreenY' in window ? 'createRange' : ''
 function badAttrName(name) {
     return regex.onXYZ.test(name)
 }
