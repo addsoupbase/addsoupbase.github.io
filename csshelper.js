@@ -1,4 +1,4 @@
-window['reportError'] ??= function reportError(throwable) {
+window.reportError ??= function reportError(throwable) {
     dispatchEvent(new ErrorEvent('error', {
         message: throwable.message,
         error: throwable,
@@ -20,32 +20,32 @@ export const all = new Set
 
 export function vendorValue(prop, val) {
     let without = val.replace(allVendors, '')
-    .replace(allVendors2, '')
+        .replace(allVendors2, '')
     switch (without) {
         case 'crisp-edges':
             sup(prop, val = '-webkit-optimize-contrast') ||
-            sup(prop, val = '-moz-crisp-edges') ||
-            sup(prop, val = without)
+                sup(prop, val = '-moz-crisp-edges') ||
+                sup(prop, val = without)
             break
         case 'stretch':
         case 'fill-available':
         case 'available':
             sup(prop, val = '-webkit-fill-available') ||
-            sup(prop, val = '-moz-available') ||
-            sup(prop, val = without)
+                sup(prop, val = '-moz-available') ||
+                sup(prop, val = without)
             break
     }
     return val
 }
 try {
-    var {sessionStorage} = globalThis
+    var { sessionStorage } = globalThis
 }
 catch {
-    function oops(){
+    function oops() {
         return oops
     }
     sessionStorage = new Proxy(oops, {
-        get:oops
+        get: oops
     })
 }
 const alreadyLogged = new Set,
@@ -71,8 +71,8 @@ export function vendor(prop, val, silent) {
         return prop
     if (val.trim() && !sup(prop, val)) {
         let prefix = prop = prop
-        .replace(allVendors, '')
-        .replace(allVendors2, '')
+            .replace(allVendors, '')
+            .replace(allVendors2, '')
         if (dontRedo.has(prop)) return dontRedo.get(prop)
         return (
             sup(prefix, val) ||
@@ -143,7 +143,7 @@ export function importFont(name, src) {
 }
 
 const defrt = /-./g,
-     azregex = /[A-Z]/g
+    azregex = /[A-Z]/g
 
 export function toCaps(prop) {
     if (prop.includes('-') && !prop.startsWith('--')) { // Ignore custom properties
@@ -164,7 +164,7 @@ function tlc(o) {
     return `-${o.toLowerCase()}`
 }
 
-function tuc({1: c}) {
+function tuc({ 1: c }) {
     return c.toUpperCase()
 }
 
@@ -181,7 +181,7 @@ export function toCSS(obj, silent) {
         let p = vendorValue(prop, `${obj[prop]}`)
         try {
             arr.push(`${vendor(toDash(prop), p, silent)}:${p}`)
-        } finally {
+        } catch {
         }
     }
     return arr.join(';')
@@ -203,19 +203,19 @@ function mapThing(selectr) {
  */
 export function registerCSS(selector, rule, silent) {
     selector = selector.split(',')
-    .map(mapThing)
-    .join(',')
+        .map(mapThing)
+        .join(',')
     const sheet = addedStyleRules ??= getDefaultStyleSheet()
     let r = `{${toCSS(rule, silent)}}`
-     sheet.textContent = `${sheet.textContent}${formatStr(selector)}${formatStr(r)}`
+    sheet.textContent = `${sheet.textContent}${formatStr(selector)}${formatStr(r)}`
     return sheet
 }
 /**
  * @param {String} rule The rule(s)
  */
 export function registerCSSRaw(rules) {
-    const sheet=addedStyleRules ??= getDefaultStyleSheet()
-    sheet.textContent=`${sheet.textContent}${rules}`
+    const sheet = addedStyleRules ??= getDefaultStyleSheet()
+    sheet.textContent = `${sheet.textContent}${rules}`
     return sheet
 }
 let cleanRegex = /\s\s|\n\n/g
@@ -229,35 +229,35 @@ export function importCSS(url) {
     n.setAttribute('rel', 'stylesheet')
     n.setAttribute('type', 'text/css')
     n.setAttribute('href', url);
-    (document.head||document.body||document.documentElement||document.querySelector('*')).append(n)
+    (document.head || document.body || document.documentElement || document.querySelector('*')).append(n)
     return n
 }
-    /*= function(){
-    return withImport
-    async function withFetch(source) {
-        let res = await(await fetch(new URL(source,location))).text(),
-            sheet = getDefaultStyleSheet()
-        sheet.textContent = `${sheet.textContent}${res}`
-    }
+/*= function(){
+return withImport
+async function withFetch(source) {
+    let res = await(await fetch(new URL(source,location))).text(),
+        sheet = getDefaultStyleSheet()
+    sheet.textContent = `${sheet.textContent}${res}`
+}
 
-    function withImport(source) {
-        try {
-        return(importCSS = async function(){}.constructor(`"use strict";function map(o){return o.cssText}let a = (await import(new URL(src,location), {with:{type:"css"},assert:{type:"css"}})).default
-        this.textContent+=[].map.call(a.cssRules||a.rules, map)
-        `,'src').bind(getDefaultStyleSheet()))(source)
-        }
-        catch(e) {
-            if (e.name === 'SyntaxError' || e.name === 'EvalError')
-                return(importCSS = withFetch)(source)
-            else throw e
-        }
+function withImport(source) {
+    try {
+    return(importCSS = async function(){}.constructor(`"use strict";function map(o){return o.cssText}let a = (await import(new URL(src,location), {with:{type:"css"},assert:{type:"css"}})).default
+    this.textContent+=[].map.call(a.cssRules||a.rules, map)
+    `,'src').bind(getDefaultStyleSheet()))(source)
     }
+    catch(e) {
+        if (e.name === 'SyntaxError' || e.name === 'EvalError')
+            return(importCSS = withFetch)(source)
+        else throw e
+    }
+}
 }()*/
 export function getDefaultStyleSheet() {
-    return(document.getElementById('addedStyleRules') ?? function () {
+    return (document.getElementById('addedStyleRules') ?? function () {
         let out = document.createElement('style');
         (document.head ?? document.body ?? document.documentElement ?? document.querySelector('*') ?? document).append(out)
-        out.textContent=
+        out.textContent =
             '@namespace svg url("http://www.w3.org/2000/svg");{*{opacity:1 !important;}}'
         out.setAttribute('id', 'addedStyleRules')
         out.append(document.createComment('Check your browser for CSS rules ($0.sheet.cssRules)'))
@@ -284,12 +284,12 @@ export const pcv = supportedPClassVendor
 
 export function supportedPClassVendor(className) {
     try {
-        let {0: before, 1: _class} = className.split(':'),
+        let { 0: before, 1: _class } = className.split(':'),
             already = _class
         _class = _class.replace(allVendors, '')
-        .replace(allVendors2, '')
+            .replace(allVendors2, '')
         if (supportsRule(already = `${before}:${already}`)) return already
-        for (let {length: i} = theNames; i--;) {
+        for (let { length: i } = theNames; i--;) {
             let vendor = theNames[i]
                 , name = `:-${vendor}-${_class}`
             if (supportsRule(name)) return `${before}${name}`
@@ -306,12 +306,12 @@ export const pev = supportedPElementVendor
 
 export function supportedPElementVendor(element) {
     try {
-        let {0: before, 1: _element} = element.split('::'),
+        let { 0: before, 1: _element } = element.split('::'),
             already = _element
         _element = _element.replace(allVendors, '')
-        .replace(allVendors2, '')
+            .replace(allVendors2, '')
         if (supportsRule(already = `${before}::${already}`)) return already
-        for (let {length: i} = theNames; i--;) {
+        for (let { length: i } = theNames; i--;) {
             let vendor = theNames[i]
                 , name = `::-${vendor}-${_element}`
             if (supportsRule(name)) return `${before}${name}`
@@ -325,21 +325,21 @@ export function supportedPElementVendor(element) {
 }
 
 export function dropShadow({
-                               color = '#000000',
-                               offsetX = '0px',
-                               offsetY = '0px',
-                               standardDeviation = ''
-                           }) {
+    color = '#000000',
+    offsetX = '0px',
+    offsetY = '0px',
+    standardDeviation = ''
+}) {
     return `${color} ${offsetX} ${offsetY} ${standardDeviation}`
 }
 
 export function boxShadow({
-                              offsetX = '0px',
-                              offsetY = '0px',
-                              blurRadius = '',
-                              spreadRadius = '',
-                              color = '#000000'
-                          }) {
+    offsetX = '0px',
+    offsetY = '0px',
+    blurRadius = '',
+    spreadRadius = '',
+    color = '#000000'
+}) {
     return `${color} ${offsetX} ${offsetY} ${blurRadius} ${spreadRadius}`.replaceAll('  ', '')
 }
 
@@ -359,105 +359,14 @@ export function boxShadow({
 //     // }
 // }
 {
-    function no(){}
     function g(name, initialValue, inherits, syntax) {
         initialValue ??= 'auto'
         inherits ??= false
         syntax ??= '*'
         all.add(name)
-        return {name: `--${name}`, initialValue, inherits, syntax}
+        return { name: `--${name}`, initialValue, inherits, syntax }
     }
-    !function (...allProps) {
-        const sheet = getDefaultStyleSheet()
-        //    Some default CSS..
-        try {
-            let all = sessionStorage.getItem('defaultCSS') ?? Object.entries({
-                [`button,a,${'button checkbox radio submit image reset file'.split(' ').map(o => `input[type=${o}]`).join(',')
-                }`]: {
-                    cursor: 'pointer'
-                },
-                'input[type=range]': {
-                    cursor: 'grab'
-                },
-                'input[type=range]:active': {
-                    cursor: 'grabbing'
-                },
-                '*:disabled,*[aria-disabled="true"]': {
-                    cursor: 'not-allowed'
-                },
-                '.centerx,.center': {
-                    'justify-self': 'center',
-                    margin: 'auto',
-                    'text-align': 'center'
-                },
-                /* 'img[src]': {
-                     '--content-visibility': 'auto'
-                 },*/
-                /*   [`img${pcv(':broken')},img${pcv(':suppressed')}`]: {
-                       '--content-visibility': 'visible',
-                       '--force-broken-image-icon': '1',
-                       content: 'attr(title)'
-                   },
-                   'img:loading': {
-                       '--content-visibility': 'visible',
-                       cursor: 'wait',
-                       content: 'attr(alt)'
-                   },*/
-                '.centery,.center': {
-                    'align-self': 'center',
-                    inset: 0,
-                    position: 'fixed'
-                },
-            }).map(({0: key, 1: val}) =>
-                `${key}{${toCSS(val)}}`
-            )
-            if (typeof all === 'string') all = all.split('✕')
-            for (let {length: i} = all; i--;)
-                try {
-                    sheet.textContent = `${sheet.textContent}${all[i]}`
-                } catch {
-                }
-            sessionStorage.setItem('defaultCSS', all.join('✕'))
-        } catch (e) {
-            console.error(e)
-        }
-
-        void/*async*/function () {
-
-            // function Yield() {
-            // return new Promise(queueMicrotask)
-            // }
-            // Yield = window.scheduler?.yield?.bind(scheduler) ?? Yield
-            //  This registers all of those var(--abc-xyz)
-            //  all the properties are located at the very bottom of this module!
-            /*CSS.registerProperty({
-                name: '--padding-start',
-                inherits:0,
-                initialValue: 0
-            })*/
-            const universal = {}
-            let func = CSS.registerProperty ?? no
-            for (let {length: i} = allProps; i--;) {
-                let prop = allProps[i]
-                    , o = prop.name
-                try {
-                    universal[vendor(o.slice(2), o = `var(${o})`, true)] = o
-                    func(prop)
-                    // await Yield()
-                } catch (e) {
-                    if (e.name === 'InvalidModificationError') continue
-                    console.log(o)
-                    reportError(e)
-                }
-            }
-            let selector = '*'
-            allProps = null
-            typeof beenHereBefore==='string'?
-                sheet.textContent = `${sheet.textContent}${selector}{${beenHereBefore}}` :
-                registerCSS(selector, universal, true),
-                sessionStorage.setItem('css', toCSS(universal, true))
-        }()
-    }(
+    let allProps = [
         //  Fallback stuff
         g("user-select", "auto", true), // Most important one
         g("user-modify", "auto", 0),
@@ -559,7 +468,84 @@ export function boxShadow({
         // g('logical-height','revert',false,'*'),
         // g('logical-width','revert',false,'*'),
         g('buffered-rendering', 'auto', false),
-        g('color-rendering', 'auto', false),
-        // g('marquee-style','scroll',0)
-    )
+        g('color-rendering', 'auto', false)]
+    // g('marquee-style','scroll',0)
+    const sheet = getDefaultStyleSheet()
+    //    Some default CSS..
+    try {
+        let all = sessionStorage.getItem('defaultCSS') ?? Object.entries({
+            [`button,a,${'button checkbox radio submit image reset file'.split(' ').map(o => `input[type=${o}]`).join(',')
+                }`]: {
+                cursor: 'pointer'
+            },
+            img: {
+                '--force-broken-image-icon': 1,
+            },
+            'input[type=range]': {
+                cursor: 'grab'
+            },
+            'input[type=range]:active': {
+                cursor: 'grabbing'
+            },
+            ':disabled,[aria-disabled="true"]': {
+                cursor: 'not-allowed'
+            },
+            '.centerx,.center': {
+                'justify-self': 'center',
+                margin: 'auto',
+                'text-align': 'center'
+            },
+            /* 'img[src]': {
+                 '--content-visibility': 'auto'
+             },*/
+            /*   [`img${pcv(':broken')},img${pcv(':suppressed')}`]: {
+                   '--content-visibility': 'visible',
+                   '--force-broken-image-icon': '1',
+                   content: 'attr(title)'
+               },
+               'img:loading': {
+                   '--content-visibility': 'visible',
+                   cursor: 'wait',
+                   content: 'attr(alt)'
+               },*/
+            '.centery,.center': {
+                'align-self': 'center',
+                inset: 0,
+                position: 'fixed'
+            },
+        }).map(({ 0: key, 1: val }) =>
+            `${key}{${toCSS(val)}}`
+        )
+        if (typeof all === 'string') all = all.split('✕')
+        for (let { length: i } = all; i--;)
+            try {
+                sheet.textContent = `${sheet.textContent}${all[i]}`
+            } catch (e) {
+                console.debug(e)
+            }
+        sessionStorage.setItem('defaultCSS', all.join('✕'))
+    } catch (e) {
+        console.error(e)
+    }
+    const universal = {}
+    let func = CSS.registerProperty ?? function (e) { console.log(`CSS.registerProperty: `, e) }
+    for (let { length: i } = allProps; i--;) {
+        let prop = allProps[i]
+            , o = prop.name
+        try {
+            universal[vendor(o.slice(2), o = `var(${o})`, true)] = o
+            func(prop)
+            // await Yield()
+        } catch (e) {
+            if (e.name === 'InvalidModificationError') continue
+            console.log(o)
+            reportError(e)
+        }
+    }
+    let selector = '*'
+    allProps = null
+    typeof beenHereBefore === 'string' ?
+        sheet.textContent = `${sheet.textContent}${selector}{${beenHereBefore}}` :
+        registerCSS(selector, universal, true),
+        sessionStorage.setItem('css', toCSS(universal, true))
 }

@@ -15,12 +15,14 @@ Things i learned from 2nd -> 3rd:
 function plural(singular, plural, count) {
     return Math.sign(count = +count) === count && count ? `${count} ${singular}` : `${count.toLocaleString()} ${plural}`
 }
-const {get,set,apply,getOwnPropertyDescriptor} = Reflect
-import * as h from './handle.js'
-import * as css from './csshelper.js'
+const { get, set, apply, getOwnPropertyDescriptor, ownKeys } = Reflect,
+    { revocable } = Proxy,
+    { create, preventExtensions, defineProperty, defineProperties, getOwnPropertyDescriptors, assign } = Object
+import *as h from './handle.js'
+import *as css from './csshelper.js'
 function from(ArrayLike, map, thisArg) {
-        // Array.from checks @@iterator first, which would be slower in cases where it is callable
-    return ArrayLike.length>=0?map?[].map.call(ArrayLike,map,thisArg):[].slice.call(ArrayLike):map?Array.from(ArrayLike,map,thisArg): typeof ArrayLike[Symbol.iterator]!=='undefined'?[...ArrayLike]:[]
+    // Array.from checks @@iterator first, which would be slower in cases where it is callable
+    return ArrayLike.length >= 0 ? map ? [].map.call(ArrayLike, map, thisArg) : [].slice.call(ArrayLike) : map ? Array.from(ArrayLike, map, thisArg) : typeof ArrayLike[Symbol.iterator] !== 'undefined' ? [...ArrayLike] : []
 }
 const f = {
     debounce(func, interval) {
@@ -41,12 +43,13 @@ const f = {
         }
     }
 }
-Object.hasOwn ?? Object.defineProperty(Object, 'hasOwn', {
+Object.hasOwn ?? defineProperty(Object, 'hasOwn', {
     value: (obj, prop) => ({}).hasOwnProperty.call(obj, prop),
     writable: 1,
     configurable: 1
 })
-const regex = {
+const { hasOwn } = Object
+    , regex = {
         dot: /\./g,
         space: /\s/g,
         onXYZ: /^on\w+$/
@@ -60,12 +63,15 @@ function gen() {
     return `${Math.random()}${Math.random()}`.replace(regex.dot, '')
 }
 
-const BoundFunctions = new WeakMap
+const BoundFunctions = new WeakMap,
+    BoundSet = BoundFunctions.set.bind(BoundFunctions),
+    BoundGet = BoundFunctions.get.bind(BoundFunctions),
+    BoundHas = BoundFunctions.has.bind(BoundFunctions)
 
 function cacheFunction(maybeFunc) {
     // Make sure we just re-use the same function
     /*if (typeof maybeFunc === 'function') {
-        if (!Object.hasOwn(to, maybeFunc.name)) Object.defineProperty(prox(to), maybeFunc.name, {
+        if (!Object.hasOwn(to, maybeFunc.name)) defineProperty(prox(to), maybeFunc.name, {
             value: maybeFunc.bind(to),
             writable: 1,
             configurable: 1
@@ -74,32 +80,32 @@ function cacheFunction(maybeFunc) {
     }*/
     // There was like a catastrophic bug but i fixed it bc im the best
     if (typeof maybeFunc === 'function') {
-        if (BoundFunctions.has(maybeFunc)) return BoundFunctions.get(maybeFunc)
+        if (BoundHas(maybeFunc)) return BoundGet(maybeFunc)
         // let wrapper = new Proxy(maybeFunc,handlers.function)
-        const {name} = maybeFunc
+        const { name } = maybeFunc
             , wrapper = {
-            [name](...a) {
-                // Regular wrapper function for method,
-                // for usage instead of making a new one for every instance with bind()
-                return apply(maybeFunc, base(this), a)
-            }
-        }[name]  // keep the original function name just in case
-        BoundFunctions.set(maybeFunc, wrapper)
+                [name](...a) {
+                    // Regular wrapper function for method,
+                    // for usage instead of making a new one for every instance with bind()
+                    return apply(maybeFunc, base(this), a)
+                }
+            }[name]  // keep the original function name just in case
+        BoundSet(maybeFunc, wrapper)
         return wrapper
     }
     return maybeFunc
 }
-
+const arrHasOwn = {}.hasOwnProperty.bind(Array.prototype)
 function genericGet(t, prop) {
     let out = t[prop]
     if (typeof prop !== 'symbol' && !isNaN(prop))
         return out && prox(out)
-    if (Array.prototype.hasOwnProperty(prop) && typeof [][prop] === 'function') return [][prop].bind(t)
+    if (arrHasOwn(prop) && typeof [][prop] === 'function') return [][prop].bind(t)
     return cacheFunction(out, t)
 }
 
 function ariaOrData(i) {
-    let {0: char} = i
+    let { 0: char } = i
     if (char === '_') return i.replace(char, 'aria-')
     if (char === '$') return i.replace(char, 'data-')
     return i
@@ -109,437 +115,439 @@ function doVendor(target, prop, r) {
     if (typeof prop === 'symbol') return this.apply(1, arguments)
     let p = prop
     prop = prop.replace(vendorRegex, '')
+    let slice = ''.slice.bind(prop)
     if (p in target) return this.apply(1, arguments)
-    if ((p=`webkit${prop[0].toUpperCase()}${prop.slice(1)}`)in target) return this(target, p, r)
-    if ((p = `moz${prop[0].toUpperCase()}${prop.slice(1)}`)in target) return this(target, p, r)
-    if ((p = `ms${prop[0].toUpperCase()}${prop.slice(1)}`)in target) return this(target, p, r)
+    if ((p = `webkit${prop[0].toUpperCase()}${slice(1)}`) in target) return this(target, p, r)
+    if ((p = `moz${prop[0].toUpperCase()}${slice(1)}`) in target) return this(target, p, r)
+    if ((p = `ms${prop[0].toUpperCase()}${slice(1)}`) in target) return this(target, p, r)
 }
 let getVendor = doVendor.bind(get),
     setVendor = doVendor.bind(set)
 const attrStyleMap = 'StylePropertyMap' in window
     , customRules = css.getDefaultStyleSheet()
     , handlers = {
-    // Other proxies
-    batchThing: {
-        cached: null,
-        QueueBatchThing() {
-            this.queued || (requestAnimationFrame(this.HandleStyleUpdates.bind(this)), this.queued = true)
-        },
-        HandleStyleUpdates() {
-            this.queued = false
-            this.cached.forEach(ApplyBatchedStyles, this.target)
-            writes = reads = 0
-        },
-        get(t, p) {
-            ++reads
-            p = css.toCaps(p)
-            let val = this.cached.get(p)
-            return val ?? (this.cached.set(p, val = t[p]), val)
-        },
-        set(t, p, v) {
-            ++writes
-            p = css.toCaps(p)
-            if (v === this.cached.get(p)) return 1
-            this.cached.set(p, v)
-            this.QueueBatchThing()
-            return 1
-        },
-        deleteProperty(t, p) {
-            return this.set(t, p, '')
-        }
-    },
-    main: {
-        // just create as few closures as possible
-        get(targ, prop, r) {
-            let a = this[0]
-            return targ.hasOwnProperty(prop) ? get(targ, prop, r) :
-                cacheFunction(getVendor(a, prop, a), a)
-            // ⛓️‍💥 'Illegal invocation' if function is not bound
-        },
-        set(targ, prop, value) {
-            let t = targ.hasOwnProperty(prop) ? targ : this[0]
-            return setVendor(t, prop, value, t)
-        }
-    },
-    querySelector: {
-        get(t, p) {
-            return prox(t.querySelector(p))
-        }
-    },
-    styles: attrStyleMap ? {
-        get(target, prop) {
-            return prop.startsWith('--') ? target.get(prop) : target.get(css.dashVendor(prop, 'inherit'))
-        },
-        set(target, prop, value) {
-            (value == null || value === '') ? this.deleteProperty(target, prop)
-            : prop.startsWith('--') ? target.set(prop, value) : target.set(css.dashVendor(prop, `${value}`), value)
-            return 7
-        },
-        deleteProperty(target, prop) {
-            return prop.startsWith('--') ? target.delete(prop) :
-                target.delete(css.dashVendor(`${prop}`, 'inherit')),
-                3
-        },
-    } : {
-        get(target, prop) {
-            return prop.startsWith('--') ? target.getPropertyValue(prop) :
-                target.getPropertyValue(css.dashVendor(prop, 'inherit'))
-        },
-        set(target, prop, value) {
-            prop.startsWith('--') ? target.setProperty(prop, value)
-            : target.setProperty(css.dashVendor(prop, `${value}`), value)
-            return 7
-        },
-        deleteProperty(target, prop) {
-            return prop.startsWith('--') ? target.removeProperty(prop) :
-                target.removeProperty(css.dashVendor(prop, 'inherit')),
-                3
-        },
-        has(target, prop) {
-            return this.get(target, prop)
-        }
-    },
-    attr: {
-        get(t, p) {
-            p = ariaOrData(p)
-            return prox(t).getAttribute(p)
-        },
-        set(t, p, v) {
-            return prox(t).setAttr({
-                [p]: v
-            })
-        },
-        deleteProperty(t, p) {
-            return prox(t).setAttr({
-                [p]: ''
-            })
-        },
-        has(t, p) {
-            p = ariaOrData(p)
-            return t.hasAttribute(p)
-        }
-    },
-    HTMLCollection: {
-        get: genericGet,
-        set(t, prop, value) {
-            if (isNaN(prop))
-                t[prop] = value
-            else {
-                let out = t[prop]
-                out && base(out).replaceWith(base(value))
+        // Other proxies
+        batchThing: {
+            cached: null,
+            QueueBatchThing() {
+                this.queued || (requestAnimationFrame(this.HandleStyleUpdates.bind(this)), this.queued = true)
+            },
+            HandleStyleUpdates() {
+                this.queued = false
+                this.cached.forEach(ApplyBatchedStyles, this.target)
+                writes = reads = 0
+            },
+            get(t, p) {
+                ++reads
+                p = css.toCaps(p)
+                let val = this.cached.get(p)
+                return val ?? (this.cached.set(p, val = t[p]), val)
+            },
+            set(t, p, v) {
+                ++writes
+                p = css.toCaps(p)
+                if (v === this.cached.get(p)) return 1
+                this.cached.set(p, v)
+                this.QueueBatchThing()
+                return 1
+            },
+            deleteProperty(t, p) {
+                return this.set(t, p, '')
             }
-            return 4
         },
-        deleteProperty(t, prop) {
-            if (!isNaN((prop))) {
-                let obj = this.get(t, prop)
-                obj && prox(obj).destroy()
+        main: {
+            // just create as few closures as possible
+            get(targ, prop, r) {
+                let a = this[0]
+                return targ.hasOwnProperty(prop) ? get(targ, prop, r) :
+                    cacheFunction(getVendor(a, prop, a), a)
+                // ⛓️‍💥 'Illegal invocation' if function is not bound
+            },
+            set(targ, prop, value) {
+                let t = targ.hasOwnProperty(prop) ? targ : this[0]
+                return setVendor(t, prop, value, t)
             }
-            return 6
-        }
-    },
-}
+        },
+        querySelector: {
+            get(t, p) {
+                return prox(t.querySelector(p))
+            }
+        },
+        styles: attrStyleMap ? {
+            get(target, prop) {
+                return prop.startsWith('--') ? target.get(prop) : target.get(css.dashVendor(prop, 'inherit'))
+            },
+            set(target, prop, value) {
+                (value == null || value === '') ? this.deleteProperty(target, prop)
+                    : prop.startsWith('--') ? target.set(prop, value) : target.set(css.dashVendor(prop, `${value}`), value)
+                return 7
+            },
+            deleteProperty(target, prop) {
+                return prop.startsWith('--') ? target.delete(prop) :
+                    target.delete(css.dashVendor(`${prop}`, 'inherit')),
+                    3
+            },
+        } : {
+            get(target, prop) {
+                return prop.startsWith('--') ? target.getPropertyValue(prop) :
+                    target.getPropertyValue(css.dashVendor(prop, 'inherit'))
+            },
+            set(target, prop, value) {
+                prop.startsWith('--') ? target.setProperty(prop, value)
+                    : target.setProperty(css.dashVendor(prop, `${value}`), value)
+                return 7
+            },
+            deleteProperty(target, prop) {
+                return prop.startsWith('--') ? target.removeProperty(prop) :
+                    target.removeProperty(css.dashVendor(prop, 'inherit')),
+                    3
+            },
+            has(target, prop) {
+                return this.get(target, prop)
+            }
+        },
+        attr: {
+            get(t, p) {
+                p = ariaOrData(p)
+                return prox(t).getAttribute(p)
+            },
+            set(t, p, v) {
+                return prox(t).setAttr({
+                    [p]: v
+                })
+            },
+            deleteProperty(t, p) {
+                return prox(t).setAttr({
+                    [p]: ''
+                })
+            },
+            has(t, p) {
+                p = ariaOrData(p)
+                return t.hasAttribute(p)
+            }
+        },
+        HTMLCollection: {
+            get: genericGet,
+            set(t, prop, value) {
+                if (isNaN(prop))
+                    t[prop] = value
+                else {
+                    let out = t[prop]
+                    out && base(out).replaceWith(base(value))
+                }
+                return 4
+            },
+            deleteProperty(t, prop) {
+                if (!isNaN((prop))) {
+                    let obj = this.get(t, prop)
+                    obj && prox(obj).destroy()
+                }
+                return 6
+            }
+        },
+    }
 // Main [[Prototype]] is on this class
 // let ATTR = Symbol('💿')
 // let states = Symbol('💾')
 let computed = Symbol('no')
 let styles = Symbol('stop')
 // let shadow = Symbol('🌴')
-let props = Object.getOwnPropertyDescriptors(class _
-        extends null {
-        static cancel(o) {
-            o.cancel()
+let props = getOwnPropertyDescriptors(class _
+    extends null {
+    static cancel(o) {
+        o.cancel()
+    }
+
+    static pause(o) {
+        o.pause()
+    }
+
+    static play(o) {
+        o.playState === 'paused' && o.play()
+    }
+
+    static finish(o) {
+        o.finish()
+    }
+
+    static restart(o) {
+        o.currentTime = 0
+        o.play()
+    }
+
+    get isVisible() {
+        let rect = base(this).getBoundingClientRect()
+            , viewHeight = Math.max($(document.documentElement)?.clientHeight || 0, innerHeight)
+        return !(rect.bottom < 0 || rect.top - viewHeight >= 0)
+    }
+
+    getComputedStyle() {
+        return this.computed
+    }
+
+    get computed() {
+        return this[computed] ??= getComputedStyle(base(this))
+    }
+
+    /*
+        createState(identifier, child, callback) {
+            let t = this[states]
+            if (t.has(identifier)) throw Error("Already present")
+            //if (!(typeof identifier).match(/number|string|symbol|bigint/)) throw TypeError(`State must be a primitive`)
+            // console.assert(/number|string|symbol|bigint/.test(typeof identifier), `State should be a primitive:\n %o`, identifier)
+            let cached = $('template')
+            cached.content.appendChild(base(child))
+            t.set(identifier, {
+                cached,
+                callback
+            })
+            return cached.content
         }
 
-        static pause(o) {
-            o.pause()
+        getState(identifier) {
+            return this[states].get(identifier)?.cached.content ?? null
         }
 
-        static play(o) {
-            o.playState === 'paused' && o.play()
+        editState(id, func) {
+            func(this[states].get(id).cached.content)
         }
 
-        static finish(o) {
-            o.finish()
-        }
-
-        static restart(o) {
-            o.currentTime = 0
-            o.play()
-        }
-
-        get isVisible() {
-            let rect = base(this).getBoundingClientRect()
-                , viewHeight = Math.max($(document.documentElement)?.clientHeight || 0, innerHeight)
-            return !(rect.bottom < 0 || rect.top - viewHeight >= 0)
-        }
-
-        getComputedStyle() {
-            return this.computed
-        }
-
-        get computed() {
-            return this[computed] ??= getComputedStyle(base(this))
-        }
-
-        /*
-            createState(identifier, child, callback) {
-                let t = this[states]
-                if (t.has(identifier)) throw Error("Already present")
-                //if (!(typeof identifier).match(/number|string|symbol|bigint/)) throw TypeError(`State must be a primitive`)
-                // console.assert(/number|string|symbol|bigint/.test(typeof identifier), `State should be a primitive:\n %o`, identifier)
-                let cached = $('template')
-                cached.content.appendChild(base(child))
-                t.set(identifier, {
-                    cached,
-                    callback
-                })
-                return cached.content
+        deleteState(identifier) {
+            let t = this[states]
+            if (t.has(identifier)) {
+                let state = t.get(identifier).cached;
+                [].forEach.call(state.content.querySelectorAll('*'), destroyEach)
+                t.delete(identifier)
             }
-
-            getState(identifier) {
-                return this[states].get(identifier)?.cached.content ?? null
-            }
-
-            editState(id, func) {
-                func(this[states].get(id).cached.content)
-            }
-
-            deleteState(identifier) {
-                let t = this[states]
-                if (t.has(identifier)) {
-                    let state = t.get(identifier).cached;
-                    [].forEach.call(state.content.querySelectorAll('*'), destroyEach)
-                    t.delete(identifier)
-                }
-            }
-            setState(identifier) {
-                if (identifier === null) {
-                    this.lastState = this.currentState
-                    this.currentState = null
-                    return this.destroyChildren()
-                }
-                let t = this[states]
-                if (!t.has(identifier)) {
-                    this.destroyChildren()
-                    .push($('<samp style="font-size:30px; color:red;">INVALID STATE</samp>'))
-                        .currentState = null
-                    reportError(identifier)
-                    throw TypeError('Invalid state')
-                }
-                let {cached: cache, callback} = t.get(identifier)
-                    , frag = cache.content
-                    , cached = document.importNode(frag, true)
-                    , staticBatch = [...frag.querySelectorAll('*')]
-                    , newBatch = [...cached.querySelectorAll('*')]
-                    , withIds = []
-                staticBatch.forEach(forEach)
-                this.destroyChildren()
-                callback?.apply(cached, withIds)
-                base(this).appendChild(cached)
+        }
+        setState(identifier) {
+            if (identifier === null) {
                 this.lastState = this.currentState
-                this.currentState = identifier
+                this.currentState = null
+                return this.destroyChildren()
+            }
+            let t = this[states]
+            if (!t.has(identifier)) {
+                this.destroyChildren()
+                .push($('<samp style="font-size:30px; color:red;">INVALID STATE</samp>'))
+                    .currentState = null
+                reportError(identifier)
+                throw TypeError('Invalid state')
+            }
+            let {cached: cache, callback} = t.get(identifier)
+                , frag = cache.content
+                , cached = document.importNode(frag, true)
+                , staticBatch = [...frag.querySelectorAll('*')]
+                , newBatch = [...cached.querySelectorAll('*')]
+                , withIds = []
+            staticBatch.forEach(forEach)
+            this.destroyChildren()
+            callback?.apply(cached, withIds)
+            base(this).appendChild(cached)
+            this.lastState = this.currentState
+            this.currentState = identifier
 
-                function forEach(el, index) {
-                    el = prox(el)
-                    el.hasAttribute('id') && withIds.push(el) // its considered important
-                    let {events} = el
-                    if (!events) return
-                    let clone = prox(newBatch[index])
-                    let staticEvents = h.allEvents.get(base(el))
-                    events.forEach(eventThing)
+            function forEach(el, index) {
+                el = prox(el)
+                el.hasAttribute('id') && withIds.push(el) // its considered important
+                let {events} = el
+                if (!events) return
+                let clone = prox(newBatch[index])
+                let staticEvents = h.allEvents.get(base(el))
+                events.forEach(eventThing)
 
-                    function eventThing(name) {
-                        let {
-                            listener,
-                            passive,
-                            capture,
-                            handler,
-                            prevents,
-                            stopProp,
-                            once,
-                            stopImmediateProp,
-                            onlyTrusted
-                        } = staticEvents.get(name)
-                        if (once) name = `_${name}`
-                        if (passive) name = `^${name}`
-                        if (capture) name = `%${name}`
-                        if (stopProp) name = `&${name}`
-                        if (prevents) name = `$${name}`
-                        if (onlyTrusted) name = `?${name}`
-                        if (stopImmediateProp) name = `!${name}`
-                        clone.on({
-                            [name]: listener[h.unbound][h.unbound]
-                        }, handler)
-                    }
+                function eventThing(name) {
+                    let {
+                        listener,
+                        passive,
+                        capture,
+                        handler,
+                        prevents,
+                        stopProp,
+                        once,
+                        stopImmediateProp,
+                        onlyTrusted
+                    } = staticEvents.get(name)
+                    if (once) name = `_${name}`
+                    if (passive) name = `^${name}`
+                    if (capture) name = `%${name}`
+                    if (stopProp) name = `&${name}`
+                    if (prevents) name = `$${name}`
+                    if (onlyTrusted) name = `?${name}`
+                    if (stopImmediateProp) name = `!${name}`
+                    clone.on({
+                        [name]: listener[h.unbound][h.unbound]
+                    }, handler)
                 }
             }
-        */
-        toJSON() {
-            return base(this).outerHTML
         }
+    */
+    toJSON() {
+        return base(this).outerHTML
+    }
 
-        xpath(xpath, callback, type, thisArg) {
-            let i = document.evaluate(xpath, base(this), null, type ?? 0, null),
-                el,
-                n = 0
-            while (el = i.iterateNext()) callback.call(thisArg, el instanceof HTMLElement ? prox(el) : el, n++, i)
-        }
+    xpath(xpath, callback, type, thisArg) {
+        let i = document.evaluate(xpath, base(this), null, type ?? 0, null),
+            el,
+            n = 0,
+            next = i.iterateNext.bind(i)
+        while (el = next()) apply(callback, thisArg, [el instanceof HTMLElement ? prox(el) : el, n++, i])
+    }
 
-        get orphans() {
-            let me = base(this)
-            if (me.tagName === 'TEMPLATE')
-                return me.content
-            let out = document.createDocumentFragment(),
-                {firstElementChild} = me
-            while (firstElementChild)
-                out.appendChild(me.removeChild(firstElementChild)), {firstElementChild} = me
-            return out
-        }
+    get orphans() {
+        let me = base(this)
+        if (me.tagName === 'TEMPLATE')
+            return me.content
+        let out = document.createDocumentFragment(),
+            { firstElementChild } = me
+        while (firstElementChild)
+            out.appendChild(me.removeChild(firstElementChild)), { firstElementChild } = me
+        return out
+    }
 
-        pass() {
-            let {orphans} = this
-            this.destroy()
-            return orphans
-        }
+    pass() {
+        let { orphans } = this
+        this.destroy()
+        return orphans
+    }
 
-        empty() {
-            return this.orphans
-        }
+    empty() {
+        return this.orphans
+    }
 
-        get clone() {
-            return prox(base(this).cloneNode(true))
-        }
+    get clone() {
+        return prox(base(this).cloneNode(true))
+    }
 
-        destroy() {
-            let my = base(this.resetSelfRules()
+    destroy() {
+        let my = base(this.resetSelfRules()
             .cancelAnims().destroyChildren())
-            // let myStates = this[states]
-            /*for (let [key, {
-                cached: val
-            }] of myStates) {
-                myStates.delete(key)
-                for (let el of val.content.querySelectorAll('*'))
-                    prox(el).destroy()
-            }*/
-            // $.last === this&& ($.last = null)
-            do my.remove()
-            while (my.isConnected /*document.contains(my)*/)
-            let myevents = h.getEventNames(my)
-            myevents.size && apply(this.off, this, myevents)
-            all.delete(my)
-            // inte?.unobserve(my)
-            // resi.unobserve(my)
-            revoke(this)
-            return null
-        }
+        // let myStates = this[states]
+        /*for (let [key, {
+            cached: val
+        }] of myStates) {
+            myStates.delete(key)
+            for (let el of val.content.querySelectorAll('*'))
+                prox(el).destroy()
+        }*/
+        // $.last === this&& ($.last = null)
+        do my.remove()
+        while (my.isConnected /*document.contains(my)*/)
+        let myevents = h.getEventNames(my)
+        myevents.size && apply(this.off, this, myevents)
+        all.delete(my)
+        // inte?.unobserve(my)
+        // resi.unobserve(my)
+        revoke(this)
+        return null
+    }
 
-        destroyChildren() {
-            let {lastElementChild} = this
-            while (lastElementChild)
-                prox(lastElementChild).destroy(), {lastElementChild} = this
-        }
+    destroyChildren() {
+        let { lastElementChild } = this
+        while (lastElementChild)
+            prox(lastElementChild).destroy(), { lastElementChild } = this
+    }
 
-        /**
-         * @deprecated
-         * */
-        $(html, props, ...children) {
-            debugger
-            let out = $(html, props, ...children)
-            out.parent = this
-            return out
-        }
+    /**
+     * @deprecated
+     * */
+    $(html, props, ...children) {
+        debugger
+        let out = $(html, props, ...children)
+        out.parent = this
+        return out
+    }
 
-        on(events, signal) {
-            arguments.length > 2 && (signal = arguments[2])
-            let me = this
-            if (typeof events === 'function') {
-                let old = events
-                events = ProxyEventWrapperFunction
+    on(events, signal) {
+        arguments.length > 2 && (signal = arguments[2])
+        let me = this
+        if (typeof events === 'function') {
+            let old = events
+            events = ProxyEventWrapperFunction
 
-                function ProxyEventWrapperFunction(...args) {
-                    // just avoid bind()
-                    apply(old, me, args)
-                }
-            } else for (let i in events) events[i] = function (old) {
-                return ProxyEventWrapperFunction
-
-                function ProxyEventWrapperFunction(...args) {
-                    apply(old, me, args)
-                }
-            }(events[i])
-            h.on(base(this), events, signal)
-        }
-
-        off(...events) {
-            events.unshift(base(this))
-            apply(h.off, null, events)
-        }
-
-        set(prop, val) {
-            base(this)[prop] = val
-        }
-
-        getByTag(tag) {
-            return from(base(this).getElementsByTagName(tag), prox)
-        }
-
-        debounce(events, interval, signal) {
-            for (let i in events) {
-                let old = events[i]
-                events[i] = f.debounce(old, interval)
+            function ProxyEventWrapperFunction(...args) {
+                // just avoid bind()
+                apply(old, me, args)
             }
-            this.on(events, signal)
-        }
+        } else for (let i in events) events[i] = function (old) {
+            return ProxyEventWrapperFunction
 
-        /* throttle(events, interval) {
-             for (let i in events) {
-                 let old = events[i]
-                 events[i] = f.throttle(old, interval)
-             }
-             this.on(events)
-     }*/
-        delegate(events, filter, includeSelf, signal) {
-            let me = base(this)
-            filter ??= function () {
+            function ProxyEventWrapperFunction(...args) {
+                apply(old, me, args)
             }
-            for (let i in events) {
-                if (i.includes('@')) throw SyntaxError("Conflicting usage of a 'currentTarget' only delegating event handler")
-                let old = events[i]
-                events[i] = DelegationFunction
+        }(events[i])
+        h.on(base(this), events, signal)
+    }
 
-                function DelegationFunction(...args) {
-                    let {target} = args[0],
-                        pr = prox(target);
-                    (me !== target || includeSelf) && (filter(pr) ?? 1) && apply(old, pr, args)
-                }
+    off(...events) {
+        events.unshift(base(this))
+        apply(h.off, null, events)
+    }
+
+    set(prop, val) {
+        base(this)[prop] = val
+    }
+
+    getByTag(tag) {
+        return from(base(this).getElementsByTagName(tag), prox)
+    }
+
+    debounce(events, interval, signal) {
+        for (let i in events) {
+            let old = events[i]
+            events[i] = f.debounce(old, interval)
+        }
+        this.on(events, signal)
+    }
+
+    /* throttle(events, interval) {
+         for (let i in events) {
+             let old = events[i]
+             events[i] = f.throttle(old, interval)
+         }
+         this.on(events)
+ }*/
+    delegate(events, filter, includeSelf, signal) {
+        let me = base(this)
+        filter ??= function () {
+        }
+        for (let i in events) {
+            if (i.includes('@')) throw SyntaxError("Conflicting usage of a 'currentTarget' only delegating event handler")
+            let old = events[i]
+            events[i] = DelegationFunction
+
+            function DelegationFunction(...args) {
+                let { target } = args[0],
+                    pr = prox(target);
+                (me !== target || includeSelf) && (filter(pr) ?? 1) && apply(old, pr, args)
             }
-            this.on(events, false, signal)
         }
+        this.on(events, false, signal)
+    }
 
-        get events() {
-            return h.getEventNames(base(this))
-        }
+    get events() {
+        return h.getEventNames(base(this))
+    }
 
-        setStyles(styles) {
-            /* for (let prop in styles) {
-                 let ogValue = styles[prop]
-                 let fixedProp = css.toCaps(css.vendor(css.toDash(prop), ogValue))
-                 ogValue ? this.style[fixedProp] = ogValue //out.push(`${fixedProp}: ${ogValue}`)
-                     :
-                     delete this.style[fixedProp]
-             }
-             return this*/
-            Object.assign(this.styles, styles)
-            //base(this).style.cssText = out.join(';')
-        }
+    setStyles(styles) {
+        /* for (let prop in styles) {
+             let ogValue = styles[prop]
+             let fixedProp = css.toCaps(css.vendor(css.toDash(prop), ogValue))
+             ogValue ? this.style[fixedProp] = ogValue //out.push(`${fixedProp}: ${ogValue}`)
+                 :
+                 delete this.style[fixedProp]
+         }
+         return this*/
+        assign(this.styles, styles)
+        //base(this).style.cssText = out.join(';')
+    }
 
-        static canBeDisabled = /^HTML(?:Button|FieldSet|Opt(?:Group|tion)|Select|TextArea|Input)Element$/
+    static canBeDisabled = /^HTML(?:Button|FieldSet|Opt(?:Group|tion)|Select|TextArea|Input)Element$/
 
-        set disabled(val) {
-            if (val) {
-                if (_.canBeDisabled.test(h.getLabel(base(this)))) this.setAttr({disabled: true})
-                else this.saveAttr('contenteditable', 'inert')
+    set disabled(val) {
+        if (val) {
+            if (_.canBeDisabled.test(h.getLabel(base(this)))) this.setAttr({ disabled: true })
+            else this.saveAttr('contenteditable', 'inert')
                 .setAttr({
                     _disabled: 'true',
                     contenteditable: false,
@@ -551,457 +559,454 @@ let props = Object.getOwnPropertyDescriptors(class _
                     // 'pointer-events': 'none',
                     '--interactivity': 'inert'
                 })
-            } else {
-                if (_.canBeDisabled.test(h.getLabel(base(this)))) this.setAttr({disabled: false})
-                else this.restoreAttr('contenteditable', 'inert')
-                .setAttr({_disabled: 'false'})
+        } else {
+            if (_.canBeDisabled.test(h.getLabel(base(this)))) this.setAttr({ disabled: false })
+            else this.restoreAttr('contenteditable', 'inert')
+                .setAttr({ _disabled: 'false' })
                 .setStyles({
                     '--user-modify': '', '--user-input': '',
                     // 'pointer-events':'',
                     '--interactivity': ''
                 })
+        }
+    }
+
+    get disabled() {
+        return 'disabled' in this.attr || 'aria-disabled' in this.attr
+    }
+
+    saveAttr(...attributes) {
+        let me = base(this)
+        if (!attributes.length) {
+            let s = this[saved] = { __proto__: null },
+                attributes = me.getAttributeNames()
+            for (let { length: i } = attributes; i--;) {
+                let attr = attributes[i],
+                    val = me.getAttribute(attr)
+                s[attr] = val || true
             }
-        }
-
-        get disabled() {
-            return 'disabled' in this.attr || 'aria-disabled' in this.attr
-        }
-
-        saveAttr(...attributes) {
-            let me = base(this)
-            if (!attributes.length) {
-                let s = this[saved] = {__proto__: null},
-                    attributes = me.getAttributeNames()
-                for (let {length: i} = attributes; i--;) {
-                    let attr = attributes[i],
-                        val = me.getAttribute(attr)
-                    s[attr] = val || true
-                }
-            } else {
-                let s = this[saved]
-                for (let {length: i} = attributes; i--;) {
-                    let attr = attributes[i],
-                        val = me.getAttribute(attr)
-                    s[attr] = val === '' ? true : me.getAttribute(attr)
-                }
-            }
-        }
-
-        restoreAttr(...attributes) {
+        } else {
             let s = this[saved]
-            if (!attributes.length) attributes = base(this).getAttributeNames()
-            for (let {length: i} = attributes; i--;) {
-                let attr = attributes[i]
-                this.setAttr({[attr]: s[attr]})
+            for (let { length: i } = attributes; i--;) {
+                let attr = attributes[i],
+                    val = me.getAttribute(attr)
+                s[attr] = val === '' ? true : me.getAttribute(attr)
             }
         }
+    }
 
-        setAttr(attr) {
-            let me = base(this)
-            for (let i in attr) {
-                let n = i.split(',')
-                let val = attr[i]
-                if (regex.onXYZ.test(i)) throw TypeError('Inline event handlers are deprecated')
-                /*   switch (i) {
-                       case 'disabled': me.setAttribute('aria-disabled', !!val); break
-                       case 'checked': me.setAttribute('aria-checked', !!val); break
-                       case 'hidden': me.setAttribute('aria-hidden', !!val); break
-                       case 'required': me.setAttribute('aria-required', !!val); break
-                       case 'readonly': me.setAttribute('aria-readonly', !!val); break
-                       case 'placeholder': me.setAttribute('aria-placeholder', val); break
-                   }*/
-                for (let {length: a} = n; a--;) {
-                    let prop = ariaOrData(n[a])
-                    if (typeof val === 'boolean') me.toggleAttribute(prop, val)
-                    else if (val === '' || val == null) me.removeAttribute(prop)
-                    else me.setAttribute(prop, val)
-                }
+    restoreAttr(...attributes) {
+        let s = this[saved]
+        if (!attributes.length) attributes = base(this).getAttributeNames()
+        for (let { length: i } = attributes; i--;) {
+            let attr = attributes[i]
+            this.setAttr({ [attr]: s[attr] })
+        }
+    }
+
+    setAttr(attr) {
+        let me = base(this),
+        {onXYZ} = regex
+        for (let i in attr) {
+            let n = i.split(',')
+            , val = attr[i]
+            if (onXYZ.test(i)) throw TypeError('Inline event handlers are deprecated')
+            /*   switch (i) {
+                   case 'disabled': me.setAttribute('aria-disabled', !!val); break
+                   case 'checked': me.setAttribute('aria-checked', !!val); break
+                   case 'hidden': me.setAttribute('aria-hidden', !!val); break
+                   case 'required': me.setAttribute('aria-required', !!val); break
+                   case 'readonly': me.setAttribute('aria-readonly', !!val); break
+                   case 'placeholder': me.setAttribute('aria-placeholder', val); break
+               }*/
+            for (let { length: a } = n; a--;) {
+                let prop = ariaOrData(n[a])
+                if (typeof val === 'boolean') me.toggleAttribute(prop, val)
+                else if (val === '' || val == null) me.removeAttribute(prop)
+                else me.setAttribute(prop, val)
             }
         }
+    }
 
-        get anims() {
-            return base(this).getAnimations()
-        }
+    get anims() {
+        return base(this).getAnimations()
+    }
 
-        static subtree = {
-            subtree: true
-        }
+    static subtree = {
+        subtree: true
+    }
 
-        get allAnims() {
-            return base(this).getAnimations(_.subtree)
-        }
+    get allAnims() {
+        return base(this).getAnimations(_.subtree)
+    }
 
-        cancelAnims() {
-            this.allAnims.forEach(_.cancel)
-        }
+    cancelAnims() {
+        this.allAnims.forEach(_.cancel)
+    }
 
-        resumeAnims() {
-            this.allAnims.forEach(_.play)
-        }
+    resumeAnims() {
+        this.allAnims.forEach(_.play)
+    }
 
-        pauseAnims() {
-            this.allAnims.forEach(_.pause)
-        }
+    pauseAnims() {
+        this.allAnims.forEach(_.pause)
+    }
 
-        finishAnims() {
-            this.allAnims.forEach(_.finish)
-        }
+    finishAnims() {
+        this.allAnims.forEach(_.finish)
+    }
 
-        restartAnims() {
-            this.allAnims.forEach(_.restart)
-        }
+    restartAnims() {
+        this.allAnims.forEach(_.restart)
+    }
 
-        static nopacity = {
-            opacity: 0
-        }
-        static onepacity = {
-            opacity: 1
-        }
-        static defaultDura = 500
+    static nopacity = {
+        opacity: 0
+    }
+    static onepacity = {
+        opacity: 1
+    }
+    static defaultDura = 500
 
-        fadeOut(duration) {
-            duration ||= _.defaultDura
-            return this.animate([{}, _.nopacity], {
-                duration,
-                easing: 'ease',
-                // composite: 'replace',
-                iterations: 1
-            }).finished.then(this.hide.bind(this, 3))
-        }
+    fadeOut(duration) {
+        duration ||= _.defaultDura
+        return this.animate([{}, _.nopacity], {
+            duration,
+            easing: 'ease',
+            // composite: 'replace',
+            iterations: 1
+        }).finished.then(this.hide.bind(this, 3))
+    }
 
-        fadeIn(duration) {
-            duration ||= _.defaultDura
-            this.show(3)
-            return this.animate([_.nopacity, _.onepacity], {
-                duration,
-                easing: 'ease',
-                iterations: 1,
-                // composite: 'replace',
-            }).finished
-        }
+    fadeIn(duration) {
+        duration ||= _.defaultDura
+        this.show(3)
+        return this.animate([_.nopacity, _.onepacity], {
+            duration,
+            easing: 'ease',
+            iterations: 1,
+            // composite: 'replace',
+        }).finished
+    }
 
-        fadeFromTo(from, to, settings) {
-            let duration = (settings ??= {}).duration || _.defaultDura
-                , easing = settings.easing ?? 'ease'
-            return this.animate([{
-                opacity: from
-            }, {
-                opacity: to
-            }], {
-                duration,
-                easing,
-                composite: 'replace',
-                fill: 'forwards'
-            })
-        }
+    fadeFromTo(from, to, settings) {
+        let duration = (settings ??= {}).duration || _.defaultDura
+            , easing = settings.easing ?? 'ease'
+        return this.animate([{
+            opacity: from
+        }, {
+            opacity: to
+        }], {
+            duration,
+            easing,
+            composite: 'replace',
+            fill: 'forwards'
+        })
+    }
+    replace(...elements) {
+        apply(base(this).replaceWith, base(this), elements.map(base))
+    }
 
-        replace(...elements) {
-            apply(HTMLElement.prototype.replaceWith, base(this), elements.map(base))
-        }
+    wrap(parent) {
+        let { parent: p } = this
+            ; (this.parent = $(parent)).parent = p
+    }
 
-        wrap(parent) {
-            let {parent: p} = this
-            ;(this.parent = $(parent)).parent = p
-        }
+    unwrap() {
+        let { parent } = this
+            , c = this.pass()
+        parent.appendChild(c)
+        return null
+    }
 
-        unwrap() {
-            let {parent} = this
-                , c = this.pass()
-            parent.appendChild(c)
-            return null
-        }
+    trade(other) {
+        other = $(other)
+        let o = other.orphans,
+            oo = this.orphans
+        other.appendChild(oo)
+        this.appendChild(o)
+    }
 
-        trade(other) {
-            other = $(other)
-            let o = other.orphans,
-                oo = this.orphans
-            other.appendChild(oo)
-            this.appendChild(o)
-        }
+    static hidden = {
+        hidden: true
+    }
+    static notHidden = {
+        hidden: false
+    }
 
-        static hidden = {
-            hidden: true
-        }
-        static notHidden = {
-            hidden: false
-        }
-
-        /**
-         *
-         * @param {int} t
-         * # 1 - 5
-         */
-        hide(t) {
-            switch (t) {
-                case 1:
-                default:
-                    this.setAttr(_.hidden);
-                    break
-                case 2:
-                    base(this).style.visibility = 'hidden';
-                    break
-                case 3:
-                    base(this).style.display = 'none';
-                    break
-                case 4:
-                    this.setStyles({'--content-visibility': 'hidden'});
-                    break
-                case 5:
-                    this.setStyles({
-                        opacity: '0',
-                        '--user-input': 'none',
-                        '--user-focus': 'none',
-                        '--user-select': 'none',
-                        'pointer-events': 'none',
-                        '--user-modify': 'read-only',
-                        '--interactivity': 'inert'
-                    })
-                    .setAttr({_hidden: "true", contenteditable: 'false', inert: true})
-                    break
-            }
-        }
-
-        /**
-         *
-         * @param {int} t
-         * # 1 - 5
-         */
-        show(t) {
-            switch (t) {
-                case 1:
-                default:
-                    this.setAttr(_.notHidden);
-                    break
-                case 2:
-                    base(this).style.visibility = 'visible';
-                    break
-                case 3:
-                    base(this).style.display = '';
-                    break
-                case 4:
-                    this.setStyles({'--content-visibility': ''});
-                    break
-                case 5:
-                    this.setStyles({
-                        opacity: '',
-                        '--user-input,--user-focus,--user-select,pointer-events,--user-modify,--interactivity': '',
-                    })
-                    .setAttr({_hidden: "", contenteditable: '', inert: false})
-                    break
-            }
-        }
-
-        equals(other) {
-            let temp = $(other)
-            let out = base(temp).isEqualNode(base(this))
-            temp.destroy?.()
-            return out
-        }
-
-        static append(child) {
-            doc.appendChild(base(child))
-        }
-
-        push(...args) {
-            args.flat(1 / 0).forEach(_.append)
-            base(this).appendChild(doc)
-        }
-
-        unshift(...args) {
-            args.flat(1 / 0).forEach(_.append)
-            base(this).prepend(doc)
-        }
-
-        //  i tried SO hard to make treewalker useful but it did NOT impress me!
-        treeWalker(whatToShow, callback, filter, thisArg) {
-            let walker = document.createTreeWalker(base(this), whatToShow ?? NodeFilter.SHOW_ALL, filter_func)
-            filter ??= function () {
-                return 1
-            }
-            let current,
-                i = 0, skip = NodeFilter.FILTER_SKIP,
-                accept = NodeFilter.FILTER_ACCEPT
-            while (current = walker.nextNode()) callback.call(thisArg ?? this, getValid(current) ? prox(current) : current, i++, walker)
-
-            function filter_func(node) {
-                return filter(node) ? accept : skip
-            }
-        }
-
-        * [Symbol.iterator]() {
-            let all = base(this).getElementsByTagName('*')
-            for (let {length: i} = all; i--;) yield prox(all[i])
-        }
-
-        [Symbol.toPrimitive]() {
-            throw TypeError('Cannot convert Element to a primitive value')
-            // Don't want to accidentally convert to a string for stuff like
-            //append, prepend, etc.
-        }
-
-        /*find(selector) {
-        return this.treeWalker(func).next().value
-        function func(node) { return node.matches(selector) }
-        }
-        findAll(selector) {
-        return [...this.treeWalker(func)]
-        function func(node) { return node.matches(selector) }
-        }*/
-        resetSelfRules() {
-            for (let i in this.selfRules)
-                try {
-                    customRules.deleteRule([].indexOf.call(customRules.cssRules, this.selfRules[i]))
-                } finally {
-                }
-        }
-
-        addSelfRule(selector, cssStuff) {
-            const og = selector
-            let id
-            try {
-                if (base(this).hasAttribute('id')) id = base(this).getAttribute('id')
-                else do id = gen()
-                while (document.getElementById(id))
-                if (selector.includes('::')) selector = css.pev(selector)
-                else if (selector.includes(':')) selector = css.pcv(selector)
-                const final = `#${CSS.escape(id)} ${selector}{${(css.toCSS(cssStuff))}}`
-                let existing = this.selfRules[css.formatStr(selector.replace(regex.space, ''))]
-                // for (let i = 5; i--;) try {
-                existing ? existing.insertRule(final) :
-                    (this.selfRules[css.formatStr(selector.replace(regex.space, ''))] = customRules.cssRules[customRules.insertRule(final)])
-                this.setAttr({
-                    id
+    /**
+     *
+     * @param {int} t
+     * # 1 - 5
+     */
+    hide(t) {
+        switch (t) {
+            case 1:
+            default:
+                this.setAttr(_.hidden);
+                break
+            case 2:
+                base(this).style.visibility = 'hidden';
+                break
+            case 3:
+                base(this).style.display = 'none';
+                break
+            case 4:
+                this.setStyles({ '--content-visibility': 'hidden' });
+                break
+            case 5:
+                this.setStyles({
+                    opacity: '0',
+                    '--user-input': 'none',
+                    '--user-focus': 'none',
+                    '--user-select': 'none',
+                    'pointer-events': 'none',
+                    '--user-modify': 'read-only',
+                    '--interactivity': 'inert'
                 })
-            } catch {
-                css.badCSS(`⛓️‍💥 Unrecognized CSS rule at '${og}'`)
+                    .setAttr({ _hidden: "true", contenteditable: 'false', inert: true })
+                break
+        }
+    }
+
+    /**
+     *
+     * @param {integer} t
+     * # 1 - 5
+     */
+    show(t) {
+        switch (t) {
+            case 1:
+            default:
+                this.setAttr(_.notHidden);
+                break
+            case 2:
+                base(this).style.visibility = 'visible';
+                break
+            case 3:
+                base(this).style.display = '';
+                break
+            case 4:
+                this.setStyles({ '--content-visibility': '' });
+                break
+            case 5:
+                this.setStyles({
+                    opacity: '',
+                    '--user-input,--user-focus,--user-select,pointer-events,--user-modify,--interactivity': '',
+                })
+                    .setAttr({ _hidden: "", contenteditable: '', inert: false })
+                break
+        }
+    }
+
+    equals(other) {
+        let temp = $(other)
+        let out = base(temp).isEqualNode(base(this))
+        temp?.destroy()
+        return out
+    }
+
+    static append(child) {
+        doc.appendChild(base(child))
+    }
+
+    push(...args) {
+        args.flat(1 / 0).forEach(_.append)
+        base(this).appendChild(doc)
+    }
+
+    unshift(...args) {
+        args.flat(1 / 0).forEach(_.append)
+        base(this).prepend(doc)
+    }
+
+    //  i tried SO hard to make treewalker useful but it did NOT impress me!
+    static filter(node) {
+        return this(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
+    }
+    treeWalker(whatToShow, callback, filter, thisArg) {
+        let walker = document.createTreeWalker(base(this), whatToShow ?? NodeFilter.SHOW_ALL, _.filter.bind(filter ??= function () {
+            return 1
+        })), current,
+            i = 0,
+            next = walker.nextNode.bind(walker)
+        while (current = next()) apply(callback, thisArg ?? this, [getValid(current) ? prox(current) : current, i++, walker])
+    }
+
+    *[Symbol.iterator]() {
+        let all = base(this).getElementsByTagName('*')
+        for (let { length: i } = all; i--;) yield prox(all[i])
+    }
+
+    [Symbol.toPrimitive]() {
+        throw TypeError('Cannot convert Element to a primitive value')
+        // Don't want to accidentally convert to a string for stuff like
+        // append, prepend, etc.
+    }
+
+    /*find(selector) {
+    return this.treeWalker(func).next().value
+    function func(node) { return node.matches(selector) }
+    }
+    findAll(selector) {
+    return [...this.treeWalker(func)]
+    function func(node) { return node.matches(selector) }
+    }*/
+    resetSelfRules() {
+        for (let i in this.selfRules)
+            try {
+                customRules.deleteRule([].indexOf.call(customRules.cssRules, this.selfRules[i]))
+            } catch (e) {
+                console.debug(e)
             }
-            // }
-            // catch(e) {
-            // if (!i) throw e
-            // await new Promise(requestAnimationFrame)
-            // continue
-            // }
-        }
+    }
 
-        static forEach(frame) {
-            for (let prop in frame) {
-                let val = `${frame[prop]}`
-                frame[css.capVendor(prop, val)] ??= val
-            }
-            // Firefox warns of empty string
-        }
 
-        until(good, bad, timeout) {
-            return h.until(base(this), good, bad, timeout)
-        }
-        static badForReducedMotion = /^(?:transform|scale|zoom|translate|rotate)$/
-        animate(keyframes, options) {
-            (options ??= {}).timing ??= 'ease'
-            options.iterations ??= 1
-            options.pseudoElement &&= css.pev(options.pseudoElement)
-            keyframes.forEach(_.forEach)
-            if (css.reducedMotion.matches)
-                loop: for(let i = keyframes.length; i--;) {
-                    let val = keyframes[i]
-                    for(let i in val) if (_.badForReducedMotion.test(i)) {
-                        options.duration = 0
-                        break loop
-                    }
-                }
-            return base(this).animate(keyframes, options)
-        }
-
-        set after(val) {
-            base(this).after(base(val))
-        }
-
-        set before(val) {
-            base(this).before(base(val))
-        }
-
-        eval(script) {
-            // mimic inline event handlers (rarely needed)
-            return Function('with(document)with(this)return eval(arguments[0])').call(base(this), script)
-        }
-
-        get after() {
-            let {nextElementSibling} = base(this)
-            return prox(nextElementSibling)
-        }
-
-        get before() {
-            let {previousElementSibling} = base(this)
-            return prox(previousElementSibling)
-        }
-
-        set parent(parent) {
-            parent ? base(parent).appendChild(base(this)) : base(this).remove()
-        }
-
-        get parent() {
-            let parent = base(this).parentElement
-            return prox(parent)
-        }
-
-        /* get gc() {
-        // Ensure objects are being properly garbage collected
-             return new Promise(callback => {
-                 cleanup.register(base(this), {age:this.age,callback})
-             })
-         }*/
-        get first() {
-            let {firstElementChild} = base(this)
-            return prox(firstElementChild)
-        }
-
-        get last() {
-            let {lastElementChild} = base(this)
-            return prox(lastElementChild)
-        }
-
-        get ancestors() {
-            return base(this).getElementsByTagName('*').length
-        }
-
-        busy(busy) {
+    addSelfRule(selector, cssStuff) {
+        const og = selector
+        let id
+        try {
+            let me = base(this)
+            if (me.hasAttribute('id')) id = me.getAttribute('id')
+            else do id = gen()
+            while (document.getElementById(id))
+            if (selector.includes('::')) selector = css.pev(selector)
+            else if (selector.includes(':')) selector = css.pcv(selector)
+            const final = `#${CSS.escape(id)} ${selector}{${(css.toCSS(cssStuff))}}`
+            let existing = this.selfRules[css.formatStr(selector.replace(regex.space, ''))]
+            existing ? existing.insertRule(final) :
+                (this.selfRules[css.formatStr(selector.replace(regex.space, ''))] = customRules.cssRules[customRules.insertRule(final)])
             this.setAttr({
-                _busy: `${!!busy}`
+                id
             })
+        } catch {
+            css.badCSS(`⛓️‍💥 Unrecognized CSS rule at '${og}'`)
+        }
+    }
+
+    static forEach(frame) {
+        for (let prop in frame) {
+            let val = `${frame[prop]}`
+            frame[css.capVendor(prop, val)] ??= val
+        }
+        // Firefox warns of empty string
+    }
+
+    until(good, bad, timeout) {
+        return h.until(base(this), good, bad, timeout)
+    }
+    static badForReducedMotion = /^(?:transform|scale|zoom|translate|rotate)$/
+    animate(keyframes, options) {
+        (options ??= {}).timing ??= 'ease'
+        options.iterations ??= 1
+        options.pseudoElement &&= css.pev(options.pseudoElement)
+        keyframes.forEach(_.forEach)
+        if (css.reducedMotion.matches) {
+            let { badForReducedMotion } = _
+            loop: for (let i = keyframes.length; i--;) {
+                let val = keyframes[i]
+                for (let i in val) if (badForReducedMotion.test(i)) {
+                    options.duration = 0
+                    break loop
+                }
+            }
+        }
+        return base(this).animate(keyframes, options)
+    }
+
+    set after(val) {
+        base(this).after(base(val))
+    }
+
+    set before(val) {
+        base(this).before(base(val))
+    }
+
+    eval(script) {
+        // mimic inline event handlers (rarely needed)
+        return apply(Function('with(document)with(this)return eval(arguments[0])'), this, arguments)
+    }
+
+    get after() {
+        let { nextElementSibling } = base(this)
+        return prox(nextElementSibling)
+    }
+
+    get before() {
+        let { previousElementSibling } = base(this)
+        return prox(previousElementSibling)
+    }
+
+    set parent(parent) {
+        parent ? base(parent).appendChild(base(this)) : base(this).remove()
+    }
+
+    get parent() {
+        let parent = base(this).parentElement
+        return prox(parent)
+    }
+
+    /* get gc() {
+    // Ensure objects are being properly garbage collected
+         return new Promise(callback => {
+             cleanup.register(base(this), {age:this.age,callback})
+         })
+     }*/
+    get first() {
+        let { firstElementChild } = base(this)
+        return prox(firstElementChild)
+    }
+
+    get last() {
+        let { lastElementChild } = base(this)
+        return prox(lastElementChild)
+    }
+
+    get ancestors() {
+        return base(this).getElementsByTagName('*').length
+    }
+
+    busy(busy) {
+        this.setAttr({
+            _busy: `${!!busy}`
+        })
             .setStyles({
                 cursor: busy ? 'progress' : ''
             })
-        }
+    }
 
-        copyAttr(other) {
-            let me = base(this),
-                attr = other.getAttributeNames()
-            for (let {length: i} = attr; i--;) {
-                let name = attr[i]
-                me.setAttribute(name, other.getAttribute(name))
-            }
+    copyAttr(other) {
+        let me = base(this),
+            attr = other.getAttributeNames(),
+            getAttribute = other.getAttribute.bind(base(other)),
+            setAttribute = me.setAttribute.bind(me)
+        for (let { length: i } = attr; i--;) {
+            let name = attr[i]
+            setAttribute(name, getAttribute(name))
         }
-    }.prototype
+    }
+}.prototype
 )
-const prototype = {__proto__:null}
+const prototype = { __proto__: null }
     , TEXT_THINGIES = new Set('outerHTML outerText innerHTML innerText textContent'.split(' '))
 TEXT_THINGIES.forEach(txt =>
-    Object.defineProperty(prototype, txt, {
-        configurable:false,
+    defineProperty(prototype, txt, {
+        configurable: false,
         get() {
             return base(this)[txt]
         },
         set(val) {
             let me = base(this),
                 count = me.childElementCount
-            if (count) throw TypeError(`Cannot set property '${txt}': Element has ${plural('child', 'children', count)}`)
+            if (count) throw TypeError(`Failed to set property '${txt}' on '${h.getLabel(base(this))}': Node has ${plural('child', 'children', count)}`)
             me[txt] = safeHTML(val)
         }
     })
 )
 const HTML_PLACING = new Set('beforebegin afterbegin beforeend afterend'.split(' '))
 HTML_PLACING.forEach(set =>
-    Object.defineProperty(prototype, set, {
-        configurable:false,
+    defineProperty(prototype, set, {
+        configurable: false,
         set(val) {
             typeof val === 'object' ?
                 base(this).insertAdjacentElement(set, base(val)) :
@@ -1010,44 +1015,42 @@ HTML_PLACING.forEach(set =>
     })
 )
 'offsetLeft offsetTop offsetWidth offsetHeight offsetParent clientLeft clientTop clientWidth clientHeight scrollWidth scrollHeight scrollTopMax scrollLeftMax'
-.split(' ').forEach(prop => {
-    // Reading these properties causes reflows/layout-shift/repaint whatever its called idk
-    let cached = null,
-        queued = false
+    .split(' ').forEach(prop => {
+        // Reading these properties causes reflows/layout-shift/repaint whatever its called idk
+        let cached = null,
+            queued = false
 
-    function resetThingy() {
-        cached = null
-        queued = false
-        reads = 0
-    }
-
-    Object.defineProperty(prototype, prop, {
-        configurable:false,
-        get() {
-            ++reads
-            queued || (requestAnimationFrame(resetThingy), queued = true)
-            return cached ??= base(this)[prop]
+        function resetThingy() {
+            cached = null
+            queued = false
+            reads = 0
         }
+        let reset = requestAnimationFrame.bind(window, resetThingy)
+        defineProperty(prototype, prop, {
+            configurable: false,
+            get() {
+                ++reads
+                queued || (reset(), queued = true)
+                return cached ??= base(this)[prop]
+            }
+        })
     })
-})
 // i just like using emojis sorry
-Reflect.ownKeys(props).forEach(i => {
+ownKeys(props).forEach(i => {
     if (i !== 'constructor') {
         let v = props[i],
-            {value} = v
-        v.configurable=false
-        if (typeof value === 'function') {
-            v.value = {
-                [i](...a) {
-                    //  This function is for automatically returning the 'this'
-                    //  value if the original return value is undefined
-                    let me = prox(this), b = base(this)
-                    if (!getValid(b) || !all.has(b)) throw TypeError('Invalid calling object')
-                    let r = apply(value, me, a)
-                    return typeof r === 'undefined' ? me : r
-                }
-            }[i] //  Just want to keep the original function name intact
-        }
+            { value } = v
+        v.configurable = false
+        if (typeof value === 'function') v.value = {
+            [i](...a) {
+                //  This function is for automatically returning the 'this'
+                //  value if the original return value is undefined
+                let me = prox(this), b = base(this)
+                if (!getValid(b) || !all.has(b)) throw TypeError('Invalid calling object')
+                let r = apply(value, me, a)
+                return typeof r === 'undefined' ? me : r
+            }
+        }[i] //  Just want to keep the original function name intact
         /* else {
              let { set, get } = v
               v.set &&= {
@@ -1065,23 +1068,23 @@ Reflect.ownKeys(props).forEach(i => {
                  }
              }[get.name]
          }*/
-        Object.defineProperty(prototype, i, v)
+        defineProperty(prototype, i, v)
     }
 })
 {
-let styleMe = getOwnPropertyDescriptor(prototype, 'setStyles')
-Object.defineProperties(prototype,
-    {
-        setAttributes: getOwnPropertyDescriptor(prototype, 'setAttr'),
-        kill: getOwnPropertyDescriptor(prototype, 'destroy'),
-        killChildren: getOwnPropertyDescriptor(prototype, 'destroyChildren'),
-        styleMe,
-        setStyle: styleMe
-    }
-)
+    let styleMe = getOwnPropertyDescriptor(prototype, 'setStyles')
+    defineProperties(prototype,
+        {
+            setAttributes: getOwnPropertyDescriptor(prototype, 'setAttr'),
+            kill: getOwnPropertyDescriptor(prototype, 'destroy'),
+            killChildren: getOwnPropertyDescriptor(prototype, 'destroyChildren'),
+            styleMe,
+            setStyle: styleMe
+        }
+    )
 }
 // 🖨 Copy everything
-const prototypeDescriptors = Object.getOwnPropertyDescriptors(prototype)
+const prototypeDescriptors = getOwnPropertyDescriptors(prototype)
 export function base(element) {
     // 🌱 Get the root element
     return element[me] ?? element
@@ -1123,17 +1126,15 @@ if (typeof
     inte = new IntersectionObserver(IntersectionObserverCallback, {
         threshold: [0, Number.MIN_VALUE]
     })
-
     function IntersectionObserverCallback(entries) {
-        for (let {length: i} = entries; i--;) {
+        for (let { length: i } = entries; i--;) {
             let me = entries[i],
-                {target} = me
-            if ($(target).computed.getPropertyValue('--content-visibility').trim() === 'auto') {
+                { target } = me
+            if ($(target).computed.getPropertyValue('--content-visibility').trim() === 'auto')
                 h.delayedDispatch('contentvisibilityautostatechange', target, new CustomEvent('contentvisibilityautostatechange', {
                     bubbles: true,
-                    detail: {skipped: !me.isIntersecting}
+                    detail: { skipped: !me.isIntersecting }
                 }))
-            }
         }
     }
 }
@@ -1146,11 +1147,11 @@ MUTATION OBSERVER STUFFS
 const imported = new Set
 let waitingForImport = new Set('img-sprite touch-joystick seek-bar paper-canvas'.split(' '))
 export async function importWebComponent(name) {
-    (imported.has(name) || (await import(`./webcomponents/${name}.js`), imported.add(name), waitingForImport.delete(name)))
+    imported.has(name) || (await import(`./webcomponents/${name}.js`), imported.add(name), waitingForImport.delete(name))
 }
 function observeAll(node) {
     let n = node.tagName.toLowerCase()
-    waitingForImport.has(n)&&importWebComponent(n)
+    waitingForImport.has(n) && importWebComponent(n)
     // if (node instanceof CUSTOM_ELEMENT_SPRITE) node.getAttributeNames().forEach(refreshAttributes, node)
     inte?.observe(node)
     resi.observe(node)
@@ -1162,12 +1163,11 @@ function unobserveAll(node) {
 }
 
 function MutationObserverCallback(entry) {
-    for (let {length: ii} = entry; ii--;) {
+    for (let { length: ii } = entry; ii--;) {
         let me = entry[ii],
-            {addedNodes, removedNodes} = me
-        for (let {length: i} = addedNodes; i--;) {
-            let node = addedNodes[i]
-            if (node instanceof Element || node?.ownerDocument?.defaultView.Element.prototype.isPrototypeOf(node)) {
+            { addedNodes, removedNodes } = me
+        for (let { length: i } = addedNodes, node; i--;) 
+            if ((node = addedNodes[i])instanceof Element || node?.ownerDocument?.defaultView.Element.prototype.isPrototypeOf(node))
                 /*  queueMicrotask(() => {
                       document.dispatchEvent(new CustomEvent('subtree-modified', {
                           // bubbles: true,
@@ -1178,11 +1178,8 @@ function MutationObserverCallback(entry) {
                       }))
                   })*/
                 observeAll(node)
-            }
-        }
-        for (let {length: i} = removedNodes; i--;) {
-            let node = removedNodes[i]
-            if (node instanceof Element || node?.ownerDocument?.defaultView.Element.prototype.isPrototypeOf(node)) {
+        for (let { length: i } = removedNodes, node; i--;) 
+            if ((node = removedNodes[i])instanceof Element || node?.ownerDocument?.defaultView.Element.prototype.isPrototypeOf(node))
                 /*   queueMicrotask(() => {
                        document.dispatchEvent(new CustomEvent('subtree-modified', {
                            // bubbles: true,
@@ -1193,8 +1190,6 @@ function MutationObserverCallback(entry) {
                        }))
                    })*/
                 unobserveAll(node)
-            }
-        }
     }
 }
 
@@ -1229,7 +1224,7 @@ function ResizeObserverCallback(entries) {
 }
 
 const resi = new ResizeObserver(ResizeObserverCallback)
-;[].forEach.call(document.getElementsByTagName('*'), observeAll)
+    ;[].forEach.call(document.getElementsByTagName('*'), observeAll)
 
 /*
 PERFORMANCE OBSERVER STUFFS
@@ -1239,9 +1234,9 @@ function PerformanceLoop(o) {
         title = o.entryType
     switch (title) {
         case 'layout-shift': {
-            let {sources} = o
-            for (let {length: i} = sources; i--;) {
-                let {node, currentRect, previousRect} = sources[i]
+            let { sources } = o
+            for (let { length: i } = sources; i--;) {
+                let { node, currentRect, previousRect } = sources[i]
                 node && h.delayedDispatch('layout-shift', node, new CustomEvent('layout-shift', {
                     bubbles: true,
                     detail: {
@@ -1275,7 +1270,7 @@ function PerformanceLoop(o) {
         case 'navigation':
             title = 'page-navigate'
             detail = o.toJSON()
-            let {type} = detail
+            let { type } = detail
             delete detail.type
             detail.navigationType = type
             break
@@ -1316,11 +1311,12 @@ const entryTypes = {
     element: 'PerformanceElementTiming' in window
     // taskattribution: 'TaskAttributionTiming 'in window
 }
-const perf = new PerformanceObserver(PerformanceObserverCallback),
-    supported = new Set(PerformanceObserver.supportedEntryTypes)
-Object.keys(entryTypes).forEach(type => {
-    supported.has(type) && perf.observe({type, buffered: true})
-})
+const perf = new PerformanceObserver(PerformanceObserverCallback)
+let supported = new Set(PerformanceObserver.supportedEntryTypes)
+ownKeys(entryTypes).forEach(type =>
+    supported.has(type) && perf.observe({ type, buffered: true })
+)
+supported = null
 h.addCustomEvent(entryTypes)
 h.addCustomEvent({
     longtask: false,
@@ -1361,7 +1357,7 @@ function ApplyBatchedStyles(value, key, map) {
 }
 
 function BatchStyle(target) {
-    return Proxy.revocable(target, {
+    return revocable(target, {
         __proto__: handlers.batchThing,
         queued: false,
         cached: new Map,
@@ -1379,21 +1375,21 @@ export function prox(target) {
     if (target === null) return null
     if (target[styles]) return target
     if (!getValid(target))
-        throw TypeError("Target must implement the 'Element' interface")
+        throw TypeError("Target must implement the 'Element'interface")
     // 🥅 Goal:
     // 🪪 Make an object with a [[Prototype]] being the target element
     // 🪤 Also put a proxy around said object
     // 🚫 I can't use class ... extends ...,
     // ❌ or 'setPrototypeOf' since it's bad i guess?
-    // ✅ Only option is 'Object.create' or { __proto__: ... }
+    // ✅ Only option is 'create' or { __proto__: ... }
     if (!all.has(target)) {
         // ++$.len
-        let bleh = {value: target}
-            , {revoke: styleRevoke, proxy: styleProxy} = Proxy.revocable(getStyleThingy(target), handlers.styles)
-            , {revoke: childRevoke, proxy: childProxy} = Proxy.revocable(target.children, handlers.HTMLCollection)
-            , {revoke: querySelectorRevoke, proxy: querySelectorProxy} = Proxy.revocable(target, handlers.querySelector)
-            , {revoke: attrRevoke, proxy: attrProxy} = Proxy.revocable(target, handlers.attr)
-            , {proxy: batchStyleProxy, revoke: batchRevoke} = BatchStyle(styleProxy)
+        let bleh = { value: target }
+            , { revoke: styleRevoke, proxy: styleProxy } = revocable(getStyleThingy(target), handlers.styles)
+            , { revoke: childRevoke, proxy: childProxy } = revocable(target.children, handlers.HTMLCollection)
+            , { revoke: querySelectorRevoke, proxy: querySelectorProxy } = revocable(target, handlers.querySelector)
+            , { revoke: attrRevoke, proxy: attrProxy } = revocable(target, handlers.attr)
+            , { proxy: batchStyleProxy, revoke: batchRevoke } = BatchStyle(styleProxy)
             , propertiesToDefine = {
                 ...prototypeDescriptors,
                 [me]: bleh,
@@ -1401,14 +1397,14 @@ export function prox(target) {
                     value: querySelectorProxy
                 },
                 [saved]: {
-                    value: {__proto__: null}
+                    value: { __proto__: null }
                 },
                 [computed]: reuse.nullThing,
                 /*  [states]: {
                       value: new Map
                   },*/
                 selfRules: {
-                    value:{__proto__:null}
+                    value: { __proto__: null }
                 },
                 // state: reuse.state,
                 // [shadow]: reuse.junk,
@@ -1431,42 +1427,32 @@ export function prox(target) {
                     value: styleProxy
                 }
             }
-            , {proxy, revoke} = Proxy.revocable(
-                Object.preventExtensions(Object.create(target, propertiesToDefine)), Object.create(handlers.main, [{value: target}])
+            , { proxy, revoke } = revocable(
+                preventExtensions(create(target, propertiesToDefine)), create(handlers.main, [{ value: target }])
                 // defineProperty(target, prop) {
                 // console.debug(prop)
                 // if (prop in target) return Reflect.defineProperty(...arguments)
                 // throw TypeError('Object not mutable')
                 // }
             )
-        ;(target instanceof HTMLUnknownElement ||
-            target.ownerDocument.defaultView?.HTMLUnknownElement.prototype.isPrototypeOf(target)) &&
-        console.warn(`Unknown element: '${target.tagName.toLowerCase()}'`)
-
-        function RevokeAllProxies() {
-            //  Make sure we have *NO* possible references left
-            revoke()
-            childRevoke()
-            attrRevoke()
-            styleRevoke()
-            batchRevoke()
-            querySelectorRevoke()
-        }
-
-        revokes.set(proxy, RevokeAllProxies)
+            ; (target instanceof HTMLUnknownElement ||
+                target.ownerDocument.defaultView?.HTMLUnknownElement.prototype.isPrototypeOf(target)) &&
+                console.warn(`Unknown element: '${target.tagName.toLowerCase()}'`)
+        revokes.set(proxy, RevokeAllProxies.bind(1, revoke, childRevoke, attrRevoke, styleRevoke, batchRevoke, querySelectorRevoke))
         all.set(target, proxy)
         return proxy
     }
     return all.get(target)
 }
 
+function RevokeAllProxies(...args) {
+    //  Make sure we have *NO* possible references left
+    args.forEach(apply)
+}
 function getValid(target) {
     try {
-        return!!(target &&
-            (target instanceof Element ||
-                target.ownerDocument?.defaultView?.Element.prototype.isPrototypeOf(target)
-                //|| Element.prototype.isPrototypeOf(target)
-            ))
+        return !!(target && (target instanceof Element || target.ownerDocument?.defaultView?.Element.prototype.isPrototypeOf(target)))
+        //|| Element.prototype.isPrototypeOf(target)
     } catch {
         return false
     }
@@ -1481,13 +1467,13 @@ let temp, div, range, parsingDoc, classRegex = /(?<=\.)[\w-]+/g,
 const parseModeMap = new Map(Object.entries({
     write(html) {
         (parsingDoc ??= document.implementation.createHTMLDocument())
-        .open().write(html)
+            .open().write(html)
         parsingDoc.close()
         return document.adoptNode(parsingDoc.body.firstElementChild)
     },
     setHTMLUnsafe(html) {
         (temp ??= document.createElement('template'))
-        .setHTMLUnsafe(html)
+            .setHTMLUnsafe(html)
         return document.adoptNode(temp.content.firstElementChild)
     },
     innerHTML(html) {
@@ -1557,19 +1543,6 @@ function $(html, props, ...children) {
         debugger
         throw new DOMException('Potential script injection', 'SecurityError')
     }
-    /*{
-    let attributes = {}
-    if (element.type === 'checkbox') attributes.role = 'checkbox'
-    else if (element.type === 'range') attributes.role = 'slider'
-    switch (element.tagName.toLowerCase()) {
-        case 'dialog': attributes['aria-dialog'] = true; break
-        case 'button': attributes['aria-button'] = true; break
-        case 'form': attributes['aria-form'] = true; break
-    }
-    element.setAttributes(attributes)
-    }*/
-    // i wanted to do the aria stuff SO bad,
-    // but its better to just leave it as-is
     /*
                <beforebegin>
                        <element>
@@ -1580,12 +1553,7 @@ function $(html, props, ...children) {
                <afterend>
     */
     if (props && !getValid(props) && typeof props !== 'string') {
-        let {hasOwn} = Object
-
-        function reuse(p) {
-            hasOwn(props, p) && (element[p] = props[p])
-        }
-
+        let reuse = assignIfOwn.bind(1, props, element)
         reuse('parent')
         hasOwn(props, 'events') && element.on(props.events)
         TEXT_THINGIES.forEach(reuse)
@@ -1595,37 +1563,38 @@ function $(html, props, ...children) {
         (hasOwn(props, 'attr') || hasOwn(props, 'attributes')) && element.setAttr(props.attributes ?? props.attr)
         hasOwn(props, 'styles') && element.setStyles(props.styles)
         hasOwn(props, 'start') && props.start.call(element)
-    } else if (typeof props === 'string' || getValid(props)) {
-        children.unshift(props)
-        props = null
-    }
+    } else if (typeof props === 'string' || getValid(props))
+        children.unshift(props),
+            props = null
     children.length && element.push(children.map(elemIfString))
     return element
 }
-
+function assignIfOwn(props, element, p) {
+    hasOwn(props, p) && (element[p] = props[p])
+}
 function elemIfString(o) {
     return typeof o === 'string' ? $(o) : o
 }
-
 function revoke(targ) {
-    revokes.get(targ)?.(revokes.delete(targ))
+    revokes.get(targ)?.()
+    revokes.delete(targ)
 }
 
-export default Object.defineProperties($, {
+export default defineProperties($, {
     // random: {
     // value() {
     // return
     // }
     // },
     //len:0,
-    hasFullscreen:{
+    hasFullscreen: {
         get() {
             return !!(document.fullscreen || document.fullscreenElement || window.fullScreen)
         }
     },
     push: {
         value(node, ...children) {
-            node.append.apply(node, children.map(base))
+            apply(node.append, node, children.map(base))
             return node
         }
     },
@@ -1721,12 +1690,10 @@ export default Object.defineProperties($, {
     }
 })
 $.id = $.byId
-let parseMode = 'mozInnerScreenY' in window ? 'createRange' : ''
-
 //  createRange seems to be *slightly* faster on firefox
+let parseMode = 'mozInnerScreenY' in window ? 'createRange' : ''
 function badAttrName(name) {
-    return regex.onXYZ.test(name//.nodeName
-    )
+    return regex.onXYZ.test(name)
 }
 
 function allElementStuff(e) {
@@ -1736,9 +1703,9 @@ function allElementStuff(e) {
 
 export const define = function () {
     let dfn
-    if (Function.prototype.toString.call(customElements.define) === `${Function.prototype}`.replace('function ','function define')) return customElements.define.bind(customElements)
-        console.warn("Monkeypatch detected: ", customElements.define)
-        return define
+    if (Function.prototype.toString.call(customElements.define) === `${Function.prototype}`.replace('function ', 'function define')) return customElements.define.bind(customElements)
+    console.warn("Monkeypatch detected: ", customElements.define)
+    return define
     function define(...args) {
         if (!dfn) {
             let n = $('iframe', {
@@ -1746,7 +1713,7 @@ export const define = function () {
             })
             dfn = n.contentWindow.CustomElementRegistry.prototype.define.bind(customElements)
             n.destroy()
-            n=null
+            n = null
         }
         return dfn.apply(1, args)
     }

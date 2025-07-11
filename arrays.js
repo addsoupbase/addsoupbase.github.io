@@ -64,7 +64,7 @@ export function* edgeCases(...rest) {
     let obj = {}
     obj.property = obj
     let all = [true, false, 0, 1, -0, -1, 1.5, -1.5, 1 / 0, -1 / 0, 0 / 0, 0n, 1n, -1n, null, , '', 'string', '1', ' \n\t\v\f\r', Symbol('symbol'), Symbol.for('symbol'), {}, { __proto__: null }, obj, function () { }, () => { }, async function () { }, async () => { }, ...rest]
-    'document' in globalThis&&all.push(document.all)
+    'document' in globalThis && all.push(document.all)
     for (let i = 0, { length: n } = all; i < n; yield all[++i]);
 }
 /*export function mapFn(obj, callback, thisArg) {
@@ -181,4 +181,12 @@ export function syncImport(src) {
     var res = n.getResponseHeader('Content-Type')
     if (/(?:text|application)\/(?:x-)?(?:j(?:ava)?|ecma|live)script(?:1\.[0-5])?/.test(res) && n.status === 'OK') return x(n.responseText)
     throw TypeError('Failed to load script')
+}
+export function bind(target) {
+    return new Proxy(target, handler)
+}
+let handler = {
+    get(target, prop) {
+        return target[prop].bind(target)
+    }
 }
