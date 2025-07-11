@@ -1,27 +1,27 @@
 //# allFunctionsCalledOnLoad
 // ^ idk what that actually does
 const sym = Symbol.for("🔔")
-//  Don't collide, and make sure its usable across realms!!
-// export const unbound = Symbol('⛓️‍💥')
-    , {apply, getPrototypeOf: gpo, getOwnPropertyDescriptor: gopd, defineProperty: dp, ownKeys}  = Reflect
+    //  Don't collide, and make sure its usable across realms!!
+    // export const unbound = Symbol('⛓️‍💥')
+    , { apply, getPrototypeOf: gpo, getOwnPropertyDescriptor: gopd, defineProperty: dp, ownKeys } = Reflect
     , logger = { __proto__: null }
 {
-    let {0:c,1:cc} = '%c@handle.js +color:pink;'.split('+')
+    let { 0: c, 1: cc } = '%c@handle.js +color:pink;'.split('+')
     function DelayedLog(...args) {
-        args.unshift(1,c,cc)
+        args.unshift(1, c, cc)
         queueMicrotask(this.bind.apply(this, args))
     }
     function LogOutOfGroup(...args) {
-        args.unshift(1,c,cc)
+        args.unshift(1, c, cc)
         setTimeout(this.bind.apply(this, args))
     }
-for (let i in console) {
-    // Because the groupCollapsed() method was suppressing errors, delay them instead
-    let old = console[i]
-    if (typeof old !== 'function') continue
-    logger[i] = DelayedLog.bind(old)
-    logger[`${i}Late`] = LogOutOfGroup.bind(old)
-}
+    for (let i in console) {
+        // Because the groupCollapsed() method was suppressing errors, delay them instead
+        let old = console[i]
+        if (typeof old !== 'function') continue
+        logger[i] = DelayedLog.bind(old)
+        logger[`${i}Late`] = LogOutOfGroup.bind(old)
+    }
     // str.push(`${i}(...args)${DelayedLog.toString().match(/\{.*}/s)[0].replace('old.bind.apply(old',`super.${i}.bind(1`)}, ${i}Late(...args)${LogOutOfGroup.toString().match(/\{.*}/s)[0].replace('old.bind.apply(old',`super.${i}.bind(1`)}`)
 }
 // console.debug(str.join(','))
@@ -32,14 +32,14 @@ let { addEventListener, removeEventListener, dispatchEvent } = globalThis.EventT
 if (Function.prototype.toString.call(addEventListener) !== Function.prototype.toString().replace('function ', 'function addEventListener'))
     // adds ~20ms
     try {
-        console.warn('Monkeypatch detected: ',addEventListener)
+        console.warn('Monkeypatch detected: ', addEventListener)
         // in case they monkeypatch the EventTarget.prototype
         let n = document.createElement('iframe'),
             el = document.head ?? document
         el.append(n),
             { addEventListener, removeEventListener, dispatchEvent } = n.contentWindow
-            n.contentWindow.close()
-            el.removeChild(n)
+        n.contentWindow.close()
+        el.removeChild(n)
         n = null
     } catch (e) {
         logger.error(e)
@@ -78,14 +78,14 @@ function lastResort(target) {
                 && toString.call(rel) === r)
                 return true
         }
-            return false
+        return false
     } catch {
         return false
     }
 }
 
 export function getLabel(obj) {
-    return{}.toString.call(obj).slice(8, -1)||'Object'
+    return {}.toString.call(obj).slice(8, -1) || 'Object'
     /*
     try {
         let proto
@@ -120,20 +120,20 @@ function verifyEventName(target, name) {
     name = name.toLowerCase()
     let valid = (customEvents.has(name) || `on${name}` in target ||
         ((original === 'DOMContentLoaded' && (target instanceof Document || target instanceof HTMLDocument || target.ownerDocument?.defaultView?.HTMLDocument.prototype.isPrototypeOf(target) || target.ownerDocument?.defaultView?.Document.prototype.isPrototypeOf(target) || target.defaultView?.Document.prototype.isPrototypeOf(target) || target.defaultView?.HTMLDocument?.prototype.isPrototypeOf(target)))
-        || (/^(animation(?:cancel|remove))$/i.test(original) && 'onremove' in target)
-        || /^(?:focus(?:in|out))$/i.test(original)
-        || (/^(?:DOM(?:Activate|MouseScroll|Focus(?:In|Out)|(?:Attr|CharacterData|Subtree)Modified|NodeInserted(?:IntoDocument)?|NodeRemoved(?:FromDocument)?))$/.test(original)))
+            || (/^(animation(?:cancel|remove))$/i.test(original) && 'onremove' in target)
+            || /^(?:focus(?:in|out))$/i.test(original)
+            || (/^(?:DOM(?:Activate|MouseScroll|Focus(?:In|Out)|(?:Attr|CharacterData|Subtree)Modified|NodeInserted(?:IntoDocument)?|NodeRemoved(?:FromDocument)?))$/.test(original)))
         //Some events like the ones above don't have a handler
     )
     if (!valid) {
-        if (`onwebkit${name}` in target) return`webkit${original}`
-        if (`onmoz${name}` in target) return`moz${original}`
-        if (`onms${name}` in target) return`ms${original}`
-        if (name.startsWith('pointer')) return`mouse${name.slice(7)}` // Better than nothing
+        if (`onwebkit${name}` in target) return `webkit${original}`
+        if (`onmoz${name}` in target) return `moz${original}`
+        if (`onms${name}` in target) return `ms${original}`
+        if (name.startsWith('pointer')) return `mouse${name.slice(7)}` // Better than nothing
         if (name === 'wheel') {
-            if ('onmousewheel' in target) return'mousewheel' // iOS doesn't support 'wheel' events yet
-            if (typeof MouseScrollEvent === 'function') return'DOMMouseScroll' // If they don't support the first 2, this one will work ~100% of the time
-            return'MozMousePixelScroll' // The last resort, since there's no way to detect support with this one
+            if ('onmousewheel' in target) return 'mousewheel' // iOS doesn't support 'wheel' events yet
+            if (typeof MouseScrollEvent === 'function') return 'DOMMouseScroll' // If they don't support the first 2, this one will work ~100% of the time
+            return 'MozMousePixelScroll' // The last resort, since there's no way to detect support with this one
         }
         logger.warnLate(`'${original}' events might not be available on the following object:`, target)
     }
@@ -142,8 +142,8 @@ function verifyEventName(target, name) {
 
 const delayedEvents = new Map
     , giveItSomeTime = function (hold, secondparam) {
-        hold === globalThis.requestIdleCallback&&
-        (secondparam = { timeout: 1000 })
+        hold === globalThis.requestIdleCallback &&
+            (secondparam = { timeout: 1000 })
         return delay
         function delay(callback) {
             return hold(callback, secondparam)
@@ -184,7 +184,7 @@ export function getEventNames(target) {
 }
 
 export function hasEvent(target, eventName) {
-    return!!target[sym]?.has(eventName)
+    return !!target[sym]?.has(eventName)
 }
 
 export const {
@@ -211,7 +211,7 @@ export function addCustomEvent(names) {
 const formatEventName = /[_$^%&!?@#\d]|bound /g
 
 export function on(target, events, signal) {
-    arguments.length > 3 && getLabel(signal) !== 'AbortController'  && (signal = arguments[3])
+    arguments.length > 3 && getLabel(signal) !== 'AbortController' && (signal = arguments[3])
     if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
     let names = ownKeys(events)
     if (!names.length) return target
@@ -248,47 +248,32 @@ export function on(target, events, signal) {
                 logger.warnLate(`🔕 Skipped duplicate '${eventName}' listener. Call on() again with the signal parameter to bypass this.`)
                 continue
             }
-            signal&&(options.once = once, options.signal = signal.signal)
-            let Remove = removeEventListener.bind(target, eventName, EventHandlerWrapperFunction, options),
-                Abort = signal?.abort.bind(signal, 'Automatic abort')
+            signal && (options.once = once, options.signal = signal.signal)
+            const listener = EventWrapper.bind(
+                target, func, signal, 
+                signal?.abort.bind(signal, 'Automatic abort'),
+                onlyTrusted,
+                onlyCurrentTarget,
+                prevents, stopProp,
+                stopImmediateProp,
+                autoabort,
+                once,
+                eventName,
+            )
             if (autoabort && getLabel(signal) !== 'AbortController') throw TypeError("AbortController required if '#' (autoabort) is present")
-            function EventHandlerWrapperFunction(...args) {
-                let { 0: event } = args,
-                    label = getLabel(event),
-                    {currentTarget} = event,
-                     { detail } = event
-                if (label === 'CustomEvent')
-                    for (let i in detail) 
-                        // i wish for in included symbols :<
-                        i in event?console.warn(`The '${i}' property of a CustomEvent was ignored since it would overwrite an existing property: `, event[i]):event[i] = detail[i]
-             else if (label === 'MouseScrollEvent')
-                    event.deltaZ = 0,
-                    event.axis === 2?
-                        (event.deltaX = 0, event.deltaY = 50 * detail): event.axis === 1&&
-                    (event.deltaX = 50 * detail, event.deltaY = 0)
-                signal && args.push(Abort)
-                args.push(Remove)
-                onlyTrusted && event.isTrusted || !onlyTrusted && (!onlyCurrentTarget || onlyCurrentTarget && (event.target ?? event.srcElement) === currentTarget) &&
-                    (apply(func, target, args),
-                        prevents && (event.cancelable ? event.defaultPrevented ? console.warn(`'${eventName}' event has already been cancelled`) : event.preventDefault() : warn(`🔊 '${eventName}' events are not cancelable`), event.returnValue = !prevents),
-                        stopProp && (event.cancelBubble = true, event.stopPropagation()),
-                        stopImmediateProp && event.stopImmediatePropagation(),
-                        autoabort && Abort(),
-                        once && off(currentTarget, eventName))
-            }
-
-            addEventListener.call(target, eventName, EventHandlerWrapperFunction, options)
+            addEventListener.call(target, eventName, listener, options)
             if (signal) logger.info(`📡 '${eventName}' event added`)
             else {
                 allEvents.has(target) || allEvents.set(target, new Map)
                 //A Map to hold the names & events
                 const myGlobalEventMap = allEvents.get(target)
-                myGlobalEventMap.set(eventName, {__proto__: null,
+                myGlobalEventMap.set(eventName, {
+                    __proto__: null,
                     onlyCurrentTarget,
                     passive,
                     capture,
                     onlyTrusted,
-                    listener: EventHandlerWrapperFunction,
+                    listener,
                     prevents,
                     stopProp,
                     once,
@@ -306,7 +291,30 @@ export function on(target, events, signal) {
     return target
 }
 
-
+function EventWrapper(f,s,abrt,t,oct,p,sp,sip,aa,once,name,...args) {
+    let { 0: event } = args,
+        label = getLabel(event),
+        { currentTarget } = event,
+        { detail } = event
+    if (label === 'CustomEvent')
+        for (let i in detail)
+            // i wish for in included symbols :<
+            i in event ? console.warn(`The '${i}' property of a CustomEvent was ignored since it would overwrite an existing property: `, event[i]) : event[i] = detail[i]
+    else if (label === 'MouseScrollEvent')
+        event.deltaZ = 0,
+            event.axis === 2 ?
+                (event.deltaX = 0, event.deltaY = 50 * detail) : event.axis === 1 &&
+                (event.deltaX = 50 * detail, event.deltaY = 0)
+    s&&args.push(abrt)
+    args.push(off.bind(null, this, name))
+    t&&event.isTrusted||!t&&(!oct||oct&&(event.target??event.srcElement)===currentTarget) &&
+        (apply(f, this, args),
+            p && (event.cancelable ? event.defaultPrevented ? console.warn(`'${name}' event has already been cancelled`) : event.preventDefault() : warn(`🔊 '${name}' events are not cancelable`), event.returnValue = !p),
+            sp && (event.cancelBubble = true, event.stopPropagation()),
+            sip && event.stopImmediatePropagation(),
+            aa && abrt(),
+            once && off(currentTarget, name))
+}
 
 export function off(target, ...eventNames) {
     if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
@@ -397,7 +405,7 @@ export function delegate(me, events, filter, includeSelf, signal) {
             (me !== target || includeSelf) && (filter(target) ?? 1) && apply(old, target, args)
         }
     }
-   return on(me, events, signal)
+    return on(me, events, signal)
 }
 /*if(`${location}`.includes('localhost')) {
     try {

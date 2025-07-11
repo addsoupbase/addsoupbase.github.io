@@ -13,38 +13,45 @@ Things i learned from 2nd -> 3rd:
 
 // import {plural} from "./str.js"
 function plural(singular, plural, count) {
-    return Math.sign(count = +count) === count && count ? `${count} ${singular}` : `${count.toLocaleString()} ${plural}`
+    return Math.sign(count=+count)===count&&count?`${count} ${singular}`:`${count.toLocaleString()} ${plural}`
+} 
+function bind(target) {
+    return new Proxy(target, bindHandler)
+}
+let bindHandler = {
+    get(target, prop) {
+        return target[prop].bind(target)
+    }
 }
 const { get, set, apply, getOwnPropertyDescriptor, ownKeys } = Reflect,
     { revocable } = Proxy,
     { create, preventExtensions, defineProperty, defineProperties, getOwnPropertyDescriptors, assign } = Object
-import *as h from './handle.js'
-import *as css from './csshelper.js'
+import*as h from'./handle.js'
+import*as css from'./csshelper.js'
 function from(ArrayLike, map, thisArg) {
     // Array.from checks @@iterator first, which would be slower in cases where it is callable
     return ArrayLike.length >= 0 ? map ? [].map.call(ArrayLike, map, thisArg) : [].slice.call(ArrayLike) : map ? Array.from(ArrayLike, map, thisArg) : typeof ArrayLike[Symbol.iterator] !== 'undefined' ? [...ArrayLike] : []
 }
-const f = {
-    debounce(func, interval) {
-        let waiting = false
-        return DebouncedFunction
+function debounce(func, interval) {
+    let waiting = false
+    return DebouncedFunction
 
-        function enable() {
-            waiting = false
-        }
+    function enable() {
+        waiting = false
+    }
 
-        function DebouncedFunction(...args) {
-            if (!waiting) {
-                waiting = true
-                setTimeout(enable, interval)
-                apply(func, this, args)
-            }
-            return !waiting
+    function DebouncedFunction(...args) {
+        if (!waiting) {
+            waiting = true
+            setTimeout(enable, interval)
+            apply(func, this, args)
         }
+        return !waiting
     }
 }
+
 Object.hasOwn ?? defineProperty(Object, 'hasOwn', {
-    value: (obj, prop) => ({}).hasOwnProperty.call(obj, prop),
+    value: hasOwnProperty.call.bind(hasOwnProperty),
     writable: 1,
     configurable: 1
 })
@@ -63,11 +70,7 @@ function gen() {
     return `${Math.random()}${Math.random()}`.replace(regex.dot, '')
 }
 
-const BoundFunctions = new WeakMap,
-    BoundSet = BoundFunctions.set.bind(BoundFunctions),
-    BoundGet = BoundFunctions.get.bind(BoundFunctions),
-    BoundHas = BoundFunctions.has.bind(BoundFunctions)
-
+const {get: BoundGet, set:BoundSet, has:BoundHas} = bind(new WeakMap)
 function cacheFunction(maybeFunc) {
     // Make sure we just re-use the same function
     /*if (typeof maybeFunc === 'function') {
@@ -95,7 +98,7 @@ function cacheFunction(maybeFunc) {
     }
     return maybeFunc
 }
-const arrHasOwn = {}.hasOwnProperty.bind(Array.prototype)
+const arrHasOwn = hasOwnProperty.bind(Array.prototype)
 function genericGet(t, prop) {
     let out = t[prop]
     if (typeof prop !== 'symbol' && !isNaN(prop))
@@ -115,15 +118,16 @@ function doVendor(target, prop, r) {
     if (typeof prop === 'symbol') return this.apply(1, arguments)
     let p = prop
     prop = prop.replace(vendorRegex, '')
-    let slice = ''.slice.bind(prop)
+    let slice = prop.slice(1),
+    tuc = prop[0].toUpperCase()
     if (p in target) return this.apply(1, arguments)
-    if ((p = `webkit${prop[0].toUpperCase()}${slice(1)}`) in target) return this(target, p, r)
-    if ((p = `moz${prop[0].toUpperCase()}${slice(1)}`) in target) return this(target, p, r)
-    if ((p = `ms${prop[0].toUpperCase()}${slice(1)}`) in target) return this(target, p, r)
+    if ((p = `webkit${tuc}${slice}`) in target) return this(target, p, r)
+    if ((p = `moz${tuc}${slice}`) in target) return this(target, p, r)
+    if ((p = `ms${tuc}${slice}`) in target) return this(target, p, r)
 }
 let getVendor = doVendor.bind(get),
     setVendor = doVendor.bind(set)
-const attrStyleMap = 'StylePropertyMap' in window
+const attrStyleMap = 'StylePropertyMap'in window
     , customRules = css.getDefaultStyleSheet()
     , handlers = {
         // Other proxies
@@ -290,7 +294,7 @@ let props = getOwnPropertyDescriptors(class _
     }
     toJSON() {
         let me = base(this)
-        return me.getHTML?.({serializableShadowRoots:true}) ?? me.outerHTML
+        return me.getHTML?.({ serializableShadowRoots: true }) ?? me.outerHTML
     }
 
     xpath(xpath, callback, type, thisArg) {
@@ -364,25 +368,14 @@ let props = getOwnPropertyDescriptors(class _
         out.parent = this
         return out
     }
-
+    static ProxyEventWrapperFunction(me, ...args) {
+        apply(this, me, args)
+    }
     on(events, signal) {
         arguments.length > 2 && (signal = arguments[2])
         let me = this
-        if (typeof events === 'function') {
-            let old = events
-            events = ProxyEventWrapperFunction
-
-            function ProxyEventWrapperFunction(...args) {
-                // just avoid bind()
-                apply(old, me, args)
-            }
-        } else for (let i in events) events[i] = function (old) {
-            return ProxyEventWrapperFunction
-
-            function ProxyEventWrapperFunction(...args) {
-                apply(old, me, args)
-            }
-        }(events[i])
+        if (typeof events === 'function') events = _.ProxyEventWrapperFunction.bind(old, me)
+        else for (let i in events) events[i] = _.ProxyEventWrapperFunction.bind(events[i], me)
         h.on(base(this), events, signal)
     }
 
@@ -400,10 +393,7 @@ let props = getOwnPropertyDescriptors(class _
     }
 
     debounce(events, interval, signal) {
-        for (let i in events) {
-            let old = events[i]
-            events[i] = f.debounce(old, interval)
-        }
+        for (let i in events) events[i] = debounce(events[i], interval)
         this.on(events, signal)
     }
 
@@ -414,20 +404,18 @@ let props = getOwnPropertyDescriptors(class _
          }
          this.on(events)
  }*/
+    static DelegationFunction(me, includeSelf, filter, ...args) {
+        let { target } = args[0],
+            pr = prox(target);
+        (me !== target || includeSelf) && (filter(pr) ?? 1) && apply(this, pr, args)
+    }
     delegate(events, filter, includeSelf, signal) {
         let me = base(this)
         filter ??= function () {
         }
         for (let i in events) {
             if (i.includes('@')) throw SyntaxError("Conflicting usage of a 'currentTarget' only delegating event handler")
-            let old = events[i]
-            events[i] = DelegationFunction
-
-            function DelegationFunction(...args) {
-                let { target } = args[0],
-                    pr = prox(target);
-                (me !== target || includeSelf) && (filter(pr) ?? 1) && apply(old, pr, args)
-            }
+            events[i] = _.DelegationFunction.bind(events[i], me, includeSelf, filter)
         }
         this.on(events, false, signal)
     }
@@ -479,7 +467,7 @@ let props = getOwnPropertyDescriptors(class _
     }
 
     get disabled() {
-        return 'disabled' in this.attr || 'aria-disabled' in this.attr
+        return 'disabled'in this.attr || 'aria-disabled'in this.attr
     }
 
     saveAttr(...attributes) {
@@ -513,10 +501,10 @@ let props = getOwnPropertyDescriptors(class _
 
     setAttr(attr) {
         let me = base(this),
-        {onXYZ} = regex
+            { onXYZ } = regex
         for (let i in attr) {
             let n = i.split(',')
-            , val = attr[i]
+                , val = attr[i]
             if (onXYZ.test(i)) throw TypeError('Inline event handlers are deprecated')
             /*   switch (i) {
                    case 'disabled': me.setAttribute('aria-disabled', !!val); break
@@ -948,16 +936,16 @@ ownKeys(props).forEach(i => {
         let v = props[i],
             { value } = v
         v.configurable = false
-        if (typeof value === 'function') v.value = {
+        typeof value === 'function' && (v.value = {
             [i](...a) {
                 //  This function is for automatically returning the 'this'
                 //  value if the original return value is undefined
                 let me = prox(this), b = base(this)
-                if (!getValid(b) || !all.has(b)) throw TypeError('Invalid calling object')
+                if (!getValid(b) || !all.has(b)) throw TypeError('Illegal input')
                 let r = apply(value, me, a)
                 return typeof r === 'undefined' ? me : r
             }
-        }[i] //  Just want to keep the original function name intact
+        }[i]) //  Just want to keep the original function name intact
         /* else {
              let { set, get } = v
               v.set &&= {
@@ -1073,8 +1061,8 @@ function MutationObserverCallback(entry) {
     for (let { length: ii } = entry; ii--;) {
         let me = entry[ii],
             { addedNodes, removedNodes } = me
-        for (let { length: i } = addedNodes, node; i--;) 
-            if ((node = addedNodes[i])instanceof Element || node?.ownerDocument?.defaultView.Element.prototype.isPrototypeOf(node))
+        for (let { length: i } = addedNodes, node; i--;)
+            if ((node = addedNodes[i]) instanceof Element || node?.ownerDocument?.defaultView.Element.prototype.isPrototypeOf(node))
                 /*  queueMicrotask(() => {
                       document.dispatchEvent(new CustomEvent('subtree-modified', {
                           // bubbles: true,
@@ -1085,8 +1073,8 @@ function MutationObserverCallback(entry) {
                       }))
                   })*/
                 observeAll(node)
-        for (let { length: i } = removedNodes, node; i--;) 
-            if ((node = removedNodes[i])instanceof Element || node?.ownerDocument?.defaultView.Element.prototype.isPrototypeOf(node))
+        for (let { length: i } = removedNodes, node; i--;)
+            if ((node = removedNodes[i]) instanceof Element || node?.ownerDocument?.defaultView.Element.prototype.isPrototypeOf(node))
                 /*   queueMicrotask(() => {
                        document.dispatchEvent(new CustomEvent('subtree-modified', {
                            // bubbles: true,
@@ -1207,15 +1195,15 @@ function PerformanceObserverCallback(entr) {
 }
 
 const entryTypes = {
-    paint: 'PerformancePaintTiming' in window,
-    'first-input': 'PerformanceEventTiming' in window,
-    'layout-shift': 'LayoutShift' in window,
-    'largest-contentful-paint': 'LargestContentfulPaint' in window,
-    'long-animation-frame': 'PerformanceLongAnimationFrameTiming' in window,
-    longtask: 'PerformanceLongTaskTiming' in window,
-    resource: 'PerformanceResourceTiming' in window,
-    navigation: 'PerformanceNavigationTiming' in window,
-    element: 'PerformanceElementTiming' in window
+    paint: 'PerformancePaintTiming'in window,
+    'first-input': 'PerformanceEventTiming'in window,
+    'layout-shift': 'LayoutShift'in window,
+    'largest-contentful-paint': 'LargestContentfulPaint'in window,
+    'long-animation-frame': 'PerformanceLongAnimationFrameTiming'in window,
+    longtask: 'PerformanceLongTaskTiming'in window,
+    resource: 'PerformanceResourceTiming'in window,
+    navigation: 'PerformanceNavigationTiming'in window,
+    element: 'PerformanceElementTiming'in window
     // taskattribution: 'TaskAttributionTiming 'in window
 }
 const perf = new PerformanceObserver(PerformanceObserverCallback)
@@ -1242,7 +1230,7 @@ h.addCustomEvent({
 })
 const getStyleThingy = function () {
     return attrStyleMap ? a : b
-    function a(e) {return e.attributeStyleMap}function b(e) {return e.style}
+    function a(e) { return e.attributeStyleMap } function b(e) { return e.style }
 }()
 
 function ApplyBatchedStyles(value, key, map) {
@@ -1591,7 +1579,7 @@ export default defineProperties($, {
 })
 $.id = $.byId
 //  createRange seems to be *slightly* faster on firefox
-let parseMode = 'mozInnerScreenY' in window ? 'createRange' : ''
+let parseMode = 'mozInnerScreenY'in window ? 'createRange' : ''
 function badAttrName(name) {
     return regex.onXYZ.test(name)
 }
@@ -1620,4 +1608,4 @@ export const define = function () {
 }()
 // diary stuff
 if (location.pathname.startsWith('/entries') && (location.host === 'localhost:3000' || location.host === 'addsoupbase.github.io'))
-    document.querySelector('script[src="../../diary.js"]') ?? await import('./diary.js')
+    document.querySelector('script[src="../../diary.js"]') ?? import('./diary.js')

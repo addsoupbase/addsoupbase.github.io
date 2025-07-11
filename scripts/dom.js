@@ -1,5 +1,5 @@
 import $ from '../yay.js'
-import { wait } from '../handle.js'
+import { wait, on } from '../handle.js'
 
 $.setup()
 let { main, drawInstead, send1, send2, draw, drawcontrols, undoDraw, submitDrawing } = $.id
@@ -153,7 +153,10 @@ if (top === window) $.id.viewframe.destroy()
 /*.animate([
     { scale: '' }, { scale: '1.1 1.1' },
 ], { duration: 500, iterations: 4, direction: 'alternate', easing: 'ease-in-out' })*/
-let show = $(top.document.getElementById('show'))
+let show 
+on(window,{
+    _load(){
+        show = $(top.document.getElementById('show'))
     .debounce({
         click() {
             let frame = $(parent.document.getElementById('frame'))
@@ -161,6 +164,8 @@ let show = $(top.document.getElementById('show'))
             this.fadeOut()
         }
     },1500)
+    }
+})
 if (top === window) {
     $.id.goBack.setAttr({ href: '../' })
 } else $.gid('viewbackground').debounce({
