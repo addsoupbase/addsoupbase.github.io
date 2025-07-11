@@ -295,17 +295,30 @@ export function on(target, events, signal) {
     }
     return target
 }
-
+const customEventHandler = {
+    has(t,p) {
+        return p in t || p in Object(t.detail)
+    },
+    get(t,p) {
+        if (p in t) return t[p]
+        let {detail} = t
+        if (p in Object(detail)) {
+            let out = detail[p]
+            return typeof out === 'function' ? out.bind(detail) : out
+        } 
+    }
+}
 function EventWrapper(f,s,abrt,t,oct,p,sp,sip,aa,once,name,...args) {
     let { 0: event } = args,
         label = getLabel(event),
         { currentTarget } = event,
         { detail } = event
-    if (label === 'CustomEvent')
-        for (let i in detail)
+    if (label === 'CustomEvent') event = args[0] = new Proxy(event, customEventHandler)
+      /*  for (let i in detail)
             // i wish for in included symbols :<
             i in event ? console.warn(`The '${i}' property of a CustomEvent was ignored since it would overwrite an existing property: `, event[i]) : event[i] = detail[i]
-    else if (label === 'MouseScrollEvent')
+*/
+            else if (label === 'MouseScrollEvent')
         event.deltaZ = 0,
             event.axis === 2 ?
                 (event.deltaX = 0, event.deltaY = 50 * detail) : event.axis === 1 &&
@@ -427,3 +440,4 @@ export function delegate(me, events, filter, includeSelf, signal) {
         console.error(e)
     }
 }*/
+window.on=on
