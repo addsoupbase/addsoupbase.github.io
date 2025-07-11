@@ -530,7 +530,7 @@ export function boxShadow({
     const universal = {}
     let func = CSS.registerProperty ?? function (e) { console.log(`CSS.registerProperty: `, e) }
     g('--stretch', '-moz-available -webkit-fill-available stretch'.split(' ').find(o => sup('width', o)), false, '*')
-    g('--crisp-edges', '-webkit-optimize-contrast -moz-crisp-edges').split(' ').find(o => sup('image-rendering', o))
+    g('--crisp-edges', '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(o => sup('image-rendering', o)))
     for (let { length: i } = allProps; i--;) {
         let prop = allProps[i]
             , o = prop.name
