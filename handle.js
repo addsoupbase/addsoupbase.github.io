@@ -439,4 +439,3 @@ export function delegate(me, events, filter, includeSelf, signal) {
         console.error(e)
     }
 }*/
-window.on=on

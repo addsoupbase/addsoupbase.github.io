@@ -7,82 +7,80 @@
     <title>Content</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="canonical" href="https://addsoupbase.github.io/">
-    <script type="speculationrules">{"prerender":[{"urls":["about.html","stuff.html","diary.html"],"eagerness":"immediate"}]}</script>
+    <script
+        type="speculationrules">{"prerender":[{"urls":["about.html","stuff.html","diary.html"],"eagerness":"immediate"}]}</script>
 </head>
 
 <body class="cute-green" id="main" style="overflow-y: scroll">
-<template id="template">
-    <img id="avatar" src="./media/art.webp" title="misdreavus" alt="avatar">
-    <main class="center ">
-        <h1 class="centerx" style="margin:auto;z-index:3;position:relative;" id="main_heading">addsoupbase</h1>
-        <section class="centerx" id="content">
-            <h3 style="font-size: 1em;    transform: translateY(10px);">thank you so much for looking at this i love you
-                everyone</h3><a role="button"
-                                id="goBack"
-                                style="display:contents">
-            <button id="viewbackground" class="cute-green-button">View
-                Background
-            </button>
-        </a><a class="cute-green-button" role="button" href="" target="_top" id="viewframe">View Frame</a>
-            <div class="lol">
-                <div><a rel="next" class="cute-green-button" role="button" href="./about.html" accesskey="a"
-                        title="about me"
-                        id="abtbutton">About</a><a accesskey="s" rel="next" class="cute-green-button" role="button"
-                                                   title="stuff i made"
-                                                   href="./stuff.html">Stuff</a><a accesskey="r" rel="next"
-                                                                                   class="cute-green-button"
-                                                                                   role="button"
-                                                                                   title="daily entry thingy"
-                                                                                   href="./diary.html">Diary</a>
-                </div>
-                <div>
-                    <p>Send me something, or press the paper below to draw something instead</p>
-                    <input type="image" width="80" height="80" alt="paper icon" title="Draw something instead"
-                           src="./cute-emojis/emojis/1216660228641263687.gif" id="drawInstead">
-                    <div id="send1">
-                        <iframe style="display:none" name="hi" id="prevent"></iframe>
-                        <form id="submit" action="https://misha-mail-85.deno.dev/" method="post" target="hi">
+    <template id="template">
+        <img id="avatar" src="./media/art.webp" title="misdreavus" alt="avatar">
+        <main class="center ">
+            <h1 class="centerx" style="margin:auto;z-index:3;position:relative;" id="main_heading">addsoupbase</h1>
+            <section class="centerx" id="content">
+                <h3 style="font-size: 1em;    transform: translateY(10px);">thank you so much for looking at this i love
+                    you
+                    everyone</h3><a role="button" id="goBack" style="display:contents">
+                    <button id="viewbackground" class="cute-green-button">View
+                        Background
+                    </button>
+                </a><a class="cute-green-button" role="button" href="" target="_top" id="viewframe">View Frame</a>
+                <div class="lol">
+                    <div><a rel="next" class="cute-green-button" role="button" href="./about.html" accesskey="a"
+                            title="about me" id="abtbutton">About</a><a accesskey="s" rel="next"
+                            class="cute-green-button" role="button" title="stuff i made" href="./stuff.html">Stuff</a><a
+                            accesskey="r" rel="next" class="cute-green-button" role="button" title="daily entry thingy"
+                            href="./diary.html">Diary</a>
+                    </div>
+                    <div>
+                        <p>Send me something, or press the paper below to draw something instead</p>
+                        <input type="image" width="80" height="80" alt="paper icon" title="Draw something instead"
+                            src="./cute-emojis/emojis/1216660228641263687.gif" id="drawInstead">
+                        <div id="send1">
+                            <iframe style="display:none" name="hi" id="prevent"></iframe>
+                            <form id="submit" action="https://misha-mail-85.deno.dev/" method="post" target="hi">
 
-                            <div id="formholder"><input class="cute-green" name="name" placeholder="Name"
-                                                        id="form_name"><input
-                                    class="cute-green" name="message" placeholder="Message" id="form_message" required>
+                                <div id="formholder"><input class="cute-green" name="name" placeholder="Name"
+                                        id="form_name"><input class="cute-green" name="message" placeholder="Message"
+                                        id="form_message" required>
+                                </div>
+                                <button class="cute-green-button" id="send">Send</button>
+                            </form>
+                        </div>
+                        <form id="send2" style="display: none;touch-action:none !important;"
+                            data-action="https://misha-mail-85.deno.dev/" method="post" enctype="text/plain">
+                            <div
+                                style="overflow: hidden;place-content: center;display:inline-block;margin:5px;touch-action:none !important;">
+                                <button class="cute-green-button" id="submitDrawing">Send</button>
+                                <canvas name="drawing" aria-label="Canvas to draw on" width="250" height="250" id="draw"
+                                    aria-required="true">Canvas is not supported.
+                                </canvas>
                             </div>
-                            <button class="cute-green-button" id="send">Send</button>
+                            <div>
+                                <div style="margin:20px;display: flex" id="drawcontrols">
+                                    <label style="display: grid">
+                                        Color
+                                        <input id="pickAColor" type="color" placeholder="pick a color"
+                                            title="choose a color">
+                                    </label>
+                                    <label style="display:grid">
+                                        Undo
+                                        <input type="button" value="↩️" id="undoDraw" title="undo" aria-label="Undo">
+                                    </label>
+                                    <label style="display:grid">
+                                        Brush Size
+                                        <input type="range" min="1" max="20" value="1">
+                                    </label>
+                                </div>
+                            </div>
                         </form>
                     </div>
-                    <form id="send2" style="display: none;touch-action:none !important;"
-                          data-action="https://misha-mail-85.deno.dev/" method="post" enctype="text/plain">
-                        <div style="overflow: hidden;place-content: center;display:inline-block;margin:5px;touch-action:none !important;">
-                            <button class="cute-green-button" id="submitDrawing">Send</button>
-                            <canvas name="drawing" aria-label="Canvas to draw on" width="250" height="250" id="draw"
-                                    aria-required="true">Canvas is not supported.
-                            </canvas>
-                        </div>
-                        <div>
-                            <div style="margin:20px;display: flex" id="drawcontrols">
-                                <label style="display: grid">
-                                    Color
-                                    <input id="pickAColor" type="color" placeholder="pick a color"
-                                           title="choose a color">
-                                </label>
-                                <label style="display:grid">
-                                    Undo
-                                    <input type="button" value="↩️" id="undoDraw" title="undo" aria-label="Undo">
-                                </label>
-                                <label style="display:grid">
-                                    Brush Size
-                                    <input type="range" min="1" max="20" value="1">
-                                </label>
-                            </div>
-                        </div>
-                    </form>
                 </div>
-            </div>
-        </section>
-    </main>
-</template>
-<script src="fallback.js"></script>
-<script type="module" src="scripts/dom.js"></script>
+            </section>
+        </main>
+    </template>
+    <script src="fallback.js"></script>
+    <script src="css.js" blocking="render" defer></script>
+    <script type="module" src="scripts/dom.js"></script>
 </body>
 
 </html>

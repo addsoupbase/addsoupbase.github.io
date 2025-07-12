@@ -15,8 +15,7 @@
 #m{
     place-items: center;
 }
-  body {
-  }
+ 
   body,html {
     padding:0;
     margin:0
@@ -26,4 +25,5 @@ main {
 }
   :root {
     font-family: 'Choco';
+    font-size: 1.2em
   }

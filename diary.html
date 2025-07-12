@@ -35,192 +35,193 @@
 </head>
 
 <body class="cute-green" id="main" style="justify-items: center">
-<script src="fallback.js"></script>
-<template id="template">
+    <script src="fallback.js"></script>
+    <template id="template">
 
-    <main class="center " style="margin: 0;width:100%">
-        <a accesskey="b"  class="cute-green-button back" href="main.html" role="button" rel="prev">Back</a>
-        <!-- <span> Scrolling could reveal more!</span> -->
+        <main class="center " style="margin: 0;width:100%">
+            <a accesskey="b" class="cute-green-button back" href="main.html" role="button" rel="prev">Back</a>
+            <!-- <span> Scrolling could reveal more!</span> -->
 
-        <div class="center" id="diary-container" style="display:contents;justify-items: center;">
-            <time>
-                <input class="cute-green" style="font-size:20px;margin:20px;" id="diary-heading" type="date"
-                       min="2025-04-07">
-            </time>
-            <section id="diary" class="cute-blue"
-                     style="resize:both;width: var(--stretch);border-radius:1%;  place-self: center;">
-                <h2 id="invalid" hidden>No entry for today &lpar;yet!&rpar;
-                    <img style="image-rendering: pixelated" alt="tangled speech balloon" height="34"
-                         src="./cute-emojis/emojis/1143313874943234058.gif">
-                </h2>
-                <h2 id="error" hidden>
-                    <img alt="error" height="50" src="./cute-emojis/emojis/1242581617084465222.gif">
-                    <br>
-                    <samp style="color:#631414;">Error
-                    </samp>
+            <div class="center" id="diary-container" style="display:contents;justify-items: center;">
+                <time>
+                    <input class="cute-green" style="font-size:20px;margin:20px;" id="diary-heading" type="date"
+                        min="2025-04-07">
+                </time>
+                <section id="diary" class="cute-blue"
+                    style="resize:both;width: var(--stretch);border-radius:1%;  place-self: center;">
+                    <h2 id="invalid" hidden>No entry for today &lpar;yet!&rpar;
+                        <img style="image-rendering: pixelated" alt="tangled speech balloon" height="34"
+                            src="./cute-emojis/emojis/1143313874943234058.gif">
+                    </h2>
+                    <h2 id="error" hidden>
+                        <img alt="error" height="50" src="./cute-emojis/emojis/1242581617084465222.gif">
+                        <br>
+                        <samp style="color:#631414;">Error
+                        </samp>
 
-                </h2>
-                <iframe aria-relevant="all"  aria-live="assertive" id="display" name="Diary" title="Diary"
+                    </h2>
+                    <iframe aria-relevant="all" aria-live="assertive" id="display" name="Diary" title="Diary"
                         style="width: 100%;height: 100%;border: none;"></iframe>
-            </section>
-            <div style="justify-self: center;justify-content:center;display: flex;    align-items: end;">
-                <input accesskey="p"  id="prev" type="image" title="Turn to previous page" alt="Back" style="transform:scaleX(-1)"
-                       src="./cute-emojis/emojis/1321091969635848294.gif">
-                <button class="cute-green-button" id="toToday">Go to today</button>
-                <input accesskey="n"  id="next" type="image" title="Turn to next page" alt="Forward"
-                       src="./cute-emojis/emojis/1321091969635848294.gif">
+                </section>
+                <div style="justify-self: center;justify-content:center;display: flex;    align-items: end;">
+                    <input accesskey="p" id="prev" type="image" title="Turn to previous page" alt="Back"
+                        style="transform:scaleX(-1)" src="./cute-emojis/emojis/1321091969635848294.gif">
+                    <button class="cute-green-button" id="toToday">Go to today</button>
+                    <input accesskey="n" id="next" type="image" title="Turn to next page" alt="Forward"
+                        src="./cute-emojis/emojis/1321091969635848294.gif">
+                </div>
+
             </div>
-
-        </div>
-    </main>
-</template>
-<script type="module">
-    import $ from './yay.js'
-    import * as h from './handle.js'
-    h.on(document, {
-        '%&DOMContentLoaded'(){}
-    })
-    $.setup()
-    let {toToday, invalid, error, next, prev, 'diary-heading': diaryHeading, display: currentThingy} = $.id
-    // h.on(window, {
-    // _load() {
-    // setTimeout(async () => {
-    // await info.animate([{opacity:'',opacity:0}],{
-    // duration: 500,
-    // easing:'ease-out'
-    // }).finished
-    // info.hide(2)
-    // }, 7000)
-    // }
-    // })
-    let today = new Date()
-    diaryHeading
-    .on({
-        change() {
-            if (!this.value?.trim()) return
-            let v = this.value.split('-')
-            v[2] = (+v[2] + 1).toString().padStart(2, 0)
-            today = new Date(v.join('-'))
-            goBy(0)
-            setEntry(getDate())
-        }
-    })
-    .setAttr({
-        max: getThat(today)
-    })
-
-    function getDate() {
-        return today.toLocaleDateString('en-US')
-    }
-
-    function goBy(a) {
-        // We need the temporal api quick...
-        today.setDate(today.getDate() + a)
-        if (today.getDate() <= 7 && today.getFullYear() <= 2025 && today.getMonth() <= 3) {
-            // This is before i made any entries
-            prev.hide(2)
-            .setAttr({disabled:true})
-        } else {
-            prev.show(2).setAttr({disabled:false})
-        }
-        if (getDate() === new Date().toLocaleDateString('en-US') || today >= new Date) {
-            // After today
-            next.hide(2).setAttr({disabled:true})
-        } else { next.show(2).setAttr({disabled:false})}
-    }
-
-    toToday.on({
-        '%&click'() {
-            if (!canMove) return
-            today = new Date()
-            goBy(-0)
-            setEntry(getDate())
-        }
-    })
-    next.on({
-        '%&click'() {
-            if (!canMove) return
-            goBy(1)
-            setEntry(getDate())
-        }
-    })
-    prev.on({
-        '%&click'() {
-            if (!canMove) return
-            goBy(-1)
-            setEntry(getDate())
-        }
-    })
-    // function getMSThingy() {
-    // return Date.UTC((new Date).getFullYear(), (new Date).getMonth(), (new Date).getDate())
-    // }
-    let canMove = false
-    currentThingy.on({
-        load() {
-            canMove = true
-            if (!this.contentWindow.document.querySelector('[name="author"][content="addsoupbase"]')) {
-                invalid.show().fadeIn()
-                //will work good enough i think
-            } else {
-                this.fadeIn()
-            }
-            this.parent.busy(false)
-        }
-    })
-
-    function getThat(d) {
-        return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, 0)}-${d.getDate().toString().padStart(2, 0)}`
-    }
-
-    async function setEntry(date) {
-        let d = new Date(date)
-        let t =  getThat(d)
-        diaryHeading.value=  t
-        currentThingy.hide(3)
-        error.hide()
-        currentThingy.parent.busy(true)
-        invalid.hide()
-        canMove = false
-        let url = `./entries/${date.replace(/\//g, '_')}`
-        // currentThingy.hide(2)
-        try {
-            // let req = (await fetch(url))
-            // if (!req.ok) {
-            // if (req.status === 404) {
-            // invalid.fadeIn()
-            // invalid.show()
-            // }
-            // else {
-            // error.fadeIn()
-            // error.show()
-            // }
-            // }
-            // else {
-            currentThingy.setAttr({src: url})
-            // currentThingy.contentWindow.location.assign(url)
-            await new Promise((resolve, reject) => {
-                currentThingy.onerror = reject
-                currentThingy.onload = resolve
+        </main>
+    </template>
+    <script src="css.js" blocking="render"defer></script>
+    <script type="module">
+        import $ from './yay.js'
+        import * as h from './handle.js'
+        h.on(document, {
+            '%&DOMContentLoaded'() { }
+        })
+        $.setup()
+        let { toToday, invalid, error, next, prev, 'diary-heading': diaryHeading, display: currentThingy } = $.id
+        // h.on(window, {
+        // _load() {
+        // setTimeout(async () => {
+        // await info.animate([{opacity:'',opacity:0}],{
+        // duration: 500,
+        // easing:'ease-out'
+        // }).finished
+        // info.hide(2)
+        // }, 7000)
+        // }
+        // })
+        let today = new Date()
+        diaryHeading
+            .on({
+                change() {
+                    if (!this.value?.trim()) return
+                    let v = this.value.split('-')
+                    v[2] = (+v[2] + 1).toString().padStart(2, 0)
+                    today = new Date(v.join('-'))
+                    goBy(0)
+                    setEntry(getDate())
+                }
             })
-            currentThingy.onerror = currentThingy.onload = null
-            // }
-        } catch (e) {
-            currentThingy.onerror = currentThingy.onload = null
-            reportError(e)
-            error.fadeIn()
-            error.show()
-        } finally {
-            canMove = true
-            currentThingy.parent.busy(false)
-        }
-    }
+            .setAttr({
+                max: getThat(today)
+            })
 
-    let {diary, main:m} = $.id
-    goBy(-1)
-    setEntry(getDate())
-</script>
-<!-- if something somehow goes wrong, and this function is fired successfully -->
-<script>(document.addEventListener||document.attachEvent).call(document,"DOMContentLoaded",function(){"use strict";if("undefined"==typeof h){var e=new XMLHttpRequest;e.open("GET","./oldhandle.js"),e.onload=function(){Function(e.responseText)();var t=document.getElementById("toToday"),n=document.getElementById("diary-heading"),o=function(){var e=[i.getMonth()+1,i.getDate(),i.getFullYear()].join("_"),t=""+i.getDate(),o=""+(i.getMonth()+1);1===o.length&&(o=0+o),1===t.length&&(t=0+t),a.src="https://addsoupbase.github.io/entries/"+e,n.value=[i.getFullYear(),o,t].join("-")},a=document.getElementById("display"),i=new Date,l=document.getElementById("prev"),g=document.getElementById("next");n.setAttribute("max",a.src);var d=function(){if(this.value.trim()){for(var e=this.value.split("-"),t=e[2]=(+e[2]+1).toString();t.length<2;)t=0+t;i=new Date(e.join("-")),o()}};h.on(n,{change:d,textInput:d}),h.on(l,{click:function(){i.setDate(i.getDate()-1),o()}}),h.on(g,{click:function(){i.setDate(i.getDate()+1),o()}}),h.on(t,{click:function(){i=new Date,o()}})},e.send()}})</script>
+        function getDate() {
+            return today.toLocaleDateString('en-US')
+        }
+
+        function goBy(a) {
+            // We need the temporal api quick...
+            today.setDate(today.getDate() + a)
+            if (today.getDate() <= 7 && today.getFullYear() <= 2025 && today.getMonth() <= 3) {
+                // This is before i made any entries
+                prev.hide(2)
+                    .setAttr({ disabled: true })
+            } else {
+                prev.show(2).setAttr({ disabled: false })
+            }
+            if (getDate() === new Date().toLocaleDateString('en-US') || today >= new Date) {
+                // After today
+                next.hide(2).setAttr({ disabled: true })
+            } else { next.show(2).setAttr({ disabled: false }) }
+        }
+
+        toToday.on({
+            '%&click'() {
+                if (!canMove) return
+                today = new Date()
+                goBy(-0)
+                setEntry(getDate())
+            }
+        })
+        next.on({
+            '%&click'() {
+                if (!canMove) return
+                goBy(1)
+                setEntry(getDate())
+            }
+        })
+        prev.on({
+            '%&click'() {
+                if (!canMove) return
+                goBy(-1)
+                setEntry(getDate())
+            }
+        })
+        // function getMSThingy() {
+        // return Date.UTC((new Date).getFullYear(), (new Date).getMonth(), (new Date).getDate())
+        // }
+        let canMove = false
+        currentThingy.on({
+            load() {
+                canMove = true
+                if (!this.contentWindow.document.querySelector('[name="author"][content="addsoupbase"]')) {
+                    invalid.show().fadeIn()
+                    //will work good enough i think
+                } else {
+                    this.fadeIn()
+                }
+                this.parent.busy(false)
+            }
+        })
+
+        function getThat(d) {
+            return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, 0)}-${d.getDate().toString().padStart(2, 0)}`
+        }
+
+        async function setEntry(date) {
+            let d = new Date(date)
+            let t = getThat(d)
+            diaryHeading.value = t
+            currentThingy.hide(3)
+            error.hide()
+            currentThingy.parent.busy(true)
+            invalid.hide()
+            canMove = false
+            let url = `./entries/${date.replace(/\//g, '_')}`
+            // currentThingy.hide(2)
+            try {
+                // let req = (await fetch(url))
+                // if (!req.ok) {
+                // if (req.status === 404) {
+                // invalid.fadeIn()
+                // invalid.show()
+                // }
+                // else {
+                // error.fadeIn()
+                // error.show()
+                // }
+                // }
+                // else {
+                currentThingy.setAttr({ src: url })
+                // currentThingy.contentWindow.location.assign(url)
+                await new Promise((resolve, reject) => {
+                    currentThingy.onerror = reject
+                    currentThingy.onload = resolve
+                })
+                currentThingy.onerror = currentThingy.onload = null
+                // }
+            } catch (e) {
+                currentThingy.onerror = currentThingy.onload = null
+                reportError(e)
+                error.fadeIn()
+                error.show()
+            } finally {
+                canMove = true
+                currentThingy.parent.busy(false)
+            }
+        }
+
+        let { diary, main: m } = $.id
+        goBy(-1)
+        setEntry(getDate())
+    </script>
+    <!-- if something somehow goes wrong, and this function is fired successfully -->
+    <script>(document.addEventListener || document.attachEvent).call(document, "DOMContentLoaded", function () { "use strict"; if ("undefined" == typeof h) { var e = new XMLHttpRequest; e.open("GET", "./oldhandle.js"), e.onload = function () { Function(e.responseText)(); var t = document.getElementById("toToday"), n = document.getElementById("diary-heading"), o = function () { var e = [i.getMonth() + 1, i.getDate(), i.getFullYear()].join("_"), t = "" + i.getDate(), o = "" + (i.getMonth() + 1); 1 === o.length && (o = 0 + o), 1 === t.length && (t = 0 + t), a.src = "https://addsoupbase.github.io/entries/" + e, n.value = [i.getFullYear(), o, t].join("-") }, a = document.getElementById("display"), i = new Date, l = document.getElementById("prev"), g = document.getElementById("next"); n.setAttribute("max", a.src); var d = function () { if (this.value.trim()) { for (var e = this.value.split("-"), t = e[2] = (+e[2] + 1).toString(); t.length < 2;)t = 0 + t; i = new Date(e.join("-")), o() } }; h.on(n, { change: d, textInput: d }), h.on(l, { click: function () { i.setDate(i.getDate() - 1), o() } }), h.on(g, { click: function () { i.setDate(i.getDate() + 1), o() } }), h.on(t, { click: function () { i = new Date, o() } }) ;t.click()}, e.send() } })</script>
 </body>
 
 </html>
