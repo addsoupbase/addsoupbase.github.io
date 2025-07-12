@@ -42,8 +42,9 @@ css:
         return val
     }
     */
+   let sessionStorage
     try {
-        var { sessionStorage } = globalThis
+    ({ sessionStorage } = globalThis)
     }
     catch {
         function oops() {
