@@ -6,7 +6,7 @@ css:
         {currentScript} = document
     if (sym in Object(w.css)) break css
     
-    w.reportError = function reportError(throwable) {
+    w.reportError = w.reportError || function reportError(throwable) {
         w.dispatchEvent(new ErrorEvent('error', {
             message: throwable.message,
             error: throwable,
