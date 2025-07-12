@@ -1124,6 +1124,7 @@ const resi = new ResizeObserver(ResizeObserverCallback)
 /*
 PERFORMANCE OBSERVER STUFFS
 */
+let painted = false
 function PerformanceLoop(o) {
     let detail,
         title = o.entryType
@@ -1175,6 +1176,7 @@ function PerformanceLoop(o) {
         case 'paint':
             switch (o.name) {
                 case 'first-paint':
+                    painted = true
                 case 'first-contentful-paint':
                     title = o.name
                     detail = {
@@ -1207,11 +1209,12 @@ const entryTypes = {
     // taskattribution: 'TaskAttributionTiming 'in window
 }
 const perf = new PerformanceObserver(PerformanceObserverCallback)
-let supported = new Set(PerformanceObserver.supportedEntryTypes)
+let supported = Set.prototype.has.bind(new Set(PerformanceObserver.supportedEntryTypes)),
+observe = perf.observe.bind(perf)
 ownKeys(entryTypes).forEach(type =>
-    supported.has(type) && perf.observe({ type, buffered: true })
+    supported(type) && observe({ type, buffered: true })
 )
-supported = null
+observe = null
 h.addCustomEvent(entryTypes)
 h.addCustomEvent({
     longtask: false,
@@ -1608,6 +1611,8 @@ export const define = function () {
         return dfn.apply(1, args)
     }
 }()
+typeof mozInnerScreenX === 'number'&&!supported('paint')&&addEventListener('MozAfterPaint',()=>painted ||= !dispatchEvent(new Event('first-paint')), {once:true})
+supported = null
 // diary stuff
 if (location.pathname.startsWith('/entries') && (location.host === 'localhost:3000' || location.host === 'addsoupbase.github.io'))
     document.querySelector('script[src="../../diary.js"]') ?? import('./diary.js')

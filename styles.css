@@ -9,8 +9,7 @@
   padding: 0;
   overflow: hidden;
 }
-.BG{
-}
+
 .lanturn {
   filter: drop-shadow(0 0 5px yellow);
 }
@@ -488,7 +487,7 @@ border-radius: 15px;
 @font-face {
   font-family: 'Choco';
   font-display: swap;
-  src: url('./media/Chococooky.woff2') format('woff2'),
+  src:local('Choco cooky'), local('Chococooky'), url('./media/Chococooky.woff2') format('woff2'),
     /* Super Modern Browsers */
     url('/media/Chococooky.woff') format('woff');
   /* Pretty Modern Browsers */

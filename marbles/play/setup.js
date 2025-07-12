@@ -6,6 +6,14 @@ import {lstorage} from 'https://addsoupbase.github.io/proxies.js'
 import * as str from 'https://addsoupbase.github.io/str.js'
 import ran from 'https://addsoupbase.github.io/random.js'
 $.importWebComponent?.('touch-joystick')
+export let inEditor
+try {
+    if (/^\/edit/.test(top.location.pathname))
+        inEditor = top !== window
+    else inEditor = false
+} catch {
+    inEditor = false
+}
 export let joystick = (lstorage.joystick ??= `${!!navigator.maxTouchPoints}`) === 'true'
 lstorage.music ??= .5
 lstorage.sound ??= .7
@@ -350,16 +358,11 @@ function toggleJoystick() {
 
 toggleJoystick()
 let first = false
-
-h.on(window, {
-    '_first-contentful-paint'() {
+function go() {
         if (inEditor) return
         overlay.style.display = ''
         overlay.classList.add('slide-in-blurred-top')
-    },
-    resize,
-    _load(){
-        !function n(wait){
+         !function n(wait){
             try {
             if (wait === window.requestIdleCallback) return wait(cam.nextFrame, {timeout: 2000})
             if (wait === window.setTimeout) return wait(cam.nextFrame, 2000)
@@ -369,7 +372,12 @@ h.on(window, {
                 setTimeout(n,1000, wait)
             }
         }(window.requestIdleCallback ?? window.setTimeout ?? window.queueMicrotask)
-    },
+    }
+    if (document.readyState === 'complete') go()
+    else h.on(window,{'_first-contentful-paint':go}),
+h.on(window, {
+    resize,
+    
     keyup({key}) {
         if (/^(?:w|arrowup)$/i.test(key)) return cam.moving &= ~0b1000
         if (/^(?:s|arrowdown)$/i.test(key)) return cam.moving &= ~0b0100
@@ -537,13 +545,4 @@ $(`<div>
 function init() {
     import('./define.js')
 }
-let inEditor
-try {
 
-    if (/^\/edit/.test(top.location.pathname))
-        inEditor = top !== window
-    else inEditor = false
-} catch {
-    inEditor = false
-}
-export {inEditor}

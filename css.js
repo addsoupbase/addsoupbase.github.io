@@ -2,13 +2,15 @@
 css:
 {
     let w = window,
-        sym = w.Symbol.for('CSS')
+        sym = w.Symbol.for('CSS'),
+        {currentScript} = document
     if (sym in Object(w.css)) break css
-    w.reportError = w.reportError || function reportError(throwable) {
-        dispatchEvent(new ErrorEvent('error', {
+    
+    w.reportError = function reportError(throwable) {
+        w.dispatchEvent(new ErrorEvent('error', {
             message: throwable.message,
             error: throwable,
-            filename: `${w.origin}/css.js`
+            filename: currentScript?.src
         }))
         console.error(`${throwable}`)
     }
