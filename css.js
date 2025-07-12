@@ -3,7 +3,7 @@ css:
 {
     let w = window,
         sym = w.Symbol.for('CSS'),
-        {currentScript} = document
+        { currentScript } = document
     if (sym in Object(w.css)) break css
     
     w.reportError = w.reportError || function reportError(throwable) {
@@ -21,7 +21,8 @@ css:
         return toCaps(vendor(toDash(prop), val))
     }
     const all = new Set
-        , has = all.has.bind(all)
+        , has = all.has.bind(all),
+         add = all.add.bind(all)
     /*
     export function vendorValue(prop, val) {
         
@@ -44,9 +45,9 @@ css:
         return val
     }
     */
-   let sessionStorage
+    let sessionStorage
     try {
-    ({ sessionStorage } = globalThis)
+        ({ sessionStorage } = globalThis)
     }
     catch {
         function oops() {
@@ -57,17 +58,19 @@ css:
         })
     }
     const alreadyLogged = new Set,
+    alreadyHas = alreadyLogged.has.bind(alreadyLogged),
         beenHereBefore = sessionStorage.getItem('css'),
+        addAlr = alreadyLogged.add.bind(alreadyLogged),
         allVendors = /^-(?:webkit|moz|apple|khtml|konq|o|ms|xv|atsc|wap|ah|hp|ro|rim|tc|fso|icab|epub)-/,
         allVendors2 = /^(?:prince|mso)-/,
         dontRedo = new Map,
-        sup = CSS.supports,
-        //  (that i have used before)
-        newerProps = /^(?:translate|scale|rotate|zoom)$/
+        sup = CSS.supports
+        //  (that i have used before) ,
+        // newerProps = /^(?:translate|scale|rotate|zoom)$/
     function badCSS(data, silent) {
-        if (silent || alreadyLogged.has(data)) return
+        if (silent || alreadyHas(data)) return
         console.warn(data)
-        alreadyLogged.add(data)
+        addAlr(data)
     }
 
     function vendor(prop, val, silent) {
@@ -125,7 +128,7 @@ css:
                 // IDK
                 // sup(prefix = `-internal-${prop}`, val) ||
                 badCSS(`⛓️‍💥 Unrecognized CSS at '${prefix = prop}: ${val}'`, silent)),
-                mayNotBeSupported(prop),
+                // mayNotBeSupported(prop),
                 dontRedo.set(prop, prefix),
                 // Sorry!
                 prefix
@@ -133,9 +136,9 @@ css:
         return prop
     }
 
-    function mayNotBeSupported(prop) {
-        newerProps.test(prop) && badCSS(`💿 '${prop}' may not be supported on older devices`)
-    }
+    // function mayNotBeSupported(prop) {
+        // newerProps.test(prop) && badCSS(`💿 '${prop}' may not be supported on older devices`)
+    // }
 
     function importFont(name, src) {
         if (name && src) {
@@ -156,9 +159,6 @@ css:
         }
         return prop
     }
-
-
-
     function toDash(prop) {
         return prop.startsWith('--') ? prop :
             prop.replace(azregex, tlc)
@@ -179,12 +179,13 @@ css:
      * @returns {String}
      */
     function toCSS(obj, silent) {
-        const arr = []
+        const arr = [],
+        push = [].push.bind(arr)
         if (Array.isArray(obj)) obj = Object.fromEntries(obj)
         for (let prop in obj) {
             let p = `${obj[prop]}`
             try {
-                arr.push(`${vendor(toDash(prop), p, silent)}:${p}`)
+                push(`${vendor(toDash(prop), p, silent)}:${p}`)
             } catch {
             }
         }
@@ -230,7 +231,7 @@ css:
     function importCSS(url) {
         // idk why i didn't just think of this
         let n = document.createElement('link'),
-        s = n.setAttribute.bind(n)
+            s = n.setAttribute.bind(n)
         s('rel', 'stylesheet')
         s('type', 'text/css')
         s('href', url);
@@ -271,15 +272,14 @@ css:
     }
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)')
     function registerCSSAll(rules) {
-        Object.keys(rules).forEach(bleh)
-        function bleh(r) {
-            try {
-                registerCSS(r, rules[r])
-            } catch {
-            }
+        Object.keys(rules).forEach(reg, rules)
+    }
+    function reg(r) {
+        try {
+            registerCSS(r, this[r])
+        } catch {
         }
     }
-
     function supportsRule(rule) {
         return sup(`selector(${rule})`)
     }
@@ -347,28 +347,12 @@ css:
     }) {
         return `${color} ${offsetX} ${offsetY} ${blurRadius} ${spreadRadius}`.replaceAll('  ', '')
     }
-
-    // export function convertToCSSMethod(value) {
-    //     debugger
-    //     // Does not work in firefox
-    //     /* try {
-    //          let val = parseFloat(value),
-    //              unit = value.split(val).at(-1)
-    //          if (unit === '%') unit = 'percent'
-    //          if (isNaN(val)) throw TypeError('Invalid number')
-    //          if (!isNaN(+value)) return CSS.number(value)
-    //          if (!(unit in CSS)) throw SyntaxError(`Unrecognised unit '${unit}'`)
-    //          return CSS[unit](val)
-    //      } catch {*/
-    //     return value
-    //     // }
-    // }
     {
         function g(name, initialValue, inherits, syntax) {
             initialValue ??= 'auto'
             inherits ??= false
             syntax ??= '*'
-            all.add(name)
+            add(name)
             return { name: `--${name}`, initialValue, inherits, syntax }
         }
         let allProps = [
@@ -481,7 +465,7 @@ css:
         const sheet = getDefaultStyleSheet()
         //    Some default CSS...
         try {
-            let all = sessionStorage.getItem('defaultCSS') ?? Object.entries({
+            let all = sessionStorage.defaultCSS ?? Object.entries({
                 [`button,a,${'button checkbox radio submit image reset file'.split(' ').map(o => `input[type=${o}]`).join(',')
                     }`]: {
                     cursor: 'pointer'
@@ -530,13 +514,8 @@ css:
                 `${key}{${toCSS(val)}}`
             )
             if (typeof all === 'string') all = all.split('✕')
-            for (let { length: i } = all; i--;)
-                try {
-                    sheet.textContent = `${sheet.textContent}${all[i]}`
-                } catch (e) {
-                    console.debug(e)
-                }
-            sessionStorage.setItem('defaultCSS', all.join('✕'))
+             sheet.textContent = `${sheet.textContent}${all.join('')}`
+            sessionStorage.defaultCSS=all.join('✕')
         } catch (e) {
             console.error(e)
         }
@@ -559,8 +538,8 @@ css:
         allProps = null
         typeof beenHereBefore === 'string' ?
             sheet.textContent = `${sheet.textContent}${selector}{${beenHereBefore}}` :
-            registerCSS(selector, universal, true),
-            sessionStorage.setItem('css', toCSS(universal, true))
+            registerCSS(selector, universal, true)
+            ,sessionStorage.setItem('css', toCSS(universal, true))
     }
     w.css = Object.seal({
         // [Symbol.toStringTag]: 'Module',

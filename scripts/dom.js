@@ -184,7 +184,7 @@ let { submit: form } = $.byId
 let out = $('<iframe name="hi"></iframe>')
 
 function disableForm(res) {
-    if (!res?.ok) form.replace($(`<samp>Something went wrong... try again later love :(</samp>`)).destroy()
+    if (!res?.ok) form.parent.parent.replace($(`<samp style="position: fixed;top: 50%;font-size: 1.3em;">Can't send stuff right now...<br> try again later love :(</samp>`)).destroy()
 }
 
 form.on({
