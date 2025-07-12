@@ -32,6 +32,7 @@
     <meta property="og:image" content="https://addsoupbase.github.io/cute-emojis/emojis/028220502816824156.gif">
     <meta name="twitter:image" content="https://addsoupbase.github.io/cute-emojis/emojis/028220502816824156.gif">
     <title>Diary</title>
+    <script type="speculationrules">{"prerender":[{"urls":["main.html"],"eagerness":"immediate"}]}</script>
 </head>
 
 <body class="cute-green" id="main" style="justify-items: center">
@@ -74,7 +75,7 @@
             </div>
         </main>
     </template>
-    <script src="css.js" blocking="render"defer></script>
+    <script src="css.js" blocking="render" defer></script>
     <script type="module">
         import $ from './yay.js'
         import * as h from './handle.js'
@@ -221,7 +222,7 @@
         setEntry(getDate())
     </script>
     <!-- if something somehow goes wrong, and this function is fired successfully -->
-    <script>(document.addEventListener || document.attachEvent).call(document, "DOMContentLoaded", function () { "use strict"; if ("undefined" == typeof h) { var e = new XMLHttpRequest; e.open("GET", "./oldhandle.js"), e.onload = function () { Function(e.responseText)(); var t = document.getElementById("toToday"), n = document.getElementById("diary-heading"), o = function () { var e = [i.getMonth() + 1, i.getDate(), i.getFullYear()].join("_"), t = "" + i.getDate(), o = "" + (i.getMonth() + 1); 1 === o.length && (o = 0 + o), 1 === t.length && (t = 0 + t), a.src = "https://addsoupbase.github.io/entries/" + e, n.value = [i.getFullYear(), o, t].join("-") }, a = document.getElementById("display"), i = new Date, l = document.getElementById("prev"), g = document.getElementById("next"); n.setAttribute("max", a.src); var d = function () { if (this.value.trim()) { for (var e = this.value.split("-"), t = e[2] = (+e[2] + 1).toString(); t.length < 2;)t = 0 + t; i = new Date(e.join("-")), o() } }; h.on(n, { change: d, textInput: d }), h.on(l, { click: function () { i.setDate(i.getDate() - 1), o() } }), h.on(g, { click: function () { i.setDate(i.getDate() + 1), o() } }), h.on(t, { click: function () { i = new Date, o() } }) ;t.click()}, e.send() } })</script>
+    <script>(document.addEventListener || document.attachEvent).call(document, "DOMContentLoaded", function () { "use strict"; if ("undefined" == typeof h) { var e = new XMLHttpRequest; e.open("GET", "./oldhandle.js"), e.onload = function () { Function(e.responseText)(); var t = document.getElementById("toToday"), n = document.getElementById("diary-heading"), o = function () { var e = [i.getMonth() + 1, i.getDate(), i.getFullYear()].join("_"), t = "" + i.getDate(), o = "" + (i.getMonth() + 1); 1 === o.length && (o = 0 + o), 1 === t.length && (t = 0 + t), a.src = "https://addsoupbase.github.io/entries/" + e, n.value = [i.getFullYear(), o, t].join("-") }, a = document.getElementById("display"), i = new Date, l = document.getElementById("prev"), g = document.getElementById("next"); n.setAttribute("max", a.src); var d = function () { if (this.value.trim()) { for (var e = this.value.split("-"), t = e[2] = (+e[2] + 1).toString(); t.length < 2;)t = 0 + t; i = new Date(e.join("-")), o() } }; h.on(n, { change: d, textInput: d }), h.on(l, { click: function () { i.setDate(i.getDate() - 1), o() } }), h.on(g, { click: function () { i.setDate(i.getDate() + 1), o() } }), h.on(t, { click: function () { i = new Date, o() } }); t.click() }, e.send() } })</script>
 </body>
 
 </html>
