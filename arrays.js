@@ -1,3 +1,5 @@
+let {isArray} = Array,
+{iterator,toPrimitive} = Symbol
 /*export function assemble(arrayLike, ...sequence) {
     const out = []
         , push = [].push.bind(out),
@@ -23,10 +25,19 @@ export function pr(target, ...props) {
     return new Proxy(target, handler)
 }
 */
+const { parse: prse, stringify } = JSON
+    , proto = Object.preventExtensions(Object.create(null, { [toPrimitive]: { value() { return stringify(this) } } }))
 export function parse(str) {
-    return { __proto__: null, ...JSON.parse(str) }
+    let n = prse(str)
+    return Object(n) === n ? deep(isArray(n) ? n : { __proto__: proto, ...n }) : n
 }
-
+function deep(obj) {
+    for (let i in obj) {
+        let val = obj[i]
+        val === Object(val) && !isArray(val) && deep(obj[i] = {__proto__: proto, ...val})
+    }
+    return obj
+}
 export function forKeys(obj, callback) {
     let keys = Reflect.ownKeys(obj)
     for (let { length: i } = keys; i--;) callback.call(obj, keys[i])
@@ -43,7 +54,7 @@ export function of(length, filler) {
 
 export function from(ArrayLike, map, thisArg) {
     // Array.from checks @@iterator first, which would be slower in cases where it is callable
-    return ArrayLike.length >= 0 ? map ? [].map.call(ArrayLike, map, thisArg) : [].slice.call(ArrayLike) : map ? Array.from(ArrayLike, map, thisArg) : typeof ArrayLike[Symbol.iterator] !== 'undefined' ? [...ArrayLike] : []
+    return ArrayLike.length >= 0 ? map ? [].map.call(ArrayLike, map, thisArg) : [].slice.call(ArrayLike) : map ? Array.from(ArrayLike, map, thisArg) : typeof ArrayLike[iterator] !== 'undefined' ? [...ArrayLike] : []
 }
 
 /*export function forEach(ArrayLike, callback, thisArg) {
@@ -98,7 +109,7 @@ export function swap(item, first, second) {
 
 export function swapInside(item, firstIndex, secondIndex) {
     const indexOf = [].indexOf.bind(item),
-     slot = indexOf(firstIndex),
+        slot = indexOf(firstIndex),
         slot2 = indexOf(secondIndex)
     if (~slot && ~slot2) return swap(item, slot, slot2)
     throw RangeError("Index out of range")
@@ -153,12 +164,12 @@ export let getJson
 function TestImportSupport() {
     // Some browsers (old) throw with the 'options' parameter
     // Firefox works now thankfully, but opera needs to catch up
-    let s = {type:'json'}
+    let s = { type: 'json' }
     getJson = fallback.constructor
         // Some, even older browsers, prefer 'assert' over 'with'
         // i sometimes wonder why they changed it in the first place if it works pretty much the same...
-        ('t,a,l,r,u','"use strict";let h=(await import(new r(u,l),t)).default;this.json=!0;return a(h)?h:{__proto__:null,...h}')
-    .bind(sessionStorage,{assert:s,with:s},Array.isArray,location,URL)
+        ('t,a,l,r,u', '"use strict";let h=(await import(new r(u,l),t)).default;this.json=!0;return a(h)?h:{__proto__:null,...h}')
+        .bind(sessionStorage, { assert: s, with: s }, isArray, location, URL)
 }
 
 function FallbackImport() {

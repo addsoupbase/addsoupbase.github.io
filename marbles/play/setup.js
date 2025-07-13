@@ -344,11 +344,15 @@ canvas.on({
 })
 
 function resize() {
+    
     canvas.setAttr({
         width: (innerWidth)|0,
         height: (innerHeight)|0
     })
 }
+h.on(window, {
+    resize
+})
 let {overlay} = $.id
 
 function toggleJoystick() {
@@ -376,7 +380,6 @@ function go() {
     if (document.readyState === 'complete') go()
     else h.on(window,{'_first-contentful-paint':go}),
 h.on(window, {
-    resize,
     
     keyup({key}) {
         if (/^(?:w|arrowup)$/i.test(key)) return cam.moving &= ~0b1000
