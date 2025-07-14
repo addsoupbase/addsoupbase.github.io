@@ -22,4 +22,5 @@ export let { dashVendor,
     pev,
     supportedPElementVendor,
     dropShadow,
-    boxShadow } = Symbol.for('CSS') in Object(window.css) ? css : (await import('./css.js'), n=css, delete window.css, n)
+    boxShadow } =Symbol.for('CSS')in Object(window.css) ?css:(await import('./css.js'),css)
+delete window.css

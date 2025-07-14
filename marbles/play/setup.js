@@ -2,7 +2,7 @@ import $ from 'https://addsoupbase.github.io/yay.js'
 import * as h from 'https://addsoupbase.github.io/handle.js'
 import * as math from 'https://addsoupbase.github.io/num.js'
 import * as arr from 'https://addsoupbase.github.io/arrays.js'
-import {lstorage} from 'https://addsoupbase.github.io/proxies.js'
+import { lstorage } from 'https://addsoupbase.github.io/proxies.js'
 import * as str from 'https://addsoupbase.github.io/str.js'
 import ran from 'https://addsoupbase.github.io/random.js'
 $.importWebComponent?.('touch-joystick')
@@ -18,7 +18,7 @@ export let joystick = (lstorage.joystick ??= `${!!navigator.maxTouchPoints}`) ==
 lstorage.music ??= .5
 lstorage.sound ??= .7
 let joystickSpeed = +(lstorage.joystickspeed ??= 6)
-const {vect} = math
+const { vect } = math
 export const canvas = $.gid('can-vas')
 let main = $.qs('main')
 export const images = new Map
@@ -61,7 +61,7 @@ function error() {
 }
 
 export function playRandomMusic() {
-    let {all} = music
+    let { all } = music
     let pick = ran.choose(...all)
     if (this && all.size > 1) while (pick === this) pick = ran.choose(...all)
     pick.currentTime = 0
@@ -72,7 +72,7 @@ export function playRandomMusic() {
 console.log('%chttps://www.youtube.com/@SakuraGirl/', 'color: blue; text-decoration: underline; cursor: pointer;')
 export function doAudioThing() {
     'beach flowers freshair garden leaves love peach rainbow spring'.split(' ').map(src => {
-            let out = $(`<audio src="../audio/${src}.mp3" data-name="${src}" preload="auto"></audio>`)
+        let out = $(`<audio src="../audio/${src}.mp3" data-name="${src}" preload="auto"></audio>`)
             .on({
                 '#canplaythrough'() {
                     music.add(this)
@@ -83,9 +83,9 @@ export function doAudioThing() {
                     setTimeout(playRandomMusic.bind(this), 3000)
                 },
             })
-            out.volume = lstorage.music
-            return out
-        }
+        out.volume = lstorage.music
+        return out
+    }
     )
     /*if ('userActivation'in navigator) {
     let doplay = setInterval(() => {
@@ -101,15 +101,15 @@ export function doAudioThing() {
     })
     }*/
     'click confirm pop'.split(' ').map(src => {
-            let out = $(`<audio src="../audio/${src}.mp3" data-name="${src}" preload="auto"></audio>`)
+        let out = $(`<audio src="../audio/${src}.mp3" data-name="${src}" preload="auto"></audio>`)
             .on({
                 '#canplaythrough'() {
                     sounds.add(this)
                 },
                 '#error': error
             }, false, new AbortController)
-            out.volume = lstorage.sound
-        }
+        out.volume = lstorage.sound
+    }
     )
 }
 if (+lstorage.music !== 0) doAudioThing()
@@ -229,7 +229,7 @@ mobileJoystick.on({
     },
     move() {
         if (!mobileTouching) return
-        touchInput.set(this.x,this.y).scale(-joystickSpeed)
+        touchInput.set(this.x, this.y).scale(-joystickSpeed)
     },
     hold(e) {
         mobileTouching = true
@@ -270,13 +270,13 @@ export const cam = {
     }
 }
 canvas.on({
-    wheel({deltaY}) {
+    wheel({ deltaY }) {
         let n = Math.sign(deltaY) / 80
         cam.targetZoom -= n
         cam.targetZoom = math.clamp(cam.targetZoom, 0.01, 10)
     },
     pointerdown(event) {
-        let {offsetX: x, offsetY: y, button, pointerId} = event
+        let { offsetX: x, offsetY: y, button, pointerId } = event
         let pos = vect(x, y)
         let touch = event.pointerType === 'touch'
         if (touch && joystick) {
@@ -310,7 +310,7 @@ canvas.on({
                 break
         }
     },
-    pointerup({button, pointerId}) {
+    pointerup({ button, pointerId }) {
         if (joystick) mobileTouching = false
         this.releasePointerCapture(pointerId)
         switch (button) {
@@ -328,7 +328,7 @@ canvas.on({
     pointermove(e) {
         let touch = e.pointerType === 'touch'
         if (joystick && touch) return
-        let {offsetX: x, offsetY: y, clientX, clientY, } = e
+        let { offsetX: x, offsetY: y, clientX, clientY, } = e
         let pos = vect(x, y)
         mouse.cursor.set(pos)
         //  'movementX' and 'movementY' are, like,
@@ -344,14 +344,14 @@ canvas.on({
 })
 
 function resize() {
-    
+
     canvas.setAttr({
-        width: (innerWidth)|0,
-        height: (innerHeight)|0
+        width: (innerWidth) | 0,
+        height: (innerHeight) | 0
     })
 }
 
-let {overlay} = $.id
+let { overlay } = $.id
 
 function toggleJoystick() {
     if (joystick) mobileJoystick.show(3)
@@ -361,31 +361,31 @@ function toggleJoystick() {
 toggleJoystick()
 let first = false
 function go() {
-        if (inEditor) return
-        overlay.style.display = ''
-        overlay.classList.add('slide-in-blurred-top')
-         !function n(wait){
-            try {
-            if (wait === window.requestIdleCallback) return wait(cam.nextFrame, {timeout: 2000})
+    if (inEditor) return
+    overlay.style.display = ''
+    overlay.classList.add('slide-in-blurred-top')
+    !function n(wait) {
+        try {
+            if (wait === window.requestIdleCallback) return wait(cam.nextFrame, { timeout: 2000 })
             if (wait === window.setTimeout) return wait(cam.nextFrame, 2000)
             wait(cam.nextFrame)
-            }
-            catch {
-                setTimeout(n,1000, wait)
-            }
-        }(window.requestIdleCallback ?? window.setTimeout ?? window.queueMicrotask)
-    }
-    if (document.readyState === 'complete') go()
-    else h.on(window,{'_first-contentful-paint':go})
+        }
+        catch {
+            setTimeout(n, 1000, wait)
+        }
+    }(window.requestIdleCallback ?? window.setTimeout ?? window.queueMicrotask)
+}
+if (document.readyState === 'complete') go()
+else h.on(window, { '_first-contentful-paint': go })
 h.on(window, {
     resize,
-    keyup({key}) {
+    keyup({ key }) {
         if (/^(?:w|arrowup)$/i.test(key)) return cam.moving &= ~0b1000
         if (/^(?:s|arrowdown)$/i.test(key)) return cam.moving &= ~0b0100
         if (/^(?:a|arrowleft)$/i.test(key)) return cam.moving &= ~0b0010
         if (/^(?:d|arrowright)$/i.test(key)) return cam.moving &= ~0b0001
     },
-    keydown({key}) {
+    keydown({ key }) {
         if (/^(?:w|arrowup)$/i.test(key)) return cam.moving |= 0b1000
         if (/^(?:s|arrowdown)$/i.test(key)) return cam.moving |= 0b0100
         if (/^(?:a|arrowleft)$/i.test(key)) return cam.moving |= 0b0010
@@ -419,7 +419,7 @@ let url = new URL(location)
 export let levelName = url.searchParams.get('level')
 
 export function msg(e) {
-    let {data} = e
+    let { data } = e
     if (typeof data === 'string') switch (data) {
         case 'resetMouse':
             return mouse.reset()
@@ -481,7 +481,7 @@ void function start(ignore) {
         mobileJoystick.hide(3)
         document.title = 'Choose a level - Marbles'
         let pick = overlay
-        pick.style.height="50vh"
+        pick.style.height = "50vh"
         pick.show(3)
         pick.push($('<h1>Choose a level</h1>'))
         let id
@@ -495,7 +495,7 @@ void function start(ignore) {
                         author.hide(3)
                         anchor.hide(3)
                         loader.fadeIn()
-                        message.style.color=''
+                        message.style.color = ''
                         let {
                             title,
                             author: authorName
@@ -505,11 +505,11 @@ void function start(ignore) {
                             message.fadeIn()
                         author.fadeIn()
                         anchor.fadeIn()
-                        anchor.setAttr({href: `?level=${id}`})
+                        anchor.setAttr({ href: `?level=${id}` })
                     } catch (e) {
                         reportError(e)
                         message.textContent = 'Level invalid or not found!'
-                        message.setStyles({color: 'darkred'})
+                        message.setStyles({ color: 'darkred' })
                         message.fadeIn()
                     } finally {
                         loader.hide(3)
@@ -517,11 +517,11 @@ void function start(ignore) {
                 }
             }
         })
-$(`<div>
+        $(`<div>
 <input placeholder="Enter Level Id..." class="cute-green" name="levelid" required>
 </div>`, {
-    parent:firstdiv
-})
+            parent: firstdiv
+        })
         $(`<div>
 <button class="cute-green-button">Enter</button>
 </div>`, {
@@ -537,7 +537,7 @@ $(`<div>
         let author = $('<cite>By Author</cite>', {
             parent: pick
         }).hide(3)
-        let anchor = $(`<a id="play" class="cute-green-button">Play!</a>`, {parent: pick}).hide(3)
+        let anchor = $(`<a id="play" class="cute-green-button">Play!</a>`, { parent: pick }).hide(3)
     } else {
         init()
     }
