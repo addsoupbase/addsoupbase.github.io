@@ -8,9 +8,11 @@ if (top === window)
     standalone()
 async function standalone() {
     if (ran) return
+    
     ran = true
     let {default: $} = await import('./yay.js'),
         css = await import('./csshelper.js')
+        $.body.push($('<div style="place-self:center;margin:10px"><a href="../../diary.html">View in Diary</a></div>'))
     css.importCSS('../../cute-green.css')
     css.importCSS(`data:text/css,main{opacity: 1 !important;}`)
     let main = $.qs('main')
@@ -51,3 +53,6 @@ main.afterbegin=$(`<div style="margin:30px;transform:scale(1.7,1.7);display:flex
     fetch(`../${tomorrowPath}/index.html`).then(t.show.bind(t,3))*/
 }
 /localhost|127\.0\.0\.1/.test(origin) && console.warn(`%cREMEMBER TO SET WIDTH TO A PERCENTAGE ON ALL <img> ELEMENTS! Count: ${document.images.length}`, 'font-size:1.2rem')
+;[].forEach.call(document.links, o => {
+    o.setAttribute('rel',`noopener noreferrer nofollow ${o.getAttribute('rel') || ''}`)
+})
