@@ -5,7 +5,6 @@ css:
         sym = w.Symbol.for('CSS'),
         { currentScript } = document
     if (sym in Object(w.css)) break css
-    
     w.reportError = w.reportError || function reportError(throwable) {
         w.dispatchEvent(new ErrorEvent('error', {
             message: throwable.message,
@@ -466,7 +465,7 @@ css:
         //    Some default CSS...
         try {
             let all = sessionStorage.defaultCSS ?? Object.entries({
-                [`button,a,${'button checkbox radio submit image reset file'.split(' ').map(o => `input[type=${o}]`).join(',')
+                [`:where(button,a,${'button checkbox radio submit image reset file'.split(' ').map(o => `input[type=${o}])`).join(',')
                     }`]: {
                     cursor: 'pointer'
                 },
@@ -474,20 +473,19 @@ css:
                     '--crisp-edges': '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(o => sup('image-rendering', o)),
                     '--stretch': '-moz-available -webkit-fill-available stretch'.split(' ').find(o => sup('max-width', o))
                 },
-
-                img: {
+                ':where(img)': {
                     '--force-broken-image-icon': 1,
                 },
-                'input[type=range]': {
+                ':where(input[type=range])': {
                     cursor: 'grab'
                 },
-                'input[type=range]:active': {
+                ':where(input[type=range]:active)': {
                     cursor: 'grabbing'
                 },
-                ':disabled,[aria-disabled="true"]': {
+                ':where(:disabled,[aria-disabled="true"])': {
                     cursor: 'not-allowed'
                 },
-                '.centerx,.center': {
+                ':where(.centerx,.center)': {
                     'justify-self': 'center',
                     margin: 'auto',
                     'text-align': 'center'
@@ -505,17 +503,15 @@ css:
                        cursor: 'wait',
                        content: 'attr(alt)'
                    },*/
-                '.centery,.center': {
+                ':where(.centery,.center)': {
                     'align-self': 'center',
                     inset: 0,
                     position: 'fixed'
                 },
-            }).map(({ 0: key, 1: val }) =>
-                `${key}{${toCSS(val)}}`
-            )
-            if (typeof all === 'string') all = all.split('✕')
+            }).map(({ 0: key, 1: val }) =>`${key}{${toCSS(val)}}`)
+            if (typeof all === 'string') all = all.split('✕✕')
              sheet.textContent = `${sheet.textContent}${all.join('')}`
-            sessionStorage.defaultCSS=all.join('✕')
+            sessionStorage.defaultCSS=all.join('✕✕')
         } catch (e) {
             console.error(e)
         }

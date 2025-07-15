@@ -127,7 +127,7 @@ function doVendor(target, prop, r) {
         if ((p = `ms${tuc}${slice}`) in target) return this(target, p, r)
     }
     catch {
-        return this.apply(1,arguments)
+        return this.apply(1, arguments)
     }
 }
 let getVendor = doVendor.bind(get),
@@ -183,8 +183,21 @@ const attrStyleMap = 'StylePropertyMap' in window
             }
         },
         styles: attrStyleMap ? {
+            __proto__: {
+                // Behave somewhat like a string, for compatibility with browsers that don't support attributeStyleMap
+                proxy: {
+                    has(t,p) {
+                        return p in new String || p in t
+                    },
+                    get(t, p) {
+                        if (p in new String) return''[p].bind(`${t}`)
+                            return t[p]
+                    },
+                }
+            },
             get(target, prop) {
-                return prop.startsWith('--') ? target.get(prop) : target.get(css.dashVendor(prop, 'inherit'))
+                let out = prop.startsWith('--') ? target.get(prop) : target.get(css.dashVendor(prop, 'inherit'))
+                return out && new Proxy(Object.freeze(out), super.proxy)
             },
             set(target, prop, value) {
                 (value == null || value === '') ? this.deleteProperty(target, prop)
@@ -377,7 +390,8 @@ let props = getOwnPropertyDescriptors(class _
         apply(this, me, args)
     }
     on(events, signal) {
-        arguments.length > 2 && (signal = arguments[2])
+        arguments.length > 2 && h.getLabel(signal) !== 'AbortController' && (signal = arguments[2]) 
+        // There used to be a 'useHandler' parameter
         let me = this
         if (typeof events === 'function') events = _.ProxyEventWrapperFunction.bind(old, me)
         else for (let i in events) events[i] = _.ProxyEventWrapperFunction.bind(events[i], me)
@@ -857,7 +871,7 @@ let props = getOwnPropertyDescriptors(class _
         return prox(lastElementChild)
     }
 
-    get ancestors() {
+    get length() {
         return base(this).getElementsByTagName('*').length
     }
 
@@ -1210,7 +1224,7 @@ const entryTypes = {
 }
 const perf = new PerformanceObserver(PerformanceObserverCallback)
 let supported = Set.prototype.has.bind(new Set(PerformanceObserver.supportedEntryTypes)),
-observe = perf.observe.bind(perf)
+    observe = perf.observe.bind(perf)
 ownKeys(entryTypes).forEach(type =>
     supported(type) && observe({ type, buffered: true })
 )
@@ -1413,7 +1427,7 @@ function $(html, props, ...children) {
     if (getValid(html)) return prox(html) // Redirect
     let type = typeof html
     if (type === 'number') return prox(document.getElementsByTagName('*')[html])
-     type === 'string' && (html = html.trim())
+    type === 'string' && (html = html.trim())
     let element
     if (html?.[0] === '<' && html.endsWith('>')) {
         html = safeHTML(html)
@@ -1611,8 +1625,8 @@ export const define = function () {
         return dfn.apply(1, args)
     }
 }()
-typeof mozInnerScreenX === 'number'&&!supported('paint')&&addEventListener('MozAfterPaint',()=>painted ||= !dispatchEvent(new Event('first-paint')), {once:true})
+typeof mozInnerScreenX === 'number' && !supported('paint') && addEventListener('MozAfterPaint', () => painted ||= !dispatchEvent(new Event('first-paint')), { once: true })
 supported = null
 // diary stuff
-if (location.pathname.startsWith('/entries') && (location.host === 'localhost:3000' || location.host === 'addsoupbase.github.io'))
-    document.querySelector('script[src="../../diary.js"]') ?? import('./diary.js')
+if (location.pathname.startsWith('/entries') && (location.host === 'localhost:3000' || location.host === 'addsoupbase.github.io')) document.querySelector('script[src="../../diary.js"]') ?? import('./diary.js');
+/localhost/.test(origin) && (window.$ = $)

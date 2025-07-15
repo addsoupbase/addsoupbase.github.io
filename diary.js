@@ -1,3 +1,4 @@
+'use strict'
 console.log('Welcome to my diary lol')
 // basically, if i want to run JS for every entry, it would go in this file
     let ran = false
@@ -49,3 +50,4 @@ main.afterbegin=$(`<div style="margin:30px;transform:scale(1.7,1.7);display:flex
     fetch(`../${yesterdayPath}/index.html`).then(y.show.bind(y,3))
     fetch(`../${tomorrowPath}/index.html`).then(t.show.bind(t,3))*/
 }
+/localhost|127\.0\.0\.1/.test(origin) && console.warn(`%cREMEMBER TO SET WIDTH TO A PERCENTAGE ON ALL <img> ELEMENTS! Count: ${document.images.length}`, 'font-size:1.2rem')
