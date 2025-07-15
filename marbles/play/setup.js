@@ -1,10 +1,10 @@
-import $ from 'https://addsoupbase.github.io/yay.js'
-import * as h from 'https://addsoupbase.github.io/handle.js'
-import * as math from 'https://addsoupbase.github.io/num.js'
-import * as arr from 'https://addsoupbase.github.io/arrays.js'
-import { lstorage } from 'https://addsoupbase.github.io/proxies.js'
-import * as str from 'https://addsoupbase.github.io/str.js'
-import ran from 'https://addsoupbase.github.io/random.js'
+import $ from '../../yay.js'
+import * as h from '../../handle.js'
+import * as math from '../../num.js'
+import * as arr from '../../arrays.js'
+import { lstorage } from '../../proxies.js'
+import * as str from '../../str.js'
+import ran from '../../random.js'
 $.importWebComponent?.('touch-joystick')
 export let inEditor
 try {
@@ -527,7 +527,6 @@ void function start(ignore) {
 </div>`, {
             parent: firstdiv,
         })
-
         let loader = $('<div class="loader centerx"></div>', {
             parent: pick
         }).hide(3)
@@ -544,6 +543,6 @@ void function start(ignore) {
 }()
 
 function init() {
-    import('./define.js')
+    import('http://localhost:3000/marbles/play/define.js')
 }
 

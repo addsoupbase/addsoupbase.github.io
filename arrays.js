@@ -152,7 +152,7 @@ const headers = {
 }
 
 async function fallback(src) {
-    let n = await fetch(new URL(src, location), headers),
+    let n = await fetch(resolve(src, location), headers),
         type = n.headers.get('Content-Type')
     if (/(?:application|text)\/json/.test(type)) return await n.json()
     throw TypeError(`Failed to load module script: Expected a JSON module script but the server responded with a MIME type of "${type}". Strict MIME type checking is enforced for module scripts per HTML spec.`)
@@ -168,10 +168,12 @@ function TestImportSupport() {
     getJson = fallback.constructor
         // Some, even older browsers, prefer 'assert' over 'with'
         // i sometimes wonder why they changed it in the first place if it works pretty much the same...
-        ('t,a,l,r,u', '"use strict";let h=(await import(new r(u,l),t)).default;this.json=!0;return a(h)?h:{__proto__:null,...h}')
-        .bind(sessionStorage, { assert: s, with: s }, isArray, location, URL)
+        ('t,a,l,r,u', '"use strict";let h=(await import(r(u,l),t)).default;this.json=!0;return a(h)?h:{__proto__:null,...h}')
+        .bind(sessionStorage, { assert: s, with: s }, isArray, location, resolve)
 }
-
+function resolve(url, base) {
+     return new URL(url, globalThis.document?.querySelector('base')?.getAttribute('href') ?? base)
+}
 function FallbackImport() {
     sessionStorage.setItem("json", false)
     getJson = fallback

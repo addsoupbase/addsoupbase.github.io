@@ -29,14 +29,14 @@ import {
     msg,
     mobileTouching, doAudioThing, playRandomMusic
 } from './setup.js'
-import {lstorage} from 'https://addsoupbase.github.io/proxies.js'
-import ran from 'https://addsoupbase.github.io/random.js'
-import * as str from 'https://addsoupbase.github.io/str.js'
-import * as math from 'https://addsoupbase.github.io/num.js'
-import * as h from 'https://addsoupbase.github.io/handle.js'
-import $ from 'https://addsoupbase.github.io/yay.js'
-import {getJson as jason} from 'https://addsoupbase.github.io/arrays.js'
-import color from 'https://addsoupbase.github.io/color.js'
+import {lstorage} from '../../proxies.js'
+import ran from '../../random.js'
+import * as str from '../../str.js'
+import * as math from '../../num.js'
+import * as h from '../../handle.js'
+import $ from '../../yay.js'
+import {getJson as jason} from '../../arrays.js'
+import color from '../../color.js'
 // function defineFuncs(obj, funcs) {
 // return Object.defineProperties(obj, Object.getOwnPropertyDescriptors(funcs))
 // }
