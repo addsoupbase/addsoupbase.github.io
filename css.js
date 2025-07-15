@@ -469,6 +469,9 @@ css:
                     }`]: {
                     cursor: 'pointer'
                 },
+                '*':{
+                    'box-sizing':'border-box'
+                },
                 ':root': {
                     '--crisp-edges': '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(o => sup('image-rendering', o)),
                     '--stretch': '-moz-available -webkit-fill-available stretch'.split(' ').find(o => sup('max-width', o))
