@@ -505,7 +505,7 @@ void function start(ignore) {
                             message.fadeIn()
                         author.fadeIn()
                         anchor.fadeIn()
-                        anchor.setAttr({ href: `?level=${id}` })
+                        anchor.setAttr({ href: `https://marbles.deno.dev/?level=${id}` })
                     } catch (e) {
                         reportError(e)
                         message.textContent = 'Level invalid or not found!'
@@ -543,6 +543,6 @@ void function start(ignore) {
 }()
 
 function init() {
-    import('http://localhost:3000/marbles/play/define.js')
+    import('./define.js')
 }
 
