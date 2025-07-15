@@ -1119,7 +1119,7 @@ function collisionActive({pairs}) {
 }
 
 let overlay = $.gid('overlay')
-top.m = marbleStats
+
 
 async function cacheImageAndSet(url, index) {
     let n = new Image
