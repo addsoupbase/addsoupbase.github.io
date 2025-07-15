@@ -22,30 +22,28 @@ const sym = Symbol.for("🔔")
         logger[i] = DelayedLog.bind(old)
         logger[`${i}Late`] = LogOutOfGroup.bind(old)
     }
-    // str.push(`${i}(...args)${DelayedLog.toString().match(/\{.*}/s)[0].replace('old.bind.apply(old',`super.${i}.bind(1`)}, ${i}Late(...args)${LogOutOfGroup.toString().match(/\{.*}/s)[0].replace('old.bind.apply(old',`super.${i}.bind(1`)}`)
 }
-// console.debug(str.join(','))
 let { warn, groupCollapsed, groupEnd } = logger,
     { isArray } = Array
 export const allEvents = new WeakMap
-let add,remove,dispatch
+let add, remove, dispatch
 {
     let { addEventListener, removeEventListener, dispatchEvent } = globalThis.EventTarget?.prototype ?? AbortSignal.prototype
     if (Function.prototype.toString.call(addEventListener) !== Function.prototype.toString().replace('function ', 'function addEventListener'))
         // adds ~20ms
-    try {
-        console.warn('Monkeypatch detected: ', addEventListener)
-        // in case they monkeypatch the EventTarget.prototype
-        let n = document.createElement('iframe'),
-        el = document.head ?? document
-        el.append(n),
-        { addEventListener, removeEventListener, dispatchEvent } = n.contentWindow
-        n.contentWindow.close()
-        el.removeChild(n)
-        n = null
-    } catch (e) {
-        console.error(e)
-    }
+        try {
+            console.warn('Monkeypatch detected: ', addEventListener)
+            // in case they monkeypatch the EventTarget.prototype
+            let n = document.createElement('iframe'),
+                el = document.head ?? document
+            el.append(n),
+                { addEventListener, removeEventListener, dispatchEvent } = n.contentWindow
+            n.contentWindow.close()
+            el.removeChild(n)
+            n = null
+        } catch (e) {
+            console.error(e)
+        }
     add = addEventListener.call.bind(addEventListener)
     remove = removeEventListener.call.bind(removeEventListener)
     dispatch = dispatchEvent.call.bind(dispatchEvent)
@@ -90,7 +88,7 @@ function lastResort(target) {
 }
 
 export function getLabel(obj) {
-    return {}.toString.call(obj).slice(8, -1) || 'Object'
+    return {}.toString.call(obj).slice(8, -1).trim() || 'Object'
     /*
     try {
         let proto
@@ -125,8 +123,8 @@ function verifyEventName(target, name) {
     name = name.toLowerCase()
     let valid = (customEvents.has(name) || `on${name}` in target ||
         ((original === 'DOMContentLoaded' && (target instanceof Document || target instanceof HTMLDocument || target.ownerDocument?.defaultView?.HTMLDocument.prototype.isPrototypeOf(target) || target.ownerDocument?.defaultView?.Document.prototype.isPrototypeOf(target) || target.defaultView?.Document.prototype.isPrototypeOf(target) || target.defaultView?.HTMLDocument?.prototype.isPrototypeOf(target)))
-            || (/^(animation(?:cancel|remove))$/i.test(original) && 'onremove' in target)
-            || /^(?:focus(?:in|out))$/i.test(original)
+            || (/^(animation(?:cancel|remove))$/.test(original) && 'onremove' in target)
+            || /^(?:focus(?:in|out))$/.test(original)
             || (/^(?:DOM(?:Activate|MouseScroll|Focus(?:In|Out)|(?:Attr|CharacterData|Subtree)Modified|NodeInserted(?:IntoDocument)?|NodeRemoved(?:FromDocument)?))$/.test(original)))
         //Some events like the ones above don't have a handler
     )
@@ -140,7 +138,7 @@ function verifyEventName(target, name) {
             if (typeof MouseScrollEvent === 'function') return 'DOMMouseScroll' // If they don't support the first 2, this one will work ~100% of the time
             return 'MozMousePixelScroll' // The last resort, since there's no way to detect support with this one
         }
-        logger.warnLate(`'${original}' events might not be available on the following object:`, target)
+        logger.warnLate(`'${original}' events might not be available on the following EventTarget:`, target)
     }
     return original
 }
@@ -197,7 +195,7 @@ export const {
     preventDefault: PREVENT_DEFAULT, passive: PASSIVE,
     capture: CAPTURE, stopPropagation: STOP_PROPAGATION, stopImmediatePropagation: STOP_IMMEDIATE_PROPAGATION
 } = {
-    currentTarget: '@', //Only call function if event.target === event.currentTarget
+    currentTarget: '@', //Only call function if (event.target === event.currentTarget)
     autoAbort: '#', //Automatically abort all listeners with the same signal
     trusted: '?', //Only call function if (event.isTrusted)
     once: '_', //Automatically removed after first call
@@ -255,7 +253,7 @@ export function on(target, events, signal) {
             }
             signal && (options.once = once, options.signal = signal.signal)
             const listener = EventWrapper.bind(
-                target, func, signal, 
+                target, func, signal,
                 signal?.abort.bind(signal, 'Automatic abort'),
                 onlyTrusted,
                 onlyCurrentTarget,
@@ -296,22 +294,22 @@ export function on(target, events, signal) {
     return target
 }
 const customEventHandler = {
-    has(t,p) {
+    has(t, p) {
         return p in t || p in Object(t.detail)
     },
-    set(t,p,v) {
-        return Reflect.set(p in t ? t : t.detail,p,v)
+    set(t, p, v) {
+        return Reflect.set(p in t ? t : t.detail, p, v)
     },
-    get(t,p) {
+    get(t, p) {
         if (p in t) return t[p]
-        let {detail} = t
+        let { detail } = t
         if (p in Object(detail)) {
             let out = detail[p]
             return typeof out === 'function' ? out.bind(detail) : out
-        } 
+        }
     }
 }
-function EventWrapper(f,s,abrt,t,oct,p,sp,sip,aa,once,name,...args) {
+function EventWrapper(f, s, abrt, t, oct, p, sp, sip, aa, once, name, ...args) {
     let { 0: event } = args,
         label = getLabel(event),
         { currentTarget } = event,
@@ -322,9 +320,10 @@ function EventWrapper(f,s,abrt,t,oct,p,sp,sip,aa,once,name,...args) {
             event.axis === 2 ?
                 (event.deltaX = 0, event.deltaY = 50 * detail) : event.axis === 1 &&
                 (event.deltaX = 50 * detail, event.deltaY = 0)
-    s&&args.push(abrt)
-    args.push(off.bind(null, this, name))
-    t&&event.isTrusted||!t&&(!oct||oct&&(event.target??event.srcElement)===currentTarget) &&
+    let push = args.push.bind(args)
+    s && push(abrt)
+    push(off.bind(null, this, name))
+    t && event.isTrusted || !t && (!oct || oct && (event.target ?? event.srcElement) === currentTarget) &&
         (apply(f, this, args),
             p && (event.cancelable ? event.defaultPrevented ? console.warn(`'${name}' event has already been cancelled`) : event.preventDefault() : warn(`🔊 '${name}' events are not cancelable`), event.returnValue = !p),
             sp && (event.cancelBubble = true, event.stopPropagation()),
@@ -358,7 +357,6 @@ export function off(target, ...eventNames) {
 
 export function until(target, eventName, failureName, timeout/* = 600000*/) {
     return new Promise(waitForEvent)
-
     function waitForEvent(resolve, reject) {
         const str = `⏰ Promise for '${eventName}' expired after ${timeout} ms`
             , id = timeout && setTimeout(err => {

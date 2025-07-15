@@ -363,7 +363,7 @@ let props = getOwnPropertyDescriptors(class _
         do my.remove()
         while (my.isConnected /*document.contains(my)*/)
         let myevents = h.getEventNames(my)
-        myevents.size && apply(this.off, this, myevents)
+        myevents.size && this.off(...myevents)
         all.delete(my)
         // inte?.unobserve(my)
         // resi.unobserve(my)
@@ -657,16 +657,16 @@ let props = getOwnPropertyDescriptors(class _
         switch (t) {
             case 1:
             default:
-                this.setAttr(_.hidden);
+                this.setAttr(_.hidden)
                 break
             case 2:
-                base(this).style.visibility = 'hidden';
+                base(this).style.visibility = 'hidden'
                 break
             case 3:
-                base(this).style.display = 'none';
+                base(this).style.display = 'none'
                 break
             case 4:
-                this.setStyles({ '--content-visibility': 'hidden' });
+                this.setStyles({ '--content-visibility': 'hidden' })
                 break
             case 5:
                 this.setStyles({
@@ -692,16 +692,16 @@ let props = getOwnPropertyDescriptors(class _
         switch (t) {
             case 1:
             default:
-                this.setAttr(_.notHidden);
+                this.setAttr(_.notHidden)
                 break
             case 2:
-                base(this).style.visibility = 'visible';
+                base(this).style.visibility = 'visible'
                 break
             case 3:
-                base(this).style.display = '';
+                base(this).style.display = ''
                 break
             case 4:
-                this.setStyles({ '--content-visibility': '' });
+                this.setStyles({ '--content-visibility': '' })
                 break
             case 5:
                 this.setStyles({
@@ -767,12 +767,11 @@ let props = getOwnPropertyDescriptors(class _
     function func(node) { return node.matches(selector) }
     }*/
     resetSelfRules() {
-        for (let i in this.selfRules)
-            try {
+        for (let i in this.selfRules) try {
                 customRules.deleteRule([].indexOf.call(customRules.cssRules, this.selfRules[i]))
             } catch (e) {
                 console.debug(e)
-            }
+        }
     }
 
 
@@ -1426,7 +1425,7 @@ it's like being weird for some reason idfk how to use trusted types policy thing
 function $(html, props, ...children) {
     if (getValid(html)) return prox(html) // Redirect
     let type = typeof html
-    if (type === 'number') return prox(document.getElementsByTagName('*')[html])
+    // if (type === 'number') return prox(document.getElementsByTagName('*')[html])
     type === 'string' && (html = html.trim())
     let element
     if (html?.[0] === '<' && html.endsWith('>')) {
