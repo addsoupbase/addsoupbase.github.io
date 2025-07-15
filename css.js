@@ -512,9 +512,9 @@ css:
                     position: 'fixed'
                 },
             }).map(({ 0: key, 1: val }) =>`${key}{${toCSS(val)}}`)
-            if (typeof all === 'string') all = all.split('✕✕')
+            if (typeof all === 'string') all = all.split('✕')
              sheet.textContent = `${sheet.textContent}${all.join('')}`
-            sessionStorage.defaultCSS=all.join('✕✕')
+            sessionStorage.defaultCSS=all.join('✕')
         } catch (e) {
             console.error(e)
         }
