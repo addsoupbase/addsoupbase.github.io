@@ -1136,7 +1136,8 @@ window.getLevelFromJSON =
     async function getLevelFromJSON(id) {
         let summary = await jason(`./levels/${id}/info.json`)
         if (!inEditor) {
-            $.gid('title').textContent = str.shorten(summary.title || 'Untitled', 32)
+            $.id.overlay.attr._busy="false"
+            $.id.title.textContent = str.shorten(summary.title || 'Untitled', 32)
             $.id.author.textContent = str.shorten(summary.author || 'Unknown', 16)
         }
         else {
@@ -1148,6 +1149,7 @@ window.getLevelFromJSON =
             marbleSize.value = settings.radius
         }
         let data = await jason(`./levels/${id}/level.json`)
+        $.id['can-vas'].styles.cursor=''
         marbles.clear()
         Composite.clear(world, false, true)
         let {images: imgs, map, racers, settings, shapes} = data
@@ -1217,7 +1219,7 @@ if (levelName) {
     }, false, signal)
     let play
     overlay.push(
-        $('<h1 id="title">Untitled</h1>'),
+
         $('<cite id="author">Unknown</cite>'),
         $("div", null,
             play = $('<button class="cute-green-button" style="width: 95px;height: 41px;" id="yay" disabled autofocus>Play</button>', {

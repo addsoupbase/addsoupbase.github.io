@@ -21,7 +21,7 @@ css:
     }
     const all = new Set
         , has = all.has.bind(all),
-         add = all.add.bind(all)
+        add = all.add.bind(all)
     /*
     export function vendorValue(prop, val) {
         
@@ -57,15 +57,15 @@ css:
         })
     }
     const alreadyLogged = new Set,
-    alreadyHas = alreadyLogged.has.bind(alreadyLogged),
+        alreadyHas = alreadyLogged.has.bind(alreadyLogged),
         beenHereBefore = sessionStorage.getItem('css'),
         addAlr = alreadyLogged.add.bind(alreadyLogged),
         allVendors = /^-(?:webkit|moz|apple|khtml|konq|o|ms|xv|atsc|wap|ah|hp|ro|rim|tc|fso|icab|epub)-/,
         allVendors2 = /^(?:prince|mso)-/,
         dontRedo = new Map,
         sup = CSS.supports
-        //  (that i have used before) ,
-        // newerProps = /^(?:translate|scale|rotate|zoom)$/
+    //  (that i have used before) ,
+    // newerProps = /^(?:translate|scale|rotate|zoom)$/
     function badCSS(data, silent) {
         if (silent || alreadyHas(data)) return
         console.warn(data)
@@ -136,7 +136,7 @@ css:
     }
 
     // function mayNotBeSupported(prop) {
-        // newerProps.test(prop) && badCSS(`💿 '${prop}' may not be supported on older devices`)
+    // newerProps.test(prop) && badCSS(`💿 '${prop}' may not be supported on older devices`)
     // }
 
     function importFont(name, src) {
@@ -179,7 +179,7 @@ css:
      */
     function toCSS(obj, silent) {
         const arr = [],
-        push = [].push.bind(arr)
+            push = [].push.bind(arr)
         if (Array.isArray(obj)) obj = Object.fromEntries(obj)
         for (let prop in obj) {
             let p = `${obj[prop]}`
@@ -469,8 +469,8 @@ css:
                     }`]: {
                     cursor: 'pointer'
                 },
-                '*':{
-                    'box-sizing':'border-box'
+                ':where([aria-busy="true"])': {
+                    cursor: 'progress'
                 },
                 ':root': {
                     '--crisp-edges': '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(o => sup('image-rendering', o)),
@@ -511,10 +511,10 @@ css:
                     inset: 0,
                     position: 'fixed'
                 },
-            }).map(({ 0: key, 1: val }) =>`${key}{${toCSS(val)}}`)
+            }).map(({ 0: key, 1: val }) => `${key}{${toCSS(val)}}`)
             if (typeof all === 'string') all = all.split('✕')
-             sheet.textContent = `${sheet.textContent}${all.join('')}`
-            sessionStorage.defaultCSS=all.join('✕')
+            sheet.textContent = `${sheet.textContent}${all.join('')}`
+            sessionStorage.defaultCSS = all.join('✕')
         } catch (e) {
             console.error(e)
         }
@@ -533,12 +533,13 @@ css:
                 reportError(e)
             }
         }
+        universal['box-sizing'] = 'border-box'
         let selector = '*'
         allProps = null
         typeof beenHereBefore === 'string' ?
             sheet.textContent = `${sheet.textContent}${selector}{${beenHereBefore}}` :
             registerCSS(selector, universal, true)
-            ,sessionStorage.setItem('css', toCSS(universal, true))
+            , sessionStorage.setItem('css', toCSS(universal, true))
     }
     w.css = Object.seal({
         // [Symbol.toStringTag]: 'Module',

@@ -4,6 +4,11 @@ canvas {
     position: fixed;
     pointer-events: auto;
     touch-action: none;
+    cursor:grab;
+    --cursor-visibility: auto-hide;
+}
+canvas:active {
+    cursor:grabbing
 }
 :disabled {
     filter: opacity(50%);
@@ -13,6 +18,7 @@ canvas {
     max-width: 60vw;
     height: fit-content;
     max-height: 60vh;
+    place-items: center;
 }
 touch-joystick {
     place-items: center;

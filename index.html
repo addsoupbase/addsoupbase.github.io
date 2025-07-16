@@ -62,8 +62,14 @@
     class="BG">
     <main id="wrapper" style="display:grid;z-index: 3;pointer-events: none;overflow-x: hidden">
         <iframe id="frame" name="content" aria-atomic="true" aria-live="assertive" aria-relevant="all" title="content"
-            class="center" src="main.html" style="pointer-events: all !important;display:none;"></iframe>
-        <script>document.getElementById('frame').addEventListener('load', function () { 'use strict'; this.style.display = '' }, { once: true })</script>
+            class="center" style="pointer-events: auto !important;display:none;"></iframe>
+        <script>
+        !function(a) {
+            'use strict'
+            a.setAttribute('src','main.html')
+            a.addEventListener('load', function () { this.style.display = '' }, { once: true })
+        }(document.getElementById('frame'))
+        </script>
     </main>
     <button class="cute-green-button" id="show"
         style="position: fixed;bottom:15px;right:15px;display:none;z-index: 5;">Show</button>

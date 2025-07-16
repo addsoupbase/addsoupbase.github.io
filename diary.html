@@ -207,7 +207,7 @@
                 } else {
                     this.fadeIn()
                 }
-                this.parent.busy(false)
+                this.parent.isBusy=false
             }
         })
 
@@ -221,7 +221,7 @@
             diaryHeading.value = t
             currentThingy.hide(3)
             error.hide()
-            currentThingy.parent.busy(true)
+            currentThingy.parent.isBusy =true
             invalid.hide()
             canMove = false
             let url = `./entries/${date.replace(/\//g, '_')}`
@@ -254,7 +254,7 @@
                 error.show()
             } finally {
                 canMove = true
-                currentThingy.parent.busy(false)
+                currentThingy.parent.isBusy = false
             }
         }
 

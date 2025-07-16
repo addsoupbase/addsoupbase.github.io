@@ -4,7 +4,7 @@ import { wait, on } from '../handle.js'
 $.setup()
 let { main, drawInstead, send1, send2, draw, drawcontrols, undoDraw, submitDrawing } = $.id
 
-$.id.pickAColor
+// $.id.pickAColor
 drawInstead.on({
     _click() {
         this.before.destroy()
@@ -31,7 +31,7 @@ send2.on({
                 body: data
             })
             if (res.ok) {
-                await wait(1000)
+                // await wait(1000)
                 let yay = $('<samp>Sent... YAYYYYY!!</samp>')
                 await pencil.fadeOut()
                 pencil.replace(yay)
@@ -81,7 +81,6 @@ Object.assign(ctx, {
     lineJoin: 'round',
     lineCap: 'round',
     fillStyle: 'white',
-
 })
 ctx.fillRect(0, 0, 250, 250)
 ctx.fillStyle = 'black'
@@ -192,7 +191,7 @@ form.on({
         // name ||= 'Anonymous'
         !async function () {
             await form.fadeOut()
-            let hi = $(`<section><h3>Sent!! (hopefully)</h3></section>`)
+            let hi = $(`<section><h3>Sent!</h3></section>`)
             hi.push($('samp', { textContent: `Name: ${this.name.value || "Anonymous"}` }), $('br'),
                 $('samp', { textContent: `Message: ${this.message.value}` }))
             form.replace(hi)
@@ -222,9 +221,7 @@ form.on({
         // }
         // form.destroy()
     }
-}, false, controller
-)
-
+}, false, controller)
 fetch('https://misha-mail-85.deno.dev', {
     mode: 'cors'
-}).then(disableForm, disableForm)
+}).then(disableForm,disableForm)

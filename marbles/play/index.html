@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <base href="https://addsoupbase.github.io/marbles/play/">
+    <!-- <base href="https://addsoupbase.github.io/marbles/play/"> -->
     <title>LEVEL_TITLE by LEVEL_AUTHOR - Marbles</title>
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../animations.css">
@@ -45,8 +45,10 @@
     alert('You have a really bad browser :(')
 </script>
 <main>
-    <div id="overlay" class="center mainmenu" style="display: none;" role="alertdialog"></div>
-    <canvas id="can-vas" ></canvas>
+    <div id="overlay" class="center mainmenu" aria-busy="true" style="display: none;" role="alertdialog">
+        <h1 id="title">Loading...</h1>
+    </div>
+    <canvas id="can-vas"width="0"height="0" style="cursor:wait;"></canvas>
     <touch-joystick class="center" style="display:none" id="mobile-joystick"></touch-joystick>
     </div>
     <!-- <script src="matter.min.js"></script> -->

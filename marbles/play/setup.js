@@ -483,7 +483,9 @@ void function start(ignore) {
         let pick = overlay
         pick.style.height = "50vh"
         pick.show(3)
-        pick.push($('<h1>Choose a level</h1>'))
+        $.id.title.textContent = 'Choose a level'
+       overlay.attr._busy = 'false'
+        canvas.styles.cursor='default'
         let id
         let firstdiv = $('form #form', {
             parent: pick,
@@ -496,6 +498,7 @@ void function start(ignore) {
                         anchor.hide(3)
                         loader.fadeIn()
                         message.style.color = ''
+                        overlay.busy(true)
                         let {
                             title,
                             author: authorName
@@ -506,12 +509,14 @@ void function start(ignore) {
                         author.fadeIn()
                         anchor.fadeIn()
                         anchor.setAttr({ href: `https://marbles.deno.dev/?level=${id}` })
+                        
                     } catch (e) {
                         reportError(e)
                         message.textContent = 'Level invalid or not found!'
                         message.setStyles({ color: 'darkred' })
                         message.fadeIn()
                     } finally {
+                        overlay.busy(false)
                         loader.hide(3)
                     }
                 }

@@ -64,7 +64,9 @@ const { hasOwn } = Object
     me = Symbol('do not touch'),
     saved = Symbol('触らないでください'),
     all = new WeakMap,
-    revokes = new WeakMap
+    revokes = new WeakMap,
+    busy = Symbol()
+
 
 function gen() {
     return `${Math.random()}${Math.random()}`.replace(regex.dot, '')
@@ -186,12 +188,12 @@ const attrStyleMap = 'StylePropertyMap' in window
             __proto__: {
                 // Behave somewhat like a string, for compatibility with browsers that don't support attributeStyleMap
                 proxy: {
-                    has(t,p) {
+                    has(t, p) {
                         return p in new String || p in t
                     },
                     get(t, p) {
-                        if (p in new String) return''[p].bind(`${t}`)
-                            return t[p]
+                        if (p in new String) return ''[p].bind(`${t}`)
+                        return t[p]
                     },
                 }
             },
@@ -390,7 +392,7 @@ let props = getOwnPropertyDescriptors(class _
         apply(this, me, args)
     }
     on(events, signal) {
-        arguments.length > 2 && h.getLabel(signal) !== 'AbortController' && (signal = arguments[2]) 
+        arguments.length > 2 && h.getLabel(signal) !== 'AbortController' && (signal = arguments[2])
         // There used to be a 'useHandler' parameter
         let me = this
         if (typeof events === 'function') events = _.ProxyEventWrapperFunction.bind(old, me)
@@ -768,9 +770,9 @@ let props = getOwnPropertyDescriptors(class _
     }*/
     resetSelfRules() {
         for (let i in this.selfRules) try {
-                customRules.deleteRule([].indexOf.call(customRules.cssRules, this.selfRules[i]))
-            } catch (e) {
-                console.debug(e)
+            customRules.deleteRule([].indexOf.call(customRules.cssRules, this.selfRules[i]))
+        } catch (e) {
+            console.debug(e)
         }
     }
 
@@ -873,8 +875,31 @@ let props = getOwnPropertyDescriptors(class _
     get length() {
         return base(this).getElementsByTagName('*').length
     }
-
-    busy(busy) {
+    get isBusy() {
+        return this.attr._busy === 'true'
+    }
+    set isBusy(val) {
+        this.attr._busy = `${!!val}`
+    }
+     /**
+     * @deprecated
+     */
+    get busy() {
+        debugger
+        return this[busy]
+    }
+  
+    /**
+     * @deprecated
+     */
+    set busy(val) {
+        this.isBusy = val
+    }
+    /**
+     * @deprecated
+     */
+    [busy](busy) {
+        debugger
         this.setAttr({
             _busy: `${!!busy}`
         })
