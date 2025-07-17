@@ -33,7 +33,10 @@
     <meta name="twitter:description" content="Marbles">
     <meta name="twitter:image" content="Twitter icon thing.png">
     <link rel="canonical" href="https://marbles.deno.dev/play?level=LEVEL_ID">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/x-icon" href="https://addsoupbase.github.io/favicon.ico">
+    <script>
+        location.host==='addsoupbase.github.io'&&location.replace('https://marbles.deno.dev'+location.pathname)
+    </script>
     <script src="../../silence.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/pathseg@1.2.1/pathseg.min.js"></script>
 </head>
