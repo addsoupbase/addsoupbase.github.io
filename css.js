@@ -263,7 +263,7 @@ css:
             let out = document.createElement('style');
             (document.head ?? document.body ?? document.documentElement ?? document.querySelector('*') ?? document).append(out)
             out.textContent =
-                '@namespace svg url("http://www.w3.org/2000/svg");@media (prefers-reduced-transparency: reduce){*{opacity:1 !important;}}'
+                '@namespace svg url("http://www.w3.org/2000/svg");@media (prefers-reduced-transparency: reduce){*{opacity:1 !important;}}@supports not (content-visibility: auto) {*{visibility: var(--content-visibility) !important}}'
             out.setAttribute('id', 'addedStyleRules')
             out.append(document.createComment('Check your browser for CSS rules ($0.sheet.cssRules)'))
             return out

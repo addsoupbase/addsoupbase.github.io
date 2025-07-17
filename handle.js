@@ -309,18 +309,19 @@ const customEventHandler = {
         }
     }
 }
-function EventWrapper(f, s, abrt, t, oct, p, sp, sip, aa, once, name, ...args) {
-    let { 0: event } = args,
+function EventWrapper(...args) {
+    let { 0: f, 1: s, 2: abrt, 3: t, 4: oct, 5: p, 6: sp, 7: sip, 8: aa, 9: once, 10: name } = args.splice(0, 11),
+        { 0: event } = args,
         label = getLabel(event),
         { currentTarget } = event,
-        { detail } = event
+        { detail } = event,
+        push = args.push.bind(args)
     if (label === 'CustomEvent') event = args[0] = new Proxy(event, customEventHandler)
     else if (label === 'MouseScrollEvent')
         event.deltaZ = 0,
             event.axis === 2 ?
                 (event.deltaX = 0, event.deltaY = 50 * detail) : event.axis === 1 &&
                 (event.deltaX = 50 * detail, event.deltaY = 0)
-    let push = args.push.bind(args)
     s && push(abrt)
     push(off.bind(null, this, name))
     t && event.isTrusted || !t && (!oct || oct && (event.target ?? event.srcElement) === currentTarget) &&
