@@ -653,7 +653,7 @@ main {
 #diary {
   /*outline: 3px dashed #1275b4;*/
   width: 400px;
-  min-width: fit-content;
+  min-width: 300px;
   max-height: 65vh;
   min-height: 180px;
   max-width: 80vw;
