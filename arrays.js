@@ -12,9 +12,10 @@ let {isArray} = Array,
 export function pr(target, ...props) {
     let handler = { __proto__: null }
     props.length || (props = Object.getOwnPropertyNames(Reflect))
+    let {log} = console.context()
     for (let { length: i } = props; i--;) {
         let key = props[i],
-            fn = console.log.bind(1, `${key}: `),
+            fn = log.bind(1, `${key}: `),
             act = Reflect[key]
         handler[key] = log
         function log(...args) {

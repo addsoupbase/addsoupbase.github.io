@@ -40,20 +40,10 @@ class AnimatedSprite extends HTMLElement {
                 '--alt': `"${this.getAttribute('alt')}"`
             })
         } else if (name === 'src') {
-            let thingy = {
+                p.setStyles({
                 '--sprite': `url(${nValue})`,
-            }
-            try {
-                let n = await fetch(nValue)
-                if (!n.ok) {
-                    thingy['--sprite'] = ''
-                    thingy['--alt'] = `"${this.getAttribute('alt')}"`
-                } else thingy['--alt'] = ''
-            } catch {
-                thingy['--alt'] = `"${this.getAttribute('alt')}"`
-            } finally {
-                p.setStyles(thingy)
-            }
+            })
+            
             this.#animate()
         } else if (name === 'axis') {
             if (nValue !== 'horizontal' && nValue !== 'vertical') nValue = 'horizontal'

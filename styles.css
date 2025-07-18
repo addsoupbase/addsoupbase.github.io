@@ -16,7 +16,6 @@
 }
 
 
-
 #avatar {
   border-radius: 100%;
   width: 60px;
@@ -410,6 +409,28 @@ input[type=image]:active {
   /*backdrop-filter: blur(4px);*/
   margin: auto;
   /*transition: filter 1s ease;*/
+  anchor-name: --walk;
+  /* min-width:150px; */
+  /* max-width:560px; */
+}
+
+@supports (bottom: anchor(top)) {
+  #walking {
+            /* transform: translate(100%); */
+        /* width: 30px; */
+        display: block;
+        /* right: 30000000000000000%; */
+        height: 30px;
+        /* border: 1px solid black; */
+        bottom: anchor(
+ top);
+        position: absolute;
+        position-anchor: --walk;
+        left: anchor(
+ left);
+        right: anchor(
+ right);
+  }
 }
 
 #background {
