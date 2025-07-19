@@ -116,9 +116,9 @@
         $.setup()
         const { main } = $.byId
         const bday = new Date(2007, 6 - 1, 17)
+        $.id.age.textContent = `${new Date().getFullYear() - bday.getFullYear()} years old`
   /*
         // main.fadeFromTo(0, .95)
-        $.id.age.textContent = `${new Date().getFullYear() - bday.getFullYear()} years old`
         console.log('spinda misdreavus mawile delcatty masquerain shedinja clamperl swoobat gourgeist minior trapinch pheromosa meloetta cherrim aegislash zygarde wobbuffet tinkaton ogerpon surskit darmanitan'
             .split(' ').map(generateImages).join('\n'))
         function generateImages(o) {
