@@ -464,8 +464,7 @@
         //    Some default CSS...
         try {
             var all = sessionStorage.defaultCSS || Object.entries({
-                [`:where(button,a,${'button checkbox radio submit image reset file'.split(' ').map(o => `input[type=${o}])`).join(',')
-                    }`]: {
+                [`:where(button,a,${'button checkbox radio submit image reset file'.split(' ').map(o => `input[type=${o}]`).join(',')})`]: {
                     cursor: 'pointer'
                 },
                 ':where([aria-busy="true"])': {
