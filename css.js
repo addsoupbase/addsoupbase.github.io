@@ -2,7 +2,7 @@
     'use strict'
     var currentScript = document.currentScript
     if (sym in Object(w.css)) return css
-         w.reportError = w.reportError || function reportError(throwable) {
+    w.reportError = w.reportError || function reportError(throwable) {
         w.dispatchEvent(new ErrorEvent('error', {
             message: throwable.message,
             error: throwable,
@@ -43,7 +43,7 @@
     */
     var sessionStorage
     try {
-     sessionStorage  = w.sessionStorage
+        sessionStorage = w.sessionStorage
     }
     catch (_) {
         function oops() {
@@ -177,7 +177,7 @@
     function toCSS(obj, silent) {
         var arr = [],
             push = [].push.bind(arr)
-        Array.isArray(obj)  && (obj = Object.fromEntries(obj))
+        Array.isArray(obj) && (obj = Object.fromEntries(obj))
         for (var prop in obj) {
             var p = `${obj[prop]}`
             try {
@@ -206,8 +206,8 @@
         selector = selector.split(',')
             .map(mapThing)
             .join(',')
-        var sheet = addedStyleRules = addedStyleRules || getDefaultStyleSheet() 
-        , r = `{${toCSS(rule, silent)}}`
+        var sheet = addedStyleRules = addedStyleRules || getDefaultStyleSheet()
+            , r = `{${toCSS(rule, silent)}}`
         sheet.textContent = `${sheet.textContent}${formatStr(selector)}${formatStr(r)}`
         return sheet
     }
@@ -215,7 +215,7 @@
      * @param {String} rule The rule(s)
      */
     function registerCSSRaw(rules) {
-        var sheet = addedStyleRules = addedStyleRules || getDefaultStyleSheet() 
+        var sheet = addedStyleRules = addedStyleRules || getDefaultStyleSheet()
         sheet.textContent = `${sheet.textContent}${rules}`
         return sheet
     }
@@ -271,7 +271,7 @@
     function reg(r) {
         try {
             registerCSS(r, this[r])
-        } catch(_) {
+        } catch (_) {
         }
     }
     function supportsRule(rule) {
@@ -279,14 +279,14 @@
     }
 
     var theNames = `${allVendors}`.match(/\w+/g).reverse()
-    , pcv = supportedPClassVendor
+        , pcv = supportedPClassVendor
 
     function supportedPClassVendor(className) {
         try {
             var a = className.split(':')
-            , before = a[0],
-            _class = a[1]
-                already = _class
+                , before = a[0],
+                _class = a[1]
+            already = _class
             _class = _class.replace(allVendors, '')
                 .replace(allVendors2, '')
             if (supportsRule(already = `${before}:${already}`)) return already
@@ -308,9 +308,9 @@
     function supportedPElementVendor(element) {
         try {
             var a = element.split('::'),
-             before = a[0],
-             _element = a[1]
-                already = _element
+                before = a[0],
+                _element = a[1]
+            already = _element
             _element = _element.replace(allVendors, '')
                 .replace(allVendors2, '')
             if (supportsRule(already = `${before}::${already}`)) return already
@@ -348,10 +348,10 @@
     {
         function g(name, initialValue, inherits, syntax) {
             initialValue = initialValue == null ? 'auto' : initialValue
-            inherits =  inherits == null ? false : !!initialValue
-            syntax =  syntax == null ?  '*' : syntax
+            inherits = inherits == null ? false : !!initialValue
+            syntax = syntax == null ? '*' : syntax
             add(name)
-            return { name: `--${name}`, initialValue:initialValue, inherits:inherits, syntax:syntax }
+            return { name: `--${name}`, initialValue: initialValue, inherits: inherits, syntax: syntax }
         }
         var allProps = [
             //  Fallback stuff
@@ -473,7 +473,9 @@
                 },
                 ':root': {
                     '--crisp-edges': '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(o => sup('image-rendering', o)),
-                    '--stretch': '-moz-available -webkit-fill-available stretch'.split(' ').find(o => sup('max-width', o))
+                    '--stretch': '-moz-available -webkit-fill-available stretch'.split(' ').find(o => sup('max-width', o)),
+                    '--center': '-moz-center -webkit-center -khtml-center'.split(' ').find(o => sup('text-align', o)), // this is different from just 'center' and idk why!!!
+                    '--match-parent': '-moz-match-parent -webkit-match-parent'.split(' ').find(o => sup('text-align', o))
                 },
                 ':where(img)': {
                     '--force-broken-image-icon': 1,
@@ -518,8 +520,8 @@
             console.error(e)
         }
         var universal = {}
-        , func = CSS.registerProperty || function (e) { console.log(`CSS.registerProperty: `, e) }
-        , selector = '*'
+            , func = CSS.registerProperty || function (e) { console.log(`CSS.registerProperty: `, e) }
+            , selector = '*'
         for (var i = allProps.length; i--;) {
             var prop = allProps[i]
                 , o = prop.name
@@ -538,35 +540,35 @@
         typeof beenHereBefore === 'string' ?
             sheet.textContent = `${sheet.textContent}${selector}{${beenHereBefore}}` :
             (registerCSS(selector, universal, true)
-            , sessionStorage.css=toCSS(universal, true))
+                , sessionStorage.css = toCSS(universal, true))
     }
     w.css = Object.seal({
         // [Symbol.toStringTag]: 'Module',
         __proto__: null,
-        dashVendor:dashVendor,
-        capVendor:capVendor,
+        dashVendor: dashVendor,
+        capVendor: capVendor,
         all,
         has,
-        badCSS:badCSS,
-        vendor:vendor,
-        importFont:importFont,
-        toCaps:toCaps,
-        toDash:toDash,
-        toCSS:toCSS,
-        registerCSS:registerCSS,
-        registerCSSRaw:registerCSSRaw,
-        formatStr:formatStr,
-        importCSS:importCSS,
-        getDefaultStyleSheet:getDefaultStyleSheet,
-        reducedMotion:reducedMotion,
-        registerCSSAll:registerCSSAll,
-        supportsRule:supportsRule,
-        pcv:pcv,
-        supportedPClassVendor:supportedPClassVendor,
-        pev:pev,
-        supportedPElementVendor:supportedPElementVendor,
+        badCSS: badCSS,
+        vendor: vendor,
+        importFont: importFont,
+        toCaps: toCaps,
+        toDash: toDash,
+        toCSS: toCSS,
+        registerCSS: registerCSS,
+        registerCSSRaw: registerCSSRaw,
+        formatStr: formatStr,
+        importCSS: importCSS,
+        getDefaultStyleSheet: getDefaultStyleSheet,
+        reducedMotion: reducedMotion,
+        registerCSSAll: registerCSSAll,
+        supportsRule: supportsRule,
+        pcv: pcv,
+        supportedPClassVendor: supportedPClassVendor,
+        pev: pev,
+        supportedPElementVendor: supportedPElementVendor,
         // dropShadow:dropShadow,
         // boxShadow,
-        [sym]:true
+        [sym]: true
     })
 }(window, window.Symbol ? Symbol.for('CSS') : btoa(location))
