@@ -881,14 +881,14 @@ let props = getOwnPropertyDescriptors(class _
     set isBusy(val) {
         this.attr._busy = `${!!val}`
     }
-     /**
-     * @deprecated
-     */
+    /**
+    * @deprecated
+    */
     get busy() {
         debugger
         return this[busy]
     }
-  
+
     /**
      * @deprecated
      */
@@ -937,16 +937,43 @@ TEXT_THINGIES.forEach(txt =>
     })
 )
 const HTML_PLACING = new Set('beforebegin afterbegin beforeend afterend'.split(' '))
-HTML_PLACING.forEach(set =>
-    defineProperty(prototype, set, {
-        configurable: false,
-        set(val) {
-            typeof val === 'object' ?
-                base(this).insertAdjacentElement(set, base(val)) :
-                base(this).insertAdjacentHTML(set, val)
+{
+    let getters = {
+        beforebegin() {
+            let me = base(this),
+                out = me.previousSibling
+            return getValid(out) ? prox(out) : out
+        },
+        afterbegin() {
+            let me = base(this),
+                out = me.firstChild
+            return getValid(out) ? prox(out) : out
+        },
+        beforeend() {
+            let me = base(this),
+                out = me.lastChild
+            return getValid(out) ? prox(out) : out
+        },
+        afterend() {
+            let me = base(this),
+                out = me.nextSibling
+            return getValid(out) ? prox(out) : out
         }
-    })
-)
+    }
+    HTML_PLACING.forEach(set =>
+        defineProperty(prototype, set, {
+            configurable: false,
+            set(val) {
+                if (h.getLabel(val) === "Text") return base(this).insertAdjacentText(set, val.textContent)
+                let b = base(val)
+                getValid(b) ?
+                    base(this).insertAdjacentElement(set, b) :
+                    base(this).insertAdjacentHTML(set, val)
+            },
+            get: getters[set],
+        })
+    )
+}
 'offsetLeft offsetTop offsetWidth offsetHeight offsetParent clientLeft clientTop clientWidth clientHeight scrollWidth scrollHeight scrollTopMax scrollLeftMax'
     .split(' ').forEach(prop => {
         // Reading these properties causes reflows/layout-shift/repaint whatever its called idk
@@ -1304,7 +1331,7 @@ export function prox(target) {
     if (target === null) return null
     if (target[styles]) return target
     if (!getValid(target))
-        throw TypeError("Target must implement the 'Element'interface")
+        throw TypeError("Target must implement the 'Element' interface")
     // 🥅 Goal:
     // 🪪 Make an object with a [[Prototype]] being the target element
     // 🪤 Also put a proxy around said object

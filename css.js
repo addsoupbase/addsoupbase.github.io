@@ -432,7 +432,7 @@
             g("text-spacing-trim", "normal", true),
             g("text-group-align", "none", 0),
             g("text-autospace", "normal", true),
-            g("orient", 'inline', 0,),
+            g("orient", 'inline', 0),
             // g("scrollbar-color", "auto", true),
             // g("scrollbar-gutter", "auto", 0),
             // g("scrollbar-width", "auto", 0),
@@ -455,7 +455,7 @@
             // g('logical-height','revert',false,'*'),
             // g('logical-width','revert',false,'*'),
             g('buffered-rendering', 'auto', false),
-            g('color-rendering', 'auto', false),
+            g('color-rendering', 'auto', false)
         ]
         // g('crisp-edges', '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(o => sup('image-rendering', o)), true, "*")
         // g('stretch', '-moz-available -webkit-fill-available stretch'.split(' ').find(o => sup('width', o)), false, '*')
@@ -509,7 +509,7 @@
                     'align-self': 'center',
                     inset: 0,
                     position: 'fixed'
-                },
+                }
             }).map(a => `${a[0]}{${toCSS(a[1])}}`)
             typeof all === 'string' && (all = all.split('✕'))
             sheet.textContent = `${sheet.textContent}${all.join('')}`
