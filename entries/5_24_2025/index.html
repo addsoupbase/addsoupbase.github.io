@@ -29,12 +29,15 @@
         import '../../csshelper.js'
     </script>
     <style>
+        @import url(../../cute-green.css);
+
         video {
             width: 100%;
             height: 100%;
         }
 
-        cite::before, cite::after {
+        cite::before,
+        cite::after {
             image-rendering: pixelated;
             content: '';
             background-image: url("../../cute-emojis/emojis/1225821645953040465.gif");
@@ -49,39 +52,45 @@
 </head>
 
 <body>
-<main id="m" class="centerx">
-    <article id="a">
-        <h1>This is like my favourite moment of ALL TIME IN MY FAVOURITE GAME EVER</h1>
-        <small>please play it with sound</small>
-        <figure>
-            <video id="src" preload="auto" controls>
-              
-            </video>
-            <figcaption><cite>Kirby's Return to Dream Land (2011)</cite></figcaption>
-        </figure>
-        <h2>KIRBY IS LIKE SO BADASS!!!11!1🌋🗡️</h2>
-        <img alt="kirby with paintbrush" src="../../cute-emojis/emojis/54860-kirbypainting.gif" height="100"
-             style="image-rendering: pixelated">
-        <p>.....goodbye!</p>
-    </article>
-</main>
+    <main id="m" class="centerx">
+        <article id="a">
+            <h1>This is like my favourite moment of ALL TIME IN MY FAVOURITE GAME EVER</h1>
+            <small>please play it with sound</small>
+            <figure>
+                <video id="src" preload="auto" controls>
+                </video>
+                <button class="cute-green-button" id="Fullscreen">Fullscreen</button>
+                <script>
+                    'use strict'
+                    document.getElementById('Fullscreen').addEventListener('click', function () {
+                        (this.requestFullscreen || this.mozRequestFullScreen || this.msRequestFullscreen).call(document.getElementById('src'))
+                    })
+                </script>
+                <figcaption><cite>Kirby's Return to Dream Land (2011)</cite></figcaption>
+            </figure>
+            <h2>KIRBY IS LIKE SO BADASS!!!11!1🌋🗡️</h2>
+            <img alt="kirby with paintbrush" src="../../cute-emojis/emojis/54860-kirbypainting.gif" height="100"
+                style="image-rendering: pixelated">
+            <p>.....goodbye!</p>
+        </article>
+    </main>
 
-<script type="module">
-    import $ from '../../yay.js'
-    // import * as h from '../../handle.js'
-    // import * as m from '../../num.js'
-    // import * as str from '../../str.js'
-    // import ran from '../../random.js'
-    // import c from '../../color.js'
-</script>
-<script>
-    'use strict'
-    addEventListener('load', function(){
-         document.getElementById('src')
-        .setAttribute('src',"https://cdn.glitch.me/2cbd797e-32d2-4626-a58b-6728ec3cdf1c/kirby.webm")
-    }, {once:true})
-</script>
-<!--
+    <script type="module">
+        import $ from '../../yay.js'
+        // import * as h from '../../handle.js'
+        // import * as m from '../../num.js'
+        // import * as str from '../../str.js'
+        // import ran from '../../random.js'
+        // import c from '../../color.js'
+    </script>
+    <script>
+        'use strict'
+        addEventListener('load', function () {
+            document.getElementById('src')
+                .setAttribute('src', "https://cdn.glitch.me/2cbd797e-32d2-4626-a58b-6728ec3cdf1c/kirby.webm")
+        }, { once: true })
+    </script>
+    <!--
     have a wonderful day 😊
     -->
 </body>
