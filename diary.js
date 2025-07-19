@@ -80,9 +80,9 @@
         if (ran) return
         ran = true
         let css = await import('./csshelper.js')
-        $.body.push($('<div style="place-self:center;margin:10px"><a href="../../diary.html">View in Diary</a></div>'))
+        $.body.push($('<div style="place-self:center;margin:10px;text-align:center;"><a href="../../diary.html">View in Diary</a></div>'))
         css.importCSS('../../cute-green.css')
-        css.importCSS(`data:text/css,main{opacity: 1 !important;z-index:-30;height:100%;min-height:90vh;width:100%}`)
+        css.importCSS(`data:text/css,main{overflow-x:hidden;opacity: 1 !important;z-index:-30;height:100%;min-height:90vh;width:100%}`)
         let main = $.qs('main')
         main.classList.add('cute-green')
         let d = new Date()
