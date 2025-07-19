@@ -1,15 +1,12 @@
-'use strict'
-css:
-{
-    let w = window,
-        sym = w.Symbol.for('CSS'),
-        { currentScript } = document
-    if (sym in Object(w.css)) break css
-    w.reportError = w.reportError || function reportError(throwable) {
+!function (w, sym) {
+    'use strict'
+    var currentScript = document.currentScript
+    if (sym in Object(w.css)) return css
+         w.reportError = w.reportError || function reportError(throwable) {
         w.dispatchEvent(new ErrorEvent('error', {
             message: throwable.message,
             error: throwable,
-            filename: currentScript?.src
+            filename: currentScript && currentScript.src
         }))
         console.error(`${throwable}`)
     }
@@ -19,7 +16,7 @@ css:
     function capVendor(prop, val) {
         return toCaps(vendor(toDash(prop), val))
     }
-    const all = new Set
+    var all = new Set
         , has = all.has.bind(all),
         add = all.add.bind(all)
     /*
@@ -44,11 +41,11 @@ css:
         return val
     }
     */
-    let sessionStorage
+    var sessionStorage
     try {
-        ({ sessionStorage } = globalThis)
+     sessionStorage  = w.sessionStorage
     }
-    catch {
+    catch (_) {
         function oops() {
             return oops
         }
@@ -56,7 +53,7 @@ css:
             get: oops
         })
     }
-    const alreadyLogged = new Set,
+    var alreadyLogged = new Set,
         alreadyHas = alreadyLogged.has.bind(alreadyLogged),
         beenHereBefore = sessionStorage.getItem('css'),
         addAlr = alreadyLogged.add.bind(alreadyLogged),
@@ -76,7 +73,7 @@ css:
         if (prop.startsWith('--'))
             return prop
         if (val.trim() && !sup(prop, val)) {
-            let prefix = prop = prop
+            var prefix = prop = prop
                 .replace(allVendors, '')
                 .replace(allVendors2, '')
             if (dontRedo.has(prop)) return dontRedo.get(prop)
@@ -141,14 +138,14 @@ css:
 
     function importFont(name, src) {
         if (name && src) {
-            const font = new FontFace(name, `url(${src})`)
+            var font = new FontFace(name, `url(${src})`)
             font.load().then(document.fonts.add, console.warn)
             return font
         }
         throw Error('Source and name required')
     }
 
-    const defrt = /-./g,
+    var defrt = /-./g,
         azregex = /[A-Z]/g
 
     function toCaps(prop) {
@@ -167,31 +164,31 @@ css:
         return `-${o.toLowerCase()}`
     }
 
-    function tuc({ 1: c }) {
-        return c.toUpperCase()
+    function tuc(c) {
+        return c[1].toUpperCase()
     }
 
-    let addedStyleRules = null
+    var addedStyleRules = null
 
     /**
      * @param {Object} obj key/value pairs that match CSS
      * @returns {String}
      */
     function toCSS(obj, silent) {
-        const arr = [],
+        var arr = [],
             push = [].push.bind(arr)
-        if (Array.isArray(obj)) obj = Object.fromEntries(obj)
-        for (let prop in obj) {
-            let p = `${obj[prop]}`
+        Array.isArray(obj)  && (obj = Object.fromEntries(obj))
+        for (var prop in obj) {
+            var p = `${obj[prop]}`
             try {
                 push(`${vendor(toDash(prop), p, silent)}:${p}`)
-            } catch {
+            } catch (_) {
             }
         }
         return arr.join(';')
     }
 
-    let pseudoElementRegex = /::[\w-]/
+    var pseudoElementRegex = /::[\w-]/
         , pseudoClassRegex = /:[\w-]/
 
     function mapThing(selectr) {
@@ -209,8 +206,8 @@ css:
         selector = selector.split(',')
             .map(mapThing)
             .join(',')
-        const sheet = addedStyleRules ??= getDefaultStyleSheet()
-        let r = `{${toCSS(rule, silent)}}`
+        var sheet = addedStyleRules = addedStyleRules || getDefaultStyleSheet() 
+        , r = `{${toCSS(rule, silent)}}`
         sheet.textContent = `${sheet.textContent}${formatStr(selector)}${formatStr(r)}`
         return sheet
     }
@@ -218,18 +215,18 @@ css:
      * @param {String} rule The rule(s)
      */
     function registerCSSRaw(rules) {
-        const sheet = addedStyleRules ??= getDefaultStyleSheet()
+        var sheet = addedStyleRules = addedStyleRules || getDefaultStyleSheet() 
         sheet.textContent = `${sheet.textContent}${rules}`
         return sheet
     }
-    let cleanRegex = /(\s|\n)\1/g
+    var cleanRegex = /(\s|\n)\1/g
 
     function formatStr(str) {
         return str.trim().replace(cleanRegex, '')
     }
     function importCSS(url) {
         // idk why i didn't just think of this
-        let n = document.createElement('link'),
+        var n = document.createElement('link'),
             s = n.setAttribute.bind(n)
         s('rel', 'stylesheet')
         s('type', 'text/css')
@@ -259,85 +256,87 @@ css:
     }
     }()*/
     function getDefaultStyleSheet() {
-        return (document.getElementById('addedStyleRules') ?? function () {
-            let out = document.createElement('style');
-            (document.head ?? document.body ?? document.documentElement ?? document.querySelector('*') ?? document).append(out)
-            out.textContent =
-                '@namespace svg url("http://www.w3.org/2000/svg");@media (prefers-reduced-transparency: reduce){*{opacity:1 !important;}}@supports not (content-visibility: auto) {*{visibility: var(--content-visibility)}}'
+        return (document.getElementById('addedStyleRules') || function () {
+            var out = document.createElement('style');
+            (document.head || document.body || document.documentElement || document.querySelector('*') || document).append(out)
+            out.textContent = '@namespace svg url("http://www.w3.org/2000/svg");@media (prefers-reduced-transparency: reduce){*{opacity:1 !important;}}@supports not (content-visibility: auto){*{visibility: var(--content-visibility)}}'
             out.setAttribute('id', 'addedStyleRules')
-            out.append(document.createComment('Check your browser for CSS rules ($0.sheet.cssRules)'))
             return out
         }())
     }
-    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)')
+    var reducedMotion = matchMedia('(prefers-reduced-motion: reduce)')
     function registerCSSAll(rules) {
         Object.keys(rules).forEach(reg, rules)
     }
     function reg(r) {
         try {
             registerCSS(r, this[r])
-        } catch {
+        } catch(_) {
         }
     }
     function supportsRule(rule) {
         return sup(`selector(${rule})`)
     }
 
-    const theNames = `${allVendors}`.match(/\w+/g).reverse()
-    const pcv = supportedPClassVendor
+    var theNames = `${allVendors}`.match(/\w+/g).reverse()
+    , pcv = supportedPClassVendor
 
     function supportedPClassVendor(className) {
         try {
-            let { 0: before, 1: _class } = className.split(':'),
+            var a = className.split(':')
+            , before = a[0],
+            _class = a[1]
                 already = _class
             _class = _class.replace(allVendors, '')
                 .replace(allVendors2, '')
             if (supportsRule(already = `${before}:${already}`)) return already
-            for (let { length: i } = theNames; i--;) {
-                let vendor = theNames[i]
+            for (var i = theNames.length; i--;) {
+                var vendor = theNames[i]
                     , name = `:-${vendor}-${_class}`
                 if (supportsRule(name)) return `${before}${name}`
             }
             if (supportsRule(className = `:prince-${_class}`) ||
                 supportsRule(className = `:mso-${_class}`)) return `${before}${className}`
             return `${before}:${_class}`
-        } catch {
+        } catch (_) {
             throw SyntaxError(`Failed to parse '${className}'`)
         }
     }
 
-    const pev = supportedPElementVendor
+    var pev = supportedPElementVendor
 
     function supportedPElementVendor(element) {
         try {
-            let { 0: before, 1: _element } = element.split('::'),
+            var a = element.split('::'),
+             before = a[0],
+             _element = a[1]
                 already = _element
             _element = _element.replace(allVendors, '')
                 .replace(allVendors2, '')
             if (supportsRule(already = `${before}::${already}`)) return already
-            for (let { length: i } = theNames; i--;) {
-                let vendor = theNames[i]
+            for (var i = theNames.length; i--;) {
+                var vendor = theNames[i]
                     , name = `::-${vendor}-${_element}`
                 if (supportsRule(name)) return `${before}${name}`
             }
             if (supportsRule(element = `::prince-${_element}`) ||
                 supportsRule(element = `::mso-${_element}`)) return `${before}${element}`
             return `${before}::${_element}`
-        } catch {
+        } catch (_) {
             throw SyntaxError(`Failed to parse '${element}'`)
         }
     }
 
-    function dropShadow({
-        color = '#000000',
-        offsetX = '0px',
-        offsetY = '0px',
-        standardDeviation = ''
-    }) {
-        return `${color} ${offsetX} ${offsetY} ${standardDeviation}`
+    /*
+    function dropShadow(args) {
+        var color = args.color,
+        offsetX = args.offsetX,
+        offsetY = args.offsetY,
+        standardDeviation = args.standardDeviation
+        return `${color || '#000000'} ${offsetX || '0px'} ${offsetY || '0px'} ${standardDeviation || ''}`
     }
-
-    function boxShadow({
+*/
+    /*function boxShadow({
         offsetX = '0px',
         offsetY = '0px',
         blurRadius = '',
@@ -345,16 +344,16 @@ css:
         color = '#000000'
     }) {
         return `${color} ${offsetX} ${offsetY} ${blurRadius} ${spreadRadius}`.replaceAll('  ', '')
-    }
+    }*/
     {
         function g(name, initialValue, inherits, syntax) {
-            initialValue ??= 'auto'
-            inherits ??= false
-            syntax ??= '*'
+            initialValue = initialValue == null ? 'auto' : initialValue
+            inherits =  inherits == null ? false : !!initialValue
+            syntax =  syntax == null ?  '*' : syntax
             add(name)
-            return { name: `--${name}`, initialValue, inherits, syntax }
+            return { name: `--${name}`, initialValue:initialValue, inherits:inherits, syntax:syntax }
         }
-        let allProps = [
+        var allProps = [
             //  Fallback stuff
             g("user-select", "auto", true), // Most important one
             g("user-modify", "auto", 0),
@@ -461,10 +460,10 @@ css:
         // g('crisp-edges', '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(o => sup('image-rendering', o)), true, "*")
         // g('stretch', '-moz-available -webkit-fill-available stretch'.split(' ').find(o => sup('width', o)), false, '*')
         // g('marquee-style','scroll',0)
-        const sheet = getDefaultStyleSheet()
+        var sheet = getDefaultStyleSheet()
         //    Some default CSS...
         try {
-            let all = sessionStorage.defaultCSS ?? Object.entries({
+            var all = sessionStorage.defaultCSS || Object.entries({
                 [`:where(button,a,${'button checkbox radio submit image reset file'.split(' ').map(o => `input[type=${o}])`).join(',')
                     }`]: {
                     cursor: 'pointer'
@@ -511,17 +510,18 @@ css:
                     inset: 0,
                     position: 'fixed'
                 },
-            }).map(({ 0: key, 1: val }) => `${key}{${toCSS(val)}}`)
-            if (typeof all === 'string') all = all.split('✕')
+            }).map(a => `${a[0]}{${toCSS(a[1])}}`)
+            typeof all === 'string' && (all = all.split('✕'))
             sheet.textContent = `${sheet.textContent}${all.join('')}`
             sessionStorage.defaultCSS = all.join('✕')
         } catch (e) {
             console.error(e)
         }
-        const universal = {}
-        let func = CSS.registerProperty ?? function (e) { console.log(`CSS.registerProperty: `, e) }
-        for (let { length: i } = allProps; i--;) {
-            let prop = allProps[i]
+        var universal = {}
+        , func = CSS.registerProperty || function (e) { console.log(`CSS.registerProperty: `, e) }
+        , selector = '*'
+        for (var i = allProps.length; i--;) {
+            var prop = allProps[i]
                 , o = prop.name
             try {
                 universal[vendor(o.slice(2), o = `var(${o})`, true)] = o
@@ -534,40 +534,39 @@ css:
             }
         }
         universal['box-sizing'] = 'border-box'
-        let selector = '*'
         allProps = null
         typeof beenHereBefore === 'string' ?
             sheet.textContent = `${sheet.textContent}${selector}{${beenHereBefore}}` :
-            registerCSS(selector, universal, true)
-            , sessionStorage.setItem('css', toCSS(universal, true))
+            (registerCSS(selector, universal, true)
+            , sessionStorage.css=toCSS(universal, true))
     }
     w.css = Object.seal({
         // [Symbol.toStringTag]: 'Module',
         __proto__: null,
-        dashVendor,
-        capVendor,
+        dashVendor:dashVendor,
+        capVendor:capVendor,
         all,
         has,
-        badCSS,
-        vendor,
-        importFont,
-        toCaps,
-        toDash,
-        toCSS,
-        registerCSS,
-        registerCSSRaw,
-        formatStr,
-        importCSS,
-        getDefaultStyleSheet,
-        reducedMotion,
-        registerCSSAll,
-        supportsRule,
-        pcv,
-        supportedPClassVendor,
-        pev,
-        supportedPElementVendor,
-        dropShadow,
-        boxShadow,
-        [sym]: true
+        badCSS:badCSS,
+        vendor:vendor,
+        importFont:importFont,
+        toCaps:toCaps,
+        toDash:toDash,
+        toCSS:toCSS,
+        registerCSS:registerCSS,
+        registerCSSRaw:registerCSSRaw,
+        formatStr:formatStr,
+        importCSS:importCSS,
+        getDefaultStyleSheet:getDefaultStyleSheet,
+        reducedMotion:reducedMotion,
+        registerCSSAll:registerCSSAll,
+        supportsRule:supportsRule,
+        pcv:pcv,
+        supportedPClassVendor:supportedPClassVendor,
+        pev:pev,
+        supportedPElementVendor:supportedPElementVendor,
+        // dropShadow:dropShadow,
+        // boxShadow,
+        [sym]:true
     })
-}
+}(window, window.Symbol ? Symbol.for('CSS') : btoa(location))
