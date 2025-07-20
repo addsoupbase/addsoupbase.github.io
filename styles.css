@@ -583,6 +583,7 @@ body {
   /* Firefox */
   height: 90vh;
   width: 100vw;
+  overflow-y: scroll !important;
   display: flex;
 }
 

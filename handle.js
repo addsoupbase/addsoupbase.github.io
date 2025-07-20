@@ -1,6 +1,6 @@
 //# allFunctionsCalledOnLoad
 // ^ idk what that actually does
-const sym = Symbol.for("🔔")
+const sym = Symbol.for("[[Events]]")
     //  Don't collide, and make sure its usable across realms!!
     // export const unbound = Symbol('⛓️‍💥')
     , { apply, getPrototypeOf: gpo, getOwnPropertyDescriptor: gopd, defineProperty: dp, ownKeys } = Reflect
@@ -26,7 +26,7 @@ const sym = Symbol.for("🔔")
 let { warn, groupCollapsed, groupEnd } = logger,
     { isArray } = Array
 export const allEvents = new WeakMap
-let add, remove, dispatch
+let add, remove, dip
 {
     let { addEventListener, removeEventListener, dispatchEvent } = globalThis.EventTarget?.prototype ?? AbortSignal.prototype
     if (Function.prototype.toString.call(addEventListener) !== Function.prototype.toString().replace('function ', 'function addEventListener'))
@@ -46,7 +46,7 @@ let add, remove, dispatch
         }
     add = addEventListener.call.bind(addEventListener)
     remove = removeEventListener.call.bind(removeEventListener)
-    dispatch = dispatchEvent.call.bind(dispatchEvent)
+    dip = dispatchEvent.call.bind(dispatchEvent)
 }
 let verified = new WeakSet
 function isValidET(target) {
@@ -117,7 +117,7 @@ export function requestFile(accept, multiple) {
 }
 
 export const reqFile = requestFile
-
+let isMediaQuery = / /.test.bind(/^(?:\(.+\))$/)
 function verifyEventName(target, name) {
     let original = name
     name = name.toLowerCase()
@@ -138,7 +138,7 @@ function verifyEventName(target, name) {
             if (typeof MouseScrollEvent === 'function') return 'DOMMouseScroll' // If they don't support the first 2, this one will work ~100% of the time
             return 'MozMousePixelScroll' // The last resort, since there's no way to detect support with this one
         }
-        logger.warnLate(`'${original}' events might not be available on the following EventTarget:`, target)
+       isMediaQuery(original) || logger.warnLate(`'${original}' events might not be available on the following EventTarget:`, target)
     }
     return original
 }
@@ -161,7 +161,7 @@ function emitPendingEvents() {
 }
 function dispatchAndDelete(val) {
     let { target: t, event: e } = val
-    dispatch(t, e)
+    dip(t, e)
     this.delete(val)
 }
 export function delayedDispatch(id, target, event) {
@@ -211,7 +211,7 @@ export function addCustomEvent(names) {
     for (let name in names) customEvents[names[name] ? 'add' : 'delete'](name.toLowerCase())
 }
 
-const formatEventName = /[_$^%&!?@#\d]|bound /g
+const formatEventName = /[_$^%&!?@#]|bound /g
 
 export function on(target, events, controller) {
     arguments.length > 3 && getLabel(controller) !== 'AbortController' && (controller = arguments[3])
@@ -439,3 +439,7 @@ export function delegate(me, events, filter, includeSelf, controller) {
         console.error(e)
     }
 }*/
+
+export function dispatch(target, event) {
+    return dip(target, typeof event === 'string' ? new Event(event) : event)
+}

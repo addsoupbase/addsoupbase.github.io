@@ -10,7 +10,6 @@ Things i learned from 2nd -> 3rd:
 • using Symbols
 • finally settled on WeakMap
 */
-
 // import {plural} from "./str.js"
 function plural(singular, plural, count) {
     return Math.sign(count = +count) === count && count ? `${count} ${singular}` : `${count.toLocaleString()} ${plural}`
@@ -26,8 +25,8 @@ let bindHandler = {
 const { get, set, apply, getOwnPropertyDescriptor, ownKeys } = Reflect,
     { revocable } = Proxy,
     { create, preventExtensions, defineProperty, defineProperties, getOwnPropertyDescriptors, assign } = Object
-import *as h from './handle.js'
-import *as css from './csshelper.js'
+import*as h from'./handle.js'
+import*as css from'./csshelper.js'
 function from(ArrayLike, map, thisArg) {
     // Array.from checks @@iterator first, which would be slower in cases where it is callable
     return ArrayLike.length >= 0 ? map ? [].map.call(ArrayLike, map, thisArg) : [].slice.call(ArrayLike) : map ? Array.from(ArrayLike, map, thisArg) : typeof ArrayLike[Symbol.iterator] !== 'undefined' ? [...ArrayLike] : []
@@ -35,11 +34,9 @@ function from(ArrayLike, map, thisArg) {
 function debounce(func, interval) {
     let waiting = false
     return DebouncedFunction
-
     function enable() {
         waiting = false
     }
-
     function DebouncedFunction(...args) {
         if (!waiting) {
             waiting = true
@@ -61,13 +58,12 @@ const { hasOwn } = Object
         space: /\s/g,
         onXYZ: /^on\w+$/
     },
-    me = Symbol('do not touch'),
-    saved = Symbol('触らないでください'),
+    me = Symbol('[[Target]]'),
+    saved = Symbol('[[SavedAttributes]]'),
     all = new WeakMap,
     revokes = new WeakMap,
-    busy = Symbol()
-
-
+    busy = Symbol('[[Busy]]'),
+    mediaQueries = Symbol('[[ObservedMediaQueries]]')
 function gen() {
     return `${Math.random()}${Math.random()}`.replace(regex.dot, '')
 }
@@ -152,7 +148,7 @@ const attrStyleMap = 'StylePropertyMap' in window
                 ++reads
                 p = css.toCaps(p)
                 let val = this.cached.get(p)
-                return val ?? (this.cached.set(p, val = handlers.styles.get(t,p)), val)
+                return val ?? (this.cached.set(p, val = handlers.styles.get(t, p)), val)
             },
             set(t, p, v) {
                 ++writes
@@ -185,23 +181,21 @@ const attrStyleMap = 'StylePropertyMap' in window
             }
         },
         styles: attrStyleMap ? {
-                // Behave somewhat like a string, for compatibility with browsers that don't support attributeStyleMap
-               
-             proxy: {
-                    has(t, p) {
-                        return p in new String || p in t
-                    },
-                    get(t, p) {
-                        if (p in new String) return ''[p].bind(`${t}`)
-                        return t[p]
-                    },
+            // Behave somewhat like a string, for compatibility with browsers that don't support attributeStyleMap
+            proxy: {
+                has(t, p) {
+                    return p in new String || p in t
                 },
+                get(t, p) {
+                     return p in new String? ''[p].bind(`${t}`): t[p]
+                },
+            },
             get(target, prop) {
                 let out = prop.startsWith('--') ? target.get(prop) : target.get(css.dashVendor(prop, 'inherit'))
                 return out && new Proxy(Object.freeze(out), handlers.styles.proxy)
             },
             set(target, prop, value) {
-                (value == null || value === '') ? this.deleteProperty(target, prop)
+                value == null || value === '' ? this.deleteProperty(target, prop)
                     : prop.startsWith('--') ? target.set(prop, value) : target.set(css.dashVendor(prop, `${value}`), value)
                 return 7
             },
@@ -272,7 +266,7 @@ const attrStyleMap = 'StylePropertyMap' in window
 // Main [[Prototype]] is on this class
 // let ATTR = Symbol('💿')
 // let states = Symbol('💾')
-let computed = Symbol('no')
+let computed = Symbol('[[ComputedStyles]]')
 // let styles = Symbol('stop')
 // let shadow = Symbol('🌴')
 let props = getOwnPropertyDescriptors(class _
@@ -651,7 +645,7 @@ let props = getOwnPropertyDescriptors(class _
 
     /**
      *
-     * @param {int} t
+     * @param {integer} t
      * # 1 - 5
      */
     hide(t) {
@@ -713,7 +707,52 @@ let props = getOwnPropertyDescriptors(class _
                 break
         }
     }
-
+    static queries = new Map
+    static querySyntax = / /.test.bind(/^(?:\(.+\))$/)
+    match(queries, flags, controller) {
+        flags ??= ''
+        let my = this[mediaQueries]
+        for (let i in queries) {
+            let query = i
+                , val = queries[i]
+            _.querySyntax(query) || (query = `(${query})`)
+            query = matchMedia(query).media // Create a dummy to correctly format the string first
+            if (my.has(query) && !controller) {
+                console.warn(`Skipped duplicate media listener for ${query}`)
+                continue
+            }
+            if (!_.queries.has(query)) {
+                let media = matchMedia(query)
+                let listening = new Set
+                function dispatchAll(element) {
+                    element = base(element)
+                    h.delayedDispatch(query, element, new CustomEvent(query, {
+                        detail
+                    }))
+                }
+                h.on(media, {
+                    change() {
+                        listening.forEach(dispatchAll)
+                    }
+                })
+                let detail = {
+                    mediaQuery: media,
+                    get matches() {
+                        return media.matches
+                    },
+                    listening
+                }
+                _.queries.set(query, detail)
+            }
+            let detail = _.queries.get(query)
+            let { mediaQuery:{matches}, listening } = detail
+            listening.add(this)
+            this.on({
+                [`${flags}${query}`]: val
+            }, controller)
+            matches && h.delayedDispatch(query, base(this), new CustomEvent(query, { detail }))
+        }
+    }
     equals(other) {
         let temp = $(other)
         let out = base(temp).isEqualNode(base(this))
@@ -1002,7 +1041,7 @@ const HTML_PLACING = new Set('beforebegin afterbegin beforeend afterend'.split('
                         }
                         cached = a
                     }
-                    return cached   
+                    return cached
                 }
                 return cached ??= base(this)[prop]
             }
@@ -1109,7 +1148,7 @@ if (typeof
                 target.setStyle({
                     visibility: skipped ? 'hidden' : 'visible'
                 })
-                h.delayedDispatch('contentvisibilityautostatechange', target.valueOf(``), new CustomEvent('contentvisibilityautostatechange', {
+                h.delayedDispatch('contentvisibilityautostatechange', base(target), new CustomEvent('contentvisibilityautostatechange', {
                     bubbles: true,
                     detail: { skipped }
                 }))
@@ -1133,7 +1172,10 @@ function observeAll(node) {
     waitingForImport.has(n) && importWebComponent(n)
     // if (node instanceof CUSTOM_ELEMENT_SPRITE) node.getAttributeNames().forEach(refreshAttributes, node)
     inte?.observe(node)
-    resi.observe(node)
+    let observe = resi.observe.bind(resi)
+    observe(node)
+    observe(node, { box: 'border-box' })
+    observe(node, { box: 'device-pixel-content-box' })
 }
 
 function unobserveAll(node) {
@@ -1182,14 +1224,14 @@ muta.observe(document.documentElement, {
 RESIZE OBSERVER STUFFS
 */
 function ResizeLoop(o) {
+    let { borderBoxSize, contentBoxSize, devicePixelContentBoxSize } = o
     h.delayedDispatch('ResizeObserver', o.target, new CustomEvent('re-scale', {
         bubbles: true,
         detail: {
-            borderBoxSize: o.borderBoxSize,
-            contentBoxSize: o.contentBoxSize,
+            borderBoxSize: borderBoxSize[0] ?? borderBoxSize,
+            contentBoxSize: contentBoxSize[0] ?? contentBoxSize,
             contentRect: o.contentRect,
-            devicePixelContentBoxSize: o.devicePixelContentBoxSize,
-            actualTarget: o.target
+            devicePixelContentBoxSize: devicePixelContentBoxSize[0] ?? devicePixelContentBoxSize,
         }
     }))
 }
@@ -1203,7 +1245,7 @@ function ResizeObserverCallback(entries) {
 }
 
 const resi = new ResizeObserver(ResizeObserverCallback)
-    ;[].forEach.call(document.getElementsByTagName('*'), observeAll)
+;[].forEach.call(document.getElementsByTagName('*'),observeAll)
 
 /*
 PERFORMANCE OBSERVER STUFFS
@@ -1238,7 +1280,7 @@ function PerformanceLoop(o) {
             break
         case 'first-input':
             detail = o
-            detail.actualTarget = o.target
+            // detail.actualTarget = o.target
             break
         case 'largest-contentful-paint':
             detail = o
@@ -1322,7 +1364,7 @@ const getStyleThingy = function () {
 
 function ApplyBatchedStyles(value, key, map) {
     try {
-        handlers.styles.set(this,key, value)
+        handlers.styles.set(this, key, value)
         map.delete(key)
     } catch (e) {
         console.debug(e)
@@ -1332,7 +1374,7 @@ function ApplyBatchedStyles(value, key, map) {
 }
 
 function BatchStyle(target) {
-    
+
     return revocable(target, {
         __proto__: handlers.batchThing,
         queued: false,
@@ -1390,6 +1432,9 @@ export function prox(target) {
                 age: {
                     value: performance.now()
                 },
+                [mediaQueries]: {
+                    value: new Set
+                },
                 children: {
                     value: childProxy
                 },
@@ -1400,16 +1445,11 @@ export function prox(target) {
                     value: batchStyleProxy
                 },
                 // [styles]: {
-                    // value: styleProxy
+                // value: styleProxy
                 // }
             }
             , { proxy, revoke } = revocable(
                 preventExtensions(create(target, propertiesToDefine)), create(handlers.main, [{ value: target }])
-                // defineProperty(target, prop) {
-                // console.debug(prop)
-                // if (prop in target) return Reflect.defineProperty(...arguments)
-                // throw TypeError('Object not mutable')
-                // }
             )
             ; (target instanceof HTMLUnknownElement ||
                 target.ownerDocument.defaultView?.HTMLUnknownElement.prototype.isPrototypeOf(target)) &&
