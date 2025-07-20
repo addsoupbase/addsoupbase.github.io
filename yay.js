@@ -185,9 +185,9 @@ const attrStyleMap = 'StylePropertyMap' in window
             }
         },
         styles: attrStyleMap ? {
-            __proto__: {
                 // Behave somewhat like a string, for compatibility with browsers that don't support attributeStyleMap
-                proxy: {
+               
+             proxy: {
                     has(t, p) {
                         return p in new String || p in t
                     },
@@ -195,11 +195,10 @@ const attrStyleMap = 'StylePropertyMap' in window
                         if (p in new String) return ''[p].bind(`${t}`)
                         return t[p]
                     },
-                }
-            },
+                },
             get(target, prop) {
                 let out = prop.startsWith('--') ? target.get(prop) : target.get(css.dashVendor(prop, 'inherit'))
-                return out && new Proxy(Object.freeze(out), super.proxy)
+                return out && new Proxy(Object.freeze(out), handlers.styles.proxy)
             },
             set(target, prop, value) {
                 (value == null || value === '') ? this.deleteProperty(target, prop)
