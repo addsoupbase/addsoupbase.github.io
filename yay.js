@@ -152,7 +152,7 @@ const attrStyleMap = 'StylePropertyMap' in window
                 ++reads
                 p = css.toCaps(p)
                 let val = this.cached.get(p)
-                return val ?? (this.cached.set(p, val = t[p]), val)
+                return val ?? (this.cached.set(p, val = handlers.styles.get(t,p)), val)
             },
             set(t, p, v) {
                 ++writes
@@ -274,7 +274,7 @@ const attrStyleMap = 'StylePropertyMap' in window
 // let ATTR = Symbol('💿')
 // let states = Symbol('💾')
 let computed = Symbol('no')
-let styles = Symbol('stop')
+// let styles = Symbol('stop')
 // let shadow = Symbol('🌴')
 let props = getOwnPropertyDescriptors(class _
     extends null {
@@ -391,13 +391,13 @@ let props = getOwnPropertyDescriptors(class _
     static ProxyEventWrapperFunction(me, ...args) {
         apply(this, me, args)
     }
-    on(events, signal) {
-        arguments.length > 2 && h.getLabel(signal) !== 'AbortController' && (signal = arguments[2])
+    on(events, controller) {
+        arguments.length > 2 && h.getLabel(controller) !== 'AbortController' && (controller = arguments[2])
         // There used to be a 'useHandler' parameter
         let me = this
         if (typeof events === 'function') events = _.ProxyEventWrapperFunction.bind(old, me)
         else for (let i in events) events[i] = _.ProxyEventWrapperFunction.bind(events[i], me)
-        h.on(base(this), events, signal)
+        h.on(base(this), events, controller)
     }
 
     off(...events) {
@@ -413,9 +413,9 @@ let props = getOwnPropertyDescriptors(class _
         return from(base(this).getElementsByTagName(tag), prox)
     }
 
-    debounce(events, interval, signal) {
+    debounce(events, interval, controller) {
         for (let i in events) events[i] = debounce(events[i], interval)
-        this.on(events, signal)
+        this.on(events, controller)
     }
 
     /* throttle(events, interval) {
@@ -430,7 +430,7 @@ let props = getOwnPropertyDescriptors(class _
             pr = prox(target);
         (me !== target || includeSelf) && (filter(pr) ?? 1) && apply(this, pr, args)
     }
-    delegate(events, filter, includeSelf, signal) {
+    delegate(events, filter, includeSelf, controller) {
         let me = base(this)
         filter ??= function () {
         }
@@ -438,7 +438,7 @@ let props = getOwnPropertyDescriptors(class _
             if (i.includes('@')) throw SyntaxError("Conflicting usage of a 'currentTarget' only delegating event handler")
             events[i] = _.DelegationFunction.bind(events[i], me, includeSelf, filter)
         }
-        this.on(events, false, signal)
+        this.on(events, false, controller)
     }
 
     get events() {
@@ -974,6 +974,7 @@ const HTML_PLACING = new Set('beforebegin afterbegin beforeend afterend'.split('
         })
     )
 }
+// !('scrollTopMax'in Element.prototype || 'scrollLeftMax' in Element.prototype) && Object.defineProperties(Element.prototype,)
 'offsetLeft offsetTop offsetWidth offsetHeight offsetParent clientLeft clientTop clientWidth clientHeight scrollWidth scrollHeight scrollTopMax scrollLeftMax'
     .split(' ').forEach(prop => {
         // Reading these properties causes reflows/layout-shift/repaint whatever its called idk
@@ -991,6 +992,19 @@ const HTML_PLACING = new Set('beforebegin afterbegin beforeend afterend'.split('
             get() {
                 ++reads
                 queued || (reset(), queued = true)
+                if (prop === 'scrollTopMax' || prop === 'scrollLeftMax') {
+                    let a = cached ??= base(this)[prop]
+                    if (a == null) {
+                        switch (prop) {
+                            case 'scrollTopMax': a = this.scrollHeight - this.clientHeight
+                                break
+                            case 'scrollLeftMax': a = this.scrollWidth - this.clientWidth
+                                break
+                        }
+                        cached = a
+                    }
+                    return cached   
+                }
                 return cached ??= base(this)[prop]
             }
         })
@@ -1090,11 +1104,17 @@ if (typeof
         for (let { length: i } = entries; i--;) {
             let me = entries[i],
                 { target } = me
-            if ($(target).computed.getPropertyValue('--content-visibility').trim() === 'auto')
-                h.delayedDispatch('contentvisibilityautostatechange', target, new CustomEvent('contentvisibilityautostatechange', {
+            target = $(target)
+            if (target.computed.getPropertyValue('--content-visibility').trim() === 'auto') {
+                let skipped = !me.isIntersecting
+                target.setStyle({
+                    visibility: skipped ? 'hidden' : 'visible'
+                })
+                h.delayedDispatch('contentvisibilityautostatechange', target.valueOf(``), new CustomEvent('contentvisibilityautostatechange', {
                     bubbles: true,
-                    detail: { skipped: !me.isIntersecting }
+                    detail: { skipped }
                 }))
+            }
         }
     }
 }
@@ -1303,7 +1323,7 @@ const getStyleThingy = function () {
 
 function ApplyBatchedStyles(value, key, map) {
     try {
-        this[key] = value
+        handlers.styles.set(this,key, value)
         map.delete(key)
     } catch (e) {
         console.debug(e)
@@ -1313,6 +1333,7 @@ function ApplyBatchedStyles(value, key, map) {
 }
 
 function BatchStyle(target) {
+    
     return revocable(target, {
         __proto__: handlers.batchThing,
         queued: false,
@@ -1329,7 +1350,7 @@ let writes = 0, reads = 0
 */
 export function prox(target) {
     if (target === null) return null
-    if (target[styles]) return target
+    if (target[me]) return target
     if (!getValid(target))
         throw TypeError("Target must implement the 'Element' interface")
     // 🥅 Goal:
@@ -1341,11 +1362,11 @@ export function prox(target) {
     if (!all.has(target)) {
         // ++$.len
         let bleh = { value: target }
-            , { revoke: styleRevoke, proxy: styleProxy } = revocable(getStyleThingy(target), handlers.styles)
+            // , { revoke: styleRevoke, proxy: styleProxy } = revocable(getStyleThingy(target), handlers.styles)
             , { revoke: childRevoke, proxy: childProxy } = revocable(target.children, handlers.HTMLCollection)
             , { revoke: querySelectorRevoke, proxy: querySelectorProxy } = revocable(target, handlers.querySelector)
             , { revoke: attrRevoke, proxy: attrProxy } = revocable(target, handlers.attr)
-            , { proxy: batchStyleProxy, revoke: batchRevoke } = BatchStyle(styleProxy)
+            , { proxy: batchStyleProxy, revoke: batchRevoke } = BatchStyle(getStyleThingy(target))
             , propertiesToDefine = {
                 ...prototypeDescriptors,
                 [me]: bleh,
@@ -1379,9 +1400,9 @@ export function prox(target) {
                 styles: {
                     value: batchStyleProxy
                 },
-                [styles]: {
-                    value: styleProxy
-                }
+                // [styles]: {
+                    // value: styleProxy
+                // }
             }
             , { proxy, revoke } = revocable(
                 preventExtensions(create(target, propertiesToDefine)), create(handlers.main, [{ value: target }])
@@ -1394,7 +1415,7 @@ export function prox(target) {
             ; (target instanceof HTMLUnknownElement ||
                 target.ownerDocument.defaultView?.HTMLUnknownElement.prototype.isPrototypeOf(target)) &&
                 console.warn(`Unknown element: '${target.tagName.toLowerCase()}'`)
-        revokes.set(proxy, RevokeAllProxies.bind(1, revoke, childRevoke, attrRevoke, styleRevoke, batchRevoke, querySelectorRevoke))
+        revokes.set(proxy, RevokeAllProxies.bind(1, revoke, childRevoke, attrRevoke,/* styleRevoke,*/ batchRevoke, querySelectorRevoke))
         all.set(target, proxy)
         return proxy
     }

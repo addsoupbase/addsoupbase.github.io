@@ -213,8 +213,8 @@ export function addCustomEvent(names) {
 
 const formatEventName = /[_$^%&!?@#\d]|bound /g
 
-export function on(target, events, signal) {
-    arguments.length > 3 && getLabel(signal) !== 'AbortController' && (signal = arguments[3])
+export function on(target, events, controller) {
+    arguments.length > 3 && getLabel(controller) !== 'AbortController' && (controller = arguments[3])
     if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
     let names = ownKeys(events)
     if (!names.length) return target
@@ -247,14 +247,14 @@ export function on(target, events, signal) {
                 }
             if (prevents && passive) throw TypeError("Cannot call 'preventDefault' on a passive function")
             eventName = verifyEventName(target, eventName.replace(formatEventName, ''))
-            if (myEvents.has(eventName) && signal == null) {
+            if (myEvents.has(eventName) && controller == null) {
                 logger.warnLate(`🔕 Skipped duplicate '${eventName}' listener. Call on() again with the signal parameter to bypass this.`)
                 continue
             }
-            signal && (options.once = once, options.signal = signal.signal)
+            controller && (options.once = once, options.signal = controller.signal)
             const listener = EventWrapper.bind(
-                target, func, signal,
-                signal?.abort.bind(signal, 'Automatic abort'),
+                target, func, controller,
+                controller?.abort.bind(controller, 'Automatic abort'),
                 onlyTrusted,
                 onlyCurrentTarget,
                 prevents, stopProp,
@@ -263,9 +263,10 @@ export function on(target, events, signal) {
                 once,
                 eventName,
             )
-            if (autoabort && getLabel(signal) !== 'AbortController') throw TypeError("AbortController required if '#' (autoabort) is present")
-            add(target, eventName, listener, options)
-            if (signal) logger.info(`📡 '${eventName}' event added`)
+            if (autoabort && getLabel(controller) !== 'AbortController') throw TypeError("AbortController required if '#' (autoabort) is present")
+            add(target, eventName, listener, options, //onlyTrusted
+        )
+            if (controller) logger.info(`📡 '${eventName}' event added`)
             else {
                 allEvents.has(target) || allEvents.set(target, new Map)
                 //A Map to hold the names & events
@@ -362,9 +363,9 @@ export function until(target, eventName, failureName, timeout/* = 600000*/) {
         const str = `⏰ Promise for '${eventName}' expired after ${timeout} ms`
             , id = timeout && setTimeout(err => {
                 reject(err)
-                signal.abort(str)
+                controller.abort(str)
             }, timeout, RangeError(str))
-        let signal = new AbortController
+        let controller = new AbortController
             , e = {
                 [`#${eventName}`](event) {
                     try {
@@ -387,7 +388,7 @@ export function until(target, eventName, failureName, timeout/* = 600000*/) {
                 }
             }
         })
-        on(target, e, 1, signal)
+        on(target, e, 1, controller)
     }
 }
 
@@ -410,7 +411,7 @@ export function download(blob, title) {
     anchor.click()
 }
 function nothing() { }
-export function delegate(me, events, filter, includeSelf, signal) {
+export function delegate(me, events, filter, includeSelf, controller) {
     filter ??= nothing
     for (let i in events) {
         if (i.includes('@')) throw SyntaxError("Conflicting usage of a 'currentTarget' only delegating event handler")
@@ -421,7 +422,7 @@ export function delegate(me, events, filter, includeSelf, signal) {
             (me !== target || includeSelf) && (filter(target) ?? 1) && apply(old, target, args)
         }
     }
-    return on(me, events, signal)
+    return on(me, events, controller)
 }
 /*if(`${location}`.includes('localhost')) {
     try {
