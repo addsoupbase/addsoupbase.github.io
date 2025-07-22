@@ -34,7 +34,7 @@ function from(ArrayLike, map, thisArg) {
 function debounce(func, interval) {
     let waiting = false
     return DebouncedFunction
-    function enable() {
+    function enable() { h
         waiting = false
     }
     function DebouncedFunction(...args) {
