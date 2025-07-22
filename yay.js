@@ -62,7 +62,7 @@ const { hasOwn } = Object
     saved = Symbol('[[SavedAttributes]]'),
     all = new WeakMap,
     revokes = new WeakMap,
-    busy = Symbol('[[Busy]]'),
+    busy = Symbol('[[DeprecatedBusy]]'),
     mediaQueries = Symbol('[[ObservedMediaQueries]]')
 function gen() {
     return `${Math.random()}${Math.random()}`.replace(regex.dot, '')
