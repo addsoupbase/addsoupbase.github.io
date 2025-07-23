@@ -205,6 +205,8 @@ export class Vector2 {
                 value: makeItANumber
             })
             function makeItANumber(x, y) {
+                typeof x==='string'&&(x = +x)
+                typeof y==='string'&&(y = +y)
                 if (typeof x === 'number' && typeof y !== 'number') y = x
                 else if (typeof x !== 'number' || typeof y !== 'number') {
                     y = x.y ?? x[1]

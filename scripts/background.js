@@ -66,7 +66,8 @@ async function images({time, colorful, birthday}) {
         let src = this.firstElementChild.src
         let me = $(`div.ava .tar .${name}`, {
             styles: {
-                'backgroundImage': `url(${src})`
+                'backgroundImage': `url(${src})`,
+                'z-index':3
             },
             attributes: {
                 _hidden: 'true',
@@ -91,7 +92,7 @@ async function images({time, colorful, birthday}) {
         const {src} = image
         let n = $('div.bubble', {
             attr: {
-                style:'z-index:3;will-change:transform,opacity;',
+                style:'z-index:3;will-change:transform,opacity,filter;',
                 _hidden: 'true',
                 width: 50, height: 50
             }, parent
@@ -240,7 +241,7 @@ async function images({time, colorful, birthday}) {
     spawnPkmn()
 
     function makeBubble(x, y) {
-        let bubbl = $('<div class="bubble" style="pointer-events:none;"></div>', {
+        let bubbl = $(`<div class="bubble" style="pointer-events:none;z-index:${ran.frange(1,3)}"></div>`, {
             parent,
             attr: {
                 _hidden: 'true'
@@ -292,6 +293,12 @@ import*as h from '../handle.js'
 import ran from '../random.js'
 
 let hidden = false
+function hide(){
+    hidden = true
+}
+function show(){
+    hidden = false
+}
 h.on(window, {
     /*blur(){
         hidden = true
@@ -299,12 +306,12 @@ h.on(window, {
     focus(){
         hidden = false
     },*/
-    pagehide() {
-        hidden = true
-    },
-    pageshow() {
-        hidden = false
-    }
+    pagehide:hide,
+    pageshow:show
+})
+h.on(document, {
+    freeze:hide,
+    resume:show
 })
 const {frame, count} = $.id
 let popped = 0

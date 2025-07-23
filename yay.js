@@ -170,6 +170,10 @@ const attrStyleMap = 'StylePropertyMap' in window
                     cacheFunction(getVendor(a, prop, a), a)
                 // ⛓️‍💥 'Illegal invocation' if function is not bound
             },
+            // ownKeys(target){
+                // don't expose any implementation details
+                // return Object.getOwnPropertyNames(target).concat(Symbol.iterator,Symbol.toPrimitive)
+            // },
             set(targ, prop, value) {
                 let t = targ.hasOwnProperty(prop) ? targ : this[0]
                 return setVendor(t, prop, value, t)
@@ -1587,6 +1591,11 @@ function $(html, props, ...children) {
     children.length && element.push(children.map(elemIfString))
     return element
 }
+'currentCSSZoom' in Element.prototype || Object.defineProperty(Element.prototype, 'currentCSSZoom', {
+    get() {
+        return +(getComputedStyle(this).getPropertyValue('zoom') || 1 * this.parentElement?.CSSZoom || 1)
+    }
+})
 function assignIfOwn(props, element, p) {
     hasOwn(props, p) && (element[p] = props[p])
 }
