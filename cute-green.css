@@ -11,7 +11,7 @@ input.cute-green {
     max-width: 100%;
     text-align: center;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, background-color 0.3s ease,border-color 0.3s ease;
+    transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
 }
 input.cute-green:focus {
     background-color: #4ec367;
@@ -39,7 +39,7 @@ input.cute-green::placeholder {
     cursor: pointer;
     text-align: center;
     margin: 3px;
-    transition: background-color 0.3s ease, transform 0.1s ease;
+    transition: background-color 0.3s ease, transform 0.1s ease , border-color 0.3s ease;
 }
 a.cute-green-button {
     transition: background-color 0.3s ease;
@@ -64,7 +64,7 @@ a.cute-green-button:active {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     color: #000000;
     text-align: center;
-    transition: transform 0.3s ease, background-color 0.3s ease;
+    transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
 }
 .cute-blue {
     background-color: #5ACBCD;
@@ -76,5 +76,5 @@ a.cute-green-button:active {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     color: #000000;
     text-align: center;
-    transition: transform 0.3s ease, background-color 0.3s ease;
+    transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
 }
