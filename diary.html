@@ -303,9 +303,9 @@
                     })
                 } else {
                     this.fadeIn()
-                    let n = this.contentWindow.document.querySelector('meta[name="diary-color"]')
+                    let n = $(this.contentWindow.document.body).attr.$color
                     if (n) {
-                        let color = n.getAttribute('content')
+                        let color = n
                         diary.setStyle({
                             'background-color':color,
                             'border-color': Color.dhk(color, 40)
