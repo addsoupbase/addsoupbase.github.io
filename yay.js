@@ -167,7 +167,7 @@ const attrStyleMap = 'StylePropertyMap' in window
             get(targ, prop, r) {
                 let a = this[0]
                 return targ.hasOwnProperty(prop) ? get(targ, prop, r) :
-                    cacheFunction(getVendor(a, prop, a), a)
+                    cacheFunction(get(a, prop, a), a)
                 // ⛓️‍💥 'Illegal invocation' if function is not bound
             },
             // ownKeys(target){
@@ -176,7 +176,7 @@ const attrStyleMap = 'StylePropertyMap' in window
             // },
             set(targ, prop, value) {
                 let t = targ.hasOwnProperty(prop) ? targ : this[0]
-                return setVendor(t, prop, value, t)
+                return set(t, prop, value, t)
             }
         },
         querySelector: {

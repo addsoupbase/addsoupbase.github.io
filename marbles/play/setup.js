@@ -34,7 +34,7 @@ class AudioThing {
             n.volume = val
         }
     }
-
+    
     add(music) {
         this.#map.set(music.attr.$name, music)
     }
@@ -170,6 +170,7 @@ export const game = {
             let delay = 1500
             let spawn = this.all.find(o => o.constructor.name === 'spawn'),
                 goal = cam.goal = this.all.find(o => o.constructor.name === 'goal')
+                cam.locked =true
             if (goal) {
                 //  Intro cutscene thingy
                 cam.following = goal
@@ -182,6 +183,7 @@ export const game = {
                 cam.following = spawn
                 await h.wait(delay)
             }
+            cam.locked = false
         } else top.postMessage('hideData')
         this.frame = 0
         mouse.reset()
@@ -237,11 +239,19 @@ mobileJoystick.on({
         mouse.leftClick.set(NaN, NaN)
     }
 })
+let mov = 0b0000
 export const cam = {
     position: vect(-2000, -2000),
     zoom: 1,
     touchInput,
-    moving: 0b0000,
+    locked:false,
+    get moving() {
+        return mov
+    },
+    set moving(val) {
+        mov = val
+        if (!cam.locked) cam.following = null
+    },
     behaviour: lstorage.cam ??= 'default',
     alreadyDidTheWinnerCutsceneThingy: false,
     targetZoom: 1,
@@ -286,6 +296,7 @@ canvas.on({
             return
         }
         this.setPointerCapture(pointerId)
+        inEditor || (button = button === 0 ? 2 : 0)
         switch (button) {
             case 0:
                 if (inEditor) {   // Left Click
@@ -300,8 +311,8 @@ canvas.on({
                              }
                          }*/
                     }
-                    break
                 }
+                break
             case 2: { // Right Click
                 // mouse.reset()
                 cam.following = null
@@ -484,8 +495,8 @@ void function start(ignore) {
         pick.style.height = "50vh"
         pick.show(3)
         $.id.title.textContent = 'Choose a level'
-       overlay.attr._busy = 'false'
-        canvas.styles.cursor='default'
+        overlay.attr._busy = 'false'
+        canvas.styles.cursor = 'default'
         let id
         let firstdiv = $('form #form', {
             parent: pick,
@@ -498,7 +509,7 @@ void function start(ignore) {
                         anchor.hide(3)
                         loader.fadeIn()
                         message.style.color = ''
-                        overlay.busy(true)
+                        overlay.isBusy = true
                         let {
                             title,
                             author: authorName
@@ -509,14 +520,14 @@ void function start(ignore) {
                         author.fadeIn()
                         anchor.fadeIn()
                         anchor.setAttr({ href: `https://marbles.deno.dev/?level=${id}` })
-                        
+
                     } catch (e) {
                         reportError(e)
                         message.textContent = 'Level invalid or not found!'
                         message.setStyles({ color: 'darkred' })
                         message.fadeIn()
                     } finally {
-                        overlay.busy(false)
+                        overlay.isBusy = false
                         loader.hide(3)
                     }
                 }

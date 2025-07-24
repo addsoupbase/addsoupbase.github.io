@@ -44,16 +44,23 @@ function implement({prototype}, paste) {
     //  lazy
     return Object.defineProperties(paste, Object.getOwnPropertyDescriptors(prototype))
 }
-
-game.playEngine = () => runner.enabled = true
-game.pauseEngine = () => runner.enabled = false
-let ctx = can.getContext('2d')
-game.end = async () => {
+Object.assign(game, {
+    playEngine(){runner.enabled = true},
+    pauseEngine(){runner.enabled = false},
+    async end() {
     overlay.destroyChildren()
+    let results = $("<h1 style='opacity:0'>Results</h1>")
+    overlay.push(results)
     await can.animate([{filter: '',}, {filter: 'blur(5px)'}], {duration: 500, fill: 'forwards', endDelay: 300})
     overlay.classList.remove('slide-out-blurred-top')
+    overlay.on({
+        '@_animationend'(){
+            results.classList.add('results')
+        }
+    }, new AbortController)
     overlay.classList.add('slide-in-blurred-top')
     overlay.push($(`<div class="holdthis"></div>`, null, ...placements.winners.map((o, index) => {
+        let title =  `${o.name} — ${str.toOrdinal(index+1)} place`
         let out = $(`div.place`, {
             styles: {
                 'background-color': o.color
@@ -62,7 +69,8 @@ game.end = async () => {
                 index || this.classList.add('first')
             },
             attributes: {
-                title: o.name
+                title, 
+                alt: o.name
             }
         },)
         if (o.image != null) {
@@ -99,6 +107,8 @@ game.end = async () => {
     })))
     runner.enabled = false
 }
+})
+let ctx = can.getContext('2d')
 const placements = {
     winners: [],
     losers: [],
@@ -761,6 +771,7 @@ goal.prototype = {
     async collisionenter(body) {
         if (!(MARBLE_SYMBOL in body)) return
         if (!inEditor && !placements.winners.length && !cam.alreadyDidTheWinnerCutsceneThingy) {
+            cam.locked = true
             cam.alreadyDidTheWinnerCutsceneThingy = true
             game.freeze()
             let {x, y} = cam.position
@@ -776,6 +787,7 @@ goal.prototype = {
             cam.zoom = zoom
             cam.following = old
             cam.position.set(x, y)
+            cam.locked = false
         } else if (!inEditor) {
             body.enterGoal(this)
         } else body.remove()
@@ -1050,10 +1062,10 @@ function nextFrame() {
     if (!game.isPaused && !game.frozen)
         switch (cam.behaviour) {
             case 'first':
-                cam.following = closestToGoal;
+                cam.following = closestToGoal
                 break
             case 'last':
-                cam.following = furthestFromGoal;
+                cam.following = furthestFromGoal
                 break
             case 'avg':
                 if (closestToGoal && furthestFromGoal) {
@@ -1118,7 +1130,7 @@ function collisionActive({pairs}) {
     for (let {length: i} = pairs; i--;) doCollide(pairs[i], 'collision')
 }
 
-let overlay = $.gid('overlay')
+let {overlay} = $.id
 
 
 async function cacheImageAndSet(url, index) {
@@ -1294,7 +1306,7 @@ if (levelName) {
     overlay.push(settingsmenu)
     settings.fromQuery['#settings-button-actual'].on({
         _click() {
-            let camb = $.gid('camb')
+            let {camb} = $.id
             .on({
                 change() {
                     lstorage.cam = this.value || 'default'

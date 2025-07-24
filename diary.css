@@ -10,7 +10,12 @@
   font-weight: normal;
   font-style: normal;
 }
-
+.avatar {
+  width: 125px;
+  height: 125px;
+  border-radius: 100%;
+  /* max-width: 100%; */
+}
 figure {
   justify-self: center;
 }

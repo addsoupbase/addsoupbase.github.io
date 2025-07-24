@@ -471,6 +471,7 @@
                     cursor: 'progress'
                 },
                 ':root': {
+                    'interpolate-size': 'allow-keywords',
                     '--crisp-edges': '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(o => sup('image-rendering', o)),
                     '--stretch': '-moz-available -webkit-fill-available stretch'.split(' ').find(o => sup('max-width', o)),
                     '--center': '-moz-center -webkit-center -khtml-center'.split(' ').find(o => sup('text-align', o)), // this is different from just 'center' and idk why!!!

@@ -166,6 +166,7 @@
         import $ from './yay.js'
         import ran from './random.js'
         import * as h from './handle.js'
+        import Color from './color.js'
 
         function animateThing() {
             let sizeMult = 1.3
@@ -289,18 +290,37 @@
         // return Date.UTC((new Date).getFullYear(), (new Date).getMonth(), (new Date).getDate())
         // }
         let canMove = false
-        currentThingy.on({
-            '%!load'() {
+        let controller = new AbortController
+        function load() {
                 canMove = true
                 if (!this.contentWindow.document.querySelector('[name="author"][content="addsoupbase"]')) {
                     invalid.show().fadeIn()
                     // this.setAttribute('src', 'about:blank')
                     //will work good enough i think
+                     diary.setStyle({
+                        'background-color':'',
+                        'border-color':''
+                    })
                 } else {
                     this.fadeIn()
+                    let n = this.contentWindow.document.querySelector('meta[name="diary-color"]')
+                    if (n) {
+                        let color = n.getAttribute('content')
+                        diary.setStyle({
+                            'background-color':color,
+                            'border-color': Color.dhk(color, 40)
+                        })
+                        // diary.styles.backgroundColor = color 
+                    }
+                    else diary.setStyle({
+                        'background-color':'',
+                        'border-color':''
+                    })
                 }
                 this.parent.isBusy = false
             }
+        currentThingy.on({
+            '%!load': load
         })
 
         function getThat(d) {
