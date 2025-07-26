@@ -488,19 +488,19 @@ void function start(ignore) {
         } catch {
             return start(true)
         }
-    } else if (!levelName) {
+    } 
+    else if (!levelName) {
         mobileJoystick.hide(3)
-        document.title = 'Choose a level - Marbles'
+        // document.title = 'Choose a level - Marbles'
         let pick = overlay
         pick.style.height = "50vh"
         pick.show(3)
-        $.id.title.textContent = 'Choose a level'
+        // $.id.title.textContent = 'Choose a level'
         overlay.attr._busy = 'false'
         canvas.styles.cursor = 'default'
+        let {message, loader, message: author, play: anchor} =$.id
         let id
-        let firstdiv = $('form #form', {
-            parent: pick,
-            events: {
+        $.id.form.on({
                 async $submit() {
                     try {
                         id = this.levelid.value.match(/\w+/)
@@ -531,28 +531,7 @@ void function start(ignore) {
                         loader.hide(3)
                     }
                 }
-            }
-        })
-        $(`<div>
-<input placeholder="Enter Level Id..." class="cute-green" name="levelid" required>
-</div>`, {
-            parent: firstdiv
-        })
-        $(`<div>
-<button class="cute-green-button">Enter</button>
-</div>`, {
-            parent: firstdiv,
-        })
-        let loader = $('<div class="loader centerx"></div>', {
-            parent: pick
-        }).hide(3)
-        let message = $('<h2>Level Title</h2>', {
-            parent: pick
-        }).hide(3)
-        let author = $('<cite>By Author</cite>', {
-            parent: pick
-        }).hide(3)
-        let anchor = $(`<a id="play" class="cute-green-button">Play!</a>`, { parent: pick }).hide(3)
+            }) 
     } else {
         init()
     }

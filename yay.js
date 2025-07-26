@@ -1280,12 +1280,8 @@ function PerformanceLoop(o) {
         // })))
         // console.warn(o)
         case "long-animation-frame":
-            detail = o
-            break
         case 'first-input':
-            detail = o
             // detail.actualTarget = o.target
-            break
         case 'largest-contentful-paint':
             detail = o
             break
