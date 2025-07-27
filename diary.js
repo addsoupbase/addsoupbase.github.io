@@ -33,6 +33,7 @@
     let ignore = /^(?:a|code|samp)$/i
     $.body.treeWalker(NodeFilter.SHOW_TEXT, doStuff)
     function doStuff(node) {
+        if (node.parentElement.matches('meta,script,head,link,title,style,html,body,main,div')) return
         // Correct common acronyms for accessibility
         let { textContent } = node
         if (!textContent.trim() || textContent.length <= 2 || ignore.test(node.parentElement?.tagName)) return
@@ -129,22 +130,10 @@
         fetch(`../${tomorrowPath}/index.html`).then(t.show.bind(t,3))*/
     }
     // /localhost|127\.0\.0\.1/.test(origin) && console.warn(`%cREMEMBER TO SET WIDTH TO A PERCENTAGE ON ALL <img> ELEMENTS! Count: ${document.images.length}`, 'font-size:1.2rem')
-    [].forEach.call(document.links, o => {
+    origin === 'http://localhost:3000' && import('./diarycheck.js')
+    ;[].forEach.call(document.links, o => {
         o.setAttribute('rel', `noopener noreferrer nofollow ${o.getAttribute('rel') || ''}`)
     })
-        ;[].forEach.call(document.querySelectorAll('img,button[type="image"]'), o => {
-            o = $(o)
-            let hasAlt = 'alt' in o.attr,
-                hasTitle = 'title' in o.attr
-            if (hasAlt && !hasTitle)
-                o.attr.title = o.attr.alt
-            else if (hasTitle && !hasAlt)
-                o.attr.alt = o.attr.title
-            else if (!(hasTitle || hasAlt)) {
-                o.attr._hidden = 'true' // Screen readers might literally read the src attribute as words
-                console.warn('Missing alt or title attribute:', o.outerHTML)
-            }
-        })
 }
     /*
     , {

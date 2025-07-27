@@ -29,84 +29,84 @@ import {
     msg,
     mobileTouching, doAudioThing, playRandomMusic
 } from './setup.js'
-import {lstorage} from '../../proxies.js'
+import { lstorage } from '../../proxies.js'
 import ran from '../../random.js'
 import * as str from '../../str.js'
 import * as math from '../../num.js'
 import * as h from '../../handle.js'
 import $ from '../../yay.js'
-import {getJson as jason} from '../../arrays.js'
+import { getJson as jason, center } from '../../arrays.js'
 import color from '../../color.js'
 // function defineFuncs(obj, funcs) {
 // return Object.defineProperties(obj, Object.getOwnPropertyDescriptors(funcs))
 // }
-function implement({prototype}, paste) {
+function implement({ prototype }, paste) {
     //  lazy
     return Object.defineProperties(paste, Object.getOwnPropertyDescriptors(prototype))
 }
 Object.assign(game, {
-    playEngine(){runner.enabled = true},
-    pauseEngine(){runner.enabled = false},
+    playEngine() { runner.enabled = true },
+    pauseEngine() { runner.enabled = false },
     async end() {
-    overlay.destroyChildren()
-    let results = $("<h1 style='opacity:0'>Results</h1>")
-    overlay.push(results)
-    await can.animate([{filter: '',}, {filter: 'blur(5px)'}], {duration: 500, fill: 'forwards', endDelay: 300})
-    overlay.classList.remove('slide-out-blurred-top')
-    overlay.on({
-        '@_animationend'(){
-            results.classList.add('results')
-        }
-    }, new AbortController)
-    overlay.classList.add('slide-in-blurred-top')
-    overlay.push($(`<div class="holdthis"></div>`, null, ...placements.winners.map((o, index) => {
-        let title =  `${o.name} — ${str.toOrdinal(index+1)} place`
-        let out = $(`div.place`, {
-            styles: {
-                'background-color': o.color
-            },
-            start() {
-                index || this.classList.add('first')
-            },
-            attributes: {
-                title, 
-                alt: o.name
+        overlay.destroyChildren()
+        let results = $("<h1 style='opacity:0'>Results</h1>")
+        overlay.push(results)
+        await can.animate([{ filter: '', }, { filter: 'blur(5px)' }], { duration: 500, fill: 'forwards', endDelay: 300 })
+        overlay.classList.remove('slide-out-blurred-top')
+        overlay.on({
+            '@_animationend'() {
+                results.classList.add('results')
             }
-        },)
-        if (o.image != null) {
-            // n.transferFromImageBitmap(o.image)
-            // n.canvas.convertToBlob().then(blob => {
-            out.push($(`img.prev`, {
+        }, new AbortController)
+        overlay.classList.add('slide-in-blurred-top')
+        overlay.push($(`<div class="holdthis"></div>`, null, ...placements.winners.map((o, index) => {
+            let title = `${o.name} — ${str.toOrdinal(index + 1)} place`
+            let out = $(`div.place`, {
+                styles: {
+                    'background-color': o.color
+                },
+                start() {
+                    index || this.classList.add('first')
+                },
                 attributes: {
-                    src: o.image.src
+                    title,
+                    alt: o.name
                 }
-            }))
-            // })
-        }
-        return out
-    }), ...placements.losers.map((o) => {
-        let out = $(`div.place.loser`, {
-            styles: {
-                'background-color': o.color
-            },
-            attributes: {
-                title: o.name
+            },)
+            if (o.image != null) {
+                // n.transferFromImageBitmap(o.image)
+                // n.canvas.convertToBlob().then(blob => {
+                out.push($(`img.prev`, {
+                    attributes: {
+                        src: o.image.src
+                    }
+                }))
+                // })
             }
-        },)
-        if (o.image != null) {
-            // n.transferFromImageBitmap(o.image)
-            // n.canvas.convertToBlob().then(blob => {
-            out.push($(`img.prev`, {
+            return out
+        }), ...placements.losers.map((o) => {
+            let out = $(`div.place.loser`, {
+                styles: {
+                    'background-color': o.color
+                },
                 attributes: {
-                    src: o.image.src
+                    title: o.name
                 }
-            }))
-            // })
-        }
-        return out
-    })))
-    runner.enabled = false
-}
+            },)
+            if (o.image != null) {
+                // n.transferFromImageBitmap(o.image)
+                // n.canvas.convertToBlob().then(blob => {
+                out.push($(`img.prev`, {
+                    attributes: {
+                        src: o.image.src
+                    }
+                }))
+                // })
+            }
+            return out
+        })))
+        runner.enabled = false
+    }
 })
 let ctx = can.getContext('2d')
 const placements = {
@@ -122,7 +122,7 @@ const placements = {
         this.winners.length = this.losers.length = 0
     }
 }
-const {vect, lerp} = math
+const { vect, lerp } = math
 if (inEditor) {
     var doc = top.document
     var marbleSize = doc.getElementById("marble-size"),
@@ -192,38 +192,38 @@ if (inEditor) {
     mouse.place = function (xx, yy) {
         if (!game.isPaused) return
         // IM GONNA KMS WHY ISNT IT WORKING
-        let {x, y} = vect(xx - cam.position.y, yy - cam.position.x),
+        let { x, y } = vect(xx - cam.position.y, yy - cam.position.x),
             out
         switch (this.willPlace) {
             case 'circle':
-                out = body({x, y, shape: 0, radius: 30, scaleX: 30, scaleY: 30,});
+                out = body({ x, y, shape: 0, radius: 30, scaleX: 30, scaleY: 30, });
                 break
             case 'triangle':
-                out = body({x, y, shape: 3, scaleX: 30, scaleY: 30,});
+                out = body({ x, y, shape: 3, scaleX: 30, scaleY: 30, });
                 break
             case 'square':
-                out = body({x, y, shape: 4, scaleX: 30, scaleY: 30,});
+                out = body({ x, y, shape: 4, scaleX: 30, scaleY: 30, });
                 break
             case 'pentagon':
-                out = body({x, y, shape: 5, scaleX: 30, scaleY: 30,});
+                out = body({ x, y, shape: 5, scaleX: 30, scaleY: 30, });
                 break
             case 'hexagon':
-                out = body({x, y, shape: 6, scaleX: 30, scaleY: 30,});
+                out = body({ x, y, shape: 6, scaleX: 30, scaleY: 30, });
                 break
             case 'goal': {
                 //  Only 1 allowed
                 for (let n of getAllBodies()) n.constructor === goal && n.remove()
-                out = new goal({x, y, scaleX: 30, scaleY: 30})
+                out = new goal({ x, y, scaleX: 30, scaleY: 30 })
                 break
             }
             case 'spawn': {
                 //  Only 1 allowed
                 for (let n of getAllBodies()) n.constructor === spawn && n.remove()
-                out = new spawn({x, y, scaleX: 30, scaleY: 30, name: 'Spawner'})
+                out = new spawn({ x, y, scaleX: 30, scaleY: 30, name: 'Spawner' })
                 break
             }
             default: {
-                out = body({x, y, shape: customVertices.get(this.willPlace)})
+                out = body({ x, y, shape: customVertices.get(this.willPlace) })
             }
         }
         game.send(out)
@@ -294,8 +294,8 @@ obj.prototype = {
     },
 }
 
-function joint({bodyA, bodyB, pointA, pointB, stiffness = 1, damping = 0.05, length}) {
-    let out = Constraint.create({bodyA, bodyB, pointA, pointB, stiffness, damping, length})
+function joint({ bodyA, bodyB, pointA, pointB, stiffness = 1, damping = 0.05, length }) {
+    let out = Constraint.create({ bodyA, bodyB, pointA, pointB, stiffness, damping, length })
     implement(obj, out)
     implement(joint, out)
     out.add()
@@ -333,25 +333,25 @@ joint.prototype = {
 }
 
 function body({
-                  x = 0,
-                  y = 0,
-                  radius,
-                  angle = 0,
-                  shape = 0,
-                  opacity = 1,
-                  name = null,
-                  isSensor = false,
-                  color: col = color.choose(),
-                  scaleX = 1,
-                  scaleY = 1,
-                  isStatic = false,
-                  friction = base.friction,
-                  image = null,
-                  restitution = base.restitution,
-                  inertia = base.inertia,
-                  density = base.density,
-                  frictionAir = base.frictionAir
-              }) {
+    x = 0,
+    y = 0,
+    radius,
+    angle = 0,
+    shape = 0,
+    opacity = 1,
+    name = null,
+    isSensor = false,
+    color: col = color.choose(),
+    scaleX = 1,
+    scaleY = 1,
+    isStatic = false,
+    friction = base.friction,
+    image = null,
+    restitution = base.restitution,
+    inertia = base.inertia,
+    density = base.density,
+    frictionAir = base.frictionAir
+}) {
     if (!new.target) return new body(...arguments)
     if (radius) scaleX = scaleY = radius
     const startingOptions = {
@@ -375,7 +375,7 @@ function body({
         }
     } else if (Array.isArray(shape)) {
         let vertices = shape.map(map)
-        out = Bodies.fromVertices(x, y, vertices, {...startingOptions, radius: 1})
+        out = Bodies.fromVertices(x, y, vertices, { ...startingOptions, radius: 1 })
         if (!out) {
             inEditor && prompt('Bad Vertices!🙁\n(try not to make them cave in too much)', JSON.stringify(shape))
             throw TypeError("Vertices are probably broken")
@@ -385,7 +385,7 @@ function body({
             let correct = Array.isArray(o)
             if (!correct) return Svg.pathToVertices(o)
             console.assert(correct, 'Vertices should be an array or .svg:', o)
-            return correct ? {x: o[0], y: o[1], index, isInternal: false, body: undefined} : o
+            return correct ? { x: o[0], y: o[1], index, isInternal: false, body: undefined } : o
         }
     }
     implement(obj, out)
@@ -426,7 +426,7 @@ body.prototype = {
     setSleeping(val) {
         Sleeping.set(this, val)
     },
-    enterGoal({position: {x, y}}) {
+    enterGoal({ position: { x, y } }) {
         this.setStatic(this.isSensor = true)
         this.isEnteringGoal = true
         this.animation = vect(x, y)
@@ -448,7 +448,7 @@ body.prototype = {
     },
     restore() {
         this.setSleeping(false)
-        const {saved} = this
+        const { saved } = this
         this.av = saved.angularVelocity
         this.as = saved.angularSpeed
         this.setRotation(saved.angle)
@@ -474,11 +474,11 @@ body.prototype = {
     save() {
         this.saved = {
             __proto__: null,
-            velocity: {...this.velocity},
+            velocity: { ...this.velocity },
             angularSpeed: this.as,
             angularVelocity: this.av,
             angle: this.angle,
-            position: {...this.position}
+            position: { ...this.position }
         }
         this.setSleeping(true)
     },
@@ -549,10 +549,10 @@ body.prototype = {
             this.setPos(math.clamp(x, 0, bounds.x), math.clamp(y, 0, bounds.y))
             if (mouse.draggingBody === this && mouse.clickedBody === this && !mouse.clickedThisFrame) {
                 mouse.clickedThisFrame = true
-                let {x, y} = mouse.cursor.clone.subtract(cam.position.clone.iScale(cam.zoom))
-                this.spawn.pos = {x, y}
+                let { x, y } = mouse.cursor.clone.subtract(cam.position.clone.iScale(cam.zoom))
+                this.spawn.pos = { x, y }
                 this.reset()
-                Object.assign(this.spawn, {x, y})
+                Object.assign(this.spawn, { x, y })
             }
         } else if (x > bounds.x || x < 0 || y > bounds.y || y < 0)
             this.outOfBounds?.()
@@ -560,7 +560,7 @@ body.prototype = {
         if (this.isEnteringGoal) {
             if (!this.__animation__) this.__animation__ = this.animateEnteredGoal()
             else {
-                let {value} = this.__animation__.next()
+                let { value } = this.__animation__.next()
                 x += Math.cos(game.frame / 10) * (value / 4)
                 y += Math.sin(game.frame / 10) * (value / 4)
             }
@@ -581,13 +581,13 @@ body.prototype = {
         } else if (this.shape !== 0) {
             //  Totally didnt use ai for this part
             if (this.parts && this.parts.length > 1) {
-                for (let i = 1, {length} = this.parts; i < length; ++i) {
+                for (let i = 1, { length } = this.parts; i < length; ++i) {
                     const part = this.parts[i]
                     ctx.beginPath()
                     const partVertices = part.vertices
                     ctx.moveTo(partVertices[0].x - x, partVertices[0].y - y)
-                    for (let j = 1, {length} = partVertices; j < length; ++j) {
-                        let {x: partX, y: partY} = partVertices[j]
+                    for (let j = 1, { length } = partVertices; j < length; ++j) {
+                        let { x: partX, y: partY } = partVertices[j]
                         ctx.lineTo(partX - x, partY - y)
                     }
                     this.inCurrentPath()
@@ -602,11 +602,11 @@ body.prototype = {
                     }
                 }
             } else {
-                const {vertices} = this
+                const { vertices } = this
                 ctx.beginPath()
-                let {0: v} = vertices
+                let { 0: v } = vertices
                 ctx.moveTo(v.x - x, v.y - y)
-                for (let i = 1, {length} = vertices; i < length; ++i) {
+                for (let i = 1, { length } = vertices; i < length; ++i) {
                     let v = vertices[i]
                     ctx.lineTo(v.x - x, v.y - y)
                 }
@@ -616,8 +616,8 @@ body.prototype = {
         this.inCurrentPath()
         let width, height
         if (this.shape !== 0) {
-            const {vertices} = this,
-                {0: a, 1: b, 2: c} = vertices
+            const { vertices } = this,
+                { 0: a, 1: b, 2: c } = vertices
             width = Vector.magnitude(Vector.sub(a, b))
             height = Vector.magnitude(Vector.sub(b, c))
         } else height = this.circleRadius * 2, width = this.circleRadius * 2
@@ -696,7 +696,7 @@ body.prototype = {
     },
     setScale(scale) {
         if (this.shape === 0) return this.circleRadius = this.scaleX = this.scaleY = scale
-        let {angle} = this
+        let { angle } = this
         this.setRotation(0)
         Body.scale(this, 1 / this.scaleX, 1 / this.scaleY)
         Body.scale(this, scale, scale)
@@ -705,7 +705,7 @@ body.prototype = {
     },
     setScaleX(scale) {
         if (this.shape === 0) return this.circleRadius = this.scaleX = this.scaleY = scale
-        let {angle} = this
+        let { angle } = this
         this.setRotation(0)
         Body.scale(this, 1 / this.scaleX, 1)
         Body.scale(this, scale, 1)
@@ -714,7 +714,7 @@ body.prototype = {
     },
     setScaleY(scale) {
         if (this.shape === 0) return this.circleRadius = this.scaleX = this.scaleY = scale
-        let {angle} = this
+        let { angle } = this
         this.setRotation(0)
         Body.scale(this, 1, 1 / this.scaleY)
         Body.scale(this, 1, scale)
@@ -725,16 +725,16 @@ body.prototype = {
         Body.setStatic(this, val)
     },
     setPos(x = this.position.x, y = this.position.y, updateVelocity) {
-        Body.setPosition(this, {x, y}, updateVelocity)
+        Body.setPosition(this, { x, y }, updateVelocity)
     },
     translate(x = 0, y = 0, updateVelocity) {
-        Body.translate(this, {x, y}, updateVelocity)
+        Body.translate(this, { x, y }, updateVelocity)
     },
     setVelocity(x = 0, y = 0) {
-        Body.setVelocity(this, {x, y})
+        Body.setVelocity(this, { x, y })
     },
     applyForce(x = 0, y = 0, position = this.position) {
-        Body.applyForce(this, position, {x, y})
+        Body.applyForce(this, position, { x, y })
     },
     getScale() {
         return this.spawn.radius
@@ -774,10 +774,10 @@ goal.prototype = {
             cam.locked = true
             cam.alreadyDidTheWinnerCutsceneThingy = true
             game.freeze()
-            let {x, y} = cam.position
+            let { x, y } = cam.position
             let old = cam.following
             cam.following = this
-            let {zoom, targetZoom} = cam
+            let { zoom, targetZoom } = cam
             cam.targetZoom = 1.2
             await h.wait(1300)
             body.enterGoal(this)
@@ -799,10 +799,10 @@ goal.prototype = {
             this.setPos(math.clamp(x, 0, bounds.x), math.clamp(y, 0, bounds.y))
             if (mouse.draggingBody === this && mouse.clickedBody === this && !mouse.clickedThisFrame) {
                 mouse.clickedThisFrame = true
-                let {x, y} = mouse.cursor.clone.subtract(cam.position.clone.iScale(cam.zoom))
-                this.spawn.pos = {x, y}
+                let { x, y } = mouse.cursor.clone.subtract(cam.position.clone.iScale(cam.zoom))
+                this.spawn.pos = { x, y }
                 this.reset()
-                Object.assign(this.spawn, {x, y})
+                Object.assign(this.spawn, { x, y })
             }
         } else if (x > bounds.x || x < 0 || y > bounds.y || y < 0)
             this.outOfBounds?.()
@@ -873,10 +873,10 @@ spawn.prototype = {
             this.setPos(math.clamp(x, 0, bounds.x), math.clamp(y, 0, bounds.y))
             if (mouse.draggingBody === this && mouse.clickedBody === this && !mouse.clickedThisFrame) {
                 mouse.clickedThisFrame = true
-                let {x, y} = mouse.cursor.clone.subtract(cam.position.clone.iScale(cam.zoom))
-                this.spawn.pos = {x, y}
+                let { x, y } = mouse.cursor.clone.subtract(cam.position.clone.iScale(cam.zoom))
+                this.spawn.pos = { x, y }
                 this.reset()
-                Object.assign(this.spawn, {x, y})
+                Object.assign(this.spawn, { x, y })
             }
         } else if (x > bounds.x || x < 0 || y > bounds.y || y < 0)
             this.outOfBounds?.()
@@ -884,7 +884,7 @@ spawn.prototype = {
         if (this.isEnteringGoal) {
             if (!this.__animation__) this.__animation__ = this.animateEnteredGoal()
             else {
-                let {value} = this.__animation__.next()
+                let { value } = this.__animation__.next()
                 x += Math.cos(game.frame / 10) * (value / 4)
                 y += Math.sin(game.frame / 10) * (value / 4)
             }
@@ -956,7 +956,7 @@ marble.prototype = {
         this.kill(false)
     },
     kill(winOrLose = true) {
-        let o = {name: this.label, color: this.render.fillStyle, image: this.render.image ?? null}
+        let o = { name: this.label, color: this.render.fillStyle, image: this.render.image ?? null }
         placements[winOrLose ? 'winners' : 'losers'].push(o)
         this.remove()
         if (!inEditor && placements.winners.length + placements.losers.length === marbles.size) {
@@ -970,8 +970,8 @@ marble.prototype = {
 
 function afterUpdate() {
     let all = getAllBodies()
-    for (let {length} = all
-             , i = 0; i < length; ++i
+    for (let { length } = all
+        , i = 0; i < length; ++i
         //; length--;
     )
         all[i].update()
@@ -982,7 +982,7 @@ function afterUpdate() {
     )
         allConstraints[i].update()*/
     if (mouse.selectedBody) {
-        let {globalCompositeOperation} = ctx
+        let { globalCompositeOperation } = ctx
         ctx.globalCompositeOperation = 'source-over'
         // mouse.selectedBody.draw()
         ctx.globalCompositeOperation = globalCompositeOperation
@@ -1016,7 +1016,7 @@ function nextFrame() {
     //if (game.isPaused)
     ctx.globalCompositeOperation = "destination-over"
     if (cam.following && !mouse.leftClicking) {
-        let {x, y} = cam.following.position
+        let { x, y } = cam.following.position
         cam.position.lerp(vect(-x, -y).add(can.width / 2, can.height / 2), (cam.speed / 100) / cam.zoom)
     }
     cam.position.add(cam.touchInput)
@@ -1024,27 +1024,30 @@ function nextFrame() {
     let furthestFromGoal
     let all = getAllBodies()
     let avgPosX = []
+    let marbs = []
     let avgPosY = []
-    for (let {length} = all
-             , i = 0; i < length; ++i
+    for (let { length } = all
+        , i = 0; i < length; ++i
         //; length--;
     ) {
-        all[i].draw()
-        if (all[i] instanceof marble) {
-            avgPosX.push(all[i].position.x)
-            avgPosY.push(all[i].position.y)
-            closestToGoal ??= furthestFromGoal ??= all[i]
-            if (cam.goal && vect.distance(closestToGoal.position, cam.goal?.position) > vect.distance(all[i].position, cam.goal?.position)) {
-                closestToGoal = all[i]
+        let val = all[i]
+        val.draw()
+        if (val instanceof marble) {
+            marbs.push(val)
+            avgPosX.push(val.position.x)
+            avgPosY.push(val.position.y)
+            closestToGoal ??= furthestFromGoal ??= val
+            if (cam.goal && vect.distance(closestToGoal.position, cam.goal?.position) > vect.distance(val.position, cam.goal?.position)) {
+                closestToGoal = val
             }
-            if (cam.goal && vect.distance(furthestFromGoal.position, cam.goal?.position) < vect.distance(all[i].position, cam.goal?.position)) {
-                furthestFromGoal = all[i]
+            if (cam.goal && vect.distance(furthestFromGoal.position, cam.goal?.position) < vect.distance(val.position, cam.goal?.position)) {
+                furthestFromGoal = val
             }
         }
     }
     let allC = getAllConstraints()
-    for (let {length} = allC
-             , i = 0; i < length; ++i
+    for (let { length } = allC
+        , i = 0; i < length; ++i
         //; length--;
     )
         allC[i].draw()
@@ -1059,6 +1062,7 @@ function nextFrame() {
         ctx.strokeRect(10, 10, 7, 20)
         ctx.strokeRect(21, 10, 7, 20)
     }
+    let avgX, avgY
     if (!game.isPaused && !game.frozen)
         switch (cam.behaviour) {
             case 'first':
@@ -1067,10 +1071,16 @@ function nextFrame() {
             case 'last':
                 cam.following = furthestFromGoal
                 break
+            case 'middle':
+                cam.following = center(marbs)
+                break
+            case 'avgnooutliers':
+                avgX = math.avg(...avgPosX)
+                avgY = math.avg(...avgPosY)
             case 'avg':
                 if (closestToGoal && furthestFromGoal) {
-                    let avgX = math.average(...avgPosX)
-                    let avgY = math.average(...avgPosY)
+                    avgX ??= math.average(...avgPosX)
+                    avgY ??= math.average(...avgPosY)
                     cam.following = {
                         position: {
                             x: avgX,
@@ -1111,26 +1121,26 @@ Events.on(engine, 'collisionStart', collisionStart)
 Events.on(engine, 'collisionActive', collisionActive)
 Events.on(engine, 'collisionEnd', collisionEnd)
 
-function collisionStart({pairs}) {
-    for (let {length: i} = pairs; i--;) doCollide(pairs[i], 'collisionenter')
+function collisionStart({ pairs }) {
+    for (let { length: i } = pairs; i--;) doCollide(pairs[i], 'collisionenter')
 }
 
 function doCollide(pair, func) {
-    let {bodyA: a, bodyB: b} = pair
+    let { bodyA: a, bodyB: b } = pair
     if (a && b)
         b[func]?.(a),
             a[func]?.(b)
 }
 
-function collisionEnd({pairs}) {
-    for (let {length: i} = pairs; i--;) doCollide(pairs[i], 'collisionout')
+function collisionEnd({ pairs }) {
+    for (let { length: i } = pairs; i--;) doCollide(pairs[i], 'collisionout')
 }
 
-function collisionActive({pairs}) {
-    for (let {length: i} = pairs; i--;) doCollide(pairs[i], 'collision')
+function collisionActive({ pairs }) {
+    for (let { length: i } = pairs; i--;) doCollide(pairs[i], 'collision')
 }
 
-let {overlay} = $.id
+let { overlay } = $.id
 
 
 async function cacheImageAndSet(url, index) {
@@ -1148,12 +1158,12 @@ window.getLevelFromJSON =
     async function getLevelFromJSON(id) {
         let summary = await jason(`./levels/${id}/info.json`)
         if (!inEditor) {
-            $.id.overlay.attr._busy="false"
+            $.id.overlay.attr._busy = "false"
             $.id.title.textContent = str.shorten(summary.title || 'Untitled', 32)
             $.id.author.textContent = str.shorten(summary.author || 'Unknown', 16)
         }
         else {
-            let {settings} = summary
+            let { settings } = summary
             marbleDensity.value = settings.density
             marbleFriction.value = settings.friction
             marbleFrictionair.value = settings.frictionAir
@@ -1161,10 +1171,10 @@ window.getLevelFromJSON =
             marbleSize.value = settings.radius
         }
         let data = await jason(`./levels/${id}/level.json`)
-        $.id['can-vas'].styles.cursor=''
+        $.id['can-vas'].styles.cursor = ''
         marbles.clear()
         Composite.clear(world, false, true)
-        let {images: imgs, map, racers, settings, shapes} = data
+        let { images: imgs, map, racers, settings, shapes } = data
         Object.assign(marbleStats, settings)
         for (const o of racers) {
             const i = racers.indexOf(o)
@@ -1174,7 +1184,7 @@ window.getLevelFromJSON =
                 if (images.has(o.image)) {
                     o.image = images.get(o.image);
                 } else o.image = await cacheImageAndSet(url, o.image)
-                inEditor && top.addMarble({name, color, image})
+                inEditor && top.addMarble({ name, color, image })
             }
             marbles.set(i, o)
         }
@@ -1218,13 +1228,13 @@ window.getLevelFromJSON =
                     new goal(o)
                     break
             }
-            $.id.yay.setAttr({disabled: ''})
+            $.id.yay.setAttr({ disabled: '' })
         }
     }
 if (levelName) {
     let signal = new AbortController
     $.body.on({
-        keydown({key}, abort) {
+        keydown({ key }, abort) {
             if (key === 'Enter' && !('disabled' in play.attr))
                 play.click(), abort()
         }
@@ -1236,7 +1246,7 @@ if (levelName) {
         $("div", null,
             play = $('<button class="cute-green-button" style="width: 95px;height: 41px;" id="yay" disabled autofocus>Play</button>', {
                 events: {
-                     _click(){
+                    _click() {
                         setTimeout(playRandomMusic, 1000)
                     }
                 }
@@ -1299,14 +1309,14 @@ if (levelName) {
     })
     for (let n of settingsmenu.first) {
         if (n.value === lstorage.cam) {
-            n.setAttributes({selected: true})
+            n.setAttributes({ selected: true })
             break
         }
     }
     overlay.push(settingsmenu)
     settings.fromQuery['#settings-button-actual'].on({
         _click() {
-            let {camb} = $.id
+            let { camb } = $.id
             camb.on({
                 change() {
                     lstorage.cam = this.value || 'default'

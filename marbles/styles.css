@@ -6,6 +6,7 @@ canvas {
     touch-action: none;
     cursor:grab;
     --cursor-visibility: auto-hide;
+        --user-select: none;
 }
 canvas:active {
     cursor:grabbing
