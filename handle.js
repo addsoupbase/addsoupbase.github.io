@@ -14,7 +14,7 @@ const sym = Symbol.for("[[Events]]")
     function LogOutOfGroup(...args) {
         args.unshift(1, c, cc)
         setTimeout(this.bind.apply(this, args))
-    }
+    } 
     for (let i in console) {
         // Because the groupCollapsed() method was suppressing errors, delay them instead
         let old = console[i]

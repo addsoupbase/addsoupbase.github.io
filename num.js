@@ -216,6 +216,7 @@ export class Vector2 {
             }
         }
         Object.defineProperties(this.prototype, {
+            [Symbol.isConcatSpreadable]: {value: !0},
             [Symbol.toStringTag]: { value: this.name },
             x: { get() { return this.#x }, set(x) { this.set(x, this.#y) }, enumerable: 1 }, y: { get() { return this.#y }, set(y) { this.set(this.#x, y) }, enumerable: 1 }
         })
@@ -246,6 +247,7 @@ export class Vector2 {
         if (hint === 'string') return this.toString()
         throw TypeError(`Cannot convert #<${this[Symbol.toStringTag]}> to ${hint}`)
     }
+    // [Symbol.isConcatSpreadable] = true
     normalize() {
         return this.set(this.normalized)
     }

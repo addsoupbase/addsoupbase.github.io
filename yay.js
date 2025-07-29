@@ -195,12 +195,23 @@ const attrStyleMap = 'StylePropertyMap' in window
                 },
             },
             get(target, prop) {
-                let out = prop.startsWith('--') ? target.get(prop) : target.get(css.dashVendor(prop, 'inherit'))
+                try {
+                    var out = prop.startsWith('--') ? target.get(prop) : target.get(css.dashVendor(prop, 'inherit'))
+                }
+                catch(e) {
+                    reportError(e)
+                }
                 return out && new Proxy(Object.freeze(out), handlers.styles.proxy)
             },
             set(target, prop, value) {
-                value == null || value === '' ? this.deleteProperty(target, prop)
+                try {
+                    value == null || value === '' ? this.deleteProperty(target, prop)
                     : prop.startsWith('--') ? target.set(prop, value) : target.set(css.dashVendor(prop, `${value}`), value)
+                }
+                catch(e) {
+                    reportError(e)
+                    return 0
+                }
                 return 7
             },
             deleteProperty(target, prop) {
