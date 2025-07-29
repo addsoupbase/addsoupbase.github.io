@@ -1,5 +1,5 @@
 @import url('./cute-green.css');
-
+@import url('./chococooky.css');
 #background {
   width: 100vw;
   height: 100vh;
@@ -551,16 +551,7 @@ html {
 }
 
 
-@font-face {
-  font-family: 'Choco';
-  font-display: swap;
-  src: local('Choco cooky'), local('Chococooky'), url('./media/Chococooky.woff2') format('woff2'),
-    /* Super Modern Browsers */
-    url('/media/Chococooky.woff') format('woff');
-  /* Pretty Modern Browsers */
-  font-weight: normal;
-  font-style: normal;
-}
+
 
 h1,
 p,

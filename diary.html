@@ -90,10 +90,14 @@
             <!-- <span> Scrolling could reveal more!</span> -->
 
             <div class="center" id="diary-container" style="display:contents;justify-items: center;">
-                <time>
-                    <input class="cute-green" style="font-size:20px;margin:20px;" id="diary-heading" type="date"
-                        min="2025-04-07">
-                </time>
+                <div style="display: grid;">
+                    <time>
+                        <input class="cute-green" style="font-size:20px;margin:20px;" id="diary-heading" type="date"
+                            min="2025-04-07">
+                    </time>
+                    <label for="skip" style="margin-bottom:10px;z-index: 2;">Skip Empty Days <input id="skip"
+                            type="checkbox" checked></label>
+                </div>
                 <section id="diary" class="cute-blue" style="--user-select:none;width: 746px;  place-self: center;">
                     <div id="walking"></div>
                     <h2 id="invalid" hidden>No entry for today &lpar;yet!&rpar;
@@ -106,8 +110,8 @@
                         <samp style="color:#631414;">Error
                         </samp>
                     </h2>
-                    <iframe allowfullscreen allow="fullscreen" aria-relevant="all" aria-live="assertive" id="display" name="Diary" title="Diary"
-                        style="width: 100%;height: 100%;border: none;"></iframe>
+                    <iframe allowfullscreen allow="fullscreen" aria-relevant="all" aria-live="assertive" id="display"
+                        name="Diary" title="Diary" style="width: 100%;height: 100%;border: none;"></iframe>
                     <script>
                         document.getElementById('display').addEventListener('load', function (e) {
                             var window = e.target.contentWindow
@@ -126,7 +130,8 @@
                         })
                     </script>
                 </section>
-                <div style="--user-select:none;justify-self: center;justify-content:center;display: flex;    align-items: end;">
+                <div
+                    style="--user-select:none;justify-self: center;justify-content:center;display: flex;    align-items: end;">
                     <input accesskey="p" id="prev" type="image" title="Turn to previous page" alt="Back"
                         style="transform:scaleX(-1)" src="./cute-emojis/emojis/1321091969635848294.gif">
                     <button class="cute-green-button" id="toToday">Go to today</button>
@@ -214,7 +219,10 @@
             '%&DOMContentLoaded'() { }
         })
         $.setup()
-        let { toToday, invalid, error, next, prev, 'diary-heading': diaryHeading, display: currentThingy, walking } = $.id
+        let { toToday, invalid, error, next, prev, 'diary-heading': diaryHeading, display: frame, walking, skip } = $.id
+        function isSkipping() {
+            return skip.checked
+        }
         if (CSS.supports('left', 'anchor(left)')) animateThing()
 
         // h.on(window, {
@@ -275,6 +283,7 @@
         next.on({
             '%&click'() {
                 if (!canMove) return
+                lastClicked = 't'
                 goBy(1)
                 setEntry(getDate())
             }
@@ -282,45 +291,59 @@
         prev.on({
             '%&click'() {
                 if (!canMove) return
+                lastClicked = 'y'
                 goBy(-1)
                 setEntry(getDate())
             }
         })
+        let lastClicked = 'y'
         // function getMSThingy() {
         // return Date.UTC((new Date).getFullYear(), (new Date).getMonth(), (new Date).getDate())
         // }
         let canMove = false
         let controller = new AbortController
         function load() {
-                canMove = true
-                if (!this.contentWindow.document.querySelector('[name="author"][content="addsoupbase"]')) {
-                    invalid.show().fadeIn()
-                    // this.setAttribute('src', 'about:blank')
-                    //will work good enough i think
-                     diary.setStyle({
-                        'background-color':'',
-                        'border-color':''
-                    })
-                } else {
-                    this.fadeIn()
-                    let n = $(this.contentWindow.document.body).attr.$color
-                    if (n) {
-                        let color = n
-                        diary.setStyle({
-                            'background-color':color,
-                            'border-color': Color.dhk(color, 40)
-                        })
-                        // diary.styles.backgroundColor = color 
+            canMove = true
+            if (!this.contentWindow.document.querySelector('[name="author"][content="addsoupbase"]')) {
+                if (isSkipping()) {
+                    let c = prev
+                    switch (lastClicked) {
+                        case 'y': c = prev
+                            break
+                        case 't': c = next
+                            break
                     }
-                    else diary.setStyle({
-                        'background-color':'',
-                        'border-color':''
-                    })
+                    c.click()
+                    c.disabled && invalid.show().fadeIn()
                 }
-                this.parent.isBusy = false
+                else invalid.show().fadeIn()
+                // this.setAttribute('src', 'about:blank')
+                //will work good enough i think
+                diary.setStyle({
+                    'background-color': '',
+                    'border-color': ''
+                })
+            } else {
+                this.fadeIn()
+                let n = $(this.contentWindow.document.body).attr.$color
+                if (n) {
+                    let color = n
+                    diary.setStyle({
+                        'background-color': color,
+                        'border-color': Color.dhk(color, 40)
+                    })
+                    // diary.styles.backgroundColor = color 
+                }
+                else diary.setStyle({
+                    'background-color': '',
+                    'border-color': ''
+                })
             }
-        currentThingy.on({
-            '%!load': load
+            this.parent.isBusy = false
+        }
+        frame.on({
+            '%!load': load,
+            error: console.warn
         })
 
         function getThat(d) {
@@ -331,9 +354,9 @@
             let d = new Date(date)
             let t = getThat(d)
             diaryHeading.value = t
-            currentThingy.hide(3)
+            frame.hide(3)
             error.hide()
-            currentThingy.parent.isBusy = true
+            frame.parent.isBusy = true
             invalid.hide()
             canMove = false
             let url = `./entries/${date.replace(/\//g, '_')}`
@@ -351,22 +374,22 @@
                 // }
                 // }
                 // else {
-                currentThingy.setAttr({ src: url })
+                frame.setAttr({ src: url })
                 // currentThingy.contentWindow.location.assign(url)
                 await new Promise((resolve, reject) => {
-                    currentThingy.onerror = reject
-                    currentThingy.onload = resolve
+                    frame.onerror = reject
+                    frame.onload = resolve
                 })
-                currentThingy.onerror = currentThingy.onload = null
+                frame.onerror = frame.onload = null
                 // }
             } catch (e) {
-                currentThingy.onerror = currentThingy.onload = null
+                frame.onerror = frame.onload = null
                 reportError(e)
                 error.fadeIn()
                 error.show()
             } finally {
                 canMove = true
-                currentThingy.parent.isBusy = false
+                frame.parent.isBusy = false
             }
         }
 
@@ -375,7 +398,7 @@
         setEntry(getDate())
     </script>
     <!-- if something somehow goes wrong, and this function is fired successfully -->
-    <script>(document.addEventListener||document.attachEvent).call(document,"DOMContentLoaded",function(){"use strict";if("undefined"==typeof h){var e=new XMLHttpRequest;e.open("GET","./oldhandle.js"),e.onload=function(){Function(e.responseText)();var t=function(e){e.style.visibility="hidden",e.setAttribute("disabled","disabled")},n=function(e){e.style.visibility="visible",e.removeAttribute("disabled")},i=document.getElementById("toToday"),a=document.getElementById("diary-heading"),l=function(){var e=new Date;d.getDate()>=e.getDate()&&d.getMonth()>=e.getMonth()?t(g):n(g),7>=d.getDate()&&3>=d.getMonth()?t(s):n(s);var i=[d.getMonth()+1,d.getDate(),d.getFullYear()].join("_"),l=""+d.getDate(),c=""+(d.getMonth()+1);1===c.length&&(c=0+c),1===l.length&&(l=0+l),o.src="./entries/"+i,a.value=[d.getFullYear(),c,l].join("-")},o=document.getElementById("display"),d=new Date,s=document.getElementById("prev"),g=document.getElementById("next");a.setAttribute("max",o.src);var c=function(){if(this.value.trim()){for(var e=this.value.split("-"),t=e[2]=(+e[2]).toString();t.length<2;)t=0+t;d=new Date(e.join("-")),l()}};h.on(a,{change:c,textInput:c}),h.on(s,{click:function(){d.setDate(d.getDate()-1),l()}}),h.on(g,{click:function(){d.setDate(d.getDate()+1),l()}}),h.on(i,{click:function(){d=new Date,l()}}),i.click()},e.send()}});</script>
+    <script>(document.addEventListener || document.attachEvent).call(document, "DOMContentLoaded", function () { "use strict"; if ("undefined" == typeof h) { var e = new XMLHttpRequest; e.open("GET", "./oldhandle.js"), e.onload = function () { Function(e.responseText)(); var t = function (e) { e.style.visibility = "hidden", e.setAttribute("disabled", "disabled") }, n = function (e) { e.style.visibility = "visible", e.removeAttribute("disabled") }, i = document.getElementById("toToday"), a = document.getElementById("diary-heading"), l = function () { var e = new Date; d.getDate() >= e.getDate() && d.getMonth() >= e.getMonth() ? t(g) : n(g), 7 >= d.getDate() && 3 >= d.getMonth() ? t(s) : n(s); var i = [d.getMonth() + 1, d.getDate(), d.getFullYear()].join("_"), l = "" + d.getDate(), c = "" + (d.getMonth() + 1); 1 === c.length && (c = 0 + c), 1 === l.length && (l = 0 + l), o.src = "./entries/" + i, a.value = [d.getFullYear(), c, l].join("-") }, o = document.getElementById("display"), d = new Date, s = document.getElementById("prev"), g = document.getElementById("next"); a.setAttribute("max", o.src); var c = function () { if (this.value.trim()) { for (var e = this.value.split("-"), t = e[2] = (+e[2]).toString(); t.length < 2;)t = 0 + t; d = new Date(e.join("-")), l() } }; h.on(a, { change: c, textInput: c }), h.on(s, { click: function () { d.setDate(d.getDate() - 1), l() } }), h.on(g, { click: function () { d.setDate(d.getDate() + 1), l() } }), h.on(i, { click: function () { d = new Date, l() } }), i.click() }, e.send() } });</script>
     <script async defer src="silence.js"></script>
 </body>
 
