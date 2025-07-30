@@ -153,7 +153,9 @@
   width: 30px;
   height: 23px;
 }
-
+.pop {
+  will-change:transform,opacity,filter;
+}
 .sprite {
   position: absolute;
   z-index: 2;
@@ -315,9 +317,12 @@ a {
   margin: auto;
   text-align: center;
 }
-
+.diarybutton {
+  filter: hue-rotate(239deg) drop-shadow(0px 0px 4px blue)
+}
 input[type=image] {
   width: 55px;
+  /* filter: drop-shadow(5px 4px 0px rgb(0 0 0 / 80%)); */
   --user-drag: none;
   image-rendering: pixelated;
   /*filter: drop-shadow(2px 4px 6px red) hue-rotate(211deg);*/

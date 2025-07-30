@@ -8,7 +8,7 @@ console.log('💿 Booting...')
 let html = /(?:\.html?|\/)$/
 // i had to resort to ai because i got so lost
 // Get the directory where this server.js file is located
-const serverDir = './'
+const serverDir = '/home/interface/Projects/addsoupbase.github.io/'
 const htmlHeaders = {
     'Content-Type':'text/html',
     // 'Document-Policy':'js-profiling'

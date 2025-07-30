@@ -90,12 +90,12 @@
             <!-- <span> Scrolling could reveal more!</span> -->
 
             <div class="center" id="diary-container" style="display:contents;justify-items: center;">
-                <div style="display: grid;">
+                <div style="display: grid;    place-items: center;">
                     <time>
                         <input class="cute-green" style="font-size:20px;margin:20px;" id="diary-heading" type="date"
                             min="2025-04-07">
                     </time>
-                    <label for="skip" style="margin-bottom:10px;z-index: 2;">Skip Empty Days <input id="skip"
+                    <label for="skip" style="margin-bottom:10px;z-index: 2;    width: fit-content;">Skip Empty Days <input id="skip"
                             type="checkbox" checked></label>
                 </div>
                 <section id="diary" class="cute-blue" style="--user-select:none;width: 746px;  place-self: center;">
@@ -133,10 +133,10 @@
                 <div
                     style="--user-select:none;justify-self: center;justify-content:center;display: flex;    align-items: end;">
                     <input accesskey="p" id="prev" type="image" title="Turn to previous page" alt="Back"
-                        style="transform:scaleX(-1)" src="./cute-emojis/emojis/1321091969635848294.gif">
+                        style="transform:scaleX(-1)" src="./cute-emojis/emojis/1321091969635848294.gif" class="diarybutton">
                     <button class="cute-green-button" id="toToday">Go to today</button>
                     <input accesskey="n" id="next" type="image" title="Turn to next page" alt="Forward"
-                        src="./cute-emojis/emojis/1321091969635848294.gif">
+                        src="./cute-emojis/emojis/1321091969635848294.gif" class="diarybutton">
                 </div>
             </div>
         </main>

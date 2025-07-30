@@ -27,6 +27,11 @@ async function images({time, colorful, birthday}) {
     const cycle = math.cycle(...ran.shuffle(...avatars))
     let holding = false
     bg.delegate({
+            contentvisibilityautostatechange({skipped}) {
+                this.setStyle({
+                    'will-change': skipped ? 'auto' : ''
+                 })
+            },
             '^pointerdown': click
         }, o =>
             o.classList.contains('bubble') && o.flags === 0,
@@ -90,9 +95,9 @@ async function images({time, colorful, birthday}) {
     function bubbleWithAva(image = cycle.next) {
         if (isHidden()) return
         const {src} = image
-        let n = $('div.bubble', {
+        let n = $('div.bubble.pop', {
             attr: {
-                style:'z-index:3;will-change:transform,opacity,filter;',
+                style:'z-index:3;',
                 _hidden: 'true',
                 width: 50, height: 50
             }, parent
