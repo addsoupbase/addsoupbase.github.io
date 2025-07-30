@@ -1,4 +1,3 @@
-let n
 export let { dashVendor,
     capVendor,
     all,

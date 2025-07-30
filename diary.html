@@ -95,8 +95,8 @@
                         <input class="cute-green" style="font-size:20px;margin:20px;" id="diary-heading" type="date"
                             min="2025-04-07">
                     </time>
-                    <label for="skip" style="margin-bottom:10px;z-index: 2;    width: fit-content;">Skip Empty Days <input id="skip"
-                            type="checkbox" checked></label>
+                    <label for="skip" style="margin-bottom:10px;z-index: 2;    width: fit-content;">Skip Empty Days
+                        <input id="skip" type="checkbox" checked></label>
                 </div>
                 <section id="diary" class="cute-blue" style="--user-select:none;width: 746px;  place-self: center;">
                     <div id="walking"></div>
@@ -110,10 +110,10 @@
                         <samp style="color:#631414;">Error
                         </samp>
                     </h2>
-                    <iframe allowfullscreen allow="fullscreen" aria-relevant="all" aria-live="assertive" id="display"
+                    <iframe allowfullscreen allow="fullscreen *; local-fonts *; autoplay *;" aria-relevant="all" aria-live="assertive" id="display"
                         name="Diary" title="Diary" style="width: 100%;height: 100%;border: none;"></iframe>
                     <script>
-                        document.getElementById('display').addEventListener('load', function (e) {
+                        document.getElementById('display').onload = function (e) {
                             var window = e.target.contentWindow
                             if (e.target.src === 'about:blank') {
                                 e.stopImmediatePropagation()
@@ -127,13 +127,14 @@
                             catch (_) {
                                 e.target.setAttribute('src', 'about:blank')
                             }
-                        })
+                        }
                     </script>
                 </section>
                 <div
                     style="--user-select:none;justify-self: center;justify-content:center;display: flex;    align-items: end;">
                     <input accesskey="p" id="prev" type="image" title="Turn to previous page" alt="Back"
-                        style="transform:scaleX(-1)" src="./cute-emojis/emojis/1321091969635848294.gif" class="diarybutton">
+                        style="transform:scaleX(-1)" src="./cute-emojis/emojis/1321091969635848294.gif"
+                        class="diarybutton">
                     <button class="cute-green-button" id="toToday">Go to today</button>
                     <input accesskey="n" id="next" type="image" title="Turn to next page" alt="Forward"
                         src="./cute-emojis/emojis/1321091969635848294.gif" class="diarybutton">
@@ -341,6 +342,8 @@
             }
             this.parent.isBusy = false
         }
+        load = load.bind(frame)
+  
         frame.on({
             '%!load': load,
             error: console.warn

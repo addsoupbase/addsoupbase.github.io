@@ -14,7 +14,7 @@ const sym = Symbol.for("[[Events]]")
     function LogOutOfGroup(...args) {
         args.unshift(1, c, cc)
         setTimeout(this.bind.apply(this, args))
-    } 
+    }
     for (let i in console) {
         // Because the groupCollapsed() method was suppressing errors, delay them instead
         let old = console[i]
@@ -138,7 +138,7 @@ function verifyEventName(target, name) {
             if (typeof MouseScrollEvent === 'function') return 'DOMMouseScroll' // If they don't support the first 2, this one will work ~100% of the time
             return 'MozMousePixelScroll' // The last resort, since there's no way to detect support with this one
         }
-       isMediaQuery(original) || logger.warnLate(`'${original}' events might not be available on the following EventTarget:`, target)
+        isMediaQuery(original) || logger.warnLate(`'${original}' events might not be available on the following EventTarget:`, target)
     }
     return original
 }
@@ -252,8 +252,8 @@ export function on(target, events, controller) {
                 continue
             }
             controller && (options.once = once, options.signal = controller.signal)
-            const listener = EventWrapper.bind(
-                target, func, controller,
+            const listener = EventWrapper.bind(target, [
+                func, controller,
                 controller?.abort.bind(controller, 'Automatic abort'),
                 onlyTrusted,
                 onlyCurrentTarget,
@@ -261,11 +261,10 @@ export function on(target, events, controller) {
                 stopImmediateProp,
                 autoabort,
                 once,
-                eventName,
-            )
+                eventName])
             if (autoabort && getLabel(controller) !== 'AbortController') throw TypeError("AbortController required if '#' (autoabort) is present")
             add(target, eventName, listener, options, //onlyTrusted
-        )
+            )
             if (controller) logger.info(`📡 '${eventName}' event added`)
             else {
                 allEvents.has(target) || allEvents.set(target, new Map)
@@ -310,9 +309,8 @@ const customEventHandler = {
         }
     }
 }
-function EventWrapper(...args) {
-    let { 0: f, 1: s, 2: abrt, 3: t, 4: oct, 5: p, 6: sp, 7: sip, 8: aa, 9: once, 10: name } = args.splice(0, 11),
-        { 0: event } = args,
+function EventWrapper({ 0: f, 1: s, 2: abrt, 3: t, 4: oct, 5: p, 6: sp, 7: sip, 8: aa, 9: once, 10: name }, ...args) {
+    let { 0: event } = args,
         label = getLabel(event),
         { currentTarget } = event,
         { detail } = event,
@@ -328,7 +326,7 @@ function EventWrapper(...args) {
     t && event.isTrusted || !t && (!oct || oct && (event.target ?? event.srcElement) === currentTarget) &&
         (apply(f, this, args),
             p && (event.cancelable ? event.defaultPrevented ? console.warn(`'${name}' event has already been cancelled`) : event.preventDefault() : warn(`🔊 '${name}' events are not cancelable`), event.returnValue = !p),
-            sp && (event.cancelBubble = true, event.stopPropagation()),
+            sp && (event.cancelBubble = !event.stopPropagation()),
             sip && event.stopImmediatePropagation(),
             aa && abrt(),
             once && off(currentTarget, name))
@@ -360,12 +358,12 @@ export function off(target, ...eventNames) {
 export function until(target, eventName, failureName, timeout/* = 600000*/) {
     return new Promise(waitForEvent)
     function waitForEvent(resolve, reject) {
-        const str = `⏰ Promise for '${eventName}' expired after ${timeout} ms`
-            , id = timeout && setTimeout(err => {
-                reject(err)
-                controller.abort(str)
-            }, timeout, RangeError(str))
-        let controller = new AbortController
+        let id = timeout && setTimeout(err => {
+            let str = `⏰ Promise for '${eventName}' expired after ${timeout} ms`
+            reject(err)
+            controller.abort(RangeError(str))
+        }, timeout)
+            , controller = new AbortController
             , e = {
                 [`#${eventName}`](event) {
                     try {
@@ -388,7 +386,7 @@ export function until(target, eventName, failureName, timeout/* = 600000*/) {
                 }
             }
         })
-        on(target, e, 1, controller)
+        on(target, e, controller)
     }
 }
 
@@ -410,9 +408,9 @@ export function download(blob, title) {
     anchor.href = getObjUrl(blob)
     anchor.click()
 }
-function nothing() { }
+
 export function delegate(me, events, filter, includeSelf, controller) {
-    filter ??= nothing
+    filter ??= function () { }
     for (let i in events) {
         if (i.includes('@')) throw SyntaxError("Conflicting usage of a 'currentTarget' only delegating event handler")
         let old = events[i]
