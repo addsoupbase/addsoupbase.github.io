@@ -28,6 +28,7 @@ async function images({time, colorful, birthday}) {
     let holding = false
     bg.delegate({
             contentvisibilityautostatechange({skipped}) {
+                // this.matches('.bubble')&&console.log(this)
                 this.setStyle({
                     'will-change': skipped ? 'auto' : ''
                  })

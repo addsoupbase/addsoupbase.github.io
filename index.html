@@ -67,7 +67,9 @@
         !function(a) {
             'use strict'
             a.setAttribute('src','main.html')
-            a.addEventListener('load', function () { this.style.display = '' }, { once: true })
+            a.addEventListener('load', function () { 
+                this.style.display = '' 
+            }, { once: true })
         }(document.getElementById('frame'))
         </script>
     </main>

@@ -148,14 +148,16 @@ export function rotate(arr, rotation) {
 
 const headers = {
     headers: {
-        accept: 'application/json,*/*;q=0.5'
+        accept: 'application/json,*/*;q=0.5',
+        "sec-fetch-dest": "json"
     }
 }
 
 async function fallback(src) {
     let n = await fetch(resolve(src, location), headers),
         type = n.headers.get('Content-Type')
-    if (/(?:application|text)\/json/.test(type)) return await n.json()
+    if (!n.ok) throw TypeError(`Failed to fetch dynamically imported module: ${src}`)
+    if (/^(?:application|text)\/json/.test(type) || /^(?:application\/(?:ld|vnd\.api)\+json)/.test(type)) return await n.json()
     throw TypeError(`Failed to load module script: Expected a JSON module script but the server responded with a MIME type of "${type}". Strict MIME type checking is enforced for module scripts per HTML spec.`)
 }
 

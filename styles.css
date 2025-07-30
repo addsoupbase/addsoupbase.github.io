@@ -79,7 +79,7 @@
 
 @supports (-moz-box-direction: inherit) {
   #background {
-    background-image: url("./media/bg.png") !important;
+    background-image: url("./media/bg.webp") !important;
     background-size: cover;
     background-repeat: no-repeat;
   }
