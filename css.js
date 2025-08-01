@@ -1,4 +1,4 @@
-!function (w, sym) {
+;(function (w, sym) {
     'use strict'
     var currentScript = document.currentScript
     if (sym in Object(w.css)) return css
@@ -465,33 +465,37 @@
         var sheet = getDefaultStyleSheet()
         //    Some default CSS...
         // try {
+        function where(selector) {
+            return`:where(${selector})`
+        }
+        CSS.supports('selector(:where(p))') || (where = function(o){return o})
         var dflt = sessionStorage.defaultCSS || Object.entries({
-            [`:where(button,a,${'button checkbox radio submit image reset file'.split(' ').map(o => `input[type=${o}]`).join(',')})`]: {
+            [`${where(`button,a,${'button checkbox radio submit image reset file'.split(' ').map(function(o){return `input[type=${o}]`}).join(',')}`)}`]: {
                 cursor: 'pointer'
             },
-            ':where([aria-busy="true"])': {
+            [`${where('[aria-busy="true"]')}`]: {
                 cursor: 'progress'
             },
             ':root': {
                 'interpolate-size': 'allow-keywords',
-                '--crisp-edges': '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(o => sup('image-rendering', o)),
-                '--stretch': '-moz-available -webkit-fill-available stretch'.split(' ').find(o => sup('max-width', o)),
-                '--center': '-moz-center -webkit-center -khtml-center'.split(' ').find(o => sup('text-align', o)), // this is different from just 'center' and idk why!!!
-                '--match-parent': '-moz-match-parent -webkit-match-parent'.split(' ').find(o => sup('text-align', o))
+                '--crisp-edges': '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(function(o){return sup('image-rendering', o)}),
+                '--stretch': '-moz-available -webkit-fill-available stretch'.split(' ').find(function(o){return sup('max-width', o)}),
+                '--center': '-moz-center -webkit-center -khtml-center'.split(' ').find(function(o){return sup('text-align', o)}), // this is different from just 'center' and idk why!!!
+                '--match-parent': '-moz-match-parent -webkit-match-parent'.split(' ').find(function(o){return sup('text-align', o)})
             },
-            ':where(img)': {
+            [`${where('img')}`]: {
                 '--force-broken-image-icon': 1,
             },
-            ':where(input[type=range])': {
+            [`${where('input[type=range]')}`]: {
                 cursor: 'grab'
             },
-            ':where(input[type=range]:active)': {
+            [`${where('input[type=range]:active')}`]: {
                 cursor: 'grabbing'
             },
-            ':where(:disabled,[aria-disabled="true"])': {
+            [`${where(':disabled,[aria-disabled="true"]')}`]: {
                 cursor: 'not-allowed'
             },
-            ':where(.centerx,.center)': {
+            [`${where('.centerx,.center')}`]: {
                 'justify-self': 'center',
                 margin: 'auto',
                 'text-align': 'center'
@@ -509,12 +513,12 @@
                    cursor: 'wait',
                    content: 'attr(alt)'
                },*/
-            ':where(.centery,.center)': {
+            [`${where('.centery,.center')}`]: {
                 'align-self': 'center',
                 inset: 0,
                 position: 'fixed'
             }
-        }).map(a => `${a[0]}{${toCSS(a[1])}}`)
+        }).map(function(a){return`${a[0]}{${toCSS(a[1])}}`})
         typeof dflt === 'string' && (dflt = dflt.split('✕'))
         var join = [].join.bind(dflt)
         sheet.textContent = `${sheet.textContent}${join('')}`
@@ -529,10 +533,8 @@
             var prop = all[i]
                 , o = prop.name
             universal[vendor(o.slice(2), o = `var(${o})`, true)] = o
-            try {
-                func(prop)
-                // await Yield()
-            } catch (e) {
+            try { func(prop) } 
+            catch (e) {
                 if (e.name === 'InvalidModificationError') continue
                 console.log(o)
                 reportError(e)
@@ -574,4 +576,4 @@
         // boxShadow,
         [sym]: true
     })
-}(window, window.Symbol ? Symbol.for('CSS') : btoa(location))
+}(window, Symbol.for('CSS')))
