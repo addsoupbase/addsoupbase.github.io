@@ -130,14 +130,34 @@
         fetch(`../${tomorrowPath}/index.html`).then(t.show.bind(t,3))*/
     }
     // /localhost|127\.0\.0\.1/.test(origin) && console.warn(`%cREMEMBER TO SET WIDTH TO A PERCENTAGE ON ALL <img> ELEMENTS! Count: ${document.images.length}`, 'font-size:1.2rem')
-    origin === 'http://localhost:3000' && import('./diarycheck.js')
-    ;[].forEach.call(document.links, o => {
-        o.setAttribute('rel', `noopener noreferrer nofollow ${o.getAttribute('rel') || ''}`)
+    ;[].forEach.call(document.querySelectorAll('img,button[type="image"]'), o => {
+        o = $(o)
+        let hasAlt = 'alt' in o.attr,
+            hasTitle = 'title' in o.attr
+        if (hasAlt && !hasTitle)
+            o.attr.title = o.attr.alt
+        else if (hasTitle && !hasAlt)
+            o.attr.alt = o.attr.title
+        else if (!(hasTitle || hasAlt)) {
+            o.attr._hidden = 'true' // Screen readers might literally read the src attribute as words
+            console.warn('Missing alt or title attribute:', o.outerHTML)
+        }
+        if (origin === 'http://localhost:3000') {
+            let isImage = o.matches('img')
+            isImage && (o.attr.loading === 'lazy' || console.warn('Found image element without lazy loading attribute', o.valueOf()), o.attr.decoding === 'async' || console.warn('Found image element without async decoding attribute', o.valueOf()))
+        }
     })
+        ;[].forEach.call(document.querySelectorAll('video,audio'), o => {
+            o.hasAttribute('preload')|| console.warn('Found media element without preload attribute', o)
+            o.matches('video') && (o.hasAttribute('poster')|| console.warn('Found video element without poster attribute', o))
+        })
+        ;[].forEach.call(document.links, o => {
+            o.setAttribute('rel', `noopener noreferrer nofollow ${o.getAttribute('rel') || ''}`)
+        })
 }
     /*
     , {
         once:true
     })
     */
-    , { timeout: 5000 })
+    , window.requestIdleCallback ? { timeout: 2000 } : 600)
