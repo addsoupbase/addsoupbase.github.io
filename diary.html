@@ -116,9 +116,12 @@
                         document.getElementById('display').onload = function (e) {
                             'use strict'
                             var window = e.target.contentWindow
+                            function write() {
+                                window.document.documentElement.innerHTML=('<!doctype html><html><head></head><body><style>@font-face {font-family: \'Choco\';font-display: swap;src: local(\'Choco cooky\'), local(\'Chococooky\'), url(\'https://addsoupbase.github.io/media/Chococooky.woff2\') format(\'woff2\'),url(\'https://addsoupbase.github.io/media/Chococooky.woff\') format(\'woff\');font-weight: normal;font-style: normal;} </style><h2 id="invalid" style="text-align:center;font-family:\'Choco\'">No entry for today &lpar;yet!&rpar;<img style="image-rendering: pixelated" alt="tangled speech balloon" height="34"src="https://addsoupbase.github.io/cute-emojis/emojis/1143313874943234058.gif"></h2></body></html>')
+                            }
                             if (e.target.src === 'about:blank') {
                                 e.stopImmediatePropagation()
-                                window.document.documentElement.innerHTML=('<!doctype html><html><head></head><body><style>@font-face {font-family: \'Choco\';font-display: swap;src: local(\'Choco cooky\'), local(\'Chococooky\'), url(\'https://addsoupbase.github.io/media/Chococooky.woff2\') format(\'woff2\'),url(\'https://addsoupbase.github.io/media/Chococooky.woff\') format(\'woff\');font-weight: normal;font-style: normal;} </style><h2 id="invalid" style="text-align:center;font-family:\'Choco\'">No entry for today &lpar;yet!&rpar;<img style="image-rendering: pixelated" alt="tangled speech balloon" height="34"src="https://addsoupbase.github.io/cute-emojis/emojis/1143313874943234058.gif"></h2></body></html>')
+                                write()
                                 // window.document.close()
                             }
                             else try {
@@ -127,6 +130,9 @@
                             }
                             catch (_) {
                                 e.target.setAttribute('src', 'about:blank')
+                            }
+                            finally {
+                                write()
                             }
                         }
                     </script>
