@@ -16,9 +16,9 @@
     function capVendor(prop, val) {
         return toCaps(vendor(toDash(prop), val))
     }
-    var all = new Set
-        , has = all.has.bind(all),
-        add = all.add.bind(all)
+    var dflt = new Set
+        , has = dflt.has.bind(dflt),
+        add = dflt.add.bind(dflt)
     /*
     export function vendorValue(prop, val) {
         
@@ -183,6 +183,7 @@
             try {
                 push(`${vendor(toDash(prop), p, silent)}:${p}`)
             } catch (_) {
+                reportError(_)
             }
         }
         return arr.join(';')
@@ -272,6 +273,7 @@
         try {
             registerCSS(r, this[r])
         } catch (_) {
+            reportError(_)
         }
     }
     function supportsRule(rule) {
@@ -282,7 +284,7 @@
         , pcv = supportedPClassVendor
 
     function supportedPClassVendor(className) {
-        try {
+        // try {
             var a = className.split(':')
                 , before = a[0],
                 _class = a[1]
@@ -298,15 +300,15 @@
             if (supportsRule(className = `:prince-${_class}`) ||
                 supportsRule(className = `:mso-${_class}`)) return `${before}${className}`
             return `${before}:${_class}`
-        } catch (_) {
-            throw SyntaxError(`Failed to parse '${className}'`)
-        }
+        // } catch (_) {
+            // throw SyntaxError(`Failed to parse '${className}'`)
+        // }
     }
 
     var pev = supportedPElementVendor
 
     function supportedPElementVendor(element) {
-        try {
+        // try {
             var a = element.split('::'),
                 before = a[0],
                 _element = a[1]
@@ -322,9 +324,9 @@
             if (supportsRule(element = `::prince-${_element}`) ||
                 supportsRule(element = `::mso-${_element}`)) return `${before}${element}`
             return `${before}::${_element}`
-        } catch (_) {
-            throw SyntaxError(`Failed to parse '${element}'`)
-        }
+        // } catch (_) {
+            // throw SyntaxError(`Failed to parse '${element}'`)
+        // }
     }
 
     /*
@@ -353,7 +355,7 @@
             add(name)
             return { name: `--${name}`, initialValue: initialValue, inherits: inherits, syntax: syntax }
         }
-        var allProps = [
+        var all = [
             //  Fallback stuff
             g("user-select", "auto", true), // Most important one
             g("user-modify", "auto", 0),
@@ -462,8 +464,8 @@
         // g('marquee-style','scroll',0)
         var sheet = getDefaultStyleSheet()
         //    Some default CSS...
-        try {
-            var all = sessionStorage.defaultCSS || Object.entries({
+        // try {
+            var dflt = sessionStorage.defaultCSS || Object.entries({
                 [`:where(button,a,${'button checkbox radio submit image reset file'.split(' ').map(o => `input[type=${o}]`).join(',')})`]: {
                     cursor: 'pointer'
                 },
@@ -512,21 +514,22 @@
                     inset: 0,
                     position: 'fixed'
                 }
-            }).map(a => `${a[0]}{${toCSS(a[1])}}`)
-            typeof all === 'string' && (all = all.split('✕'))
-            sheet.textContent = `${sheet.textContent}${all.join('')}`
-            sessionStorage.defaultCSS = all.join('✕')
-        } catch (e) {
-            console.error(e)
-        }
+            }).map(a => `${a[0]}{${toCSS(a[1])}}`),
+            join = [].join.bind(dflt)
+            typeof dflt === 'string' && (dflt = dflt.split('✕'))
+            sheet.textContent = `${sheet.textContent}${join('')}`
+            sessionStorage.defaultCSS = join('✕')
+        // } catch (e) {
+            // console.error(e)
+        // }
         var universal = {}
-            , func = CSS.registerProperty || function (e) { console.log(`CSS.registerProperty: `, e) }
+            , func = CSS.registerProperty || function (e) { console.log('CSS.registerProperty: ', e) }
             , selector = '*'
-        for (var i = allProps.length; i--;) {
-            var prop = allProps[i]
+        for (var i = all.length; i--;) {
+            var prop = all[i]
                 , o = prop.name
-            try {
                 universal[vendor(o.slice(2), o = `var(${o})`, true)] = o
+            try {
                 func(prop)
                 // await Yield()
             } catch (e) {
@@ -536,7 +539,7 @@
             }
         }
         universal['box-sizing'] = 'border-box'
-        allProps = null
+        all = null
         typeof beenHereBefore === 'string' ?
             sheet.textContent = `${sheet.textContent}${selector}{${beenHereBefore}}` :
             (registerCSS(selector, universal, true)
@@ -547,7 +550,7 @@
         __proto__: null,
         dashVendor: dashVendor,
         capVendor: capVendor,
-        all,
+        all: dflt,
         has,
         badCSS: badCSS,
         vendor: vendor,
