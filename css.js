@@ -42,18 +42,6 @@
         return val
     }
     */
-    var sessionStorage
-    try {
-        sessionStorage = w.sessionStorage
-    }
-    catch (_) {
-        function oops() {
-            return oops
-        }
-        sessionStorage = new Proxy(oops, {
-            get: oops
-        })
-    }
     var alreadyLogged = new Set,
         alreadyHas = alreadyLogged.has.bind(alreadyLogged),
         beenHereBefore = sessionStorage.getItem('css'),

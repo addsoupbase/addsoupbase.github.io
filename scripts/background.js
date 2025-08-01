@@ -134,6 +134,7 @@ async function images({time, colorful, birthday}) {
             },
             attributes: {
                 src,
+                decoding:'async',
                 // alt: src,
                 _hidden: 'true',
                 width: 50,

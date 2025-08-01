@@ -72,7 +72,8 @@
     <!--^ yes if the site has stuff like back buttons-->
     <meta name="apple-mobile-web-app-title" content="addsoupbase🍜 - About Me">
     <link rel="apple-touch-startup-image" href="favicon.ico">
-    <script src="css.js" blocking="render"></script><script src="css_bad.js" nomodule></script>
+    <script src="css.js" blocking="render"></script>
+    <script src="css_bad.js" nomodule></script>
     <link rel="stylesheet" href="styles.css">
     <title>addsoupbase🍜 - About Me</title>
     <!--https://wiki.whatwg.org/wiki/MetaExtensions-->
@@ -80,51 +81,69 @@
 </head>
 
 <body id="main" class="cute-green">
-    <script src="fallback.js"></script>
-    <template id="template">
-        <main class="center " style="opacity: 0.95;height:100%">
-            <section>
-                <div id="maindesc">
-                    <div class="descrHolder">
-                        <p>My name is...</p>
-                        <h1>Misha</h1><i>Миша</i>
-                    </div>
-                    <div class="descrHolder">
-                        <p>I am...</p>
-                        <h1 id="age">~18</h1><time class="small" id="bday">June 17 2007</time>
-                    </div>
+    <!-- <script src="fallback.js"></script> -->
+    <main class="center " style="opacity: 0.95;height:100%">
+        <section>
+            <div id="maindesc">
+                <div class="descrHolder">
+                    <p>My name is...</p>
+                    <h1>Misha</h1><i>Миша</i>
                 </div>
-            </section><a accesskey="b" role="button" class="cute-green-button back" href="main.html" rel="prev">Back</a>
-            <h1>Favourite pokemon:</h1>
-            <div id="pokemonholder">
-                <script>
+                <div class="descrHolder">
+                    <p>I am...</p>
+                    <h1 id="age">~18</h1><time class="small" id="bday">June 17 2007</time>
+                </div>
+            </div>
+        </section><a accesskey="b" role="button" class="cute-green-button back" href="main.html" rel="prev">Back</a>
+        <h1>Favourite pokemon:</h1>
+        <div id="pokemonholder">
+            <img loading="lazy" decoding="async" src="./media/sprites/spinda.gif" alt="spinda" title="spinda" class="pkm spinda"><img loading="lazy" decoding="async"
+                src="./media/sprites/misdreavus.gif" alt="misdreavus" title="misdreavus" class="pkm misdreavus"><img loading="lazy" decoding="async"
+                src="./media/sprites/mawile.gif" alt="mawile" title="mawile" class="pkm mawile"><img loading="lazy" decoding="async"
+                src="./media/sprites/delcatty.gif" alt="delcatty" title="delcatty" class="pkm delcatty"><img loading="lazy" decoding="async"
+                src="./media/sprites/masquerain.gif" alt="masquerain" title="masquerain" class="pkm masquerain"><img loading="lazy" decoding="async"
+                src="./media/sprites/shedinja.gif" alt="shedinja" title="shedinja" class="pkm shedinja"><img loading="lazy" decoding="async"
+                src="./media/sprites/clamperl.gif" alt="clamperl" title="clamperl" class="pkm clamperl"><img loading="lazy" decoding="async"
+                src="./media/sprites/swoobat.gif" alt="swoobat" title="swoobat" class="pkm swoobat"><img loading="lazy" decoding="async"
+                src="./media/sprites/gourgeist.gif" alt="gourgeist" title="gourgeist" class="pkm gourgeist"><img loading="lazy" decoding="async"
+                src="./media/sprites/minior.gif" alt="minior" title="minior" class="pkm minior"><img loading="lazy" decoding="async"
+                src="./media/sprites/trapinch.gif" alt="trapinch" title="trapinch" class="pkm trapinch"><img loading="lazy" decoding="async"
+                src="./media/sprites/pheromosa.gif" alt="pheromosa" title="pheromosa" class="pkm pheromosa"><img loading="lazy" decoding="async"
+                src="./media/sprites/meloetta.gif" alt="meloetta" title="meloetta" class="pkm meloetta"><img loading="lazy" decoding="async"
+                src="./media/sprites/cherrim.gif" alt="cherrim" title="cherrim" class="pkm cherrim"><img loading="lazy" decoding="async"
+                src="./media/sprites/aegislash.gif" alt="aegislash" title="aegislash" class="pkm aegislash"><img loading="lazy" decoding="async"
+                src="./media/sprites/zygarde.gif" alt="zygarde" title="zygarde" class="pkm zygarde"><img loading="lazy" decoding="async"
+                src="./media/sprites/wobbuffet.gif" alt="wobbuffet" title="wobbuffet" class="pkm wobbuffet"><img loading="lazy" decoding="async"
+                src="./media/sprites/tinkaton.gif" alt="tinkaton" title="tinkaton" class="pkm tinkaton"><img loading="lazy" decoding="async"
+                src="./media/sprites/ogerpon.gif" alt="ogerpon" title="ogerpon" class="pkm ogerpon"><img loading="lazy" decoding="async"
+                src="./media/sprites/surskit.gif" alt="surskit" title="surskit" class="pkm surskit"><img loading="lazy" decoding="async"
+                src="./media/sprites/darmanitan.gif" alt="darmanitan" title="darmanitan" class="pkm darmanitan">
+            <!-- <script>
                     'use strict'
                     {
                         let me = document.getElementById('pokemonholder')
                         me.firstElementChild.remove()
                         me.insertAdjacentHTML('beforeend', 'spinda misdreavus mawile delcatty masquerain shedinja clamperl swoobat gourgeist minior trapinch pheromosa meloetta cherrim aegislash zygarde wobbuffet tinkaton ogerpon surskit darmanitan'.split(' ').map(o => 
-                        `<img src="./media/sprites/${o}.gif" alt="${o}" title="${o}" class="pkm ${o}">`
+                        `<img loading="lazy" decoding="async" src="./media/sprites/${o}.gif" alt="${o}" title="${o}" class="pkm ${o}">`
                         ).join(''))
                     }
-                </script>
-            </div>
-        </main>
-    </template>
+                </script>-->
+        </div>
+    </main>
     <script type="module">
         import $ from './yay.js'
         import { wait } from './handle.js'
-        $.setup()
         const { main } = $.byId
         const bday = new Date(2007, 6 - 1, 17)
         $.id.age.textContent = `${new Date().getFullYear() - bday.getFullYear()} years old`
-  /*
-        // main.fadeFromTo(0, .95)
-        console.log('spinda misdreavus mawile delcatty masquerain shedinja clamperl swoobat gourgeist minior trapinch pheromosa meloetta cherrim aegislash zygarde wobbuffet tinkaton ogerpon surskit darmanitan'
-            .split(' ').map(generateImages).join('\n'))
-        function generateImages(o) {
-            return `<img class="pkm ${o}" src="./media/sprites/${o}.gif" alt="${o}" title="${o}">`
-        }
-            */
+        /*
+              // main.fadeFromTo(0, .95)
+              console.log('spinda misdreavus mawile delcatty masquerain shedinja clamperl swoobat gourgeist minior trapinch pheromosa meloetta cherrim aegislash zygarde wobbuffet tinkaton ogerpon surskit darmanitan'
+                  .split(' ').map(generateImages).join('\n'))
+              function generateImages(o) {
+                  return `<img loading="lazy" decoding="async" class="pkm ${o}" src="./media/sprites/${o}.gif" alt="${o}" title="${o}">`
+              }
+                  */
     </script>
 
 </body>

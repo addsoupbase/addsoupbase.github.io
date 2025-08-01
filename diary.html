@@ -83,8 +83,7 @@
 </head>
 
 <body class="cute-green" id="main" style="justify-items: center">
-    <script src="fallback.js"></script>
-    <template id="template">
+    <!-- <script src="fallback.js"></script> -->
 
         <main class="center " style="margin: 0;width:100%">
             <a accesskey="b" class="cute-green-button back" href="main.html" role="button" rel="prev">Back</a>
@@ -144,7 +143,6 @@
                 </div>
             </div>
         </main>
-    </template>
     <style>
         .meloetta {
             --zoom: 0.75;
@@ -222,7 +220,6 @@
         h.on(document, {
             '%&DOMContentLoaded'() { }
         })
-        $.setup()
         let { toToday, invalid, error, next, prev, 'diary-heading': diaryHeading, display: frame, walking, skip } = $.id
         function isSkipping() {
             return skip.checked

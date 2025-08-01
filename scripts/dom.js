@@ -1,7 +1,6 @@
 import $ from '../yay.js'
 import { wait, on } from '../handle.js'
 
-$.setup()
 let { main, drawInstead, send1, send2, draw, drawcontrols, undoDraw, submitDrawing } = $.id
 
 // $.id.pickAColor

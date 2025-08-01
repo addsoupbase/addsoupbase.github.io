@@ -95,8 +95,7 @@
 </head>
 
 <body class="cute-green" id="main">
-    <script src="fallback.js"></script>
-    <template id="template">
+    <!-- <script src="fallback.js"></script> -->
         <main class="center " style="opacity: 0.95;margin: 0;width:100%">
             <section style="    margin-top: 59px;">
                 <h1>Random stuff I made</h1>
@@ -117,20 +116,6 @@
             </section>
             <a accesskey="b" role="button" class="cute-green-button back" href="main.html" rel="prev">Back</a>
         </main>
-    </template>
-    <script type="module">
-        import $ from './yay.js'
-
-        $.setup()
-        const { main } = $.byId
-        // console.log([`./marbles/play?level=data`, 'cute-emojis', 'dataurl'].map(generateAnchor).join('\n'))
-        // function generateAnchor(o) {
-        // let url = new URL(o, `https://addsoupbase.github.io/`)
-        // return `<a class="tiny" href="${url}" target="_blank">${o.match(/\w+/)}</a>`
-        // }
-        // console.log([`./whatever`, `./twehg`, `./intro`,].map(generateAnchor).join('\n'))
-
-    </script>
 </body>
 
 </html>

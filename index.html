@@ -40,9 +40,9 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" type="image/x-icon" href="favicon.ico" fetchpriority="low">
     <title>addsoupbase🍜</title>
-    <link rel="prefetch" crossorigin="anonymous" href="./stuff.html" fetchpriority="low">
-    <link rel="prefetch" crossorigin="anonymous" href="./about.html" fetchpriority="low">
-    <link rel="prefetch" crossorigin="anonymous" href="./diary.html" fetchpriority="low">
+    <link rel="prefetch" as="document" crossorigin="anonymous" href="./stuff.html" fetchpriority="low">
+    <link rel="prefetch" as="document" crossorigin="anonymous" href="./about.html" fetchpriority="low">
+    <link rel="prefetch" as="document" crossorigin="anonymous" href="./diary.html" fetchpriority="low">
     <!-- <link rel="preload" as="font" href="./media/Chococooky.woff2" crossorigin="anonymous" type="font/woff2" fetchpriority="high"> -->
     <link rel="apple-touch-icon" sizes="57x57" href="./icon-57x57.png">
     <link rel="apple-touch-icon" sizes="60x60" href="./icon-60x60.png">
@@ -55,25 +55,32 @@
     <link rel="apple-touch-icon" sizes="180x180" href="./icon-180x180.png">
     <link rel="modulepreload" href="./yay.js">
     <link rel="modulepreload" href="./handle.js">
+    <style>
+        .show {
+            display: block !important
+        }
+    </style>
 </head>
 
 <body id="hiii"
     style="height:100vh;background:rgb(24 161 220);background:linear-gradient(52deg, rgba(2, 101, 226, 1) 0%, rgba(0, 212, 255, 1) 100%) no-repeat;"
     class="BG">
     <main id="wrapper" style="display:grid;z-index: 4;pointer-events: none;overflow-x: hidden">
-        <iframe id="frame" name="content" aria-atomic="true" aria-live="assertive" aria-relevant="all" title="content"
-            class="center" style="pointer-events: auto !important;display:none;"></iframe>
+        <iframe scrolling="no" src="main.html" loading="lazy" id="frame" name="content" aria-atomic="true"
+            aria-live="assertive" aria-relevant="all" title="content" class="center show"
+            style="pointer-events: auto;display:none;"></iframe>
         <script>
-        !function(a) {
-            'use strict'
-            a.setAttribute('src','main.html')
-            a.addEventListener('load', function () { this.style.display = '' }, { once: true })
-        }(document.getElementById('frame'))
+            !function (a) {
+                'use strict'
+                a.setAttribute('class', 'center')
+                a.addEventListener('load', function () { this.style.display = '' }, { once: true })
+            }(document.getElementById('frame'))
         </script>
     </main>
     <button class="cute-green-button" id="show"
         style="position: fixed;bottom:15px;right:15px;display:none;z-index: 2;">Show</button>
-    <script src="css.js" blocking="render"></script><script src="css_bad.js" nomodule></script>
+    <script src="css.js" blocking="render"></script>
+    <script src="css_bad.js" nomodule></script>
     <script type="module">
         import * as h from './handle.js'
         import $ from './yay.js'
