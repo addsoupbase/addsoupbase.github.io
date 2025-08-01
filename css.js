@@ -285,23 +285,23 @@
 
     function supportedPClassVendor(className) {
         // try {
-            var a = className.split(':')
-                , before = a[0],
-                _class = a[1]
-            already = _class
-            _class = _class.replace(allVendors, '')
-                .replace(allVendors2, '')
-            if (supportsRule(already = `${before}:${already}`)) return already
-            for (var i = theNames.length; i--;) {
-                var vendor = theNames[i]
-                    , name = `:-${vendor}-${_class}`
-                if (supportsRule(name)) return `${before}${name}`
-            }
-            if (supportsRule(className = `:prince-${_class}`) ||
-                supportsRule(className = `:mso-${_class}`)) return `${before}${className}`
-            return `${before}:${_class}`
+        var a = className.split(':')
+            , before = a[0],
+            _class = a[1]
+        already = _class
+        _class = _class.replace(allVendors, '')
+            .replace(allVendors2, '')
+        if (supportsRule(already = `${before}:${already}`)) return already
+        for (var i = theNames.length; i--;) {
+            var vendor = theNames[i]
+                , name = `:-${vendor}-${_class}`
+            if (supportsRule(name)) return `${before}${name}`
+        }
+        if (supportsRule(className = `:prince-${_class}`) ||
+            supportsRule(className = `:mso-${_class}`)) return `${before}${className}`
+        return `${before}:${_class}`
         // } catch (_) {
-            // throw SyntaxError(`Failed to parse '${className}'`)
+        // throw SyntaxError(`Failed to parse '${className}'`)
         // }
     }
 
@@ -309,23 +309,23 @@
 
     function supportedPElementVendor(element) {
         // try {
-            var a = element.split('::'),
-                before = a[0],
-                _element = a[1]
-            already = _element
-            _element = _element.replace(allVendors, '')
-                .replace(allVendors2, '')
-            if (supportsRule(already = `${before}::${already}`)) return already
-            for (var i = theNames.length; i--;) {
-                var vendor = theNames[i]
-                    , name = `::-${vendor}-${_element}`
-                if (supportsRule(name)) return `${before}${name}`
-            }
-            if (supportsRule(element = `::prince-${_element}`) ||
-                supportsRule(element = `::mso-${_element}`)) return `${before}${element}`
-            return `${before}::${_element}`
+        var a = element.split('::'),
+            before = a[0],
+            _element = a[1]
+        already = _element
+        _element = _element.replace(allVendors, '')
+            .replace(allVendors2, '')
+        if (supportsRule(already = `${before}::${already}`)) return already
+        for (var i = theNames.length; i--;) {
+            var vendor = theNames[i]
+                , name = `::-${vendor}-${_element}`
+            if (supportsRule(name)) return `${before}${name}`
+        }
+        if (supportsRule(element = `::prince-${_element}`) ||
+            supportsRule(element = `::mso-${_element}`)) return `${before}${element}`
+        return `${before}::${_element}`
         // } catch (_) {
-            // throw SyntaxError(`Failed to parse '${element}'`)
+        // throw SyntaxError(`Failed to parse '${element}'`)
         // }
     }
 
@@ -465,62 +465,62 @@
         var sheet = getDefaultStyleSheet()
         //    Some default CSS...
         // try {
-            var dflt = sessionStorage.defaultCSS || Object.entries({
-                [`:where(button,a,${'button checkbox radio submit image reset file'.split(' ').map(o => `input[type=${o}]`).join(',')})`]: {
-                    cursor: 'pointer'
-                },
-                ':where([aria-busy="true"])': {
-                    cursor: 'progress'
-                },
-                ':root': {
-                    'interpolate-size': 'allow-keywords',
-                    '--crisp-edges': '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(o => sup('image-rendering', o)),
-                    '--stretch': '-moz-available -webkit-fill-available stretch'.split(' ').find(o => sup('max-width', o)),
-                    '--center': '-moz-center -webkit-center -khtml-center'.split(' ').find(o => sup('text-align', o)), // this is different from just 'center' and idk why!!!
-                    '--match-parent': '-moz-match-parent -webkit-match-parent'.split(' ').find(o => sup('text-align', o))
-                },
-                ':where(img)': {
-                    '--force-broken-image-icon': 1,
-                },
-                ':where(input[type=range])': {
-                    cursor: 'grab'
-                },
-                ':where(input[type=range]:active)': {
-                    cursor: 'grabbing'
-                },
-                ':where(:disabled,[aria-disabled="true"])': {
-                    cursor: 'not-allowed'
-                },
-                ':where(.centerx,.center)': {
-                    'justify-self': 'center',
-                    margin: 'auto',
-                    'text-align': 'center'
-                },
-                /* 'img[src]': {
-                     '--content-visibility': 'auto'
-                 },*/
-                /*   [`img${pcv(':broken')},img${pcv(':suppressed')}`]: {
-                       '--content-visibility': 'visible',
-                       '--force-broken-image-icon': '1',
-                       content: 'attr(title)'
-                   },
-                   'img:loading': {
-                       '--content-visibility': 'visible',
-                       cursor: 'wait',
-                       content: 'attr(alt)'
-                   },*/
-                ':where(.centery,.center)': {
-                    'align-self': 'center',
-                    inset: 0,
-                    position: 'fixed'
-                }
-            }).map(a => `${a[0]}{${toCSS(a[1])}}`),
-            join = [].join.bind(dflt)
-            typeof dflt === 'string' && (dflt = dflt.split('✕'))
-            sheet.textContent = `${sheet.textContent}${join('')}`
-            sessionStorage.defaultCSS = join('✕')
+        var dflt = sessionStorage.defaultCSS || Object.entries({
+            [`:where(button,a,${'button checkbox radio submit image reset file'.split(' ').map(o => `input[type=${o}]`).join(',')})`]: {
+                cursor: 'pointer'
+            },
+            ':where([aria-busy="true"])': {
+                cursor: 'progress'
+            },
+            ':root': {
+                'interpolate-size': 'allow-keywords',
+                '--crisp-edges': '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(o => sup('image-rendering', o)),
+                '--stretch': '-moz-available -webkit-fill-available stretch'.split(' ').find(o => sup('max-width', o)),
+                '--center': '-moz-center -webkit-center -khtml-center'.split(' ').find(o => sup('text-align', o)), // this is different from just 'center' and idk why!!!
+                '--match-parent': '-moz-match-parent -webkit-match-parent'.split(' ').find(o => sup('text-align', o))
+            },
+            ':where(img)': {
+                '--force-broken-image-icon': 1,
+            },
+            ':where(input[type=range])': {
+                cursor: 'grab'
+            },
+            ':where(input[type=range]:active)': {
+                cursor: 'grabbing'
+            },
+            ':where(:disabled,[aria-disabled="true"])': {
+                cursor: 'not-allowed'
+            },
+            ':where(.centerx,.center)': {
+                'justify-self': 'center',
+                margin: 'auto',
+                'text-align': 'center'
+            },
+            /* 'img[src]': {
+                 '--content-visibility': 'auto'
+             },*/
+            /*   [`img${pcv(':broken')},img${pcv(':suppressed')}`]: {
+                   '--content-visibility': 'visible',
+                   '--force-broken-image-icon': '1',
+                   content: 'attr(title)'
+               },
+               'img:loading': {
+                   '--content-visibility': 'visible',
+                   cursor: 'wait',
+                   content: 'attr(alt)'
+               },*/
+            ':where(.centery,.center)': {
+                'align-self': 'center',
+                inset: 0,
+                position: 'fixed'
+            }
+        }).map(a => `${a[0]}{${toCSS(a[1])}}`)
+        typeof dflt === 'string' && (dflt = dflt.split('✕'))
+        var join = [].join.bind(dflt)
+        sheet.textContent = `${sheet.textContent}${join('')}`
+        sessionStorage.defaultCSS = join('✕')
         // } catch (e) {
-            // console.error(e)
+        // console.error(e)
         // }
         var universal = {}
             , func = CSS.registerProperty || function (e) { console.log('CSS.registerProperty: ', e) }
@@ -528,7 +528,7 @@
         for (var i = all.length; i--;) {
             var prop = all[i]
                 , o = prop.name
-                universal[vendor(o.slice(2), o = `var(${o})`, true)] = o
+            universal[vendor(o.slice(2), o = `var(${o})`, true)] = o
             try {
                 func(prop)
                 // await Yield()
