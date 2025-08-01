@@ -128,11 +128,11 @@
                             }
                             else try {
                                 if (window.document.all.length < 21)
-                                write()
-                                    // e.target.setAttribute('src', 'about:blank')
+                                write(),
+                                    e.target.setAttribute('src', 'about:blank')
                             }
                             catch (_) {
-                                // e.target.setAttribute('src', 'about:blank')
+                                e.target.setAttribute('src', 'about:blank')
                                 write()
                             }
 
