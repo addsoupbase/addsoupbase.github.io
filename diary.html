@@ -114,11 +114,12 @@
                         name="Diary" title="Diary" style="width: 100%;height: 100%;border: none;"></iframe>
                     <script>
                         document.getElementById('display').onload = function (e) {
+                            'use strict'
                             var window = e.target.contentWindow
                             if (e.target.src === 'about:blank') {
                                 e.stopImmediatePropagation()
-                                window.document.open().write('<style>@font-face {font-family: \'Choco\';font-display: swap;src: local(\'Choco cooky\'), local(\'Chococooky\'), url(\'https://addsoupbase.github.io/media/Chococooky.woff2\') format(\'woff2\'),url(\'https://addsoupbase.github.io/media/Chococooky.woff\') format(\'woff\');font-weight: normal;font-style: normal;} </style><h2 id="invalid" style="text-align:center;font-family:\'Choco\'">No entry for today &lpar;yet!&rpar;<img style="image-rendering: pixelated" alt="tangled speech balloon" height="34"src="https://addsoupbase.github.io/cute-emojis/emojis/1143313874943234058.gif"></h2>')
-                                window.document.close()
+                                window.document.documentElement.innerHTML=('<!doctype html><html><head></head><body><style>@font-face {font-family: \'Choco\';font-display: swap;src: local(\'Choco cooky\'), local(\'Chococooky\'), url(\'https://addsoupbase.github.io/media/Chococooky.woff2\') format(\'woff2\'),url(\'https://addsoupbase.github.io/media/Chococooky.woff\') format(\'woff\');font-weight: normal;font-style: normal;} </style><h2 id="invalid" style="text-align:center;font-family:\'Choco\'">No entry for today &lpar;yet!&rpar;<img style="image-rendering: pixelated" alt="tangled speech balloon" height="34"src="https://addsoupbase.github.io/cute-emojis/emojis/1143313874943234058.gif"></h2></body></html>')
+                                // window.document.close()
                             }
                             else try {
                                 if (window.document.all.length < 21)
@@ -399,6 +400,7 @@
         let { diary, main: m } = $.id
         goBy(-1)
         setEntry(getDate())
+        frame.onload=null
     </script>
     <!-- if something somehow goes wrong, and this function is fired successfully -->
     <script>(document.addEventListener || document.attachEvent).call(document, "DOMContentLoaded", function () { "use strict"; if ("undefined" == typeof h) { var e = new XMLHttpRequest; e.open("GET", "./oldhandle.js"), e.onload = function () { Function(e.responseText)(); var t = function (e) { e.style.visibility = "hidden", e.setAttribute("disabled", "disabled") }, n = function (e) { e.style.visibility = "visible", e.removeAttribute("disabled") }, i = document.getElementById("toToday"), a = document.getElementById("diary-heading"), l = function () { var e = new Date; d.getDate() >= e.getDate() && d.getMonth() >= e.getMonth() ? t(g) : n(g), 7 >= d.getDate() && 3 >= d.getMonth() ? t(s) : n(s); var i = [d.getMonth() + 1, d.getDate(), d.getFullYear()].join("_"), l = "" + d.getDate(), c = "" + (d.getMonth() + 1); 1 === c.length && (c = 0 + c), 1 === l.length && (l = 0 + l), o.src = "./entries/" + i, a.value = [d.getFullYear(), c, l].join("-") }, o = document.getElementById("display"), d = new Date, s = document.getElementById("prev"), g = document.getElementById("next"); a.setAttribute("max", o.src); var c = function () { if (this.value.trim()) { for (var e = this.value.split("-"), t = e[2] = (+e[2]).toString(); t.length < 2;)t = 0 + t; d = new Date(e.join("-")), l() } }; h.on(a, { change: c, textInput: c }), h.on(s, { click: function () { d.setDate(d.getDate() - 1), l() } }), h.on(g, { click: function () { d.setDate(d.getDate() + 1), l() } }), h.on(i, { click: function () { d = new Date, l() } }), i.click() }, e.send() } });</script>

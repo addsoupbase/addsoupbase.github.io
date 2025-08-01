@@ -1153,6 +1153,7 @@ if (typeof
     inte = new IntersectionObserver(IntersectionObserverCallback, {
         threshold: [0, Number.MIN_VALUE]
     })
+    let hasProp = CSS.supports('content-visibility','visible')
     function IntersectionObserverCallback(entries) {
         for (let { length: i } = entries; i--;) {
             let me = entries[i],
@@ -1160,7 +1161,7 @@ if (typeof
             target = $(target)
             if (target.computed.getPropertyValue('--content-visibility').trim() === 'auto') {
                 let skipped = !me.isIntersecting
-                target.setStyle({
+                hasProp || target.setStyle({
                     visibility: skipped ? 'hidden' : 'visible'
                 })
                 h.delayedDispatch('contentvisibilityautostatechange', base(target), new CustomEvent('contentvisibilityautostatechange', {
