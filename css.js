@@ -1,14 +1,15 @@
 ;(function (w, sym) {
     'use strict'
-    var currentScript = document.currentScript
     if (sym in Object(w.css)) return css
+    var currentScript = document.currentScript
     w.reportError = w.reportError || function reportError(throwable) {
-        w.dispatchEvent(new ErrorEvent('error', {
+        var evt = new ErrorEvent('error', {
             message: throwable.message,
             error: throwable,
             filename: currentScript && currentScript.src
-        }))
-        console.error(`${throwable}`)
+        })
+        w.dispatchEvent(evt)
+        evt.defaultPrevented || console.error(`${throwable}`)
     }
     function dashVendor(prop, val) {
         return vendor(toDash(prop), val)
@@ -466,11 +467,11 @@
         //    Some default CSS...
         // try {
         function where(selector) {
-            return`:where(${selector})`
+            return `:where(${selector})`
         }
-        CSS.supports('selector(:where(p))') || (where = function(o){return o})
+        CSS.supports('selector(:where(p))') || (where = function (o) { return o })
         var dflt = sessionStorage.defaultCSS || Object.entries({
-            [`${where(`button,a,${'button checkbox radio submit image reset file'.split(' ').map(function(o){return `input[type=${o}]`}).join(',')}`)}`]: {
+            [`${where(`button,a,${'button checkbox radio submit image reset file'.split(' ').map(function (o) { return `input[type=${o}]` }).join(',')}`)}`]: {
                 cursor: 'pointer'
             },
             [`${where('[aria-busy="true"]')}`]: {
@@ -478,10 +479,10 @@
             },
             ':root': {
                 'interpolate-size': 'allow-keywords',
-                '--crisp-edges': '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(function(o){return sup('image-rendering', o)}),
-                '--stretch': '-moz-available -webkit-fill-available stretch'.split(' ').find(function(o){return sup('max-width', o)}),
-                '--center': '-moz-center -webkit-center -khtml-center'.split(' ').find(function(o){return sup('text-align', o)}), // this is different from just 'center' and idk why!!!
-                '--match-parent': '-moz-match-parent -webkit-match-parent'.split(' ').find(function(o){return sup('text-align', o)})
+                '--crisp-edges': '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(function (o) { return sup('image-rendering', o) }),
+                '--stretch': '-moz-available -webkit-fill-available stretch'.split(' ').find(function (o) { return sup('max-width', o) }),
+                '--center': '-moz-center -webkit-center -khtml-center'.split(' ').find(function (o) { return sup('text-align', o) }), // this is different from just 'center' and idk why!!!
+                '--match-parent': '-moz-match-parent -webkit-match-parent'.split(' ').find(function (o) { return sup('text-align', o) })
             },
             [`${where('img')}`]: {
                 '--force-broken-image-icon': 1,
@@ -518,7 +519,7 @@
                 inset: 0,
                 position: 'fixed'
             }
-        }).map(function(a){return`${a[0]}{${toCSS(a[1])}}`})
+        }).map(function (a) { return `${a[0]}{${toCSS(a[1])}}` })
         typeof dflt === 'string' && (dflt = dflt.split('✕'))
         var join = [].join.bind(dflt)
         sheet.textContent = `${sheet.textContent}${join('')}`
@@ -533,7 +534,7 @@
             var prop = all[i]
                 , o = prop.name
             universal[vendor(o.slice(2), o = `var(${o})`, true)] = o
-            try { func(prop) } 
+            try { func(prop) }
             catch (e) {
                 if (e.name === 'InvalidModificationError') continue
                 console.log(o)
@@ -576,4 +577,4 @@
         // boxShadow,
         [sym]: true
     })
-}(window, Symbol.for('CSS')))
+}(window, Symbol.for('CSS')));

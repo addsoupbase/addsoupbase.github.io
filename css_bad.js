@@ -1,0 +1,2 @@
+'use strict'
+document.getElementById('addedStyleRules') || document.write('<style id="addedStyleRules">button,a,input[type="button"],input[type="checkbox"],input[type="radio"],input[type="submit"],input[type="image"],input[type="reset"],input[type="file"]{cursor: pointer;}[aria-busy="true"]{cursor:progress}:disabled, [aria-disabled="true"]{cursor: not-allowed}.centerx, .center{justify-self:center;margin: auto;text-align:center;}.centery, .center{align-self: center;inset: 0;position: fixed;}*{box-sizing: border-box;}</style>')
