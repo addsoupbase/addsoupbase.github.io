@@ -276,7 +276,7 @@
         // try {
         var a = className.split(':')
             , before = a[0],
-            _class = a[1]
+            _class = a[1],
         already = _class
         _class = _class.replace(allVendors, '')
             .replace(allVendors2, '')
@@ -300,7 +300,7 @@
         // try {
         var a = element.split('::'),
             before = a[0],
-            _element = a[1]
+            _element = a[1],
         already = _element
         _element = _element.replace(allVendors, '')
             .replace(allVendors2, '')
@@ -517,7 +517,7 @@
         // }
         var universal = {}
             , func = CSS.registerProperty || function (e) { console.log('CSS.registerProperty: ', e) }
-            , selector = '*'
+            , selector = ':where(*, ::-moz-color-swatch,::-moz-focus-inner,::-moz-list-bullet,::-moz-list-number,::-moz-meter-bar,::-moz-progress-bar,::-moz-range-progress,::-moz-range-thumb,::-moz-range-track,::-webkit-inner-spin-button,::-webkit-meter-bar,::-webkit-meter-even-less-good-value,::-webkit-meter-inner-element,::-webkit-meter-optimum-value,::-webkit-meter-suboptimum-value,::-webkit-progress-bar,::-webkit-progress-inner-element,::-webkit-progress-value,::-webkit-scrollbar,::-webkit-search-cancel-button,::-webkit-search-results-button,::-webkit-slider-runnable-track,::-webkit-slider-thumb,::after,::backdrop,::before,::checkmark,::column,::cue,::details-content,::file-selector-button,::first-letter,::first-line,::grammar-error,::marker,::picker-icon,::placeholder,::scroll-marker,::scroll-marker-group,::selection,::spelling-error,::target-text,::view-transition)'
         for (var i = all.length; i--;) {
             var prop = all[i]
                 , o = prop.name
