@@ -221,7 +221,7 @@
         s('rel', 'stylesheet')
         s('type', 'text/css')
         s('href', url);
-        (document.head || document.body || document.documentElement || document.querySelector('*')).append(n)
+        (document.head || document.body || document.documentElement || document.querySelector('*')).appendChild(n)
         return n
     }
     /*= function(){
@@ -248,7 +248,7 @@
     function getDefaultStyleSheet() {
         return (document.getElementById('addedStyleRules') || function () {
             var out = document.createElement('style');
-            (document.head || document.body || document.documentElement || document.querySelector('*') || document).append(out)
+            (document.head || document.body || document.documentElement || document.querySelector('*') || document).appendChild(out)
             out.textContent = '@namespace svg url("http://www.w3.org/2000/svg");@media (prefers-reduced-transparency: reduce){*{opacity:1 !important;}}@supports not (content-visibility: auto){*{visibility: var(--content-visibility)}}'
             out.setAttribute('id', 'addedStyleRules')
             return out
