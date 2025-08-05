@@ -19,7 +19,7 @@ export function upper(string) {
 }
 export function splice(string, start, deleteCount, items) {
     let val = (string=`${string}`).split('')
-    val.splice(start = +start, deleteCount = +deleteCount, typeof items === 'function' ? items(''.slice.call(string, start, start + deleteCount), start, deleteCount, string) : items)
+    val.splice(start = +start, deleteCount = +deleteCount, typeof items === 'function' ? items(string.slice(start, start + deleteCount), start, deleteCount, string) : items)
     return val.join('')
 }
 export function escapeHTML(str) {
