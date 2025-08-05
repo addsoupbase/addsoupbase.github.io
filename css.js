@@ -336,7 +336,7 @@
     }) {
         return `${color} ${offsetX} ${offsetY} ${blurRadius} ${spreadRadius}`.replaceAll('  ', '')
     }*/
-    {
+    !function(){
         function g(name, initialValue, inherits, syntax) {
             initialValue = initialValue == null ? 'auto' : initialValue
             inherits = inherits == null ? false : !!initialValue
@@ -535,7 +535,7 @@
             sheet.textContent = `${sheet.textContent}${selector}{${beenHereBefore}}` :
             (registerCSS(selector, universal, true)
                 , sessionStorage.css = toCSS(universal, true))
-    }
+    }()
     w.css = Object.seal({
         // [Symbol.toStringTag]: 'Module',
         __proto__: null,

@@ -117,6 +117,16 @@
                         !function (fr) {
                             'use strict'
                             var d = new Date
+                            String.prototype.padStart = ''.padStart || function(maxLength, fillString) {
+                                var o = String(this)
+                                maxLength = maxLength >>> 0
+                                var len = o.length
+                                if (maxLength < len) return o
+                               fillString =  fillString === void'' ? ' ' : String(fillString)
+                               var fillLength = maxLength - len
+                               , filler = fillString.repeat(fillLength).slice(0, fillLength)
+                               return filler + o
+                            }
                             document.getElementById('diary-heading').setAttribute('max', ''.concat(d.getFullYear(),'-',(d.getMonth() + 1).toString().padStart(2, 0),'-',d.getDate().toString().padStart(2, 0)) )
                             fr.onload = function () {
                                 'use strict'
