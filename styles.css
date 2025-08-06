@@ -82,14 +82,11 @@
     background-image: url("./media/bg.webp") !important;
     background-size: cover;
     background-repeat: no-repeat;
+    
   }
 
   #frame {
     filter: none !important;
-  }
-
-  #hiii {
-    background: none !important;
   }
 }
 

@@ -49,6 +49,16 @@ let add, remove, dip
     dip = dispatchEvent.call.bind(dispatchEvent)
 }
 let verified = new WeakSet
+let get
+function nodeType(node) {
+    try {
+        return (get ??= Function.call.bind(Object.getOwnPropertyDescriptor(Node.prototype, 'nodeType').get))(node)
+    }
+    catch {
+        return 0 / 0
+    }
+}
+
 function isValidET(target) {
     let bool = target &&
         (verified.has(target) || target instanceof EventTarget
@@ -122,11 +132,12 @@ function verifyEventName(target, name) {
     let original = name
     name = name.toLowerCase()
     let valid = (customEvents.has(name) || `on${name}` in target ||
-        ((original === 'DOMContentLoaded' && (target instanceof Document || target instanceof HTMLDocument || target.ownerDocument?.defaultView?.HTMLDocument.prototype.isPrototypeOf(target) || target.ownerDocument?.defaultView?.Document.prototype.isPrototypeOf(target) || target.defaultView?.Document.prototype.isPrototypeOf(target) || target.defaultView?.HTMLDocument?.prototype.isPrototypeOf(target)))
+        ((original === 'DOMContentLoaded' && nodeType(target) === 9)
             || (/^(animation(?:cancel|remove))$/.test(original) && 'onremove' in target)
             || /^(?:focus(?:in|out))$/.test(original)
             || (/^(?:DOM(?:Activate|MouseScroll|Focus(?:In|Out)|(?:Attr|CharacterData|Subtree)Modified|NodeInserted(?:IntoDocument)?|NodeRemoved(?:FromDocument)?))$/.test(original)))
         //Some events like the ones above don't have a handler
+        ||isMediaQuery(original) 
     )
     if (!valid) {
         if (`onwebkit${name}` in target) return `webkit${original}`
@@ -138,7 +149,7 @@ function verifyEventName(target, name) {
             if (typeof MouseScrollEvent === 'function') return 'DOMMouseScroll' // If they don't support the first 2, this one will work ~100% of the time
             return 'MozMousePixelScroll' // The last resort, since there's no way to detect support with this one
         }
-        isMediaQuery(original) || logger.warnLate(`'${original}' events might not be available on the following EventTarget:`, target)
+        logger.warnLate(`'${original}' events might not be available on the following EventTarget:`, target)
     }
     return original
 }

@@ -73,7 +73,8 @@
             !function (a) {
                 'use strict'
                 a.setAttribute('class', 'center')
-                a.addEventListener('load', function () { this.style.display = '' }, { once: true })
+                if (a.contentWindow.document.readyState === 'complete') a.style.display = ''
+                else a.addEventListener('load', function () { this.style.display = '' }, { once: true })
             }(document.getElementById('frame'))
         </script>
     </main>

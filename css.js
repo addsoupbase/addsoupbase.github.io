@@ -247,7 +247,7 @@
         return (document.getElementById('addedStyleRules') || function () {
             var out = document.createElement('style')
             addElement(out)
-            out.textContent = '@namespace svg url("http://www.w3.org/2000/svg");@media (prefers-reduced-transparency: reduce){*{opacity:1 !important;}}@supports not (content-visibility: auto){*{visibility: var(--content-visibility)}}'
+            out.textContent = '@namespace svg url("http://www.w3.org/2000/svg");@media (prefers-reduced-transparency: reduce){*{opacity:1 !important;}}:root{--system-font: system-ui, -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen, Ubuntu, Cantarell, \'Open Sans\', \'Helvetica Neue\', sans-serif}@supports not (content-visibility: auto){*{visibility: var(--content-visibility)}}'
             out.setAttribute('id', 'addedStyleRules')
             return out
         }())
