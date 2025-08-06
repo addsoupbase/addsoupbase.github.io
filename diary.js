@@ -81,13 +81,19 @@
         if (ran) return
         ran = true
         let css = await import('./csshelper.js')
-        $.body.push($('<div style="place-self:center;margin:10px;text-align:center;"><a href="../../diary.html">View in Diary</a></div>'))
+     
         css.importCSS('../../cute-green.css')
         css.importCSS(`data:text/css,main{overflow-x:hidden;opacity: 1 !important;z-index:-30;height:100%;min-height:90vh;width:100%}`)
         let main = $.qs('main')
         main.classList.add('cute-green')
         let d = new Date()
         let today = new Date(location.pathname.slice(9).split('/')[0].replace(/_/g, '/'))
+           $.body.push($('<div style="place-self:center;margin:10px;text-align:center;"></div>',null, $('a', {
+            textContent: 'View In Diary',
+            attr: {
+                href: `../../diary.html#${today.getMonth() + 1}_${today.getDate()}_${today.getFullYear()}`
+            }
+        })))
         let aaaa = `${today.getFullYear()}-${`${today.getMonth() + 1}`.padStart(2, 0)}-${`${today.getDate()}`.padStart(2, 0)}`
         let input = $(`<input min="2025-04-07" max="${d.getFullYear()}-${`${d.getMonth() + 1}`.padStart(2, 0)}-${`${d.getDate()}`.padStart(2, 0)}" type="date" class="cute-green" value="${aaaa}">`, {
             events: {

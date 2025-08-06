@@ -85,74 +85,73 @@
 <body class="cute-green" id="main" style="justify-items: center">
     <!-- <script src="fallback.js"></script> -->
 
-        <main class="center " style="margin: 0;width:100%">
-            <a accesskey="b" class="cute-green-button back" href="main.html" role="button" rel="prev">Back</a>
-            <!-- <span> Scrolling could reveal more!</span> -->
+    <main class="center " style="margin: 0;width:100%">
+        <a accesskey="b" class="cute-green-button back" href="main.html" role="button" rel="prev">Back</a>
+        <!-- <span> Scrolling could reveal more!</span> -->
 
-            <div class="center" id="diary-container" style="display:contents;justify-items: center;">
-                <div style="display: grid;    place-items: center;">
-                    <time>
-                        <input class="cute-green" style="font-size:20px;margin:20px;" id="diary-heading" type="date"
-                            min="2025-04-07">
-                    </time>
-                    <label for="skip" style="margin-bottom:10px;z-index: 2;    width: fit-content;">Skip Empty Days
-                        <input id="skip" type="checkbox" checked></label>
-                </div>
-                <section id="diary" class="cute-blue" style="--user-select:none;width: 746px;  place-self: center;">
-                    <div id="walking"></div>
-                    <h2 id="invalid" hidden>No entry for today &lpar;yet!&rpar;
-                        <img style="image-rendering: pixelated" alt="tangled speech balloon" height="34"
-                            src="./cute-emojis/emojis/1143313874943234058.gif">
-                    </h2>
-                    <h2 id="error" hidden>
-                        <img alt="error" height="50" src="./cute-emojis/emojis/1242581617084465222.gif">
-                        <br>
-                        <samp style="color:#631414;">Error
-                        </samp>
-                    </h2>
-                    <iframe allowfullscreen allow="fullscreen *; local-fonts *; autoplay *;" aria-relevant="all"
-                        aria-live="assertive" id="display" name="Diary" title="Diary"
-                        style="width: 100%;height: 100%;border: none;"></iframe>
-                    <script>
-                        !function (fr) {
-                            'use strict'
-                            var d = new Date
-                            String.prototype.padStart = ''.padStart || function(maxLength, fillString) {
-                                var o = String(this)
-                                maxLength = maxLength >>> 0
-                                var len = o.length
-                                if (maxLength < len) return o
-                               fillString =  fillString === void'' ? ' ' : String(fillString)
-                               var fillLength = maxLength - len
-                               , filler = fillString.repeat(fillLength).slice(0, fillLength)
-                               return filler + o
-                            }
-                            document.getElementById('diary-heading').setAttribute('max', ''.concat(d.getFullYear(),'-',(d.getMonth() + 1).toString().padStart(2, 0),'-',d.getDate().toString().padStart(2, 0)) )
-                            fr.onload = function () {
-                                'use strict'
-                                fr.style.transition = 'opacity .5s'
-                                fr.style.opacity = 1
-                                var window = fr.contentWindow
-                                function write() {
-                                    window.document.documentElement.innerHTML = ('<!doctype html><html><head></head><body><style>@font-face {font-family: \'Choco\';font-display: swap;src: local(\'Choco cooky\'), local(\'Chococooky\'), url(\'https://addsoupbase.github.io/media/Chococooky.woff2\') format(\'woff2\'),url(\'https://addsoupbase.github.io/media/Chococooky.woff\') format(\'woff\');font-weight: normal;font-style: normal;} </style><h2 id="invalid" style="text-align:center;font-family:\'Choco\'">No entry for today &lpar;yet!&rpar;<img style="image-rendering: pixelated" alt="tangled speech balloon" height="34"src="https://addsoupbase.github.io/cute-emojis/emojis/1143313874943234058.gif"></h2></body></html>')
-                                }
-                                window.document.querySelector('script[src="../../css.js"]') || write()
-                                // show()
-                            }
-                        }(document.getElementById('display'))
-                    </script>
-                </section>
-                <div
-                    style="--user-select:none;justify-self: center;justify-content:center;display: flex;    align-items: end;">
-                    <input accesskey="p" id="prev" type="image" title="Turn to previous page" alt="Back"
-                        style="transform:scaleX(-1)" src="./cute-emojis/emojis/1321091969635848294.gif"
-                        class="diarybutton">
-                    <button class="cute-green-button" id="toToday">Go to today</button>
-                    <input accesskey="n" id="next" type="image" title="Turn to next page" alt="Forward"
-                        src="./cute-emojis/emojis/1321091969635848294.gif" class="diarybutton">
-                </div>
+        <div class="center" id="diary-container" style="display:contents;justify-items: center;">
+            <div style="display: grid;    place-items: center;">
+                <time>
+                    <input class="cute-green" style="font-size:20px;margin:20px;" id="diary-heading" type="date"
+                        min="2025-04-07">
+                </time>
+                <label for="skip" style="margin-bottom:10px;z-index: 2;    width: fit-content;">Skip Empty Days
+                    <input id="skip" type="checkbox" checked></label>
             </div>
-        </main>
+            <section id="diary" class="cute-blue" style="--user-select:none;width: 746px;  place-self: center;">
+                <div id="walking"></div>
+                <h2 id="invalid" hidden>No entry for today &lpar;yet!&rpar;
+                    <img style="image-rendering: pixelated" alt="tangled speech balloon" height="34"
+                        src="./cute-emojis/emojis/1143313874943234058.gif">
+                </h2>
+                <h2 id="error" hidden>
+                    <img alt="error" height="50" src="./cute-emojis/emojis/1242581617084465222.gif">
+                    <br>
+                    <samp style="color:#631414;">Error
+                    </samp>
+                </h2>
+                <iframe allowfullscreen allow="fullscreen *; local-fonts *; autoplay *;" aria-relevant="all"
+                    aria-live="assertive" id="display" name="Diary" title="Diary"
+                    style="width: 100%;height: 100%;border: none;"></iframe>
+                <script>
+                    !function (fr) {
+                        'use strict'
+                        var d = new Date
+                        String.prototype.padStart = ''.padStart || function (maxLength, fillString) {
+                            var o = String(this)
+                            maxLength = maxLength >>> 0
+                            var len = o.length
+                            if (maxLength < len) return o
+                            fillString = fillString === void '' ? ' ' : String(fillString)
+                            var fillLength = maxLength - len
+                                , filler = fillString.repeat(fillLength).slice(0, fillLength)
+                            return filler + o
+                        }
+                        document.getElementById('diary-heading').setAttribute('max', ''.concat(d.getFullYear(), '-', (d.getMonth() + 1).toString().padStart(2, 0), '-', d.getDate().toString().padStart(2, 0)))
+                        fr.onload = function () {
+                            'use strict'
+                            fr.style.transition = 'opacity .5s'
+                            fr.style.opacity = 1
+                            var window = fr.contentWindow
+                            function write() {
+                                window.document.documentElement.innerHTML = ('<!doctype html><html><head></head><body><style>@font-face {font-family: \'Choco\';font-display: swap;src: local(\'Choco cooky\'), local(\'Chococooky\'), url(\'https://addsoupbase.github.io/media/Chococooky.woff2\') format(\'woff2\'),url(\'https://addsoupbase.github.io/media/Chococooky.woff\') format(\'woff\');font-weight: normal;font-style: normal;} </style><h2 id="invalid" style="text-align:center;font-family:\'Choco\'">No entry for today &lpar;yet!&rpar;<img style="image-rendering: pixelated" alt="tangled speech balloon" height="34"src="https://addsoupbase.github.io/cute-emojis/emojis/1143313874943234058.gif"></h2></body></html>')
+                            }
+                            window.document.querySelector('script[src="../../css.js"]') || write()
+                            // show()
+                        }
+                    }(document.getElementById('display'))
+                </script>
+            </section>
+            <div
+                style="--user-select:none;justify-self: center;justify-content:center;display: flex;    align-items: end;">
+                <input accesskey="p" id="prev" type="image" title="Turn to previous page" alt="Back"
+                    style="transform:scaleX(-1)" src="./cute-emojis/emojis/1321091969635848294.gif" class="diarybutton">
+                <button class="cute-green-button" id="toToday">Go to today</button>
+                <input accesskey="n" id="next" type="image" title="Turn to next page" alt="Forward"
+                    src="./cute-emojis/emojis/1321091969635848294.gif" class="diarybutton">
+            </div>
+        </div>
+    </main>
     <style>
         .meloetta {
             --zoom: 0.75;
@@ -184,7 +183,33 @@
         import ran from './random.js'
         import * as h from './handle.js'
         import Color from './color.js'
-
+        function hashchange(e) {
+            console.debug(e)
+            let hash = location.hash.slice(1)
+            let day = new Date(hash)
+            debugger
+            today = day == 'Invalid Date' ? new Date(hash.replace(/_/g, '/')) : day
+            goBy(0)
+            setEntry(getDate())
+        }
+        h.on(window, {
+            _load() {
+                location.hash && hashchange()
+            },
+            hashchange
+            /*_load() {
+                if (date) {
+                    let { 0: month, 1: day, 2: year } = date.split('_'),
+                        isValidNormally = new Date(date)
+                    today = (isValidNormally != 'Invalid Date' ? isValidNormally : new Date(date).replace(/\//g, '_'))
+                    // `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, 0)}-${String(date.getDate()).padStart(2, 0)}`
+                    goBy(0)
+                    setEntry(getDate())
+                }
+            }*/
+        })
+        // let date
+        // typeof URLSearchParams === 'function' && (date = new URLSearchParams(location.search).get('date'))
         function animateThing() {
             let sizeMult = 1.3
             let meloetta = $(`<img-sprite title="Zzz" class="meloetta" style="image-rendering:${top === window ? 'pixelated' : 'auto'};" duration="600" index="0" src="media/meloetta1.png" width="${160 * sizeMult}" height="${216 * sizeMult}" rows="1" cols="2"></img-sprite>`)
@@ -230,7 +255,7 @@
         h.on(document, {
             '%&DOMContentLoaded'() { }
         })
-        let { toToday, invalid, error, next, prev, 'diary-heading': diaryHeading, display: frame, walking, skip } = $.id
+        let { toToday, invalid, error, next, prev, 'diary-heading': currentDateInput, display: frame, walking, skip } = $.id
         function isSkipping() {
             return skip.checked
         }
@@ -248,7 +273,7 @@
         // }
         // })
         let today = new Date()
-        diaryHeading
+        currentDateInput
             .on({
                 change() {
                     if (!this.value?.trim()) return
@@ -259,7 +284,7 @@
                     setEntry(getDate())
                 }
             })
-        
+
 
         function getDate() {
             return today.toLocaleDateString('en-US')
@@ -284,25 +309,26 @@
         toToday.on({
             '%&click'() {
                 if (!canMove) return
-                today = new Date()
-                goBy(-0)
-                setEntry(getDate())
+                let d = new Date()
+                location.hash = `${d.getMonth() + 1}_${d.getDate()}_${d.getFullYear()}`
             }
         })
         next.on({
             '%&click'() {
                 if (!canMove) return
                 lastClicked = 't'
-                goBy(1)
-                setEntry(getDate())
+                let d = new Date(today)
+                d.setDate(d.getDate() + 1)
+                location.hash = `${d.getMonth() + 1}_${d.getDate()}_${d.getFullYear()}`
             }
         })
         prev.on({
             '%&click'() {
                 if (!canMove) return
                 lastClicked = 'y'
-                goBy(-1)
-                setEntry(getDate())
+                let d = new Date(today)
+                d.setDate(d.getDate() - 1)
+                location.hash = `${d.getMonth() + 1}_${d.getDate()}_${d.getFullYear()}`
             }
         })
         let lastClicked = 'y'
@@ -364,7 +390,7 @@
         async function setEntry(date) {
             let d = new Date(date)
             let t = getThat(d)
-            diaryHeading.value = t
+            currentDateInput.value = t
             frame.hide(3)
             error.hide()
             frame.parent.isBusy = true
@@ -410,7 +436,7 @@
         frame.onload = null
     </script>
     <!-- if something somehow goes wrong, and this function is fired successfully -->
-    <script>(document.addEventListener || document.attachEvent).call(document, "DOMContentLoaded", function () { "use strict"; var aa = document.getElementById('display'); function fade() { aa.style.transition = ''; window.msRequestAnimationFrame || (aa.style.opacity = 0) } if ("undefined" == typeof h) { var e = new XMLHttpRequest; e.open("GET", "./oldhandle.js"), e.onload = function () { Function(e.responseText)(); var t = function (e) { e.style.visibility = "hidden", e.setAttribute("disabled", "disabled") }, n = function (e) { e.style.visibility = "visible", e.removeAttribute("disabled") }, i = document.getElementById("toToday"), a = document.getElementById("diary-heading"), l = function () { var e = new Date; d.getDate() >= e.getDate() && d.getMonth() >= e.getMonth() ? t(g) : n(g), 7 >= d.getDate() && 3 >= d.getMonth() ? t(s) : n(s); var i = [d.getMonth() + 1, d.getDate(), d.getFullYear()].join("_"), l = "" + d.getDate(), c = "" + (d.getMonth() + 1); 1 === c.length && (c = 0 + c), 1 === l.length && (l = 0 + l), o.src = "./entries/" + i, a.value = [d.getFullYear(), c, l].join("-") }, o = document.getElementById("display"), d = new Date, s = document.getElementById("prev"), g = document.getElementById("next");  var c = function () { if (this.value.trim()) {fade(); for (var e = this.value.split("-"), t = e[2] = (+e[2]).toString(); t.length < 2;)t = 0 + t; d = new Date(e.join("-")), l() } }; h.on(a, { change: c, textInput: c }), h.on(s, { click: function () { fade(); d.setDate(d.getDate() - 1), l() } }), h.on(g, { click: function () { fade(); d.setDate(d.getDate() + 1), l() } }), h.on(i, { click: function () { fade(); d = new Date, l() } }), i.click() }, e.send() } });</script>
+    <script>(document.addEventListener || document.attachEvent).call(document, "DOMContentLoaded", function () { "use strict"; var aa = document.getElementById('display'); function fade() { aa.style.transition = ''; window.msRequestAnimationFrame || (aa.style.opacity = 0) } if ("undefined" == typeof h) { var e = new XMLHttpRequest; e.open("GET", "./oldhandle.js"), e.onload = function () { Function(e.responseText)(); var t = function (e) { e.style.visibility = "hidden", e.setAttribute("disabled", "disabled") }, n = function (e) { e.style.visibility = "visible", e.removeAttribute("disabled") }, i = document.getElementById("toToday"), a = document.getElementById("diary-heading"), l = function () { var e = new Date; d.getDate() >= e.getDate() && d.getMonth() >= e.getMonth() ? t(g) : n(g), 7 >= d.getDate() && 3 >= d.getMonth() ? t(s) : n(s); var i = [d.getMonth() + 1, d.getDate(), d.getFullYear()].join("_"), l = "" + d.getDate(), c = "" + (d.getMonth() + 1); 1 === c.length && (c = 0 + c), 1 === l.length && (l = 0 + l), o.src = "./entries/" + i, a.value = [d.getFullYear(), c, l].join("-") }, o = document.getElementById("display"), d = new Date, s = document.getElementById("prev"), g = document.getElementById("next"); var c = function () { if (this.value.trim()) { fade(); for (var e = this.value.split("-"), t = e[2] = (+e[2]).toString(); t.length < 2;)t = 0 + t; d = new Date(e.join("-")), l() } }; h.on(a, { change: c, textInput: c }), h.on(s, { click: function () { fade(); d.setDate(d.getDate() - 1), l() } }), h.on(g, { click: function () { fade(); d.setDate(d.getDate() + 1), l() } }), h.on(i, { click: function () { fade(); d = new Date, l() } }), i.click() }, e.send() } });</script>
     <script async defer src="silence.js"></script>
 </body>
 

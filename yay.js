@@ -1599,11 +1599,13 @@ function $(html, props, ...children) {
     children.length && element.push(children.map(elemIfString))
     return element
 }
+/*
 'currentCSSZoom' in Element.prototype || Object.defineProperty(Element.prototype, 'currentCSSZoom', {
     get() {
         return +(getComputedStyle(this).getPropertyValue('zoom') || 1 * this.parentElement?.CSSZoom || 1)
     }
 })
+*/
 function assignIfOwn(props, element, p) {
     hasOwn(props, p) && (element[p] = props[p])
 }

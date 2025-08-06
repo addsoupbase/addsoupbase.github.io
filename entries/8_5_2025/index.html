@@ -72,8 +72,6 @@
 
         .blur {
             filter: blur(5px);
-            --user-select: none;
-            --interactivity: inert;
         }
     </style>
 </head>
@@ -89,12 +87,15 @@
                 (function (e) {
                     'use strict'
                     e.addEventListener('click', function () {
-                        document.getElementById('blur').setAttribute('class', '')
+                        var blur = document.getElementById('blur')
+                        blur.setAttribute('class', '')
+                        blur.removeAttribute('inert')
+                        blur.setAttribute('aria-hidden','false')
                         document.getElementById('a').removeChild(document.getElementById('thing'))
                     }, { once: true })
                 })(document.getElementById('proceed'))
             </script>
-            <div class="blur" id="blur" aria-hidden="true">
+            <div class="blur" id="blur" aria-hidden="true" inert>
                 <h1>OKOK SO something really amazing happened</h1>
                 <p>So basically, there was someone i hated a lot in this server... like i hated them a LOTTT.
                     They constantly would act super annoying and just generally be a POS, but the problem
