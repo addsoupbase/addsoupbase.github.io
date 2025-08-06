@@ -1,52 +1,109 @@
 'use strict';
 // window.addEventListener('load', 
-(window.requestIdleCallback || setTimeout)(async function load() {
-    function bind(r) {
-        return r.test.bind(r)
-    }
-    let { default: $ } = await import('./yay.js')
+!(async function load() {
+    let { 0: { default: $, ignore }, 1: { splice } } = await Promise.all([import('./yay.js'), import('/str.js')])
+
     // let observer = new MutationObserver(mutate)
-    let grammar = {
-        im: /(?=(\b|^))im(?=(\b|$))/g,
-        i: /(?=(\b|^))i(?=(\b|$))/g,
-        bc: /(?=(\b|^))bc(?=(\b|$))/ig,
-        idc: /(?=(\b|^))idc(?=(\b|$))/ig,
-        idk: /(?=(\b|^))idk(?=(\b|$))/ig,
-        ik: /(?=(\b|^))ik(?=(\b|$))/ig,
-        istg: /(?=(\b|^))istg(?=(\b|$))/ig,
-        ig: /(?=(\b|^))ig(?=(\b|$))/ig
-    }
-    let IM = bind(grammar.im),
-        I = bind(grammar.i),
-        BC = bind(grammar.bc),
-        IDC = bind(grammar.idc),
-        IDK = bind(grammar.idk),
-        IK = bind(grammar.ik),
-        ISTG = bind(grammar.istg),
-        IG = bind(grammar.ig)
+    /* let grammar = {
+         im: /(?=(\b|^))im(?=(\b|$))/g,
+         i: /(?=(\b|^))i(?=(\b|$))/g,
+         bc: /(?=(\b|^))bc(?=(\b|$))/ig,
+         idc: /(?=(\b|^))idc(?=(\b|$))/ig,
+         idk: /(?=(\b|^))idk(?=(\b|$))/ig,
+         ik: /(?=(\b|^))ik(?=(\b|$))/ig,
+         istg: /(?=(\b|^))istg(?=(\b|$))/ig,
+         ig: /(?=(\b|^))ig(?=(\b|$))/ig
+     }
+     let IM = bind(grammar.im),
+         I = bind(grammar.i),
+         BC = bind(grammar.bc),
+         IDC = bind(grammar.idc),
+         IDK = bind(grammar.idk),
+         IK = bind(grammar.ik),
+         ISTG = bind(grammar.istg),
+         IG = bind(grammar.ig)*/
     /*
     let end = /(?!([.!?-])).$/
     function dot(str) {
         return `${str}.`
     }
         */
-    let ignore = /^(?:a|code|samp)$/i
+    // let ignore = /^(?:a|code|samp)$/i
+    if (typeof window.Intl?.Segmenter === 'function') {
+        
+    
+    let thing = new Intl.Segmenter('en', { granularity: 'word' })
     $.body.treeWalker(NodeFilter.SHOW_TEXT, doStuff)
     function doStuff(node) {
-        if (node.parentElement.matches('meta,script,head,link,title,style,html,body,main,div')) return
+        if (!node.textContent.trim() || ignore(node.parentElement)) return
+        let replacements = []
+        for (let segment of thing.segment(node.textContent)) {
+            let word = segment.segment
+            let lower = word.toLowerCase()
+            if (word === 'i') {
+                replacements.push({ index: segment.index, length: 1, value: 'I' })
+            } else if (lower === 'im') {
+                replacements.push({ index: segment.index, length: 2, value: `I'm` })
+            } 
+            else if (lower === 'bc') {
+                replacements.push({ index: segment.index, length: 2, value: because(word) })
+            } 
+            else if (lower === 'idc') {
+                replacements.push({
+                    index: segment.index,
+                    length: 3,  
+                    value: idc(word)
+                })
+            } 
+            else if (lower === 'idk') {
+                replacements.push({
+                    index: segment.index,
+                    length: 3,
+                    value: idk(word)
+                })
+            }
+            else if (lower === 'istg') {
+                replacements.push({
+                    index: segment.index,
+                    length: 4,
+                    value: istg(word)
+                })
+            }
+            else if (lower === 'ig') {
+                replacements.push({
+                    index: segment.index,
+                    length: 2,
+                    value: ig(word)
+                })
+            }
+            else if (lower === 'ik') { 
+                replacements.push({
+                    index: segment.index,
+                    length: 2,
+                    value: ik(word)
+                })
+            }
+        }
+        let text = node.textContent;
+        for (let i = replacements.length; i--;) {
+            let { index, length, value } = replacements[i]
+            text = splice(text, index, length, value)
+        }
+        node.textContent = text
+    }
         // Correct common acronyms for accessibility
-        let { textContent } = node
-        if (!textContent.trim() || textContent.length <= 2 || ignore.test(node.parentElement?.tagName)) return
+        // let { textContent } = node
+        // if (!textContent.trim() || textContent.length <= 2 || ignore.test(node.parentElement?.tagName)) return
         // if (!node.nextSibling && !node.previousElementSibling)textContent = textContent.trim().replace(end, dot)
-        IG(textContent) && (textContent = textContent.replace(grammar.ig, ig))
-        ISTG(textContent) && (textContent = textContent.replace(grammar.istg, istg))
-        IDK(textContent) && (textContent = textContent.replace(grammar.idk, idk))
-        IK(textContent) && (textContent = textContent.replace(grammar.ik, ik))
-        IDC(textContent) && (textContent = textContent.replace(grammar.idc, idc))
-        BC(textContent) && (textContent = textContent.replace(grammar.bc, because))
-        IM(textContent) && (textContent = textContent.replace(grammar.im, "I'm"))
-        I(textContent) && (textContent = textContent.replace(grammar.i, 'I'))
-        textContent !== node.textContent && (node.textContent = textContent)
+        /*  IG(textContent) && (textContent = textContent.replace(grammar.ig, ig))
+          ISTG(textContent) && (textContent = textContent.replace(grammar.istg, istg))
+          IDK(textContent) && (textContent = textContent.replace(grammar.idk, idk))
+          IK(textContent) && (textContent = textContent.replace(grammar.ik, ik))
+          IDC(textContent) && (textContent = textContent.replace(grammar.idc, idc))
+          BC(textContent) && (textContent = textContent.replace(grammar.bc, because))
+          IM(textContent) && (textContent = textContent.replace(grammar.im, "I'm"))
+          I(textContent) && (textContent = textContent.replace(grammar.i, 'I'))
+          textContent !== node.textContent && (node.textContent = textContent)*/
     }
     function idc(str) {
         let { 0: i, 1: d, 2: c } = str
@@ -54,22 +111,22 @@
     }
     function idk(str) {
         let { 0: i, 1: d, 2: k } = str
-        return `${i} ${d === d.toUpperCase() ? "DON'T" : "don't"} ${k === k.toUpperCase() ? 'KNOW' : 'know'}`
+        return `I ${d === d.toUpperCase() ? "DON'T" : "don't"} ${k === k.toUpperCase() ? 'KNOW' : 'know'}`
     }
     function ik(str) {
         let { 0: i, 1: k, } = str
-        return `${i} ${k === k.toUpperCase() ? 'KNOW' : 'know'}`
+        return `I ${k === k.toUpperCase() ? 'KNOW' : 'know'}`
     }
     function istg(str) {
         let { 0: i, 1: s, 2: t, 3: g } = str
-        return `${i} ${s === s.toUpperCase() ? 'SWEAR' : 'swear'} ${t === t.toUpperCase() ? 'TO' : 'to'} ${g === g.toUpperCase() ? 'GOD' : 'god'}`
+        return `I ${s === s.toUpperCase() ? 'SWEAR' : 'swear'} ${t === t.toUpperCase() ? 'TO' : 'to'} ${g === g.toUpperCase() ? 'GOD' : 'god'}`
     }
     function because(str) {
         return `${str[0]}ecause`
     }
     function ig(str) {
         let { 0: i, 1: g } = str
-        return `${i} ${g === g.toUpperCase() ? 'GUESS' : 'guess'}`
+        return `I ${g === g.toUpperCase() ? 'GUESS' : 'guess'}`
     }
     // function mutate() { }
     let ran = false
@@ -81,14 +138,14 @@
         if (ran) return
         ran = true
         let css = await import('./csshelper.js')
-     
+
         css.importCSS('../../cute-green.css')
         css.importCSS(`data:text/css,main{overflow-x:hidden;opacity: 1 !important;z-index:-30;height:100%;min-height:90vh;width:100%}`)
         let main = $.qs('main')
         main.classList.add('cute-green')
         let d = new Date()
         let today = new Date(location.pathname.slice(9).split('/')[0].replace(/_/g, '/'))
-           $.body.push($('<div style="place-self:center;margin:10px;text-align:center;"></div>',null, $('a', {
+        $.body.push($('<div style="place-self:center;margin:10px;text-align:center;"></div>', null, $('a', {
             textContent: 'View In Diary',
             attr: {
                 href: `../../diary.html#${today.getMonth() + 1}_${today.getDate()}_${today.getFullYear()}`
@@ -154,16 +211,15 @@
         }
     })
         ;[].forEach.call(document.querySelectorAll('video,audio'), o => {
-            o.hasAttribute('preload')|| console.warn('Found media element without preload attribute', o)
-            o.matches('video') && (o.hasAttribute('poster')|| console.warn('Found video element without poster attribute', o))
+            o.hasAttribute('preload') || console.warn('Found media element without preload attribute', o)
+            o.matches('video') && (o.hasAttribute('poster') || console.warn('Found video element without poster attribute', o))
         })
         ;[].forEach.call(document.links, o => {
             o.setAttribute('rel', `noopener noreferrer nofollow ${o.getAttribute('rel') || ''}`)
         })
-}
-    /*
-    , {
-        once:true
-    })
-    */
-    , window.requestIdleCallback ? { timeout: 2000 } : 600)
+})()
+/*
+, {
+    once:true
+})
+*/

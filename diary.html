@@ -187,7 +187,6 @@
             console.debug(e)
             let hash = location.hash.slice(1)
             let day = new Date(hash)
-            debugger
             today = day == 'Invalid Date' ? new Date(hash.replace(/_/g, '/')) : day
             goBy(0)
             setEntry(getDate())

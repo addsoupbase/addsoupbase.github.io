@@ -25,8 +25,8 @@ let bindHandler = {
 const { get, set, apply, getOwnPropertyDescriptor, ownKeys } = Reflect,
     { revocable } = Proxy,
     { create, preventExtensions, defineProperty, defineProperties, getOwnPropertyDescriptors, assign } = Object
-import*as h from'./handle.js'
-import*as css from'./csshelper.js'
+import *as h from './handle.js'
+import *as css from './csshelper.js'
 function from(ArrayLike, map, thisArg) {
     // Array.from checks @@iterator first, which would be slower in cases where it is callable
     return ArrayLike.length >= 0 ? map ? [].map.call(ArrayLike, map, thisArg) : [].slice.call(ArrayLike) : map ? Array.from(ArrayLike, map, thisArg) : typeof ArrayLike[Symbol.iterator] !== 'undefined' ? [...ArrayLike] : []
@@ -34,7 +34,7 @@ function from(ArrayLike, map, thisArg) {
 function debounce(func, interval) {
     let waiting = false
     return DebouncedFunction
-    function enable() { 
+    function enable() {
         waiting = false
     }
     function DebouncedFunction(...args) {
@@ -171,8 +171,8 @@ const attrStyleMap = 'StylePropertyMap' in window
                 // ⛓️‍💥 'Illegal invocation' if function is not bound
             },
             // ownKeys(target){
-                // don't expose any implementation details
-                // return Object.getOwnPropertyNames(target).concat(Symbol.iterator,Symbol.toPrimitive)
+            // don't expose any implementation details
+            // return Object.getOwnPropertyNames(target).concat(Symbol.iterator,Symbol.toPrimitive)
             // },
             set(targ, prop, value) {
                 let t = targ.hasOwnProperty(prop) ? targ : this[0]
@@ -191,14 +191,14 @@ const attrStyleMap = 'StylePropertyMap' in window
                     return p in new String || p in t
                 },
                 get(t, p) {
-                     return p in new String? ''[p].bind(`${t}`): t[p]
+                    return p in new String ? ''[p].bind(`${t}`) : t[p]
                 },
             },
             get(target, prop) {
                 try {
                     var out = prop.startsWith('--') ? target.get(prop) : target.get(css.dashVendor(prop, 'inherit'))
                 }
-                catch(e) {
+                catch (e) {
                     reportError(e)
                 }
                 return out && new Proxy(Object.freeze(out), handlers.styles.proxy)
@@ -206,9 +206,9 @@ const attrStyleMap = 'StylePropertyMap' in window
             set(target, prop, value) {
                 try {
                     value == null || value === '' ? this.deleteProperty(target, prop)
-                    : prop.startsWith('--') ? target.set(prop, value) : target.set(css.dashVendor(prop, `${value}`), value)
+                        : prop.startsWith('--') ? target.set(prop, value) : target.set(css.dashVendor(prop, `${value}`), value)
                 }
-                catch(e) {
+                catch (e) {
                     reportError(e)
                     return 0
                 }
@@ -330,7 +330,7 @@ let props = getOwnPropertyDescriptors(class _
             el,
             n = 0,
             next = i.iterateNext.bind(i)
-        while (el = next()) apply(callback, thisArg, [el instanceof HTMLElement ? prox(el) : el, n++, i])
+        while (el = next()) apply(callback, thisArg, [getNodeType(el) === 1 ? prox(el) : el, n++, i])
     }
 
     get orphans() {
@@ -760,7 +760,7 @@ let props = getOwnPropertyDescriptors(class _
                 _.queries.set(query, detail)
             }
             let detail = _.queries.get(query)
-            let { mediaQuery:{matches}, listening } = detail
+            let { mediaQuery: { matches }, listening } = detail
             listening.add(this)
             this.on({
                 [`${flags}${query}`]: val
@@ -908,7 +908,36 @@ let props = getOwnPropertyDescriptors(class _
         let parent = base(this).parentElement
         return prox(parent)
     }
-
+    static filterForTextNodes(t) {
+        return getNodeType(t) === 3
+    }
+    static mapTextNodesIntoTextContent(t) {
+        return t.nodeValue
+    }
+    get ownTextContent() {
+        return[].filter.call(base(this).childNodes, _.filterForTextNodes).map(_.mapTextNodesIntoTextContent).join('')
+    }
+    set ownTextContent(text) {
+        let me = base(this)
+        let {childNodes} = me
+        for(let i = childNodes.length; i--;) {
+            let n = childNodes[i]
+            getNodeType(n) === 3 && n.remove()
+        }
+        me.appendChild(document.createTextNode(text))        
+    } 
+    insertElementsAtText(indexOrMatch, ...elements) {
+        let me = base(this)
+        let {textContent:text} = base(this)
+        if (typeof indexOrMatch === 'number') {
+            let index = indexOrMatch
+            let before = text.slice(0, index),
+            after = text.slice(index+1)
+            this.textContent = before
+            this.push.apply(this, elements)
+            me.appendChild(document.createTextNode(after))
+        }
+    }
     /* get gc() {
     // Ensure objects are being properly garbage collected
          return new Promise(callback => {
@@ -1153,7 +1182,7 @@ if (typeof
     inte = new IntersectionObserver(IntersectionObserverCallback, {
         threshold: [0, Number.MIN_VALUE]
     })
-    let hasProp = CSS.supports('content-visibility','visible')
+    let hasProp = CSS.supports('content-visibility', 'visible')
     function IntersectionObserverCallback(entries) {
         for (let { length: i } = entries; i--;) {
             let me = entries[i],
@@ -1198,25 +1227,34 @@ function unobserveAll(node) {
     inte?.unobserve(node)
     resi.unobserve(node)
 }
-
+let notContent = 'meta,script,head,link,title,style,html,body,main,div,samp,code,pre,q,blockquote,output,legend,base,cite,var',
+    forString = new Set(notContent.split(','))
+export function ignore(nodeOrText) {
+    return nodeOrText.ownerDocument.defaultView.Node.prototype.isPrototypeOf(nodeOrText) ? nodeOrText.matches(notContent) : forString.has(nodeOrText)
+}
+let no_translate = /@no_translate\((?<text>.*)\)/ug
+let getNodeType = Function.call.bind(Object.getOwnPropertyDescriptor(Node.prototype,'nodeType').get)
 function MutationObserverCallback(entry) {
     for (let { length: ii } = entry; ii--;) {
         let me = entry[ii],
             { addedNodes, removedNodes } = me
-        for (let { length: i } = addedNodes, node; i--;)
-            if ((node = addedNodes[i]) instanceof Element || node?.ownerDocument?.defaultView.Element.prototype.isPrototypeOf(node))
+        for (let { length: i } = addedNodes, node; i--;) {
+            node = addedNodes[i]
+            if (getNodeType(node) === 1) 
                 /*  queueMicrotask(() => {
-                      document.dispatchEvent(new CustomEvent('subtree-modified', {
-                          // bubbles: true,
-                          detail: {
-                              node,
-                              added: true,
-                          }
-                      }))
-                  })*/
+                    document.dispatchEvent(new CustomEvent('subtree-modified', {
+                        // bubbles: true,
+                        detail: {
+                            node,
+                            added: true,
+                            }
+                            }))
+                            })*/
                 observeAll(node)
+            
+        }
         for (let { length: i } = removedNodes, node; i--;)
-            if ((node = removedNodes[i]) instanceof Element || node?.ownerDocument?.defaultView.Element.prototype.isPrototypeOf(node))
+            if (getNodeType(node = removedNodes[i]) === 1)
                 /*   queueMicrotask(() => {
                        document.dispatchEvent(new CustomEvent('subtree-modified', {
                            // bubbles: true,
@@ -1235,7 +1273,6 @@ muta.observe(document.documentElement, {
     subtree: true,
     childList: true
 })
-
 /*
 RESIZE OBSERVER STUFFS
 */
@@ -1261,7 +1298,7 @@ function ResizeObserverCallback(entries) {
 }
 
 const resi = new ResizeObserver(ResizeObserverCallback)
-;[].forEach.call(document.getElementsByTagName('*'),observeAll)
+    ;[].forEach.call(document.getElementsByTagName('*'), observeAll)
 
 /*
 PERFORMANCE OBSERVER STUFFS
@@ -1293,7 +1330,7 @@ function PerformanceLoop(o) {
         // console.warn(o)
         case "long-animation-frame":
         case 'first-input':
-            // detail.actualTarget = o.target
+        // detail.actualTarget = o.target
         case 'largest-contentful-paint':
             detail = o
             break
@@ -1479,7 +1516,7 @@ function RevokeAllProxies(...args) {
 }
 function getValid(target) {
     try {
-        return !!(target && (target instanceof Element || target.ownerDocument?.defaultView?.Element.prototype.isPrototypeOf(target)))
+        return !!(target && getNodeType(target) === 1)
         //|| Element.prototype.isPrototypeOf(target)
     } catch {
         return false
@@ -1597,7 +1634,18 @@ function $(html, props, ...children) {
         children.unshift(props),
             props = null
     children.length && element.push(children.map(elemIfString))
+    // let {textContent} = element
+    /*if (no_translate.test(textContent)) {
+        let regex = cloneRegexp(no_translate)
+        for(let match of textContent.matchAll(regex)) {
+           let {text} = match.groups
+           console.log(text)
+        }
+    }*/
     return element
+}
+function cloneRegexp(regexp) {
+    return RegExp(regexp, regexp.flags)
 }
 /*
 'currentCSSZoom' in Element.prototype || Object.defineProperty(Element.prototype, 'currentCSSZoom', {
