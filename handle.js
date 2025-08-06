@@ -340,8 +340,8 @@ export function off(target, ...eventNames) {
         logger.dirxml(target)
         const map = allEvents.get(target),
             mySet = target[sym]
-        for (let { length } = eventNames; length--;) {
-            const name = verifyEventName(target, eventNames[length]),
+        for (let i = eventNames.length; i--;) {
+            const name = verifyEventName(target, eventNames[i]),
                 settings = map.get(name),
                 { listener } = settings
             remove(target, name, listener, settings)

@@ -1,5 +1,5 @@
 
-let img = /<img/g;
+let img = /<script type="module" src="\.\.\/\.\.\/diary\.js" async><\/script>/g;
 (await Array.fromAsync(await Deno.readDir('./entries'))).forEach(thing)
 
 async function thing(dir) {
@@ -9,5 +9,5 @@ async function thing(dir) {
     Deno.writeTextFile(path, text)
 }
 function addThing(o) {
-    return '<img loading="lazy" decoding="async"'
+    return `<script src="../../diary.js" blocking="render"></script>`
 }

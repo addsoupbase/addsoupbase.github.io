@@ -1,12 +1,12 @@
-;(function (w, sym) {
+; (function (w, sym) {
     'use strict'
     if (sym in Object(w.css)) return css
-    var currentScript = document.currentScript
+    var scr = document.currentScript
     w.reportError = w.reportError || function reportError(throwable) {
         var evt = new ErrorEvent('error', {
             message: throwable.message,
             error: throwable,
-            filename: currentScript && currentScript.src
+            filename: scr && scr.src
         })
         w.dispatchEvent(evt)
         evt.defaultPrevented || console.error(`${throwable}`)
@@ -46,8 +46,7 @@
         alreadyHas = alreadyLogged.has.bind(alreadyLogged),
         beenHereBefore = sessionStorage.getItem('css'),
         addAlr = alreadyLogged.add.bind(alreadyLogged),
-        allVendors = /^-(?:webkit|moz|apple|khtml|konq|o|ms|xv|atsc|wap|ah|hp|ro|rim|tc|fso|icab|epub)-/,
-        allVendors2 = /^(?:prince|mso)-/,
+        allVendors = /^(?:-(?:webkit|moz|apple|khtml|konq|o|ms|xv|atsc|wap|ah|hp|ro|rim|tc|fso|icab|epub)|prince|mso)-/,
         dontRedo = new Map,
         sup = CSS.supports
     //  (that i have used before) ,
@@ -64,7 +63,6 @@
         if (val.trim() && !sup(prop, val)) {
             var prefix = prop = prop
                 .replace(allVendors, '')
-                .replace(allVendors2, '')
             if (dontRedo.has(prop)) return dontRedo.get(prop)
             return (
                 sup(prefix, val) ||
@@ -220,8 +218,8 @@
             s = n.setAttribute.bind(n)
         s('rel', 'stylesheet')
         s('type', 'text/css')
-        s('href', url);
-        (document.head || document.body || document.documentElement || document.querySelector('*')).appendChild(n)
+        s('href', url)
+        addElement(n)
         return n
     }
     /*= function(){
@@ -247,12 +245,18 @@
     }()*/
     function getDefaultStyleSheet() {
         return (document.getElementById('addedStyleRules') || function () {
-            var out = document.createElement('style');
-            (document.head || document.body || document.documentElement || document.querySelector('*') || document).appendChild(out)
+            var out = document.createElement('style')
+            addElement(out)
             out.textContent = '@namespace svg url("http://www.w3.org/2000/svg");@media (prefers-reduced-transparency: reduce){*{opacity:1 !important;}}@supports not (content-visibility: auto){*{visibility: var(--content-visibility)}}'
             out.setAttribute('id', 'addedStyleRules')
             return out
         }())
+    }
+    function getWhateverNode() {
+        return document.head || document.body || document.documentElement || document.getElementsByTagName('*')[0] || document
+    }
+    function addElement(el) {
+        getWhateverNode().appendChild(el)
     }
     var reducedMotion = matchMedia('(prefers-reduced-motion: reduce)')
     function registerCSSAll(rules) {
@@ -269,17 +273,15 @@
         return sup(`selector(${rule})`)
     }
 
-    var theNames = `${allVendors}`.match(/\w+/g).reverse()
+    var theNames = `${allVendors}`.match(/\w+/g).reverse().slice(2)
         , pcv = supportedPClassVendor
-
     function supportedPClassVendor(className) {
         // try {
         var a = className.split(':')
             , before = a[0],
             _class = a[1],
-        already = _class
+            already = _class
         _class = _class.replace(allVendors, '')
-            .replace(allVendors2, '')
         if (supportsRule(already = `${before}:${already}`)) return already
         for (var i = theNames.length; i--;) {
             var vendor = theNames[i]
@@ -301,9 +303,8 @@
         var a = element.split('::'),
             before = a[0],
             _element = a[1],
-        already = _element
+            already = _element
         _element = _element.replace(allVendors, '')
-            .replace(allVendors2, '')
         if (supportsRule(already = `${before}::${already}`)) return already
         for (var i = theNames.length; i--;) {
             var vendor = theNames[i]
@@ -336,7 +337,7 @@
     }) {
         return `${color} ${offsetX} ${offsetY} ${blurRadius} ${spreadRadius}`.replaceAll('  ', '')
     }*/
-    !function(){
+    !function () {
         function g(name, initialValue, inherits, syntax) {
             initialValue = initialValue == null ? 'auto' : initialValue
             inherits = inherits == null ? false : !!initialValue
@@ -465,9 +466,9 @@
             [`${where('[aria-busy="true"]')}`]: {
                 cursor: 'progress'
             },
-            [`${where('[inert]')}`]:{
-                '--interactivity': 'inert',
-            },
+            // [`${where('[inert]')}`]:{
+            // '--interactivity': 'inert',
+            // },
             ':root': {
                 'interpolate-size': 'allow-keywords',
                 '--crisp-edges': '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(function (o) { return sup('image-rendering', o) }),
