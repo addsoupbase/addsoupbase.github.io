@@ -594,6 +594,8 @@ let props = getOwnPropertyDescriptors(class _
 
     fadeOut(duration) {
         duration ||= _.defaultDura
+        this.saveAttr('inert')
+        this.attr.inert = true
         return this.animate([{}, _.nopacity], {
             duration,
             easing: 'ease',
@@ -601,7 +603,9 @@ let props = getOwnPropertyDescriptors(class _
             iterations: 1
         }).finished.then(this.hide.bind(this, 3))
     }
-
+    static removeInert() {
+        this.restoreAttr('inert')
+    }
     fadeIn(duration) {
         duration ||= _.defaultDura
         this.show(3)
@@ -610,7 +614,7 @@ let props = getOwnPropertyDescriptors(class _
             easing: 'ease',
             iterations: 1,
             // composite: 'replace',
-        }).finished
+        }).finished.then(_.removeInert.bind(this))
     }
 
     fadeFromTo(from, to, settings) {

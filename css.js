@@ -466,9 +466,9 @@
             [`${where('[aria-busy="true"]')}`]: {
                 cursor: 'progress'
             },
-            // [`${where('[inert]')}`]:{
-            // '--interactivity': 'inert',
-            // },
+            [`${where('[inert]')}`]:{
+            '--interactivity': 'inert',
+            },
             ':root': {
                 'interpolate-size': 'allow-keywords',
                 '--crisp-edges': '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(function (o) { return sup('image-rendering', o) }),
