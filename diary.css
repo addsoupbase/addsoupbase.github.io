@@ -1,15 +1,5 @@
 @namespace svg url("http://www.w3.org/2000/svg");
-
-@font-face {
-  font-family: 'Choco';
-  font-display: swap;
-  src: url('./media/Chococooky.woff2') format('woff2'),
-    /* Super Modern Browsers */
-    url('/media/Chococooky.woff') format('woff');
-  /* Pretty Modern Browsers */
-  font-weight: normal;
-  font-style: normal;
-}
+@import url('./chococooky.css');
    
 .avatar {
   width: 125px;
