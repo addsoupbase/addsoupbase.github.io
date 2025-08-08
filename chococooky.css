@@ -3,7 +3,7 @@
   font-display: swap;
   src: local('Choco cooky'), local('Chococooky'), url('./media/Chococooky.woff2') format('woff2'),
     /* Super Modern Browsers */
-    url('/media/Chococooky.woff') format('woff');
+    url('./media/Chococooky.woff') format('woff');
   /* Pretty Modern Browsers */
   font-weight: normal;
   font-style: normal;

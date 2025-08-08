@@ -1,5 +1,5 @@
-@namespace svg url("http://www.w3.org/2000/svg");
 @import url('./chococooky.css');
+@namespace svg url("http://www.w3.org/2000/svg");
    
 .avatar {
   width: 125px;

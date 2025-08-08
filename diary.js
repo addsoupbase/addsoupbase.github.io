@@ -140,7 +140,7 @@
         let css = await import('./csshelper.js')
 
         css.importCSS('../../cute-green.css')
-        css.importCSS(`data:text/css,main{overflow-x:hidden;opacity: 1 !important;z-index:-30;height:100%;min-height:90vh;width:100%}`)
+        css.importCSS(`data:text/css,img{max-width:30vw}main{overflow-x:hidden;opacity: 1 !important;z-index:-30;height:100%;min-height:90vh;width:100%}`)
         let main = $.qs('main')
         main.classList.add('cute-green')
         let d = new Date()
