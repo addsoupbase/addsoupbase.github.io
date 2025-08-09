@@ -29,7 +29,8 @@ import {
     msg,
     mobileTouching, doAudioThing, playRandomMusic
 } from './setup.js'
-import { lstorage } from '../../proxies.js'
+import StoragePrefixer from '../../proxies.js'
+const lstorage = new StoragePrefixer(localStorage, 'marbles:')
 import ran from '../../random.js'
 import * as str from '../../str.js'
 import * as math from '../../num.js'

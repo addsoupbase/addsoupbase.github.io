@@ -1,10 +1,10 @@
-import $ from '../yay.js'
-import *as str from '../str.js'
-import color from '../color.js'
-import { on, until, download, reqFile,  } from '../handle.js'
-import * as math from '../num.js'
-import { registerCSS } from '../csshelper.js'
-import { getJson } from '../arrays.js'
+import $ from '../../yay.js'
+import *as str from '../../str.js'
+import color from '../../color.js'
+import { on, until, download, reqFile,  } from '../../handle.js'
+import * as math from '../../num.js'
+import { registerCSS } from '../../csshelper.js'
+import { getJson } from '../../arrays.js'
 registerCSS('input[type="color"]::color-swatch', {
     'border-radius': '100%'
 })

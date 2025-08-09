@@ -2,7 +2,8 @@ import $ from '../../yay.js'
 import * as h from '../../handle.js'
 import * as math from '../../num.js'
 import * as arr from '../../arrays.js'
-import { lstorage } from '../../proxies.js'
+import StoragePrefixer from '../../proxies.js'
+const lstorage = new StoragePrefixer(localStorage, 'marbles:')
 import * as str from '../../str.js'
 import ran from '../../random.js'
 $.importWebComponent?.('touch-joystick')

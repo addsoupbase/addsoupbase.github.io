@@ -373,7 +373,7 @@
                     'border-color': ''
                 })
             }
-            this.parent.isBusy = false
+            this.parent.attr._busy = false
         }
         load = load.bind(frame)
 
@@ -392,7 +392,7 @@
             currentDateInput.value = t
             frame.hide(3)
             error.hide()
-            frame.parent.isBusy = true
+            frame.parent.attr._busy = true
             invalid.hide()
             canMove = false
             let url = `./entries/${date.replace(/\//g, '_')}`
@@ -425,7 +425,7 @@
                 error.show()
             } finally {
                 canMove = true
-                frame.parent.isBusy = false
+                frame.parent.attr._busy = false
             }
         }
 

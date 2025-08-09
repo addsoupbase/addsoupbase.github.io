@@ -62,7 +62,6 @@ const { hasOwn } = Object
     saved = Symbol('[[SavedAttributes]]'),
     all = new WeakMap,
     revokes = new WeakMap,
-    busy = Symbol('[[DeprecatedBusy]]'),
     mediaQueries = Symbol('[[ObservedMediaQueries]]')
 function gen() {
     return `${Math.random()}${Math.random()}`.replace(regex.dot, '')
@@ -111,8 +110,8 @@ function ariaOrData(i) {
     if (char === '$') return i.replace(char, 'data-')
     return i
 }
-let vendorRegex = /^(?:webkit|moz|ms)/
-function doVendor(target, prop, r) {
+// let vendorRegex = /^(?:webkit|moz|ms)/
+/*function doVendor(target, prop, r) {
     if (typeof prop === 'symbol') return this.apply(1, arguments)
     try {
         let p = prop
@@ -127,9 +126,9 @@ function doVendor(target, prop, r) {
     catch {
         return this.apply(1, arguments)
     }
-}
-let getVendor = doVendor.bind(get),
-    setVendor = doVendor.bind(set)
+}*/
+// let getVendor = doVendor.bind(get),
+    // setVendor = doVendor.bind(set)
 const attrStyleMap = 'StylePropertyMap' in window
     , customRules = css.getDefaultStyleSheet()
     , handlers = {
@@ -387,15 +386,6 @@ let props = getOwnPropertyDescriptors(class _
             prox(lastElementChild).destroy(), { lastElementChild } = this
     }
 
-    /**
-     * @deprecated
-     * */
-    $(html, props, ...children) {
-        debugger
-        let out = $(html, props, ...children)
-        out.parent = this
-        return out
-    }
     static ProxyEventWrapperFunction(me, ...args) {
         apply(this, me, args)
     }
@@ -942,12 +932,6 @@ let props = getOwnPropertyDescriptors(class _
             me.appendChild(document.createTextNode(after))
         }
     }
-    /* get gc() {
-    // Ensure objects are being properly garbage collected
-         return new Promise(callback => {
-             cleanup.register(base(this), {age:this.age,callback})
-         })
-     }*/
     get first() {
         let { firstElementChild } = base(this)
         return prox(firstElementChild)
@@ -961,39 +945,6 @@ let props = getOwnPropertyDescriptors(class _
     get length() {
         return base(this).getElementsByTagName('*').length
     }
-    get isBusy() {
-        return this.attr._busy === 'true'
-    }
-    set isBusy(val) {
-        this.attr._busy = `${!!val}`
-    }
-    /**
-    * @deprecated
-    */
-    get busy() {
-        debugger
-        return this[busy]
-    }
-
-    /**
-     * @deprecated
-     */
-    set busy(val) {
-        this.isBusy = val
-    }
-    /**
-     * @deprecated
-     */
-    [busy](busy) {
-        debugger
-        this.setAttr({
-            _busy: `${!!busy}`
-        })
-            .setStyles({
-                cursor: busy ? 'progress' : ''
-            })
-    }
-
     copyAttr(other) {
         let me = base(this),
             attr = other.getAttributeNames(),
@@ -1236,7 +1187,7 @@ let notContent = 'meta,script,head,link,title,style,html,body,main,div,samp,code
 export function ignore(nodeOrText) {
     return nodeOrText.ownerDocument.defaultView.Node.prototype.isPrototypeOf(nodeOrText) ? nodeOrText.matches(notContent) : forString.has(nodeOrText)
 }
-let no_translate = /@no_translate\((?<text>.*)\)/ug
+// let no_translate = /@no_translate\((?<text>.*)\)/ug
 let getNodeType = Function.call.bind(Object.getOwnPropertyDescriptor(Node.prototype,'nodeType').get)
 function MutationObserverCallback(entry) {
     for (let { length: ii } = entry; ii--;) {
@@ -1648,9 +1599,9 @@ function $(html, props, ...children) {
     }*/
     return element
 }
-function cloneRegexp(regexp) {
-    return RegExp(regexp, regexp.flags)
-}
+// function cloneRegexp(regexp) {
+    // return RegExp(regexp, regexp.flags)
+// }
 /*
 'currentCSSZoom' in Element.prototype || Object.defineProperty(Element.prototype, 'currentCSSZoom', {
     get() {

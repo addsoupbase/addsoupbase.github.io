@@ -24,6 +24,9 @@ hr {
   border-style: dashed;
     border-color: black;
 }
+iframe {
+  width:100%
+}
 body,
 html {
   padding: 0;
