@@ -54,7 +54,7 @@ let verified = new WeakSet
 let get
 function nodeType(node) {
     try {
-        return(get ??= Function.call.bind(Object.getOwnPropertyDescriptor(Node.prototype, 'nodeType').get))(node)
+        return(get = get || Function.call.bind(Object.getOwnPropertyDescriptor(Node.prototype, 'nodeType').get))(node)
     }
     catch {
         return 0 / 0
@@ -103,7 +103,7 @@ export function getLabel(obj) {
 }
 let f
 export function requestFile(accept, multiple) {
-    f ??= Object.assign(document.createElement('input'), {
+    f = f || Object.assign(document.createElement('input'), {
         type: 'file'
     })
     return new Promise(executor)
@@ -156,7 +156,7 @@ const delayedEvents = new Map
         function delay(callback) {
             return hold(callback, secondparam)
         }
-    }(globalThis.queueMicrotask ?? globalThis.requestIdleCallback ?? globalThis.setImmediate ?? setTimeout, 100)
+    }(globalThis.queueMicrotask || globalThis.requestIdleCallback || globalThis.setImmediate || setTimeout, 100)
 
 function dispatchAllDelayed(id) {
     giveItSomeTime(emitPendingEvents.bind(delayedEvents.get(id)))
@@ -329,7 +329,7 @@ function EventWrapper({ 0: f, 1: s, 2: abrt, 3: t, 4: oct, 5: p, 6: sp, 7: sip, 
                 (event.deltaX = 50 * detail, event.deltaY = 0)
     s && push(abrt)
     push(off.bind(null, this, name))
-    t && event.isTrusted || !t && (!oct || oct && (event.target ?? event.srcElement) === currentTarget) &&
+    t && event.isTrusted || !t && (!oct || oct && (event.target || event.srcElement) === currentTarget) &&
         (apply(f, this, args),
             p && (event.cancelable ? event.defaultPrevented ? console.warn(`'${name}' event has already been cancelled`) : event.preventDefault() : warn(`🔊 '${name}' events are not cancelable`), event.returnValue = !p),
             sp && (event.cancelBubble = !event.stopPropagation()),
@@ -400,9 +400,9 @@ let objectURLS,
     registry
 
 export function getObjUrl(thingy) {
-    if ((objectURLS ??= new WeakMap).has(thingy)) return objectURLS.get(thingy)
+    if ((objectURLS = objectURLS || new WeakMap).has(thingy)) return objectURLS.get(thingy)
     let url = URL.createObjectURL(thingy);
-    (registry ??= new FinalizationRegistry(URL.revokeObjectURL)).register(thingy, url)
+    (registry = registry || new FinalizationRegistry(URL.revokeObjectURL)).register(thingy, url)
     objectURLS.set(thingy, url)
     return url
 }
@@ -410,20 +410,21 @@ export function getObjUrl(thingy) {
 let anchor
 
 export function download(blob, title) {
-    (anchor ??= document.createElement('a')).download = title ?? 'download'
+    (anchor = anchor || document.createElement('a')).download = title || 'download'
     anchor.href = getObjUrl(blob)
     anchor.click()
 }
 
 export function delegate(me, events, filter, includeSelf, controller) {
-    filter ??= function () { }
+    filter = filter || function () { }
     for (let i in events) {
         if (i.includes('@')) throw SyntaxError("Conflicting usage of a 'currentTarget' only delegating event handler")
         let old = events[i]
         events[i] = DelegationFunction
         function DelegationFunction(...args) {
             let { target } = args[0];
-            (me !== target || includeSelf) && (filter(target) ?? 1) && apply(old, target, args)
+            let res = filter(target)
+            (me !== target || includeSelf) && (res == null ? 1 : res) && apply(old, target, args)
         }
     }
     return on(me, events, controller)
