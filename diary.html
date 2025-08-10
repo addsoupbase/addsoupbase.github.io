@@ -178,13 +178,19 @@
             position: relative
         }
     </style>
+    <script>
+        if (location.hash) {
+            document.getElementById('display').setAttribute('src', './entries/' + location.hash.slice(1).replace(/\//g, '_'))
+        }
+    </script>
     <script type="module">
         import $ from './yay.js'
         import ran from './random.js'
         import * as h from './handle.js'
         import Color from './color.js'
+        let loaded
         function hashchange(e) {
-            console.debug(e)
+            
             let hash = location.hash.slice(1)
             let day = new Date(hash)
             today = day == 'Invalid Date' ? new Date(hash.replace(/_/g, '/')) : day
@@ -192,9 +198,6 @@
             setEntry(getDate())
         }
         h.on(window, {
-            _load() {
-                location.hash && hashchange()
-            },
             hashchange
             /*_load() {
                 if (date) {
@@ -339,8 +342,8 @@
         function load() {
             canMove = true
             if (!this.contentWindow.document.querySelector('[name="author"][content="addsoupbase"]')) {
-                if (isSkipping()) {
-                    let c = prev
+                if (isSkipping()) try {
+                    let c
                     switch (lastClicked) {
                         case 'y': c = prev
                             break
@@ -350,7 +353,11 @@
                     c.click()
                     c.disabled && invalid.show().fadeIn()
                 }
-                else invalid.show().fadeIn()
+                    catch {
+                        invalid.show().fadeIn()
+                    }
+                else
+                    invalid.show().fadeIn()
                 // this.setAttribute('src', 'about:blank')
                 //will work good enough i think
                 diary.setStyle({
@@ -381,14 +388,15 @@
             '%!load': load,
             error: console.warn
         })
+        frame.hide(3)
 
-        function getThat(d) {
+        function toYMDFormat(d) {
             return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, 0)}-${d.getDate().toString().padStart(2, 0)}`
         }
 
         async function setEntry(date) {
             let d = new Date(date)
-            let t = getThat(d)
+            let t = toYMDFormat(d)
             currentDateInput.value = t
             frame.hide(3)
             error.hide()
@@ -430,8 +438,14 @@
         }
 
         let { diary, main: m } = $.id
-        goBy(-1)
-        setEntry(getDate())
+        if (!location.hash) {
+            goBy(-1)
+            setEntry(getDate())
+        }
+        else {
+            today = new Date(location.hash.slice(1).replaceAll('_','/'))
+            currentDateInput.setAttr({value: currentDateInput.value = toYMDFormat(today)})
+        }
         frame.onload = null
     </script>
     <!-- if something somehow goes wrong, and this function is fired successfully -->

@@ -128,7 +128,7 @@ function ariaOrData(i) {
     }
 }*/
 // let getVendor = doVendor.bind(get),
-    // setVendor = doVendor.bind(set)
+// setVendor = doVendor.bind(set)
 const attrStyleMap = 'StylePropertyMap' in window
     , customRules = css.getDefaultStyleSheet()
     , handlers = {
@@ -909,24 +909,24 @@ let props = getOwnPropertyDescriptors(class _
         return t.nodeValue
     }
     get ownTextContent() {
-        return[].filter.call(base(this).childNodes, _.filterForTextNodes).map(_.mapTextNodesIntoTextContent).join('')
+        return [].filter.call(base(this).childNodes, _.filterForTextNodes).map(_.mapTextNodesIntoTextContent).join('')
     }
     set ownTextContent(text) {
         let me = base(this)
-        let {childNodes} = me
-        for(let i = childNodes.length; i--;) {
+        let { childNodes } = me
+        for (let i = childNodes.length; i--;) {
             let n = childNodes[i]
             getNodeType(n) === 3 && n.remove()
         }
-        me.appendChild(document.createTextNode(text))        
-    } 
+        me.appendChild(document.createTextNode(text))
+    }
     insertElementsAtText(indexOrMatch, ...elements) {
         let me = base(this)
-        let {textContent:text} = base(this)
+        let { textContent: text } = base(this)
         if (typeof indexOrMatch === 'number') {
             let index = indexOrMatch
             let before = text.slice(0, index),
-            after = text.slice(index+1)
+                after = text.slice(index + 1)
             this.textContent = before
             this.push.apply(this, elements)
             me.appendChild(document.createTextNode(after))
@@ -1174,6 +1174,18 @@ function observeAll(node) {
     inte?.observe(node)
     let observe = resi.observe.bind(resi)
     observe(node)
+    let setAttribute = node.setAttribute.bind(node),
+        hasAttribute = node.hasAttribute.bind(node)
+    switch (n) {
+        // These are really important for performance
+        case 'img':
+            hasAttribute('decoding') || setAttribute('decoding', node.decoding = 'async')
+            hasAttribute('loading') || setAttribute('loading', node.loading = 'lazy')
+            break
+        // case 'input': 
+        // hasAttribute('data-indeterminate') && setAttribute('indeterminate', '')
+        // break
+    }
     observe(node, { box: 'border-box' })
     observe(node, { box: 'device-pixel-content-box' })
 }
@@ -1185,17 +1197,17 @@ function unobserveAll(node) {
 let notContent = 'meta,script,head,link,title,style,html,body,main,div,samp,code,pre,q,blockquote,output,legend,base,cite,var',
     forString = new Set(notContent.split(','))
 export function ignore(nodeOrText) {
-    return nodeOrText.ownerDocument.defaultView.Node.prototype.isPrototypeOf(nodeOrText) ? nodeOrText.matches(notContent) : forString.has(nodeOrText)
+    return (nodeOrText instanceof Node || nodeOrText.ownerDocument?.defaultView.Node.prototype.isPrototypeOf(nodeOrText)) ? nodeOrText.matches(notContent) : forString.has(nodeOrText)
 }
 // let no_translate = /@no_translate\((?<text>.*)\)/ug
-let getNodeType = Function.call.bind(Object.getOwnPropertyDescriptor(Node.prototype,'nodeType').get)
+let getNodeType = Function.call.bind(Object.getOwnPropertyDescriptor(Node.prototype, 'nodeType').get)
 function MutationObserverCallback(entry) {
     for (let { length: ii } = entry; ii--;) {
         let me = entry[ii],
             { addedNodes, removedNodes } = me
         for (let { length: i } = addedNodes, node; i--;) {
             node = addedNodes[i]
-            if (getNodeType(node) === 1) 
+            if (getNodeType(node) === 1)
                 /*  queueMicrotask(() => {
                     document.dispatchEvent(new CustomEvent('subtree-modified', {
                         // bubbles: true,
@@ -1206,7 +1218,7 @@ function MutationObserverCallback(entry) {
                             }))
                             })*/
                 observeAll(node)
-            
+
         }
         for (let { length: i } = removedNodes, node; i--;)
             if (getNodeType(node = removedNodes[i]) === 1)
@@ -1600,7 +1612,7 @@ function $(html, props, ...children) {
     return element
 }
 // function cloneRegexp(regexp) {
-    // return RegExp(regexp, regexp.flags)
+// return RegExp(regexp, regexp.flags)
 // }
 /*
 'currentCSSZoom' in Element.prototype || Object.defineProperty(Element.prototype, 'currentCSSZoom', {
