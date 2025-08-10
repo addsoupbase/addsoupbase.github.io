@@ -1,7 +1,14 @@
 ; (function (w, sym) {
     'use strict'
     if (sym in Object(w.css)) return css
-    var scr = document.currentScript
+    var scr = document.currentScript,
+        console = {}
+    !function (c) {
+        for (var i in c) {
+            var val = c[i]
+            typeof val === 'function' && (console[i] = val.bind(1, '%c@css.js', 'color:lightblue;'))
+        }
+    }(w.console)
     w.reportError = w.reportError || function reportError(throwable) {
         var evt = new ErrorEvent('error', {
             message: throwable.message,
@@ -44,7 +51,7 @@
     */
     var alreadyLogged = new Set,
         alreadyHas = alreadyLogged.has.bind(alreadyLogged),
-        beenHereBefore = sessionStorage.getItem('css'),
+        // beenHereBefore = sessionStorage.getItem('css'),
         addAlr = alreadyLogged.add.bind(alreadyLogged),
         allVendors = /^(?:-(?:webkit|moz|apple|khtml|konq|o|ms|xv|atsc|wap|ah|hp|ro|rim|tc|fso|icab|epub)|prince|mso)-/,
         dontRedo = new Map,
@@ -63,8 +70,7 @@
         if (val.trim() && !sup(prop, val)) {
             var prefix = prop = prop
                 .replace(allVendors, '')
-            if (dontRedo.has(prop)) return dontRedo.get(prop)
-            return (
+            return dontRedo.has(prop) ? dontRedo.get(prop) : ((
                 sup(prefix, val) ||
                 // Maybe you dont need a prefix?
                 sup(prefix = `-webkit-${prop}`, val) ||
@@ -110,11 +116,11 @@
                 sup(prefix = `-epub-${prop}`, val) ||
                 // IDK
                 // sup(prefix = `-internal-${prop}`, val) ||
-                badCSS(`⛓️‍💥 Unrecognized CSS at '${prefix = prop}: ${val}'`, silent)),
+                badCSS(`Unrecognized CSS at '${prefix = prop}: ${val}'`, silent)),
                 // mayNotBeSupported(prop),
                 dontRedo.set(prop, prefix),
                 // Sorry!
-                prefix
+                prefix)
         }
         return prop
     }
@@ -207,14 +213,15 @@
         sheet.textContent = `${sheet.textContent}${rules}`
         return sheet
     }
-    var cleanRegex = /(\s|\n)\1/g
+    var cleanRegex = /(\s|\n)\1/g,
+    createElement = document.createElement.bind(document)
 
     function formatStr(str) {
         return str.trim().replace(cleanRegex, '')
     }
     function importCSS(url) {
         // idk why i didn't just think of this
-        var n = document.createElement('link'),
+        var n = createElement('link'),
             s = n.setAttribute.bind(n)
         s('rel', 'stylesheet')
         s('type', 'text/css')
@@ -245,7 +252,7 @@
     }()*/
     function getDefaultStyleSheet() {
         return (document.getElementById('addedStyleRules') || function () {
-            var out = document.createElement('style')
+            var out = createElement('style')
             addElement(out)
             out.textContent = '@namespace svg url("http://www.w3.org/2000/svg");@media (prefers-reduced-transparency: reduce){*{opacity:1 !important;}}:root{--system-font: system-ui, -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen, Ubuntu, Cantarell, \'Open Sans\', \'Helvetica Neue\', sans-serif}@supports not (content-visibility: auto){*{visibility: var(--content-visibility)}}'
             out.setAttribute('id', 'addedStyleRules')
@@ -458,16 +465,17 @@
         function where(selector) {
             return `:where(${selector})`
         }
-        CSS.supports('selector(:where(p))') || (where = function (o) { return o })
-        var dflt = sessionStorage.defaultCSS || Object.entries({
+        var t = top.name
+        sup('selector(:where(p))') || (where = function (o) { return o })
+        var dflt = t.trim()  ? t : Object.entries({
             [`${where(`button,a,${'button checkbox radio submit image reset file'.split(' ').map(function (o) { return `input[type=${o}]` }).join(',')}`)}`]: {
                 cursor: 'pointer'
             },
             [`${where('[aria-busy="true"]')}`]: {
                 cursor: 'progress'
             },
-            [`${where('[inert]')}`]:{
-            '--interactivity': 'inert',
+            [`${where('[inert]')}`]: {
+                '--interactivity': 'inert',
             },
             ':root': {
                 'interpolate-size': 'allow-keywords',
@@ -511,11 +519,11 @@
                 inset: 0,
                 position: 'fixed'
             }
-        }).map(function (a) { return `${a[0]}{${toCSS(a[1])}}` })
-        typeof dflt === 'string' && (dflt = dflt.split('✕'))
+        }).map(function (a) { return`${a[0]}{${toCSS(a[1])}}` })
+        // typeof dflt === 'string' && (dflt = dflt.split('\n'))
         var join = [].join.bind(dflt)
         sheet.textContent = `${sheet.textContent}${join('')}`
-        sessionStorage.defaultCSS = join('✕')
+        var global = join('')
         // } catch (e) {
         // console.error(e)
         // }
@@ -528,17 +536,15 @@
             universal[vendor(o.slice(2), o = `var(${o})`, true)] = o
             try { func(prop) }
             catch (e) {
-                if (e.name === 'InvalidModificationError') continue
-                console.log(o)
-                reportError(e)
+                e.name === 'InvalidModificationError' || (console.log(o), reportError(e))
             }
         }
         universal['box-sizing'] = 'border-box'
         all = null
-        typeof beenHereBefore === 'string' ?
-            sheet.textContent = `${sheet.textContent}${selector}{${beenHereBefore}}` :
+        t ?
+            sheet.textContent = `${sheet.textContent}${t}${global}` :
             (registerCSS(selector, universal, true)
-                , sessionStorage.css = toCSS(universal, true))
+                , top.name = `${selector}{${toCSS(universal, true)}}${global}`)
     }()
     w.css = Object.seal({
         // [Symbol.toStringTag]: 'Module',

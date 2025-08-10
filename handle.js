@@ -2,7 +2,6 @@
 // ^ idk what that actually does
 const sym = Symbol.for("[[Events]]")
     //  Don't collide, and make sure its usable across realms!!
-    // export const unbound = Symbol('⛓️‍💥')
     , { apply, getPrototypeOf: gpo, getOwnPropertyDescriptor: gopd, defineProperty: dp, ownKeys } = Reflect
     , logger = { __proto__: null }
 {
@@ -18,21 +17,24 @@ const sym = Symbol.for("[[Events]]")
     for (let i in console) {
         // Because the groupCollapsed() method was suppressing errors, delay them instead
         let old = console[i]
-        if (typeof old !== 'function') continue
-        logger[i] = DelayedLog.bind(old)
+        if (typeof old === 'function') 
+        logger[i] = DelayedLog.bind(old),
         logger[`${i}Late`] = LogOutOfGroup.bind(old)
     }
 }
+let source = Function.toString.call.bind(Function.prototype.toString)
 let { warn, groupCollapsed, groupEnd } = logger,
     { isArray } = Array
 export const allEvents = new WeakMap
 let add, remove, dip
-{
+/*{
     let { addEventListener, removeEventListener, dispatchEvent } = globalThis.EventTarget?.prototype ?? AbortSignal.prototype
-    if (Function.prototype.toString.call(addEventListener) !== Function.prototype.toString().replace('function ', 'function addEventListener'))
+    if (source(addEventListener) !== source(Function.prototype).replace('function ', 'function addEventListener')
+    || source(removeEventListener) !== source(Function.prototype).replace('function ', 'function removeEventListener')
+    || source(dispatchEvent) !== source(Function.prototype).replace('function ', 'function dispatchEvent'))
         // adds ~20ms
         try {
-            console.warn('Monkeypatch detected: ', addEventListener)
+            console.warn('Monkeypatch detected: ', addEventListener, removeEventListener, dispatchEvent)
             // in case they monkeypatch the EventTarget.prototype
             let n = document.createElement('iframe'),
                 el = document.head ?? document
@@ -44,15 +46,15 @@ let add, remove, dip
         } catch (e) {
             console.error(e)
         }
-    add = addEventListener.call.bind(addEventListener)
-    remove = removeEventListener.call.bind(removeEventListener)
-    dip = dispatchEvent.call.bind(dispatchEvent)
-}
+        }*/
+        add = addEventListener.call.bind(addEventListener)
+        remove = removeEventListener.call.bind(removeEventListener)
+        dip = dispatchEvent.call.bind(dispatchEvent)
 let verified = new WeakSet
 let get
 function nodeType(node) {
     try {
-        return (get ??= Function.call.bind(Object.getOwnPropertyDescriptor(Node.prototype, 'nodeType').get))(node)
+        return(get ??= Function.call.bind(Object.getOwnPropertyDescriptor(Node.prototype, 'nodeType').get))(node)
     }
     catch {
         return 0 / 0
@@ -73,8 +75,7 @@ function isValidET(target) {
 function lastResort(target) {
     let a = `${addEventListener}`,
         d = `${dispatchEvent}`,
-        r = `${removeEventListener}`,
-        { toString } = Function.prototype
+        r = `${removeEventListener}`
     try {
         while (target = gpo(target)) {
             let ael = gopd(target, 'addEventListener')?.value,
@@ -86,9 +87,9 @@ function lastResort(target) {
                 // && typeof ael === 'function'
                 // && typeof rel === 'function'
                 // && typeof de === 'function'
-                && toString.call(ael) === a
-                && toString.call(de) === d
-                && toString.call(rel) === r)
+                && source(ael) === a
+                && source(de) === d
+                && source(rel) === r)
                 return true
         }
         return false
@@ -99,13 +100,6 @@ function lastResort(target) {
 
 export function getLabel(obj) {
     return {}.toString.call(obj).slice(8, -1).trim() || 'Object'
-    /*
-    try {
-        let proto
-        return obj[Symbol.toStringTag] || obj.constructor?.name || (proto = gpo(obj)).constructor[Symbol.toStringTag] || proto.constructor?.name || 'Object'
-    } catch {
-        return {}.toString.call(obj).slice(8, -1) || 'Unknown'
-    }*/
 }
 let f
 export function requestFile(accept, multiple) {
@@ -137,7 +131,7 @@ function verifyEventName(target, name) {
             || /^(?:focus(?:in|out))$/.test(original)
             || (/^(?:DOM(?:Activate|MouseScroll|Focus(?:In|Out)|(?:Attr|CharacterData|Subtree)Modified|NodeInserted(?:IntoDocument)?|NodeRemoved(?:FromDocument)?))$/.test(original)))
         //Some events like the ones above don't have a handler
-        ||isMediaQuery(original) 
+        || isMediaQuery(original)
     )
     if (!valid) {
         if (`onwebkit${name}` in target) return `webkit${original}`
@@ -162,7 +156,7 @@ const delayedEvents = new Map
         function delay(callback) {
             return hold(callback, secondparam)
         }
-    }(globalThis.queueMicrotask ?? globalThis.requestIdleCallback ?? globalThis.setImmediate ?? globalThis.setTimeout, 100)
+    }(globalThis.queueMicrotask ?? globalThis.requestIdleCallback ?? globalThis.setImmediate ?? setTimeout, 100)
 
 function dispatchAllDelayed(id) {
     giveItSomeTime(emitPendingEvents.bind(delayedEvents.get(id)))
@@ -221,9 +215,7 @@ const customEvents = new Set
 export function addCustomEvent(names) {
     for (let name in names) customEvents[names[name] ? 'add' : 'delete'](name.toLowerCase())
 }
-
 const formatEventName = /[_$^%&!?@#]|bound /g
-
 export function on(target, events, controller) {
     arguments.length > 3 && getLabel(controller) !== 'AbortController' && (controller = arguments[3])
     if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
@@ -274,8 +266,11 @@ export function on(target, events, controller) {
                 once,
                 eventName])
             if (autoabort && getLabel(controller) !== 'AbortController') throw TypeError("AbortController required if '#' (autoabort) is present")
-            add(target, eventName, listener, options, //onlyTrusted
-            )
+            add(target, eventName, listener, options, /*onlyTrusted*/)
+            // if (eventName === 'load' && /^(?:HTMLIFrameElement|Window)$/.test(getLabel(target)) && (target.contentWindow || target).document?.readyState === 'complete') {
+            // setTimeout(listener.bind(target, new Event('load')))
+            // logger.warnLate(`'${eventName}' event was fired before listener was added`, target)
+            // }
             if (controller) logger.info(`📡 '${eventName}' event added`)
             else {
                 allEvents.has(target) || allEvents.set(target, new Map)
@@ -433,22 +428,6 @@ export function delegate(me, events, filter, includeSelf, controller) {
     }
     return on(me, events, controller)
 }
-/*if(`${location}`.includes('localhost')) {
-    try {
-        let log = console.debug.bind(1,'%c[PressureObserver] ','color:pink;')
-        function callback(changes) {
-    log.apply(1,changes)
-        }
-        let observer = new PressureObserver(callback)
-        await observer.observe('cpu', {
-            sampleInterval: 1000,
-        })
-    }
-    catch (e) {
-        console.error(e)
-    }
-}*/
-
 export function dispatch(target, event) {
     return dip(target, typeof event === 'string' ? new Event(event) : event)
 }
