@@ -1,6 +1,6 @@
 ; (function (w, sym) {
     'use strict'
-    if (sym in Object(w.css)) return css
+    if (sym in Object(w.css) || document.getElementById('addedStyleRules')) return css
     var scr = document.currentScript,
         console = {}
     !function (c) {
@@ -214,7 +214,7 @@
         return sheet
     }
     var cleanRegex = /(\s|\n)\1/g,
-    createElement = document.createElement.bind(document)
+        createElement = document.createElement.bind(document)
 
     function formatStr(str) {
         return str.trim().replace(cleanRegex, '')
@@ -454,7 +454,8 @@
             // g('logical-height','revert',false,'*'),
             // g('logical-width','revert',false,'*'),
             g('buffered-rendering', 'auto', false),
-            g('color-rendering', 'auto', false)
+            g('color-rendering', 'auto', false),
+            g('word-wrap', 'normal', false),
         ]
         // g('crisp-edges', '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(o => sup('image-rendering', o)), true, "*")
         // g('stretch', '-moz-available -webkit-fill-available stretch'.split(' ').find(o => sup('width', o)), false, '*')
@@ -467,12 +468,15 @@
         }
         var t = top.name
         sup('selector(:where(p))') || (where = function (o) { return o })
-        var dflt = t.trim()  ? t : Object.entries({
+        var dflt = t.trim() ? t : Object.entries({
             [`${where(`button,a,${'button checkbox radio submit image reset file'.split(' ').map(function (o) { return `input[type=${o}]` }).join(',')}`)}`]: {
                 cursor: 'pointer'
             },
             [`${where('[aria-busy="true"]')}`]: {
                 cursor: 'progress'
+            },
+            [`${where('[draggable="false"]')}`]: {
+                '--user-drag': 'none'
             },
             [`${where('[inert]')}`]: {
                 '--interactivity': 'inert',
@@ -519,7 +523,7 @@
                 inset: 0,
                 position: 'fixed'
             }
-        }).map(function (a) { return`${a[0]}{${toCSS(a[1])}}` })
+        }).map(function (a) { return `${a[0]}{${toCSS(a[1])}}` })
         // typeof dflt === 'string' && (dflt = dflt.split('\n'))
         var join = [].join.bind(dflt)
         sheet.textContent = `${sheet.textContent}${join('')}`
@@ -529,7 +533,7 @@
         // }
         var universal = {}
             , func = CSS.registerProperty || function (e) { console.log('CSS.registerProperty: ', e) }
-            , selector = ':where(*, ::-moz-color-swatch,::-moz-focus-inner,::-moz-list-bullet,::-moz-list-number,::-moz-meter-bar,::-moz-progress-bar,::-moz-range-progress,::-moz-range-thumb,::-moz-range-track,::-webkit-inner-spin-button,::-webkit-meter-bar,::-webkit-meter-even-less-good-value,::-webkit-meter-inner-element,::-webkit-meter-optimum-value,::-webkit-meter-suboptimum-value,::-webkit-progress-bar,::-webkit-progress-inner-element,::-webkit-progress-value,::-webkit-scrollbar,::-webkit-search-cancel-button,::-webkit-search-results-button,::-webkit-slider-runnable-track,::-webkit-slider-thumb,::after,::backdrop,::before,::checkmark,::column,::cue,::details-content,::file-selector-button,::first-letter,::first-line,::grammar-error,::marker,::picker-icon,::placeholder,::scroll-marker,::scroll-marker-group,::selection,::spelling-error,::target-text,::view-transition)'
+            , selector = ':where(*,::-moz-color-swatch,::-moz-focus-inner,::-moz-list-bullet,::-moz-list-number,::-moz-meter-bar,::-moz-progress-bar,::-moz-range-progress,::-moz-range-thumb,::-moz-range-track,::-webkit-inner-spin-button,::-webkit-meter-bar,::-webkit-meter-even-less-good-value,::-webkit-meter-inner-element,::-webkit-meter-optimum-value,::-webkit-meter-suboptimum-value,::-webkit-progress-bar,::-webkit-progress-inner-element,::-webkit-progress-value,::-webkit-scrollbar,::-webkit-search-cancel-button,::-webkit-search-results-button,::-webkit-slider-runnable-track,::-webkit-slider-thumb,::after,::backdrop,::before,::checkmark,::column,::cue,::details-content,::file-selector-button,::first-letter,::first-line,::grammar-error,::marker,::picker-icon,::placeholder,::scroll-marker,::scroll-marker-group,::selection,::spelling-error,::target-text,::view-transition)'
         for (var i = all.length; i--;) {
             var prop = all[i]
                 , o = prop.name
@@ -540,6 +544,7 @@
             }
         }
         universal['box-sizing'] = 'border-box'
+        universal['overflow-wrap'] = 'var(--word-wrap)'
         all = null
         t ?
             sheet.textContent = `${sheet.textContent}${t}${global}` :

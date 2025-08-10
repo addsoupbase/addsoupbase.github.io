@@ -11,6 +11,17 @@ Things i learned from 2nd -> 3rd:
 • finally settled on WeakMap
 */
 // import {plural} from "./str.js"
+/*
+Image = new Proxy(Image, {
+    construct(target, args) {
+        let img = Reflect.construct(target, args)
+        let setAttribute = img.setAttribute.bind(img)
+        setAttribute('decoding', 'async')
+        setAttribute('loading', 'lazy')
+        return img
+    }
+})
+*/
 function plural(singular, plural, count) {
     return Math.sign(count = +count) === count && count ? `${count} ${singular}` : `${count.toLocaleString()} ${plural}`
 }

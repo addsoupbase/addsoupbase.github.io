@@ -43,10 +43,13 @@ function pointerdown(p) {
     // ctx.strokeRect(p.offsetX/zoom, p.offsetY/zoom, .5,.5)
 }
 class PaperCanvas extends HTMLElement {
-    static observedAttributes = 'maxbuffersize '.split(' ')
+    static observedAttributes = 'maxbuffersize color brushsize'.split(' ')
     undoBuffer = []
     maxBufferSize = 10
-    undo() {
+    get undo() {
+        return PaperCanvas.undo
+    }
+    static undo() {
         let {undoBuffer, ctx} = this
         if (!undoBuffer.length) return
         ctx.clearRect(0, 0, 250, 250)
@@ -56,6 +59,9 @@ class PaperCanvas extends HTMLElement {
     lastLoc = vect(0/0,0/0)
     canvas = null
     ctx = null
+     dataURL(quality = 1) {
+        return this.canvas.toDataURL('image/png', quality)
+    }
     set alpha(val) {
         this.ctx = this.canvas.setAttr({'-moz-opaque': !val}).getContext('2d', {
             alpha: val,willReadFrequently:true
@@ -69,6 +75,18 @@ class PaperCanvas extends HTMLElement {
         lineJoin: 'round',
         lineCap: 'round',
         fillStyle: 'white'
+    }
+    attributeChangedCallback(name, oldValue, newValue){
+        
+        switch(name) {
+            case 'brushsize': 
+            this.ctx.lineWidth = parseFloat(newValue) || 1
+            break
+            case 'color':
+                this.ctx.strokeStyle = 
+                this.ctx.fillStyle = newValue
+                break
+        }
     }
     connectedCallback() {
         let t = $(this)
