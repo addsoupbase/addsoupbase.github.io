@@ -23,4 +23,4 @@ export let { dashVendor,
     supportedPElementVendor,
     dropShadow,
     boxShadow } = sym in window ? window[sym] : (await import('./css.js'),window[sym])
-delete window[sym]
+// delete window[sym]

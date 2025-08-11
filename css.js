@@ -229,8 +229,7 @@
         selector = selector.split(',')
             .map(mapThing)
             .join(',')
-        var sheet = addedStyleRules = addedStyleRules || getDefaultStyleSheet()
-            , r = `{${toCSS(rule, silent)}}`
+        var r = `{${toCSS(rule, silent)}}`
         sheet.textContent = `${sheet.textContent}${formatStr(selector)}${formatStr(r)}`
         return sheet
     }
@@ -238,7 +237,6 @@
      * @param {String} rule The rule(s)
      */
     function registerCSSRaw(rules) {
-        var sheet = addedStyleRules = addedStyleRules || getDefaultStyleSheet()
         sheet.textContent = `${sheet.textContent}${rules}`
         return sheet
     }
@@ -279,9 +277,10 @@
     }
     }()*/
     function getDefaultStyleSheet() {
-        return (document.getElementById('addedStyleRules') || function () {
+        return ( sheet || document.getElementById('addedStyleRules') || function () {
             var out = createElement('style')
-            addElement(out)
+            requestAnimationFrame(addElement.bind(0, out))
+            // addElement(out)
             out.setAttribute('id', 'addedStyleRules')
            /* if (supportsAtRule == null) {
                 out.textContent = `@property --test {syntax: "<color>"; initial-value: red; inherits: false;}`
