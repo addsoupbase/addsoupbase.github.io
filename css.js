@@ -586,15 +586,17 @@
             }
         }
         try {
-            func({ name: '--scrollbar-thumb-color', initialValue: 'auto', inherits: true, syntax: '<color>' })
-            func({ name: '--scrollbar-color', initialValue: 'auto', inherits: true, syntax: '<color>' })
+            func({ name: '--scrollbar-thumb-color', initialValue: 'auto', inherits: true, })
+            func({ name: '--scrollbar-color', initialValue: 'auto', inherits: true,  })
         }
-        catch (e) { }
+        catch (e) { 
+            reportError(e)
+        }
         universal['box-sizing'] = 'border-box'
         universal['overflow-wrap'] = 'var(--word-wrap)'
         universal['scrollbar-color'] = 'var(--scrollbar-thumb-color) var(--scrollbar-color)'
         all = null
-            t ?
+            t && first ?
             sheet.textContent = t :
             (registerCSS(selector, universal, true)
             , top.name = `${first}${selector}{${toCSS(universal, true)}}${global}`)
