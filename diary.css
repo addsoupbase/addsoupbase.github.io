@@ -13,7 +13,7 @@ figure {
 }
 * {
   --scrollbar-thumb-color: red;
-  --scrollbar-color: blue;
+  --scrollbar-color: pink;
 }
 #m {
   place-items: center;
