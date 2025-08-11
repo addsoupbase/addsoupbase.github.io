@@ -1,3 +1,4 @@
+let sym = Symbol.for('CSS')
 export let { dashVendor,
     capVendor,
     all,
@@ -21,5 +22,5 @@ export let { dashVendor,
     pev,
     supportedPElementVendor,
     dropShadow,
-    boxShadow } =Symbol.for('CSS')in Object(window.css) ?css:(await import('./css.js'),css)
-delete window.css
+    boxShadow } = sym in window ? window[sym] : (await import('./css.js'),window[sym])
+delete window[sym]

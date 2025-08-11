@@ -11,9 +11,11 @@
 figure {
   justify-self: center;
 }
-* {
-  --scrollbar-thumb-color: red;
-  --scrollbar-color: pink;
+html{
+  scrollbar-width: thin;
+  --scrollbar-thumb-color: #5ACBCD;
+  --scrollbar-color: rgb(244, 223, 226);
+  /* font-size: smaller; */
 }
 #m {
   place-items: center;

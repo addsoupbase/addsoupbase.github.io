@@ -1,7 +1,8 @@
 ; (function (w, sym) {
     'use strict'
-    if (sym in Object(w.css) || document.getElementById('addedStyleRules')) return css
+    if (sym in window || document.getElementById('addedStyleRules')) return w[sym]
     var createElement = document.createElement.bind(document)
+    // var supportsAtRule
     /*!function () {
         var dummy = createElement('div'),
             id = `a${Date.now()}`
@@ -81,7 +82,7 @@
         alreadyHas = alreadyLogged.has.bind(alreadyLogged),
         // beenHereBefore = sessionStorage.getItem('css'),
         addAlr = alreadyLogged.add.bind(alreadyLogged),
-        allVendors = /^(?:-(?:webkit|moz|apple|khtml|konq|o|ms|xv|atsc|wap|ah|hp|ro|rim|tc|fso|icab|epub)|prince|mso)-/,
+        allVendors = /^(?:-(?:webkit|moz(?:-osx)?|apple|khtml|konq|r?o|ms|xv|atsc|wap|ah|hp|rim|tc|fso|icab|epub)|prince|mso)-/,
         dontRedo = new Map,
         sup = CSS.supports
     //  (that i have used before) ,
@@ -281,8 +282,13 @@
         return (document.getElementById('addedStyleRules') || function () {
             var out = createElement('style')
             addElement(out)
-            out.textContent = '@namespace svg url("http://www.w3.org/2000/svg");@media (prefers-reduced-transparency: reduce){*{opacity:1 !important;}}:root{--system-font: system-ui, -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen, Ubuntu, Cantarell, \'Open Sans\', \'Helvetica Neue\', sans-serif}@supports not (content-visibility: auto){*{visibility: var(--content-visibility)}}@supports not (scrollbar-color: auto){::-webkit-scrollbar{width:var(--scrollbar-width);background-color: var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color: var(--scrollbar-thumb-color)}}'
             out.setAttribute('id', 'addedStyleRules')
+           /* if (supportsAtRule == null) {
+                out.textContent = `@property --test {syntax: "<color>"; initial-value: red; inherits: false;}`
+                supportsAtRule = !!(out.sheet.cssRules || out.sheet.rules).length
+                out.textContent = ''
+            }*/
+            out.textContent = top.name ||  '@namespace svg url("http://www.w3.org/2000/svg");@media (prefers-reduced-transparency: reduce){*{opacity:1 !important;}}:root{--system-font: system-ui, -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen, Ubuntu, Cantarell, \'Open Sans\', \'Helvetica Neue\', sans-serif}@supports not (content-visibility: auto){*{visibility: var(--content-visibility)}}@supports not (scrollbar-color: auto){::-webkit-scrollbar{width:var(--scrollbar-width);background-color: var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color: var(--scrollbar-thumb-color)}}'
             return out
         }())
     }
@@ -554,14 +560,23 @@
         }).map(function (a) { return `${a[0]}{${toCSS(a[1])}}` })
         // typeof dflt === 'string' && (dflt = dflt.split('\n'))
         var join = [].join.bind(dflt)
-        sheet.textContent = `${sheet.textContent}${join('')}`
+        var first = sheet.textContent
         var global = join('')
         // } catch (e) {
         // console.error(e)
         // }
+       /* function registerWithText(e) {
+            var name = e.name,
+                initialValue = e.initialValue,
+                inherit = e.inherits,
+                syntax = e.syntax,
+                text = `@property ${name}{${initialValue != null ? `initial-value:${initialValue};` : ''}${inherit != null ? `inherits:${!!inherit};` : ''}${syntax != null ? `syntax:"${syntax}"` : ''}}`
+            sheet.textContent = `${sheet.textContent}${text}`
+        }*/
+
         var universal = {}
-            , func = CSS.registerProperty || function (e) { console.log('CSS.registerProperty: ', e) }
-            , selector = ':where(*,::-moz-color-swatch,::-moz-focus-inner,::-moz-list-bullet,::-moz-list-number,::-moz-meter-bar,::-moz-progress-bar,::-moz-range-progress,::-moz-range-thumb,::-moz-range-track,::-webkit-inner-spin-button,::-webkit-meter-bar,::-webkit-meter-even-less-good-value,::-webkit-meter-inner-element,::-webkit-meter-optimum-value,::-webkit-meter-suboptimum-value,::-webkit-progress-bar,::-webkit-progress-inner-element,::-webkit-progress-value,::-webkit-scrollbar,::-webkit-search-cancel-button,::-webkit-search-results-button,::-webkit-slider-runnable-track,::-webkit-slider-thumb,::after,::backdrop,::before,::checkmark,::column,::cue,::details-content,::file-selector-button,::first-letter,::first-line,::grammar-error,::marker,::picker-icon,::placeholder,::scroll-marker,::scroll-marker-group,::selection,::spelling-error,::target-text,::view-transition)'
+            , func, selector = ':where(*,::-moz-color-swatch,::-moz-focus-inner,::-moz-list-bullet,::-moz-list-number,::-moz-meter-bar,::-moz-progress-bar,::-moz-range-progress,::-moz-range-thumb,::-moz-range-track,::-webkit-inner-spin-button,::-webkit-meter-bar,::-webkit-meter-even-less-good-value,::-webkit-meter-inner-element,::-webkit-meter-optimum-value,::-webkit-meter-suboptimum-value,::-webkit-progress-bar,::-webkit-progress-inner-element,::-webkit-progress-value,::-webkit-scrollbar,::-webkit-search-cancel-button,::-webkit-search-results-button,::-webkit-slider-runnable-track,::-webkit-slider-thumb,::after,::backdrop,::before,::checkmark,::column,::cue,::details-content,::file-selector-button,::first-letter,::first-line,::grammar-error,::marker,::picker-icon,::placeholder,::scroll-marker,::scroll-marker-group,::selection,::spelling-error,::target-text,::view-transition)'
+         func = CSS.registerProperty || console.debug
         for (var i = all.length; i--;) {
             var prop = all[i]
                 , o = prop.name
@@ -573,20 +588,21 @@
         }
         try {
             func({ name: '--scrollbar-thumb-color', initialValue: 'auto', inherits: true, syntax: '<color>' })
-            func({name:'--scrollbar-color', initialValue: 'auto', inherits: true, syntax: '<color>'})
+            func({ name: '--scrollbar-color', initialValue: 'auto', inherits: true, syntax: '<color>' })
         }
         catch (e) { }
         universal['box-sizing'] = 'border-box'
         universal['overflow-wrap'] = 'var(--word-wrap)'
         universal['scrollbar-color'] = 'var(--scrollbar-thumb-color) var(--scrollbar-color)'
         all = null
-        t ?
+            t ?
             sheet.textContent = t :
             (registerCSS(selector, universal, true)
-                , top.name = `${selector}{${toCSS(universal, true)}}${global}`)
+            , top.name = `${first}${selector}{${toCSS(universal, true)}}${global}`)
+    
         // console.debug(x)
     }()
-    w.css = Object.seal({
+    w[sym] = Object.seal({
         // [Symbol.toStringTag]: 'Module',
         __proto__: null,
         dashVendor: dashVendor,
@@ -613,6 +629,6 @@
         supportedPElementVendor: supportedPElementVendor,
         // dropShadow:dropShadow,
         // boxShadow,
-        [sym]: true
+        // [sym]: true
     })
 }(window, Symbol.for('CSS')));
