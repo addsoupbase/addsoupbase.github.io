@@ -467,7 +467,7 @@ let props = getOwnPropertyDescriptors(class _
         //base(this).style.cssText = out.join(';')
     }
 
-    static canBeDisabled = /^HTML(?:Button|FieldSet|Opt(?:Group|tion)|Select|TextArea|Input)Element$/
+    static canBeDisabled = /^HTML(?:Button|FieldSet|Opt(?:Group|ion)|Select|TextArea|Input)Element$/
 
     set disabled(val) {
         if (val) {
