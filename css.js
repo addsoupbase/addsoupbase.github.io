@@ -572,7 +572,6 @@
                 text = `@property ${name}{${initialValue != null ? `initial-value:${initialValue};` : ''}${inherit != null ? `inherits:${!!inherit};` : ''}${syntax != null ? `syntax:"${syntax}"` : ''}}`
             sheet.textContent = `${sheet.textContent}${text}`
         }*/
-
         var universal = {}
             , func, selector = ':where(*,::-moz-color-swatch,::-moz-focus-inner,::-moz-list-bullet,::-moz-list-number,::-moz-meter-bar,::-moz-progress-bar,::-moz-range-progress,::-moz-range-thumb,::-moz-range-track,::-webkit-inner-spin-button,::-webkit-meter-bar,::-webkit-meter-even-less-good-value,::-webkit-meter-inner-element,::-webkit-meter-optimum-value,::-webkit-meter-suboptimum-value,::-webkit-progress-bar,::-webkit-progress-inner-element,::-webkit-progress-value,::-webkit-scrollbar,::-webkit-search-cancel-button,::-webkit-search-results-button,::-webkit-slider-runnable-track,::-webkit-slider-thumb,::after,::backdrop,::before,::checkmark,::column,::cue,::details-content,::file-selector-button,::first-letter,::first-line,::grammar-error,::marker,::picker-icon,::placeholder,::scroll-marker,::scroll-marker-group,::selection,::spelling-error,::target-text,::view-transition)'
          func = CSS.registerProperty || console.debug
