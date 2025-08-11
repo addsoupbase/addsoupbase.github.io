@@ -586,8 +586,8 @@
             }
         }
         try {
-            func({ name: '--scrollbar-thumb-color', initialValue: 'red', inherits: true,syntax:'"<color>"' })
-            func({ name: '--scrollbar-color', initialValue: 'red', inherits: true,syntax:'"<color>"'  })
+            func({ name: '--scrollbar-thumb-color', initialValue: 'red', inherits: true,})
+            func({ name: '--scrollbar-color', initialValue: 'red', inherits: true,  })
         }
         catch (e) { 
             reportError(e)
