@@ -11,7 +11,10 @@
 figure {
   justify-self: center;
 }
-
+* {
+  --scrollbar-thumb-color: red;
+  --scrollbar-color: blue;
+}
 #m {
   place-items: center;
 }

@@ -1,6 +1,32 @@
 ; (function (w, sym) {
     'use strict'
     if (sym in Object(w.css) || document.getElementById('addedStyleRules')) return css
+    var createElement = document.createElement.bind(document)
+    /*!function () {
+        var dummy = createElement('div'),
+            id = `a${Date.now()}`
+        dummy.setAttribute('id', id)
+        addElement(dummy)
+        w.CSS = {
+            supports: function (propertyOrSelector, valueIfProperty) {
+                if (valueIfProperty == null) {
+                    var txt = `:not(${propertyOrSelector.slice(9,-1)}){content: ''}`
+                    var old = sheet.textContent
+                    registerCSSRaw(txt)
+                    var out = getComputedStyle(dummy).content === '""'
+                    // dummy.remove()
+                    sheet.textContent = old
+                    return out
+                }
+                var txt = `${propertyOrSelector}: ${valueIfProperty}`
+                dummy.setAttribute('style',`${propertyOrSelector}: inherit; ${txt};`)
+                var out = dummy.style.getPropertyValue(propertyOrSelector) !== 'inherit'
+                debugger
+                dummy.removeAttribute('style')
+                return out
+            }
+        }
+    }()*/
     var scr = document.currentScript,
         console = {}
     !function (c) {
@@ -18,6 +44,8 @@
         w.dispatchEvent(evt)
         evt.defaultPrevented || console.error(`${throwable}`)
     }
+    var sheet = getDefaultStyleSheet()
+
     function dashVendor(prop, val) {
         return vendor(toDash(prop), val)
     }
@@ -213,8 +241,7 @@
         sheet.textContent = `${sheet.textContent}${rules}`
         return sheet
     }
-    var cleanRegex = /(\s|\n)\1/g,
-        createElement = document.createElement.bind(document)
+    var cleanRegex = /(\s|\n)\1/g
 
     function formatStr(str) {
         return str.trim().replace(cleanRegex, '')
@@ -254,7 +281,7 @@
         return (document.getElementById('addedStyleRules') || function () {
             var out = createElement('style')
             addElement(out)
-            out.textContent = '@namespace svg url("http://www.w3.org/2000/svg");@media (prefers-reduced-transparency: reduce){*{opacity:1 !important;}}:root{--system-font: system-ui, -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen, Ubuntu, Cantarell, \'Open Sans\', \'Helvetica Neue\', sans-serif}@supports not (content-visibility: auto){*{visibility: var(--content-visibility)}}'
+            out.textContent = '@namespace svg url("http://www.w3.org/2000/svg");@media (prefers-reduced-transparency: reduce){*{opacity:1 !important;}}:root{--system-font: system-ui, -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen, Ubuntu, Cantarell, \'Open Sans\', \'Helvetica Neue\', sans-serif}@supports not (content-visibility: auto){*{visibility: var(--content-visibility)}}@supports not (scrollbar-color: auto){::-webkit-scrollbar{width:var(--scrollbar-width);background-color: var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color: var(--scrollbar-thumb-color)}}'
             out.setAttribute('id', 'addedStyleRules')
             return out
         }())
@@ -456,11 +483,12 @@
             g('buffered-rendering', 'auto', false),
             g('color-rendering', 'auto', false),
             g('word-wrap', 'normal', false),
+            // g('scrollbar-color', 'auto', true),
+            // g('scrollbar-width', 'auto', true),
         ]
         // g('crisp-edges', '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(o => sup('image-rendering', o)), true, "*")
         // g('stretch', '-moz-available -webkit-fill-available stretch'.split(' ').find(o => sup('width', o)), false, '*')
         // g('marquee-style','scroll',0)
-        var sheet = getDefaultStyleSheet()
         //    Some default CSS...
         // try {
         function where(selector) {
@@ -543,13 +571,20 @@
                 e.name === 'InvalidModificationError' || (console.log(o), reportError(e))
             }
         }
+        try {
+            func({ name: '--scrollbar-thumb-color', initialValue: 'auto', inherits: true, syntax: '<color>' })
+            func({name:'--scrollbar-color', initialValue: 'auto', inherits: true, syntax: '<color>'})
+        }
+        catch (e) { }
         universal['box-sizing'] = 'border-box'
         universal['overflow-wrap'] = 'var(--word-wrap)'
+        universal['scrollbar-color'] = 'var(--scrollbar-thumb-color) var(--scrollbar-color)'
         all = null
         t ?
-            sheet.textContent = `${sheet.textContent}${t}${global}` :
+            sheet.textContent = t :
             (registerCSS(selector, universal, true)
                 , top.name = `${selector}{${toCSS(universal, true)}}${global}`)
+        // console.debug(x)
     }()
     w.css = Object.seal({
         // [Symbol.toStringTag]: 'Module',
