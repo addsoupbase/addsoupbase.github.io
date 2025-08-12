@@ -376,9 +376,15 @@ toggleJoystick()
 let first = false
 function go() {
     if (inEditor) return
-    overlay.style.display = ''
-    overlay.classList.add('slide-in-blurred-top')
+
+    setTimeout(() => {
+        overlay.styles.display = ''
+        overlay.classList.add('slide-in-blurred-top')
+    }, 100)
+
+
     !function n(wait) {
+
         try {
             if (wait === window.requestIdleCallback) return wait(cam.nextFrame, { timeout: 2000 })
             if (wait === window.setTimeout) return wait(cam.nextFrame, 2000)
@@ -390,7 +396,11 @@ function go() {
     }(window.requestIdleCallback ?? window.setTimeout ?? window.queueMicrotask)
 }
 if (document.readyState === 'complete') go()
-else h.on(window, { '_first-contentful-paint': go })
+else {
+    let c = new AbortController
+    // h.on(document, {'#DOMContentLoaded': go,})
+    h.on(window, { '#load': go }, c)
+}
 h.on(window, {
     resize,
     keyup({ key }) {
@@ -512,7 +522,7 @@ void function start(ignore) {
                     anchor.hide(3)
                     loader.fadeIn()
                     message.style.color = ''
-                    overlay.isBusy = true
+                    overlay.attr._busy = 'true'
                     let {
                         title,
                         author: authorName
@@ -530,7 +540,7 @@ void function start(ignore) {
                     message.setStyles({ color: 'darkred' })
                     message.fadeIn()
                 } finally {
-                    overlay.isBusy = false
+                    overlay.attr._busy = 'false'
                     loader.hide(3)
                 }
             }

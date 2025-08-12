@@ -677,10 +677,10 @@ let props = getOwnPropertyDescriptors(class _
                 this.setAttr(_.hidden)
                 break
             case 2:
-                base(this).style.visibility = 'hidden'
+            this.styles.visibility = 'hidden'
                 break
             case 3:
-                base(this).style.display = 'none'
+            this.styles.display = 'none'
                 break
             case 4:
                 this.setStyles({ '--content-visibility': 'hidden' })
@@ -712,10 +712,10 @@ let props = getOwnPropertyDescriptors(class _
                 this.setAttr(_.notHidden)
                 break
             case 2:
-                base(this).style.visibility = 'visible'
+                this.styles.visibility = 'visible'
                 break
             case 3:
-                base(this).style.display = ''
+                this.styles.display = ''
                 break
             case 4:
                 this.setStyles({ '--content-visibility': '' })
@@ -1029,14 +1029,13 @@ const HTML_PLACING = new Set('beforebegin afterbegin beforeend afterend'.split('
     .split(' ').forEach(prop => {
         // Reading these properties causes reflows/layout-shift/repaint whatever its called idk
         let cached = null,
-            queued = false
-
+            queued = false, 
+            reset = requestAnimationFrame.bind(window, resetThingy)
         function resetThingy() {
             cached = null
             queued = false
             reads = 0
         }
-        let reset = requestAnimationFrame.bind(window, resetThingy)
         defineProperty(prototype, prop, {
             configurable: false,
             get() {
@@ -1366,9 +1365,7 @@ const entryTypes = {
 const perf = new PerformanceObserver(PerformanceObserverCallback)
 let supported = Set.prototype.has.bind(new Set(PerformanceObserver.supportedEntryTypes)),
     observe = perf.observe.bind(perf)
-ownKeys(entryTypes).forEach(type =>
-    supported(type) && observe({ type, buffered: true })
-)
+ownKeys(entryTypes).forEach(type => supported(type) && observe({ type, buffered: true }))
 observe = null
 h.addCustomEvent(entryTypes)
 h.addCustomEvent({
@@ -1403,7 +1400,6 @@ function ApplyBatchedStyles(value, key, map) {
 }
 
 function BatchStyle(target) {
-
     return revocable(target, {
         __proto__: handlers.batchThing,
         queued: false,
@@ -1411,9 +1407,7 @@ function BatchStyle(target) {
         target,
     })
 }
-
 let writes = 0, reads = 0
-
 /*const cleanup = new FinalizationRegistry(({callback, age})=>{
     callback(performance.now() -age)
 })
