@@ -5,6 +5,7 @@ import { on, until, download, reqFile,  } from '../../handle.js'
 import * as math from '../../num.js'
 import { registerCSS } from '../../csshelper.js'
 import { getJson } from '../../arrays.js'
+import '../../webcomponents/touch-joystick.js'
 registerCSS('input[type="color"]::color-swatch', {
     'border-radius': '100%'
 })

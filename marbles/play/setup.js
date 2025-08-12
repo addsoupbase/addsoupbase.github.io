@@ -1,4 +1,5 @@
 import $ from '../../yay.js'
+import '../../webcomponents/touch-joystick.js'
 import * as h from '../../handle.js'
 import * as math from '../../num.js'
 import * as arr from '../../arrays.js'
@@ -6,7 +7,6 @@ import StoragePrefixer from '../../proxies.js'
 const lstorage = new StoragePrefixer(localStorage, 'marbles:')
 import * as str from '../../str.js'
 import ran from '../../random.js'
-$.importWebComponent?.('touch-joystick')
 export let inEditor
 try {
     if (/^\/edit/.test(top.location.pathname))
@@ -413,22 +413,22 @@ h.on(window, {
     },
     storage(e) {
         switch (e.key) {
-            case 'cam':
+            case 'marbles:cam':
                 return cam.behaviour = e.key
-            case 'music': {
+            case 'marbles:music': {
                 if (!first) {
                     if (+lstorage.music === 0 && e.newValue > 0) doAudioThing()
                 }
                 return music.volume = e.newValue
             }
-            case 'sound':
+            case 'marbles:sound':
                 return sounds.volume = e.newValue
-            case 'joystick': {
+            case 'marbles:joystick': {
                 joystick = e.newValue === 'true'
                 toggleJoystick()
                 return
             }
-            case 'joystickspeed': {
+            case 'marbles:joystickspeed': {
                 return joystickSpeed = +e.newValue
             }
         }

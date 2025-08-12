@@ -2,6 +2,7 @@
     'use strict'
     if (sym in window || document.getElementById('addedStyleRules')) return w[sym]
     var createElement = document.createElement.bind(document)
+    , WebComponents = 'img-sprite touch-joystick seek-bar paper-canvas'.split(' ')
     // var supportsAtRule
     /*!function () {
         var dummy = createElement('div'),
@@ -277,17 +278,17 @@
     }
     }()*/
     function getDefaultStyleSheet() {
-        return ( sheet || document.getElementById('addedStyleRules') || function () {
+        return (sheet || document.getElementById('addedStyleRules') || function () {
             var out = createElement('style')
             requestAnimationFrame(addElement.bind(0, out))
             // addElement(out)
             out.setAttribute('id', 'addedStyleRules')
-           /* if (supportsAtRule == null) {
-                out.textContent = `@property --test {syntax: "<color>"; initial-value: red; inherits: false;}`
-                supportsAtRule = !!(out.sheet.cssRules || out.sheet.rules).length
-                out.textContent = ''
-            }*/
-            out.textContent = top.name ||  '@namespace svg url("http://www.w3.org/2000/svg");@media (prefers-reduced-transparency: reduce){*{opacity:1 !important;}}:root{--system-font: system-ui, -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen, Ubuntu, Cantarell, \'Open Sans\', \'Helvetica Neue\', sans-serif}@supports not (content-visibility: auto){*{visibility: var(--content-visibility)}}@supports not (scrollbar-color: auto){::-webkit-scrollbar{width:var(--scrollbar-width);background-color: var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color: var(--scrollbar-thumb-color)}}'
+            /* if (supportsAtRule == null) {
+                 out.textContent = `@property --test {syntax: "<color>"; initial-value: red; inherits: false;}`
+                 supportsAtRule = !!(out.sheet.cssRules || out.sheet.rules).length
+                 out.textContent = ''
+             }*/
+            out.textContent = top.name || `@namespace svg url("http://www.w3.org/2000/svg");${WebComponents.map(function (o) { return `${o}:not(:defined)::after {content: "Web Component not loaded: ${o}"; font-family: monospace; background-color:white;}` }).join('')}@media (prefers-reduced-transparency: reduce){*{opacity:1 !important;}}:root{--system-font: system-ui, -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen, Ubuntu, Cantarell, \'Open Sans\', \'Helvetica Neue\', sans-serif}@supports not (content-visibility: auto){*{visibility: var(--content-visibility)}}@supports not (scrollbar-color: auto){::-webkit-scrollbar{width:var(--scrollbar-width);background-color: var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color: var(--scrollbar-thumb-color)}}`
             return out
         }())
     }
@@ -564,17 +565,17 @@
         // } catch (e) {
         // console.error(e)
         // }
-       /* function registerWithText(e) {
-            var name = e.name,
-                initialValue = e.initialValue,
-                inherit = e.inherits,
-                syntax = e.syntax,
-                text = `@property ${name}{${initialValue != null ? `initial-value:${initialValue};` : ''}${inherit != null ? `inherits:${!!inherit};` : ''}${syntax != null ? `syntax:"${syntax}"` : ''}}`
-            sheet.textContent = `${sheet.textContent}${text}`
-        }*/
+        /* function registerWithText(e) {
+             var name = e.name,
+                 initialValue = e.initialValue,
+                 inherit = e.inherits,
+                 syntax = e.syntax,
+                 text = `@property ${name}{${initialValue != null ? `initial-value:${initialValue};` : ''}${inherit != null ? `inherits:${!!inherit};` : ''}${syntax != null ? `syntax:"${syntax}"` : ''}}`
+             sheet.textContent = `${sheet.textContent}${text}`
+         }*/
         var universal = {}
             , func, selector = ':where(*,::-moz-color-swatch,::-moz-focus-inner,::-moz-list-bullet,::-moz-list-number,::-moz-meter-bar,::-moz-progress-bar,::-moz-range-progress,::-moz-range-thumb,::-moz-range-track,::-webkit-inner-spin-button,::-webkit-meter-bar,::-webkit-meter-even-less-good-value,::-webkit-meter-inner-element,::-webkit-meter-optimum-value,::-webkit-meter-suboptimum-value,::-webkit-progress-bar,::-webkit-progress-inner-element,::-webkit-progress-value,::-webkit-scrollbar,::-webkit-search-cancel-button,::-webkit-search-results-button,::-webkit-slider-runnable-track,::-webkit-slider-thumb,::after,::backdrop,::before,::checkmark,::column,::cue,::details-content,::file-selector-button,::first-letter,::first-line,::grammar-error,::marker,::picker-icon,::placeholder,::scroll-marker,::scroll-marker-group,::selection,::spelling-error,::target-text,::view-transition)'
-         func = CSS.registerProperty || console.debug
+        func = CSS.registerProperty || console.debug
         for (var i = all.length; i--;) {
             var prop = all[i]
                 , o = prop.name
@@ -585,21 +586,22 @@
             }
         }
         try {
-            func({ name: '--scrollbar-thumb-color', initialValue: 'auto', inherits: true,})
-            func({ name: '--scrollbar-color', initialValue: 'auto', inherits: true,  })
+            func({ name: '--scrollbar-thumb-color', initialValue: 'auto', inherits: true, })
+            func({ name: '--scrollbar-color', initialValue: 'auto', inherits: true, })
         }
-        catch (e) { 
+        catch (e) {
             reportError(e)
         }
         universal['box-sizing'] = 'border-box'
         universal['overflow-wrap'] = 'var(--word-wrap)'
         universal['scrollbar-color'] = 'var(--scrollbar-thumb-color) var(--scrollbar-color)'
+        // universal['font-family'] = 'inherit'
         all = null
-            t ?
+        t ?
             sheet.textContent = t :
-            
+
             sheet.textContent = top.name = `${first}${selector}{${toCSS(universal, true)}}${global}`
-    
+
         // console.debug(x)
     }()
     w[sym] = Object.seal({

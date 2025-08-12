@@ -1168,20 +1168,28 @@ if (typeof
         }
     }
 }
+export function importWebComponent(name) {
+    importDelete(name)
+    return import(`./webcomponents/${name}.js`)
+}
 /*
 MUTATION OBSERVER STUFFS
 */
 /*function refreshAttributes(attr) {
     this.setAttribute(attr, this.getAttribute(attr))
 }*/
-const imported = new Set
-let waitingForImport = new Set('img-sprite touch-joystick seek-bar paper-canvas'.split(' '))
-export async function importWebComponent(name) {
-    imported.has(name) || (await import(`./webcomponents/${name}.js`), imported.add(name), waitingForImport.delete(name))
-}
+// const imported = new Set
+let {has:importHas, delete: importDelete} = bind(new Set('img-sprite touch-joystick seek-bar paper-canvas'.split(' ')))
+// export const dfn = waitingForImport.delete.bind(waitingForImport)
+/*export async function importWebComponent(name) {
+    imported.has(name) || (await import(`./webcomponents/${name}.js`), imported.add(name), dfn(name))
+}*/
 function observeAll(node) {
     let n = node.tagName.toLowerCase()
-    waitingForImport.has(n) && importWebComponent(n)
+    if(importHas(n)) {
+        importWebComponent(n)
+        console.warn(`You should explcitly import the web component '${n}'`)
+    } 
     // if (node instanceof CUSTOM_ELEMENT_SPRITE) node.getAttributeNames().forEach(refreshAttributes, node)
     inte?.observe(node)
     let observe = resi.observe.bind(resi)

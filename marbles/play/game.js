@@ -1,6 +1,7 @@
 import Matter from
          'https://cdn.jsdelivr.net/npm/matter-js@0.20.0/+esm'
 import { vect } from '../../num.js'
+import '../../webcomponents/touch-joystick.js'
 import * as decomp from
          'https://cdn.jsdelivr.net/npm/poly-decomp-es@0.4.2/+esm'
 export const { Engine, Bodies, Events, Constraint, Body, Collision, Runner, Common, Vertices, Composite, Svg, Sleeping, Vector } = Matter
