@@ -499,7 +499,7 @@ let props = getOwnPropertyDescriptors(class _
     }
 
     get disabled() {
-        return 'disabled' in this.attr || 'aria-disabled' in this.attr
+        return 'disabled' in this.attr ||  this.attr._disabled === 'true'
     }
 
     saveAttr(...attributes) {
