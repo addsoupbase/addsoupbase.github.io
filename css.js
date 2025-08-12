@@ -595,10 +595,10 @@
         universal['overflow-wrap'] = 'var(--word-wrap)'
         universal['scrollbar-color'] = 'var(--scrollbar-thumb-color) var(--scrollbar-color)'
         all = null
-            t && first ?
+            t ?
             sheet.textContent = t :
-            (registerCSS(selector, universal, true)
-            , top.name = `${first}${selector}{${toCSS(universal, true)}}${global}`)
+            
+            sheet.textContent = top.name = `${first}${selector}{${toCSS(universal, true)}}${global}`
     
         // console.debug(x)
     }()

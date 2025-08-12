@@ -396,11 +396,7 @@ function go() {
     }(window.requestIdleCallback ?? window.setTimeout ?? window.queueMicrotask)
 }
 if (document.readyState === 'complete') go()
-else {
-    let c = new AbortController
-    // h.on(document, {'#DOMContentLoaded': go,})
-    h.on(window, { '#load': go }, c)
-}
+else h.on(window, { '#load': go }, new AbortController)
 h.on(window, {
     resize,
     keyup({ key }) {

@@ -1318,7 +1318,7 @@ if (levelName) {
     settings.fromQuery['#settings-button-actual'].on({
         _click() {
             let { camb } = $.id
-            camb.on({
+            cambcamb.on({
                 change() {
                     lstorage.cam = this.value || 'default'
                 }
