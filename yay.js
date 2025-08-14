@@ -353,6 +353,15 @@ let props = function () {
         return t.nodeValue
     }
     const Proto = {
+        *[Symbol.iterator]() {
+            let all = base(this).getElementsByTagName('*')
+            for (let { length: i } = all; i--;) yield prox(all[i])
+        },
+        [Symbol.toPrimitive]() {
+            throw TypeError('Cannot convert Element to a primitive value')
+            // Don't want to accidentally convert to a string for stuff like
+            // append, prepend, etc.
+        },
         get isVisible() {
             let rect = base(this).getBoundingClientRect()
                 , viewHeight = Math.max($(document.documentElement)?.clientHeight || 0, innerHeight)
