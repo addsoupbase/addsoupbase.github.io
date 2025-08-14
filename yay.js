@@ -304,7 +304,7 @@ let props = function () {
         hidden = { "hidden": true },
         notHidden = { "hidden": false },
         Queries = new Map,
-        querySyntax = undefined,
+        querySyntax = / /.test.bind(/^(?:\(.+\))$/),
         badForReducedMotion = /^(?:transform|scale|zoom|translate|rotate)$/
     function cancel(o) {
         o.cancel()
