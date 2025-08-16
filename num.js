@@ -49,12 +49,12 @@ class Cycle {
 }
 export function average(...numbers) {
     let { length } = numbers
-    if (!length) return NaN
+    if (!length) return 0/0
     return sum(numbers)/length
 }
 export function avg(...array) {
     const {length} = array
-    if (!length) return NaN
+    if (!length) return 0/0
     const sorted = array.sort(sort),
         g = length/4|0,
          q1 = sorted[g],
@@ -114,7 +114,7 @@ export function isPrimitive(val) {
 }
 export function cycle(...wheel) {
     // new.target && noConstructor()
-    return new Cycle(...wheel)
+    return Reflect.construct(Cycle,wheel)
 }
 export function signed(n) {
     return typeof n==='bigint'?n===0n?0n:n<0n?-1n:1n:sign(n)
@@ -232,8 +232,8 @@ export class Vector2 {
     }
     #min
     #max
-    #x = NaN
-    #y = NaN
+    #x = 0/0
+    #y = 0/0
     //get #value() { return [this.x, this.y] }
     get 0() { return this.#x }
     set 0(x) { this.x = x }
