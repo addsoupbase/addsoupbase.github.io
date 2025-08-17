@@ -39,23 +39,27 @@ function deep(obj) {
     }
     return obj
 }
+const {call,apply} = Function.prototype
 export function forKeys(obj, callback) {
-    let keys = Reflect.ownKeys(obj)
-    for (let { length: i } = keys; i--;) callback.call(obj, keys[i])
+    let keys = Reflect.ownKeys(obj),
+    call = call.bind(callback)
+    for (let { length: i } = keys; i--;) call(obj, keys[i])
 }
 export function fresh(obj) {
     return !Reflect.ownKeys(obj).length
 }
 
 export function of(length, filler) {
+    length>>>=0
     return typeof filler === 'function' ?
         from({ length }, filler) :
         Array(length).fill(filler)
 }
-
-export function from(ArrayLike, map, thisArg) {
+const map = call.bind([].map),
+slice = call.bind([].slice)
+export function from(ArrayLike, mapfn, thisArg) {
     // Array.from checks @@iterator first, which would be slower in cases where it is callable
-    return ArrayLike.length >= 0 ? map ? [].map.call(ArrayLike, map, thisArg) : [].slice.call(ArrayLike) : map ? Array.from(ArrayLike, map, thisArg) : typeof ArrayLike[iterator] !== 'undefined' ? [...ArrayLike] : []
+    return ArrayLike.length >= 0 ? mapfn ? map(ArrayLike, mapfn, thisArg) : slice(ArrayLike) : mapfn ? Array.from(ArrayLike, mapfn, thisArg) : typeof ArrayLike[iterator] !== 'undefined' ? [...ArrayLike] : []
 }
 
 /*export function forEach(ArrayLike, callback, thisArg) {

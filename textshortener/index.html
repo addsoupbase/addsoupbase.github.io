@@ -16,7 +16,7 @@
     <meta name="robots" content="index">
     <meta name="color-scheme" content="normal">
     <meta property="og:type" content="website">
-    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../cute-green.css">
     <meta name="twitter:creator" content="addsoupbase">
     <meta name="author" content="addsoupbase">
     <meta property="profile:username" content="addsoupbase">
@@ -31,14 +31,27 @@
     <meta property="og:site_name" content="Text Shortener">
     <meta property="og:image" content="https://addsoupbase.github.io/cute-emojis/emojis/1275614660187521064.gif">
     <meta name="twitter:image" content="https://addsoupbase.github.io/cute-emojis/emojis/1275614660187521064.gif">
-    <script type="module" blocking="render">import'../csshelper.js'</script>
+    <script src="../css.js" blocking="render"></script>
+    <script src="../css_bad.js" nomodule></script>
     <title>Text Shortener</title>
 </head>
 <style>
     @charset "UTF-8";
+    @import url('../chococooky.css');
 
     #c {
-        --zoom: 1.3
+        font-size: xx-large;
+        font-family: 'Choco';
+        width: 500px;
+        max-width: 100vw;
+        height: fit-content;
+    }
+
+    textarea {
+        font-size: large;
+        max-width: 100%;
+        --word-wrap: break-word;
+        word-break: break-all;
     }
 
     textarea {
@@ -57,15 +70,16 @@
     <form id="c" class="center cute-green">
         <p id="saved">Saving 0 characters</p>
         <textarea placeholder="Your text goes here" id="txt" name="txt" required rows="5"></textarea>
-        <div>
+        <div style="display: grid;margin:5px">
             <!-- <textarea id="output" placeholder="Shortened text is here" readonly></textarea> -->
-            <input type="button" class="cute-green-button" id="paste" value="Paste">
-            <button class="cute-green-button">Copy New</button>
-    </form><br>
-    <a id="help" href="./whatisthis.html">what is this?</a>
-    </div>
+            <input type="button" class="cute-green-button" id="paste" value="Paste text">
+            <button class="cute-green-button">Copy Shortened text</button>
+        </div>
+        <a id="help" href="./whatisthis.html">what is this?</a>
+    </form>
     <script type="module">
         import $ from '../yay.js'
+        import{plural}from '../str.js'
         import { jason } from '../arrays.js'
         $.byId.paste.on({
             async click() {
@@ -87,7 +101,8 @@
         $.byId.txt.on({
             input() {
                 text = shortenText(this.value)
-                saved.textContent = `Saving ${this.value.length - text.length} characters`
+                let val = this.value.length - text.length
+                saved.textContent = `Saving ${plural('character','characters',val)}`
             }
         })
         $.byId.c.on({

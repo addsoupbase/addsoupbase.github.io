@@ -1,5 +1,6 @@
 const { sign, PI, abs, min, max, atan2, hypot } = Math,
     { is } = Object,
+    { construct } = Reflect,
     { isFinite, MIN_SAFE_INTEGER, MAX_SAFE_INTEGER, } = Number
 function reduce(a, b) {
     return a + b
@@ -36,28 +37,28 @@ class Cycle {
     get prev() {
         return this.move(-1)
     }
-    *[Symbol.iterator](){
+    *[Symbol.iterator]() {
         let a = this.length
-        for(;a--;yield this.next);
+        for (; a--; yield this.next);
     }
-    [Symbol.toPrimitive](){
+    [Symbol.toPrimitive]() {
         return this.#wheel[this.current]
     }
     constructor(...items) {
-        this.current = this.length = (this.#wheel =Object.freeze(items)).length
+        this.current = this.length = (this.#wheel = Object.freeze(items)).length
     }
 }
 export function average(...numbers) {
     let { length } = numbers
-    if (!length) return 0/0
-    return sum(numbers)/length
+    if (!length) return 0 / 0
+    return sum(numbers) / length
 }
 export function avg(...array) {
-    const {length} = array
-    if (!length) return 0/0
+    const { length } = array
+    if (!length) return 0 / 0
     const sorted = array.sort(sort),
-        g = length/4|0,
-         q1 = sorted[g],
+        g = length / 4 | 0,
+        q1 = sorted[g],
         q3 = sorted[3 * g],
         IQR = q3 - q1,
         upperFence = q3 + 1.5 * IQR,
@@ -74,8 +75,8 @@ export function median(...numbers) {
         middle = length / 2 | 0
     return length % 2 ? sorted[middle] : (sorted[middle] + sorted[middle - 1]) / 2
 }
-function gt(a, b) { return a>b?a:b }
-function lt(a, b) { return a<b?a:b }
+function gt(a, b) { return a > b ? a : b }
+function lt(a, b) { return a < b ? a : b }
 export function mode(...numbers) {
     let obj = []
     for (let { length: i } = numbers; i--;) {
@@ -110,21 +111,17 @@ export function furthest(num, ...nums) {
     return distance
 }
 export function isPrimitive(val) {
-    return Object(val)!==val
+    return Object(val) !== val
 }
 export function cycle(...wheel) {
-    // new.target && noConstructor()
-    return Reflect.construct(Cycle,wheel)
+    return construct(Cycle, wheel)
 }
 export function signed(n) {
-    return typeof n==='bigint'?n===0n?0n:n<0n?-1n:1n:sign(n)
+    return typeof n === 'bigint' ? n === 0n ? 0n : n < 0n ? -1n : 1n : sign(n)
 }
-export function cycleFrom(arrayLike) {
-    // new.target && noConstructor()
-    return cycle.apply(1, arrayLike)
-}
+export const cycleFrom = construct.bind(1, Cycle)
 export function lerp(start, end, time) {
-    return clamp(start + (end - start) * time, min(start,end), max(start,end))
+    return clamp(start + (end - start) * time, min(start, end), max(start, end))
 }
 export function* derp(start, end, time) {
     while (start < end) yield start = lerp(start, end, time)
@@ -143,8 +140,7 @@ export function toRad(deg) {
     return deg * PI / 180
 }
 export function compare(first, ...rest) {
-    return rest.every(n)
-    function n(o) { return is(o, first) }
+    return rest.every(is.bind(1, first))
 }
 export const sanitize = isFinite
 export function isWithinRange(val, floor, ceiling) {
@@ -190,7 +186,7 @@ export class Vector2 {
         return v(this.#y, this.#x)
     }
     toString(unit) {
-        return `(${this.#x}${unit??=''}, ${this.#y}${unit})`
+        return `(${this.#x}${unit ??= ''}, ${this.#y}${unit})`
     }
     static _() {
         // Older browsers cant have static init blocks
@@ -205,8 +201,8 @@ export class Vector2 {
                 value: makeItANumber
             })
             function makeItANumber(x, y) {
-                typeof x==='string'&&(x = +x)
-                typeof y==='string'&&(y = +y)
+                typeof x === 'string' && (x = +x)
+                typeof y === 'string' && (y = +y)
                 if (typeof x === 'number' && typeof y !== 'number') y = x
                 else if (typeof x !== 'number' || typeof y !== 'number') {
                     y = x.y ?? x[1]
@@ -216,7 +212,7 @@ export class Vector2 {
             }
         }
         Object.defineProperties(this.prototype, {
-            [Symbol.isConcatSpreadable]: {value: !0},
+            [Symbol.isConcatSpreadable]: { value: 1 },
             [Symbol.toStringTag]: { value: this.name },
             x: { get() { return this.#x }, set(x) { this.set(x, this.#y) }, enumerable: 1 }, y: { get() { return this.#y }, set(y) { this.set(this.#x, y) }, enumerable: 1 }
         })
@@ -225,15 +221,14 @@ export class Vector2 {
     constructor(x = 0, y = 0,
         { 0: minX = MIN_SAFE_INTEGER, 1: minY = MIN_SAFE_INTEGER } = {},
         { 0: maxX = MAX_SAFE_INTEGER, 1: maxY = MAX_SAFE_INTEGER } = {}) {
-        Object.freeze(this)
         this.#min = { x: minX, y: minY }
         this.#max = { x: maxX, y: maxY }
-        this.set(x, y)
+        Object.preventExtensions(this).set(x, y)
     }
     #min
     #max
-    #x = 0/0
-    #y = 0/0
+    #x = 0 / 0
+    #y = 0 / 0
     //get #value() { return [this.x, this.y] }
     get 0() { return this.#x }
     set 0(x) { this.x = x }
@@ -252,10 +247,10 @@ export class Vector2 {
         return this.set(this.normalized)
     }
     scale(mult) {
-        return this.multiply(mult??=0, mult)
+        return this.multiply(mult ??= 0, mult)
     }
     iScale(mult) {
-        return this.scale(1 / (mult??1))
+        return this.scale(1 / (mult ?? 1))
     }
     get magnitude() {
         return abs(this.#x + this.#y)
@@ -313,7 +308,7 @@ export class Vector2 {
         y2 ??= second.y
         const firstAngle = atan2(y1, x1),
             secondAngle = atan2(y2, x2)
-            // , angle = secondAngle - firstAngle
+        // , angle = secondAngle - firstAngle
         return secondAngle - firstAngle
     }
     static difference(first, second) {
@@ -347,7 +342,7 @@ export class Vector2 {
         let { 0: x = 0, 1: y = 0 } = pos
         x ??= pos.x
         y ??= pos.y
-        return this.subtract(this.minus(x, y).scale((time??.1) * (delta??1)))
+        return this.subtract(this.minus(x, y).scale((time ?? .1) * (delta ?? 1)))
     }
     clamp({ 0: minX = MIN_SAFE_INTEGER, 1: minY = MIN_SAFE_INTEGER } = {}, { 0: maxX = MAX_SAFE_INTEGER, 1: maxY = MAX_SAFE_INTEGER } = {}) {
         this.clampX(minX, maxX)
@@ -360,8 +355,8 @@ export class Vector2 {
         const target = vect(x, y)
             , direction = target.minus(this)
             , { magnitude } = direction
-        if (magnitude <= (maxDistance??1) || !magnitude) return target
-        return magnitude < step.magnitude ? this.set(target) : this.add(delta??=1, delta)
+        if (magnitude <= (maxDistance ?? 1) || !magnitude) return target
+        return magnitude < step.magnitude ? this.set(target) : this.add(delta ??= 1, delta)
     }
     set(x, y) {
         this.#x = clamp(+x, this.#min.x, this.#max.x)
@@ -393,23 +388,10 @@ export class Vector2 {
         yield this.#x
         yield this.#y
     }
+    static[Symbol.hasInstance](obj) {return#x in obj&&#y in obj}
 }
 delete Vector2._
-const v = Object.defineProperty(Object.defineProperties(vect, Object.getOwnPropertyDescriptors(Vector2)), Symbol.hasInstance, {
-    value(obj) {
-        try {
-        let x,y,
-            iterator = obj[Symbol.iterator]?.(),
-            {0: xx, 1:yy} = Object.values(obj)
-        return (typeof obj.x === 'number' || typeof obj[0] === 'number' || typeof xx === 'number' || typeof([x] = iterator) === 'number') &&
-            (typeof obj.y === 'number' || typeof obj[1] === 'number' || typeof yy === 'number' || typeof([y] = iterator) === 'number')
-        }
-        catch {
-            return false
-        }
-    }
-})
+const v = Object.defineProperties(vect, Object.getOwnPropertyDescriptors(Vector2))
 export function vect(x, y) {
-    // new.target && noConstructor()
     return new Vector2(x, y)
 }

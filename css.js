@@ -47,7 +47,6 @@
         evt.defaultPrevented || console.error(`${throwable}`)
     }
     var sheet = getDefaultStyleSheet()
-
     function dashVendor(prop, val) {
         return vendor(toDash(prop), val)
     }
@@ -168,13 +167,13 @@
         throw Error('Source and name required')
     }
 
-    var defrt = /-./g,
+    var hi = /-./g,
         azregex = /[A-Z]/g
 
     function toCaps(prop) {
         if (prop.includes('-') && !prop.startsWith('--')) { // Ignore custom properties
             if (prop[0] === '-') prop = prop.slice(1)
-            return prop.replace(defrt, tuc)
+            return prop.replace(hi, tuc)
         }
         return prop
     }
@@ -191,7 +190,6 @@
         return c[1].toUpperCase()
     }
 
-    var addedStyleRules = null
 
     /**
      * @param {Object} obj key/value pairs that match CSS
@@ -212,12 +210,12 @@
         return arr.join(';')
     }
 
-    var pseudoElementRegex = /::[\w-]/
-        , pseudoClassRegex = /:[\w-]/
+    var pseudoElementRegex = / /.test.bind(/::[\w-]/)
+        , pseudoClassRegex = / /.test.bind(/:[\w-]/)
 
     function mapThing(selectr) {
-        if (pseudoElementRegex.test(selectr)) selectr = pev(selectr)
-        else if (pseudoClassRegex.test(selectr)) selectr = pcv(selectr)
+        if (pseudoElementRegex(selectr)) selectr = pev(selectr)
+        else if (pseudoClassRegex(selectr)) selectr = pcv(selectr)
         return selectr
     }
 
@@ -251,7 +249,8 @@
         var n = createElement('link'),
             s = n.setAttribute.bind(n)
         s('rel', 'stylesheet')
-        s('type', 'text/css')
+        s('fetchpriority', 'high')
+        s('blocking','render')
         s('href', url)
         addElement(n)
         return n
@@ -560,8 +559,8 @@
         }).map(function (a) { return `${a[0]}{${toCSS(a[1])}}` })
         // typeof dflt === 'string' && (dflt = dflt.split('\n'))
         var join = [].join.bind(dflt)
-        var first = sheet.textContent
-        var global = join('')
+        , first = sheet.textContent
+        , global = join('')
         // } catch (e) {
         // console.error(e)
         // }
@@ -573,8 +572,8 @@
                  text = `@property ${name}{${initialValue != null ? `initial-value:${initialValue};` : ''}${inherit != null ? `inherits:${!!inherit};` : ''}${syntax != null ? `syntax:"${syntax}"` : ''}}`
              sheet.textContent = `${sheet.textContent}${text}`
          }*/
-        var universal = {}
-            , func, selector = ':where(*,::-moz-color-swatch,::-moz-focus-inner,::-moz-list-bullet,::-moz-list-number,::-moz-meter-bar,::-moz-progress-bar,::-moz-range-progress,::-moz-range-thumb,::-moz-range-track,::-webkit-inner-spin-button,::-webkit-meter-bar,::-webkit-meter-even-less-good-value,::-webkit-meter-inner-element,::-webkit-meter-optimum-value,::-webkit-meter-suboptimum-value,::-webkit-progress-bar,::-webkit-progress-inner-element,::-webkit-progress-value,::-webkit-scrollbar,::-webkit-search-cancel-button,::-webkit-search-results-button,::-webkit-slider-runnable-track,::-webkit-slider-thumb,::after,::backdrop,::before,::checkmark,::column,::cue,::details-content,::file-selector-button,::first-letter,::first-line,::grammar-error,::marker,::picker-icon,::placeholder,::scroll-marker,::scroll-marker-group,::selection,::spelling-error,::target-text,::view-transition)'
+        , universal = {}
+            , func, selector = '*,:where(::-moz-color-swatch,::-moz-focus-inner,::-moz-list-bullet,::-moz-list-number,::-moz-meter-bar,::-moz-progress-bar,::-moz-range-progress,::-moz-range-thumb,::-moz-range-track,::-webkit-inner-spin-button,::-webkit-meter-bar,::-webkit-meter-even-less-good-value,::-webkit-meter-inner-element,::-webkit-meter-optimum-value,::-webkit-meter-suboptimum-value,::-webkit-progress-bar,::-webkit-progress-inner-element,::-webkit-progress-value,::-webkit-scrollbar,::-webkit-search-cancel-button,::-webkit-search-results-button,::-webkit-slider-runnable-track,::-webkit-slider-thumb,::after,::backdrop,::before,::checkmark,::column,::cue,::details-content,::file-selector-button,::first-letter,::first-line,::grammar-error,::marker,::picker-icon,::placeholder,::scroll-marker,::scroll-marker-group,::selection,::spelling-error,::target-text,::view-transition)'
         func = CSS.registerProperty || console.debug
         for (var i = all.length; i--;) {
             var prop = all[i]

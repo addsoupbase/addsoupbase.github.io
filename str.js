@@ -1,4 +1,3 @@
-
 const map = new Map(Object.entries({ 1: 'st', 2: 'nd', 3: 'rd' }))
 export const ALPHABET = 'abcdefghijklmnopqrstuvwxyz'.toUpperCase(),
     alphabet = ALPHABET.toLowerCase(),
@@ -9,7 +8,7 @@ export const ALPHABET = 'abcdefghijklmnopqrstuvwxyz'.toUpperCase(),
         .split(' '),
     placeholder = '$'
 export function formatNumber(num) {
-    return (+num).toLocaleString()
+    return(+num).toLocaleString()
 }
 export function getCodePoints(string) {
     return string.split('').map(o => `\\u${o.charCodeAt().toString(16).padStart(4, 0)}`).join('')
@@ -39,7 +38,7 @@ export function replace(string, ...subs) {
     function replace(char) { newstring = newstring.replace(placeholder, char) }
 }
 export function formatWord(str) {
-    return /[aeiou]/i.test(str[0]) ? `an ${str}` : `a ${str}`
+    return/[aeiou]/i.test(str[0]) ? `an ${str}` : `a ${str}`
 }
 export function shorten(str, length, tail) {
     if (typeof length !== 'number') throw RangeError('Length must be present')
