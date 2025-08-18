@@ -51,8 +51,9 @@ export function plural(singular, plural, count) {
 export function clip(str, length) {
     return str.slice(length, str.length - length)
 }
+function rev(a,b){return`${a}${b}`}
 export function reverse(str) {
-    return str.split('').toReversed().join('')
+    return str.split('').reduceRight(rev,"")
 }
 export const cap = upper
 export function toOrdinal(o) {
