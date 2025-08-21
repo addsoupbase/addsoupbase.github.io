@@ -104,6 +104,9 @@ async function getStrFromFile(pathname, type) {
 }
 
 function modifyJS(script, url) {
+    if (/^[\n\s\r]*("|')use strict\1[\n\s\r]*;?/.test(script)) return `"use strict";console.time('${url}');
+${script};
+console.timeEnd('${url}')`
     return `console.time('${url}');
 ${script};
 console.timeEnd('${url}')`

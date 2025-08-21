@@ -2,7 +2,7 @@
     'use strict'
     if (sym in window || document.getElementById('addedStyleRules')) return w[sym]
     var createElement = document.createElement.bind(document)
-    , WebComponents = 'img-sprite touch-joystick seek-bar paper-canvas'.split(' ')
+        , WebComponents = 'img-sprite touch-joystick seek-bar paper-canvas'.split(' ')
     // var supportsAtRule
     /*!function () {
         var dummy = createElement('div'),
@@ -171,11 +171,7 @@
         azregex = /[A-Z]/g
 
     function toCaps(prop) {
-        if (prop.includes('-') && !prop.startsWith('--')) { // Ignore custom properties
-            if (prop[0] === '-') prop = prop.slice(1)
-            return prop.replace(hi, tuc)
-        }
-        return prop
+        return prop.includes('-') && !prop.startsWith('--') ? (prop[0] === '-' ? prop.slice(1) : prop).replace(hi, tuc) : prop
     }
     function toDash(prop) {
         return prop.startsWith('--') ? prop :
@@ -214,9 +210,7 @@
         , pseudoClassRegex = / /.test.bind(/:[\w-]/)
 
     function mapThing(selectr) {
-        if (pseudoElementRegex(selectr)) selectr = pev(selectr)
-        else if (pseudoClassRegex(selectr)) selectr = pcv(selectr)
-        return selectr
+        return pseudoElementRegex(selectr) ? pev(selectr) : pseudoClassRegex(selectr) ? pcv(selectr) : selectr
     }
 
     /**
@@ -250,7 +244,7 @@
             s = n.setAttribute.bind(n)
         s('rel', 'stylesheet')
         s('fetchpriority', 'high')
-        s('blocking','render')
+        s('blocking', 'render')
         s('href', url)
         addElement(n)
         return n
@@ -515,14 +509,14 @@
                 '--user-drag': 'element'
             },
             [`${where('[contenteditable],[contenteditable="true"]')}`]: {
-                '--user-modify':'read-write'
+                '--user-modify': 'read-write'
             },
             [`${where('[contenteditable="false"]')}`]: {
-                '--user-modify':'read-only',
-                '--user-input':'none'
+                '--user-modify': 'read-only',
+                '--user-input': 'none'
             },
-             [`${where('[contenteditable="plaintext-only"]')}`]: {
-                '--user-modify':'read-write-plaintext-only'
+            [`${where('[contenteditable="plaintext-only"]')}`]: {
+                '--user-modify': 'read-write-plaintext-only'
             },
             [`${where('[inert]')}`]: {
                 '--interactivity': 'inert',
@@ -531,7 +525,7 @@
                 'interpolate-size': 'allow-keywords',
                 '--crisp-edges': '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(function (o) { return sup('image-rendering', o) }),
                 '--stretch': '-moz-available -webkit-fill-available stretch'.split(' ').find(function (o) { return sup('max-width', o) }),
-                '--center': '-moz-center -webkit-center -khtml-center'.split(' ').find(function (o) { return sup('text-align', o) }), 
+                '--center': '-moz-center -webkit-center -khtml-center'.split(' ').find(function (o) { return sup('text-align', o) }),
                 // this is different from just 'center' and idk why!!!
                 '--match-parent': '-moz-match-parent -webkit-match-parent'.split(' ').find(function (o) { return sup('text-align', o) })
             },
@@ -573,20 +567,20 @@
         }).map(function (a) { return `${a[0]}{${toCSS(a[1])}}` })
         // typeof dflt === 'string' && (dflt = dflt.split('\n'))
         var join = [].join.bind(dflt)
-        , first = sheet.textContent
-        , global = join('')
-        // } catch (e) {
-        // console.error(e)
-        // }
-        /* function registerWithText(e) {
-             var name = e.name,
-                 initialValue = e.initialValue,
-                 inherit = e.inherits,
-                 syntax = e.syntax,
-                 text = `@property ${name}{${initialValue != null ? `initial-value:${initialValue};` : ''}${inherit != null ? `inherits:${!!inherit};` : ''}${syntax != null ? `syntax:"${syntax}"` : ''}}`
-             sheet.textContent = `${sheet.textContent}${text}`
-         }*/
-        , universal = {}
+            , first = sheet.textContent
+            , global = join('')
+            // } catch (e) {
+            // console.error(e)
+            // }
+            /* function registerWithText(e) {
+                 var name = e.name,
+                     initialValue = e.initialValue,
+                     inherit = e.inherits,
+                     syntax = e.syntax,
+                     text = `@property ${name}{${initialValue != null ? `initial-value:${initialValue};` : ''}${inherit != null ? `inherits:${!!inherit};` : ''}${syntax != null ? `syntax:"${syntax}"` : ''}}`
+                 sheet.textContent = `${sheet.textContent}${text}`
+             }*/
+            , universal = {}
             , func, selector = '*,:where(::-moz-color-swatch,::-moz-focus-inner,::-moz-list-bullet,::-moz-list-number,::-moz-meter-bar,::-moz-progress-bar,::-moz-range-progress,::-moz-range-thumb,::-moz-range-track,::-webkit-inner-spin-button,::-webkit-meter-bar,::-webkit-meter-even-less-good-value,::-webkit-meter-inner-element,::-webkit-meter-optimum-value,::-webkit-meter-suboptimum-value,::-webkit-progress-bar,::-webkit-progress-inner-element,::-webkit-progress-value,::-webkit-scrollbar,::-webkit-search-cancel-button,::-webkit-search-results-button,::-webkit-slider-runnable-track,::-webkit-slider-thumb,::after,::backdrop,::before,::checkmark,::column,::cue,::details-content,::file-selector-button,::first-letter,::first-line,::grammar-error,::marker,::picker-icon,::placeholder,::scroll-marker,::scroll-marker-group,::selection,::spelling-error,::target-text,::view-transition)'
         func = CSS.registerProperty || console.debug
         for (var i = all.length; i--;) {

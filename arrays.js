@@ -42,8 +42,8 @@ function deep(obj) {
 const {call,apply} = Function.prototype
 export function forKeys(obj, callback) {
     let keys = Reflect.ownKeys(obj),
-    call = call.bind(callback)
-    for (let { length: i } = keys; i--;) call(obj, keys[i])
+    cal = call.bind(callback)
+    for (let { length: i } = keys; i--;) cal(obj, keys[i])
 }
 export function fresh(obj) {
     return !Reflect.ownKeys(obj).length

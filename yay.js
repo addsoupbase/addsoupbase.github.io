@@ -25,7 +25,11 @@ Image = new Proxy(Image, {
 function plural(singular, plural, count) {
     return Math.sign(count = +count) === count && count ? `${count} ${singular}` : `${count.toLocaleString()} ${plural}`
 }
+// let x = new FinalizationRegistry(console.count.bind(1,'Bound Proxies'))
 function bind(target) {
+    // These proxies DO get garbage collected
+    // let out = new Proxy(target, bindHandler)
+    // x.register(out, '')
     return new Proxy(target, bindHandler)
 }
 let bindHandler = {
@@ -36,7 +40,7 @@ let bindHandler = {
 const { get, set, apply, getOwnPropertyDescriptor, ownKeys } = Reflect,
     { revocable } = Proxy,
     { create, preventExtensions, defineProperty, defineProperties, getOwnPropertyDescriptors, assign } = Object
-import *as h from './handle.js'
+import*as h from './handle.js'
 import './css.js'
 const css = window[Symbol.for('CSS')]
 function from(ArrayLike, map, thisArg) {
@@ -72,8 +76,8 @@ const { hasOwn } = Object
     },
     me = Symbol('[[Target]]'),
     saved = Symbol('[[SavedAttributes]]'),
-    all = new WeakMap,
-    revokes = new WeakMap,
+    {get: all_get, set: all_set, has: all_has, delete: all_delete} = bind(new WeakMap),
+    {get: revokes_get, set: revokes_set, delete: revokes_delete} = bind(new WeakMap),
     mediaQueries = Symbol('[[ObservedMediaQueries]]')
 function gen() {
     return `${Math.random()}${Math.random()}`.replace(regex.dot, '')
@@ -118,9 +122,7 @@ function genericGet(t, prop) {
 
 function ariaOrData(i) {
     let { 0: char } = i
-    if (char === '_') return i.replace(char, 'aria-')
-    if (char === '$') return i.replace(char, 'data-')
-    return i
+    return char === '_' ? i.replace(char, 'aria-') : char === '$' ?  i.replace(char, 'data-') : i
 }
 // let vendorRegex = /^(?:webkit|moz|ms)/
 /*function doVendor(target, prop, r) {
@@ -297,12 +299,12 @@ let computed = Symbol('[[ComputedStyles]]')
 // let shadow = Symbol('🌴')
 let props = function () {
     let canBeDisabled = /^HTML(?:Button|FieldSet|Opt(?:Group|ion)|Select|TextArea|Input)Element$/
-        , subtree = { "subtree": true },
-        nopacity = { "opacity": 0 },
-        onepacity = { "opacity": 1 },
+        , subtree = { subtree: true },
+        nopacity = { opacity: 0 },
+        onepacity = { opacity: 1 },
         defaultDura = 500,
-        hidden = { "hidden": true },
-        notHidden = { "hidden": false },
+        hidden = { hidden: true },
+        notHidden = { hidden: false },
         Queries = new Map,
         querySyntax = / /.test.bind(/^(?:\(.+\))$/),
         badForReducedMotion = /^(?:transform|scale|zoom|translate|rotate)$/
@@ -421,7 +423,7 @@ let props = function () {
             while (my.isConnected /*document.contains(my)*/)
             let myevents = h.getEventNames(my)
             myevents.size && this.off(...myevents)
-            all.delete(my)
+            all_delete(my)
             // inte?.unobserve(my)
             // resi.unobserve(my)
             revoke(this)
@@ -701,7 +703,7 @@ let props = function () {
                 }
                 if (!Queries.has(query)) {
                     let media = matchMedia(query)
-                    let listening = new Set
+                    , listening = new Set
                     function dispatchAll(element) {
                         element = base(element)
                         h.delayedDispatch(query, element, new CustomEvent(query, {
@@ -723,7 +725,7 @@ let props = function () {
                     Queries.set(query, detail)
                 }
                 let detail = Queries.get(query)
-                let { mediaQuery: { matches }, listening } = detail
+                , { mediaQuery: { matches }, listening } = detail
                 listening.add(this)
                 this.on({
                     [`${flags}${query}`]: val
@@ -970,7 +972,7 @@ ownKeys(props).forEach(i => {
                 //  This function is for automatically returning the 'this'
                 //  value if the original return value is undefined
                 let me = prox(this), b = base(this)
-                if (!getValid(b) || !all.has(b)) throw TypeError('Illegal input')
+                if (!getValid(b) || !all_has(b)) throw TypeError('Illegal input')
                 let r = apply(value, me, a)
                 return typeof r === 'undefined' ? me : r
             }
@@ -980,14 +982,14 @@ ownKeys(props).forEach(i => {
               v.set &&= {
                  [set.name](val) {
                      let b = base(this), me = prox(this)
-                     if (!getValid(b) || !all.has(b)) throw TypeError('Invalid calling object')
+                     if (!getValid(b) || !all_has(b)) throw TypeError('Invalid calling object')
                      set.call(me, val)
                  }
              }[set.name]
              v.get &&= {
                  [get.name]() {
                      let b = base(this), me = prox(this)
-                     if (!getValid(b) || !all.has(b)) throw TypeError('Invalid calling object')
+                     if (!getValid(b) || !all_has(b)) throw TypeError('Invalid calling object')
                      return get.call(b)
                  }
              }[get.name]
@@ -1332,7 +1334,7 @@ export function prox(target) {
     // 🚫 I can't use class ... extends ...,
     // ❌ or 'setPrototypeOf' since it's bad i guess?
     // ✅ Only option is 'create' or { __proto__: ... }
-    if (!all.has(target)) {
+    if (!all_has(target)) {
         // ++$.len
         let bleh = { value: target }
             // , { revoke: styleRevoke, proxy: styleProxy } = revocable(getStyleThingy(target), handlers.styles)
@@ -1386,11 +1388,11 @@ export function prox(target) {
             ; (target instanceof HTMLUnknownElement ||
                 target.ownerDocument.defaultView?.HTMLUnknownElement.prototype.isPrototypeOf(target)) &&
                 console.warn(`Unknown element: '${target.tagName.toLowerCase()}'`)
-        revokes.set(proxy, RevokeAllProxies.bind(1, revoke, childRevoke, attrRevoke,/* styleRevoke,*/ batchRevoke, querySelectorRevoke))
-        all.set(target, proxy)
+        revokes_set(proxy, RevokeAllProxies.bind(1, revoke, childRevoke, attrRevoke,/* styleRevoke,*/ batchRevoke, querySelectorRevoke))
+        all_set(target, proxy)
         return proxy
     }
-    return all.get(target)
+    return all_get(target)
 }
 
 function RevokeAllProxies(...args) {
@@ -1412,7 +1414,7 @@ let temp, div, range, parsingDoc, classRegex = /(?<=\.)[\w-]+/g,
     htmlRegex = /[\w-]+/,
     idRegex = /(?<=#)[\w-]+/,
     typeRegex = /(?<=%)\w+/
-const parseModeMap = new Map(Object.entries({
+const {get: parseModeMap} = bind(new Map(Object.entries({
     write(html) {
         (parsingDoc ??= document.implementation.createHTMLDocument())
             .open().write(html)
@@ -1448,7 +1450,7 @@ const parseModeMap = new Map(Object.entries({
         let t = parser.parseFromString(html, 'text/html')
         return document.adoptNode(t.body.firstElementChild)
     }
-}))
+})))
 
 function safeHTML(o) {
     return o
@@ -1474,7 +1476,7 @@ function $(html, props, ...children) {
     let element
     if (html?.[0] === '<' && html.endsWith('>')) {
         html = safeHTML(html)
-        element = prox(parseModeMap.get(parseMode)?.(html) ?? parseModeMap.get('')(html))
+        element = prox(parseModeMap(parseMode)?.(html) ?? parseModeMap('')(html))
     } else {
         element = prox(document.createElement(html.match(htmlRegex)?.[0]))
         let classes = html.match(classRegex),
@@ -1544,8 +1546,8 @@ function elemIfString(o) {
     return typeof o === 'string' ? $(o) : o
 }
 function revoke(targ) {
-    revokes.get(targ)?.()
-    revokes.delete(targ)
+    revokes_get(targ)?.()
+    revokes_delete(targ)
 }
 
 export default defineProperties($, {
