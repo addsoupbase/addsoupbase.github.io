@@ -511,6 +511,19 @@
             [`${where('[draggable="false"]')}`]: {
                 '--user-drag': 'none'
             },
+            [`${where('[draggable="true"]')}`]: {
+                '--user-drag': 'element'
+            },
+            [`${where('[contenteditable],[contenteditable="true"]')}`]: {
+                '--user-modify':'read-write'
+            },
+            [`${where('[contenteditable="false"]')}`]: {
+                '--user-modify':'read-only',
+                '--user-input':'none'
+            },
+             [`${where('[contenteditable="plaintext-only"]')}`]: {
+                '--user-modify':'read-write-plaintext-only'
+            },
             [`${where('[inert]')}`]: {
                 '--interactivity': 'inert',
             },
@@ -518,7 +531,8 @@
                 'interpolate-size': 'allow-keywords',
                 '--crisp-edges': '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(function (o) { return sup('image-rendering', o) }),
                 '--stretch': '-moz-available -webkit-fill-available stretch'.split(' ').find(function (o) { return sup('max-width', o) }),
-                '--center': '-moz-center -webkit-center -khtml-center'.split(' ').find(function (o) { return sup('text-align', o) }), // this is different from just 'center' and idk why!!!
+                '--center': '-moz-center -webkit-center -khtml-center'.split(' ').find(function (o) { return sup('text-align', o) }), 
+                // this is different from just 'center' and idk why!!!
                 '--match-parent': '-moz-match-parent -webkit-match-parent'.split(' ').find(function (o) { return sup('text-align', o) })
             },
             [`${where('img')}`]: {
