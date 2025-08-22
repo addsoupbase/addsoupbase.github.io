@@ -192,9 +192,9 @@ a {
   z-index: 30 !important;
 }
 
-.manaphy.shiny,
-.phione.shiny,
-.mantyke.shiny {
+:is(.manaphy,
+.phione,
+.mantyke).shiny {
   filter: hue-rotate(318deg);
 }
 
@@ -210,9 +210,9 @@ a {
   filter: hue-rotate(87deg) brightness(1.4);
 }
 
-.wailord.shiny,
-.kingdra.shiny,
-.wailmer.shiny {
+:is(.wailord,
+.kingdra,
+.wailmer).shiny {
   filter: hue-rotate(70deg);
 }
 
@@ -275,8 +275,8 @@ a {
   scale: 1.5 1.5
 }
 
-.jellicent_f.shiny,
-.jellicent_m.shiny {
+:is(.jellicent_f,
+.jellicent_m) .shiny {
   filter: hue-rotate(302deg);
 }
 

@@ -22,3 +22,5 @@ boot.sh
 deno.lock
 /favourites
 server.js
+timing.js
+server.js
