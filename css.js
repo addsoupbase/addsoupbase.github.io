@@ -453,10 +453,8 @@
         universal['box-sizing'] = 'border-box'
         universal['overflow-wrap'] = 'var(--word-wrap)'
         universal['scrollbar-color'] = 'var(--scrollbar-thumb-color) var(--scrollbar-color)'
-        // universal['font-family'] = 'inherit'
         all = null
         setTextContent(name || (top.name = `${first}${selector}{${toCSS(universal, true)}}${global}`))
-        // console.debug(x)
     }()
     w[sym] = Object.seal({
         __proto__: null,

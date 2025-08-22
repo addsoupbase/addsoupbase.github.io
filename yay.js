@@ -10,26 +10,10 @@ Things i learned from 2nd -> 3rd:
 • using Symbols
 • finally settled on WeakMap
 */
-// import {plural} from "./str.js"
-/*
-Image = new Proxy(Image, {
-    construct(target, args) {
-        let img = Reflect.construct(target, args)
-        let setAttribute = img.setAttribute.bind(img)
-        setAttribute('decoding', 'async')
-        setAttribute('loading', 'lazy')
-        return img
-    }
-})
-*/
 function plural(singular, plural, count) {
     return Math.sign(count = +count) === count && count ? `${count} ${singular}` : `${count.toLocaleString()} ${plural}`
 }
-// let x = new FinalizationRegistry(console.count.bind(1,'Bound Proxies'))
 function bind(target) {
-    // These proxies DO get garbage collected
-    // let out = new Proxy(target, bindHandler)
-    // x.register(out, '')
     return new Proxy(target, bindHandler)
 }
 let bindHandler = {
@@ -86,14 +70,6 @@ function gen() {
 const { get: BoundGet, set: BoundSet, has: BoundHas } = bind(new WeakMap)
 function cacheFunction(maybeFunc) {
     // Make sure we just re-use the same function
-    /*if (typeof maybeFunc === 'function') {
-        if (!Object.hasOwn(to, maybeFunc.name)) defineProperty(prox(to), maybeFunc.name, {
-            value: maybeFunc.bind(to),
-            writable: 1,
-            configurable: 1
-        })
-        return to[maybeFunc.name]
-    }*/
     // There was like a catastrophic bug but i fixed it bc im the best
     if (typeof maybeFunc === 'function') {
         if (BoundHas(maybeFunc)) return BoundGet(maybeFunc)
@@ -124,25 +100,6 @@ function ariaOrData(i) {
     let { 0: char } = i
     return char === '_' ? i.replace(char, 'aria-') : char === '$' ?  i.replace(char, 'data-') : i
 }
-// let vendorRegex = /^(?:webkit|moz|ms)/
-/*function doVendor(target, prop, r) {
-    if (typeof prop === 'symbol') return this.apply(1, arguments)
-    try {
-        let p = prop
-        prop = prop.replace(vendorRegex, '')
-        let slice = prop.slice(1),
-            tuc = prop[0].toUpperCase()
-        if (p in target) return this.apply(1, arguments)
-        if ((p = `webkit${tuc}${slice}`) in target) return this(target, p, r)
-        if ((p = `moz${tuc}${slice}`) in target) return this(target, p, r)
-        if ((p = `ms${tuc}${slice}`) in target) return this(target, p, r)
-    }
-    catch {
-        return this.apply(1, arguments)
-    }
-}*/
-// let getVendor = doVendor.bind(get),
-// setVendor = doVendor.bind(set)
 const attrStyleMap = 'StylePropertyMap' in window
     , customRules = css.getDefaultStyleSheet()
     , handlers = {
@@ -160,14 +117,16 @@ const attrStyleMap = 'StylePropertyMap' in window
             get(t, p) {
                 ++reads
                 p = css.toCaps(p)
-                let val = this.cached.get(p)
-                return val ?? (this.cached.set(p, val = handlers.styles.get(t, p)), val)
+                let {cached} = this
+                let val = cached.get(p)
+                return val ?? (cached.set(p, val = handlers.styles.get(t, p)), val)
             },
             set(t, p, v) {
                 ++writes
                 p = css.toCaps(p)
-                if (v === this.cached.get(p)) return 1
-                this.cached.set(p, v)
+                let {cached} = this
+                if (v === cached.get(p)) return 1
+                cached.set(p, v)
                 this.QueueBatchThing()
                 return 1
             },
@@ -222,8 +181,7 @@ const attrStyleMap = 'StylePropertyMap' in window
                         : prop.startsWith('--') ? target.set(prop, value) : target.set(css.dashVendor(prop, `${value}`), value)
                 }
                 catch (e) {
-                    reportError(e)
-                    return 0
+                   return reportError(e)
                 }
                 return 7
             },
@@ -292,11 +250,7 @@ const attrStyleMap = 'StylePropertyMap' in window
         },
     }
 // Main [[Prototype]] is on this class
-// let ATTR = Symbol('💿')
-// let states = Symbol('💾')
 let computed = Symbol('[[ComputedStyles]]')
-// let styles = Symbol('stop')
-// let shadow = Symbol('🌴')
 let props = function () {
     let canBeDisabled = /^HTML(?:Button|FieldSet|Opt(?:Group|ion)|Select|TextArea|Input)Element$/
         , subtree = { subtree: true },
@@ -444,7 +398,7 @@ let props = function () {
         }
         , off(...events) {
             events.unshift(base(this))
-            apply(h.off, null, events)
+            apply(h.off, this, events)
         }
         , set(prop, val) {
             base(this)[prop] = val
@@ -544,14 +498,6 @@ let props = function () {
                 let n = i.split(',')
                     , val = attr[i]
                 if (test(i)) throw TypeError('Inline event handlers are deprecated')
-                /*   switch (i) {
-                       case 'disabled': me.setAttribute('aria-disabled', !!val); break
-                       case 'checked': me.setAttribute('aria-checked', !!val); break
-                       case 'hidden': me.setAttribute('aria-hidden', !!val); break
-                       case 'required': me.setAttribute('aria-required', !!val); break
-                       case 'readonly': me.setAttribute('aria-readonly', !!val); break
-                       case 'placeholder': me.setAttribute('aria-placeholder', val); break
-                   }*/
                 for (let { length: a } = n; a--;) {
                     let prop = ariaOrData(n[a])
                     if (typeof val === 'boolean') me.toggleAttribute(prop, val)
@@ -780,7 +726,7 @@ let props = function () {
                     id
                 })
             } catch {
-                css.badCSS(`â›“ï¸â€ðŸ’¥ Unrecognized CSS rule at '${og}'`)
+                css.badCSS(`Unrecognized CSS rule at '${og}'`)
             }
         }
         , until(good, bad, timeout) {
@@ -1009,14 +955,10 @@ ownKeys(props).forEach(i => {
         }
     )
 }
-// 🖨 Copy everything
 const prototypeDescriptors = getOwnPropertyDescriptors(prototype)
 export function base(element) {
-    // 🌱 Get the root element
     return element[me] ?? element
 }
-
-// Don't mind these objects
 const reuse = {
     flags: {
         //  General Purpose binary flag
@@ -1028,14 +970,6 @@ const reuse = {
         value: null,
         writable: 1
     },
-    /*   state: {
-           get() {
-               return this.currentState
-           },
-           set(val) {
-               this.setState(val)
-           }
-       },*/
     junk: {
         value: null,
         enumerable: 1,
@@ -1078,22 +1012,13 @@ export function importWebComponent(name) {
 /*
 MUTATION OBSERVER STUFFS
 */
-/*function refreshAttributes(attr) {
-    this.setAttribute(attr, this.getAttribute(attr))
-}*/
-// const imported = new Set
 let { has: importHas, delete: importDelete } = bind(new Set('img-sprite touch-joystick seek-bar paper-canvas'.split(' ')))
-// export const dfn = waitingForImport.delete.bind(waitingForImport)
-/*export async function importWebComponent(name) {
-    imported.has(name) || (await import(`./webcomponents/${name}.js`), imported.add(name), dfn(name))
-}*/
 function observeAll(node) {
     let n = node.tagName.toLowerCase()
     if (importHas(n)) {
         importWebComponent(n)
         console.warn(`You should explcitly import the web component '${n}'`)
     }
-    // if (node instanceof CUSTOM_ELEMENT_SPRITE) node.getAttributeNames().forEach(refreshAttributes, node)
     inte?.observe(node)
     let observe = resi.observe.bind(resi)
     observe(node)
@@ -1105,9 +1030,6 @@ function observeAll(node) {
             hasAttribute('decoding') || setAttribute('decoding', node.decoding = 'async')
             hasAttribute('loading') || setAttribute('loading', node.loading = 'lazy')
             break
-        // case 'input': 
-        // hasAttribute('data-indeterminate') && setAttribute('indeterminate', '')
-        // break
     }
     observe(node, { box: 'border-box' })
     observe(node, { box: 'device-pixel-content-box' })
@@ -1122,7 +1044,6 @@ let notContent = 'meta,script,head,link,title,style,html,body,main,div,samp,code
 export function ignore(nodeOrText) {
     return (nodeOrText instanceof Node || nodeOrText.ownerDocument?.defaultView.Node.prototype.isPrototypeOf(nodeOrText)) ? nodeOrText.matches(notContent) : forString.has(nodeOrText)
 }
-// let no_translate = /@no_translate\((?<text>.*)\)/ug
 let getNodeType = Function.call.bind(Object.getOwnPropertyDescriptor(Node.prototype, 'nodeType').get)
 function MutationObserverCallback(entry) {
     for (let { length: ii } = entry; ii--;) {
@@ -1130,30 +1051,12 @@ function MutationObserverCallback(entry) {
             { addedNodes, removedNodes } = me
         for (let { length: i } = addedNodes, node; i--;) {
             node = addedNodes[i]
-            if (getNodeType(node) === 1)
-                /*  queueMicrotask(() => {
-                    document.dispatchEvent(new CustomEvent('subtree-modified', {
-                        // bubbles: true,
-                        detail: {
-                            node,
-                            added: true,
-                            }
-                            }))
-                            })*/
+            getNodeType(node) === 1&&
                 observeAll(node)
 
         }
         for (let { length: i } = removedNodes, node; i--;)
-            if (getNodeType(node = removedNodes[i]) === 1)
-                /*   queueMicrotask(() => {
-                       document.dispatchEvent(new CustomEvent('subtree-modified', {
-                           // bubbles: true,
-                           detail: {
-                               node,
-                               added: false,
-                           }
-                       }))
-                   })*/
+            getNodeType(node = removedNodes[i]) === 1&&
                 unobserveAll(node)
     }
 }
@@ -1210,8 +1113,8 @@ function PerformanceLoop(o) {
                     }
                 }))
             }
-        }
             return
+        }
         case 'longtask':
             title = 'long-task'
         // [top, parent].forEach(o=>o!== window && delayedDispatch(o.entryType,o, new CustomEvent(title, {
@@ -1270,7 +1173,7 @@ const entryTypes = {
     longtask: 'PerformanceLongTaskTiming' in window,
     resource: 'PerformanceResourceTiming' in window,
     navigation: 'PerformanceNavigationTiming' in window,
-    element: 'PerformanceElementTiming' in window
+    // element: 'PerformanceElementTiming' in window
     // taskattribution: 'TaskAttributionTiming 'in window
 }
 const perf = new PerformanceObserver(PerformanceObserverCallback)
@@ -1319,10 +1222,6 @@ function BatchStyle(target) {
     })
 }
 let writes = 0, reads = 0
-/*const cleanup = new FinalizationRegistry(({callback, age})=>{
-    callback(performance.now() -age)
-})
-*/
 export function prox(target) {
     if (target === null) return null
     if (target[me]) return target
@@ -1335,9 +1234,7 @@ export function prox(target) {
     // ❌ or 'setPrototypeOf' since it's bad i guess?
     // ✅ Only option is 'create' or { __proto__: ... }
     if (!all_has(target)) {
-        // ++$.len
         let bleh = { value: target }
-            // , { revoke: styleRevoke, proxy: styleProxy } = revocable(getStyleThingy(target), handlers.styles)
             , { revoke: childRevoke, proxy: childProxy } = revocable(target.children, handlers.HTMLCollection)
             , { revoke: querySelectorRevoke, proxy: querySelectorProxy } = revocable(target, handlers.querySelector)
             , { revoke: attrRevoke, proxy: attrProxy } = revocable(target, handlers.attr)
@@ -1352,14 +1249,9 @@ export function prox(target) {
                     value: { __proto__: null }
                 },
                 [computed]: reuse.nullThing,
-                /*  [states]: {
-                      value: new Map
-                  },*/
                 selfRules: {
                     value: { __proto__: null }
                 },
-                // state: reuse.state,
-                // [shadow]: reuse.junk,
                 currentState: reuse.junk,
                 lastState: reuse.junk,
                 flags: reuse.flags,
@@ -1378,9 +1270,6 @@ export function prox(target) {
                 styles: {
                     value: batchStyleProxy
                 },
-                // [styles]: {
-                // value: styleProxy
-                // }
             }
             , { proxy, revoke } = revocable(
                 preventExtensions(create(target, propertiesToDefine)), create(handlers.main, [{ value: target }])
@@ -1388,7 +1277,7 @@ export function prox(target) {
             ; (target instanceof HTMLUnknownElement ||
                 target.ownerDocument.defaultView?.HTMLUnknownElement.prototype.isPrototypeOf(target)) &&
                 console.warn(`Unknown element: '${target.tagName.toLowerCase()}'`)
-        revokes_set(proxy, RevokeAllProxies.bind(1, revoke, childRevoke, attrRevoke,/* styleRevoke,*/ batchRevoke, querySelectorRevoke))
+        revokes_set(proxy, RevokeAllProxies.bind(1, revoke, childRevoke, attrRevoke, batchRevoke, querySelectorRevoke))
         all_set(target, proxy)
         return proxy
     }
@@ -1551,12 +1440,6 @@ function revoke(targ) {
 }
 
 export default defineProperties($, {
-    // random: {
-    // value() {
-    // return
-    // }
-    // },
-    //len:0,
     hasFullscreen: {
         get() {
             return !!(document.fullscreen || document.fullscreenElement || window.fullScreen)
@@ -1610,11 +1493,6 @@ export default defineProperties($, {
             return from(base($.doc).querySelectorAll(selector), prox)
         }
     },
-    /*
-    last: {
-        writable: 1,
-        value: null,
-    },*/
     setup: {
         value(id) {
             let te = prox(document.getElementById(id) ?? document.querySelector('template'))
