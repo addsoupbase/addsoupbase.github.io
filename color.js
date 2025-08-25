@@ -181,7 +181,7 @@ const Color = new Proxy(class $ {
             case 'rgb':
                 return `rgb(${this.r} ${this.g} ${this.b})`
             case 'rgba':
-                return `rgba(${this.r} ${this.g} ${this.b} ${this.a})`
+                return `rgba(${this.r} ${this.g} ${this.b} / ${this.a})`
             case 'hex2':
                 return `#${[this.r, this.g, this.b, this.a * 255].map(toHex).join('')}`
             case 'hsl': {

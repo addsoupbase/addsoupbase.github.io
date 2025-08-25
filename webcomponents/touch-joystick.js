@@ -1,6 +1,6 @@
 import $, {define} from '../yay.js'
 import * as css from '../csshelper.js'
-import {vect} from '../num.js'
+import {vect, toRad} from '../num.js'
 
 let touching = Symbol('👉')
     , touchpos = Symbol('📍')
@@ -13,11 +13,6 @@ class Joystick extends HTMLElement {
     x = 0
     y = 0
     angle = 0
-
-    static #import(e) {
-        vect = e.vect
-    }
-
     get sticky() {
         return this.hasAttribute('sticky')
     }
@@ -29,7 +24,12 @@ class Joystick extends HTMLElement {
     angle = 0
     x = 0
     y = 0
-
+    setAngle(v) {
+        this.setAttribute('angle', v)
+    }
+    setAngleDeg(v) { 
+        this.setAngle(toRad(v))
+    }
     static #pointercancel(e) {
         if (!this.sticky) {
             this[ball].setStyles({
@@ -41,7 +41,21 @@ class Joystick extends HTMLElement {
         }
         this[touching] = false
     }
-
+    static observedAttributes = ['angle']
+    attributeChangedCallback(name, oldValue, newValue) {
+     switch(name) {
+         case 'angle': {
+            let v = parseFloat(newValue),
+            x = Math.cos(v) * maxPullDistance,
+            y = Math.sin(v) * maxPullDistance
+            this[ball].setStyles({
+                transform: `translate${vect(x, y).toString('px')} rotateZ(${v}rad)`
+            })
+            this.angle = v
+         }
+         break
+     }
+    }
     static #events = {
         pointercancel: this.#pointercancel,
         pointerup: this.#pointercancel,
@@ -63,6 +77,7 @@ class Joystick extends HTMLElement {
             this.dispatchEvent(new CustomEvent('move'))
         },
         pointerdown(e) {
+            if (this.hasAttribute('disabled')) return
             this[touching] = true
             this.setPointerCapture(e.pointerId)
             this.dispatchEvent(new CustomEvent('hold'))

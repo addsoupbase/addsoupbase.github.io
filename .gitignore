@@ -24,3 +24,6 @@ deno.lock
 server.js
 timing.js
 server.js
+marbles-shit/
+tests/
+marbles/

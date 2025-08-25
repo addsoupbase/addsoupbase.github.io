@@ -356,7 +356,7 @@ export class Vector2 {
             , direction = target.minus(this)
             , { magnitude } = direction
         if (magnitude <= (maxDistance ?? 1) || !magnitude) return target
-        return magnitude < step.magnitude ? this.set(target) : this.add(delta ??= 1, delta)
+        return magnitude < target.magnitude ? this.set(target) : this.add(delta ??= 1, delta)
     }
     set(x, y) {
         this.#x = clamp(+x, this.#min.x, this.#max.x)

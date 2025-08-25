@@ -1,37 +1,46 @@
-@import url('../cute-green.css'); 
+@import url('../cute-green.css');
+
 canvas {
     background-color: #ADD8E6;
     position: fixed;
     pointer-events: auto;
     touch-action: none;
-    cursor:grab;
+    cursor: grab;
     --cursor-visibility: auto-hide;
-        --user-select: none;
+    --user-select: none;
 }
+
+#view {}
+
 canvas:active {
-    cursor:grabbing
+    cursor: grabbing
 }
+
 :disabled {
     filter: opacity(50%);
 }
+
 .results {
-    opacity:0;
+    opacity: 0;
     animation-name: join;
     /* animation-delay: 1; */
     animation-duration: .7s;
-    animation-timing-function:  ease-in-out;
+    animation-timing-function: ease-in-out;
     animation-fill-mode: forwards;
 }
+
 @keyframes join {
     0% {
         opacity: 0;
         letter-spacing: 10px;
     }
+
     100% {
         opacity: 1;
         letter-spacing: 0px;
     }
 }
+
 #overlay {
     z-index: 2;
     max-width: 60vw;
@@ -40,16 +49,20 @@ canvas:active {
     max-height: 60vh;
     /* place-items: center; */
 }
+
 touch-joystick {
     place-items: center;
     place-content: center;
 }
+
 .settingsbutton {
-    filter:  grayscale(0.9) brightness(0.8);
+    filter: grayscale(0.9) brightness(0.8);
 }
+
 cite::before {
     content: 'By ';
 }
+
 .mainmenu {
     background-color: #28a745;
     color: white;
@@ -102,9 +115,51 @@ cite::before {
     display: -webkit-inline-box;
     overflow-x: scroll;
 }
+
+.left {
+    left: 0
+}
+
+.right {
+    right: 0
+}
+
+.short {
+    width: 120px
+}
+
+.inputholder {
+    margin: 5px;
+    border: 1px dashed black;
+    padding: 5px
+}
+
+.inputmenu {
+    display: grid;
+}
+
+.controls {
+    height: 90vh;
+    position: fixed;
+    width: 232;
+    max-width: 15vw;
+    overflow: auto;
+    place-items: center;
+    text-align: center;
+}
+
+.info {
+    width: 100px;
+    height: 100px;
+    background-color: red;
+    position: fixed;
+    z-index: 30;
+}
+
 iframe {
-    width: 50vw;
-    height: 500px;
+    width: 70vw;
+    height: 90vh;
+    min-width: 385px;
     justify-self: center;
     border-style: solid;
     --user-select: none;
@@ -113,39 +168,45 @@ iframe {
     border-width: 3px;
 }
 
-main {
-    display: contents;
+#container {
+    display: flex;
+
 }
+
 #mobile-mover {
-    width:50px;
+    width: 50px;
     border-radius: 100%;
-    height:50px;
-    position:relative;
+    height: 50px;
+    position: relative;
     background-color: #000;
 }
+
 #mobile-joystick {
-    width:120px;
+    width: 120px;
     touch-action: none;
-    height:120px;
+    height: 120px;
     place-items: center;
     place-content: center;
     opacity: 0.5;
     background-color: #6a7b80;
     display: flex;
-    position:fixed;
+    position: fixed;
     border-radius: 100%;
     z-index: 1;
 }
+
 .faaa {
     display: inline-flex;
     justify-content: center;
 }
+
 @media (orientation: portrait) {
     #mobile-joystick {
         top: 70%;
-    justify-self: anchor-center;
+        justify-self: anchor-center;
     }
 }
+
 @media (orientation: landscape) {
     #mobile-joystick {
         top: 55%;
@@ -157,16 +218,77 @@ main {
 body,
 html {
     background-color: grey;
-    color:black;
+    color: black;
     margin: 0px;
     padding: 0px;
     height: 100vh;
     width: 100vw;
-     font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+#searchresultscontainer {
+    border: 1px dashed black;
+    height: 300px;
+    width: 100%;
+    overflow-y: scroll;
+}
+
+#searchresults {
+    display: grid;
+}
+
+#searchresults>samp {
+    text-decoration: underline;
+    /* text-decoration-thickness: 2px; */
+    margin: 5px;
+    cursor: pointer;
+}
+
+#searchresults>samp:hover {
+    color: rgb(87, 87, 87)
 }
 
 select:active {
     box-shadow: #1d8a7a 0px 0px 2px 0px;
+}
+
+* {
+    font-family: inherit;
+}
+
+#constraintholder:empty::after {
+    content: "No joints";
+    margin: 5px;
+    display: block;
+}
+
+.bad,.good {
+    transition: filter .1s linear
+}
+.bad {
+    background-color: red;
+    border: 1px solid darkred;
+}
+
+.good {
+    background-color: cyan;
+    border: 1px solid teal;
+}
+
+:is(.del, .good):active {
+    filter: brightness(70%)
+}
+
+.constraints input,
+.constriants
+.del {
+    width: 40%;
+    margin: 2px
+}
+
+.constraints label {
+    place-content: space-between;
+    display: flex;
 }
 
 input[type=range] {
@@ -174,7 +296,8 @@ input[type=range] {
 }
 
 input[type=color] {
-    border-radius: 100%;
+    place-self: center;
+    display: grid;
     width: 30px;
     height: 30px;
     margin: 10px

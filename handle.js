@@ -17,9 +17,9 @@ const sym = Symbol.for("[[Events]]")
     for (let i in console) {
         // Because the groupCollapsed() method was suppressing errors, delay them instead
         let old = console[i]
-        if (typeof old === 'function') 
-        logger[i] = DelayedLog.bind(old),
-        logger[`${i}Late`] = LogOutOfGroup.bind(old)
+        if (typeof old === 'function')
+            logger[i] = DelayedLog.bind(old),
+                logger[`${i}Late`] = LogOutOfGroup.bind(old)
     }
 }
 let source = Function.toString.call.bind(Function.prototype.toString)
@@ -47,14 +47,14 @@ let add, remove, dip
             console.error(e)
         }
         }*/
-        add = addEventListener.call.bind(addEventListener)
-        remove = removeEventListener.call.bind(removeEventListener)
-        dip = dispatchEvent.call.bind(dispatchEvent)
+add = addEventListener.call.bind(addEventListener)
+remove = removeEventListener.call.bind(removeEventListener)
+dip = dispatchEvent.call.bind(dispatchEvent)
 let verified = new WeakSet
 let get
 function nodeType(node) {
     try {
-        return(get = get || Function.call.bind(Object.getOwnPropertyDescriptor(Node.prototype, 'nodeType').get))(node)
+        return (get = get || Function.call.bind(Object.getOwnPropertyDescriptor(Node.prototype, 'nodeType').get))(node)
     }
     catch {
         return 0 / 0
@@ -361,7 +361,11 @@ export function off(target, ...eventNames) {
     }
 }
 
-export function until(target, eventName, failureName, timeout/* = 600000*/) {
+export function until(target, eventName, failureName, filter, timeout) {
+    if (typeof filter === 'number') {
+        timeout = filter
+        filter = null
+    }
     return new Promise(waitForEvent)
     function waitForEvent(resolve, reject) {
         let id = timeout && setTimeout(err => {
@@ -371,24 +375,26 @@ export function until(target, eventName, failureName, timeout/* = 600000*/) {
         }, timeout)
             , controller = new AbortController
             , e = {
-                [`#${eventName}`](event) {
-                    try {
+                [`${eventName}`](event, abort) {
+                    if (!filter || (typeof filter ==='function' && filter(event))) try {
                         resolve(event)
                     } catch (e) {
                         reject(e)
                     } finally {
                         timeout && clearTimeout(id)
+                        abort()
                     }
                 }
             }
         failureName && Object.assign(e, {
-            [`#${failureName}`](e) {
+            [`${failureName}`](e, abort) {
                 try {
                     reject(e)
                 } catch (e) {
                     reportError(e)
                 } finally {
                     timeout && clearTimeout(id)
+                    abort()
                 }
             }
         })
@@ -424,7 +430,7 @@ export function delegate(me, events, filter, includeSelf, controller) {
         function DelegationFunction(...args) {
             let { target } = args[0];
             let res = filter(target)
-            (me !== target || includeSelf) && (res == null ? 1 : res) && apply(old, target, args)
+                (me !== target || includeSelf) && (res == null ? 1 : res) && apply(old, target, args)
         }
     }
     return on(me, events, controller)

@@ -24,7 +24,7 @@ let bindHandler = {
 const { get, set, apply, getOwnPropertyDescriptor, ownKeys } = Reflect,
     { revocable } = Proxy,
     { create, preventExtensions, defineProperty, defineProperties, getOwnPropertyDescriptors, assign } = Object
-import*as h from './handle.js'
+import *as h from './handle.js'
 import './css.js'
 const css = window[Symbol.for('CSS')]
 function from(ArrayLike, map, thisArg) {
@@ -60,8 +60,8 @@ const { hasOwn } = Object
     },
     me = Symbol('[[Target]]'),
     saved = Symbol('[[SavedAttributes]]'),
-    {get: all_get, set: all_set, has: all_has, delete: all_delete} = bind(new WeakMap),
-    {get: revokes_get, set: revokes_set, delete: revokes_delete} = bind(new WeakMap),
+    { get: all_get, set: all_set, has: all_has, delete: all_delete } = bind(new WeakMap),
+    { get: revokes_get, set: revokes_set, delete: revokes_delete } = bind(new WeakMap),
     mediaQueries = Symbol('[[ObservedMediaQueries]]')
 function gen() {
     return `${Math.random()}${Math.random()}`.replace(regex.dot, '')
@@ -98,7 +98,7 @@ function genericGet(t, prop) {
 
 function ariaOrData(i) {
     let { 0: char } = i
-    return char === '_' ? i.replace(char, 'aria-') : char === '$' ?  i.replace(char, 'data-') : i
+    return char === '_' ? i.replace(char, 'aria-') : char === '$' ? i.replace(char, 'data-') : i
 }
 const attrStyleMap = 'StylePropertyMap' in window
     , customRules = css.getDefaultStyleSheet()
@@ -117,14 +117,14 @@ const attrStyleMap = 'StylePropertyMap' in window
             get(t, p) {
                 ++reads
                 p = css.toCaps(p)
-                let {cached} = this
+                let { cached } = this
                 let val = cached.get(p)
                 return val ?? (cached.set(p, val = handlers.styles.get(t, p)), val)
             },
             set(t, p, v) {
                 ++writes
                 p = css.toCaps(p)
-                let {cached} = this
+                let { cached } = this
                 if (v === cached.get(p)) return 1
                 cached.set(p, v)
                 this.QueueBatchThing()
@@ -181,7 +181,7 @@ const attrStyleMap = 'StylePropertyMap' in window
                         : prop.startsWith('--') ? target.set(prop, value) : target.set(css.dashVendor(prop, `${value}`), value)
                 }
                 catch (e) {
-                   return reportError(e)
+                    return reportError(e)
                 }
                 return 7
             },
@@ -434,6 +434,11 @@ let props = function () {
              return this*/
             assign(this.styles, styles)
             //base(this).style.cssText = out.join(';')
+        },
+        get index(){
+            let me = base(this),
+            {parentElement} = me
+            return parentElement ? [].indexOf.call(parentElement.children, me) : -1
         }
         , get disabled() {
             return 'disabled' in this.attr || this.attr._disabled === 'true'
@@ -649,7 +654,7 @@ let props = function () {
                 }
                 if (!Queries.has(query)) {
                     let media = matchMedia(query)
-                    , listening = new Set
+                        , listening = new Set
                     function dispatchAll(element) {
                         element = base(element)
                         h.delayedDispatch(query, element, new CustomEvent(query, {
@@ -671,7 +676,7 @@ let props = function () {
                     Queries.set(query, detail)
                 }
                 let detail = Queries.get(query)
-                , { mediaQuery: { matches }, listening } = detail
+                    , { mediaQuery: { matches }, listening } = detail
                 listening.add(this)
                 this.on({
                     [`${flags}${query}`]: val
@@ -944,12 +949,14 @@ ownKeys(props).forEach(i => {
     }
 })
 {
-    let styleMe = getOwnPropertyDescriptor(prototype, 'setStyles')
+    let styleMe = getOwnPropertyDescriptor(prototype, 'setStyles'),
+    dest = getOwnPropertyDescriptor(prototype, 'destroyChildren')
     defineProperties(prototype,
         {
             setAttributes: getOwnPropertyDescriptor(prototype, 'setAttr'),
             kill: getOwnPropertyDescriptor(prototype, 'destroy'),
-            killChildren: getOwnPropertyDescriptor(prototype, 'destroyChildren'),
+            killChildren: dest,
+            clear: dest,
             styleMe,
             setStyle: styleMe
         }
@@ -1017,7 +1024,6 @@ function observeAll(node) {
     let n = node.tagName.toLowerCase()
     if (importHas(n)) {
         importWebComponent(n)
-        console.warn(`You should explcitly import the web component '${n}'`)
     }
     inte?.observe(node)
     let observe = resi.observe.bind(resi)
@@ -1044,19 +1050,18 @@ let notContent = 'meta,script,head,link,title,style,html,body,main,div,samp,code
 export function ignore(nodeOrText) {
     return (nodeOrText instanceof Node || nodeOrText.ownerDocument?.defaultView.Node.prototype.isPrototypeOf(nodeOrText)) ? nodeOrText.matches(notContent) : forString.has(nodeOrText)
 }
-let getNodeType = Function.call.bind(Object.getOwnPropertyDescriptor(Node.prototype, 'nodeType').get)
+let getNodeType = Reflect.get.bind(1,Node.prototype,'nodeType')
 function MutationObserverCallback(entry) {
     for (let { length: ii } = entry; ii--;) {
         let me = entry[ii],
             { addedNodes, removedNodes } = me
         for (let { length: i } = addedNodes, node; i--;) {
             node = addedNodes[i]
-            getNodeType(node) === 1&&
+            getNodeType(node) === 1 &&
                 observeAll(node)
-
         }
         for (let { length: i } = removedNodes, node; i--;)
-            getNodeType(node = removedNodes[i]) === 1&&
+            getNodeType(node = removedNodes[i]) === 1 &&
                 unobserveAll(node)
     }
 }
@@ -1303,7 +1308,7 @@ let temp, div, range, parsingDoc, classRegex = /(?<=\.)[\w-]+/g,
     htmlRegex = /[\w-]+/,
     idRegex = /(?<=#)[\w-]+/,
     typeRegex = /(?<=%)\w+/
-const {get: parseModeMap} = bind(new Map(Object.entries({
+const { get: parseModeMap } = bind(new Map(Object.entries({
     write(html) {
         (parsingDoc ??= document.implementation.createHTMLDocument())
             .open().write(html)
@@ -1354,16 +1359,47 @@ it's like being weird for some reason idfk how to use trusted types policy thing
     })
     safeHTML = t.createHTML.bind(t)
 }*/
+function isHTMLFormatted(str) {
+    str = String(str).trim()
+    return str[0] === '<' && str.endsWith('>')
+}
+/*function esc(a, b, i) {
+    let { 0: regex, 1: rep } = specialChars[i]
+    return `${a.replace(regex, rep)}${typeof b === 'string' ? b.replace(regex, rep) : ''}`
+}
+function escapeHTML(str) {
+    return specialChars.reduce(esc, String(str))
+}
+const specialChars = [[/>/g, '&gt;'], [/</g, '&lt;'], [/'/g, '&apos;'], [/"/g, '&quot;'], [/&(?![#\w]+;)/g, '&amp;']]*/
+/*
+function escapeHTML(str) {
+    return escGet(str) ?? ((a ??= document.createElement('div')).textContent = str, escSet(str, a.innerhtml), a.innerHTML)
+}
+*/
+let a
+function escapeHTML(str) {
+    (a ??= document.createElement('div'))
+        .textContent = str //textContent does it for you lol
+    return a.innerHTML
+}
+
 /**
- * # Be careful of html injection when using a string!!
+ * ## Use tagged templates when string is user input
  */
 function $(html, props, ...children) {
     if (getValid(html)) return prox(html) // Redirect
-    let type = typeof html
     // if (type === 'number') return prox(document.getElementsByTagName('*')[html])
-    type === 'string' && (html = html.trim())
+    if (Array.isArray(html) && 'raw' in html) {
+        let strings = html,
+            values = [].slice.call(arguments, 1),
+            result = ''
+        for (let i = 0, n = strings.length, { length } = values; i < n; ++i) result = `${result}${strings[i]}${i < length ? escapeHTML(values[i]) : ''}`
+        html = result.trim()
+        props = children = null
+    }
+    typeof html === 'string' && (html = html.trim())
     let element
-    if (html?.[0] === '<' && html.endsWith('>')) {
+    if (isHTMLFormatted(html)) {
         html = safeHTML(html)
         element = prox(parseModeMap(parseMode)?.(html) ?? parseModeMap('')(html))
     } else {
@@ -1407,7 +1443,7 @@ function $(html, props, ...children) {
     } else if (typeof props === 'string' || getValid(props))
         children.unshift(props),
             props = null
-    children.length && element.push(children.map(elemIfString))
+    children?.length && element.push(children.map(elemIfString))
     // let {textContent} = element
     /*if (no_translate.test(textContent)) {
         let regex = cloneRegexp(no_translate)
