@@ -26,11 +26,11 @@ const a = globalThis.document?.createElement?.('div')
 if (a) {
     const textContent = Object.getOwnPropertyDescriptor(Node.prototype,'textContent').set.bind(a),
     innerHTML = Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML').get.bind(a)
-    function Esc(str) {
+    function esc(str) {
         textContent(str)
         return innerHTML()
     }
-    escapeHTML = Esc
+    escapeHTML = esc
 }
 else {
     function esc(str) {

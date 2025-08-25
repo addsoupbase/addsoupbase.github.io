@@ -107,7 +107,6 @@ export function requestFile(accept, multiple) {
         type: 'file'
     })
     return new Promise(executor)
-
     function executor(resolve, oncancel) {
         return Object.assign(f, {
             accept,
@@ -142,6 +141,20 @@ function verifyEventName(target, name) {
             if ('onmousewheel' in target) return 'mousewheel' // iOS doesn't support 'wheel' events yet
             if (typeof MouseScrollEvent === 'function') return 'DOMMouseScroll' // If they don't support the first 2, this one will work ~100% of the time
             return 'MozMousePixelScroll' // The last resort, since there's no way to detect support with this one
+        }
+        let label = getLabel(target)
+        if (name === 'change' && label === 'ScreenOrientation') {
+            let n =['msonorientationchange', 'mozonorientationchange','orientationchange'].find(Reflect.has.bind(1,target)) 
+            , out = {
+                target: screen,
+                name: n
+            }
+            if (!n) {
+                out.target = window
+                out.name = 'orientationchange'
+            } 
+            logger.warn(`Fallback event for '${original}' (${out.name}) added to ${getLabel(out.target)}`)
+            return out
         }
         logger.warnLate(`'${original}' events might not be available on the following EventTarget:`, target)
     }
@@ -248,14 +261,19 @@ export function on(target, events, controller) {
                     //once
                     passive,
                 }
+            let newTarget = target
             if (prevents && passive) throw TypeError("Cannot call 'preventDefault' on a passive function")
-            eventName = verifyEventName(target, eventName.replace(formatEventName, ''))
+            eventName = verifyEventName(newTarget, eventName.replace(formatEventName, ''))
+            if (typeof eventName === 'object') {
+                newTarget = eventName.target
+                eventName = eventName.name
+            }
             if (myEvents.has(eventName) && controller == null) {
                 logger.warnLate(`🔕 Skipped duplicate '${eventName}' listener. Call on() again with the signal parameter to bypass this.`)
                 continue
             }
             controller && (options.once = once, options.signal = controller.signal)
-            const listener = EventWrapper.bind(target, [
+            const listener = EventWrapper.bind(newTarget, [
                 func, controller,
                 controller?.abort.bind(controller, 'Automatic abort'),
                 onlyTrusted,
@@ -266,16 +284,16 @@ export function on(target, events, controller) {
                 once,
                 eventName])
             if (autoabort && getLabel(controller) !== 'AbortController') throw TypeError("AbortController required if '#' (autoabort) is present")
-            add(target, eventName, listener, options, /*onlyTrusted*/)
+            add(newTarget, eventName, listener, options, /*onlyTrusted*/)
             // if (eventName === 'load' && /^(?:HTMLIFrameElement|Window)$/.test(getLabel(target)) && (target.contentWindow || target).document?.readyState === 'complete') {
             // setTimeout(listener.bind(target, new Event('load')))
             // logger.warnLate(`'${eventName}' event was fired before listener was added`, target)
             // }
             if (controller) logger.info(`📡 '${eventName}' event added`)
             else {
-                allEvents.has(target) || allEvents.set(target, new Map)
+                allEvents.has(newTarget) || allEvents.set(newTarget, new Map)
                 //A Map to hold the names & events
-                const myGlobalEventMap = allEvents.get(target)
+                const myGlobalEventMap = allEvents.get(newTarget)
                 myGlobalEventMap.set(eventName, {
                     __proto__: null,
                     onlyCurrentTarget,
@@ -347,13 +365,18 @@ export function off(target, ...eventNames) {
         const map = allEvents.get(target),
             mySet = target[sym]
         for (let i = eventNames.length; i--;) {
-            const name = verifyEventName(target, eventNames[i]),
+            let newTarget = target
+            const name = verifyEventName(newTarget, eventNames[i]),
                 settings = map.get(name),
                 { listener } = settings
-            remove(target, name, listener, settings)
+            if (typeof name === 'object') {
+                newTarget = name.target
+                name = name.name
+            }
+            remove(newTarget, name, listener, settings)
             map.delete(name) && logger.info(`🔕 '${name}' event removed`)
             mySet.delete(name)
-            map.size || allEvents.delete(target)
+            map.size || allEvents.delete(newTarget)
         }
     }
     finally {
@@ -376,7 +399,7 @@ export function until(target, eventName, failureName, filter, timeout) {
             , controller = new AbortController
             , e = {
                 [`${eventName}`](event, abort) {
-                    if (!filter || (typeof filter ==='function' && filter(event))) try {
+                    if (!filter || (typeof filter === 'function' && filter(event))) try {
                         resolve(event)
                     } catch (e) {
                         reject(e)

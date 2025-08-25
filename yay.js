@@ -734,8 +734,8 @@ let props = function () {
                 css.badCSS(`Unrecognized CSS rule at '${og}'`)
             }
         }
-        , until(good, bad, timeout) {
-            return h.until(base(this), good, bad, timeout)
+        , until(good, bad,filter, timeout) {
+            return h.until(base(this), good, bad, filter, timeout)
         }
         , animate(keyframes, options) {
             (options ??= {}).timing ??= 'ease'
@@ -894,7 +894,7 @@ const HTML_PLACING = new Set('beforebegin afterbegin beforeend afterend'.split('
             configurable: false,
             get() {
                 ++reads
-                queued || (reset(), queued = true)
+                queued ||= !void reset()
                 if (prop === 'scrollTopMax' || prop === 'scrollLeftMax') {
                     let a = cached ??= base(this)[prop]
                     if (a == null) {
@@ -1387,21 +1387,21 @@ function escapeHTML(str) {
  * ## Use tagged templates when string is user input
  */
 function $(html, props, ...children) {
-    if (getValid(html)) return prox(html) // Redirect
-    // if (type === 'number') return prox(document.getElementsByTagName('*')[html])
+    if (getValid(html)) return prox(html) 
     if (Array.isArray(html) && 'raw' in html) {
         let strings = html,
             values = [].slice.call(arguments, 1),
             result = ''
         for (let i = 0, n = strings.length, { length } = values; i < n; ++i) result = `${result}${strings[i]}${i < length ? escapeHTML(values[i]) : ''}`
         html = result.trim()
-        props = children = null
+        props = null
+        children.length = null
     }
     typeof html === 'string' && (html = html.trim())
     let element
     if (isHTMLFormatted(html)) {
         html = safeHTML(html)
-        element = prox(parseModeMap(parseMode)?.(html) ?? parseModeMap('')(html))
+        element = prox((parseModeMap(parseMode)??parseModeMap(''))(html))
     } else {
         element = prox(document.createElement(html.match(htmlRegex)?.[0]))
         let classes = html.match(classRegex),
@@ -1413,9 +1413,8 @@ function $(html, props, ...children) {
         type && (toSet.type = type)
         element.setAttr(toSet)
     }
-    // $.last = element
     let b = base(element)
-    if (from(b.querySelectorAll('*'), prox).concat(element).some(allElementStuff)) throw TypeError('Inline event handlers are deprecated')
+    if (from(b.getElementsByTagName('*'), prox).concat(element).some(allElementStuff)) throw TypeError('Inline event handlers are deprecated')
     if (element.tagName === 'SCRIPT' || b.querySelector('script')) {
         debugger
         throw new DOMException('Potential script injection', 'SecurityError')
@@ -1443,7 +1442,7 @@ function $(html, props, ...children) {
     } else if (typeof props === 'string' || getValid(props))
         children.unshift(props),
             props = null
-    children?.length && element.push(children.map(elemIfString))
+    children.length && element.push(children.map(elemIfString))
     // let {textContent} = element
     /*if (no_translate.test(textContent)) {
         let regex = cloneRegexp(no_translate)
@@ -1474,8 +1473,20 @@ function revoke(targ) {
     revokes_get(targ)?.()
     revokes_delete(targ)
 }
-
 export default defineProperties($, {
+    orientation: {
+        get() {
+            let out = screen.orientation?.type || screen.orientation
+            if (out) return out
+            if ('orientation'in window) switch(orientation) {
+                case 180: return 'portrait-secondary'
+                case 0: return 'portrait-primary'
+                case -90: return 'landscape-secondary'
+                default: return 'landscape-primary'
+            }
+            return 'landscape-primary'
+        }
+    },
     hasFullscreen: {
         get() {
             return !!(document.fullscreen || document.fullscreenElement || window.fullScreen)
@@ -1606,4 +1617,4 @@ typeof mozInnerScreenX === 'number' && !supported('paint') && addEventListener('
 supported = null
 // diary stuff
 if (location.pathname.startsWith('/entries') && (location.host === 'localhost:3000' || location.host === 'addsoupbase.github.io')) document.querySelector('script[src="../../diary.js"]') ?? import('./diary.js');
-/localhost/.test(origin) && (window.$ = $)
+// /localhost/.test(origin) && (window.$ = $)
