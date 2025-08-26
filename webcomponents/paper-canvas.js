@@ -2,7 +2,7 @@ import $, { define } from '../yay.js'
 import { vect } from "../num.js"
 import * as css from '../csshelper.js'
 // import * as h from '../handle.js'
-
+// let internals = Symbol()
 function pointerup(p) {
     if (p.button === 2) return
     this.holding = false
@@ -19,7 +19,6 @@ function pointermove(p) {
             x = touches.clientX - this.offsetLeft - touches.radiusX
             y = touches.clientY - this.offsetTop - touches.radiusY
         }
-
         ctx.beginPath()
         // let {currentCSSZoom: zoom} = this
         ctx.moveTo(lastLoc.x / zoom, lastLoc.y / zoom)
@@ -52,6 +51,11 @@ class PaperCanvas extends HTMLElement {
     get undo() {
         return PaperCanvas.undo
     }
+    // syncWithForm() {
+        // let i = this[internals]
+        // return this.toFile().then(i.setFormValue.bind(i))
+    // // }
+    // static formAssociated = true
     static undo() {
         let { undoBuffer, ctx } = this
         if (!undoBuffer.length) return
@@ -65,6 +69,16 @@ class PaperCanvas extends HTMLElement {
     dataURL(quality = 1) {
         return this.canvas.toDataURL('image/png', quality)
     }
+    toBlob() {
+        return new Promise(resolve => {
+            this.canvas.toBlob(resolve, 'image/png', 1)
+        })
+    }
+    async toFile(title = `${crypto.randomUUID()}`) {
+        let a = await this.toBlob()
+        return new File([a], `${title}.png`, { type: 'image/png' })
+    }
+    // [internals] = this.attachInternals()
     set alpha(val) {
         this.ctx = this.canvas.setAttr({ '-moz-opaque': !val }).getContext('2d', {
             alpha: val, willReadFrequently: true

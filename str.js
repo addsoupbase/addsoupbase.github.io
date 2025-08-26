@@ -1,4 +1,9 @@
 const map = new Map(Object.entries({ 1: 'st', 2: 'nd', 3: 'rd' }))
+''.at || (String.prototype.at = Array.prototype.at = function (index) {
+    if (index < 0) index += this.length
+    let out = this[index]
+    return typeof this === 'string' ? out ?? '' : out
+})
 export const ALPHABET = 'abcdefghijklmnopqrstuvwxyz'.toUpperCase(),
     alphabet = ALPHABET.toLowerCase(),
     numbers = '0123456789',
@@ -24,8 +29,8 @@ export function splice(string, start, deleteCount, items) {
 export let escapeHTML
 const a = globalThis.document?.createElement?.('div')
 if (a) {
-    const textContent = Object.getOwnPropertyDescriptor(Node.prototype,'textContent').set.bind(a),
-    innerHTML = Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML').get.bind(a)
+    const textContent = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent').set.bind(a),
+        innerHTML = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML').get.bind(a)
     function esc(str) {
         textContent(str)
         return innerHTML()
@@ -36,11 +41,11 @@ else {
     function esc(str) {
         return specialChars.reduce(reduce, str)
     }
-    function reduce(a, b, i) {
-        let { 0: regex, 1: rep } = specialChars[i]
+    function reduce(a, b, i, arr) {
+        let { 0: regex, 1: rep } = arr[i]
         return `${a.replace(regex, rep)}${typeof b === 'string' ? b.replace(regex, rep) : ''}`
     }
-    const specialChars = [[/>/g, '&gt;'], [/</g, '&lt;'], [/&(?![#\w]+;)/g, '&amp;'], [/'/g, '&apos;'], [/"/g, '&quot;']]
+    const specialChars = [].reduce.bind([[/>/g, '&gt;'], [/</g, '&lt;'], [/&(?![#\w]+;)/g, '&amp;'], [/'/g, '&apos;'], [/"/g, '&quot;']])
     escapeHTML = esc
 }
 export function replace(string, ...subs) {
@@ -51,8 +56,9 @@ export function replace(string, ...subs) {
     return newstring
     function replace(char) { newstring = newstring.replace(placeholder, char) }
 }
+let vowels = / /.test.bind(/[aeiou]/i)
 export function formatWord(str) {
-    return /[aeiou]/i.test(str[0]) ? `an ${str}` : `a ${str}`
+    return vowels(str[0]) ? `an ${str}`:`a ${str}`
 }
 export function shorten(str, length, tail) {
     if (typeof length !== 'number') throw RangeError('Length must be present')

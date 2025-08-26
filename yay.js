@@ -640,7 +640,7 @@ let props = function () {
                     break
             }
         }
-        , match(queries, flags, controller) {
+        , matchMedia(queries, flags, controller) {
             flags ??= ''
             let my = this[mediaQueries]
             for (let i in queries) {
@@ -744,13 +744,11 @@ let props = function () {
             keyframes.forEach(forEach)
             if (css.reducedMotion.matches) {
                 let test = / /.test.bind(badForReducedMotion)
-                loop: for (let i = keyframes.length; i--;) {
-                    let val = keyframes[i]
-                    for (let i in val) if (test(i)) {
+                loop: for (let i = keyframes.length; i--;) 
+                    for (let a in keyframes[i]) if (test(a)) {
                         options.duration = 0
                         break loop
                     }
-                }
             }
             return base(this).animate(keyframes, options)
         }
@@ -1030,12 +1028,13 @@ function observeAll(node) {
     observe(node)
     let setAttribute = node.setAttribute.bind(node),
         hasAttribute = node.hasAttribute.bind(node)
-    switch (n) {
+    // switch (n) {
+    if (n === 'img') {
         // These are really important for performance
-        case 'img':
+        // case 'img':
             hasAttribute('decoding') || setAttribute('decoding', node.decoding = 'async')
             hasAttribute('loading') || setAttribute('loading', node.loading = 'lazy')
-            break
+            // break
     }
     observe(node, { box: 'border-box' })
     observe(node, { box: 'device-pixel-content-box' })
@@ -1046,9 +1045,9 @@ function unobserveAll(node) {
     resi.unobserve(node)
 }
 let notContent = 'meta,script,head,link,title,style,html,body,main,div,samp,code,pre,q,blockquote,output,legend,base,cite,var',
-    forString = new Set(notContent.split(','))
+    asAString = new Set(notContent.split(','))
 export function ignore(nodeOrText) {
-    return (nodeOrText instanceof Node || nodeOrText.ownerDocument?.defaultView.Node.prototype.isPrototypeOf(nodeOrText)) ? nodeOrText.matches(notContent) : forString.has(nodeOrText)
+    return (nodeOrText instanceof Node || nodeOrText.ownerDocument?.defaultView.Node.prototype.isPrototypeOf(nodeOrText)) ? nodeOrText.matches(notContent) : asAString.has(nodeOrText)
 }
 let getNodeType = Reflect.get.bind(1,Node.prototype,'nodeType')
 function MutationObserverCallback(entry) {
@@ -1303,7 +1302,7 @@ function getValid(target) {
 }
 
 const doc = document.createDocumentFragment()
-    , parser = new DOMParser
+    , {parseFromString} = bind(new DOMParser)
 let temp, div, range, parsingDoc, classRegex = /(?<=\.)[\w-]+/g,
     htmlRegex = /[\w-]+/,
     idRegex = /(?<=#)[\w-]+/,
@@ -1341,7 +1340,7 @@ const { get: parseModeMap } = bind(new Map(Object.entries({
         return document.adoptNode(Document.parseHTMLUnsafe(html).body.firstElementChild)
     },
     ''(html) {
-        let t = parser.parseFromString(html, 'text/html')
+        let t = parseFromString(html, 'text/html')
         return document.adoptNode(t.body.firstElementChild)
     }
 })))
