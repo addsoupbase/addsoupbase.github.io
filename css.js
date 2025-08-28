@@ -10,9 +10,22 @@
         w.dispatchEvent(evt)
         evt.defaultPrevented || console.error(`${throwable}`)
     }
+    function setName(n) {
+        return top.name = n
+    }
+    function getName() {
+        try {
+            return top.name
+        }
+        catch(e) {
+            setName = sessionStorage.setItem.bind(sessionStorage, 'css')
+            getName = sessionStorage.getItem.bind(sessionStorage, 'css')
+            return getName() || ''
+        }
+    }
     var createElement = document.createElement.bind(document),
         components = 'img-sprite touch-joystick seek-bar paper-canvas'.split(' '),
-        name = top.name,
+        name = getName(),
         fromEntries = Object.fromEntries,
         entries = Object.entries,
         isArray = Array.isArray,
@@ -39,9 +52,9 @@
         pseudoClassRegex = / /.test.bind(/:[\w-]/),
         cleanRegex = /(\s|\n)\1/g,
         reducedMotion = matchMedia('(prefers-reduced-motion:reduce)'),
-        pev = supportedPElementVendor,
+        pev = pelem,
         theNames = allVendors.source.match(/\w+/g).reverse().slice(2),
-        pcv = supportedPClassVendor
+        pcv = pclass
     function dashVendor(prop, val) {
         return vendor(toDash(prop), val)
     }
@@ -212,7 +225,7 @@
     function supportsRule(rule) {
         return sup(`selector(${rule})`)
     }
-    function supportedPClassVendor(className) {
+    function pclass(className) {
         var a = className.split(':')
             , before = a[0],
             _class = a[1],
@@ -228,7 +241,7 @@
             supportsRule(className = `:mso-${_class}`)) return `${before}${className}`
         return `${before}:${_class}`
     }
-    function supportedPElementVendor(element) {
+    function pelem(element) {
         var a = element.split('::'),
             before = a[0],
             _element = a[1],
@@ -454,7 +467,7 @@
         universal['overflow-wrap'] = 'var(--word-wrap)'
         universal['scrollbar-color'] = 'var(--scrollbar-thumb-color) var(--scrollbar-color)'
         all = null
-        setTextContent(name || (top.name = `${first}${selector}{${toCSS(universal, true)}}${global}`))
+        setTextContent(name || (setName(`${first}${selector}{${toCSS(universal, true)}}${global}`)))
     }()
     w[sym] = Object.seal({
         __proto__: null,
@@ -477,8 +490,8 @@
         registerCSSAll: registerCSSAll,
         supportsRule: supportsRule,
         pcv: pcv,
-        supportedPClassVendor: supportedPClassVendor,
+        supportedPClassVendor: pclass,
         pev: pev,
-        supportedPElementVendor: supportedPElementVendor
+        supportedPElementVendor: pelem
     })
 }(window, Symbol.for('CSS')))

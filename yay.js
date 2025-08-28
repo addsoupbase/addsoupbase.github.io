@@ -262,6 +262,13 @@ let props = function () {
         Queries = new Map,
         querySyntax = / /.test.bind(/^(?:\(.+\))$/),
         badForReducedMotion = /^(?:transform|scale|zoom|translate|rotate)$/
+    function clone(node) {
+        let out = document.importNode(node, true)
+        this.appendChild(out)
+    }
+    function removeIdAttributeIfPresent(n) {
+        n.removeAttribute('id')
+    }
     function cancel(o) {
         o.cancel()
     }
@@ -349,6 +356,13 @@ let props = function () {
             while (firstElementChild)
                 out.appendChild(me.removeChild(firstElementChild)), { firstElementChild } = me
             return out
+        },
+        get clonedChildren() {
+             let me = base(this)
+             let n = document.createDocumentFragment();
+             [].forEach.call(me.childNodes, clone, n);
+             [].forEach.call(n.querySelectorAll('*'), removeIdAttributeIfPresent)
+             return n             
         }
         , pass() {
             let { orphans } = this
@@ -1394,7 +1408,7 @@ function $(html, props, ...children) {
         for (let i = 0, n = strings.length, { length } = values; i < n; ++i) result = `${result}${strings[i]}${i < length ? escapeHTML(values[i]) : ''}`
         html = result.trim()
         props = null
-        children.length = null
+        children.length = 0
     }
     typeof html === 'string' && (html = html.trim())
     let element

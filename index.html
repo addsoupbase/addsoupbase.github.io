@@ -55,11 +55,15 @@
     <link rel="apple-touch-icon" sizes="180x180" href="./icon-180x180.png">
     <link rel="modulepreload" href="./yay.js">
     <link rel="modulepreload" href="./handle.js">
-    <style>
-        .show {
-            display: block !important
-        }
-    </style>
+    <script src="css.js" blocking="render"></script>
+    <script src="css_bad.js" nomodule></script>
+    <noscript>
+        <style>
+            .show {
+                display: block !important
+            }
+        </style>
+    </noscript>
 </head>
 
 <body id="hiii"
@@ -72,16 +76,20 @@
         <script>
             !function (a) {
                 'use strict'
-                a.setAttribute('class', 'center')
-                if (a.contentWindow.document.readyState === 'complete') a.style.display = ''
-                else a.addEventListener('load', function () { this.style.display = '' }, { once: true })
+                try {
+                    a.setAttribute('class', 'center')
+                    if (a.contentWindow.document.readyState === 'complete') a.style.display = ''
+                    else a.addEventListener('load', function () { this.style.display = '' }, { once: true })
+                }
+                catch (e) {
+                    a.style.display = ''
+                }
             }(document.getElementById('frame'))
         </script>
     </main>
     <button class="cute-green-button" id="show"
         style="position: fixed;bottom:15px;right:15px;display:none;z-index: 2;">Show</button>
-    <script src="css.js" blocking="render"></script>
-    <script src="css_bad.js" nomodule></script>
+
     <script type="module">
         import * as h from './handle.js'
         import $ from './yay.js'

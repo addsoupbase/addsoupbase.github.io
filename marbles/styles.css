@@ -62,8 +62,17 @@ touch-joystick {
 cite::before {
     content: 'By ';
 }
-
-.mainmenu {
+.hiii > * {
+margin: 5px;
+}
+.hiii {
+    border:1px solid black;
+    margin: 5px;
+}
+.hiii:empty::after {
+    /* content:"No racers" */
+}
+.mainmenu:open {
     background-color: #28a745;
     color: white;
     border-radius: 5px;
@@ -76,10 +85,20 @@ cite::before {
     text-align: center;
     overflow-y: scroll;
     display: flex;
+    z-index: 2;
     flex-direction: column;
+    backdrop-filter: blur(5px);
     gap: 10px;
 }
-
+.editable {
+    text-decoration: underline;cursor: text;overflow-wrap: anywhere;transition:text-decoration-color .3s ease;
+}
+dialog {
+    --interactivity: auto
+}
+.dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.275);
+}
 .place {
     border-radius: 100%;
     width: 80px;
@@ -124,8 +143,34 @@ cite::before {
     right: 0
 }
 
+#imageholder {
+    display: grid;
+
+}
+
+#imageholder>* {
+    margin: 5px
+}
+
+#racerholder:empty {
+    visibility: visible;
+}
+
+#racerholder {
+    width: 100%;
+    display: inline-block;
+}
+
+#racerholder:empty::after {
+    content: 'No racers';
+}
+
 .short {
     width: 120px
+}
+
+.inputholder:empty {
+    visibility: hidden;
 }
 
 .inputholder {
@@ -262,9 +307,11 @@ select:active {
     display: block;
 }
 
-.bad,.good {
+.bad,
+.good {
     transition: filter .1s linear
 }
+
 .bad {
     background-color: red;
     border: 1px solid darkred;
@@ -280,8 +327,7 @@ select:active {
 }
 
 .constraints input,
-.constriants
-.del {
+.constriants .del {
     width: 40%;
     margin: 2px
 }

@@ -102,8 +102,15 @@ async function getStrFromFile(pathname, type) {
         return null
     }
 }
-
+let n = new Set([6,7,8,9,10,11,12,13,14,15,16,17,19,20,21,22,23,24,26,145,229,239,240,275, 296,316,319,320,321,322,368,369,370, 389,393,394,395,396,241])
 function modifyJS(script, url) {
+    if (url.includes('handle.js')) {
+        let str = script.split('\n')
+        for(let i of n) {
+            str[i] = str[i].replace('//','')
+        }
+        return str.join('\n')
+    }
     if (/^[\n\s\r]*("|')use strict\1[\n\s\r]*;?/.test(script)) return `"use strict";console.time('${url}');
 ${script};
 console.timeEnd('${url}')`

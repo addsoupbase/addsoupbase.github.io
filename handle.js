@@ -3,28 +3,28 @@
 const sym = Symbol.for("[[Events]]")
     //  Don't collide, and make sure its usable across realms!!
     , { apply, getPrototypeOf: gpo, getOwnPropertyDescriptor: gopd, defineProperty: dp, ownKeys } = Reflect
-    , logger = { __proto__: null }
-{
-    let { 0: c, 1: cc } = '%c@handle.js +color:pink;'.split('+')
-    function DelayedLog(...args) {
-        args.unshift(1, c, cc)
-        queueMicrotask(this.bind.apply(this, args))
-    }
-    function LogOutOfGroup(...args) {
-        args.unshift(1, c, cc)
-        setTimeout(this.bind.apply(this, args))
-    }
-    for (let i in console) {
+    // , logger = { __proto__: null }
+// {
+    // let { 0: c, 1: cc } = '%c@handle.js +color:pink;'.split('+')
+    // function DelayedLog(...args) {
+        // args.unshift(1, c, cc)
+        // queueMicrotask(this.bind.apply(this, args))
+    // }
+    // function LogOutOfGroup(...args) {
+        // args.unshift(1, c, cc)
+        // setTimeout(this.bind.apply(this, args))
+    // }
+    // for (let i in console) {
         // Because the groupCollapsed() method was suppressing errors, delay them instead
-        let old = console[i]
-        if (typeof old === 'function')
-            logger[i] = DelayedLog.bind(old),
-                logger[`${i}Late`] = LogOutOfGroup.bind(old)
-    }
-}
+        // let old = console[i]
+        // if (typeof old === 'function')
+            // logger[i] = DelayedLog.bind(old),
+                // logger[`${i}Late`] = LogOutOfGroup.bind(old)
+    // }
+// }
 let source = Function.toString.call.bind(Function.prototype.toString)
-let { warn, groupCollapsed, groupEnd } = logger,
-    { isArray } = Array
+// let { warn, groupCollapsed, groupEnd } = logger,
+let { isArray } = Array
 export const allEvents = new WeakMap
 let add, remove, dip
 /*{
@@ -142,21 +142,7 @@ function verifyEventName(target, name) {
             if (typeof MouseScrollEvent === 'function') return 'DOMMouseScroll' // If they don't support the first 2, this one will work ~100% of the time
             return 'MozMousePixelScroll' // The last resort, since there's no way to detect support with this one
         }
-        let label = getLabel(target)
-        if (name === 'change' && label === 'ScreenOrientation') {
-            let n =['msonorientationchange', 'mozonorientationchange','orientationchange'].find(Reflect.has.bind(1,target)) 
-            , out = {
-                target: screen,
-                name: n
-            }
-            if (!n) {
-                out.target = window
-                out.name = 'orientationchange'
-            } 
-            logger.warn(`Fallback event for '${original}' (${out.name}) added to ${getLabel(out.target)}`)
-            return out
-        }
-        logger.warnLate(`'${original}' events might not be available on the following EventTarget:`, target)
+        // logger.warnLate(`'${original}' events might not be available on the following EventTarget:`, target)
     }
     return original
 }
@@ -229,14 +215,30 @@ export function addCustomEvent(names) {
     for (let name in names) customEvents[names[name] ? 'add' : 'delete'](name.toLowerCase())
 }
 const formatEventName = /[_$^%&!?@#]|bound /g
+function supportOrientationChangeEvent(target, eventName, label) {
+    if (eventName === 'change' && label === 'ScreenOrientation') {
+        let n = ['msonorientationchange', 'mozonorientationchange', 'orientationchange'].find(Reflect.has.bind(1, target))
+            , out = {
+                target: screen,
+                name: n
+            }
+        if (!n) {
+            out.target = window
+            out.name = 'orientationchange'
+        }
+        // logger.warn(`'${eventName}' was changed to '${out.name}' on ${getLabel(out.target)}`)
+        return out
+    }
+}
 export function on(target, events, controller) {
     arguments.length > 3 && getLabel(controller) !== 'AbortController' && (controller = arguments[3])
     if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
     let names = ownKeys(events)
     if (!names.length) return target
-    try {
-        groupCollapsed(`on(${getLabel(target)})`)
-        logger.dirxml(target)
+    let label = getLabel(target)
+    // try {
+        // groupCollapsed(`on(${label})`)
+        // logger.dirxml(target)
         const myEvents = getEventNames(target)
         if (typeof events === 'function') events = {
             [events.name]: events
@@ -264,12 +266,13 @@ export function on(target, events, controller) {
             let newTarget = target
             if (prevents && passive) throw TypeError("Cannot call 'preventDefault' on a passive function")
             eventName = verifyEventName(newTarget, eventName.replace(formatEventName, ''))
-            if (typeof eventName === 'object') {
-                newTarget = eventName.target
-                eventName = eventName.name
+            let b = supportOrientationChangeEvent(target, eventName, label)
+            if (b) {
+                newTarget = b.target
+                eventName = b.name
             }
             if (myEvents.has(eventName) && controller == null) {
-                logger.warnLate(`🔕 Skipped duplicate '${eventName}' listener. Call on() again with the signal parameter to bypass this.`)
+                // logger.warnLate(`🔕 Skipped duplicate '${eventName}' listener. Call on() again with the signal parameter to bypass this.`)
                 continue
             }
             controller && (options.once = once, options.signal = controller.signal)
@@ -289,7 +292,9 @@ export function on(target, events, controller) {
             // setTimeout(listener.bind(target, new Event('load')))
             // logger.warnLate(`'${eventName}' event was fired before listener was added`, target)
             // }
-            if (controller) logger.info(`📡 '${eventName}' event added`)
+            if (controller) {
+                // logger.info(`📡 '${eventName}' event added`)
+            } 
             else {
                 allEvents.has(newTarget) || allEvents.set(newTarget, new Map)
                 //A Map to hold the names & events
@@ -308,13 +313,13 @@ export function on(target, events, controller) {
                     autoabort
                 })
                 myEvents.add(eventName)
-                logger.info(`🔔 '${eventName}' event added`)
+                // logger.info(`🔔 '${eventName}' event added`)
             }
         }
-    }
-    finally {
-        groupEnd()
-    }
+    // }
+    // finally {
+        // groupEnd()
+    // }
     return target
 }
 const customEventHandler = {
@@ -359,9 +364,10 @@ function EventWrapper({ 0: f, 1: s, 2: abrt, 3: t, 4: oct, 5: p, 6: sp, 7: sip, 
 export function off(target, ...eventNames) {
     if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
     if (!eventNames.length || !allEvents.has(target)) return null
-    try {
-        groupCollapsed(`off(${getLabel(target)})`)
-        logger.dirxml(target)
+    let label = getLabel(target)
+    // try {
+        // groupCollapsed(`off(${label})`)
+        // logger.dirxml(target)
         const map = allEvents.get(target),
             mySet = target[sym]
         for (let i = eventNames.length; i--;) {
@@ -373,15 +379,21 @@ export function off(target, ...eventNames) {
                 newTarget = name.target
                 name = name.name
             }
+            let b = supportOrientationChangeEvent(target, name, label)
+            if (b) {
+                newTarget = b.target
+                name = b.name
+            }
             remove(newTarget, name, listener, settings)
-            map.delete(name) && logger.info(`🔕 '${name}' event removed`)
+            map.delete(name) 
+            // && logger.info(`🔕 '${name}' event removed`)
             mySet.delete(name)
             map.size || allEvents.delete(newTarget)
         }
-    }
-    finally {
-        groupEnd()
-    }
+    // }
+    // finally {
+        // groupEnd()
+    // }
 }
 
 export function until(target, eventName, failureName, filter, timeout) {
