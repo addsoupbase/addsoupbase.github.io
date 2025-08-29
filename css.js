@@ -1,5 +1,11 @@
 (function n(w, sym) {
     var inModule = !this
+    if (!''.startsWith) Object.defineProperty(String.prototype, 'startsWith', {
+        value: function(str, pos) {
+            pos = pos | 0
+            return this.slice(pos, (str+='').length + pos) === str
+        }
+    })
     function main() {
         'use strict'
         if (sym in w || typeof w.addedStyleRules === 'object') return w[sym]
