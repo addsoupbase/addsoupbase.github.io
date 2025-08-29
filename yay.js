@@ -365,7 +365,7 @@ let props = function () {
         },
         get clonedChildren() {
             let me = base(this)
-            let n = document.createDocumentFragment();
+                , n = document.createDocumentFragment();
             [].forEach.call(me.childNodes, clone, n);
             [].forEach.call(n.querySelectorAll('*'), removeIdAttributeIfPresent)
             return n
@@ -661,7 +661,6 @@ let props = function () {
             }
         }
         , matchMedia(queries, flags, controller) {
-            flags ??= ''
             let my = this[mediaQueries]
             for (let i in queries) {
                 let query = i
@@ -699,7 +698,7 @@ let props = function () {
                     , { mediaQuery: { matches }, listening } = detail
                 listening.add(this)
                 this.on({
-                    [`${flags}${query}`]: val
+                    [`${flags ?? ''}${query}`]: val
                 }, controller)
                 matches && h.delayedDispatch(query, base(this), new CustomEvent(query, { detail }))
             }
@@ -837,8 +836,7 @@ let props = function () {
                 let name = attr[i]
                 setAttribute(name, getAttribute(name))
             }
-        }
-        ,
+        },
     }
     return getOwnPropertyDescriptors(Proto)
 }()
@@ -1055,10 +1053,12 @@ function observeAll(node) {
         // case 'img':
         hasAttribute('decoding') || setAttribute('decoding', node.decoding = 'async')
         hasAttribute('loading') || setAttribute('loading', node.loading = 'lazy')
+        setAttribute('elementtiming','hey')
         // break
     }
     observe(node, { box: 'border-box' })
-    // observe(node, { box: 'device-pixel-content-box' })
+    try { observe(node, { box: 'device-pixel-content-box' }) }
+    catch (e) { console.debug(e) }
 }
 
 function unobserveAll(node) {
@@ -1096,7 +1096,7 @@ RESIZE OBSERVER STUFFS
 */
 function ResizeLoop(o) {
     let { borderBoxSize, contentBoxSize, devicePixelContentBoxSize } = o
-    h.delayedDispatch('ResizeObserver', o.target, new CustomEvent('re-scale', {
+    requestAnimationFrame(dispatchEvent.bind(o.target, new CustomEvent('re-scale', {
         bubbles: true,
         detail: {
             borderBoxSize: borderBoxSize?.[0] ?? borderBoxSize,
@@ -1104,7 +1104,7 @@ function ResizeLoop(o) {
             contentRect: o.contentRect,
             devicePixelContentBoxSize: devicePixelContentBoxSize?.[0] ?? devicePixelContentBoxSize,
         }
-    }))
+    })))
 }
 
 h.addCustomEvent({
@@ -1130,13 +1130,13 @@ function PerformanceLoop(o) {
             let { sources } = o
             for (let { length: i } = sources; i--;) {
                 let { node, currentRect, previousRect } = sources[i]
-                node && h.delayedDispatch('layout-shift', node, new CustomEvent('layout-shift', {
+                node && requestAnimationFrame(dispatchEvent.bind(node,new CustomEvent('layout-shift', {
                     bubbles: true,
                     detail: {
                         currentRect,
                         previousRect
                     }
-                }))
+                })))
             }
             return
         }
@@ -1177,6 +1177,7 @@ function PerformanceLoop(o) {
         case 'element':
             title = 'element-load'
             detail = o
+            break
         case 'paint':
             switch (o.name) {
                 case 'first-paint':
@@ -1262,10 +1263,15 @@ function BatchStyle(target) {
 }
 let writes = 0, reads = 0
 export function prox(target) {
-    if (target === null) return null
+    if (target === null)
+        /*  if (new.target) {
+              let n = Proxy.revocable({},{})
+              n.revoke()
+              return n.proxy
+          }*/
+        return null
     if (target[me]) return target
-    if (!getValid(target))
-        throw TypeError("Target must implement the 'Element' interface")
+    if (!getValid(target)) throw TypeError("Target must implement the 'Element' interface")
     // 🥅 Goal:
     // 🪪 Make an object with a [[Prototype]] being the target element
     // 🪤 Also put a proxy around said object
@@ -1278,41 +1284,39 @@ export function prox(target) {
             , { revoke: querySelectorRevoke, proxy: querySelectorProxy } = revocable(target, handlers.querySelector)
             , { revoke: attrRevoke, proxy: attrProxy } = revocable(target, handlers.attr)
             , { proxy: batchStyleProxy, revoke: batchRevoke } = BatchStyle(getStyleThingy(target))
-            , propertiesToDefine = {
-                ...prototypeDescriptors,
-                [me]: bleh,
-                fromQuery: {
-                    value: querySelectorProxy
-                },
-                [saved]: {
-                    value: { __proto__: null }
-                },
-                [computed]: reuse.nullThing,
-                selfRules: {
-                    value: { __proto__: null }
-                },
-                currentState: reuse.junk,
-                lastState: reuse.junk,
-                flags: reuse.flags,
-                age: {
-                    value: performance.now()
-                },
-                [mediaQueries]: {
-                    value: new Set
-                },
-                children: {
-                    value: childProxy
-                },
-                attr: {
-                    value: attrProxy
-                },
-                styles: {
-                    value: batchStyleProxy
-                },
-            }
-            , { proxy, revoke } = revocable(
-                preventExtensions(create(target, propertiesToDefine)), create(handlers.main, [{ value: target }])
-            )
+        let propertiesToDefine = {
+            ...prototypeDescriptors,
+            [me]: bleh,
+            fromQuery: {
+                value: querySelectorProxy
+            },
+            [saved]: {
+                value: { __proto__: null }
+            },
+            [computed]: reuse.nullThing,
+            selfRules: {
+                value: { __proto__: null }
+            },
+            // currentState: reuse.junk,
+            // lastState: reuse.junk,
+            flags: reuse.flags,
+            /*age: {
+                value: performance.now()
+            },*/
+            [mediaQueries]: {
+                value: new Set
+            },
+            children: {
+                value: childProxy
+            },
+            attr: {
+                value: attrProxy
+            },
+            styles: {
+                value: batchStyleProxy
+            },
+        }
+        let { proxy, revoke } = revocable(preventExtensions(create(target, propertiesToDefine)), create(handlers.main, [{ value: target }]))
             ; (target instanceof HTMLUnknownElement ||
                 target.ownerDocument.defaultView?.HTMLUnknownElement.prototype.isPrototypeOf(target)) &&
                 console.warn(`Unknown element: '${target.tagName.toLowerCase()}'`)
@@ -1512,7 +1516,7 @@ export default defineProperties($, {
         get() {
             let out = screen.orientation?.type || screen.orientation
             if (out) return out
-            if ('orientation' in window) switch (orientation) {
+            if (typeof orientation === 'number') switch (orientation) {
                 case 180: return 'portrait-secondary'
                 case 0: return 'portrait-primary'
                 case -90: return 'landscape-secondary'
@@ -1523,7 +1527,7 @@ export default defineProperties($, {
     },
     hasFullscreen: {
         get() {
-            return !!(document.fullscreen || document.fullscreenElement || window.fullScreen)
+            return !!(document.fullscreenElement || document.fullscreen || window.fullScreen)
         }
     },
     push: {
@@ -1652,3 +1656,4 @@ supported = null
 // diary stuff
 if (location.pathname.startsWith('/entries') && (location.host === 'localhost:3000' || location.host === 'addsoupbase.github.io')) document.querySelector('script[src="../../diary.js"]') ?? import('./diary.js');
 // /localhost/.test(origin) && (window.$ = $)
+h.on(window,{'element-load':console.debug})
