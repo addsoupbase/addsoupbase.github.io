@@ -25,7 +25,23 @@
                 return getName() || ''
             }
         }
-        var createElement = document.createElement.bind(document),
+        var CSS = w.CSS || function () {
+            var s = document.createElement('style')
+                , computed = getComputedStyle(s)
+            getWhateverNode().appendChild(s)
+            return {
+                supports: supports
+            }
+            function supports(propOrSelector, value) {
+                var isSelector = propOrSelector.slice(0, 8) === 'selector'
+                if (isSelector && value == null) {
+                    s.textContent = propOrSelector.slice(9, -1) + '{width:auto;}'
+                    return (s.sheet.cssRules || s.sheet.rules).length === 1
+                }
+                return propOrSelector in computed
+            }
+        }(),
+            createElement = document.createElement.bind(document),
             // components = 'img-sprite touch-joystick seek-bar paper-canvas'.split(' '),
             name = getName(),
             fromEntries = Object.fromEntries,
