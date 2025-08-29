@@ -1058,7 +1058,7 @@ function observeAll(node) {
         // break
     }
     observe(node, { box: 'border-box' })
-    observe(node, { box: 'device-pixel-content-box' })
+    // observe(node, { box: 'device-pixel-content-box' })
 }
 
 function unobserveAll(node) {
