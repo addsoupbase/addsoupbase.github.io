@@ -460,4 +460,4 @@
         })
     }
     return main(w, sym)
-}(window, Symbol.for('CSS')))
+}(window, typeof Symbol === 'function' ? Symbol.for('CSS') : '!@#$%^&*()9021482947'))
