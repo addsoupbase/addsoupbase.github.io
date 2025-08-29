@@ -31,7 +31,7 @@
                 return getName() || ''
             }
         }
-        var CSS = w.CSS || function () {
+        var CSS = w.CSS = w.CSS || function () {
             var s = document.createElement('style')
                 , computed = getComputedStyle(s)
             getWhateverNode().appendChild(s)
