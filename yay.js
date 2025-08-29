@@ -1099,10 +1099,10 @@ function ResizeLoop(o) {
     h.delayedDispatch('ResizeObserver', o.target, new CustomEvent('re-scale', {
         bubbles: true,
         detail: {
-            borderBoxSize: borderBoxSize[0] ?? borderBoxSize,
-            contentBoxSize: contentBoxSize[0] ?? contentBoxSize,
+            borderBoxSize: borderBoxSize?.[0] ?? borderBoxSize,
+            contentBoxSize: contentBoxSize?.[0] ?? contentBoxSize,
             contentRect: o.contentRect,
-            devicePixelContentBoxSize: devicePixelContentBoxSize[0] ?? devicePixelContentBoxSize,
+            devicePixelContentBoxSize: devicePixelContentBoxSize?.[0] ?? devicePixelContentBoxSize,
         }
     }))
 }
