@@ -61,12 +61,16 @@
             createElement = document.createElement.bind(document),
             // components = 'img-sprite touch-joystick seek-bar paper-canvas'.split(' '),
             name = getName(),
-            fromEntries = Object.fromEntries,
-            entries = Object.entries || function (entries) {
+            fromEntries = Object.fromEntries || function (entries) {
                 var out = {}
                 entries.forEach(function (prop, val) {
                     out[prop] = val
                 })
+                return out
+            },
+            entries = Object.entries || function (obj) {
+                var out = []
+                for (var i in obj) out.push([i, obj[i]])
                 return out
             },
             isArray = Array.isArray,
