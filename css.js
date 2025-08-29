@@ -1,10 +1,18 @@
 (function n(w, sym) {
-    document.readyState === 'loading' && document.write('<!--[if IE]><link rel="stylesheet" href="'+ location.origin + '/ie.css'+ '"><![endif]-->')
     var inModule = !this
+    document.readyState === 'loading' && !inModule && document.write('<!--[if IE]><link rel="stylesheet" href="' + location.origin + '/ie.css' + '"><![endif]-->')
     if (!''.startsWith) Object.defineProperty(String.prototype, 'startsWith', {
         value: function (str, pos) {
             pos = pos | 0
             return this.slice(pos, (str += '').length + pos) === str
+        }
+    })
+    if (![].find) Object.defineProperty(Array.prototype, 'find', {
+        value: function (callback, thisArg) {
+            for (var i = 0, l = this.length; i < l; ++i) {
+                var me = this[i]
+                if (callback.call(thisArg, me)) return me
+            }
         }
     })
     function main() {
