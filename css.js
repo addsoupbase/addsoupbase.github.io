@@ -1,13 +1,16 @@
 (function n(w, sym) {
+    document.readyState === 'loading' && document.write('<!--[if IE]><link rel="stylesheet" href="'+ location.origin + '/ie.css'+ '"><![endif]-->')
     var inModule = !this
     if (!''.startsWith) Object.defineProperty(String.prototype, 'startsWith', {
-        value: function(str, pos) {
+        value: function (str, pos) {
             pos = pos | 0
-            return this.slice(pos, (str+='').length + pos) === str
+            return this.slice(pos, (str += '').length + pos) === str
         }
     })
     function main() {
         'use strict'
+        var b = document.querySelector('script[src$="css_bad.js"]')
+        b = b && b.remove()
         if (sym in w || typeof w.addedStyleRules === 'object') return w[sym]
         w.reportError = w.reportError || function reportError(throwable) {
             var evt = new ErrorEvent('error', {
@@ -416,7 +419,8 @@
                     out[where(':disabled,[aria-disabled="true"]')] = { cursor: 'not-allowed' }
                     out[where('.centerx,.center')] = { 'justify-self': 'center', margin: 'auto', 'text-align': 'center' }
                     out[where('.centery,.center')] = { 'align-self': 'center', inset: 0, position: 'fixed' }
-                }).map(function (a) { return a[0] + '{' + toCSS(a[1]) + '}' })
+                    return out
+                }()).map(function (a) { return a[0] + '{' + toCSS(a[1]) + '}' })
                 // typeof dflt === 'string' && (dflt = dflt.split('\n'))
                 , join = [].join.bind(dflt)
                 , first = getTextContent()
