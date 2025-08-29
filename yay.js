@@ -14,7 +14,7 @@ window.requestIdleCallback ??= function (callback, options) {
     setTimeout(callback, options.timeout)
 }
 window.scheduler ??= {
-    postTask: requestIdleCallback
+    postTask: requestIdleCallback.bind(window)
 }
 function plural(singular, plural, count) {
     return Math.sign(count = +count) === count && count ? `${count} ${singular}` : `${count.toLocaleString()} ${plural}`
