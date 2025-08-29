@@ -10,6 +10,12 @@ Things i learned from 2nd -> 3rd:
 • using Symbols
 • finally settled on WeakMap
 */
+window.requestIdleCallback ??= function (callback, options) {
+    setTimeout(callback, options.timeout)
+}
+window.scheduler ??= {
+    postTask: requestIdleCallback
+}
 function plural(singular, plural, count) {
     return Math.sign(count = +count) === count && count ? `${count} ${singular}` : `${count.toLocaleString()} ${plural}`
 }
@@ -358,11 +364,11 @@ let props = function () {
             return out
         },
         get clonedChildren() {
-             let me = base(this)
-             let n = document.createDocumentFragment();
-             [].forEach.call(me.childNodes, clone, n);
-             [].forEach.call(n.querySelectorAll('*'), removeIdAttributeIfPresent)
-             return n             
+            let me = base(this)
+            let n = document.createDocumentFragment();
+            [].forEach.call(me.childNodes, clone, n);
+            [].forEach.call(n.querySelectorAll('*'), removeIdAttributeIfPresent)
+            return n
         }
         , pass() {
             let { orphans } = this
@@ -449,9 +455,9 @@ let props = function () {
             assign(this.styles, styles)
             //base(this).style.cssText = out.join(';')
         },
-        get index(){
+        get index() {
             let me = base(this),
-            {parentElement} = me
+                { parentElement } = me
             return parentElement ? [].indexOf.call(parentElement.children, me) : -1
         }
         , get disabled() {
@@ -748,7 +754,7 @@ let props = function () {
                 css.badCSS(`Unrecognized CSS rule at '${og}'`)
             }
         }
-        , until(good, bad,filter, timeout) {
+        , until(good, bad, filter, timeout) {
             return h.until(base(this), good, bad, filter, timeout)
         }
         , animate(keyframes, options) {
@@ -758,7 +764,7 @@ let props = function () {
             keyframes.forEach(forEach)
             if (css.reducedMotion.matches) {
                 let test = / /.test.bind(badForReducedMotion)
-                loop: for (let i = keyframes.length; i--;) 
+                loop: for (let i = keyframes.length; i--;)
                     for (let a in keyframes[i]) if (test(a)) {
                         options.duration = 0
                         break loop
@@ -962,7 +968,7 @@ ownKeys(props).forEach(i => {
 })
 {
     let styleMe = getOwnPropertyDescriptor(prototype, 'setStyles'),
-    dest = getOwnPropertyDescriptor(prototype, 'destroyChildren')
+        dest = getOwnPropertyDescriptor(prototype, 'destroyChildren')
     defineProperties(prototype,
         {
             setAttributes: getOwnPropertyDescriptor(prototype, 'setAttr'),
@@ -1016,10 +1022,11 @@ if (typeof
                 hasProp || target.setStyle({
                     visibility: skipped ? 'hidden' : 'visible'
                 })
-                h.delayedDispatch('contentvisibilityautostatechange', base(target), new CustomEvent('contentvisibilityautostatechange', {
+                base(target).dispatchEvent(new CustomEvent('contentvisibilityautostatechange', {
                     bubbles: true,
                     detail: { skipped }
                 }))
+                // h.delayedDispatch('contentvisibilityautostatechange', base(target),)
             }
         }
     }
@@ -1046,9 +1053,9 @@ function observeAll(node) {
     if (n === 'img') {
         // These are really important for performance
         // case 'img':
-            hasAttribute('decoding') || setAttribute('decoding', node.decoding = 'async')
-            hasAttribute('loading') || setAttribute('loading', node.loading = 'lazy')
-            // break
+        hasAttribute('decoding') || setAttribute('decoding', node.decoding = 'async')
+        hasAttribute('loading') || setAttribute('loading', node.loading = 'lazy')
+        // break
     }
     observe(node, { box: 'border-box' })
     observe(node, { box: 'device-pixel-content-box' })
@@ -1063,7 +1070,7 @@ let notContent = 'meta,script,head,link,title,style,html,body,main,div,samp,code
 export function ignore(nodeOrText) {
     return (nodeOrText instanceof Node || nodeOrText.ownerDocument?.defaultView.Node.prototype.isPrototypeOf(nodeOrText)) ? nodeOrText.matches(notContent) : asAString.has(nodeOrText)
 }
-let getNodeType = Reflect.get.bind(1,Node.prototype,'nodeType')
+let getNodeType = Reflect.get.bind(1, Node.prototype, 'nodeType')
 function MutationObserverCallback(entry) {
     for (let { length: ii } = entry; ii--;) {
         let me = entry[ii],
@@ -1140,15 +1147,26 @@ function PerformanceLoop(o) {
         // })))
         // console.warn(o)
         case "long-animation-frame":
+            scheduler.postTask(dispatchEvent.bind(window, new CustomEvent(title, {
+                detail
+            })), { priority: 'background' })
+            return
         case 'first-input':
-        // detail.actualTarget = o.target
+            // detail.actualTarget = o.target
+            dispatchEvent(new CustomEvent(title, {
+                detail
+            }))
+            return
         case 'largest-contentful-paint':
             detail = o
             break
         case 'resource':
             title = 'network-request'
             detail = o
-            break
+            scheduler.postTask(dispatchEvent.bind(window, new CustomEvent(title, {
+                detail
+            })), { priority: 'background' })
+            return
         case 'navigation':
             title = 'page-navigate'
             detail = o.toJSON()
@@ -1169,7 +1187,10 @@ function PerformanceLoop(o) {
                         time: o.startTime,
                         name: o.name
                     }
-                    break
+                    dispatchEvent(new CustomEvent(title, {
+                        detail
+                    }))
+                    return
             }
             break
     }
@@ -1316,7 +1337,7 @@ function getValid(target) {
 }
 
 const doc = document.createDocumentFragment()
-    , {parseFromString} = bind(new DOMParser)
+    , { parseFromString } = bind(new DOMParser)
 let temp, div, range, parsingDoc, classRegex = /(?<=\.)[\w-]+/g,
     htmlRegex = /[\w-]+/,
     idRegex = /(?<=#)[\w-]+/,
@@ -1400,7 +1421,7 @@ function escapeHTML(str) {
  * ## Use tagged templates when string is user input
  */
 function $(html, props, ...children) {
-    if (getValid(html)) return prox(html) 
+    if (getValid(html)) return prox(html)
     if (Array.isArray(html) && 'raw' in html) {
         let strings = html,
             values = [].slice.call(arguments, 1),
@@ -1414,7 +1435,7 @@ function $(html, props, ...children) {
     let element
     if (isHTMLFormatted(html)) {
         html = safeHTML(html)
-        element = prox((parseModeMap(parseMode)??parseModeMap(''))(html))
+        element = prox((parseModeMap(parseMode) ?? parseModeMap(''))(html))
     } else {
         element = prox(document.createElement(html.match(htmlRegex)?.[0]))
         let classes = html.match(classRegex),
@@ -1491,7 +1512,7 @@ export default defineProperties($, {
         get() {
             let out = screen.orientation?.type || screen.orientation
             if (out) return out
-            if ('orientation'in window) switch(orientation) {
+            if ('orientation' in window) switch (orientation) {
                 case 180: return 'portrait-secondary'
                 case 0: return 'portrait-primary'
                 case -90: return 'landscape-secondary'

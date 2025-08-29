@@ -356,7 +356,7 @@ const parent = $('div #background .BG', {
     }
 })
 let violations = 0
-h.on(window, {
+/*h.on(window, {
     'long-task': downgrade,
     // 'long-animation-frame':downgrade
 }, new AbortController)
@@ -373,3 +373,4 @@ function lowerViolations() {
     violations && --violations
 }
 let lower = setInterval(lowerViolations, 1000)
+*/

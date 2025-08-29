@@ -102,19 +102,12 @@ async function getStrFromFile(pathname, type) {
         return null
     }
 }
-let n = new Set([6,7,8,9,10,11,12,13,14,15,16,17,19,20,21,22,23,24,26,145,229,239,240,275, 296,316,319,320,321,322,368,369,370, 389,393,394,395,396,241])
+let n = new Set([6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 20, 21, 22, 23, 24, 26, 145, 229, 239, 240, 275, 296, 316, 319, 320, 321, 322, 368, 369, 370, 389, 393, 394, 395, 396, 241])
 function modifyJS(script, url) {
-    if (url.includes('handle.js')) {
-        let str = script.split('\n')
-        for(let i of n) {
-            str[i] = str[i].replace('//','')
-        }
-        return str.join('\n')
-    }
     if (/^[\n\s\r]*("|')use strict\1[\n\s\r]*;?/.test(script)) return `"use strict";console.time('${url}');
 ${script};
 console.timeEnd('${url}')`
-    return`
+    return `
 console.time('${url}');
 ${script};
 console.timeEnd('${url}')`
@@ -130,7 +123,7 @@ function a() {
         if (e.target === n) return
         let { target } = e
         performance.mark(target.src + ':end')
-        let f = performance.measure('script',  target.src + ':start',target.src + ':end')
+        let f = performance.measure('script', target.src + ':start', target.src + ':end')
         console.debug(f.duration, target.src || target.innerHTML.slice(0, 50) + '…')
     })
     performance.mark('start')
@@ -141,7 +134,7 @@ function a() {
     }, { once: true })
 }
 function modifyHTML(html) {
-    return `<script src="http://localhost:3000/timing.js"></script>
+    return `<!DOCTYPE html><script src="http://localhost:3000/timing.js"></script>
     ${html}`
     return `${html.replace('<head>', `<head>
     <script>!function(){"use strict";var e=function(){removeEventListener("error",r),removeEventListener("load",e),e=r=null},r=function(r){if(/syntax/i.test("name"in r.error?r.error.name:r.error.message)){e(),"yeah"!==sessionStorage.getItem("err")&&prompt("You're using a *really* old browser, or I messed something up. Please share the message below with me: ",r.message+" @line "+r.lineno+" col "+r.colno+" file "+r.filename);var t=document.getElementById("template");sessionStorage.setItem("err","yeah"),t&&(document.body.innerHTML=t.content?t.content.firstElementChild.outerHTML:t.firstElementChild.outerHTML)}};addEventListener("load",e),addEventListener("error",r)}();</script>`)}`
