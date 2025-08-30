@@ -20,13 +20,13 @@
             evt.defaultPrevented || console.error(throwable.toString())
         }
         function setName(n) {
-            return top.name = n
+             top.name = n
         }
         function getName() {
             try {
                 var o = top.name
                 if (!o.trim() || o.includes(disambiguity)) return o // name is free to use
-                throw ''
+                throw''
             }
             catch (e) {
                 e && reportError(e)
@@ -52,7 +52,6 @@
             }
         }(),
             createElement = document.createElement.bind(document),
-            // components = 'img-sprite touch-joystick seek-bar paper-canvas'.split(' '),
             name = getName(),
             fromEntries = Object.fromEntries || function (entries) {
                 var out = {}
@@ -143,9 +142,9 @@
                     }
                 }
             }
-            function updateEachStyleSheet() {
+            // function updateEachStyleSheet() {
 
-            }
+            // }
         }()
         function dashVendor(prop, val) {
             return vendor(toDash(prop), val)
@@ -250,8 +249,8 @@
                 var p = String(obj[prop])
                 try {
                     str += vendor(toDash(prop), p, silent) + ':' + p + ';'
-                } catch (_) {
-                    reportError(_)
+                } catch (e) {
+                    reportError(e)
                 }
             }
             return str
@@ -291,16 +290,16 @@
         function getDefaultStyleSheet() {
             return (get() || function () {
                 var str = name || '@namespace svg url("http://www.w3.org/2000/svg");@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:root{--system-font: system-ui,-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,Oxygen,Ubuntu,Cantarell,\'Open Sans\',\'Helvetica Neue\',sans-serif}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not(scrollbar-color:auto){::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}' + disambiguity
-                // if (document.readyState === 'loading' && !inModule) {
-                // document.write('<style id="addedStyleRules">' + str + '</style>')
-                // return get()
-                // }
-                var out = createElement('style')
-                // requestAnimationFrame(addElement.bind(0, out))
-                out.setAttribute('id', disambiguity)
-                out.setAttribute('blocking', out.blocking = 'render')
+               /* if (document.readyState === 'loading' && !inModule) {
+                document.write('<style id="addedStyleRules">' + str + '</style>')
+                return document.getElementById('addedStyleRules')
+                }*/
+                var out = createElement('style'),
+                l = out.setAttribute.bind(out)
+                l('id', disambiguity)
+                l('blocking', out.blocking = 'render')
                 out.textContent = str
-                addElement(out)
+                requestAnimationFrame(addElement.bind(1,out))
                 return out
             }())
         }
@@ -316,8 +315,8 @@
         function reg(r) {
             try {
                 registerCSS(r, this[r])
-            } catch (_) {
-                reportError(_)
+            } catch (e) {
+                reportError(e)
             }
         }
         function supportsRule(rule) {
@@ -366,8 +365,8 @@
         sup('selector(:where(p))') || (where = function (o) { return o })
         var all = [
             g("user-select", "auto", true), // Most important one
-            g("user-modify", "auto", 0),
-            g("zoom", "auto", 0),
+            g("user-modify", "auto", false),
+            g("zoom", "auto", false),
             g('locale', 'auto', true),
             g('line-grid', 'auto', true),
             g('line-snap', 'auto', true),
@@ -375,79 +374,79 @@
             g("text-zoom", 'auto', true),
             g('line-align', 'auto', true),
             g('user-drag', "auto", true),
-            g('text-decorations-in-effect', 'auto', 0),
-            g("force-broken-image-icon", 0, 0, "<integer>"),
-            g("float-edge", "content-box", 0),
+            g('text-decorations-in-effect', 'auto', false),
+            g("force-broken-image-icon", 0, false, "<integer>"),
+            g("float-edge", "content-box", false),
             g("image-region", "auto", true),
-            g("box-orient", "inline-axis", 0),
-            g("box-align", "stretch", 0),
-            g("box-direction", "normal", 0),
-            g("box-flex", 0, 0),
-            g("box-flex-group", 0, 0),
-            g("box-lines", "single", 0),
-            g("box-ordinal-group", "1", 0),
-            g("box-decoration-break", "slice", 0),
-            g("box-pack", "start", 0),
+            g("box-orient", "inline-axis", false),
+            g("box-align", "stretch", false),
+            g("box-direction", "normal", false),
+            g("box-flex", 0, false),
+            g("box-flex-group", 0, false),
+            g("box-lines", "single", false),
+            g("box-ordinal-group", "1", false),
+            g("box-decoration-break", "slice", false),
+            g("box-pack", "start", false),
             g("user-input", "auto", true),
-            g("box-reflect", "none", 0), // Kewl
+            g("box-reflect", "none", false), // Kewl
             g("text-stroke-color", "currentcolor", true, "<color>"),
-            g("text-stroke-width", 0, true, "<length>"),
-            g("text-security", "none", 0),
+            g("text-stroke-width", 0, false, "<length>"),
+            g("text-security", "none", false),
             g("text-fill-color", "currentcolor", true),
-            g("line-clamp", "none", 0),
+            g("line-clamp", "none", false),
             g("font-smoothing", "auto", true),
-            g("mask-position-x", "0%", 0, "<length-percentage>"),
-            g("mask-position-y", "0%", 0, "<length-percentage>"),
+            g("mask-position-x", "0%", false, "<length-percentage>"),
+            g("mask-position-y", "0%", false, "<length-percentage>"),
             g("tap-highlight-color", "rgb(0, 0, 0, 0.18)", true, "<color>"),
             g("touch-callout", "auto", true),
-            g("window-dragging", "auto", 0),
+            g("window-dragging", "auto", false),
             g("stack-sizing", "stretch-to-fit", true),
-            g("mask-composite", "source-over", 0),
+            g("mask-composite", "source-over", false),
             g("image-rect", "auto", true),
             g("context-properties", "none", true),
-            g("outline-radius", "0 0 0 0", 0),
-            g("window-shadow", "auto", 0),
-            g("binding", "none", 0),
-            g("user-focus", "none", 0),
-            g("text-blink", "none", 0),
-            g("content-zoom-limit", "400% 100%", 0),
-            g("accelerator", 0, 0),
-            g("initial-letter", "normal", 0),
+            g("outline-radius", "0 0 0 0", false),
+            g("window-shadow", "auto", false),
+            g("binding", "none", false),
+            g("user-focus", "none", false),
+            g("text-blink", "none", false),
+            g("content-zoom-limit", "400% 100%", false),
+            g("accelerator", 0, false),
+            g("initial-letter", "normal", false),
             g("text-kashida-space", "0%", true, "<percentage>"),
-            g("interpolation-mode", "none", 0),
-            g("progress-appearance", "bar", 0),
-            g("content-zooming", "auto", 0),
-            g("flow-from", "none", 0),
-            g("flow-into", "none", 0),
-            g("content-zoom-chaining", "none", 0),
+            g("interpolation-mode", "none", false),
+            g("progress-appearance", "bar", false),
+            g("content-zooming", "auto", false),
+            g("flow-from", "none", false),
+            g("flow-into", "none", false),
+            g("content-zoom-chaining", "none", false),
             g("high-contrast-adjust", "auto", true),
-            g("ime-mode", "auto", 0),
+            g("ime-mode", "auto", false),
             g("overflow-style", "auto", true),
             g("touch-select", "grippers", true),
-            g("behaviour", "url()", 0, "<url>"),
+            g("behaviour", "url()", false, "<url>"),
             g("interactivity", "auto", true),
-            g("input-security", "auto", 0),
+            g("input-security", "auto", false),
             g("caret-animation", "auto", true),
-            g("wrap-through", "wrap", 0),
+            g("wrap-through", "wrap", false),
             g("print-color-adjust", "economy", true),
             g("cursor-visibility", "auto", true),
-            g("pay-button-style", "white", 0),
+            g("pay-button-style", "white", false),
             g("color-filter", "none", true),
-            g("pay-button-type", "plain", 0),
+            g("pay-button-type", "plain", false),
             g("visual-effect", "none", true),
             g("text-spacing-trim", "normal", true),
-            g("text-group-align", "none", 0),
+            g("text-group-align", "none", false),
             g("text-autospace", "normal", true),
-            g("orient", 'inline', 0),
+            g("orient", 'inline', false),
             g("ruby-overhang", "auto", true),
-            g("max-lines", "none", 0),
+            g("max-lines", "none", false),
             g("line-fit-edge", "leading", true),
-            g("continue", "auto", 0),
-            g("dashboard-region", "none", 0),
-            g("overflow-scrolling", "auto", 0),
-            g("column-axis", "auto", 0),
-            g('column-progression', 'auto', 0),
-            g('content-visibility', 'visible', 0),
+            g("continue", "auto", false),
+            g("dashboard-region", "none", false),
+            g("overflow-scrolling", "auto", false),
+            g("column-axis", "auto", false),
+            g('column-progression', 'auto', false),
+            g('content-visibility', 'visible',false),
             // ^ This is a special case just to support older browsers without 'ContentVisibilityAutoStateChangeEvent'
             g('text-size-adjust', 'auto', true),
             g('border-vertical-spacing', 'auto', false),
@@ -468,7 +467,7 @@
                         '--center': '-moz-center -webkit-center -khtml-center'.split(' ').find(function (o) { return sup('text-align', o) }),
                         // this is different from just 'center' and idk why!!!
                         '--match-parent': '-moz-match-parent -webkit-match-parent'.split(' ').find(function (o) { return sup('text-align', o) })
-                    },
+                    }
                 }
                 out[where('button,a,' + 'button checkbox radio submit image reset file'.split(' ').map(function (o) { return 'input[type=' + o + ']' }).join(','))] = { cursor: 'pointer' }
                 out[where('[aria-busy="true"]')] = { cursor: 'progress' }
@@ -486,50 +485,35 @@
                 out[where('.centery,.center')] = { 'align-self': 'center', inset: 0, position: 'fixed' }
                 return out
             }()).map(function (a) { return a[0] + '{' + toCSS(a[1]) + '}' })
-            // typeof dflt === 'string' && (dflt = dflt.split('\n'))
             , join = [].join.bind(dflt)
             , first = getTextContent()
-            , global = join('')
-            // } catch (e) {
-            // console.error(e)
-            // }
-            /* function registerWithText(e) {
-                 var name = e.name,
-                     initialValue = e.initialValue,
-                     inherit = e.inherits,
-                     syntax = e.syntax,
-                     text = `@property ${name}{${initialValue != null ? `initial-value:${initialValue};` : ''}${inherit != null ? `inherits:${!!inherit};` : ''}${syntax != null ? `syntax:"${syntax}"` : ''}}`
-                 sheet.textContent = `${sheet.textContent}${text}`
-             }*/
             , universal = {}
             , func, selector = '*,:where(::-moz-color-swatch,::-moz-focus-inner,::-moz-list-bullet,::-moz-list-number,::-moz-meter-bar,::-moz-progress-bar,::-moz-range-progress,::-moz-range-thumb,::-moz-range-track,::-webkit-inner-spin-button,::-webkit-meter-bar,::-webkit-meter-even-less-good-value,::-webkit-meter-inner-element,::-webkit-meter-optimum-value,::-webkit-meter-suboptimum-value,::-webkit-progress-bar,::-webkit-progress-inner-element,::-webkit-progress-value,::-webkit-scrollbar,::-webkit-search-cancel-button,::-webkit-search-results-button,::-webkit-slider-runnable-track,::-webkit-slider-thumb,::after,::backdrop,::before,::checkmark,::column,::cue,::details-content,::file-selector-button,::first-letter,::first-line,::grammar-error,::marker,::picker-icon,::placeholder,::scroll-marker,::scroll-marker-group,::selection,::spelling-error,::target-text,::view-transition)'
         func = CSS.registerProperty || void (fallback = new Map)
         for (var i = all.length; i--;) {
             var prop = all[i]
                 , o = prop.name,
-                key = vendor(o.slice(2), o = 'var(' + o + ')', true)
+                key = vendor(o.slice(2), o = 'var('+o+')', true)
             universal[key] = o
             try { func(prop) }
             catch (e) {
-                e.name === 'InvalidModificationError' || (console.log(o), reportError(e))
                 func || fallback.set(key, vendor(key, 'inherit'))
+                e.name === 'InvalidModificationError' || (console.log(o), reportError(e))
             }
         }
         try {
-            func({ name: '--scrollbar-thumb-color', initialValue: 'auto', inherits: true, })
-            func({ name: '--scrollbar-color', initialValue: 'auto', inherits: true, })
+            func({ name: '--scrollbar-thumb-color', initialValue: 'auto', inherits: true })
+            func({ name: '--scrollbar-color', initialValue: 'auto', inherits: true })
         }
-        catch (e) {
-            reportError(e)
-        }
+        catch (e) {reportError(e)}
         universal['box-sizing'] = 'border-box'
         universal['overflow-wrap'] = 'var(--word-wrap)'
         universal['scrollbar-color'] = 'var(--scrollbar-thumb-color) var(--scrollbar-color)'
         all = null
         var str
-        setTextContent(name || (setName(str = first + selector + '{' + toCSS(universal, true) + '}' + global), str))
+        setTextContent(name || (setName(str = first + selector + '{' + toCSS(universal, true) + '}' + join('')), str))
         return w[sym] = Object.seal({
-            __proto__: null,
+            // __proto__: null,
             dashVendor: dashVendor,
             capVendor: capVendor,
             all: dflt,
@@ -554,10 +538,5 @@
             supportedPElementVendor: pelem
         })
     }
-    // addEventListener('load', remove, { once: true })
     return main(w, sym)
-    /* function remove() {
-         var a = document.querySelector('pre[style="transform:scale(0);position:absolute"]')
-         a && a.remove()
-     }*/
-}(window, typeof Symbol === 'function' ? Symbol.for('CSS') : '!@#$%^&*()9021482947'))
+}.call(null,window,typeof Symbol==='function'?Symbol.for('CSS'):'!@#$%^&*()9021482947'))
