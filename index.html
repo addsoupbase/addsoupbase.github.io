@@ -60,9 +60,14 @@
     <noscript>
         <style>
             .show {
-                display: block !important
+                display: block !important;
+                opacity: 1 !important
             }
         </style>
+    </noscript>
+        <noscript>
+        <!-- <a href='REDIRECT HERE'>Click if you are not redirected</a><style>:not(a){visibility:hidden;background: none !important;}a{visibility: visible;}</style> -->
+        <!-- <meta content='0;url=REDIRECT' http-equiv='refresh'> -->
     </noscript>
 </head>
 
@@ -72,17 +77,19 @@
     <main id="wrapper" style="display:grid;z-index: 4;pointer-events: none;overflow-x: hidden">
         <iframe scrolling="no" src="main.html" loading="lazy" id="frame" name="content" aria-atomic="true"
             aria-live="assertive" aria-relevant="all" title="content" class="center show"
-            style="pointer-events: auto;display:none;"></iframe>
+            style="pointer-events: auto;display:none;opacity:0"></iframe>
         <script>
             !function (a) {
                 'use strict'
+                function set(e) {
+                    e.style.display = ''
+                    e.style.opacity = 1
+                }
                 try {
-                    a.setAttribute('class', 'center')
-                    if (a.contentWindow.document.readyState === 'complete') a.style.display = ''
-                    else a.addEventListener('load', function () { this.style.display = '' }, { once: true })
+                    a.contentWindow.document.readyState === 'complete'?set(a):a.addEventListener('load', function () { set(this) }, { once: true })
                 }
                 catch (e) {
-                    a.style.display = ''
+                   set(a)
                 }
             }(document.getElementById('frame'))
         </script>

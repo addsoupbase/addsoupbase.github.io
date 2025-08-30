@@ -1334,7 +1334,6 @@ function RevokeAllProxies(...args) {
 function getValid(target) {
     try {
         return !!(target && getNodeType(target) === 1)
-        //|| Element.prototype.isPrototypeOf(target)
     } catch {
         return false
     }
