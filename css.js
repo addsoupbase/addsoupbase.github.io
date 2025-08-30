@@ -39,6 +39,9 @@
             var s = document.createElement('style')
                 , computed = getComputedStyle(s)
             getWhateverNode().appendChild(s)
+            return {
+                supports:supports
+            }
             function supports(propOrSelector, value) {
                 var isSelector = propOrSelector.slice(0, 8) === 'selector'
                 if (isSelector && value == null) {
