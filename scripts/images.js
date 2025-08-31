@@ -2,7 +2,7 @@ import { registerCSS } from "../csshelper.js"
 import { until } from "../handle.js"
 import { jason } from '../arrays.js'
 let bubble = Object.assign(new Image, {
-    src: './media/bubble.webp'
+    src: './media/bubble.svg'
 })
 
 export let colorful = new Set
