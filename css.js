@@ -83,7 +83,7 @@
             dontRedo_has = dontRedo.has.bind(dontRedo),
             dontRedo_set = dontRedo.set.bind(dontRedo),
             sup = CSS.supports,
-            hi = /-./g,
+            dash = /-./g,
             azregex = /[A-Z]/g,
             pseudoElementRegex = / /.test.bind(/::[\w-]/),
             pseudoClassRegex = / /.test.bind(/:[\w-]/),
@@ -100,9 +100,8 @@
                 characterData: true
             })
             var regex = /--[\w-]+(?=:[\s\n\r\t]*)(?![\s\n\r\t]*var[\s\n\r\t]*\()/g
-            for(var i = document.styleSheets.length.length; i--;) {
+            for(var i = document.styleSheets.length.length; i--;) 
                 fixSheetRules(document.styleSheets[i].sheet)
-            }
             function fixString(node) {
                 var txt = node.textContent,
                     newText = txt.replace(regex, getReplacements)
@@ -121,7 +120,6 @@
                     newText = txt.replace(regex, getReplacements)
                     if (newText !== txt) {
                         me.cssText = newText
-                        debugger
                     }
                 }
             }
@@ -138,7 +136,7 @@
                             continue
                         }
                         var el = (node.parentElement || node)
-                        if (el.tagName === 'STYLE') fixString(el)
+                        el.tagName === 'STYLE' && fixString(el)
                     }
                 }
             }
@@ -219,21 +217,21 @@
         }
         function importFont(name, src) {
             if (name && src) {
-                var font = new FontFace(name, "url(" + src + ")")
+                var font = new FontFace(name, "url("+src+")")
                 font.load().then(document.fonts.add, console.warn)
                 return font
             }
             throw Error('Source and name required')
         }
         function toCaps(prop) {
-            return prop.includes('-') && !prop.startsWith('--') ? (prop[0] === '-' ? prop.slice(1) : prop).replace(hi, tuc) : prop
+            return prop.includes('-') && !prop.startsWith('--') ? (prop[0] === '-' ? prop.slice(1) : prop).replace(dash, tuc) : prop
         }
         function toDash(prop) {
             return prop.startsWith('--') ? prop :
                 prop.replace(azregex, tlc)
         }
         function tlc(o) {
-            return '-' + o.toLowerCase()
+            return'-'+o.toLowerCase()
         }
         function tuc(c) {
             return c[1].toUpperCase()
@@ -248,7 +246,7 @@
             for (var prop in obj) {
                 var p = String(obj[prop])
                 try {
-                    str += vendor(toDash(prop), p, silent) + ':' + p + ';'
+                    str += vendor(toDash(prop),p,silent)+':'+p+';'
                 } catch (e) {
                     reportError(e)
                 }
@@ -264,11 +262,12 @@
          * @param {Object} rule An object which describes the selector
          */
         function registerCSS(selector, rule, silent) {
+            var str = ''
             selector = selector.split(',')
-                .map(mapThing)
-                .join(',')
-            var r = '{' + toCSS(rule, silent) + '}'
-            setTextContent(getTextContent() + formatStr(selector) + formatStr(r))
+                for(var i = 0, len = selector.length; i  < len; ++i) 
+                    str += mapThing(selector[i])
+            var r = '{'+toCSS(rule,silent)+'}'
+            setTextContent(getTextContent()+formatStr(str)+formatStr(r))
             return sheet
         }
         function registerCSSRaw(rules) {
@@ -289,7 +288,7 @@
         }
         function getDefaultStyleSheet() {
             return (get() || function () {
-                var str = name || '@namespace svg url("http://www.w3.org/2000/svg");@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:root{--system-font: system-ui,-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,Oxygen,Ubuntu,Cantarell,\'Open Sans\',\'Helvetica Neue\',sans-serif}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not(scrollbar-color:auto){::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}' + disambiguity
+                var str = name || '@namespace svg url("http://www.w3.org/2000/svg");@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:root{--system-font:system-ui,-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,Oxygen,Ubuntu,Cantarell,\'Open Sans\',\'Helvetica Neue\',sans-serif}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not(scrollbar-color:auto){::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}' + disambiguity
                /* if (document.readyState === 'loading' && !inModule) {
                 document.write('<style id="addedStyleRules">' + str + '</style>')
                 return document.getElementById('addedStyleRules')
@@ -320,50 +319,50 @@
             }
         }
         function supportsRule(rule) {
-            return sup("selector(" + rule + ')')
+            return sup("selector("+rule+')')
         }
         function pclass(className) {
             var a = className.split(':')
                 , before = a[0],
-                _class = a[1],
-                already = _class
-            _class = _class.replace(allVendors, '')
+                cls = a[1],
+                already = cls
+            cls = cls.replace(allVendors, '')
             if (supportsRule(already = before + ':' + already)) return already
             for (var i = theNames.length; i--;) {
                 var vendor = theNames[i]
-                    , name = ':-' + vendor + '-' + _class
-                if (supportsRule(name)) return before + name
+                    , name = ':-' + vendor + '-' + cls
+                if (supportsRule(name)) return before+name
             }
-            if (supportsRule(className = ':prince-' + _class) ||
-                supportsRule(className = ':mso-' + _class)) return before + className
-            return 'before' + ':' + _class
+            if (supportsRule(className = ':prince-' + cls) ||
+                supportsRule(className = ':mso-' + cls)) return before + className
+            return 'before'+':'+cls
         }
         function pelem(element) {
             var a = element.split('::'),
                 before = a[0],
-                _element = a[1],
-                already = _element
-            _element = _element.replace(allVendors, '')
+                el = a[1],
+                already = el
+            el = el.replace(allVendors, '')
             if (supportsRule(already = before + '::' + already)) return already
             for (var i = theNames.length; i--;) {
                 var vendor = theNames[i]
-                    , name = '::-' + vendor + '-' + _element
+                    , name = '::-' + vendor + '-' + el
                 if (supportsRule(name)) return before + name
             }
-            if (supportsRule(element = '::prince-' + _element) ||
-                supportsRule(element = '::mso-' + _element)) return before + element
-            return before + '::' + _element
+            if (supportsRule(element = '::prince-' + el) ||
+                supportsRule(element = '::mso-' + el)) return before + element
+            return before + '::' + el
         }
         function g(name, initialValue, inherits, syntax) {
             add(name)
             return { name: '--' + name, initialValue: initialValue, inherits: inherits == null ? false : !!(initialValue == null ? 'auto' : initialValue), syntax: syntax == null ? '*' : syntax }
         }
         function where(selector) {
-            return ':where(' + selector + ')'
+            return':where('+selector+')'
         }
-        var fallback
         sup('selector(:where(p))') || (where = function (o) { return o })
-        var all = [
+        var fallback
+        , all = [
             g("user-select", "auto", true), // Most important one
             g("user-modify", "auto", false),
             g("zoom", "auto", false),
@@ -459,37 +458,37 @@
             g('word-wrap', 'normal', false)
         ],
             dflt = name.trim() ? name : entries(function () {
-                var out = {
+                var o = {
                     ':root': {
                         'interpolate-size': 'allow-keywords',
                         '--crisp-edges': '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(function (o) { return sup('image-rendering', o) }),
                         '--stretch': '-moz-available -webkit-fill-available stretch'.split(' ').find(function (o) { return sup('max-width', o) }),
-                        '--center': '-moz-center -webkit-center -khtml-center'.split(' ').find(function (o) { return sup('text-align', o) }),
+                        '--center': '-moz-center -webkit-center -khtml-center'.split(' ').find(align),
                         // this is different from just 'center' and idk why!!!
-                        '--match-parent': '-moz-match-parent -webkit-match-parent'.split(' ').find(function (o) { return sup('text-align', o) })
+                        '--match-parent': '-moz-match-parent -webkit-match-parent'.split(' ').find(align)
                     }
                 }
-                out[where('button,a,' + 'button checkbox radio submit image reset file'.split(' ').map(function (o) { return 'input[type=' + o + ']' }).join(','))] = { cursor: 'pointer' }
-                out[where('[aria-busy="true"]')] = { cursor: 'progress' }
-                out[where('[draggable="false"]')] = { '--user-drag': 'none' }
-                out[where('[draggable="true"]')] = { '--user-drag': 'element' }
-                out[where('[contenteditable],[contenteditable="true"]')] = { '--user-modify': 'read-write' }
-                out[where('[contenteditable="false"]')] = { '--user-modify': 'read-only', '--user-input': 'none' }
-                out[where('[contenteditable="plaintext-only"]')] = { '--user-modify': 'read-write-plaintext-only' }
-                out[where('[inert]')] = { '--interactivity': 'inert' }
-                out[where('img')] = { '--force-broken-image-icon': 1 }
-                out[where('input[type=range]')] = { cursor: 'grab' }
-                out[where('input[type=range]:active')] = { cursor: 'grabbing' }
-                out[where(':disabled,[aria-disabled="true"]')] = { cursor: 'not-allowed' }
-                out[where('.centerx,.center')] = { 'justify-self': 'center', margin: 'auto', 'text-align': 'center' }
-                out[where('.centery,.center')] = { 'align-self': 'center', inset: 0, position: 'fixed' }
-                return out
-            }()).map(function (a) { return a[0] + '{' + toCSS(a[1]) + '}' })
+                function align(o) { return sup('text-align', o) }
+                o[where("button,a,input[type=button],input[type=checkbox],input[type=radio],input[type=submit],input[type=image],input[type=reset],input[type=file]")] = { cursor: 'pointer' }
+                o[where('[aria-busy="true"]')] = { cursor: 'progress' }
+                o[where('[draggable="false"]')] = { '--user-drag': 'none' }
+                o[where('[draggable="true"]')] = { '--user-drag': 'element' }
+                o[where('[contenteditable],[contenteditable="true"]')] = { '--user-modify': 'read-write' }
+                o[where('[contenteditable="false"]')] = { '--user-modify': 'read-only', '--user-input': 'none' }
+                o[where('[contenteditable="plaintext-only"]')] = { '--user-modify': 'read-write-plaintext-only' }
+                o[where('[inert]')] = { '--interactivity': 'inert' }
+                o[where('img')] = { '--force-broken-image-icon': 1 }
+                o[where('input[type=range]')] = { cursor: 'grab' }
+                o[where('input[type=range]:active')] = { cursor: 'grabbing' }
+                o[where(':disabled,[aria-disabled="true"]')] = { cursor: 'not-allowed' }
+                o[where('.centerx,.center')] = { 'justify-self': 'center', margin: 'auto', 'text-align': 'center' }
+                o[where('.centery,.center')] = { 'align-self': 'center', inset: 0, position: 'fixed' }
+                return o
+            }()).map(function (a) { return a[0]+'{'+toCSS(a[1])+'}' })
             , join = [].join.bind(dflt)
             , first = getTextContent()
             , universal = {}
-            , func, selector = '*,:where(::-moz-color-swatch,::-moz-focus-inner,::-moz-list-bullet,::-moz-list-number,::-moz-meter-bar,::-moz-progress-bar,::-moz-range-progress,::-moz-range-thumb,::-moz-range-track,::-webkit-inner-spin-button,::-webkit-meter-bar,::-webkit-meter-even-less-good-value,::-webkit-meter-inner-element,::-webkit-meter-optimum-value,::-webkit-meter-suboptimum-value,::-webkit-progress-bar,::-webkit-progress-inner-element,::-webkit-progress-value,::-webkit-scrollbar,::-webkit-search-cancel-button,::-webkit-search-results-button,::-webkit-slider-runnable-track,::-webkit-slider-thumb,::after,::backdrop,::before,::checkmark,::column,::cue,::details-content,::file-selector-button,::first-letter,::first-line,::grammar-error,::marker,::picker-icon,::placeholder,::scroll-marker,::scroll-marker-group,::selection,::spelling-error,::target-text,::view-transition)'
-        func = CSS.registerProperty || void (fallback = new Map)
+            , func = CSS.registerProperty || void (fallback = new Map), selector = '*,:where(::-moz-color-swatch,::-moz-focus-inner,::-moz-list-bullet,::-moz-list-number,::-moz-meter-bar,::-moz-progress-bar,::-moz-range-progress,::-moz-range-thumb,::-moz-range-track,::-webkit-inner-spin-button,::-webkit-meter-bar,::-webkit-meter-even-less-good-value,::-webkit-meter-inner-element,::-webkit-meter-optimum-value,::-webkit-meter-suboptimum-value,::-webkit-progress-bar,::-webkit-progress-inner-element,::-webkit-progress-value,::-webkit-scrollbar,::-webkit-search-cancel-button,::-webkit-search-results-button,::-webkit-slider-runnable-track,::-webkit-slider-thumb,::after,::backdrop,::before,::checkmark,::column,::cue,::details-content,::file-selector-button,::first-letter,::first-line,::grammar-error,::marker,::picker-icon,::placeholder,::scroll-marker,::scroll-marker-group,::selection,::spelling-error,::target-text,::view-transition)'
         for (var i = all.length; i--;) {
             var prop = all[i]
                 , o = prop.name,
@@ -497,45 +496,43 @@
             universal[key] = o
             try { func(prop) }
             catch (e) {
-                func || fallback.set(key, vendor(key, 'inherit'))
-                e.name === 'InvalidModificationError' || (console.log(o), reportError(e))
+                e.name === 'InvalidModificationError' || (console.log(o), reportError(e),func || fallback.set(key, vendor(key, 'inherit')))
             }
         }
         try {
             func({ name: '--scrollbar-thumb-color', initialValue: 'auto', inherits: true })
             func({ name: '--scrollbar-color', initialValue: 'auto', inherits: true })
         }
-        catch (e) {reportError(e)}
+        catch(e){reportError(e)}
         universal['box-sizing'] = 'border-box'
         universal['overflow-wrap'] = 'var(--word-wrap)'
         universal['scrollbar-color'] = 'var(--scrollbar-thumb-color) var(--scrollbar-color)'
         all = null
         var str
-        setTextContent(name || (setName(str = first + selector + '{' + toCSS(universal, true) + '}' + join('')), str))
-        return w[sym] = Object.seal({
-            // __proto__: null,
-            dashVendor: dashVendor,
-            capVendor: capVendor,
-            all: dflt,
-            has: has,
-            badCSS: badCSS,
-            vendor: vendor,
-            importFont: importFont,
-            toCaps: toCaps,
-            toDash: toDash,
-            toCSS: toCSS,
-            registerCSS: registerCSS,
-            registerCSSRaw: registerCSSRaw,
-            formatStr: formatStr,
-            importCSS: importCSS,
+        setTextContent(name || (setName(str = first + selector + '{'+toCSS(universal,true)+'}' + join('')), str))
+        return w[sym] = Object.preventExtensions({
             getDefaultStyleSheet: getDefaultStyleSheet,
+            registerCSSRaw: registerCSSRaw,
+            supportedPElementVendor: pelem,
             reducedMotion: reducedMotion,
             registerCSSAll: registerCSSAll,
-            supportsRule: supportsRule,
-            pcv: pcv,
             supportedPClassVendor: pclass,
+            supportsRule: supportsRule,
+            registerCSS: registerCSS,
+            dashVendor: dashVendor,
+            importFont: importFont,
+            formatStr: formatStr,
+            capVendor: capVendor,
+            importCSS: importCSS,
+            badCSS: badCSS,
+            toCaps: toCaps,
+            toDash: toDash,
+            vendor: vendor,
+            toCSS: toCSS,
+            has: has,
             pev: pev,
-            supportedPElementVendor: pelem
+            pcv: pcv,
+            all: dflt
         })
     }
     return main(w, sym)
