@@ -1053,7 +1053,7 @@ function observeAll(node) {
         // case 'img':
         hasAttribute('decoding') || setAttribute('decoding', node.decoding = 'async')
         hasAttribute('loading') || setAttribute('loading', node.loading = 'lazy')
-        setAttribute('elementtiming','hey')
+        // setAttribute('elementtiming','hey')
         // break
     }
     observe(node, { box: 'border-box' })
@@ -1130,7 +1130,7 @@ function PerformanceLoop(o) {
             let { sources } = o
             for (let { length: i } = sources; i--;) {
                 let { node, currentRect, previousRect } = sources[i]
-                node && requestAnimationFrame(dispatchEvent.bind(node,new CustomEvent('layout-shift', {
+                node && requestAnimationFrame(dispatchEvent.bind(node, new CustomEvent('layout-shift', {
                     bubbles: true,
                     detail: {
                         currentRect,
@@ -1655,4 +1655,16 @@ supported = null
 // diary stuff
 if (location.pathname.startsWith('/entries') && (location.host === 'localhost:3000' || location.host === 'addsoupbase.github.io')) document.querySelector('script[src="../../diary.js"]') ?? import('./diary.js');
 // /localhost/.test(origin) && (window.$ = $)
-h.on(window,{'element-load':console.debug})
+h.on(window, {
+    '^keydown'(e) {
+        let k = e.key.toUpperCase()
+        if (e.shiftKey && e.altKey && !e.repeat && k.length === 1) {
+            let str = `Alt+Shift+${k}`,
+                el = document.querySelector(`[aria-keyshortcuts="${str}"]`)
+            if (el && !el.hasAttribute('disabled')) {
+                el.focus()
+                el.click()
+            }
+        }
+    }
+})
