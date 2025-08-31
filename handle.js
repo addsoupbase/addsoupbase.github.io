@@ -168,8 +168,9 @@ function dispatchAndDelete(val) {
     dip(t, e)
     this.delete(val)
 }
+let invalid = TypeError.bind(1, "🚫 Invalid event target")
 export function delayedDispatch(id, target, event) {
-    if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
+    if (!isValidET(target)) throw invalid()
     delayedEvents.has(id) || delayedEvents.set(id, new Set)
     let set = delayedEvents.get(id)
     set.size || dispatchAllDelayed(id)
@@ -232,7 +233,7 @@ function supportOrientationChangeEvent(target, eventName, label) {
 }
 export function on(target, events, controller) {
     arguments.length > 3 && getLabel(controller) !== 'AbortController' && (controller = arguments[3])
-    if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
+    if (!isValidET(target)) throw invalid()
     let names = ownKeys(events)
     if (!names.length) return target
     let label = getLabel(target)
@@ -362,7 +363,7 @@ function EventWrapper({ 0: f, 1: s, 2: abrt, 3: t, 4: oct, 5: p, 6: sp, 7: sip, 
 }
 
 export function off(target, ...eventNames) {
-    if (!isValidET(target)) throw TypeError("🚫 Invalid event target")
+    if (!isValidET(target)) throw invalid()
     if (!eventNames.length || !allEvents.has(target)) return null
     let label = getLabel(target)
     // try {

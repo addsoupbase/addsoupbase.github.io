@@ -3,6 +3,7 @@
     // document.readyState === 'loading' && !inModule && document.write('<pre aria-hidden="true" style="transform:scale(0);position:absolute">.</pre>')
     // ('<!--[if IE]><link rel="stylesheet" href="' + location.origin + '/ie.css><![endif]-->')
     ''.startsWith || Object.defineProperty(String.prototype, 'startsWith', { value: function (str, pos) { pos = pos | 0; return this.slice(pos, (str += '').length + pos) === str } });[].find || Object.defineProperty(Array.prototype, 'find', { value: function (callback, thisArg) { for (var i = 0, l = this.length; i < l; ++i) { var me = this[i]; if (callback.call(thisArg, me)) return me } } })
+    return main(w, sym)
     function main() {
         'use strict'
         var b = document.querySelector('script[src$="css_bad.js"]')
@@ -99,7 +100,7 @@
                 childList: true,
                 characterData: true
             })
-            var regex = /--[\w-]+(?=:[\s\n\r\t]*)(?![\s\n\r\t]*var[\s\n\r\t]*\()/g
+            var regex = /--[\w-]+(?=:\s*)(?!\s*var\s*\()/g
             for(var i = document.styleSheets.length.length; i--;) 
                 fixSheetRules(document.styleSheets[i].sheet)
             function fixString(node) {
@@ -535,5 +536,4 @@
             all: dflt
         })
     }
-    return main(w, sym)
 }.call(null,window,typeof Symbol==='function'?Symbol.for('CSS'):'!@#$%^&*()9021482947'))
