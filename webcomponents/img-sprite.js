@@ -102,6 +102,7 @@ class AnimatedSprite extends HTMLElement {
         ${css.toCSS({
                     width: 'var(--width)',
                     '--axis': 0,
+                    // 'animation-composite':'add'
                     display: 'block',
                     height: 'var(--height)',
                     'background-image': 'var(--sprite)',

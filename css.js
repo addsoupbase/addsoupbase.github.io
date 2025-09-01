@@ -299,7 +299,7 @@
                 l('id', disambiguity)
                 l('blocking', out.blocking = 'render')
                 out.textContent = str
-                requestAnimationFrame(addElement.bind(1,out))
+                addElement(out)
                 return out
             }())
         }
