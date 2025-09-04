@@ -22,7 +22,7 @@ export function upper(string) {
     return `${string[0].toUpperCase()}${string.slice(1)}`
 }
 export function splice(string, start, deleteCount, items) {
-    let val = (string = `${string}`).split('')
+    let val = (string = String(string)).split('')
     val.splice(start = +start, deleteCount = +deleteCount, typeof items === 'function' ? items(string.slice(start, start + deleteCount), start, deleteCount, string) : items)
     return val.join('')
 }
@@ -77,8 +77,8 @@ export function reverse(str) {
 }
 export const cap = upper
 export function toOrdinal(o) {
-    const lastTwoDigits = o % 100,
-        me = `${o}`.at(-1)
+    const lastTwoDigits = (o = String(o)) % 100,
+        me = o.at(-1)
     return (lastTwoDigits >= 11 && lastTwoDigits <= 13) || !map.has(me) ? `${o}th` : `${o}${map.get(me)}`
 }
 export function* groups(str, { source: s, flags: f }) {

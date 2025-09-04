@@ -12,13 +12,16 @@
         if (sym in w || typeof w[disambiguity] === 'object') return w[sym]
         var get = document.getElementById.bind(document, disambiguity)
         w.reportError = w.reportError || function reportError(throwable) {
-            var evt = new ErrorEvent('error', {
-                message: throwable.message,
-                error: throwable,
-                filename: scr && scr.src
-            })
-            w.dispatchEvent(evt)
-            evt.defaultPrevented || console.error(throwable.toString())
+            try {
+                var evt = new ErrorEvent('error', {
+                    message: throwable.message,
+                    error: throwable,
+                    filename: scr && scr.src
+                })
+                w.dispatchEvent(evt)
+                evt.defaultPrevented || console.error(throwable.toString())
+            }
+            catch(e) {}
         }
         function setName(n) {
              top.name = n
