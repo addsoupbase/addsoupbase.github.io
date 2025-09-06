@@ -104,7 +104,7 @@
                 characterData: true
             })
             var regex = /--[\w-]+(?=:\s*)(?!\s*var\s*\()/g
-            for(var i = document.styleSheets.length.length; i--;) 
+            for(var i = document.styleSheets.length; i--;) 
                 fixSheetRules(document.styleSheets[i].sheet)
             function fixString(node) {
                 var txt = node.textContent,
@@ -462,17 +462,17 @@
             g('word-wrap', 'normal', false)
         ],
             dflt = name.trim() ? name : entries(function () {
-                var o = {
+                var align = sup.bind(1, 'text-align')
+                , o = {
                     ':root': {
                         'interpolate-size': 'allow-keywords',
-                        '--crisp-edges': '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(function (o) { return sup('image-rendering', o) }),
-                        '--stretch': '-moz-available -webkit-fill-available stretch'.split(' ').find(function (o) { return sup('max-width', o) }),
+                        '--crisp-edges': '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(sup.bind(1,'image-rendering')),
+                        '--stretch': '-moz-available -webkit-fill-available stretch'.split(' ').find(sup.bind(1, 'max-width')),
                         '--center': '-moz-center -webkit-center -khtml-center'.split(' ').find(align),
                         // this is different from just 'center' and idk why!!!
                         '--match-parent': '-moz-match-parent -webkit-match-parent'.split(' ').find(align)
                     }
                 }
-                function align(o) { return sup('text-align', o) }
                 o[where("button,a,input[type=button],input[type=checkbox],input[type=radio],input[type=submit],input[type=image],input[type=reset],input[type=file]")] = { cursor: 'pointer' }
                 o[where('[aria-busy="true"]')] = { cursor: 'progress' }
                 o[where('[draggable="false"]')] = { '--user-drag': 'none' }
