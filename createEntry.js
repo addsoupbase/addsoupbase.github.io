@@ -52,6 +52,15 @@ txt = txt
 await Deno.mkdir(path)
 await Deno.writeTextFile(`${path}/index.html`, txt)
 console.log('Created entry for today!')
-await Deno.writeTextFile('./dates.json',  JSON.stringify(
-    (await Array.fromAsync(Deno.readDir('./entries'), o=>new Date(o.name.replaceAll('_','-')))).sort((a,b)=>a-b).map(o=>o.toISOString())
+let d = (await Array.fromAsync(Deno.readDir('./entries'), o => new Date(o.name.replaceAll('_', '-'))))
+await Deno.writeTextFile('./dates.json', JSON.stringify(
+    d.sort((a, b) => a - b).map(o => o.toISOString())
 ))
+let n = await Deno.readTextFile('./nojs.html')
+let regex = `<div id="links"></div>`
+n =n.replace(regex,  `<div id="links">${d.map(o => `<a target="Diary" href="./entries/${toNormal(o)}">${o.toLocaleDateString()}</a>`).join('')}</div>`)
+await Deno.writeTextFile('./nojs.html', n)
+function toNormal(date) {
+    let out = `${date.getMonth() + 1}_${String(date.getDate())}_${date.getFullYear()}`
+    return out
+}
