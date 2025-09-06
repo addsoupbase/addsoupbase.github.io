@@ -52,3 +52,6 @@ txt = txt
 await Deno.mkdir(path)
 await Deno.writeTextFile(`${path}/index.html`, txt)
 console.log('Created entry for today!')
+await Deno.writeTextFile('./dates.json',  JSON.stringify(
+    (await Array.fromAsync(Deno.readDir('./entries'), o=>new Date(o.name.replaceAll('_','-')))).sort((a,b)=>a-b).map(o=>o.toISOString())
+))
