@@ -249,8 +249,8 @@ export function on(target, events, controller) {
         for (let { length: i } = names; i--;) {
             let eventName = names[i],
                 includes = ''.includes.bind(eventName)
-            const func = events[eventName],
-                once = includes(ONCE),
+            let func = events[eventName]
+                const once = includes(ONCE),
                 prevents = includes(PREVENT_DEFAULT),
                 passive = includes(PASSIVE),
                 capture = includes(CAPTURE),
@@ -273,11 +273,21 @@ export function on(target, events, controller) {
                 eventName = b.name
             }
             if (myEvents.has(eventName) && controller == null) {
-                // logger.warnLate(`🔕 Skipped duplicate '${eventName}' listener. Call on() again with the signal parameter to bypass this.`)
+                console.warn(`🔕 Skipped duplicate '${eventName}' listener. Call on() again with the signal parameter to bypass this.`)
                 continue
             }
             controller && (options.once = once, options.signal = controller.signal)
-            const listener = EventWrapper.bind(newTarget, [
+             let type = getLabel(func)
+                if (type === 'GeneratorFunction') {
+                    let args = []
+                    autoabort && args.push(controller.abort.bind(controller))
+                    args.push(off.bind(null, target, eventName))
+                    let iterator = apply(func, target, args)
+                    func = iterator.next.bind(iterator)
+                   // the first 'yield' has no value, for some reason 
+                //    ;(func = iterator.next.bind(iterator))() 
+                }
+            const listener = EventWrapper.bind(newTarget, 
                 func, controller,
                 controller?.abort.bind(controller, 'Automatic abort'),
                 onlyTrusted,
@@ -286,8 +296,9 @@ export function on(target, events, controller) {
                 stopImmediateProp,
                 autoabort,
                 once,
-                eventName])
+                eventName)
             if (autoabort && getLabel(controller) !== 'AbortController') throw TypeError("AbortController required if '#' (autoabort) is present")
+                   
             add(newTarget, eventName, listener, options, /*onlyTrusted*/)
             // if (eventName === 'load' && /^(?:HTMLIFrameElement|Window)$/.test(getLabel(target)) && (target.contentWindow || target).document?.readyState === 'complete') {
             // setTimeout(listener.bind(target, new Event('load')))
@@ -339,27 +350,27 @@ const customEventHandler = {
         }
     }
 }
-function EventWrapper({ 0: f, 1: s, 2: abrt, 3: t, 4: oct, 5: p, 6: sp, 7: sip, 8: aa, 9: once, 10: name }, ...args) {
+function EventWrapper(f,s,abrt,t,oct,p,sp,sip,aa,once,name, ...args) {
     let { 0: event } = args,
         label = getLabel(event),
         { currentTarget } = event,
         { detail } = event,
         push = args.push.bind(args)
-    if (label === 'CustomEvent') event = args[0] = new Proxy(event, customEventHandler)
-    else if (label === 'MouseScrollEvent')
-        event.deltaZ = 0,
+    label === 'CustomEvent'? event = args[0] = new Proxy(event, customEventHandler)
+    :label === 'MouseScrollEvent'&&(event.deltaZ = 0,
             event.axis === 2 ?
                 (event.deltaX = 0, event.deltaY = 50 * detail) : event.axis === 1 &&
-                (event.deltaX = 50 * detail, event.deltaY = 0)
+                (event.deltaX = 50 * detail, event.deltaY = 0))
     s && push(abrt)
     push(off.bind(null, this, name))
+    let result
     t && event.isTrusted || !t && (!oct || oct && (event.target || event.srcElement) === currentTarget) &&
-        (apply(f, this, args),
-            p && (event.cancelable ? event.defaultPrevented ? console.warn(`'${name}' event has already been cancelled`) : event.preventDefault() : warn(`🔊 '${name}' events are not cancelable`), event.returnValue = !p),
+        (result = apply(f, this, args),
+            p && (event.cancelable ? event.defaultPrevented ? console.warn(`'${name}' event has already been cancelled`) : event.preventDefault() : console.warn(`🔊 '${name}' events are not cancelable`), event.returnValue = !p),
             sp && (event.cancelBubble = !event.stopPropagation()),
             sip && event.stopImmediatePropagation(),
             aa && abrt(),
-            once && off(currentTarget, name))
+            (once || (result && result.hasOwnProperty('value') && result.hasOwnProperty('done') && result.done === true)) && off(currentTarget, name))
 }
 
 export function off(target, ...eventNames) {
@@ -373,7 +384,7 @@ export function off(target, ...eventNames) {
             mySet = target[sym]
         for (let i = eventNames.length; i--;) {
             let newTarget = target
-            const name = verifyEventName(newTarget, eventNames[i]),
+            , name = verifyEventName(newTarget, eventNames[i]),
                 settings = map.get(name),
                 { listener } = settings
             if (typeof name === 'object') {
@@ -405,13 +416,12 @@ export function until(target, eventName, failureName, filter, timeout) {
     return new Promise(waitForEvent)
     function waitForEvent(resolve, reject) {
         let id = timeout && setTimeout(err => {
-            let str = `⏰ Promise for '${eventName}' expired after ${timeout} ms`
             reject(err)
-            controller.abort(RangeError(str))
+            controller.abort(RangeError( `⏰ Promise for '${eventName}' expired after ${timeout} ms`))
         }, timeout)
             , controller = new AbortController
             , e = {
-                [`${eventName}`](event, abort) {
+                [eventName](event, abort) {
                     if (!filter || (typeof filter === 'function' && filter(event))) try {
                         resolve(event)
                     } catch (e) {
@@ -423,7 +433,7 @@ export function until(target, eventName, failureName, filter, timeout) {
                 }
             }
         failureName && Object.assign(e, {
-            [`${failureName}`](e, abort) {
+            [failureName](e, abort) {
                 try {
                     reject(e)
                 } catch (e) {

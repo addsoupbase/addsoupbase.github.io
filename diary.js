@@ -1,7 +1,7 @@
 'use strict';
 // window.addEventListener('load', 
 !(async function load() {
-    let { 0: { default: $, ignore }, 1: { splice } } = await Promise.all([import('./yay.js'), import('/str.js')])
+    let { 0: { default: $, ignore }, 1: { splice } } = await Promise.all([import('./yay.js'), import('./str.js')])
 
     // let observer = new MutationObserver(mutate)
     /* let grammar = {
@@ -203,7 +203,7 @@
             o.attr.alt = o.attr.title
         else if (!(hasTitle || hasAlt)) {
             o.attr._hidden = 'true' // Screen readers might literally read the src attribute as words
-            console.warn('Missing alt or title attribute:', o.outerHTML)
+            console.warn('Missing alt or title attribute:', o.valueOf())
         }
         if (origin === 'http://localhost:3000') {
             let isImage = o.matches('img')

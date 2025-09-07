@@ -248,9 +248,10 @@
             var str = ''
             isArray(obj) && (obj = fromEntries(obj))
             for (var prop in obj) {
-                var p = String(obj[prop])
+                var v = String(obj[prop])
                 try {
-                    str += vendor(toDash(prop),p,silent)+':'+p+';'
+                    prop === 'content'  && !sup('content', v)&& (v='"'+v+'"')
+                    str += vendor(toDash(prop),v,silent)+':'+v+';'
                 } catch (e) {
                     reportError(e)
                 }

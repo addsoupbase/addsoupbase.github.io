@@ -77,8 +77,14 @@
     <link rel="preload" href="media/meloetta1.png" as="image">
     <link rel="preload" href="media/meloetta2.png" as="image">
     <link rel="preload" href="media/meloetta3.png" as="image">
-<noscript> 
-    <a href='nojs.html'>Click if you are not redirected</a><style>body{display:none !important}</style><meta content='0;url=nojs.html' http-equiv='refresh'> 
+    <noscript>
+        <a href='nojs.html'>Click if you are not redirected</a>
+        <style>
+            body {
+                display: none !important
+            }
+        </style>
+        <meta content='0;url=nojs.html' http-equiv='refresh'>
     </noscript>
 
     <!--https://wiki.whatwg.org/wiki/MetaExtensions-->
@@ -270,6 +276,11 @@
                 frame.setAttr({
                     src: `./entries/${toNormal(new Date(`${month}-${date}-${year}`))}/index.html`
                 })
+                let a = dates.map(o=>o.slice(0,10)).indexOf(this.value)
+                if (a !== -1) {
+                    day = a
+                    showHide()
+                }
             }
         })
         function load() {
@@ -317,10 +328,7 @@
             click: changeDay.bind(next, -1)
         })
         frame.onload = null
-        function changeDay(dir = 1) {
-            frame.hide(3)
-            day += dir
-            let c = dates[day]
+        function showHide() {
             if (day >= dates.length || !day) {
                 (day ? prev : next).hide(2)
             }
@@ -328,11 +336,20 @@
                 prev.show(2)
                 next.show(2)
             }
-            let date = new Date(c)
-            currentDateInput.value = toYMDFormat(date)
-            frame.setAttr({
-                src: `./entries/${toNormal(date)}/index.html`
-            })
+            
+        }
+        function changeDay(dir = 1) {
+            frame.hide(3)
+            day += dir
+            let c = dates[day]
+            showHide()
+            if (c) {
+                let date = new Date(c)
+                currentDateInput.value = toYMDFormat(date)
+                frame.setAttr({
+                    src: `./entries/${toNormal(date)}/index.html`
+                })
+            }
         }
         function toNormal(date) {
             let out = `${date.getMonth() + 1}_${String(date.getDate())}_${date.getFullYear()}`
