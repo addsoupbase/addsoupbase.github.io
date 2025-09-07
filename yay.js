@@ -1762,4 +1762,4 @@ h.on(window, {
             }
         }
     }
-})
+}, new AbortController)
