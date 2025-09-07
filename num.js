@@ -157,7 +157,8 @@ export function minBigInt(...BigInts) {
 export function maxBigInt(...BigInts) {
     return BigInts.reduce(gt)
 }
-export class Vector2 {
+export class Vector2 extends Float32Array {
+    // Extending from Float32Array is *significantly* faster!! (around 31x)
     static get up() {
         return v(0, 1)
     }
@@ -183,10 +184,10 @@ export class Vector2 {
         return this.set(this.flipped)
     }
     get flipped() {
-        return v(this.#y, this.#x)
+        return v(this[1], this[0])
     }
     toString(unit) {
-        return `(${this.#x}${unit ??= ''}, ${this.#y}${unit})`
+        return `(${this[0]}${unit ??= ''}, ${this[1]}${unit})`
     }
     static _() {
         // Older browsers cant have static init blocks
@@ -214,29 +215,31 @@ export class Vector2 {
         Object.defineProperties(this.prototype, {
             [Symbol.isConcatSpreadable]: { value: 1 },
             [Symbol.toStringTag]: { value: this.name },
-            x: { get() { return this.#x }, set(x) { this.set(x, this.#y) }, enumerable: 1 }, y: { get() { return this.#y }, set(y) { this.set(this.#x, y) }, enumerable: 1 }
         })
     }
+    get x() { return this[0] }
+    set x(x) { this.set(x, this[1]) }
+    get y() { return this[1] }
+    set y(y) { this.set(this[0], y) }
     static _ = this._()
     constructor(x = 0, y = 0,
         { 0: minX = MIN_SAFE_INTEGER, 1: minY = MIN_SAFE_INTEGER } = {},
         { 0: maxX = MAX_SAFE_INTEGER, 1: maxY = MAX_SAFE_INTEGER } = {}) {
-        this.#min = { x: minX, y: minY }
-        this.#max = { x: maxX, y: maxY }
+        super(2)
+        let _min = this.#min,
+        _max= this.#max
+        _min[0] = minX
+        _min[1] = minY
+        _max[0] = maxX
+        _max[1] = maxY
         Object.preventExtensions(this).set(x, y)
     }
-    #min
-    #max
-    #x = 0 / 0
-    #y = 0 / 0
+    #min = new Float32Array(2)
+    #max = new Float32Array(2)
     //get #value() { return [this.x, this.y] }
-    get 0() { return this.#x }
-    set 0(x) { this.x = x }
-    get 1() { return this.#y }
-    set 1(y) { this.y = y }
     get normalized() {
         const mag = this.magnitude
-        return v(this.#x / mag || 0, this.#y / mag || 0)
+        return v(this[0] / mag || 0, this[1] / mag || 0)
     }
     [Symbol.toPrimitive](hint) {
         if (hint === 'string') return this.toString()
@@ -253,13 +256,13 @@ export class Vector2 {
         return this.scale(1 / (mult ?? 1))
     }
     get magnitude() {
-        return abs(this.#x + this.#y)
+        return abs(this[0] + this[1])
     }
     get clone() {
-        return v(this.#x, this.#y)
+        return v(this[0], this[1])
     }
     get angle() {
-        return atan2(this.#y, this.#x)
+        return atan2(this[1], this[0])
     }
     get isValid() {
         const { x, y } = this
@@ -274,19 +277,19 @@ export class Vector2 {
         return v(-x, -y)
     }
     get length() {
-        return hypot(this.#x, this.#y)
+        return hypot(this[0], this[1])
     }
     reset() {
         return this.set(0, 0)
     }
     clampX(min, max) {
-        this.#min.x = +min
-        this.#max.x = +max
+        this.#min[0] = +min
+        this.#max[0] = +max
         return this.set(this)
     }
     clampY(min, max) {
-        this.#min.y = +min
-        this.#max.y = +max
+        this.#min[1] = +min
+        this.#max[1] = +max
         return this.set(this)
     }
     static random({ 0: minX, 1: minY }, { 0: maxX, 1: maxY }) {
@@ -359,18 +362,18 @@ export class Vector2 {
         return magnitude < target.magnitude ? this.set(target) : this.add(delta ??= 1, delta)
     }
     set(x, y) {
-        this.#x = clamp(+x, this.#min.x, this.#max.x)
-        this.#y = clamp(+y, this.#min.y, this.#max.y)
+        this[0] = clamp(+x, this.#min[0], this.#max[0])
+        this[1] = clamp(+y, this.#min[1], this.#max[1])
         return this
     }
     add(x, y) {
-        return this.set(this.#x + x, this.#y + y)
+        return this.set(this[0] + x, this[1] + y)
     }
     subtract(x, y) {
-        return this.set(this.#x - x, this.#y - y)
+        return this.set(this[0] - x, this[1] - y)
     }
     divide(x, y) {
-        return this.set(this.#x / x, this.#y / y)
+        return this.set(this[0] / x, this[1] / y)
     }
     dividedBy(x, y) {
         return this.clone.divide(x, y)
@@ -379,16 +382,17 @@ export class Vector2 {
         return this.clone.subtract(x, y)
     }
     multiply(x, y) {
-        return this.set(this.#x * x, this.#y * y)
+        return this.set(this[0] * x, this[1] * y)
     }
     pow(x, y) {
-        return this.set(this.#x ** x, this.#y ** y)
+        return this.set(this[0] ** x, this[1] ** y)
     }
+    /*
     *[Symbol.iterator]() {
-        yield this.#x
-        yield this.#y
-    }
-    static[Symbol.hasInstance](obj) {return#x in obj&&#y in obj}
+        yield this[0]
+        yield this[1]
+    }*/
+    static[Symbol.hasInstance](obj) {return(typeof obj.x === 'number' || typeof obj[0] === 'number') && (typeof obj.y === 'number' || typeof obj[1] === 'number')}
 }
 delete Vector2._
 const v = Object.defineProperties(vect, Object.getOwnPropertyDescriptors(Vector2))
