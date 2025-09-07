@@ -169,7 +169,7 @@ const attrStyleMap = 'StylePropertyMap' in window
                     return p in new String || p in t
                 },
                 get(t, p) {
-                    return p in new String ? ''[p].bind(`${t}`) : t[p]
+                    return p in new String ? ''[p].bind(String(t)) : t[p]
                 },
             },
             get(target, prop) {
@@ -184,7 +184,7 @@ const attrStyleMap = 'StylePropertyMap' in window
             set(target, prop, value) {
                 try {
                     value == null || value === '' ? this.deleteProperty(target, prop)
-                        : prop.startsWith('--') ? target.set(prop, value) : target.set(css.dashVendor(prop, `${value}`), value)
+                        : prop.startsWith('--') ? target.set(prop, value) : target.set(css.dashVendor(prop,String(value)), value)
                 }
                 catch (e) {
                     return reportError(e)
@@ -193,7 +193,7 @@ const attrStyleMap = 'StylePropertyMap' in window
             },
             deleteProperty(target, prop) {
                 return prop.startsWith('--') ? target.delete(prop) :
-                    target.delete(css.dashVendor(`${prop}`, 'inherit')),
+                    target.delete(css.dashVendor(String(prop), 'inherit')),
                     3
             },
         } : {
@@ -203,7 +203,7 @@ const attrStyleMap = 'StylePropertyMap' in window
             },
             set(target, prop, value) {
                 prop.startsWith('--') ? target.setProperty(prop, value)
-                    : target.setProperty(css.dashVendor(prop, `${value}`), value)
+                    : target.setProperty(css.dashVendor(prop, String(value)), value)
                 return 7
             },
             deleteProperty(target, prop) {
@@ -310,7 +310,7 @@ let props = function () {
     }
     function forEach(frame) {
         for (let prop in frame) {
-            let val = `${frame[prop]}`
+            let val = String(frame[prop])
             frame[css.capVendor(prop, val)] ??= val
         }
         // Firefox warns of empty string
@@ -1730,7 +1730,7 @@ function allElementStuff(e) {
 
 export const define = function () {
     let dfn
-    if (Function.prototype.toString.call(customElements.define) === `${Function.prototype}`.replace('function ', 'function define')) return customElements.define.bind(customElements)
+    if (Function.prototype.toString.call(customElements.define) === String(Function.prototype).replace('function ', 'function define')) return customElements.define.bind(customElements)
     console.warn("Monkeypatch detected: ", customElements.define)
     return define
     function define(...args) {
