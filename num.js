@@ -223,19 +223,20 @@ export class Vector2 extends Float32Array {
     set y(y) { this.set(this[0], y) }
     static _ = this._()
     constructor(x = 0, y = 0,
-        { 0: minX = MIN_SAFE_INTEGER, 1: minY = MIN_SAFE_INTEGER } = {},
-        { 0: maxX = MAX_SAFE_INTEGER, 1: maxY = MAX_SAFE_INTEGER } = {}) {
+        // { 0: minX = MIN_SAFE_INTEGER, 1: minY = MIN_SAFE_INTEGER } = {},
+        // { 0: maxX = MAX_SAFE_INTEGER, 1: maxY = MAX_SAFE_INTEGER } = {}
+    ) {
         super(2)
-        let _min = this.#min,
+    /*    let _min = this.#min,
         _max= this.#max
         _min[0] = minX
         _min[1] = minY
         _max[0] = maxX
-        _max[1] = maxY
-        Object.preventExtensions(this).set(x, y)
+        _max[1] = maxY*/
+        Reflect.preventExtensions(this.set(x, y))
     }
-    #min = new Float32Array(2)
-    #max = new Float32Array(2)
+    // #min = new Float32Array(2)
+    // #max = new Float32Array(2)
     //get #value() { return [this.x, this.y] }
     get normalized() {
         const mag = this.magnitude
@@ -265,16 +266,13 @@ export class Vector2 extends Float32Array {
         return atan2(this[1], this[0])
     }
     get isValid() {
-        const { x, y } = this
-        return x === +x && y === +y
+        return isFinite(this[0]) && isFinite(this[1])
     }
     get inverse() {
-        const { x, y } = this
-        return v(x ** -1, y ** -1)
+        return v(this[0] ** -1, this[1] ** -1)
     }
     get negated() {
-        const { x, y } = this
-        return v(-x, -y)
+        return v(-this[0], -this[1])
     }
     get length() {
         return hypot(this[0], this[1])
@@ -282,7 +280,7 @@ export class Vector2 extends Float32Array {
     reset() {
         return this.set(0, 0)
     }
-    clampX(min, max) {
+    /*clampX(min, max) {
         this.#min[0] = +min
         this.#max[0] = +max
         return this.set(this)
@@ -291,70 +289,60 @@ export class Vector2 extends Float32Array {
         this.#min[1] = +min
         this.#max[1] = +max
         return this.set(this)
-    }
+    }*/
     static random({ 0: minX, 1: minY }, { 0: maxX, 1: maxY }) {
         const { range } = ran
         return v(range(minX, maxX), range(minY, maxY))
     }
     static x(vectorLike) {
-        return +(vectorLike.x ?? vectorLike[0] ?? Object.values(vectorLike)[0] ?? vectorLike)
+        return +(vectorLike.x ?? vectorLike[0] ?? Object.values(vectorLike)[0] ?? vectorLike.valueOf())
     }
     static y(vectorLike) {
-        return +(vectorLike.y ?? vectorLike[1] ?? Object.values(vectorLike)[1] ?? vectorLike)
+        return +(vectorLike.y ?? vectorLike[1] ?? Object.values(vectorLike)[1] ?? vectorLike.valueOf())
     }
     static angle(first, second) {
-        let { 0: x1, 1: y1 } = first
-            , { 0: x2, 1: y2 } = second
-        x1 ??= first.x
-        y1 ??= first.y
-        x2 ??= second.x
-        y2 ??= second.y
+        let x1 = v.x(first),
+        y1 = v.y(first),
+        x2 = v.x(second),
+        y2 = v.y(second)
         const firstAngle = atan2(y1, x1),
             secondAngle = atan2(y2, x2)
         // , angle = secondAngle - firstAngle
         return secondAngle - firstAngle
     }
     static difference(first, second) {
-        let { 0: x1, 1: y1 } = first
-        let { 0: x2, 1: y2 } = second
-        x1 ??= first.x
-        y1 ??= first.y
-        x2 ??= second.x
-        y2 ??= second.y
+        let x1 = v.x(first),
+        y1 = v.y(first),
+        x2 = v.x(second),
+        y2 = v.y(second)
         return v(diff(x1, x2), diff(y1, y2))
     }
     static distance(first, second) {
-        let { 0: x1, 1: y1 } = first
-        let { 0: x2, 1: y2 } = second
-        x1 ??= first.x
-        y1 ??= first.y
-        x2 ??= second.x
-        y2 ??= second.y
+        let x1 = v.x(first),
+        y1 = v.y(first),
+        x2 = v.x(second),
+        y2 = v.y(second)
         return hypot(x1 - x2, y1 - y2)
     }
     static equals(first, second) {
-        let { 0: x1, 1: y1 } = first
-        let { 0: x2, 1: y2 } = second
-        x1 ??= first.x
-        y1 ??= first.y
-        x2 ??= second.x
-        y2 ??= second.y
+        let x1 = v.x(first),
+        y1 = v.y(first),
+        x2 = v.x(second),
+        y2 = v.y(second)
         return x1 === x2 && y1 === y2
     }
     lerp(pos, time, delta) {
-        let { 0: x = 0, 1: y = 0 } = pos
-        x ??= pos.x
-        y ??= pos.y
+        let x = v.x(pos)
+        , y = v.y(pos)
         return this.subtract(this.minus(x, y).scale((time ?? .1) * (delta ?? 1)))
     }
-    clamp({ 0: minX = MIN_SAFE_INTEGER, 1: minY = MIN_SAFE_INTEGER } = {}, { 0: maxX = MAX_SAFE_INTEGER, 1: maxY = MAX_SAFE_INTEGER } = {}) {
+    /*clamp({ 0: minX = MIN_SAFE_INTEGER, 1: minY = MIN_SAFE_INTEGER } = {}, { 0: maxX = MAX_SAFE_INTEGER, 1: maxY = MAX_SAFE_INTEGER } = {}) {
         this.clampX(minX, maxX)
         return this.clampY(minY, maxY)
-    }
+    }*/
     moveTowards(towards, maxDistance, delta) {
-        let { 0: x, 1: y } = towards
-        x ??= towards.x
-        y ??= towards.y
+        let x = v.x(towards),
+        y = v.y(towards)
         const target = vect(x, y)
             , direction = target.minus(this)
             , { magnitude } = direction
@@ -362,8 +350,10 @@ export class Vector2 extends Float32Array {
         return magnitude < target.magnitude ? this.set(target) : this.add(delta ??= 1, delta)
     }
     set(x, y) {
-        this[0] = clamp(+x, this.#min[0], this.#max[0])
-        this[1] = clamp(+y, this.#min[1], this.#max[1])
+        this[0] = x
+        // clamp(+x, this.#min[0], this.#max[0])
+        this[1] = y
+        // clamp(+y, this.#min[1], this.#max[1])
         return this
     }
     add(x, y) {

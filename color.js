@@ -1,6 +1,5 @@
 import * as math from './num.js'
-
-let inBrowser = !!globalThis.document
+const inBrowser = !!globalThis.document
 /*async function getBlob(ctx) {
     if (inBrowser) {
         return new Promise(executor)
@@ -15,23 +14,22 @@ let inBrowser = !!globalThis.document
     }
 }*/
 function createCanvas(w, h, alpha) {
-    let out
     if (inBrowser) {
-        out = document.createElement('canvas')
+        let out = document.createElement('canvas')
         out.width = +w || 0
         out.height = +h || 0
         out.toggleAttribute('moz-opaque', !alpha)
-        out = out.getContext('2d', {alpha})
+        return out.getContext('2d', { alpha })
     }
-    else out = new OffscreenCanvas(w||0, h||0).getContext('2d', {alpha})
-    return out
+    return new OffscreenCanvas(w || 0, h || 0).getContext('2d', { alpha })
 }
 
-const {min, max, round} = Math,
+const { min, max, round } = Math,
     colors = new Map,
     canvas = createCanvas(),
     handler = {
         get(target, prop) {
+            if (prop in target) return target[prop]
             if (CSS.supports('color', prop)) {
                 if (!colors.has(prop)) {
                     canvas.fillStyle = prop
@@ -39,21 +37,20 @@ const {min, max, round} = Math,
                 }
                 return colors.get(prop)
             }
-            if (prop in target) return target[prop]
             throw TypeError(`Invalid color '${prop}'`)
         },
-        apply(...{0: target, 2: args}) {
+        apply(...{ 0: target, 2: args }) {
             return Reflect.construct(target, args)
         }
     }
-const Color = new Proxy(class $ {
+const Color = new Proxy(class $ extends Uint8ClampedArray {
     //Darken Hex Colour
     //Don't ask why there's a "k" there
     static dhk(e, f = 40) {
-        let $ = parseInt((e = ('' + e).replace(/^#/, "")).substring(0, 2), 16), a = parseInt(e.substring(2, 4), 16),
-            r = parseInt(e.substring(4, 6), 16);
+        let $ = parseInt((e = String(e).replace(/^#/, "")).substring(0, 2), 16), a = parseInt(e.substring(2, 4), 16),
+            r = parseInt(e.substring(4, 6), 16)
         return $ = round($ * (1 - f / 100)), a = round(a * (1 - f / 100)), r = round(r * (1 - f / 100)), $ = min(255, max(0, $)), a = min(255, max(0, a)), r = min(255, max(0, r)), "#" + [$, a, r].map(function (e) {
-            let f = e.toString(16);
+            let f = e.toString(16)
             return 1 === f.length ? "0" + f : f
         }).join('')
     }
@@ -73,52 +70,48 @@ const Color = new Proxy(class $ {
     static log(colour) {
         console.log(`%c${colour}`, `color:${colour};font-size:100px;background-color:${colour}`)
     }
-
-    #r = 255
-    #g = 255
-    #b = 255
-    #a = 1
-
     // No static init blocks allowed
     static _() {
         delete this._
-        let enumerable = 1
+        // let enumerable = 1
         Object.defineProperties(this.prototype, {
+            [Symbol.toStringTag]: {
+                value: 'Color'
+            },
             r: {
-                enumerable,
+                // enumerable,
                 get() {
-                    return this.#r
+                    return this[0]
                 },
                 set(r) {
-                    this.#r = math.clamp(r, 0, 255) || 0
+                    this[0] = r
                 }
             },
             g: {
-                enumerable,
+                // enumerable,
                 get() {
-                    return this.#g
+                    return this[1]
                 },
                 set(g) {
-                    this.#g = math.clamp(g, 0, 255) || 0
+                    this[1] = g
                 }
             },
             b: {
-                enumerable,
+                // enumerable,
                 get() {
-                    return this.#b
+                    return this[2]
                 },
                 set(b) {
-                    this.#b = math.clamp(b, 0, 255) || 0
+                    this[2] = b
                 }
             },
             a: {
-                enumerable,
+                // enumerable,
                 get() {
-                    return this.#a
+                    return this[3] / 255
                 },
                 set(a) {
-                    this.#a = math.clamp(a, 0, 1)
-                    if (!this.#a && this.#a !== 0) this.#a = 1
+                    this[3] = a * 255
                 }
             }
         })
@@ -133,16 +126,16 @@ const Color = new Proxy(class $ {
         function GetColorFromPixel(resolve, reject) {
             async function onload() {
                 let ctx = createCanvas(4, 4)
-                ctx.drawImage(image,0,0,4,4)
-                let {data} = ctx.getImageData(0,0,4,4)
+                ctx.drawImage(image, 0, 0, 4, 4)
+                let { data } = ctx.getImageData(0, 0, 4, 4)
                 let reds = [],
                     greens = [],
                     blues = []
-                for(let i = 0, {length} = data; i < length; i += 3) {
+                for (let i = 0, { length } = data; i < length; i += 3) {
                     let r = data[i],
-                        g = data[i+1],
-                        b = data[i+1],
-                        a = data[i+1]
+                        g = data[i + 1],
+                        b = data[i + 1],
+                        a = data[i + 1]
                     if (a < 1) continue
                     reds.push(r)
                     greens.push(g)
@@ -158,11 +151,12 @@ const Color = new Proxy(class $ {
     }
 
     constructor(r, g, b, a) {
+        super(4)
         if (typeof r === 'string' && r[0] !== '#') {
             if ($.#img.test(r))
                 return $.#executor(r)
             try {
-                ({r, g, b, a} = Color[r])
+                ({ r, g, b, a } = Color[r])
             } catch {
                 r = 255
                 g ??= 255
@@ -170,8 +164,8 @@ const Color = new Proxy(class $ {
                 a ??= 1
             }
         } else if (typeof r === 'string' && r.startsWith('#'))
-            ({0: r, 1: g, 2: b, 3: a} = hexToRgb(r).match(thingy))
-        Object.freeze(Object.assign(this, {r, g, b, a}))
+            ({ 0: r, 1: g, 2: b, 3: a } = hexToRgb(r).match(thingy))
+        Reflect.preventExtensions(Object.assign(this, { r, g, b, a }))
     }
 
     toString(format) {
@@ -181,23 +175,23 @@ const Color = new Proxy(class $ {
             case 'rgb':
                 return `rgb(${this.r} ${this.g} ${this.b})`
             case 'rgba':
-                return `rgba(${this.r} ${this.g} ${this.b} / ${this.a})`
+                return `rgb(${this.r} ${this.g} ${this.b} / ${this.a})`
             case 'hex2':
                 return `#${[this.r, this.g, this.b, this.a * 255].map(toHex).join('')}`
             case 'hsl': {
-                let {0: h, 1: s, 2: l} = this.hsl
+                let { 0: h, 1: s, 2: l } = this.hsl
                 return `hsl(${h} ${s}% ${l}%)`
             }
             case 'hsla': {
-                let {0: h, 1: s, 2: l} = this.hsl
-                return `hsla(${h} ${s}% ${l}% ${this.#a})`
+                let { 0: h, 1: s, 2: l } = this.hsl
+                return `hsl(${h} ${s}% ${l}% / ${this.a})`
             }
         }
     }
 
     #copy(c) {
-        let {r, g, b, a} = c
-        return Object.assign(this, {r, g, b, a})
+        let { r, g, b, a } = c
+        return Object.assign(this, { r, g, b, a })
     }
 
     invert() {
@@ -213,7 +207,7 @@ const Color = new Proxy(class $ {
     }
 
     get 1() {
-        return this.#g
+        return this.g
     }
 
     set 1(g) {
@@ -221,7 +215,7 @@ const Color = new Proxy(class $ {
     }
 
     get 2() {
-        return this.#b
+        return this.b
     }
 
     set 2(b) {
@@ -229,13 +223,13 @@ const Color = new Proxy(class $ {
     }
 
     get 3() {
-        return this.#a
+        return this.a
     }
 
     get hsl() {
-        let r = this.#r / 255,
-            g = this.#g / 255,
-            b = this.#b / 255
+        let r = this.r / 255,
+            g = this.g / 255,
+            b = this.b / 255
             , MAX = max(r, g, b),
             MIN = min(r, g, b)
             , c = MAX - MIN
@@ -283,7 +277,7 @@ const Color = new Proxy(class $ {
     }
 
     get opacity() {
-        return this.#a
+        return this.a
     }
 
     set opacity(a) {
@@ -300,7 +294,7 @@ const Color = new Proxy(class $ {
         return this.#copy(new $($.dhk(`${this}`, amount)))
     }
 
-    * [Symbol.iterator]() {
+    *[Symbol.iterator]() {
         yield this.r
         yield this.g
         yield this.b
