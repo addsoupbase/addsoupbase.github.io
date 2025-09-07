@@ -195,35 +195,7 @@ const Color = new Proxy(class $ extends Uint8ClampedArray {
     }
 
     invert() {
-        return this.#copy(new $($.opposite(`${this}`)))
-    }
-
-    get 0() {
-        return this.r
-    }
-
-    set 0(r) {
-        this.r = r
-    }
-
-    get 1() {
-        return this.g
-    }
-
-    set 1(g) {
-        this.g = g
-    }
-
-    get 2() {
-        return this.b
-    }
-
-    set 2(b) {
-        this.b = b
-    }
-
-    get 3() {
-        return this.a
+        return this.#copy(new $($.opposite(String(this))))
     }
 
     get hsl() {
@@ -261,7 +233,7 @@ const Color = new Proxy(class $ extends Uint8ClampedArray {
     }
 
     get h() {
-        return `${this.hsl[0]}`
+        return String(this.hsl[0])
     }
 
     get s() {
@@ -272,9 +244,7 @@ const Color = new Proxy(class $ extends Uint8ClampedArray {
         return `${this.hsl[2]}%`
     }
 
-    set 3(a) {
-        this.a = a
-    }
+ 
 
     get opacity() {
         return this.a
@@ -285,20 +255,13 @@ const Color = new Proxy(class $ extends Uint8ClampedArray {
     }
 
     get opposite() {
-        let out = new $(`${this}`)
+        let out = new $(String(this))
         out.invert()
         return out
     }
 
     darkenBy(amount) {
-        return this.#copy(new $($.dhk(`${this}`, amount)))
-    }
-
-    *[Symbol.iterator]() {
-        yield this.r
-        yield this.g
-        yield this.b
-        yield this.a
+        return this.#copy(new $($.dhk(String(this), amount)))
     }
 }._(), handler)
 export default Color
@@ -319,7 +282,7 @@ export function hexToRgb(hex) {
         g = parseInt(hex.slice(2, 4), 16),
         b = parseInt(hex.slice(4, 6), 16),
         a = 1
-    return `rgb(${r} ${g} ${b} ${a})`
+    return `rgb(${r} ${g} ${b} / ${a})`
 }
 
 function bleh(c) {

@@ -888,13 +888,13 @@ let props = function () {
        },
        insertElementsAtText(indexOrMatch, ...elements) {
            let me = base(this)
-           let {
+           , {
                textContent: text
            } = base(this)
            if (typeof indexOrMatch === 'number') {
                let index = indexOrMatch
-               let before = text.slice(0, index),
-                   after = text.slice(index + 1)
+               let before = text.slice(0, index++),
+                   after = text.slice(index)
                this.textContent = before
                this.push.apply(this, elements)
                me.appendChild(document.createTextNode(after))

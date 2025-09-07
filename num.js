@@ -39,7 +39,7 @@ class Cycle {
     }
     *[Symbol.iterator]() {
         let a = this.length
-        for (; a--; yield this.next);
+        while(a--)yield this.next
     }
     [Symbol.toPrimitive]() {
         return this.#wheel[this.current]
@@ -50,8 +50,7 @@ class Cycle {
 }
 export function average(...numbers) {
     let { length } = numbers
-    if (!length) return 0 / 0
-    return sum(numbers) / length
+    return length ? 0/0 : sum(numbers) / length
 }
 export function avg(...array) {
     const { length } = array
@@ -75,8 +74,8 @@ export function median(...numbers) {
         middle = length / 2 | 0
     return length % 2 ? sorted[middle] : (sorted[middle] + sorted[middle - 1]) / 2
 }
-function gt(a, b) { return a > b ? a : b }
-function lt(a, b) { return a < b ? a : b }
+function gt(a, b) { return max(a,b) }
+function lt(a, b) { return min(a,b) }
 export function mode(...numbers) {
     let obj = []
     for (let { length: i } = numbers; i--;) {
@@ -93,20 +92,20 @@ export function factorial(n) {
 }
 export function closest(num, ...nums) {
     let distance = 1 / 0
-    for (let { length } = nums; length--;) {
-        let n = nums[length]
+    for (let { length: i } = nums; i--;) {
+        let n = nums[i]
         let d = diff(num, n)
-        if (d < abs(distance)) distance = n
+        d < abs(distance)&& (distance = n)
     }
     return distance
 }
 export function furthest(num, ...nums) {
     //  Could probably use reduce() here
     let distance = 0
-    for (let { length } = nums; length--;) {
-        let n = nums[length]
+    for (let { length: i } = nums; i--;) {
+        let n = nums[i]
         let d = diff(num, n)
-        if (d > abs(distance)) distance = n
+         d > abs(distance)&& (distance = n)
     }
     return distance
 }
@@ -160,34 +159,33 @@ export function maxBigInt(...BigInts) {
 export class Vector2 extends Float32Array {
     // Extending from Float32Array is *significantly* faster!! (around 31x)
     static get up() {
-        return v(0, 1)
+        return new Vector2(0, 1)
     }
     static get down() {
-        return v(0, -1)
+        return new Vector2(0, -1)
     }
     static get left() {
-        return v(-1, 0)
+        return new Vector2(-1, 0)
     }
     static get right() {
-        return v(1, 0)
+        return new Vector2(1, 0)
     }
     static dotProduct(first, second) {
-        let { 0: x1, 1: y1 } = first
-        let { 0: x2, 1: y2 } = second
-        x1 ??= first.x
-        y1 ??= first.y
-        x2 ??= second.x
-        y2 ??= second.y
+       let x1 = v.x(first),
+        y1 = v.y(first),
+        x2 = v.x(second),
+        y2 = v.y(second)
         return x1 * x2 + y1 * y2
     }
     flip() {
         return this.set(this.flipped)
     }
     get flipped() {
-        return v(this[1], this[0])
+        return new Vector2(this[1], this[0])
     }
     toString(unit) {
-        return `(${this[0]}${unit ??= ''}, ${this[1]}${unit})`
+        // unit mainly just 'px'
+        return`(${this[0]}${unit ??= ''}, ${this[1]}${unit})`
     }
     static _() {
         // Older browsers cant have static init blocks
@@ -213,7 +211,7 @@ export class Vector2 extends Float32Array {
             }
         }
         Object.defineProperties(this.prototype, {
-            [Symbol.isConcatSpreadable]: { value: 1 },
+            [Symbol.isConcatSpreadable]: { value: true },
             [Symbol.toStringTag]: { value: this.name },
         })
     }
@@ -222,8 +220,8 @@ export class Vector2 extends Float32Array {
     get y() { return this[1] }
     set y(y) { this.set(this[0], y) }
     static _ = this._()
-    constructor(x = 0, y = 0,
-        // { 0: minX = MIN_SAFE_INTEGER, 1: minY = MIN_SAFE_INTEGER } = {},
+    constructor(x = 0, y = 0
+        //, { 0: minX = MIN_SAFE_INTEGER, 1: minY = MIN_SAFE_INTEGER } = {},
         // { 0: maxX = MAX_SAFE_INTEGER, 1: maxY = MAX_SAFE_INTEGER } = {}
     ) {
         super(2)
@@ -240,7 +238,7 @@ export class Vector2 extends Float32Array {
     //get #value() { return [this.x, this.y] }
     get normalized() {
         const mag = this.magnitude
-        return v(this[0] / mag || 0, this[1] / mag || 0)
+        return new Vector2(this[0] / mag || 0, this[1] / mag || 0)
     }
     [Symbol.toPrimitive](hint) {
         if (hint === 'string') return this.toString()
@@ -260,7 +258,7 @@ export class Vector2 extends Float32Array {
         return abs(this[0] + this[1])
     }
     get clone() {
-        return v(this[0], this[1])
+        return new Vector2(this[0], this[1])
     }
     get angle() {
         return atan2(this[1], this[0])
@@ -269,10 +267,10 @@ export class Vector2 extends Float32Array {
         return isFinite(this[0]) && isFinite(this[1])
     }
     get inverse() {
-        return v(this[0] ** -1, this[1] ** -1)
+        return new Vector2(this[0] ** -1, this[1] ** -1)
     }
     get negated() {
-        return v(-this[0], -this[1])
+        return new Vector2(-this[0], -this[1])
     }
     get length() {
         return hypot(this[0], this[1])
@@ -292,7 +290,7 @@ export class Vector2 extends Float32Array {
     }*/
     static random({ 0: minX, 1: minY }, { 0: maxX, 1: maxY }) {
         const { range } = ran
-        return v(range(minX, maxX), range(minY, maxY))
+        return new Vector2(range(minX, maxX), range(minY, maxY))
     }
     static x(vectorLike) {
         return +(vectorLike.x ?? vectorLike[0] ?? Object.values(vectorLike)[0] ?? vectorLike.valueOf())
@@ -315,7 +313,7 @@ export class Vector2 extends Float32Array {
         y1 = v.y(first),
         x2 = v.x(second),
         y2 = v.y(second)
-        return v(diff(x1, x2), diff(y1, y2))
+        return new Vector2(diff(x1, x2), diff(y1, y2))
     }
     static distance(first, second) {
         let x1 = v.x(first),
@@ -343,7 +341,7 @@ export class Vector2 extends Float32Array {
     moveTowards(towards, maxDistance, delta) {
         let x = v.x(towards),
         y = v.y(towards)
-        const target = vect(x, y)
+        const target = new Vector2(x, y)
             , direction = target.minus(this)
             , { magnitude } = direction
         if (magnitude <= (maxDistance ?? 1) || !magnitude) return target

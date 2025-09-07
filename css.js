@@ -1,8 +1,7 @@
 (function (w, sym) {
-    var inModule = !this
+    var inModule = !this, d=Object.defineProperty;''.startsWith||d(String.prototype,'startsWith',{value:function(s,p){return this.slice(p=p|0,(s+='').length+p)===s}});[].find||d(Array.prototype,'find',{value:function(c,t,m,z){for(var i=0,l=(m=this).length;i<l;++i){z=m[i];if(c.call(t, z))return z}}})
     // document.readyState === 'loading' && !inModule && document.write('<pre aria-hidden="true" style="transform:scale(0);position:absolute">.</pre>')
     // ('<!--[if IE]><link rel="stylesheet" href="' + location.origin + '/ie.css><![endif]-->')
-    ''.startsWith || Object.defineProperty(String.prototype, 'startsWith', { value: function (str, pos) { pos = pos | 0; return this.slice(pos, (str += '').length + pos) === str } });[].find || Object.defineProperty(Array.prototype, 'find', { value: function (callback, thisArg) { for (var i = 0, l = this.length; i < l; ++i) { var me = this[i]; if (callback.call(thisArg, me)) return me } } })
     return main(w, sym)
     function main() {
         'use strict'
@@ -250,7 +249,7 @@
             for (var prop in obj) {
                 var v = String(obj[prop])
                 try {
-                    prop === 'content'  && !sup('content', v)&& (v='"'+v+'"')
+                    prop === 'content'  && !sup('content', v) && (v='"'+v+'"')
                     str += vendor(toDash(prop),v,silent)+':'+v+';'
                 } catch (e) {
                     reportError(e)
@@ -514,7 +513,7 @@
         universal['scrollbar-color'] = 'var(--scrollbar-thumb-color) var(--scrollbar-color)'
         all = null
         var str
-        setTextContent(name || (setName(str = first + selector + '{'+toCSS(universal,true)+'}' + join('')), str))
+        setTextContent(name || (setName(str = first + selector + '{'+toCSS(universal, true)+'}' + join('')), str))
         return w[sym] = Object.preventExtensions({
             getDefaultStyleSheet: getDefaultStyleSheet,
             registerCSSRaw: registerCSSRaw,
