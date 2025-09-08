@@ -1,7 +1,7 @@
 import $, {define} from '../yay.js'
-import * as css from '../csshelper.js'
 import {vect, toRad} from '../num.js'
-
+import './css.js'
+const css = window[Symbol.for('CSS')]
 let touching = Symbol('👉')
     , touchpos = Symbol('📍')
     , ball = Symbol('🕹')

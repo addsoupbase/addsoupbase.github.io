@@ -1,5 +1,6 @@
 import $,{define,} from '../yay.js'
-import * as css from '../csshelper.js'
+import './css.js'
+const css = window[Symbol.for('CSS')]
 import * as h from '../handle.js'
 class SeekBar extends HTMLElement {
     connectedCallback() {

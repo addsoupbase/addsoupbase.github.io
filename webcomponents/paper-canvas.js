@@ -1,6 +1,7 @@
 import $, { define } from '../yay.js'
 import { vect } from "../num.js"
-import * as css from '../csshelper.js'
+import './css.js'
+const css = window[Symbol.for('CSS')]
 // import * as h from '../handle.js'
 // let internals = Symbol()
 function pointerup(p) {

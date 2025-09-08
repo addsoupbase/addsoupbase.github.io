@@ -360,11 +360,14 @@
         }
         function g(name, initialValue, inherits, syntax) {
             add(name)
-            var o = name = '--'+name,
-                key = vendor(o.slice(2), o = 'var('+o+')', true)
+            var o = '--'+name,
+            n = o,
+                key = vendor(name, o = 'var('+o+')', true)
             universal[key] = o
-            try { func( { name: name, initialValue: initialValue, inherits: inherits == null ? false : !!(initialValue == null ? 'auto' : initialValue), syntax: syntax == null ? '*' : syntax }) }
-            catch (e) {e.name === 'InvalidModificationError' || (console.log(o), reportError(e),func || fallback.set(key, vendor(key, 'inherit')))}
+            // try { 
+                func( { name: n, initialValue: initialValue, inherits: inherits == null ? false : !!(initialValue == null ? 'auto' : initialValue), syntax: syntax == null ? '*' : syntax }) 
+            // }
+            // catch (e) {e.name === 'InvalidModificationError' || (console.log(o), reportError(e),func || fallback.set(key, vendor(key, 'inherit')))}
         }
         function where(selector) {
             return':where('+selector+')'

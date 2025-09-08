@@ -296,7 +296,7 @@ a {
   position: absolute;
   justify-content: center;
   background-size: contain;
-  background-image: url('./media/bubble.svg');
+  background-image: url('./media/bubble.webp');
   background-repeat: no-repeat;
   --content-visibility: auto;
 }
