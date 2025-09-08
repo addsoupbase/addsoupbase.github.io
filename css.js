@@ -53,8 +53,9 @@
                 }
                 return propOrSelector in computed
             }
-        }(),
-            createElement = document.createElement.bind(document),
+        }()
+        , func = CSS.registerProperty || void (fallback = new Map), selector = '*,:where(::-moz-color-swatch,::-moz-focus-inner,::-moz-list-bullet,::-moz-list-number,::-moz-meter-bar,::-moz-progress-bar,::-moz-range-progress,::-moz-range-thumb,::-moz-range-track,::-webkit-inner-spin-button,::-webkit-meter-bar,::-webkit-meter-even-less-good-value,::-webkit-meter-inner-element,::-webkit-meter-optimum-value,::-webkit-meter-suboptimum-value,::-webkit-progress-bar,::-webkit-progress-inner-element,::-webkit-progress-value,::-webkit-scrollbar,::-webkit-search-cancel-button,::-webkit-search-results-button,::-webkit-slider-runnable-track,::-webkit-slider-thumb,::after,::backdrop,::before,::checkmark,::column,::cue,::details-content,::file-selector-button,::first-letter,::first-line,::grammar-error,::marker,::picker-icon,::placeholder,::scroll-marker,::scroll-marker-group,::selection,::spelling-error,::target-text,::view-transition)'
+           , createElement = document.createElement.bind(document),
             name = getName(),
             fromEntries = Object.fromEntries || function (entries) {
                 var out = {}
@@ -359,14 +360,18 @@
         }
         function g(name, initialValue, inherits, syntax) {
             add(name)
-            return { name: '--' + name, initialValue: initialValue, inherits: inherits == null ? false : !!(initialValue == null ? 'auto' : initialValue), syntax: syntax == null ? '*' : syntax }
+            var o = name = '--'+name,
+                key = vendor(o.slice(2), o = 'var('+o+')', true)
+            universal[key] = o
+            try { func( { name: name, initialValue: initialValue, inherits: inherits == null ? false : !!(initialValue == null ? 'auto' : initialValue), syntax: syntax == null ? '*' : syntax }) }
+            catch (e) {e.name === 'InvalidModificationError' || (console.log(o), reportError(e),func || fallback.set(key, vendor(key, 'inherit')))}
         }
         function where(selector) {
             return':where('+selector+')'
         }
         sup('selector(:where(p))') || (where = function (o) { return o })
-        var fallback
-        , all = [
+        var fallback, universal = {}
+        // , all = [
             g("user-select", "auto", true), // Most important one
             g("user-modify", "auto", false),
             g("zoom", "auto", false),
@@ -460,8 +465,8 @@
             g('buffered-rendering', 'auto', false),
             g('color-rendering', 'auto', false),
             g('word-wrap', 'normal', false)
-        ],
-            dflt = name.trim() ? name : entries(function () {
+        // ],
+            var dflt = name.trim() ? name : entries(function () {
                 var align = sup.bind(1, 'text-align')
                 , o = {
                     ':root': {
@@ -491,18 +496,6 @@
             }()).map(function (a) { return a[0]+'{'+toCSS(a[1])+'}' })
             , join = [].join.bind(dflt)
             , first = getTextContent()
-            , universal = {}
-            , func = CSS.registerProperty || void (fallback = new Map), selector = '*,:where(::-moz-color-swatch,::-moz-focus-inner,::-moz-list-bullet,::-moz-list-number,::-moz-meter-bar,::-moz-progress-bar,::-moz-range-progress,::-moz-range-thumb,::-moz-range-track,::-webkit-inner-spin-button,::-webkit-meter-bar,::-webkit-meter-even-less-good-value,::-webkit-meter-inner-element,::-webkit-meter-optimum-value,::-webkit-meter-suboptimum-value,::-webkit-progress-bar,::-webkit-progress-inner-element,::-webkit-progress-value,::-webkit-scrollbar,::-webkit-search-cancel-button,::-webkit-search-results-button,::-webkit-slider-runnable-track,::-webkit-slider-thumb,::after,::backdrop,::before,::checkmark,::column,::cue,::details-content,::file-selector-button,::first-letter,::first-line,::grammar-error,::marker,::picker-icon,::placeholder,::scroll-marker,::scroll-marker-group,::selection,::spelling-error,::target-text,::view-transition)'
-        for (var i = all.length; i--;) {
-            var prop = all[i]
-                , o = prop.name,
-                key = vendor(o.slice(2), o = 'var('+o+')', true)
-            universal[key] = o
-            try { func(prop) }
-            catch (e) {
-                e.name === 'InvalidModificationError' || (console.log(o), reportError(e),func || fallback.set(key, vendor(key, 'inherit')))
-            }
-        }
         try {
             func({ name: '--scrollbar-thumb-color', initialValue: 'auto', inherits: true })
             func({ name: '--scrollbar-color', initialValue: 'auto', inherits: true })
@@ -511,7 +504,6 @@
         universal['box-sizing'] = 'border-box'
         universal['overflow-wrap'] = 'var(--word-wrap)'
         universal['scrollbar-color'] = 'var(--scrollbar-thumb-color) var(--scrollbar-color)'
-        all = null
         var str
         setTextContent(name || (setName(str = first + selector + '{'+toCSS(universal, true)+'}' + join('')), str))
         return w[sym] = Object.preventExtensions({
