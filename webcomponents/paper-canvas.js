@@ -1,6 +1,6 @@
 import $, { define } from '../yay.js'
 import { vect } from "../num.js"
-import './css.js'
+import '../css.js'
 const css = window[Symbol.for('CSS')]
 // import * as h from '../handle.js'
 // let internals = Symbol()

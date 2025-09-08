@@ -1,6 +1,6 @@
 import $, {define} from '../yay.js'
 import {vect, toRad} from '../num.js'
-import './css.js'
+import '../css.js'
 const css = window[Symbol.for('CSS')]
 let touching = Symbol('👉')
     , touchpos = Symbol('📍')
