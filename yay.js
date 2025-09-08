@@ -570,11 +570,11 @@ let props = function () {
            for (let i in attr) {
                let n = i.split(','),
                    val = attr[i]
-               if (test(i)) throw NO_INLINE()
-               for (let {
+                   for (let {
                        length: a
-                   } = n; a--;) {
-                   let prop = ariaOrData(n[a])
+                    } = n; a--;) {
+                        let prop = ariaOrData(n[a])
+                   if (test(prop)) throw NO_INLINE()
                    if (typeof val === 'boolean') me.toggleAttribute(prop, val)
                    else if (val === '' || val == null) me.removeAttribute(prop)
                    else me.setAttribute(prop, val)

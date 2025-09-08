@@ -105,7 +105,7 @@
             })
             var regex = /--[\w-]+(?=:\s*)(?!\s*var\s*\()/g
             for(var i = document.styleSheets.length; i--;) 
-                fixSheetRules(document.styleSheets[i].sheet)
+                fixSheetRules(document.styleSheets[i])
             function fixString(node) {
                 var txt = node.textContent,
                     newText = txt.replace(regex, getReplacements)
