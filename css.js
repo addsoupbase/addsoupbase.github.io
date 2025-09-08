@@ -478,7 +478,7 @@
                         '--stretch': '-moz-available -webkit-fill-available stretch'.split(' ').find(sup.bind(1, 'max-width')),
                         '--center': '-moz-center -webkit-center -khtml-center'.split(' ').find(align),
                         // this is different from just 'center' and idk why!!!
-                        '--match-parent': '-moz-match-parent -webkit-match-parent'.split(' ').find(align)
+                        '--match-parent': 'match-parent -moz-match-parent -webkit-match-parent'.split(' ').find(align)
                     }
                 }
                 o[where("button,a,input[type=button],input[type=checkbox],input[type=radio],input[type=submit],input[type=image],input[type=reset],input[type=file]")] = { cursor: 'pointer' }
