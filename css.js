@@ -365,7 +365,8 @@
                 key = vendor(name, o = 'var('+o+')', true)
             universal[key] = o
             // try { 
-                func( { name: n, initialValue: initialValue, inherits: inherits == null ? false : !!(initialValue == null ? 'auto' : initialValue), syntax: syntax == null ? '*' : syntax }) 
+                func ? func( { name: n, initialValue: initialValue, inherits: inherits == null ? false : !!(initialValue == null ? 'auto' : initialValue), syntax: syntax == null ? '*' : syntax }) 
+                : fallback.set(key, vendor(key, 'inherit'))
             // }
             // catch (e) {e.name === 'InvalidModificationError' || (console.log(o), reportError(e),func || fallback.set(key, vendor(key, 'inherit')))}
         }
