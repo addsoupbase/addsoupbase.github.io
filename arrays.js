@@ -48,18 +48,20 @@ export function forKeys(obj, callback) {
 export function fresh(obj) {
     return !Reflect.ownKeys(obj).length
 }
-
+let fr = Array.from
 export function of(length, filler) {
     length>>>=0
     return typeof filler === 'function' ?
-        from({ length }, filler) :
+        fr({ length }, filler) :
         Array(length).fill(filler)
 }
 const map = call.bind([].map),
 slice = call.bind([].slice)
 export function from(ArrayLike, mapfn, thisArg) {
     // Array.from checks @@iterator first, which would be slower in cases where it is callable
-    return ArrayLike.length >= 0 ? mapfn ? map(ArrayLike, mapfn, thisArg) : slice(ArrayLike) : mapfn ? Array.from(ArrayLike, mapfn, thisArg) : typeof ArrayLike[iterator] !== 'undefined' ? [...ArrayLike] : []
+    return ArrayLike.length >= 0 ? mapfn ? 
+    map(ArrayLike, mapfn, thisArg) // this bit doesn't map if there are holes
+    : slice(ArrayLike) : mapfn ? fr(ArrayLike, mapfn, thisArg) : typeof ArrayLike[iterator] !== 'undefined' ? [...ArrayLike] : []
 }
 
 /*export function forEach(ArrayLike, callback, thisArg) {
@@ -164,25 +166,29 @@ async function fallback(src) {
     if (/^(?:application|text)\/json/.test(type) || /^(?:application\/(?:ld|vnd\.api)\+json)/.test(type)) return await n.json()
     throw TypeError(`Failed to load module script: Expected a JSON module script but the server responded with a MIME type of "${type}". Strict MIME type checking is enforced for module scripts per HTML spec.`)
 }
-
-let s = sessionStorage.json
+let ss = sessionStorage,
+ s = ss.json
 export let getJson
 
 function TestImportSupport() {
     // Some browsers (old) throw with the 'options' parameter
     // Firefox works now thankfully, but opera needs to catch up
     let s = { type: 'json' }
-    getJson = fallback.constructor
+    getJson = Function
         // Some, even older browsers, prefer 'assert' over 'with'
         // i sometimes wonder why they changed it in the first place if it works pretty much the same...
-        ('t,a,l,r,u', '"use strict";let h=(await import(r(u,l),t)).default;this.json=!0;return a(h)?h:{__proto__:null,...h}')
-        .bind(sessionStorage, { assert: s, with: s }, isArray, location, resolve)
+        ('t,l,r,d,u', '"use strict";return(import(r(u,l),t).then(d))')
+        .bind(void'', { assert: s, with: s }, location, resolve, def)
+        function def(o) {
+            ss.json = !0
+            return deep(o.default)
+        }
 }
 function resolve(url, base) {
      return new URL(url, globalThis.document?.querySelector('base')?.getAttribute('href') ?? base)
 }
 function FallbackImport() {
-    sessionStorage.setItem("json", false)
+    ss.setItem("json", false)
     getJson = fallback
 }
 
