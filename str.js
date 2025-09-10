@@ -39,7 +39,7 @@ if (a) {
 }
 else {
     function esc(str) {
-        return specialChars.reduce(reduce, str)
+        return specialChars(reduce, str)
     }
     function reduce(a, b, i, arr) {
         let { 0: regex, 1: rep } = arr[i]
