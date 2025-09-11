@@ -120,10 +120,14 @@ export function signed(n) {
 }
 export const cycleFrom = construct.bind(1, Cycle)
 export function lerp(start, end, time) {
-    return clamp(start + (end - start) * time, min(start, end), max(start, end))
+    return clamp(start + (end - start) * time||0, min(start, end), max(start, end))
 }
 export function* derp(start, end, time) {
-    while (start < end) yield start = lerp(start, end, time)
+    while (start < end) {
+        yield start = lerp(start, end, time)
+        if (abs(start - end) < 1e-2) 
+            return(yield end),  end
+    } 
     return end
 }
 export function clamp(val, MIN, MAX) {
