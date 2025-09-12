@@ -101,59 +101,59 @@
             if (p.startsWith('--'))
                 return p
             if (v.trim() && !sup(p, v)) {
-                var _ = p = p
+                var a = p = p
                     .replace(vendr, '')
                 return dhas(p) ? dget(p) : (
-                    sup(_, v) ||
+                    sup(a, v) ||
                     // Maybe you dont need a prefix?
-                    sup(_ = '-webkit-' + p, v) ||
+                    sup(a = '-webkit-' + p, v) ||
                     // Most likely (Chrome, Safari)
-                    sup(_ = '-moz-' + p, v) ||
+                    sup(a = '-moz-' + p, v) ||
                     // Firefox
-                    sup(_ = '-moz-osx-' + p, v) ||
+                    sup(a = '-moz-osx-' + p, v) ||
                     // Firefox
-                    sup(_ = '-apple-' + p, v) ||
+                    sup(a = '-apple-' + p, v) ||
                     // Apple
-                    sup(_ = '-o-' + p, v) ||
+                    sup(a = '-o-' + p, v) ||
                     // Opera
-                    sup(_ = '-ms-' + p, v) ||
+                    sup(a = '-ms-' + p, v) ||
                     // Microsoft
-                    sup(_ = '-khtml-' + p, v) ||
+                    sup(a = '-khtml-' + p, v) ||
                     // Konqueror
-                    sup(_ = '-konq-' + p, v) ||
+                    sup(a = '-konq-' + p, v) ||
                     // Konqueror
-                    sup(_ = 'mso-' + p, v) ||
+                    sup(a = 'mso-' + p, v) ||
                     // Microsoft Office
-                    sup(_ = '-xv-' + p, v) ||
+                    sup(a = '-xv-' + p, v) ||
                     // Opera
-                    sup(_ = '-atsc-' + p, v) ||
+                    sup(a = '-atsc-' + p, v) ||
                     // Advanced Television Standards Committee
-                    sup(_ = '-wap-' + p, v) ||
+                    sup(a = '-wap-' + p, v) ||
                     // The WAP Forum
-                    sup(_ = 'prince-' + p, v) ||
+                    sup(a = 'prince-' + p, v) ||
                     // YesLogic
-                    sup(_ = '-ah-' + p, v) ||
+                    sup(a = '-ah-' + p, v) ||
                     // Antenna House
-                    sup(_ = '-hp-' + p, v) ||
+                    sup(a = '-hp-' + p, v) ||
                     // Hewlett Packard
-                    sup(_ = '-ro-' + p, v) ||
+                    sup(a = '-ro-' + p, v) ||
                     // Real Objects
-                    sup(_ = '-rim-' + p, v) ||
+                    sup(a = '-rim-' + p, v) ||
                     // Research In Motion
-                    sup(_ = '-tc-' + p, v) ||
+                    sup(a = '-tc-' + p, v) ||
                     // Tall Components
-                    sup(_ = '-fso-' + p, v) ||
+                    sup(a = '-fso-' + p, v) ||
                     // IDK
-                    sup(_ = '-icab-' + p, v) ||
+                    sup(a = '-icab-' + p, v) ||
                     // IDK
-                    sup(_ = '-epub-' + p, v) ||
+                    sup(a = '-epub-' + p, v) ||
                     // IDK
                     // sup(prefix = `-internal-${prop}`, val) ||
-                    badCSS("Unrecognized CSS at '" + (_ = p) + ": " + v + "'", arguments[2]),
+                    badCSS("Unrecognized CSS at '" + (a = p) + ": " + v + "'", arguments[2]),
                     // mayNotBeSupported(prop),
-                    dset(p, _),
+                    dset(p, a),
                     // Sorry!
-                    _)
+                    a)
             }
             return p
         }

@@ -3,24 +3,24 @@
 const sym = Symbol.for("[[Events]]")
     //  Don't collide, and make sure its usable across realms!!
     , { apply, getPrototypeOf: gpo, getOwnPropertyDescriptor: gopd, defineProperty: dp, ownKeys } = Reflect
-    // , logger = { __proto__: null }
+// , logger = { __proto__: null }
 // {
-    // let { 0: c, 1: cc } = '%c@handle.js +color:pink;'.split('+')
-    // function DelayedLog(...args) {
-        // args.unshift(1, c, cc)
-        // queueMicrotask(this.bind.apply(this, args))
-    // }
-    // function LogOutOfGroup(...args) {
-        // args.unshift(1, c, cc)
-        // setTimeout(this.bind.apply(this, args))
-    // }
-    // for (let i in console) {
-        // Because the groupCollapsed() method was suppressing errors, delay them instead
-        // let old = console[i]
-        // if (typeof old === 'function')
-            // logger[i] = DelayedLog.bind(old),
-                // logger[`${i}Late`] = LogOutOfGroup.bind(old)
-    // }
+// let { 0: c, 1: cc } = '%c@handle.js +color:pink;'.split('+')
+// function DelayedLog(...args) {
+// args.unshift(1, c, cc)
+// queueMicrotask(this.bind.apply(this, args))
+// }
+// function LogOutOfGroup(...args) {
+// args.unshift(1, c, cc)
+// setTimeout(this.bind.apply(this, args))
+// }
+// for (let i in console) {
+// Because the groupCollapsed() method was suppressing errors, delay them instead
+// let old = console[i]
+// if (typeof old === 'function')
+// logger[i] = DelayedLog.bind(old),
+// logger[`${i}Late`] = LogOutOfGroup.bind(old)
+// }
 // }
 let source = Function.toString.call.bind(Function.prototype.toString)
 // let { warn, groupCollapsed, groupEnd } = logger,
@@ -231,6 +231,15 @@ function supportOrientationChangeEvent(target, eventName, label) {
         return out
     }
 }
+const FLAG_ONCE = 1 << 0,
+    FLAG_PREVENTS = 1 << 1,
+    FLAG_PASSIVE = 1 << 2,
+    FLAG_CAPTURE = 1 << 3,
+    FLAG_STOP_PROP = 1 << 4,
+    FLAG_STOP_IMMEDIATE_PROPAGATION = 1 << 5,
+    FLAG_ONLY_TRUSTED = 1 << 6,
+    FLAG_ONLY_CURRENT_TARGET = 1 << 7,
+    FLAG_AUTO_ABORT = 1 << 8
 export function on(target, events, controller) {
     arguments.length > 3 && getLabel(controller) !== 'AbortController' && (controller = arguments[3])
     if (!isValidET(target)) throw invalid()
@@ -238,99 +247,86 @@ export function on(target, events, controller) {
     if (!names.length) return target
     let label = getLabel(target)
     // try {
-        // groupCollapsed(`on(${label})`)
-        // logger.dirxml(target)
-        const myEvents = getEventNames(target)
-        if (typeof events === 'function') events = {
-            [events.name]: events
+    // groupCollapsed(`on(${label})`)
+    // logger.dirxml(target)
+    const myEvents = getEventNames(target)
+    if (typeof events === 'function') events = {
+        [events.name]: events
+    }
+    else if (isArray(events))
+        events = Object.fromEntries(events)
+    for (let { length: i } = names; i--;) {
+        let eventName = names[i],
+            includes = ''.includes.bind(eventName)
+        let func = events[eventName]
+        const once = +includes(ONCE) && FLAG_ONCE,
+            prevents = +includes(PREVENT_DEFAULT) && FLAG_PREVENTS,
+            passive = +includes(PASSIVE) && FLAG_PASSIVE,
+            capture = +includes(CAPTURE) && FLAG_CAPTURE,
+            stopProp = +includes(STOP_PROPAGATION) && FLAG_STOP_PROP,
+            stopImmediateProp = +includes(STOP_IMMEDIATE_PROPAGATION) && FLAG_STOP_IMMEDIATE_PROPAGATION,
+            onlyTrusted = +includes(TRUSTED) && FLAG_ONLY_TRUSTED,
+            onlyCurrentTarget = +includes(CURRENT_TARGET) && FLAG_ONLY_CURRENT_TARGET,
+            autoabort = +includes(AUTO_ABORT) && FLAG_AUTO_ABORT,
+            options = {
+                capture: !!capture,
+                //once
+                passive: !!passive,
+            }
+        const flags = once | prevents | passive | capture | stopProp | stopImmediateProp | onlyTrusted | onlyCurrentTarget | autoabort
+        let newTarget = target
+        if (flags & FLAG_PASSIVE && flags & FLAG_PREVENTS) throw TypeError("Cannot call 'preventDefault' on a passive function")
+        eventName = verifyEventName(newTarget, eventName.replace(formatEventName, ''))
+        let b = supportOrientationChangeEvent(target, eventName, label)
+        if (b) {
+            newTarget = b.target
+            eventName = b.name
         }
-        else if (isArray(events))
-            events = Object.fromEntries(events)
-        for (let { length: i } = names; i--;) {
-            let eventName = names[i],
-                includes = ''.includes.bind(eventName)
-            let func = events[eventName]
-                const once = includes(ONCE),
-                prevents = includes(PREVENT_DEFAULT),
-                passive = includes(PASSIVE),
-                capture = includes(CAPTURE),
-                stopProp = includes(STOP_PROPAGATION),
-                stopImmediateProp = includes(STOP_IMMEDIATE_PROPAGATION),
-                onlyTrusted = includes(TRUSTED),
-                onlyCurrentTarget = includes(CURRENT_TARGET),
-                autoabort = includes(AUTO_ABORT),
-                options = {
-                    capture,
-                    //once
-                    passive,
-                }
-            let newTarget = target
-            if (prevents && passive) throw TypeError("Cannot call 'preventDefault' on a passive function")
-            eventName = verifyEventName(newTarget, eventName.replace(formatEventName, ''))
-            let b = supportOrientationChangeEvent(target, eventName, label)
-            if (b) {
-                newTarget = b.target
-                eventName = b.name
-            }
-            if (myEvents.has(eventName) && controller == null) {
-                console.warn(`🔕 Skipped duplicate '${eventName}' listener. Call on() again with the signal parameter to bypass this.`)
-                continue
-            }
-            controller && (options.once = once, options.signal = controller.signal)
-             let type = getLabel(func)
-                if (type === 'GeneratorFunction') {
-                    let args = []
-                    autoabort && args.push(controller.abort.bind(controller))
-                    args.push(off.bind(null, target, eventName))
-                    let iterator = apply(func, target, args)
-                    func = iterator.next.bind(iterator)
-                   // the first 'yield' has no value, for some reason 
-                //    ;(func = iterator.next.bind(iterator))() 
-                }
-            const listener = EventWrapper.bind(newTarget, 
-                func, controller,
-                controller?.abort.bind(controller, 'Automatic abort'),
-                onlyTrusted,
-                onlyCurrentTarget,
-                prevents, stopProp,
-                stopImmediateProp,
-                autoabort,
-                once,
-                eventName)
-            if (autoabort && getLabel(controller) !== 'AbortController') throw TypeError("AbortController required if '#' (autoabort) is present")
-                   
-            add(newTarget, eventName, listener, options, /*onlyTrusted*/)
-            // if (eventName === 'load' && /^(?:HTMLIFrameElement|Window)$/.test(getLabel(target)) && (target.contentWindow || target).document?.readyState === 'complete') {
-            // setTimeout(listener.bind(target, new Event('load')))
-            // logger.warnLate(`'${eventName}' event was fired before listener was added`, target)
-            // }
-            if (controller) {
-                // logger.info(`📡 '${eventName}' event added`)
-            } 
-            else {
-                allEvents.has(newTarget) || allEvents.set(newTarget, new Map)
-                //A Map to hold the names & events
-                const myGlobalEventMap = allEvents.get(newTarget)
-                myGlobalEventMap.set(eventName, {
-                    __proto__: null,
-                    onlyCurrentTarget,
-                    passive,
-                    capture,
-                    onlyTrusted,
-                    listener,
-                    prevents,
-                    stopProp,
-                    once,
-                    stopImmediateProp,
-                    autoabort
-                })
-                myEvents.add(eventName)
-                // logger.info(`🔔 '${eventName}' event added`)
-            }
+        if (myEvents.has(eventName) && controller == null) {
+            console.warn(`🔕 Skipped duplicate '${eventName}' listener. Call on() again with the signal parameter to bypass this.`)
+            continue
         }
+        controller && (options.once = !!once, options.signal = controller.signal)
+        let type = getLabel(func)
+        if (type === 'GeneratorFunction') {
+            let args = []
+            autoabort && args.push(controller.abort.bind(controller))
+            args.push(off.bind(null, target, eventName))
+            let iterator = apply(func, target, args)
+            func = iterator.next.bind(iterator)
+            // the first 'yield' has no value, for some reason 
+            //    ;(func = iterator.next.bind(iterator))() 
+        }
+        const listener = EventWrapper.bind(newTarget,
+            func, controller,
+            controller?.abort.bind(controller, 'Automatic abort'),
+            flags)
+        if (autoabort && getLabel(controller) !== 'AbortController') throw TypeError("AbortController required if '#' (autoabort) is present")
+
+        add(newTarget, eventName, listener, options, /*onlyTrusted*/)
+        // if (eventName === 'load' && /^(?:HTMLIFrameElement|Window)$/.test(getLabel(target)) && (target.contentWindow || target).document?.readyState === 'complete') {
+        // setTimeout(listener.bind(target, new Event('load')))
+        // logger.warnLate(`'${eventName}' event was fired before listener was added`, target)
+        // }
+        if (controller) {
+            // logger.info(`📡 '${eventName}' event added`)
+        }
+        else {
+            allEvents.has(newTarget) || allEvents.set(newTarget, new Map)
+            //A Map to hold the names & events
+            const myGlobalEventMap = allEvents.get(newTarget)
+            myGlobalEventMap.set(eventName, {
+                __proto__: null,
+                flags,
+                listener,
+            })
+            myEvents.add(eventName)
+            // logger.info(`🔔 '${eventName}' event added`)
+        }
+    }
     // }
     // finally {
-        // groupEnd()
+    // groupEnd()
     // }
     return target
 }
@@ -350,14 +346,22 @@ const customEventHandler = {
         }
     }
 }
-function EventWrapper(f,s,abrt,t,oct,p,sp,sip,aa,once,name, ...args) {
+function EventWrapper(f, s, abrt, flags, ...args) {
+    const t = flags & FLAG_ONLY_TRUSTED,
+    oct = flags & FLAG_ONLY_CURRENT_TARGET,
+    p = flags & FLAG_PREVENTS,
+    sp = flags & FLAG_STOP_PROP,
+    sip = flags & FLAG_STOP_IMMEDIATE_PROPAGATION,
+    aa = flags & FLAG_AUTO_ABORT,
+    once = flags & FLAG_ONCE
     let { 0: event } = args,
         label = getLabel(event),
+        name = event.type,
         { currentTarget } = event,
         { detail } = event,
         push = args.push.bind(args)
-    label === 'CustomEvent'? event = args[0] = new Proxy(event, customEventHandler)
-    :label === 'MouseScrollEvent'&&(event.deltaZ = 0,
+    label === 'CustomEvent' ? event = args[0] = new Proxy(event, customEventHandler)
+        : label === 'MouseScrollEvent' && (event.deltaZ = 0,
             event.axis === 2 ?
                 (event.deltaX = 0, event.deltaY = 50 * detail) : event.axis === 1 &&
                 (event.deltaX = 50 * detail, event.deltaY = 0))
@@ -378,33 +382,33 @@ export function off(target, ...eventNames) {
     if (!eventNames.length || !allEvents.has(target)) return null
     let label = getLabel(target)
     // try {
-        // groupCollapsed(`off(${label})`)
-        // logger.dirxml(target)
-        const map = allEvents.get(target),
-            mySet = target[sym]
-        for (let i = eventNames.length; i--;) {
-            let newTarget = target
+    // groupCollapsed(`off(${label})`)
+    // logger.dirxml(target)
+    const map = allEvents.get(target),
+        mySet = target[sym]
+    for (let i = eventNames.length; i--;) {
+        let newTarget = target
             , name = verifyEventName(newTarget, eventNames[i]),
-                settings = map.get(name),
-                { listener } = settings
-            if (typeof name === 'object') {
-                newTarget = name.target
-                name = name.name
-            }
-            let b = supportOrientationChangeEvent(target, name, label)
-            if (b) {
-                newTarget = b.target
-                name = b.name
-            }
-            remove(newTarget, name, listener, settings)
-            map.delete(name) 
-            // && logger.info(`🔕 '${name}' event removed`)
-            mySet.delete(name)
-            map.size || allEvents.delete(newTarget)
+            settings = map.get(name),
+            { listener } = settings
+        if (typeof name === 'object') {
+            newTarget = name.target
+            name = name.name
         }
+        let b = supportOrientationChangeEvent(target, name, label)
+        if (b) {
+            newTarget = b.target
+            name = b.name
+        }
+        remove(newTarget, name, listener, settings)
+        map.delete(name)
+        // && logger.info(`🔕 '${name}' event removed`)
+        mySet.delete(name)
+        map.size || allEvents.delete(newTarget)
+    }
     // }
     // finally {
-        // groupEnd()
+    // groupEnd()
     // }
 }
 
@@ -417,7 +421,7 @@ export function until(target, eventName, failureName, filter, timeout) {
     function waitForEvent(resolve, reject) {
         let id = timeout && setTimeout(err => {
             reject(err)
-            controller.abort(RangeError( `⏰ Promise for '${eventName}' expired after ${timeout} ms`))
+            controller.abort(RangeError(`⏰ Promise for '${eventName}' expired after ${timeout} ms`))
         }, timeout)
             , controller = new AbortController
             , e = {
