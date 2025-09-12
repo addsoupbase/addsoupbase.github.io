@@ -215,7 +215,7 @@ const customEvents = new Set
 export function addCustomEvent(names) {
     for (let name in names) customEvents[names[name] ? 'add' : 'delete'](name.toLowerCase())
 }
-const formatEventName = /[_$^%&!?@#]|bound /g
+const formatEventName = /[_$^%&!?@#]|^(?:bound )+/g
 function supportOrientationChangeEvent(target, eventName, label) {
     if (eventName === 'change' && label === 'ScreenOrientation') {
         let n = ['msonorientationchange', 'mozonorientationchange', 'orientationchange'].find(Reflect.has.bind(1, target))
@@ -231,17 +231,20 @@ function supportOrientationChangeEvent(target, eventName, label) {
         return out
     }
 }
-const FLAG_ONCE = 1 << 0,
-    FLAG_PREVENTS = 1 << 1,
-    FLAG_PASSIVE = 1 << 2,
-    FLAG_CAPTURE = 1 << 3,
-    FLAG_STOP_PROP = 1 << 4,
-    FLAG_STOP_IMMEDIATE_PROPAGATION = 1 << 5,
-    FLAG_ONLY_TRUSTED = 1 << 6,
-    FLAG_ONLY_CURRENT_TARGET = 1 << 7,
-    FLAG_AUTO_ABORT = 1 << 8
+const FLAG_ONCE = 1,
+    FLAG_PREVENTS = 2,
+    FLAG_PASSIVE = 4,
+    FLAG_CAPTURE = 8,
+    FLAG_STOP_PROP = 16,
+    FLAG_STOP_IMMEDIATE_PROPAGATION = 32,
+    FLAG_ONLY_TRUSTED = 64,
+    FLAG_ONLY_CURRENT_TARGET = 128,
+    FLAG_AUTO_ABORT = 256
 export function on(target, events, controller) {
-    arguments.length > 3 && getLabel(controller) !== 'AbortController' && (controller = arguments[3])
+    if (arguments.length > 3 && getLabel(controller) !== 'AbortController'){
+        debugger
+        controller = arguments[3]
+    }
     if (!isValidET(target)) throw invalid()
     let names = ownKeys(events)
     if (!names.length) return target

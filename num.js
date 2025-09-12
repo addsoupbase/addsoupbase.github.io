@@ -12,7 +12,17 @@ sum = Math.sumPrecise ?? sum
 function sort(a, b) {
     return a - b
 }
-
+// export const bit = {
+//     merge(...bits) {
+//         return bits.reduce(or, 0)
+//     },
+//     flip(bit, pos) {
+//         return bit ^ (1 << pos)
+//     }
+// }
+// function or(a,b) {
+//     return a|b
+// }
 // function noConstructor() {
 // console.warn("Use this as a factory function instead of the constructor")
 // }
@@ -144,6 +154,14 @@ export function toRad(deg) {
 }
 export function compare(first, ...rest) {
     return rest.every(is.bind(1, first))
+}
+export function compareStrict(first,...rest){
+    for(let i = rest.length; i--;) if (first !== rest[i]) return false
+    return true
+}
+export function compareLoose(first,...rest){
+    for(let i = rest.length; i--;) if (first !== rest[i]) return false
+    return true
 }
 export const sanitize = isFinite
 export function isWithinRange(val, floor, ceiling) {

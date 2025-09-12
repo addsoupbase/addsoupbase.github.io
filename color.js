@@ -117,9 +117,7 @@ const Color = new Proxy(class $ extends Uint8ClampedArray {
         })
         return this
     }
-
-    static #img = /(?:data|blob):|\.(?:webp|a?png|jpe?g|gif|(?:av|jf)if|pjp(?:eg)?)/i
-
+    /*static #img = /(?:data|blob):|\.(?:webp|a?png|jpe?g|gif|(?:av|jf)if|pjp(?:eg)?)/i
     static #executor(src) {
         let image = new Image(1, 1)
         image.src = src
@@ -148,13 +146,20 @@ const Color = new Proxy(class $ extends Uint8ClampedArray {
         }
 
         return new Promise(GetColorFromPixel)
-    }
+    }*/
 
     constructor(r, g, b, a) {
         super(4)
-        if (typeof r === 'string' && r[0] !== '#') {
-            if ($.#img.test(r))
-                return $.#executor(r)
+        if (typeof r === 'number' && g == null && b == null && a == null) {
+            let n = numToRgb(r)
+            r = n[0]
+            g = n[1]
+            b = n[2]
+            a = n[3]
+        }
+        else if (typeof r === 'string' && r[0] !== '#') {
+            // if ($.#img.test(r))
+            //     return $.#executor(r)
             try {
                 ({ r, g, b, a } = Color[r])
             } catch {
@@ -243,9 +248,12 @@ const Color = new Proxy(class $ extends Uint8ClampedArray {
     get l() {
         return `${this.hsl[2]}%`
     }
-
- 
-
+    valueOf() {
+        let r = this[0] << 16,
+        g = this[1] << 8,
+        b = this[2] << 4
+        return r | g | b
+    }
     get opacity() {
         return this.a
     }
@@ -273,7 +281,14 @@ function toHex(o) {
 export function rgbToHex(r, g, b) {
     return `#${toHex(r)}${toHex(g)}${toHex(b)}`
 }
-
+export function numToRgb(num) {
+    let r = num >> 16 & 255,
+    g = num >> 8 & 255,
+    b = num >> 4 & 255
+    // ,a = num >> 2 & 255
+    return Uint8Array.of(r,g,b,255)
+    // return `rgb(${r} ${g} ${b} / ${a / 255})`
+}
 export function hexToRgb(hex) {
     if (hex[0] === '#')
         hex = hex.slice(1)
