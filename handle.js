@@ -481,8 +481,8 @@ export function delegate(me, events, filter, includeSelf, controller) {
         let old = events[i]
         events[i] = DelegationFunction
         function DelegationFunction(...args) {
-            let { target } = args[0];
-            let res = filter(target)
+            let { target } = args[0]
+            let res = filter(target);
                 (me !== target || includeSelf) && (res == null ? 1 : res) && apply(old, target, args)
         }
     }
