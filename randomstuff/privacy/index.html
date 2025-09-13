@@ -69,7 +69,10 @@
 </style>
 <div>
     <h1>Privacy</h1>
-    <p>Note: some information may be incorrect</p>
+    <div style="display: grid;">
+        <small>Note: some information may be incorrect</small>
+        <!-- <small>Note: the 'name' property (the really long one) is set by me and will likely not</small> -->
+    </div>
     <button id="redo">Refresh</button>
     <section>
         <h2>Available:</h2>
@@ -82,7 +85,7 @@
     </section>
     <section>
         <h2>Unavailable:</h2>
-        <div id="no">
+        <div id="no" class="sect">
         </div>
     </section>
 </div>
@@ -104,9 +107,11 @@
         no.destroyChildren()
         // navigator:
         addSect('Window');
-        ['orientation', 'name', 'innerWidth', 'innerHeight', 'outerWidth', 'outerHeight',
+        ['orientation', 'innerWidth', 'innerHeight', 'outerWidth', 'outerHeight',
             'screenX',
             'screenY',
+            'pageXOffset',
+            'pageYOffset',
             'mozInnerScreenX',
             'mozInnerScreenY',
             // 'isSecureContext',
@@ -152,6 +157,11 @@
         addSect('Document');
         ['cookie', 'referrer'].sort().forEach(function (o) {
             addToYes.call(document, o, 'Document')
+        })
+        addSect('Visual Viewport');
+        ['offsetLeft', 'offsetTop', 'pageLeft', 'pageTop', 'width', 'height', 'scale']
+        .sort().forEach(function(o) {
+            addToYes.call(visualViewport,o, 'Visual Viewport')
         })
         try {
             let a = await document.featurePolicy.allowedFeatures()
@@ -306,7 +316,8 @@
             } else addToNo.call(this, prop, 'Unsupported')
         }
         let media = $("section.sect")
-        yes.parent.push($("<h2>Media Queries:</h2>"),media);
+        $.id.mq?.destroy()
+        yes.parent.push($("<h2 id='mq'>Media Queries:</h2>"),media);
         ['(any-hover: hover)','(grid: 0)','(hover:hover)','(inverted-colors:inverted)','(prefers-reduced-data:reduce)',
         '(prefers-reduced-motion: reduce)','(prefers-reduced-transparency: reduce)','(shape: rect)','(video-dynamic-range: standard)'].map(matchMedia).forEach(o=>{
             media.push($(`<p class="${CSS.escape(o.media)}"></p>`, {
