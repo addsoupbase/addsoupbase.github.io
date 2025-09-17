@@ -166,21 +166,16 @@ async function fallback(src) {
     if (/^(?:application|text)\/json/.test(type) || /^(?:application\/(?:ld|vnd\.api)\+json)/.test(type)) return await n.json()
     throw TypeError(`Failed to load module script: Expected a JSON module script but the server responded with a MIME type of "${type}". Strict MIME type checking is enforced for module scripts per HTML spec.`)
 }
-let ss = sessionStorage,
- s = ss.json
 export let getJson
-
 function TestImportSupport() {
     // Some browsers (old) throw with the 'options' parameter
     // Firefox works now thankfully, but opera needs to catch up
     let s = { type: 'json' }
     getJson = Function
-        // Some, even older browsers, prefer 'assert' over 'with'
-        // i sometimes wonder why they changed it in the first place if it works pretty much the same...
+        // Some other browsers, prefer 'assert' over 'with'
         ('t,l,r,d,u', '"use strict";return(import(r(u,l),t).then(d))')
         .bind(void'', { assert: s, with: s }, location, resolve, def)
         function def(o) {
-            ss.json = !0
             return deep(o.default)
         }
 }
@@ -188,19 +183,16 @@ function resolve(url, base) {
      return new URL(url, globalThis.document?.querySelector('base')?.getAttribute('href') ?? base)
 }
 function FallbackImport() {
-    ss.setItem("json", false)
     getJson = fallback
 }
 
-if (s !== 'false' && s !== 'true') try {
+ try {
     TestImportSupport()
 } catch (e) {
     console.error(e)
     e.name === "SyntaxError" || e.name === 'EvalError'
         ? FallbackImport() : reportError(e)
 }
-else if (s === 'true') TestImportSupport()
-else FallbackImport()
 export const jason = getJson
 /*
 export function syncImport(src) {
