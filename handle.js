@@ -26,7 +26,6 @@ let source = Function.toString.call.bind(Function.prototype.toString)
 // let { warn, groupCollapsed, groupEnd } = logger,
 let { isArray } = Array
 export const allEvents = new WeakMap
-let add, remove, dip
 /*{
     let { addEventListener, removeEventListener, dispatchEvent } = globalThis.EventTarget?.prototype ?? AbortSignal.prototype
     if (source(addEventListener) !== source(Function.prototype).replace('function ', 'function addEventListener')
@@ -47,8 +46,8 @@ let add, remove, dip
             console.error(e)
         }
         }*/
-add = addEventListener.call.bind(addEventListener)
-remove = removeEventListener.call.bind(removeEventListener)
+let add = addEventListener.call.bind(addEventListener),
+remove = removeEventListener.call.bind(removeEventListener),
 dip = dispatchEvent.call.bind(dispatchEvent)
 let verified = new WeakSet
 let get
@@ -118,17 +117,19 @@ export function requestFile(accept, multiple) {
         }).showPicker()
     }
 }
-
+let isAnimation = / /.test.bind(/^(animation(?:cancel|remove))$/),
+isFocus = / /.test.bind(/^(?:focus(?:in|out))$/),
+isDOMThing = / /.test.bind(/^(?:DOM(?:Activate|MouseScroll|Focus(?:In|Out)|(?:Attr|CharacterData|Subtree)Modified|NodeInserted(?:IntoDocument)?|NodeRemoved(?:FromDocument)?))$/),
+isMediaQuery = / /.test.bind(/^(?:\(.+\))$/)
 export const reqFile = requestFile
-let isMediaQuery = / /.test.bind(/^(?:\(.+\))$/)
 function verifyEventName(target, name) {
     let original = name
     name = name.toLowerCase()
     let valid = (customEvents.has(name) || `on${name}` in target ||
         ((original === 'DOMContentLoaded' && nodeType(target) === 9)
-            || (/^(animation(?:cancel|remove))$/.test(original) && 'onremove' in target)
-            || /^(?:focus(?:in|out))$/.test(original)
-            || (/^(?:DOM(?:Activate|MouseScroll|Focus(?:In|Out)|(?:Attr|CharacterData|Subtree)Modified|NodeInserted(?:IntoDocument)?|NodeRemoved(?:FromDocument)?))$/.test(original)))
+            || (isAnimation(original) && 'onremove' in target)
+            || isFocus(original)
+            || (isDOMThing(original)))
         //Some events like the ones above don't have a handler
         || isMediaQuery(original)
     )
@@ -211,7 +212,6 @@ export const {
     stopImmediatePropagation: '!', //Automatically calls event.stopImmediatePropagation()
 }
 const customEvents = new Set
-
 export function addCustomEvent(names) {
     for (let name in names) customEvents[names[name] ? 'add' : 'delete'](name.toLowerCase())
 }

@@ -86,7 +86,15 @@
             pev = pelem,
             br = ['epub', 'icab', 'fso', 'tc', 'rim', 'hp', 'ah', 'wap', 'atsc', 'xv', 'ms', 'o', 'r', 'konq', 'khtml', 'apple', 'webkit', 'moz', 'moz-osx'],
             pcv = pclass
-        CSS.registerProperty||(!inModule&&document.readyState!=='complete'&&(w.fallback=fallback,w.vendor=vendor,document.write('<','script src="no_register_property.js" async','>','<','/script','>')))
+            var canWrite = !inModule&&document.readyState!=='complete'
+        CSS.registerProperty||(canWrite&&(w.fallback=fallback,w.vendor=vendor,document.write('<','script src="no_register_property.js" async','>','<','/script','>')))
+        if (canWrite) {
+            var date = Date.now()
+            // Idk why, but it seems to make the page render faster 
+            document.write('<p style="transform:scale(0);display:table-cell;z-index:-9999;" id="' + date +'">.</p>')
+            var p = document.getElementById(date)
+            p && (p = date = addEventListener('load', p.remove.bind(p), {once:true}))
+        }
         function dashVendor(prop, val) {
             return vendor(toDash(prop), val)
         }
@@ -309,7 +317,7 @@
             return':where('+selector+')'
         }
         sup('selector(:where(p))') || (W = function (o) { return o })
-        var fallback, uv = {}
+        var fallback, uv = {'box-sizing':'border-box','overflow-wrap': 'var(--word-wrap)','scrollbar-color': 'var(--scrollbar-thumb-color) var(--scrollbar-color)'}
         // , all = [
             g("user-select", "auto", true), // Most important one
             g("user-modify", "auto", false),
@@ -440,9 +448,6 @@
             func({ name: '--scrollbar-color', initialValue: 'auto', inherits: true })
         }
         catch(e){reportError(e)}
-        uv['box-sizing'] = 'border-box'
-        uv['overflow-wrap'] = 'var(--word-wrap)'
-        uv['scrollbar-color'] = 'var(--scrollbar-thumb-color) var(--scrollbar-color)'
         var str
         stc(name || (sn(str = first + selector + '{'+toCSS(uv, true)+'}' + join('')), str))
         return w[sym] = Object.preventExtensions({
