@@ -180,7 +180,7 @@ function TestImportSupport() {
         }
 }
 function resolve(url, base) {
-     return new URL(url, globalThis.document?.querySelector('base')?.getAttribute('href') ?? base)
+     return new URL(url, globalThis.document?.baseURI?? base)
 }
 function FallbackImport() {
     getJson = fallback
