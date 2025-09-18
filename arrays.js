@@ -42,8 +42,8 @@ function deep(obj) {
 const {call,apply} = Function.prototype
 export function forKeys(obj, callback) {
     let keys = Reflect.ownKeys(obj),
-    cal = call.bind(callback)
-    for (let { length: i } = keys; i--;) cal(obj, keys[i])
+    cal = call.bind(callback, obj)
+    for (let { length: i } = keys; i--;) cal(keys[i])
 }
 export function fresh(obj) {
     return !Reflect.ownKeys(obj).length
@@ -134,7 +134,6 @@ export function cursedJSONParse(maybeJSON) {
 }
 */
 let { sign: Sign, abs } = Math
-
 export function rotate(arr, rotation) {
     let { length } = arr
     if (length < 2) return arr
@@ -180,7 +179,7 @@ function TestImportSupport() {
         }
 }
 function resolve(url, base) {
-     return new URL(url, globalThis.document?.baseURI?? base)
+     return new URL(url, globalThis.document?.baseURI ?? base)
 }
 function FallbackImport() {
     getJson = fallback
@@ -190,7 +189,8 @@ function FallbackImport() {
     TestImportSupport()
 } catch (e) {
     console.error(e)
-    e.name === "SyntaxError" || e.name === 'EvalError'
+    let a = e.name
+    a === "SyntaxError" || a === 'EvalError'
         ? FallbackImport() : reportError(e)
 }
 export const jason = getJson

@@ -9,8 +9,6 @@
             ,d=Object.defineProperty;''.startsWith||d(String.prototype,'startsWith',{value:function(s,p){return this.slice(p=p|0,(s+='').length+p)===s}});[].find||d(Array.prototype,'find',{value:function(c,t,m,z){for(var i=0,l=(m=this).length;i<l;++i){z=m[i];if(c.call(t, z))return z}}})
         b = b && b.remove()
         if (sym in w || typeof w[disambiguity] === 'object') return w[sym]
-        var canWrite = !inModule&&document.readyState!=='complete'
-        , get = document.getElementById.bind(document, disambiguity)
         w.reportError = w.reportError || function reportError(t) {
             try {
                 var e = new ErrorEvent('error', {
@@ -22,6 +20,9 @@
                 e.defaultPrevented || console.error(t)
             }
             catch(e) {console.debug(e)}
+        }
+        function q(n){
+            return'{'+n+'}'
         }
         function sn(n) {
              top.name = n
@@ -55,7 +56,9 @@
                 return propOrSelector in computed
             }
         }()
-        var func = CSS.registerProperty || void (fallback = new Map), selector = '*,:where(::-moz-color-swatch,::-moz-focus-inner,::-moz-list-bullet,::-moz-list-number,::-moz-meter-bar,::-moz-progress-bar,::-moz-range-progress,::-moz-range-thumb,::-moz-range-track,::-webkit-inner-spin-button,::-webkit-meter-bar,::-webkit-meter-even-less-good-value,::-webkit-meter-inner-element,::-webkit-meter-optimum-value,::-webkit-meter-suboptimum-value,::-webkit-progress-bar,::-webkit-progress-inner-element,::-webkit-progress-value,::-webkit-scrollbar,::-webkit-search-cancel-button,::-webkit-search-results-button,::-webkit-slider-runnable-track,::-webkit-slider-thumb,::after,::backdrop,::before,::checkmark,::column,::cue,::details-content,::file-selector-button,::first-letter,::first-line,::grammar-error,::marker,::picker-icon,::placeholder,::scroll-marker,::scroll-marker-group,::selection,::spelling-error,::target-text,::view-transition)'
+        var canWrite = !inModule&&document.readyState!=='complete'
+            , get = document.getElementById.bind(document, disambiguity)
+            , func = CSS.registerProperty || void (fallback = new Map), selector = '*,:where(::-moz-color-swatch,::-moz-focus-inner,::-moz-list-bullet,::-moz-list-number,::-moz-meter-bar,::-moz-progress-bar,::-moz-range-progress,::-moz-range-thumb,::-moz-range-track,::-webkit-inner-spin-button,::-webkit-meter-bar,::-webkit-meter-even-less-good-value,::-webkit-meter-inner-element,::-webkit-meter-optimum-value,::-webkit-meter-suboptimum-value,::-webkit-progress-bar,::-webkit-progress-inner-element,::-webkit-progress-value,::-webkit-scrollbar,::-webkit-search-cancel-button,::-webkit-search-results-button,::-webkit-slider-runnable-track,::-webkit-slider-thumb,::after,::backdrop,::before,::checkmark,::column,::cue,::details-content,::file-selector-button,::first-letter,::first-line,::grammar-error,::marker,::picker-icon,::placeholder,::scroll-marker,::scroll-marker-group,::selection,::spelling-error,::target-text,::view-transition)'
            , ce = document.createElement.bind(document),
             name = gn(),
             fro=Object.fromEntries||function(l,o){o={};l.forEach(function(e){var p=e[0],v=e[1];o[p]=v});return o},entries=Object.entries||function(o,i){var x=[];for(i in o)x.push([i,o[i]]);return x},
@@ -81,10 +84,11 @@
             sup = CSS.supports,
             dash = /-./g,
             azregex = /[A-Z]/g,
-            cl = /\s{2}/g,
             Rm = matchMedia('(prefers-reduced-motion:reduce)'),
             br = ['epub', 'icab', 'fso', 'tc', 'rim', 'hp', 'ah', 'wap', 'atsc', 'xv', 'ms', 'o', 'ro', 'konq', 'khtml', 'apple','moz', 'moz-osx', 'webkit']
-        CSS.registerProperty||(canWrite&&(w.fallback=fallback,w.vendor=vendor,document.write('<','script src="no_register_property.js" async','>','<','/script','>')))
+            , formatClass = formatGeneric.bind(1, ':', pseudoClass),
+            formatElement = formatGeneric.bind(1, '::', pseudoElement)
+            CSS.registerProperty||(canWrite&&(w.fallback=fallback,w.vendor=vendor,document.write('<','script src="no_register_property.js" async','>','<','/script','>')))
         /*if (canWrite) {
             var date = Date.now()
             // Idk why, but it seems to make the page render faster 
@@ -120,8 +124,6 @@
             }
             return selector
         }
-        var formatClass = formatGeneric.bind(1, ':', pseudoClass),
-        formatElement = formatGeneric.bind(1, '::', pseudoElement)
         function formatSelector(s) {
             return formatClass(formatElement(s))
         }
@@ -210,9 +212,9 @@
          * @returns {String}
          */
         function toCSS(o) {
-            var str = '',v, silent = arguments[1]
+            var str = '',v,p, silent = arguments[1]
             is(o) && (o = fro(o))
-            for (var p in o) {
+            for (p in o) {
                 v = String(o[p])
                 p === 'content'  && !sup('content', v) && (v='"'+v+'"')
                 try {
@@ -223,7 +225,6 @@
             }
             return str
         }
-        
         /**
          *  ⚠️ Should only be used for dynamic/default CSS
          * @param {String} selector A valid CSS selector (something like . or#)
@@ -234,16 +235,13 @@
             selector = selector.split(',')
                 for(var i = 0, len = selector.length; i  < len; ++i) 
                     str += formatSelector(selector[i])
-            var r = '{'+toCSS(rule,silent)+'}'
+            var r = q(toCSS(rule,silent))
             stc(gtc()+str+r)
             return sheet
         }
         function registerCSSRaw(rules) {
             stc(gtc() + rules)
             return sheet
-        }
-        function formatStr(str) {
-            return str.trim().replace(cl, '')
         }
         function importCSS(url) {
             var n = ce('link'),
@@ -261,7 +259,7 @@
                     // this branch is slower
                     return document.write('<style id="'+disambiguity+'" blocking="render">'+str+'</style>'), get()
                 }*/
-                var out = ce('style'),
+                , out = ce('style'),
                 l = out.setAttribute.bind(out)
                 l('id', disambiguity)
                 l('blocking', out.blocking = 'render')
@@ -305,8 +303,9 @@
         function W(selector) {
             return':where('+selector+')'
         }
-        sup('selector(:where(p))') || (W = function (o) { return o })
-        var fallback, uv = {'box-sizing':'border-box','overflow-wrap': 'var(--word-wrap)','scrollbar-color': 'var(--scrollbar-thumb-color) var(--scrollbar-color)'}
+        sup('selector(:where(p))') || (W=function(o){return o})
+        var fallback, 
+        uv = {'box-sizing':'border-box','overflow-wrap': 'var(--word-wrap)','scrollbar-color': 'var(--scrollbar-thumb-color) var(--scrollbar-color)'}
         // , all = [
             g("user-select", "auto", true), // Most important one
             g("user-modify", "auto", false),
@@ -402,7 +401,7 @@
             g('color-rendering', 'auto', false),
             g('word-wrap', 'normal', false)
         // ],
-            var dflt = name.trim() ? name : entries(function () {
+            var dflt = name.trim() ? name : entries(function(){
                 var align = sup.bind(1, 'text-align')
                 , o = {
                     ':root': {
@@ -429,15 +428,15 @@
                 o[W('.centerx,.center')] = { 'justify-self': 'center', margin: 'auto', 'text-align': 'center' }
                 o[W('.centery,.center')] = { 'align-self': 'center', inset: 0, position: 'fixed' }
                 return o
-            }()).map(function (a) { return a[0]+'{'+toCSS(a[1])+'}' })
-            , first = gtc()
+            }()).map(function(a){return a[0]+q(toCSS(a[1]))})
+            , first = gtc(),
+            str
         try {
             func({ name: '--scrollbar-thumb-color', initialValue: 'auto', inherits: true })
             func({ name: '--scrollbar-color', initialValue: 'auto', inherits: true })
         }
         catch(e){reportError(e)}
-        var str
-        stc(name || (sn(str = first + selector + '{'+toCSS(uv, true)+'}' + dflt.join('')), str))
+        stc(name || (sn(str=first+selector+q(toCSS(uv,true))+dflt.join('')),str))
         return w[sym] = Object.preventExtensions({
             getDefaultStyleSheet: getDefaultStyleSheet,
             registerCSSRaw: registerCSSRaw,
@@ -448,7 +447,6 @@
             registerCSS: registerCSS,
             dashVendor: dashVendor,
             importFont: importFont,
-            formatStr: formatStr,
             capVendor: capVendor,
             importCSS: importCSS,
             badCSS: badCSS,
@@ -461,4 +459,4 @@
             formatSelector:formatSelector
         })
     }
-}.call(null,window,typeof Symbol==='function'?Symbol.for('CSS'):'!@#$%^&*()9021482947'))
+}.call(null,window,typeof Symbol==='function'?Symbol.for('CSS'):'__CSS__'))
