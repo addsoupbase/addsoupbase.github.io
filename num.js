@@ -9,6 +9,10 @@ function sum(arr) {
     return arr.reduce(reduce, -0)
 }
 sum = Math.sumPrecise ?? sum
+const of = Reflect.apply.bind(1,Float64Array.of,Float64Array)
+export function add(...n) {
+    return sum(of(n))
+}
 function sort(a, b) {
     return a - b
 }
@@ -70,7 +74,7 @@ export function avg(...array) {
         q1 = sorted[g],
         q3 = sorted[3 * g],
         IQR = q3 - q1,
-        upperFence = q3 + 1.5 * IQR,
+        upperFence = add(q3, 1.5 * IQR),
         lowerFence = q1 - 1.5 * IQR,
         filtered = sorted.filter(filter)
     return filtered.reduce(reduce) / filtered.length
@@ -82,7 +86,7 @@ export function median(...numbers) {
     let { length } = numbers
         , sorted = numbers.sort(sort),
         middle = length / 2 | 0
-    return length % 2 ? sorted[middle] : (sorted[middle] + sorted[middle - 1]) / 2
+    return length % 2 ? sorted[middle] : add(sorted[middle], sorted[middle - 1]) / 2
 }
 function gt(a, b) { return max(a,b) }
 function lt(a, b) { return min(a,b) }
@@ -90,7 +94,7 @@ export function mode(...numbers) {
     let obj = []
     for (let { length: i } = numbers; i--;) {
         let n = numbers[i]
-        obj[n] = (obj[n] | 0) + 1
+        obj[n] = add(obj[n] | 0, 1) 
     }
     return obj.indexOf(obj.reduce(gt))
 }
@@ -130,7 +134,7 @@ export function signed(n) {
 }
 export const cycleFrom = construct.bind(1, Cycle)
 export function lerp(start, end, time) {
-    return clamp(start + (end - start) * time||0, min(start, end), max(start, end))
+    return clamp(add(start, (end - start) * time||0), min(start, end), max(start, end))
 }
 export function* derp(start, end, time) {
     while (start < end) {
@@ -179,7 +183,7 @@ export function maxBigInt(...BigInts) {
     return BigInts.reduce(gt)
 }
 export class Vector2 extends Float32Array {
-    // Extending from Float32Array is *significantly* faster!! (around 31x)
+    // Extending from a TypedArray is *significantly* faster!! (around 31x)
     static get up() {
         return new Vector2(0, 1)
     }
@@ -197,7 +201,7 @@ export class Vector2 extends Float32Array {
         y1 = v.y(first),
         x2 = v.x(second),
         y2 = v.y(second)
-        return x1 * x2 + y1 * y2
+        return add(x1 * x2, y1 * y2)
     }
     flip() {
         return this.set(this.flipped)
@@ -246,14 +250,13 @@ export class Vector2 extends Float32Array {
         //, { 0: minX = MIN_SAFE_INTEGER, 1: minY = MIN_SAFE_INTEGER } = {},
         // { 0: maxX = MAX_SAFE_INTEGER, 1: maxY = MAX_SAFE_INTEGER } = {}
     ) {
-        super(2)
     /*    let _min = this.#min,
         _max= this.#max
         _min[0] = minX
         _min[1] = minY
         _max[0] = maxX
         _max[1] = maxY*/
-        Reflect.preventExtensions(this.set(x, y))
+        Reflect.preventExtensions(super(2).set(x, y))
     }
     // #min = new Float32Array(2)
     // #max = new Float32Array(2)
@@ -277,7 +280,7 @@ export class Vector2 extends Float32Array {
         return this.scale(1 / (mult ?? 1))
     }
     get magnitude() {
-        return abs(this[0] + this[1])
+        return abs(add(this[0],this[1]))
     }
     get clone() {
         return new Vector2(this[0], this[1])
@@ -356,10 +359,6 @@ export class Vector2 extends Float32Array {
         , y = v.y(pos)
         return this.subtract(this.minus(x, y).scale((time ?? .1) * (delta ?? 1)))
     }
-    /*clamp({ 0: minX = MIN_SAFE_INTEGER, 1: minY = MIN_SAFE_INTEGER } = {}, { 0: maxX = MAX_SAFE_INTEGER, 1: maxY = MAX_SAFE_INTEGER } = {}) {
-        this.clampX(minX, maxX)
-        return this.clampY(minY, maxY)
-    }*/
     moveTowards(towards, maxDistance, delta) {
         let x = v.x(towards),
         y = v.y(towards)
@@ -377,7 +376,7 @@ export class Vector2 extends Float32Array {
         return this
     }
     add(x, y) {
-        return this.set(this[0] + x, this[1] + y)
+        return this.set(add(this[0], x), add(this[1], y))
     }
     subtract(x, y) {
         return this.set(this[0] - x, this[1] - y)
