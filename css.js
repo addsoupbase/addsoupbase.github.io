@@ -209,7 +209,7 @@
             return str
         }
         /**
-         *  ⚠️ Should only be used for dynamic/default CSS
+         *  #### Should only be used for dynamic/default CSS
          * @param {String} selector A valid CSS selector (something like . or#)
          * @param {Object} rule An object which describes the selector
          */
