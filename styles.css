@@ -544,7 +544,8 @@ html {
 @supports (zoom: 1) {
   #frame {
     transform: unset;
-    --zoom: 0.8
+    zoom: 0.8;
+    --zoom: 0.8;
   }
 }
 
@@ -564,9 +565,6 @@ html {
   content: url(./cute-emojis/emojis/1224927639068741632.gif);
   display: block;
 }
-
-
-
 
 h1,
 p,

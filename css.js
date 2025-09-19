@@ -79,7 +79,7 @@
             dget = dr.get.bind(dr),
             dhas = dr.has.bind(dr),
             dset = dr.set.bind(dr)
-            try {var pseudoClass=RegExp('(?<=:)(?<!::)[\w-]+','g'),pseudoElement=RegExp('(?<=::)[\w-]+','g')}
+            try {var pseudoClass=RegExp('(?<=:)(?<!::)[\\w-]+','g'),pseudoElement=RegExp('(?<=::)[\\w-]+','g')}
             // Lookbehind is more modern
             catch(e) { }
             var sup = CSS.supports,
@@ -111,10 +111,12 @@
         function vendorSelector(selector, type) {
             type = String(type) || ':'
             var og = selector = selector.replace(vendr, '')
-            , i = br.length
-            while(!supportsRule(temp = type + selector) && i--) 
+            , i = br.length,
+            temp,
+            s
+            while((s = !supportsRule(temp = type + selector)) && i--) 
                 selector = '-'+br[i]+'-' + og
-            return  selector
+            return s ? arguments[0] : selector
         }
         function formatGeneric(d, pseudo, selector) {
             var replace = ''.replace.bind(selector)
@@ -255,7 +257,7 @@
         }
         function getDefaultStyleSheet() {
             return (get() || function () {
-                var str = name || '@namespace svg url("http://www.w3.org/2000/svg");@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:root{--system-font:system-ui,-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,Oxygen,Ubuntu,Cantarell,\'Open Sans\',\'Helvetica Neue\',sans-serif}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not(scrollbar-color:auto){::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}' + disambiguity
+                var str = name || "@namespace svg url('http://www.w3.org/2000/svg');@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:root{--system-font:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not(scrollbar-color:auto){::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}" + disambiguity
                 /*if (canWrite) {
                     // this branch is slower
                     return document.write('<style id="'+disambiguity+'" blocking="render">'+str+'</style>'), get()
