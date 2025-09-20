@@ -30,12 +30,15 @@ const { parse: prse, stringify } = JSON
     , proto = Object.preventExtensions(Object.create(null, { [toPrimitive]: { value() { return stringify(this) } } }))
 export function parse(str) {
     let n = prse(str)
-    return Object(n) === n ? deep(isArray(n) ? n : { __proto__: proto, ...n }) : n
+    return Object(n) === n ? deep(uproot(n)) : n
+}
+function uproot(n){
+    return Array.isArray(n) ? n : {__proto__: proto, ...n}
 }
 function deep(obj) {
-    for (let i in obj) {
+    for (let i in obj = uproot(obj)) {
         let val = obj[i]
-        val === Object(val) && !isArray(val) && deep(obj[i] = {__proto__: proto, ...val})
+        val === Object(val) && !isArray(val) && deep(obj[i] = uproot(val))
     }
     return obj
 }
@@ -172,7 +175,7 @@ function TestImportSupport() {
     let s = { type: 'json' }
     getJson = Function
         // Some other browsers, prefer 'assert' over 'with'
-        ('t,l,r,d,u', '"use strict";return(import(r(u,l),t).then(d))')
+        ('n,o,j,d,s', '"use strict";return(import(j(s,o),n).then(d))')
         .bind(void'', { assert: s, with: s }, location, resolve, def)
         function def(o) {
             return deep(o.default)

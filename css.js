@@ -25,7 +25,7 @@
         function gn() {
             try {
                 var o = top.name
-                if (!o.trim() || o.includes(disambiguity)) return o // name is free to use
+                if (!o || o.includes(disambiguity)) return o // name is free to use
                 throw''
             }
             catch (e) {
@@ -50,9 +50,9 @@
             descr = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent'),
             stc = descr.set.bind(sheet),
             gtc = descr.get.bind(sheet),
-            dflt = new Set,
-            has = dflt.has.bind(dflt),
-            add = dflt.add.bind(dflt),
+            props = new Set,
+            has = props.has.bind(props),
+            add = props.add.bind(props),
             alr = new Set,
             ah = alr.has.bind(alr),
             addAlr = alr.add.bind(alr),
@@ -195,16 +195,16 @@
          * @returns {String}
          */
         function toCSS(o) {
-            var str = '',v,p, silent = arguments[1]
+            var str = '',v,p,silent = arguments[1]
             is(o) && (o = fro(o))
             for (p in o) {
                 v = String(o[p])
                 p === 'content'  && !sup('content', v) && (v='"'+v+'"')
-                try {
+                // try {
                     str += vendor(toDash(p),v,silent)+':'+v+';'
-                } catch (e) {
-                    reportError(e)
-                }
+                // } catch (e) {
+                    // reportError(e)
+                // }
             }
             return str
         }
@@ -261,11 +261,11 @@
         }
         function reg(r) {
             var t = this[r]
-            try {
+            // try {
                 registerCSS(r, t)
-            } catch (e) {
+            // } catch (e) {
                 reportError(e)
-            }
+            // }
         }
         function supportsRule(rule) {
             return sup("selector("+rule+')')
@@ -279,6 +279,7 @@
             // try { 
                 func ? func( { name: n, initialValue: initialValue, inherits: inherits == null ? false : !!(initialValue == null ? 'auto' : initialValue), syntax: syntax == null ? '*' : syntax }) 
                 : fallback.set(key, vendor(key, 'inherit'))
+                return g
             // }
             // catch (e) {e.name === 'InvalidModificationError' || (console.log(o), reportError(e),func || fallback.set(key, vendor(key, 'inherit')))}
         }
@@ -290,98 +291,98 @@
         uv = {'box-sizing':'border-box','overflow-wrap': 'var(--word-wrap)','scrollbar-color': 'var(--scrollbar-thumb-color) var(--scrollbar-color)'}
         // , all = [
             g("user-select", "auto", true) // Most important one
-            g("user-modify", "auto", false)
-            g("zoom", "auto", false)
-            g('locale', 'auto', true)
-            g('line-grid', 'auto', true)
-            g('line-snap', 'auto', true)
-            g('nbsp-mode', 'auto', true)
-            g("text-zoom", 'auto', true)
-            g('line-align', 'auto', true)
-            g('user-drag', "auto", true)
-            g('text-decorations-in-effect', 'auto', false)
-            g("force-broken-image-icon", 0, false, "<integer>")
-            g("float-edge", "content-box", false)
-            g("image-region", "auto", true)
-            g("box-orient", "inline-axis", false)
-            g("box-align", "stretch", false)
-            g("box-direction", "normal", false)
-            g("box-flex", 0, false)
-            g("box-flex-group", 0, false)
-            g("box-lines", "single", false)
-            g("box-ordinal-group", "1", false)
-            g("box-decoration-break", "slice", false)
-            g("box-pack", "start", false)
-            g("user-input", "auto", true)
-            g("box-reflect", "none", false) // Kewl
-            g("text-stroke-color", "currentcolor", true, "<color>")
-            g("text-stroke-width", 0, false, "<length>")
-            g("text-security", "none", false)
-            g("text-fill-color", "currentcolor", true)
-            g("line-clamp", "none", false)
-            g("font-smoothing", "auto", true)
-            g("mask-position-x", "0%", false, "<length-percentage>")
-            g("mask-position-y", "0%", false, "<length-percentage>")
-            g("tap-highlight-color", "rgb(0, 0, 0, 0.18)", true, "<color>")
-            g("touch-callout", "auto", true)
-            g("window-dragging", "auto", false)
-            g("stack-sizing", "stretch-to-fit", true)
-            g("mask-composite", "source-over", false)
-            g("image-rect", "auto", true)
-            g("context-properties", "none", true)
-            g("outline-radius", "0 0 0 0", false)
-            g("window-shadow", "auto", false)
-            g("binding", "none", false)
-            g("user-focus", "none", false)
-            g("text-blink", "none", false)
-            g("content-zoom-limit", "400% 100%", false)
-            g("accelerator", 0, false)
-            g("initial-letter", "normal", false)
-            g("text-kashida-space", "0%", true, "<percentage>")
-            g("interpolation-mode", "none", false)
-            g("progress-appearance", "bar", false)
-            g("content-zooming", "auto", false)
-            g("flow-from", "none", false)
-            g("flow-into", "none", false)
-            g("content-zoom-chaining", "none", false)
-            g("high-contrast-adjust", "auto", true)
-            g("ime-mode", "auto", false)
-            g("overflow-style", "auto", true)
-            g("touch-select", "grippers", true)
-            g("behaviour", "url()", false, "<url>")
-            g("interactivity", "auto", true)
-            g("input-security", "auto", false)
-            g("caret-animation", "auto", true)
-            g("wrap-through", "wrap", false)
-            g("print-color-adjust", "economy", true)
-            g("cursor-visibility", "auto", true)
-            g("pay-button-style", "white", false)
-            g("color-filter", "none", true)
-            g("pay-button-type", "plain", false)
-            g("visual-effect", "none", true)
-            g("text-spacing-trim", "normal", true)
-            g("text-group-align", "none", false)
-            g("text-autospace", "normal", true)
-            g("orient", 'inline', false)
-            g("ruby-overhang", "auto", true)
-            g("max-lines", "none", false)
-            g("line-fit-edge", "leading", true)
-            g("continue", "auto", false)
-            g("dashboard-region", "none", false)
-            g("overflow-scrolling", "auto", false)
-            g("column-axis", "auto", false)
-            g('column-progression', 'auto', false)
-            g('content-visibility', 'visible',false)
+            ("user-modify", "auto", false)
+            ("zoom", "auto", false)
+            ('locale', 'auto', true)
+            ('line-grid', 'auto', true)
+            ('line-snap', 'auto', true)
+            ('nbsp-mode', 'auto', true)
+            ("text-zoom", 'auto', true)
+            ('line-align', 'auto', true)
+            ('user-drag', "auto", true)
+            ('text-decorations-in-effect', 'auto', false)
+            ("force-broken-image-icon", 0, false, "<integer>")
+            ("float-edge", "content-box", false)
+            ("image-region", "auto", true)
+            ("box-orient", "inline-axis", false)
+            ("box-align", "stretch", false)
+            ("box-direction", "normal", false)
+            ("box-flex", 0, false)
+            ("box-flex-group", 0, false)
+            ("box-lines", "single", false)
+            ("box-ordinal-group", "1", false)
+            ("box-decoration-break", "slice", false)
+            ("box-pack", "start", false)
+            ("user-input", "auto", true)
+            ("box-reflect", "none", false) // Kewl
+            ("text-stroke-color", "currentcolor", true, "<color>")
+            ("text-stroke-width", 0, false, "<length>")
+            ("text-security", "none", false)
+            ("text-fill-color", "currentcolor", true)
+            ("line-clamp", "none", false)
+            ("font-smoothing", "auto", true)
+            ("mask-position-x", "0%", false, "<length-percentage>")
+            ("mask-position-y", "0%", false, "<length-percentage>")
+            ("tap-highlight-color", "rgb(0, 0, 0, 0.18)", true, "<color>")
+            ("touch-callout", "auto", true)
+            ("window-dragging", "auto", false)
+            ("stack-sizing", "stretch-to-fit", true)
+            ("mask-composite", "source-over", false)
+            ("image-rect", "auto", true)
+            ("context-properties", "none", true)
+            ("outline-radius", "0 0 0 0", false)
+            ("window-shadow", "auto", false)
+            ("binding", "none", false)
+            ("user-focus", "none", false)
+            ("text-blink", "none", false)
+            ("content-zoom-limit", "400% 100%", false)
+            ("accelerator", 0, false)
+            ("initial-letter", "normal", false)
+            ("text-kashida-space", "0%", true, "<percentage>")
+            ("interpolation-mode", "none", false)
+            ("progress-appearance", "bar", false)
+            ("content-zooming", "auto", false)
+            ("flow-from", "none", false)
+            ("flow-into", "none", false)
+            ("content-zoom-chaining", "none", false)
+            ("high-contrast-adjust", "auto", true)
+            ("ime-mode", "auto", false)
+            ("overflow-style", "auto", true)
+            ("touch-select", "grippers", true)
+            ("behaviour", "url()", false, "<url>")
+            ("interactivity", "auto", true)
+            ("input-security", "auto", false)
+            ("caret-animation", "auto", true)
+            ("wrap-through", "wrap", false)
+            ("print-color-adjust", "economy", true)
+            ("cursor-visibility", "auto", true)
+            ("pay-button-style", "white", false)
+            ("color-filter", "none", true)
+            ("pay-button-type", "plain", false)
+            ("visual-effect", "none", true)
+            ("text-spacing-trim", "normal", true)
+            ("text-group-align", "none", false)
+            ("text-autospace", "normal", true)
+            ("orient", 'inline', false)
+            ("ruby-overhang", "auto", true)
+            ("max-lines", "none", false)
+            ("line-fit-edge", "leading", true)
+            ("continue", "auto", false)
+            ("dashboard-region", "none", false)
+            ("overflow-scrolling", "auto", false)
+            ("column-axis", "auto", false)
+            ('column-progression', 'auto', false)
+            ('content-visibility', 'visible',false)
             // ^ This is a special case just to support older browsers without 'ContentVisibilityAutoStateChangeEvent'
-            g('text-size-adjust', 'auto', true)
-            g('border-vertical-spacing', 'auto', false)
-            g('max-logical-height', 'none', false)
-            g('min-logical-height', 'none', false)
-            g('max-logical-width', 'none', false)
-            g('min-logical-width', 'none', false)
-            g('buffered-rendering', 'auto', false)
-            g('color-rendering', 'auto', false)
-            g('word-wrap', 'normal', false)
+            ('text-size-adjust', 'auto', true)
+            ('border-vertical-spacing', 'auto', false)
+            ('max-logical-height', 'none', false)
+            ('min-logical-height', 'none', false)
+            ('max-logical-width', 'none', false)
+            ('min-logical-width', 'none', false)
+            ('buffered-rendering', 'auto', false)
+            ('color-rendering', 'auto', false)
+            ('word-wrap', 'normal', false)
         // ],
             var dflt = name || entries(function(){
                 var align = sup.bind(1, 'text-align')
@@ -418,7 +419,7 @@
         }
         catch(e){reportError(e)}
         stc(name || (sn(str=first+selector+q(toCSS(uv,true))+dflt.join('')),str))
-        var css = w[sym] = Object.preventExtensions({
+        var css = constructor.prototype[sym] = Object.freeze({
             getDefaultStyleSheet: getDefaultStyleSheet,
             registerCSSRaw: registerCSSRaw,
             get reducedMotion(){
@@ -438,7 +439,6 @@
             vendor: vendor,
             toCSS: toCSS,
             has: has,
-            all: dflt,
             formatSelector:formatSelector
         })
         return css 

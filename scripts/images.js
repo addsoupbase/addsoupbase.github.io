@@ -1,22 +1,18 @@
-import { registerCSS } from "../csshelper.js"
+import'../css.js'
+const { registerCSS } = window[Symbol.for('CSS')]
 import { until } from "../handle.js"
 import { jason } from '../arrays.js'
 let bubble = Object.assign(new Image, {
     src: './media/bubble.webp'
 })
-
 export let colorful = new Set
-let today = new Date()
+let today = new Date
 export const birthday =
     today.getMonth() === 6 - 1 && today.getDate() === 17
-
-
 const width = Symbol.for('width'),
     name = Symbol.for('name')
 let avatars, mons
 export let time = new Promise(async (resolve) => {
-
-
     avatars = (await Promise.allSettled((await jason('./allava.json')).map(
         async function (o) {
             let n = new Image
@@ -117,7 +113,6 @@ export let time = new Promise(async (resolve) => {
     mons = new Set(mons)
     resolve({ avatars, mons })
     console.debug("🐠 Sprites loaded")
-
 })
 // registerCSS('.bubble',{
 // filter: 'hue-rotate(90deg)'

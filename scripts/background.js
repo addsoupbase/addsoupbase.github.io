@@ -1,5 +1,5 @@
-import { registerCSS, registerCSSAll } from "../csshelper.js"
-
+import'../css.js'
+const { registerCSS, registerCSSAll } = window[Symbol.for("CSS")]
 let regex = /[\w.\-%汝起亚]+\.(?:webp|a?png|gif|jpe?g)/
 let all = document.getElementsByTagName('*')
 function isHidden() {
