@@ -168,7 +168,7 @@ async function fallback(src) {
     if (/^(?:application|text)\/json/.test(type) || /^(?:application\/(?:ld|vnd\.api)\+json)/.test(type)) return await n.json()
     throw TypeError(`Failed to load module script: Expected a JSON module script but the server responded with a MIME type of "${type}". Strict MIME type checking is enforced for module scripts per HTML spec.`)
 }
-export let getJson
+export let getJson  
 function TestImportSupport() {
     // Some browsers (old) throw with the 'options' parameter
     // Firefox works now thankfully, but opera needs to catch up

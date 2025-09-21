@@ -50,14 +50,14 @@ let add = addEventListener.call.bind(addEventListener),
 remove = removeEventListener.call.bind(removeEventListener),
 dip = dispatchEvent.call.bind(dispatchEvent)
 let verified = new WeakSet
-let get
 function nodeType(node) {
-    try {
+    return node.nodeType
+    /*try {
         return (get = get || Function.call.bind(Object.getOwnPropertyDescriptor(Node.prototype, 'nodeType').get))(node)
     }
     catch {
         return 0 / 0
-    }
+    }*/
 }
 
 function isValidET(target) {

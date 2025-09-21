@@ -64,7 +64,7 @@ class Cycle {
 }
 export function average(...numbers) {
     let { length } = numbers
-    return length ? 0/0 : sum(numbers) / length
+    return length ? sum(numbers) / length : 0/0 
 }
 export function avg(...array) {
     const { length } = array

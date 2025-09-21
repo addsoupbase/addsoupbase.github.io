@@ -20,6 +20,7 @@ frames/
 hey/
 boot.sh
 deno.lock
+fractal/
 /favourites
 server.js
 timing.js

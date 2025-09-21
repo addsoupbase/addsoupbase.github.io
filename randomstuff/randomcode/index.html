@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <textarea type="text" id="input"></textarea>
+    <input type="number" id="max" value="40">
+    <button onclick="            document.getElementById('btn').innerHTML = 'Loading'
+    ;generate(+document.getElementById('max').value)"  id="btn">Random</button> <button onclick="runCode()">get result</button>
+    <p id="result"></p>
+    <script>
+        function runCode() {
+          try  {
+            document.getElementById('result').innerHTML=    eval(document.getElementById('input').value)
+        }
+        catch(e) {
+            document.getElementById('result').innerHTML=e.message
+        }
+    }
+    function generate(limit) {
+        let all = []
+        let isValid = false
+        let max = limit
+        let strings = []
+        for (let o of '~$?#qwertyuioplkjhgfdsazxcvbnm!%^&*(){}[]_-+=,.:;\n') {
+            strings.push(o)
+        }
+        for (let o of [' static ', ' let ', ' const ', ' in ', ' var ', ' ', '??', '&&', '||', '&&=', '||=', '??=', '?', '++', '-', '+=', '/=', '*=', '**', '...', '<', '>', '<=', '>=', '=>', ' class ', ' extends ', ' do', ' with ', ' if', ' else ', ' function ', '?.', ' instanceof ', ' of ', ' super ', ' void ', ' while ', ' yield ', ' return ', ' new ', ' throw ', '()', ' async ', ' await ', '!=', '!==', '==', '===']) {
+            strings.push(o)
+        }
+        const getChar = () => {
+            let s = strings[Math.floor(Math.random() * strings.length)]
+            if (Math.random() < 0.2) {
+                s = `(${s})`
+            } else if (Math.random() < 0.2) {
+                s = `{${s}}`
+            }
+            return s
+        }
+        loop: while (max) {
+            let iterations = Math.floor(Math.random() * 100) + 1
+            try {
+                for (let i = 0; i < iterations; i++) {
+                    all.push(getChar())
+                }
+                eval?.('"use strict";' + all.join(''))
+            } catch (e) {
+                for (let i = 0; i < iterations; i++) {
+                    let valid = false
+                    try {
+                        eval?.('"use strict";' + all.join)
+                    } catch (e) {
+                        if (e.toString().match(/unexpected|Unexpected/)) {
+                            all.pop()
+                            continue
+                        }
+                    }
+                }
+                continue loop
+            }
+            max--
+        }
+        console.log(all.join(''))
+        document.getElementById('input').value = all.join('')
+        document.getElementById('btn').innerHTML = 'Random'
+
+        //    navigator.clipboard.writeText(all.join(""))
+            //console.log(eval('"use strict";'+all.join('')))
+    }
+</script>
+</body>
+
+</html>
