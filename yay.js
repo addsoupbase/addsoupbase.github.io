@@ -101,7 +101,6 @@ function genericGet(t, prop) {
     if (arrHasOwn(prop) && typeof [][prop] === 'function') return [][prop].bind(t)
     return cacheFunction(out, t)
 }
-
 function ariaOrData(i) {
     let { 0: char } = i
     return char === '_' ? i.replace(char, 'aria-') : char === '$' ? i.replace(char, 'data-') : i
