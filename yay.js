@@ -30,7 +30,8 @@ let bindHandler = {
 const { get, set, apply, getOwnPropertyDescriptor, ownKeys } = Reflect,
     { revocable } = Proxy,
     { create, preventExtensions, defineProperty, defineProperties, getOwnPropertyDescriptors, assign } = Object
-import *as h from './handle.js'
+import'./h.js'
+const h = window[Symbol.for('[[HModule]]')]
 import './css.js'
 const css = window[Symbol.for('CSS')]
 function from(ArrayLike, map, thisArg) {

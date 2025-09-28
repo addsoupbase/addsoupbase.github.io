@@ -9,6 +9,7 @@
             ,d=Object.defineProperty,script=document.currentScript;''.startsWith||d(String.prototype,'startsWith',{value:function(s,p){return this.slice(p=p|0,(s+='').length+p)===s}});[].find||d(Array.prototype,'find',{value:function(c,t,m,z){for(var i=0,l=(m=this).length;i<l;++i){z=m[i];if(c.call(t,z))return z}}})
                 // b = b && b.remove()
         if (sym in w || typeof w[disambiguity] === 'object') return w[sym]
+        let src
         w.reportError || (w.reportError = function reportError(t) {
             try {
                 var e = new ErrorEvent('error', {
@@ -443,4 +444,4 @@
         })
         return css 
     }
-}.call(null,window,typeof Symbol==='function'?Symbol.for('CSS'):'__CSS__'))
+}.call(null,window,typeof Symbol==='function'?Symbol.for('CSS'):'[[CSSModule]]'))

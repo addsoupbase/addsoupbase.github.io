@@ -187,9 +187,10 @@
         }
     </style>
     <script>
-        if (location.hash) {
-            document.getElementById('display').setAttribute('src', './entries/' + location.hash.slice(1).replace(/\//g, '_'))
-        }
+        if (location.hash) document.getElementById('display').setAttribute('src', './entries/' + location.hash.slice(1).replace(/\//g, '_'))
+    </script>
+    <script nomodule src="h.js"></script>
+    <script nomodule  src="ie.js">
     </script>
     <script type="module">
         import $ from './yay.js'
@@ -276,7 +277,7 @@
                 frame.setAttr({
                     src: `./entries/${toNormal(new Date(`${month}-${date}-${year}`))}/index.html`
                 })
-                let a = dates.map(o=>o.slice(0,10)).indexOf(this.value)
+                let a = dates.map(o => o.slice(0, 10)).indexOf(this.value)
                 if (a !== -1) {
                     day = a
                     showHide()
@@ -336,7 +337,7 @@
                 prev.show(2)
                 next.show(2)
             }
-            
+
         }
         function changeDay(dir = 1) {
             frame.hide(3)
@@ -362,10 +363,7 @@
         })
         changeDay(0)
     </script>
-    <!-- if something somehow goes wrong, and this function is fired successfully -->
-    <script id="fallbackscript"
-        nomodule>(document.addEventListener || document.attachEvent).call(document, "DOMContentLoaded", function () { "use strict"; console.debug('hi'); var aa = document.getElementById('display'); function fade() { aa.style.transition = ''; window.msRequestAnimationFrame || (aa.style.opacity = 0) } if ("undefined" == typeof h) { var e = new XMLHttpRequest; e.open("GET", "./oldhandle.js"), e.onload = function () { Function(e.responseText)(); var t = function (e) { e.style.visibility = "hidden", e.setAttribute("disabled", "disabled") }, n = function (e) { e.style.visibility = "visible", e.removeAttribute("disabled") }, i = document.getElementById("toToday"), a = document.getElementById("diary-heading"), l = function () { var e = new Date; d.getDate() >= e.getDate() && d.getMonth() >= e.getMonth() ? t(g) : n(g), 7 >= d.getDate() && 3 >= d.getMonth() ? t(s) : n(s); var i = [d.getMonth() + 1, d.getDate(), d.getFullYear()].join("_"), l = "" + d.getDate(), c = "" + (d.getMonth() + 1); 1 === c.length && (c = 0 + c), 1 === l.length && (l = 0 + l), o.src = "./entries/" + i, a.value = [d.getFullYear(), c, l].join("-") }, o = document.getElementById("display"), d = new Date, s = document.getElementById("prev"), g = document.getElementById("next"); var c = function () { if (this.value.trim()) { fade(); for (var e = this.value.split("-"), t = e[2] = (+e[2]).toString(); t.length < 2;)t = 0 + t; d = new Date(e.join("-")), l() } }; h.on(a, { change: c, textInput: c }), h.on(s, { click: function () { fade(); d.setDate(d.getDate() - 1), l() } }), h.on(g, { click: function () { fade(); d.setDate(d.getDate() + 1), l() } }), h.on(i, { click: function () { fade(); d = new Date, l() } }), i.click() }, e.send() } });</script>
-    <script async defer src="silence.js"></script>
+    <!-- <script async defer src="silence.js"></script> -->
 </body>
 
 </html>
