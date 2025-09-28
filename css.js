@@ -265,7 +265,7 @@
             // try {
                 registerCSS(r, t)
             // } catch (e) {
-                reportError(e)
+               // reportError(e)
             // }
         }
         function supportsRule(rule) {
