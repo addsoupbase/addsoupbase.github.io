@@ -46,9 +46,9 @@
         //// }
         //// }()
         var source = Function.toString.call.bind(Function.prototype.toString)
-        //// , warn=logger.warn, groupCollapsed=logger.groupCollapsed, groupEnd= logger.groupEnd
-        , isArray = Array.isArray
-        , allEvents = $.allEvents = new WeakMap
+            //// , warn=logger.warn, groupCollapsed=logger.groupCollapsed, groupEnd= logger.groupEnd
+            , isArray = Array.isArray
+            , allEvents = $.allEvents = new WeakMap
         //{
         //var { addEventListener, removeEventListener, dispatchEvent } = globalThis.EventTarget?.prototype ?? AbortSignal.prototype
         //if (source(addEventListener) !== source(Function.prototype).replace('function ', 'function addEventListener')
@@ -146,7 +146,8 @@
             isFocus = / /.test.bind(/^(?:focus(?:in|out))$/),
             isDOMThing = / /.test.bind(/^(?:DOM(?:Activate|MouseScroll|Focus(?:In|Out)|(?:Attr|CharacterData|Subtree)Modified|NodeInserted(?:IntoDocument)?|NodeRemoved(?:FromDocument)?))$/),
             isMediaQuery = / /.test.bind(/^(?:\(.+\))$/)
-        var reqFile = requestFile
+        // var reqFile = requestFile
+        var isTouch = / /.test.bind(/^(?:touch(?:cancel|end|move|start|forcechange))$/)
         // var MSEventSyntax = /((?:(?<a>g)ot|(?<a>l)ost)(?<b>p)ointer(?<c>c)apture)|(?<a>p)ointer(?:(?<b>d)own|(?<b>c)ancel|(?<b>u)p|(?<b>e)nter|(?<b>l)eave|(?<b>m)ove|(?<b>o)(?:ut|ver))/
         function getIEPointerEvent(name) {
             var n = name.split('pointer')
@@ -155,8 +156,8 @@
             return 'MS' + prefix + 'Pointer' + p[0].toUpperCase() + p.slice(1)
         }
         function getIEGestureEvent(name) {
-                  var a = name.split('gesture')[1]
-                  return 'MSGesture' + a[0].toUpperCase() + a.slice(1)
+            var a = name.split('gesture')[1]
+            return 'MSGesture' + a[0].toUpperCase() + a.slice(1)
         }
         function verifyEventName(target, name) {
             var original = name
@@ -165,6 +166,7 @@
                 ((original === 'DOMContentLoaded' && nodeType(target) === 9)
                     || (isAnimation(original) && 'onremove' in target)
                     || isFocus(original)
+                    || isTouch(original)
                     || (isDOMThing(original)))
                 //Some events like the ones above don't have a handler
                 || isMediaQuery(original)
@@ -178,11 +180,11 @@
                 }
                 if (name === 'wheel') {
                     if ((v = 'onmousewheel') in target) return v.slice(2) // iOS doesn't support 'wheel' events yet
-                    if (typeof MouseScrollEvent === 'function') return'DOMMouseScroll' // If they don't support the first 2, this one will work ~100% of the time
+                    if (typeof MouseScrollEvent === 'function') return 'DOMMouseScroll' // If they don't support the first 2, this one will work ~100% of the time
                     return 'MozMousePixelScroll' // The last resort, since there's no way to detect support with this one
                 }
                 if (v === 'gesture') return getIEGestureEvent(name)
-                if (name === 'inertiastart') return'MSInertiaStart' 
+                if (name === 'inertiastart') return 'MSInertiaStart'
                 //// logger.warnLate("'"+original+"' events might not be available on the following EventTarget:", target)
             }
             return original
@@ -247,7 +249,11 @@
             PASSIVE = $.PASSIVE = '^',
             CAPTURE = $.CAPTURE = '%',
             STOP_PROPAGATION = $.STOP_PROPAGATION = '&',
-            STOP_IMMEDIATE_PROPAGATION = $.STOP_IMMEDIATE_PROPAGATION = '!'
+            STOP_IMMEDIATE_PROPAGATION = $.STOP_IMMEDIATE_PROPAGATION = '!',
+            // FireFox only:
+            WANTS_UNTRUSTED = $.WANTS_UNTRUSTED = '|', // not really sure what this even does
+            ONLY_ORIGINAL_TARGET = $.ONLY_ORIGINAL_TARGET = '>', 
+            ONLY_EXPLICIT_ORIGINAL_TARGET = $.ONLY_EXPLICIT_ORIGINAL_TARGET = '<'
         /*export var {
             currentTarget: CURRENT_TARGET, autoAbort: AUTO_ABORT, trusted: TRUSTED, once: ONCE,
             preventDefault: PREVENT_DEFAULT, passive: PASSIVE,
@@ -269,7 +275,7 @@
             for (var name in names) customEvents[names[name] ? 'add' : 'delete'](name.toLowerCase())
         }
         $.addCustomEvent = addCustomEvent
-        var formatEventName = /[_$^%&!?@#]|^(?:bound )+/g
+        var formatEventName = /[_$^%&!?@#<>|]|^(?:bound )+/g
         function supportOrientationChangeEvent(target, eventName, label) {
             if (eventName === 'change' && label === 'ScreenOrientation') {
                 var n = ['msonorientationchange', 'mozonorientationchange', 'orientationchange'].find(Reflect.has.bind(1, target))
@@ -285,6 +291,7 @@
                 return out
             }
         }
+        var SUPPORTS_OPTIONS_PARAM = !!(Event.prototype.composedPath || Event.prototype.deepPath)
         var FLAG_ONCE = 1,
             FLAG_PREVENTS = 2,
             FLAG_PASSIVE = 4,
@@ -293,7 +300,10 @@
             FLAG_STOP_IMMEDIATE_PROPAGATION = 32,
             FLAG_ONLY_TRUSTED = 64,
             FLAG_ONLY_CURRENT_TARGET = 128,
-            FLAG_AUTO_ABORT = 256
+            FLAG_AUTO_ABORT = 256,
+            FLAG_WANTS_UNTRUSTED = 512,
+            FLAG_ONLY_ORIGINAL_TARGET = 1024,
+            FLAG_ONLY_EXPLICIT_ORIGINAL_TARGET = 2048
         function on(target, events, controller) {
             if (arguments.length > 3 && getLabel(controller) !== 'AbortController') {
                 debugger
@@ -307,7 +317,7 @@
             //// groupCollapsed("on("+label+")")
             //// logger.dirxml(target)
             var myEvents = getEventNames(target)
-            if (typeof events === 'function') !function(){
+            if (typeof events === 'function') !function () {
                 var a = {}
                 a[events.name] = events
                 events = a
@@ -327,12 +337,15 @@
                     onlyTrusted = +includes(TRUSTED) && FLAG_ONLY_TRUSTED,
                     onlyCurrentTarget = +includes(CURRENT_TARGET) && FLAG_ONLY_CURRENT_TARGET,
                     autoabort = +includes(AUTO_ABORT) && FLAG_AUTO_ABORT,
+                    wantsUntrusted = +includes(WANTS_UNTRUSTED) && FLAG_WANTS_UNTRUSTED,
+                    onlyOriginalTarget = +includes(ONLY_ORIGINAL_TARGET) && FLAG_ONLY_ORIGINAL_TARGET,
+                    onlyExplicitOriginalTarget = +includes(ONLY_EXPLICIT_ORIGINAL_TARGET) && FLAG_ONLY_EXPLICIT_ORIGINAL_TARGET,
                     options = {
                         capture: !!capture,
                         //once
                         passive: !!passive,
                     }
-                var flags = once | prevents | passive | capture | stopProp | stopImmediateProp | onlyTrusted | onlyCurrentTarget | autoabort
+                var flags = once | prevents | passive | capture | stopProp | stopImmediateProp | onlyTrusted | onlyCurrentTarget | autoabort | wantsUntrusted | onlyOriginalTarget | onlyExplicitOriginalTarget
                 var newTarget = target
                 if (flags & FLAG_PASSIVE && flags & FLAG_PREVENTS) throw TypeError("Cannot call 'preventDefault' on a passive function")
                 eventName = verifyEventName(newTarget, eventName.replace(formatEventName, ''))
@@ -361,8 +374,7 @@
                     controller && controller.abort.bind(controller, 'Automatic abort'),
                     flags)
                 if (autoabort && getLabel(controller) !== 'AbortController') throw TypeError("AbortController required if '#' (autoabort) is present")
-
-                newTarget.addEventListener(eventName, listener, options /*,onlyTrusted*/)
+                newTarget.addEventListener(eventName, listener, SUPPORTS_OPTIONS_PARAM ? options : !!capture, typeof scrollMaxX === 'number' === !wantsUntrusted )
                 // if (eventName === 'load' && /^(?:HTMLIFrameElement|Window)$/.test(getLabel(target)) && (target.contentWindow || target).document?.readyState === 'complete') {
                 // setTimeout(listener.bind(target, new Event('load')))
                 // logger.warnLate(`'${eventName}' event was fired before listener was added`, target)
@@ -414,28 +426,37 @@
                 sp = flags & FLAG_STOP_PROP,
                 sip = flags & FLAG_STOP_IMMEDIATE_PROPAGATION,
                 aa = flags & FLAG_AUTO_ABORT,
-                once = flags & FLAG_ONCE
+                once = flags & FLAG_ONCE,
+                originalTarget = flags & FLAG_ONLY_ORIGINAL_TARGET,
+                explicitOriginalTarget = flags & FLAG_ONLY_EXPLICIT_ORIGINAL_TARGET
             var event = args[0],
                 label = getLabel(event),
                 name = event.type,
                 currentTarget = event.currentTarget,
                 detail = event.detail,
                 push = args.push.bind(args)
-            label === 'CustomEvent' ? event = args[0] = new Proxy(event, customEventHandler)
-                : label === 'MouseScrollEvent' && (event.deltaZ = 0,
-                    event.axis === 2 ?
-                        (event.deltaX = 0, event.deltaY = 50 * detail) : event.axis === 1 &&
-                        (event.deltaX = 50 * detail, event.deltaY = 0))
+            switch (label) {
+                case 'CustomEvent':
+                    event = args[0] = new Proxy(event, customEventHandler)
+                    break
+                case 'MouseScrollEvent':
+                    (event.deltaZ = 0, event.axis === 2 ? (event.deltaX = 0, event.deltaY = 50 * detail) : event.axis === 1 && (event.deltaX = 50 * detail, event.deltaY = 0))
+                    break
+            }
             s && push(abrt)
             push(off.bind(null, this, name))
-            var result
-            t && event.isTrusted || !t && (!oct || oct && (event.target || event.srcElement) === currentTarget) &&
-                (result = apply(f, this, args),
-                    p && (event.cancelable ? event.defaultPrevented ? console.warn("'" + name + "' event has already been cancelled") : event.preventDefault() : console.warn("🔊 '" + name + "' events are not cancelable"), event.returnValue = !p),
-                    sp && (event.cancelBubble = !event.stopPropagation()),
-                    sip && event.stopImmediatePropagation(),
-                    aa && abrt(),
-                    (once || (result && result.hasOwnProperty('value') && result.hasOwnProperty('done') && result.done === true)) && off(currentTarget, name))
+            if (t && event.isTrusted || !t && (!originalTarget || !('originalTarget'in event) || event.originalTarget === currentTarget) && (!explicitOriginalTarget || !('explicitOriginalTarget'in event) || event.explicitOriginalTarget === currentTarget) &&(!oct || (event.target || event.srcElement) === currentTarget)) {
+                var result = apply(f, this, args)
+                if (p)
+                    if (event.cancelable)
+                        if (event.defaultPrevented) console.warn("'" + name + "' event has already been cancelled")
+                        else event.returnValue = event.preventDefault()
+                    else console.warn("🔊 '" + name + "' events are not cancelable")
+                if (sp) event.cancelBubble = !event.stopPropagation()
+                if (sip) event.stopImmediatePropagation()
+                if (aa) abrt()
+                if ((once || (result && result.hasOwnProperty('value') && result.hasOwnProperty('done') && result.done === true))) off(currentTarget, name)
+            }
         }
 
         function off(target
@@ -464,7 +485,7 @@
                     newTarget = b.target
                     name = b.name
                 }
-                newTarget.removeEventListener(name, listener, settings)
+                newTarget.removeEventListener(name, listener, SUPPORTS_OPTIONS_PARAM ? settings : !!(settings.flags & FLAG_CAPTURE))
                 map.delete(name)
                 //// && logger.info("🔕 '"+name+"' event removed")
                 mySet.delete(name)
@@ -500,8 +521,8 @@
                     }
                 }
                 e[eventName] = hey
-                if (failureName) 
-                    e[failureName] = function(e, abort) {
+                if (failureName)
+                    e[failureName] = function (e, abort) {
                         try {
                             reject(e)
                         } catch (e) {
@@ -511,7 +532,7 @@
                             abort()
                         }
                     }
-                
+
                 on(target, e, controller)
             }
         }
@@ -539,14 +560,14 @@
             for (var i in events) {
                 if (i.includes('@')) throw SyntaxError("Conflicting usage of a 'currentTarget' only delegating event handler")
                 var old = events[i]
-                events[i] = 
-                function DelegationFunction(
-                    // ...args
-                ) {
-                    var target = arguments[0].target
-                    var res = filter(target);
-                    (me !== target || includeSelf) && (res == null ? 1 : res) && apply(old, target, arguments)
-                }
+                events[i] =
+                    function DelegationFunction(
+                        // ...args
+                    ) {
+                        var target = arguments[0].target
+                        var res = filter(target);
+                        (me !== target || includeSelf) && (res == null ? 1 : res) && apply(old, target, arguments)
+                    }
             }
             return on(me, events, controller)
         }

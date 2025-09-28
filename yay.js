@@ -1411,7 +1411,7 @@ export function prox(target) {
         let { proxy, revoke } = revocable(preventExtensions(create(target, propertiesToDefine)), create(handlers.main, [{ value: target }]))
             ; (target instanceof HTMLUnknownElement ||
                 target.ownerDocument.defaultView?.HTMLUnknownElement.prototype.isPrototypeOf(target)) &&
-                console.warn(`Unknown element: '${target.tagName.toLowerCase()}'`)
+                (console.warn(`Unknown element: '${target.tagName.toLowerCase()}'`))
         revokes_set(proxy, RevokeAllProxies.bind(1, revoke, childRevoke, attrRevoke, batchRevoke, querySelectorRevoke))
         all_set(target, proxy)
         return proxy

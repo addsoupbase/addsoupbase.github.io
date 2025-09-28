@@ -10,8 +10,7 @@
         characterData: true
     })
     function replaceImport(rule, node, href, sheet, res) {
-        
-        node.textContent = sheet.cssText.replace(rule.cssText,res.responseText)
+        node.textContent = (sheet.cssText).replace(rule.cssText,res.responseText)
     }
     function resolve(href, base) {
         var b = document.createElement('base')
@@ -66,7 +65,7 @@
     }*/
     function onload(prev, e) {
         this.textContent = e.target.responseText.replace(regex, getReplacements)
-        prev.insertAdjacentElement('afterend', this)
+        prev.parentElement.appendChild(this)
         /*try {
             prev.parentElement.removeChild(prev)
         }
@@ -101,7 +100,7 @@
             }
         }
     }
-    document.addEventListener('DOMContentLoaded', function () {
+    addEventListener('load', function () {
         ;[].forEach.call(document.getElementsByTagName('style'), function (e) {
             fixString(e)
         })

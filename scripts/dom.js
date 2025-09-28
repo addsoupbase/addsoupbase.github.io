@@ -7,6 +7,7 @@ let { main, drawInstead, send1, send2, draw, drawcontrols, undoDraw, submitDrawi
 drawInstead.on({
     _click() {
         this.before.destroy()
+        ;[].forEach.call(document.querySelectorAll('[data-hi]'), o=>o.remove())
         this.destroy()
         send2.fadeIn()
         send1.hide(3)
