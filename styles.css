@@ -1,5 +1,8 @@
 @import url('./cute-green.css');
 @import url('./chococooky.css');
+input:not([type="image"]) {
+ /* height:30px */
+}
 
 #background {
   width: 100vw;
@@ -524,9 +527,9 @@ html {
   /* padding: 30px; */
   position: relative;
   --user-select: none;
-  width: 120vw;
-  transform: scale(.8, .8);
-
+  /* width: 120vw; */
+  /* transform: scale(.8, .8); */
+width: 100vw;
   max-width: 700px;
   /*max-height:120vh;*/
   /*height: 70%;*/
@@ -540,12 +543,11 @@ html {
   border: none;
   margin: auto;
 }
-
 @supports (zoom: 1) {
   #frame {
-    transform: unset;
-    zoom: 0.8;
-    --zoom: 0.8;
+    /* transform: unset; */
+    /* zoom: 0.8; */
+    /* --zoom: 0.8; */
   }
 }
 
