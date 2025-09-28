@@ -4,7 +4,9 @@
     var n = new XMLHttpRequest
     var h = window[window.Symbol ? Symbol.for('[[HModule]]') : '[[HModule]]']
     n.open('get', 'dates.json')
-    n.onload = function () {
+    // frame.style.transition = 'opacity 0.3s ease'
+    h.on(n, {
+        load: function () {
         var a = (window.JSON ? JSON.parse : eval)(n.responseText)
         var i = a.length - 1
         set(a[i])
@@ -35,10 +37,15 @@
             }
         })
     }
-    frame.onload = function () { frame.style.display = '' }
+    })
+   h.on(frame,{load:function () { 
+    frame.style.display = '' 
+    // frame.style.opacity=1
+}})
     n.send()
     function set(date) {
         frame.style.display = 'none'
+        // frame.style.opacity=0
         var d = new Date(date)
         input.value = d.toISOString().slice(0, 10)
         frame.setAttribute('src', './entries/' + toNormal(d) + '/index.html')

@@ -142,11 +142,11 @@
                                 n.open('GET', src, !1)
                                 n.send()
                                 var res = n.getResponseHeader('Content-Type')
-                                if (/(?:text|application)\/(?:x-)?(?:j(?:ava)?|ecma|live)script(?:1\.[0-5])?/.test(res) && n.status === 'OK') return x(n.responseText)
+                                if (/(?:text|application)\/(?:x-)?(?:j(?:ava)?|ecma|live)script(?:1\.[0-5])?/.test(res) && n.status === 'OK' || n.status === 200) return x(n.responseText)
                                 throw TypeError('Failed to load script')
                             }
                             if (/syntax/.test(n)) {
-                                onerror=null
+                                onerror = null
                                 syncImport('h.js')
                                 syncImport('ie.js')
                             }

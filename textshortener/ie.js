@@ -25,7 +25,8 @@
     var final = ''
     var req = new XMLHttpRequest
     req.open('GET', './subs.json')
-    req.onload = function () {
+    h.on(req, {
+        load:function () {
         var b = /\\/g
         var subs = (typeof JSON === 'object' ? JSON.parse : eval)(req.responseText)
             .map(
@@ -56,6 +57,7 @@
             return text
         }
     }
+    })
     req.send()
 }(document.getElementById('saved'), document.getElementById('txt'),
     document.getElementById('c'))
