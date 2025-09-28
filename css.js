@@ -9,7 +9,7 @@
             ,d=Object.defineProperty,script=document.currentScript;''.startsWith||d(String.prototype,'startsWith',{value:function(s,p){return this.slice(p=p|0,(s+='').length+p)===s}});[].find||d(Array.prototype,'find',{value:function(c,t,m,z){for(var i=0,l=(m=this).length;i<l;++i){z=m[i];if(c.call(t,z))return z}}})
                 // b = b && b.remove()
         if (sym in w || typeof w[disambiguity] === 'object') return w[sym]
-        let src
+        var src
         w.reportError || (w.reportError = function reportError(t) {
             try {
                 var e = new ErrorEvent('error', {
@@ -72,7 +72,7 @@
             br = ['epub', 'icab', 'fso', 'tc', 'rim', 'hp', 'ah', 'wap', 'atsc', 'xv', 'ms', 'o', 'ro', 'konq', 'khtml', 'apple','moz', 'moz-osx', 'webkit']
             , formatClass = formatGeneric.bind(1,':',pseudoClass),
             formatElement = formatGeneric.bind(1,'::',pseudoElement)
-            CSS.registerProperty||(canWrite&&(w.fallback=fallback,w.vendor=vendor,document.write('<','script src="no_register_property.js" async','>','<','/script','>')))
+            CSS.registerProperty||(canWrite&&(w.fallback=fallback,w.vendor=vendor,document.write('<','script src='+ (location.protocol + '//'+ location.host) + '"/no_register_property.js" async','>','<','/script','>')))
         /*if (canWrite) {
             var date = Date.now()
             // Idk why, but it seems to make the page render faster 

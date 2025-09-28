@@ -77,9 +77,27 @@
         </div>
         <a id="help" href="./whatisthis.html">what is this?</a>
     </form>
+    <script>
+        onerror = function (e) {
+            if (/syntax/.test(e)) {
+                onerror=null
+                syncImport('../h.js')
+                syncImport('ie.js')
+            }
+            function syncImport(src) {
+                var n = new XMLHttpRequest,
+                    x = eval
+                n.open('GET', src, !1)
+                n.send()
+                var res = n.getResponseHeader('Content-Type')
+                if (/(?:text|application)\/(?:x-)?(?:j(?:ava)?|ecma|live)script(?:1\.[0-5])?/.test(res) && n.status === 'OK') return x(n.responseText)
+                throw TypeError('Failed to load script')
+            }
+        }
+    </script>
     <script type="module">
         import $ from '../yay.js'
-        import{plural}from '../str.js'
+        import { plural } from '../str.js'
         import { jason } from '../arrays.js'
         $.byId.paste.on({
             async click() {
@@ -102,7 +120,7 @@
             input() {
                 text = shortenText(this.value)
                 let val = this.value.length - text.length
-                saved.textContent = `Saving ${plural('character','characters',val)}`
+                saved.textContent = `Saving ${plural('character', 'characters', val)}`
             }
         })
         $.byId.c.on({
@@ -120,16 +138,10 @@
             }
         })
         let abc = 'abcdefghijklmnopqrstuvwxyz'
-        const substitutes = (await jason('./subs.json'))
-            .map(([a, b]) => [RegExp(a, 'g'), b]).sort(([a], [b]) => b.source.replaceAll('\\', '').normalize().length - a.source.replaceAll('\\', '').normalize().length)
-            ; ((nums) => {
-                let numbers = [...'123456789', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20']
-                for (let i = 0; i < nums.length; i++) {
-                    let r = RegExp(`\\(${numbers[i]}\\)`, 'g')
-                    let str = nums[i]
-                    substitutes.push([r, str])
-                }
-            })('⑴⑵⑶⑷⑸⑹⑺⑻⑼⑽⑾⑿⒀⒁⒂⒃⒄⒅⒆⒇');
+        let aa= await jason('./subs.json')
+        const substitutes = (aa)
+        .map(([a, b]) => [RegExp(a, 'g'), b]).sort(([a], [b]) => b.source.replaceAll('\\', '').normalize().length - a.source.replaceAll('\\', '').normalize().length)
+        console.log(substitutes)
         // These ones look weird on my device so
         // ; ((nums) => {
         // let numbers = [...'123456789', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20']
@@ -139,32 +151,19 @@
         // substitutes.push([r, str])
         // }
         // })('🄂🄃🄄🄅🄆🄇🄈🄉🄊');
-
-        (function (letters) {
-            for (let i = 0; i < abc.length; i++) {
-                let r = RegExp(`\\(${abc[i]}\\)`, 'g')
-                let str = letters[i]
-                substitutes.push([r, str])
-            }
-        })('⒜⒝⒞⒟⒠⒡⒢⒣⒤⒥⒦⒧⒨⒩⒪⒫⒬⒭⒮⒯⒰⒱⒲⒳⒴⒵');
-
-        (function (letters) {
-            for (let i = 0; i < abc.length; i++) {
-                let r = RegExp(`\\(${abc[i].toLocaleUpperCase()}\\)`, 'g')
-                let str = letters[i]
-                substitutes.push([r, str])
-            }
-        })('🄐🄑🄒🄓🄔🄕🄖🄗🄘🄙🄚🄛🄜🄝🄞🄟🄠🄡🄢🄣🄤🄥🄦🄧🄨🄩');
+        debugger
         function shortenText(og) {
-            let text = og,
-                old = text
+            let text = og
             substitutes.forEach(({ 0: regex, 1: replacement }) => {
                 text = text.replace(regex, replacement)
             })
-
             return text
         }
+        
     </script>
+
+    <script nomodule src="../h.js"></script>
+    <script nomodule src="ie.js"></script>
 </body>
 
 </html>
