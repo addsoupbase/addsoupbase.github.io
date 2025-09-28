@@ -72,7 +72,7 @@
             br = ['epub', 'icab', 'fso', 'tc', 'rim', 'hp', 'ah', 'wap', 'atsc', 'xv', 'ms', 'o', 'ro', 'konq', 'khtml', 'apple','moz', 'moz-osx', 'webkit']
             , formatClass = formatGeneric.bind(1,':',pseudoClass),
             formatElement = formatGeneric.bind(1,'::',pseudoElement)
-            CSS.registerProperty||(canWrite&&(w.fallback=fallback,w.vendor=vendor,document.write('<','script src='+ (location.protocol + '//'+ location.host) + '"/no_register_property.js" async','>','<','/script','>')))
+            CSS.registerProperty||(canWrite&&(w.fallback=fallback,w.vendor=vendor,document.write('<','script src="'+ (location.protocol + '//'+ location.host) + '/no_register_property.js" async','>','<','/script','>')))
         /*if (canWrite) {
             var date = Date.now()
             // Idk why, but it seems to make the page render faster 
