@@ -521,7 +521,7 @@
                 }, timeout)
                     , controller = new AbortController
                     , e = {}
-                function hey(event, abort) {
+                function onsuccess(event, abort) {
                     if (!filter || (typeof filter === 'function' && filter(event, null))) try {
                         resolve(event)
                     } catch (e) {
@@ -531,7 +531,7 @@
                         abort()
                     }
                 }
-                e[eventName] = hey
+                e[eventName] = onsuccess
                 if (failureName)
                     e[failureName] = function (e, abort) {
                         if (!filter || (typeof filter === 'function' && filter(null, e)))
