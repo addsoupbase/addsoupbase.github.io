@@ -466,7 +466,6 @@
                 if (sp) event.cancelBubble = !event.stopPropagation()
                 sip && event.stopImmediatePropagation()
                 aa && abrt()
-                debugger
                 if (once || (result && result.hasOwnProperty('value') && result.hasOwnProperty('done') && result.done === true)) off(currentTarget, name)
             }
         }
