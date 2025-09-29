@@ -252,7 +252,7 @@
             STOP_IMMEDIATE_PROPAGATION = $.STOP_IMMEDIATE_PROPAGATION = '!',
             // FireFox only:
             WANTS_UNTRUSTED = $.WANTS_UNTRUSTED = '|', // not really sure what this even does
-            ONLY_ORIGINAL_TARGET = $.ONLY_ORIGINAL_TARGET = '>', 
+            ONLY_ORIGINAL_TARGET = $.ONLY_ORIGINAL_TARGET = '>',
             ONLY_EXPLICIT_ORIGINAL_TARGET = $.ONLY_EXPLICIT_ORIGINAL_TARGET = '<'
         /*export var {
             currentTarget: CURRENT_TARGET, autoAbort: AUTO_ABORT, trusted: TRUSTED, once: ONCE,
@@ -284,8 +284,11 @@
                         name: n
                     }
                 if (!n) {
-                    out.target = globalThis
-                    out.name = 'orientationchange'
+                    var hi
+                    if ('ondeviceorientation' in globalThis || (hi = 'onorientationchange' in globalThis)) {
+                        out.target = globalThis
+                        if (hi) out.name = 'orientationchange'
+                    }
                 }
                 //// logger.warn("'"+eventName+"' was changed to '"+out.name+"' on "+getLabel(out.target))
                 return out
@@ -374,7 +377,7 @@
                     controller && controller.abort.bind(controller, 'Automatic abort'),
                     flags)
                 if (autoabort && getLabel(controller) !== 'AbortController') throw TypeError("AbortController required if '#' (autoabort) is present")
-                newTarget.addEventListener(eventName, listener, SUPPORTS_OPTIONS_PARAM ? options : !!capture, typeof scrollMaxX === 'number' === !wantsUntrusted )
+                newTarget.addEventListener(eventName, listener, SUPPORTS_OPTIONS_PARAM ? options : !!capture, typeof scrollMaxX === 'number' === !wantsUntrusted)
                 // if (eventName === 'load' && /^(?:HTMLIFrameElement|Window)$/.test(getLabel(target)) && (target.contentWindow || target).document?.readyState === 'complete') {
                 // setTimeout(listener.bind(target, new Event('load')))
                 // logger.warnLate(`'${eventName}' event was fired before listener was added`, target)
@@ -402,7 +405,7 @@
             return target
         }
         $.on = on
-        var customEventHandler = {
+        var customEventHandler = typeof Proxy === 'function' && {
             has: function (t, p) {
                 return p in t || p in Object(t.detail)
             },
@@ -440,25 +443,33 @@
                     event = args[0] = new Proxy(event, customEventHandler)
                     break
                 case 'MouseScrollEvent':
-                    (event.deltaZ = 0, event.axis === 2 ? (event.deltaX = 0, event.deltaY = 50 * detail) : event.axis === 1 && (event.deltaX = 50 * detail, event.deltaY = 0))
+                    event.deltaZ = 0
+                    if (event.axis === 2) {
+                        event.deltaX = 0
+                        event.deltaY = 50 * detail
+                    }
+                    else if (event.axis === 1) {
+                        event.deltaX = 50 * detail
+                        event.deltaY = 0
+                    }
                     break
             }
             s && push(abrt)
             push(off.bind(null, this, name))
-            if (t && event.isTrusted || !t && (!originalTarget || !('originalTarget'in event) || event.originalTarget === currentTarget) && (!explicitOriginalTarget || !('explicitOriginalTarget'in event) || event.explicitOriginalTarget === currentTarget) &&(!oct || (event.target || event.srcElement) === currentTarget)) {
+            if (t && event.isTrusted || !t && (!originalTarget || !('originalTarget' in event) || event.originalTarget === currentTarget) && (!explicitOriginalTarget || !('explicitOriginalTarget' in event) || event.explicitOriginalTarget === currentTarget) && (!oct || (event.target || event.srcElement) === currentTarget)) {
                 var result = apply(f, this, args)
                 if (p)
                     if (event.cancelable)
                         if (event.defaultPrevented) console.warn("'" + name + "' event has already been cancelled")
-                        else event.returnValue = event.preventDefault()
+                        else event.returnValue = !event.preventDefault()
                     else console.warn("🔊 '" + name + "' events are not cancelable")
                 if (sp) event.cancelBubble = !event.stopPropagation()
-                if (sip) event.stopImmediatePropagation()
-                if (aa) abrt()
-                if ((once || (result && result.hasOwnProperty('value') && result.hasOwnProperty('done') && result.done === true))) off(currentTarget, name)
+                sip && event.stopImmediatePropagation()
+                aa && abrt()
+                debugger
+                if (once || (result && result.hasOwnProperty('value') && result.hasOwnProperty('done') && result.done === true)) off(currentTarget, name)
             }
         }
-
         function off(target
             // ...eventNames
         ) {
@@ -511,7 +522,7 @@
                     , controller = new AbortController
                     , e = {}
                 function hey(event, abort) {
-                    if (!filter || (typeof filter === 'function' && filter(event))) try {
+                    if (!filter || (typeof filter === 'function' && filter(event, null))) try {
                         resolve(event)
                     } catch (e) {
                         reject(e)
@@ -523,16 +534,16 @@
                 e[eventName] = hey
                 if (failureName)
                     e[failureName] = function (e, abort) {
-                        try {
-                            reject(e)
-                        } catch (e) {
-                            reportError(e)
-                        } finally {
-                            timeout && clearTimeout(id)
-                            abort()
-                        }
+                        if (!filter || (typeof filter === 'function' && filter(null, e)))
+                            try {
+                                reject(e)
+                            } catch (e) {
+                                reportError(e)
+                            } finally {
+                                timeout && clearTimeout(id)
+                                abort()
+                            }
                     }
-
                 on(target, e, controller)
             }
         }
@@ -566,7 +577,7 @@
                     ) {
                         var target = arguments[0].target
                         var res = filter(target);
-                        (me !== target || includeSelf) && (res == null ? 1 : res) && apply(old, target, arguments)
+                        (me !== target || includeSelf) && (res == null ? true : res) && apply(old, target, arguments)
                     }
             }
             return on(me, events, controller)
