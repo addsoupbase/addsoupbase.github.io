@@ -2,6 +2,7 @@
 // ^ idk what that actually does
 !function () {
     'use strict'
+
     ''.includes || (String.prototype.includes = function (a, b) { return !!~this.indexOf(a, b) })
     function h(globalThis, Reflect) {
         /*var WeakSet = globalThis.WeakSet || function () {
@@ -12,11 +13,15 @@
                 delete: function (t) { return a.delete(t) }
             }
         }*/
+        typeof Symbol === 'function' || function () {
+            function a(b) { return String(b) }
+            globalThis.Symbol = a.for = a
+        }()
         //// var queueMicrotask = globalThis.queueMicrotask || globalThis.setImmediate || setTimeout
-        var MODULE = globalThis.Symbol ? Symbol.for("[[HModule]]") : '[[HModule]]'
+        var MODULE = Symbol.for("[[HModule]]")
         if (globalThis[MODULE]) return globalThis[MODULE]
         var $ = {}
-        var sym = globalThis.Symbol ? Symbol.for("[[Events]]") : '[[Events]]',
+        var sym = Symbol.for("[[Events]]"),
             //  Don't collide, and make sure its usable across realms!!
             apply = Reflect.apply,
             gpo = Reflect.getPrototypeOf,
@@ -141,6 +146,12 @@
                 }).showPicker()
             }
         }
+        function emptyFileInput() {
+            f = Object.assign(document.createElement('input'), {
+                type: 'file'
+            })
+        }
+        $.emptyFileInput= emptyFileInput
         $.requestFile = $.reqFile = requestFile
         var isAnimation = / /.test.bind(/^(animation(?:cancel|remove))$/),
             isFocus = / /.test.bind(/^(?:focus(?:in|out))$/),
@@ -159,6 +170,7 @@
             var a = name.split('gesture')[1]
             return 'MSGesture' + a[0].toUpperCase() + a.slice(1)
         }
+        // var vendors = /^(?:webkit|ms|moz)(?!$)/
         function verifyEventName(target, name) {
             var original = name
             name = name.toLowerCase()
@@ -231,6 +243,12 @@
         function resolveWithDelay(ms, resolve) {
             setTimeout(resolve, ms)
         }
+        function dispatchEvent(type, target, init, constr) {
+            type = verifyEventName(target, type)
+            var event = new (constr || Event)(type, init)
+            return target.dispatchEvent(event)
+        }
+        $.dispatchEvent = dispatchEvent
         function getEventNames(target) {
             target.hasOwnProperty(sym) || dp(target, sym, { value: new Set })
             return target[sym]
