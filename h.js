@@ -396,7 +396,7 @@
                     controller && controller.abort.bind(controller, 'Automatic abort'),
                     flags)
                 if (autoabort && getLabel(controller) !== 'AbortController') throw TypeError("AbortController required if '#' (autoabort) is present")
-                newTarget.addEventListener(eventName, listener, SUPPORTS_OPTIONS_PARAM ? options : !!capture, typeof scrollMaxX === 'number' === !wantsUntrusted)
+                newTarget.addEventListener(eventName, listener, SUPPORTS_OPTIONS_PARAM ? options : !!capture/*, typeof scrollMaxX === 'number' && wantsUntrusted*/)
                 // if (eventName === 'load' && /^(?:HTMLIFrameElement|Window)$/.test(getLabel(target)) && (target.contentWindow || target).document?.readyState === 'complete') {
                 // setTimeout(listener.bind(target, new Event('load')))
                 // logger.warnLate(`'${eventName}' event was fired before listener was added`, target)
@@ -489,7 +489,7 @@
             }
         }
         function off(target
-            // ...eventNames
+            // ,...eventNames
         ) {
             var eventNames = [].slice.call(arguments, 1)
             if (!isValidET(target)) throw invalid()

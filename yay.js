@@ -10,6 +10,7 @@ Things i learned from 2nd -> 3rd:
 • using Symbols
 • finally settled on WeakMap
 */
+const inFirefox = typeof scrollMaxX === 'number'
 window.requestIdleCallback ??= function (callback, options) {
     setTimeout(callback, options.timeout)
 }
@@ -40,15 +41,17 @@ function from(ArrayLike, map, thisArg) {
 }
 function debounce(func, interval) {
     let waiting = false
+        , st = setTimeout.bind(window, enable, interval)
+        , app = apply.bind(1, func, this)
     return DebouncedFunction
     function enable() {
         waiting = false
     }
-    function DebouncedFunction(...args) {
+    function DebouncedFunction() {
         if (!waiting) {
             waiting = true
-            setTimeout(enable, interval)
-            apply(func, this, args)
+            st()
+            app(arguments)
         }
         return !waiting
     }
@@ -83,10 +86,10 @@ function cacheFunction(maybeFunc) {
         // let wrapper = new Proxy(maybeFunc,handlers.function)
         const { name } = maybeFunc
             , wrapper = {
-                [name](...a) {
+                [name]() {
                     // Regular wrapper function for method,
                     // for usage instead of making a new one for every instance with bind()
-                    return apply(maybeFunc, base(this), a)
+                    return apply(maybeFunc, base(this), arguments)
                 }
             }[name]  // keep the original function name just in case
         BoundSet(maybeFunc, wrapper)
@@ -255,6 +258,7 @@ const attrStyleMap = 'StylePropertyMap' in window
             }
         },
     }
+const createFrag = inFirefox ? Reflect.construct.bind(1, DocumentFragment, {}) : document.createDocumentFragment.bind(document)
 // Main [[Prototype]] is on this class
 let computed = Symbol('[[ComputedStyles]]')
 let props = function () {
@@ -321,12 +325,23 @@ let props = function () {
     function mapTextNodesIntoTextContent(t) {
         return t.nodeValue
     }
+    let evalFunc = null
     const Proto = {
         *[Symbol.iterator]() {
             let all = base(this).getElementsByTagName('*')
             for (let {
                 length: i
             } = all; i--;) yield prox(all[i])
+        },
+        eval(script) {
+            // inline event handlers use 2 `with` statements
+            // use `this` to bypass `with` locking name lookups
+            // redefine eval (in sloppy mode) to prevent being trapped and/or becoming indirect eval
+            // for some reason void 0 is replaced by `this`
+            return (evalFunc ??= Function(
+`with(this[1].ownerDocument)with(this[1]){const eval=this[0]
+return function(){'use strict'
+return eval(arguments[0])}.call(this[1],this[2])}`)).call([eval,this,script])
         },
         get selfStyleSheet() {
             return base(this).shadowRoot?.querySelector('style') ?? null
@@ -377,7 +392,7 @@ let props = function () {
             let me = base(this)
             if (me.tagName === 'TEMPLATE')
                 return me.content
-            let out = document.createDocumentFragment(),
+            let out = createFrag(),
                 {
                     firstElementChild
                 } = me
@@ -389,7 +404,7 @@ let props = function () {
         },
         get clonedChildren() {
             let me = base(this),
-                n = document.createDocumentFragment();
+                n = createFrag();
             [].forEach.call(me.childNodes, clone, n);
             [].forEach.call(n.querySelectorAll('*'), removeIdAttributeIfPresent)
             return n
@@ -1024,16 +1039,19 @@ ownKeys(props).forEach(i => {
         let v = props[i],
             { value } = v
         v.configurable = false
-        typeof value === 'function' && (v.value = {
-            [i](...a) {
-                //  This function is for automatically returning the 'this'
-                //  value if the original return value is undefined
-                let me = prox(this)
-                // , b = base(this);if (!getValid(b) || !all_has(b)) throw TypeError('Illegal input')
-                let r = apply(value, me, a)
-                return typeof r === 'undefined' ? me : r
-            }
-        }[i]) //  Just want to keep the original function name intact
+        if (typeof value === 'function') {
+            let app = apply.bind(1, value)
+            v.value = {
+                [i]() {
+                    //  This function is for automatically returning the 'this'
+                    //  value if the original return value is undefined
+                    let me = prox(this)
+                        // , b = base(this);if (!getValid(b) || !all_has(b)) throw TypeError('Illegal input')
+                        , r = app(me, arguments)
+                    return r === void 5 ? me : r
+                }
+            }[i] //  Just want to keep the original function name intact
+        }
         /* else {
              let { set, get } = v
               v.set &&= {
@@ -1095,7 +1113,7 @@ INTERSECTION OBSERVER STUFFS
 */
 let inte
 if (false && typeof
-    ContentVisibilityAutoStateChangeEvent !== 'function' || typeof mozInnerScreenX === 'number')  /*Firefox is weird again*/ {
+    ContentVisibilityAutoStateChangeEvent !== 'function' || inFirefox)  /*Firefox is weird again*/ {
     inte = new IntersectionObserver(IntersectionObserverCallback, {
         threshold: [0, Number.MIN_VALUE]
     })
@@ -1434,7 +1452,7 @@ function getValid(target) {
     */
 }
 
-const doc = document.createDocumentFragment()
+const doc = createFrag()
     , { parseFromString } = bind(new DOMParser)
 let temp, div, range, parsingDoc, classRegex = /(?<=\.)[\w-]+/g,
     htmlRegex = /[\w-]+/,
@@ -1595,7 +1613,7 @@ export const _with = Function('getValid, prox, isHTMLFormatted,safeHTML, parseMo
     return(${$.toString()})(html, props, ...children)
     }`).bind(window, getValid, prox, isHTMLFormatted, safeHTML, parseModeMap, classRegex, idRegex, htmlRegex, typeRegex, base, from, NO_INLINE, assignIfOwn, hasOwn, HTML_PLACING, allElementStuff)
 */
-    // function cloneRegexp(regexp) {
+// function cloneRegexp(regexp) {
 // return RegExp(regexp, regexp.flags)
 // }
 /*
@@ -1734,7 +1752,7 @@ export default defineProperties($, {
 })
 $.id = $.byId
 //  createRange seems to be *slightly* faster on firefox
-let parseMode = 'mozInnerScreenY' in window ? 'createRange' : ''
+let parseMode = inFirefox ? 'createRange' : ''
 function badAttrName(name) {
     return regex.onXYZ.test(name)
 }
