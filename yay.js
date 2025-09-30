@@ -341,7 +341,7 @@ let props = function () {
             return (evalFunc ??= Function(
 `with(this[1].ownerDocument)with(this[1]){const eval=this[0]
 return function(){'use strict'
-return eval(arguments[0])}.call(this[1],this[2])}`)).call([eval,this,script])
+return eval(arguments[0])}.call(this[1],this[2])}`)).call([base(this).ownerDocument.defaultView.eval,this,script])
         },
         get selfStyleSheet() {
             return base(this).shadowRoot?.querySelector('style') ?? null
