@@ -545,12 +545,19 @@ width: 100vw;
 }
 @supports (zoom: 1) {
   #frame {
-    /* transform: unset; */
-    /* zoom: 0.8; */
+    transform: unset;
+    zoom: 0.8;
+    width: 120vw;
     /* --zoom: 0.8; */
   }
 }
-
+@supports (-ms-zoom: 1) {
+ #frame {
+    transform: unset;
+    -ms-zoom: 0.8;
+    width: 120vw;
+  }
+}
 .input {
   margin: 10px
 }

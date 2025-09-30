@@ -14,8 +14,9 @@
             }
         }*/
         typeof Symbol === 'function' || function () {
-            function a(b) { return String(b) }
-            globalThis.Symbol = a.for = a
+            function a(b) { return String(Math.random() + String(b) + performance.now() + String(Date.now())) }
+            a.for = function(o) {return '[]!@@@#*&$(@)' + o + 'U*(#R&HG&OHfih98geprji;)'}
+            globalThis.Symbol = a
         }()
         //// var queueMicrotask = globalThis.queueMicrotask || globalThis.setImmediate || setTimeout
         var MODULE = Symbol.for("[[HModule]]")

@@ -335,14 +335,10 @@
         })
         frame.onload = null
         function showHide() {
-            if (day >= dates.length || !day) {
-                (day ? prev : next).hide(2)
-            }
-            else {
-                prev.show(2)
-                next.show(2)
-            }
-
+            prev.show(2)
+            next.show(2)
+            if (!day) next.hide(2)
+            if (day+1 >= dates.length) prev.hide(2)
         }
         function changeDay(dir = 1) {
             frame.hide(3)
