@@ -337,11 +337,10 @@ let props = function () {
             // inline event handlers use 2 `with` statements
             // use `this` to bypass `with` locking name lookups
             // redefine eval (in sloppy mode) to prevent being trapped and/or becoming indirect eval
-            // for some reason void 0 is replaced by `this`
             return (evalFunc ??= Function(
-`with(this[1].ownerDocument)with(this[1]){const eval=this[0]
+                `with(this[1].ownerDocument)with(this[1]){const eval=this[0]
 return function(){'use strict'
-return eval(arguments[0])}.call(this[1],this[2])}`)).call([base(this).ownerDocument.defaultView.eval,this,script])
+return eval(arguments[0])}.call(this[1],this[2])}`)).call([base(this).ownerDocument.defaultView.eval, this, script])
         },
         get selfStyleSheet() {
             return base(this).shadowRoot?.querySelector('style') ?? null
@@ -1039,7 +1038,7 @@ ownKeys(props).forEach(i => {
         let v = props[i],
             { value } = v
         v.configurable = false
-        if (typeof value === 'function') {
+        if (typeof value === 'function' && i !=='eval') {
             let app = apply.bind(1, value)
             v.value = {
                 [i]() {
@@ -1069,7 +1068,7 @@ ownKeys(props).forEach(i => {
                  }
              }[get.name]
          }*/
-        defineProperty(prototype, i, v)
+         defineProperty(prototype, i, v)
     }
 })
 {
