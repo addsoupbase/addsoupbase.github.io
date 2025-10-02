@@ -424,15 +424,15 @@
             return target
         }
         $.on = on
-        var safari = typeof webkitConvertPointFromPageToNode === 'function'
-            , firefox = typeof scrollMaxX === 'number'
-            , ie = typeof msAnimationStartTime === 'number'
-            , chrome = typeof webkitRequestFileSystem === 'function'
+        var safari = $.safari = typeof webkitConvertPointFromPageToNode === 'function'
+            , firefox = $.firefox = typeof scrollMaxX === 'number'
+            , ie = $.ie = typeof msAnimationStartTime === 'number'
+            , chrome = $.chrome = typeof webkitRequestFileSystem === 'function'
         function compatOn(variants) {
             var data
-            if (safari) data = variants.safari
+            if (chrome) data = variants.chrome
             else if (firefox) data = variants.firefox
-            else if (chrome) data = variants.chrome
+            else if (safari) data = variants.safari
             else if (ie) data = variants.ie
             return (data = data || variants.otherwise) && on.apply(null, data)
         }
