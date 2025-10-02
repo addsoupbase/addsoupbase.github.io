@@ -327,7 +327,8 @@ a {
 }
 
 .diarybutton {
-  filter: hue-rotate(239deg) drop-shadow(0px 0px 4px blue)
+  filter: hue-rotate(239deg) drop-shadow(0px 0px 4px blue);
+  touch-action:none;
 }
 
 input[type=image] {
