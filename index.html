@@ -65,7 +65,7 @@
             }
         </style>
     </noscript>
-        <noscript>
+    <noscript>
         <!-- <a href='REDIRECT HERE'>Click if you are not redirected</a><style>:not(a){visibility:hidden;background: none !important;}a{visibility: visible;}</style> -->
         <!-- <meta content='0;url=REDIRECT' http-equiv='refresh'> -->
     </noscript>
@@ -86,10 +86,10 @@
                     e.style.opacity = 1
                 }
                 try {
-                    a.contentWindow.document.readyState === 'complete'?set(a):a.addEventListener('load', function () { set(this) }, { once: true })
+                    a.contentWindow.document.readyState === 'complete' ? set(a) : a.addEventListener('load', function () { set(this) }, { once: true })
                 }
                 catch (e) {
-                   set(a)
+                    set(a)
                 }
             }(document.getElementById('frame'))
         </script>
@@ -98,8 +98,9 @@
         style="position: fixed;bottom:15px;right:15px;display:none;z-index: 2;">Show</button>
 
     <script type="module">
-        import * as h from './handle.js'
         import $ from './yay.js'
+        const h = window[Symbol.for('[[HModule]]')]
+     
         let { show, frame } = $.id
         show.debounce({
             click() {
@@ -108,6 +109,7 @@
             }
         }, 1500)
         let unloading = false
+
         !function doThing(e) {
             let f = $(frames[0].frameElement)
             f.hide(3)
@@ -116,11 +118,17 @@
                 let me = f
                 me.fadeIn()
                 let controller = new AbortController
-                h.on(f.contentWindow, {
-                    '#_beforeunload'() {
-                        unloading || doThing()
-                    },
-                }, controller)
+                function ga() {
+                    unloading || doThing()
+                }
+                h.compatOn({
+                    safari: [f.contentWindow, {
+                        'pagehide':ga
+                    }],
+                    otherwise: [f.contentWindow, {
+                        '#_beforeunload': ga,
+                    }, controller]
+                })
                 /*
                 this.contentWindow.navigation && h.on(this.contentWindow.navigation, {
                     '#_navigate': doThing

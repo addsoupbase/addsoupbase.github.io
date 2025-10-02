@@ -550,6 +550,12 @@ width: 100vw;
     width: 120vw;
     /* --zoom: 0.8; */
   }
+  @supports (-webkit-touch-callout: inherit) {
+    #frame {
+      /* Safari is weird */
+      width: 100vw
+    }
+  }
 }
 @supports (-ms-zoom: 1) {
  #frame {
@@ -558,6 +564,7 @@ width: 100vw;
     width: 120vw;
   }
 }
+
 .input {
   margin: 10px
 }

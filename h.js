@@ -15,7 +15,7 @@
         }*/
         typeof Symbol === 'function' || function () {
             function a(b) { return String(Math.random() + String(b) + performance.now() + String(Date.now())) }
-            a.for = function(o) {return '[]!@@@#*&$(@)' + o + 'U*(#R&HG&OHfih98geprji;)'}
+            a.for = function (o) { return '[]!@@@#*&$(@)' + o + 'U*(#R&HG&OHfih98geprji;)' }
             globalThis.Symbol = a
         }()
         //// var queueMicrotask = globalThis.queueMicrotask || globalThis.setImmediate || setTimeout
@@ -152,7 +152,7 @@
                 type: 'file'
             })
         }
-        $.emptyFileInput= emptyFileInput
+        $.emptyFileInput = emptyFileInput
         $.requestFile = $.reqFile = requestFile
         var isAnimation = / /.test.bind(/^(animation(?:cancel|remove))$/),
             isFocus = / /.test.bind(/^(?:focus(?:in|out))$/),
@@ -424,6 +424,19 @@
             return target
         }
         $.on = on
+        var safari = typeof webkitConvertPointFromPageToNode === 'function'
+            , firefox = typeof scrollMaxX === 'number'
+            , ie = typeof msAnimationStartTime === 'number'
+            , chrome = typeof webkitRequestFileSystem === 'function'
+        function compatOn(variants) {
+            var data
+            if (safari) data = variants.safari
+            else if (firefox) data = variants.firefox
+            else if (chrome) data = variants.chrome
+            else if (ie) data = variants.ie
+            return (data = data || variants.otherwise) && on.apply(null, data)
+        }
+        $.compatOn = compatOn
         var customEventHandler = typeof Proxy === 'function' && {
             has: function (t, p) {
                 return p in t || p in Object(t.detail)

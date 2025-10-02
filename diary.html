@@ -279,8 +279,9 @@
             change() {
                 let { 0: year, 1: month, 2: date } = this.value.split('-')
                 frame.hide(3)
+                let src =  `./entries/${toNormal(new Date(`${month}-${date}-${year}`))}/index.html`
                 frame.setAttr({
-                    src: `./entries/${toNormal(new Date(`${month}-${date}-${year}`))}/index.html`
+                    src
                 })
                 let a = dates.map(o => o.slice(0, 10)).indexOf(this.value)
                 if (a !== -1) {
@@ -325,7 +326,8 @@
         })
         frame.hide(3)
         function toYMDFormat(d) {
-            return d.toISOString().slice(0, 10)
+            // fucking hate this stupid shitty Date API holy shit it's not even funny gng
+            return `${d.getFullYear()}-${`${d.getMonth()}`.padStart(2,0)}-${`${d.getDate()}`.padStart(2,0)}`
         }
         prev.on({
             click: changeDay.bind(prev, 1)
@@ -348,8 +350,9 @@
             if (c) {
                 let date = new Date(c)
                 currentDateInput.value = toYMDFormat(date)
+                let src = `./entries/${toNormal(date)}/index.html`
                 frame.setAttr({
-                    src: `./entries/${toNormal(date)}/index.html`
+                    src
                 })
             }
         }
