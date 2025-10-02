@@ -136,7 +136,8 @@
                                 , filler = fillString.repeat(fillLength).slice(0, fillLength)
                             return filler + o
                         }
-                        window.onerror = function (n) {
+                        document.getElementById('diary-heading').setAttribute('max', String(d.getFullYear()) + "-" + String(d.getMonth() + 1).padStart(2, 0) + '-' + String(d.getDate()).padStart(2, 0))
+                        onerror = function (n) {
                             function syncImport(src) {
                                 var n = new XMLHttpRequest,
                                     x = eval
@@ -146,7 +147,7 @@
                                 if (/(?:text|application)\/(?:x-)?(?:j(?:ava)?|ecma|live)script(?:1\.[0-5])?/.test(res) && n.status === 'OK' || n.status === 200) return x(n.responseText)
                                 throw TypeError('Failed to load script')
                             }
-                            if (/syntax/.test(n)) {
+                            if (/syntax/i.test(n)) {
                                 onerror = null
                                 syncImport('h.js')
                                 syncImport('ie.js')
@@ -155,7 +156,7 @@
                     }()
                 </script>
             </section>
-            <div
+            <div id="controlsholder"
                 style="--user-select:none;justify-self: center;justify-content:center;display: flex;    align-items: end;">
                 <input accesskey="p" id="prev" type="image" title="Turn to previous page" alt="Back"
                     style="transform:scaleX(-1)" src="./cute-emojis/emojis/1321091969635848294.gif" class="diarybutton">
@@ -163,6 +164,7 @@
                 <input accesskey="n" id="next" type="image" title="Turn to next page" alt="Forward"
                     src="./cute-emojis/emojis/1321091969635848294.gif" class="diarybutton">
             </div>
+          
         </div>
     </main>
     <style>
@@ -193,9 +195,6 @@
     </style>
     <script>
         if (location.hash) document.getElementById('display').setAttribute('src', './entries/' + location.hash.slice(1).replace(/\//g, '_'))
-    </script>
-    <script nomodule src="h.js"></script>
-    <script nomodule src="ie.js">
     </script>
     <script type="module">
         import $ from './yay.js'
@@ -278,12 +277,13 @@
         currentDateInput.on({
             change() {
                 let { 0: year, 1: month, 2: date } = this.value.split('-')
+                let hi = new Date(`${month}/${date}/${year}`)
                 frame.hide(3)
-                let src = `./entries/${toNormal(new Date(`${month}/${date}/${year}`))}/index.html`
+                let src = `./entries/${toNormal(hi)}/index.html`
                 frame.setAttr({
                     src
                 })
-                let a = dates.map(o => o.slice(0, 10)).indexOf(this.value)
+                let a = dates.map(o => o).indexOf(hi.toDateString())
                 if (a !== -1) {
                     day = a
                     showHide()
@@ -367,6 +367,10 @@
         })
         changeDay(0)
     </script>
+    <script nomodule src="h.js" name="bad"></script>
+    <script nomodule src="ie.js" name="bad">
+    </script>
+
     <!-- <script async defer src="silence.js"></script> -->
 </body>
 

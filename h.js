@@ -45,7 +45,7 @@
         //// }
         //// for (var i in console) {
         // Because the groupCollapsed() method was suppressing errors, delay them instead
-        //// var old = console[i]
+        //// var old = console[i].bind(console)
         //// if (typeof old === 'function')
         //// logger[i] = DelayedLog.bind(old),
         //// logger[i+"Late"] = LogOutOfGroup.bind(old)

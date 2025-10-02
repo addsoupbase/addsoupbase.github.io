@@ -27,7 +27,7 @@
                 frame.style.display = 'none'
                 // frame.style.opacity=0
                 var d = new Date(date)
-                input.value = d.toISOString().slice(0, 10)
+                input.value = d.toISOString().slice(0,10)
                 console.log(i)
                 frame.setAttribute('src', './entries/' + toNormal(d) + '/index.html')
             }
