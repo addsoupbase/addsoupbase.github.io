@@ -197,10 +197,11 @@
     <script nomodule src="h.js"></script>
     <script nomodule src="ie.js">
     </script>
+    <script>onerror=alert</script>
     <script type="module">
         import $ from './yay.js'
+        const h = window[Symbol.for('[[HModule]]')]
         import ran from './random.js'
-        import * as h from './handle.js'
         import Color from './color.js'
         import { jason } from './arrays.js'
         import { closest } from './num.js'
@@ -279,7 +280,7 @@
             change() {
                 let { 0: year, 1: month, 2: date } = this.value.split('-')
                 frame.hide(3)
-                let src =  `./entries/${toNormal(new Date(`${month}-${date}-${year}`))}/index.html`
+                let src = `./entries/${toNormal(new Date(`${month}/${date}/${year}`))}/index.html`
                 frame.setAttr({
                     src
                 })
@@ -327,7 +328,7 @@
         frame.hide(3)
         function toYMDFormat(d) {
             // fucking hate this stupid shitty Date API holy shit it's not even funny gng
-            return `${d.getFullYear()}-${`${d.getMonth()}`.padStart(2,0)}-${`${d.getDate()}`.padStart(2,0)}`
+            return `${d.getFullYear()}-${`${d.getMonth() + 1}`.padStart(2, 0)}-${`${d.getDate()}`.padStart(2, 0)}`
         }
         prev.on({
             click: changeDay.bind(prev, 1)
@@ -340,7 +341,7 @@
             prev.show(2)
             next.show(2)
             if (!day) next.hide(2)
-            if (day+1 >= dates.length) prev.hide(2)
+            if (day + 1 >= dates.length) prev.hide(2)
         }
         function changeDay(dir = 1) {
             frame.hide(3)
