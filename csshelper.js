@@ -1,5 +1,6 @@
-debugger
-let sym = Symbol.for('CSS')
+import'./css.js'
+
+let sym = Symbol.for('[[CSSModule]]')
 export let { dashVendor,
     capVendor,
     all,
@@ -23,5 +24,5 @@ export let { dashVendor,
     pev,
     supportedPElementVendor,
     dropShadow,
-    boxShadow } = sym in window ? window[sym] : (await import('./css.js'),window[sym])
+    boxShadow } = window[sym]
 // delete window[sym]
