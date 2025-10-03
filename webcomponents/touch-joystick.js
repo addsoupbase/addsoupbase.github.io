@@ -1,7 +1,7 @@
-import $, {define} from '../yay.js'
-import {vect, toRad} from '../num.js'
+import $, { define } from '../yay.js'
+import { vect, toRad } from '../num.js'
 import '../css.js'
-const css = window[Symbol.for('CSS')]
+const css = window[Symbol.for('[[CSSModule]]')]
 let touching = Symbol('👉')
     , touchpos = Symbol('📍')
     , ball = Symbol('🕹')
@@ -27,7 +27,7 @@ class Joystick extends HTMLElement {
     setAngle(v) {
         this.setAttribute('angle', v)
     }
-    setAngleDeg(v) { 
+    setAngleDeg(v) {
         this.setAngle(toRad(v))
     }
     static #pointercancel(e) {
@@ -43,31 +43,31 @@ class Joystick extends HTMLElement {
     }
     static observedAttributes = ['angle']
     attributeChangedCallback(name, oldValue, newValue) {
-     switch(name) {
-         case 'angle': {
-            let v = parseFloat(newValue),
-            x = Math.cos(v) * maxPullDistance,
-            y = Math.sin(v) * maxPullDistance
-            this[ball].setStyles({
-                transform: `translate${vect(x, y).toString('px')} rotateZ(${v}rad)`
-            })
-            this.angle = v
-         }
-         break
-     }
+        switch (name) {
+            case 'angle': {
+                let v = parseFloat(newValue),
+                    x = Math.cos(v) * maxPullDistance,
+                    y = Math.sin(v) * maxPullDistance
+                this[ball].setStyles({
+                    transform: `translate${vect(x, y).toString('px')} rotateZ(${v}rad)`
+                })
+                this.angle = v
+            }
+                break
+        }
     }
     static #events = {
         pointercancel: this.#pointercancel,
         pointerup: this.#pointercancel,
         pointermove(e) {
             if (!this[touching] || !vect) return
-            let {length} = (this[touchpos] ??= vect(0, 0)).set(e.offsetX, e.offsetY).subtract(maxPullDistance)
+            let { length } = (this[touchpos] ??= vect(0, 0)).set(e.offsetX, e.offsetY).subtract(maxPullDistance)
             let t = this[touchpos]
             if (length > maxPullDistance) {
                 t.x = t.x * maxPullDistance / length
                 t.y = t.y * maxPullDistance / length
             }
-            let {x, y, angle} = this[touchpos].clone.divide(maxPullDistance)
+            let { x, y, angle } = this[touchpos].clone.divide(maxPullDistance)
             this[ball].setStyles({
                 transform: `translate${t.toString('px')} rotateZ(${angle}rad)`
             })
@@ -88,7 +88,8 @@ class Joystick extends HTMLElement {
         super()
         let t = $(this)
         for (let i in Joystick.#events) this[`on${i}`] = Joystick.#events[i]
-        let shadow = t.attachShadow({mode: 'closed'})
+        t.on({$contextmenu:no})
+        let shadow = t.attachShadow({ mode: 'closed' })
         shadow.appendChild($('style', {
             textContent: `
                 div {
@@ -96,7 +97,10 @@ class Joystick extends HTMLElement {
                 width: '50px',
                 'border-radius': '100%',
                 height: '50px',
+                'touch-action': 'none',
                 'background-color': '#000',
+                '--user-select': 'none',
+                '--touch-callout': 'none',
                 position: 'relative'
             })}
                 }
@@ -106,6 +110,8 @@ class Joystick extends HTMLElement {
                 height: '120px',
                 'touch-action': 'none',
                 'place-items': 'center',
+                '--user-select': 'none',
+                '--touch-callout': 'none',
                 'place-content': 'center',
                 opacity: 0.5,
                 'background-color': '#6a7b80',
@@ -113,13 +119,12 @@ class Joystick extends HTMLElement {
                 // position: 'fixed',
                 'border-radius': '100%',
             })}
-                }
-                `
+                }`
         }).valueOf())
         shadow.appendChild(
             (this[ball] = $('<div part="ball"></div>')).valueOf()
         )
     }
 }
-
+function no(){}
 define('touch-joystick', Joystick)

@@ -1,6 +1,6 @@
 import $,{define,base,prox} from '../yay.js'
 import '../css.js'
-const css = window[Symbol.for('CSS')]
+const css = window[Symbol.for('[[CSSModule]]')]
 class AnimatedSprite extends HTMLElement {
     static observedAttributes = 'cols rows src width height duration direction index alt'.split(' ')
 
