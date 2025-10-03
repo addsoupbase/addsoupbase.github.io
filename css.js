@@ -1,4 +1,14 @@
 (function (w, sym) {
+    /*if (!(Symbol.for('CSS') in window)) {
+        Object.defineProperty(window, Symbol.for('CSS'), {
+            get() {
+                debugger
+            },
+            set() {
+                debugger
+            }
+        })
+    }*/
     var inModule = !this   // document.readyState === 'loading' && !inModule && document.write('<pre aria-hidden="true" style="transform:scale(0);position:absolute">.</pre>')
     // ('<!--[if IE]><link rel="stylesheet" href="' + location.origin + '/ie.css><![endif]-->')
     return cssSetup(sessionStorage)
@@ -30,7 +40,7 @@
             }
             catch (e) { console.debug(e) }
         })
-        function q(n) { return '{' + n + '}' }
+        function q(n) { return '{'+n+'}' }
         function ftss() {
             sn = S.setItem.bind(S, '')
             return (gn = S.getItem.bind(S, ''))() || ''
@@ -471,4 +481,4 @@
         })
         return css
     }
-}.call(null, window, typeof Symbol === 'function' ? Symbol.for('CSS') : '[[CSSModule]]'))
+}.call(null, window, (typeof Symbol === 'function' ? Symbol.for : String)('[[CSSModule]]')))

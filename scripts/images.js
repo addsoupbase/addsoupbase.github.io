@@ -1,5 +1,5 @@
 import'../css.js'
-const { registerCSS } = window[Symbol.for('CSS')]
+const { registerCSS } = window[Symbol.for('[[CSSModule]]')]
 import { until } from "../handle.js"
 import { jason } from '../arrays.js'
 let bubble = Object.assign(new Image, {

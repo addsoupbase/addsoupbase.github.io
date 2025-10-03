@@ -45,8 +45,9 @@
         //// }
         //// for (var i in console) {
         // Because the groupCollapsed() method was suppressing errors, delay them instead
-        //// var old = console[i].bind(console)
+        //// var old = console[i]
         //// if (typeof old === 'function')
+        //// old=old.bind(console),
         //// logger[i] = DelayedLog.bind(old),
         //// logger[i+"Late"] = LogOutOfGroup.bind(old)
         //// }
@@ -189,14 +190,14 @@
                 if ((v = 'onwebkit' + name) in target || (v = 'onmoz' + name) in target || (v = 'onms' + name) in target) return v.slice(2) + original
                 if ((v = name.slice(0, 7)) === 'pointer') {
                     if ((v = 'mouse' + v) in target) return v // Better than nothing
-                    return getIEPointerEvent(name)
+                    if (ie) return getIEPointerEvent(name)
                 }
                 if (name === 'wheel') {
                     if ((v = 'onmousewheel') in target) return v.slice(2) // iOS doesn't support 'wheel' events yet
                     if (typeof MouseScrollEvent === 'function') return 'DOMMouseScroll' // If they don't support the first 2, this one will work ~100% of the time
                     return 'MozMousePixelScroll' // The last resort, since there's no way to detect support with this one
                 }
-                if (v === 'gesture') return getIEGestureEvent(name)
+                if (ie && v === 'gesture') return getIEGestureEvent(name)
                 if (name === 'inertiastart') return 'MSInertiaStart'
                 //// logger.warnLate("'"+original+"' events might not be available on the following EventTarget:", target)
             }
@@ -313,7 +314,15 @@
                 return out
             }
         }
-        var SUPPORTS_OPTIONS_PARAM = !!(Event.prototype.composedPath || Event.prototype.deepPath)
+        var SUPPORTS_OPTIONS_PARAM = function () {
+            var out = false
+                , obj = {get capture(){out=true}}
+                // that's genius!
+                , args = ['',console.debug,obj]
+            addEventListener.apply(globalThis, args)
+            removeEventListener.apply(globalThis, args)
+            return out
+        }()
         var FLAG_ONCE = 1,
             FLAG_PREVENTS = 2,
             FLAG_PASSIVE = 4,
@@ -393,23 +402,23 @@
                 }
                 var listener = EventWrapper.bind(newTarget,
                     func, controller,
-                    controller && controller.abort.bind(controller, 'Automatic abort'),
+                    controller && controller.abort.bind(controller, 'Automatic abort (#)'),
                     flags)
-                if (autoabort && getLabel(controller) !== 'AbortController') throw TypeError("AbortController required if '#' (autoabort) is present")
+                if (autoabort && getLabel(controller) !== 'AbortController') throw TypeError("AbortController required if #autoabort flag is present")
                 newTarget.addEventListener(eventName, listener, SUPPORTS_OPTIONS_PARAM ? options : !!capture/*, typeof scrollMaxX === 'number' && wantsUntrusted*/)
                 // if (eventName === 'load' && /^(?:HTMLIFrameElement|Window)$/.test(getLabel(target)) && (target.contentWindow || target).document?.readyState === 'complete') {
                 // setTimeout(listener.bind(target, new Event('load')))
                 // logger.warnLate(`'${eventName}' event was fired before listener was added`, target)
                 // }
                 if (controller) {
-                    //// logger.info("📡 '"+eventName+"' event added")
+                    //// logger.info("📡 '"+eventName+"' event added", controller)
                 }
                 else {
                     allEvents.has(newTarget) || allEvents.set(newTarget, new Map)
-                    //A Map to hold the names & events
+                    // A Map to hold the names & events
                     var myGlobalEventMap = allEvents.get(newTarget)
                     myGlobalEventMap.set(eventName, {
-                        __proto__: null,
+                        // __proto__: null,
                         flags: flags,
                         listener: listener,
                     })
@@ -442,13 +451,13 @@
                 return p in t || p in Object(t.detail)
             },
             set: function (t, p, v) {
-                return Reflect.set(p in t ? t : t.detail, p, v)
+                return Reflect.set(p in t ? t : t.detail, p, v, t)
             },
             get: function (t, p) {
                 if (p in t) return t[p]
                 var detail = t.detail
                 if (p in Object(detail)) {
-                    var out = detail[p]
+                    var out = Reflect.get(detail, p, t)
                     return typeof out === 'function' ? out.bind(detail) : out
                 }
             }
@@ -527,7 +536,8 @@
                     newTarget = b.target
                     name = b.name
                 }
-                newTarget.removeEventListener(name, listener, SUPPORTS_OPTIONS_PARAM ? settings : !!(settings.flags & FLAG_CAPTURE))
+                var capture = !!(settings.flags & FLAG_CAPTURE)
+                newTarget.removeEventListener(name, listener, SUPPORTS_OPTIONS_PARAM ? {capture: capture} : capture)
                 map.delete(name)
                 //// && logger.info("🔕 '"+name+"' event removed")
                 mySet.delete(name)

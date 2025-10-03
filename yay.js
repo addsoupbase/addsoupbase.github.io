@@ -34,7 +34,7 @@ const { get, set, apply, getOwnPropertyDescriptor, ownKeys } = Reflect,
 import './h.js'
 const h = window[Symbol.for('[[HModule]]')]
 import './css.js'
-const css = window[Symbol.for('CSS')]
+export const css = window[Symbol.for('[[CSSModule]]')]
 function from(ArrayLike, map, thisArg) {
     // Array.from checks @@iterator first, which would be slower in cases where it is callable
     return ArrayLike.length >= 0 ? map ? [].map.call(ArrayLike, map, thisArg) : [].slice.call(ArrayLike) : map ? Array.from(ArrayLike, map, thisArg) : typeof ArrayLike[Symbol.iterator] !== 'undefined' ? [...ArrayLike] : []
@@ -775,17 +775,12 @@ return eval(arguments[0])}.call(this[1],this[2])}`)).call([base(this).ownerDocum
                     Queries.set(query, detail)
                 }
                 let detail = Queries.get(query),
-                    {
-                        mediaQuery: {
-                            matches
-                        },
-                        listening
-                    } = detail
+                    { listening } = detail
                 listening.add(this)
                 this.on({
                     [`${flags ?? ''}${query}`]: val
                 }, controller)
-                matches && h.delayedDispatch(query, base(this), new CustomEvent(query, {
+                queueMicrotask(dispatchEvent.bind(base(this)), new CustomEvent(query, {
                     detail
                 }))
             }
@@ -1038,7 +1033,7 @@ ownKeys(props).forEach(i => {
         let v = props[i],
             { value } = v
         v.configurable = false
-        if (typeof value === 'function' && i !=='eval') {
+        if (typeof value === 'function' && i !== 'eval') {
             let app = apply.bind(1, value)
             v.value = {
                 [i]() {
@@ -1068,7 +1063,7 @@ ownKeys(props).forEach(i => {
                  }
              }[get.name]
          }*/
-         defineProperty(prototype, i, v)
+        defineProperty(prototype, i, v)
     }
 })
 {

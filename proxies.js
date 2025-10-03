@@ -17,7 +17,6 @@ export default class StorageProxy {
         },
         set(target, prop, value) {
             prop = `${this.ns}${prop}`
-            debugger
             // i have NO idea why,
             // but storage events dont fire on
             // the window that made the change
