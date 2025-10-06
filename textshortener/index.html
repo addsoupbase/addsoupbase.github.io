@@ -142,7 +142,7 @@
         let abc = 'abcdefghijklmnopqrstuvwxyz'
         let aa= await jason('./subs.json')
         const substitutes = (aa)
-        .map(([a, b]) => [RegExp(a, 'g'), b]).sort(([a], [b]) => b.source.replaceAll('\\', '').normalize().length - a.source.replaceAll('\\', '').normalize().length)
+        .map(([a, b, i]) => [RegExp(a, 'g' + (i || '')), b]).sort(([a], [b]) => b.source.replaceAll('\\', '').normalize().length - a.source.replaceAll('\\', '').normalize().length)
         console.log(substitutes)
         // These ones look weird on my device so
         // ; ((nums) => {
@@ -153,7 +153,6 @@
         // substitutes.push([r, str])
         // }
         // })('🄂🄃🄄🄅🄆🄇🄈🄉🄊');
-        debugger
         function shortenText(og) {
             let text = og
             substitutes.forEach(({ 0: regex, 1: replacement }) => {

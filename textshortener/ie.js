@@ -32,7 +32,7 @@
             .map(
                 function (n) {
                     var a = n[0], b = n[1]
-                    return [RegExp(a, 'g'), b]
+                    return [RegExp(a, 'g' + (n[2] || '')), b]
                 }
             ).sort(
                 function (a, b) {
