@@ -7,7 +7,11 @@
     <meta property="og:locale" content="en_US">
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=yes">
+    <script>
+        // iOS has 'gesturechange' for pinch zoom, but the rest can use touch-action: pinch-zoom
+        CSS.supports('-webkit-touch-callout', 'none') && document.currentScript.previousElementSibling.setAttribute('content', "width=device-width, initial-scale=1,maximum-scale=1,user-scalable=yes")
+    </script>
     <meta name="description" content="YOUR DESC HERE">
     <meta property="og:image:width" content="IMAGE WIDTH HERE">
     <meta property="og:image:height" content="IMAGE HEIGHT HERE">
@@ -74,11 +78,13 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="animations.css">
     <title>YOUR TITLE HERE</title>
+    <link rel="preload" as="worker" href="gifparsing.js">
+    <script type="module" src="play.js"></script>
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net/">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
     <script src="https://cdn.jsdelivr.net/npm/pathseg@1.2.1/pathseg.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/poly-decomp@0.3.0/build/decomp.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.20.0/matter.js"></script>
-    <link rel="modulepreload" as="worker" href="gifparsing.js">
-    <script type="module" src="play.js"></script>
     <!--https://wiki.whatwg.org/wiki/MetaExtensions-->
     <!--[if IE]><script>alert('Please update your browser')</script><![endif]-->
 
@@ -86,8 +92,20 @@
 
 <body>
     <main>
-        <dialog class="mainmenu center dialog slide-in-blurred-top" closedby="closerequest" id="dialog"></dialog>
+        <dialog class="mainmenu center dialog slide-in-blurred-top" closedby="closerequest" id="dialog"
+            style="display: none;">
+            <div class="grid"></div>
+            <div>
+                <button class="cute-green-button settingsbutton" id="settings">Settings</button>
+                <div id="settingsmenu" style="display:none">
+                    <label style="display: inline-flex;">Joystick<input type="checkbox" id="joystickCheck"></label>
+                </div>
+            </div>
+        </dialog>
         <canvas id="canvas" width="0" height="0"></canvas>
+        <div style="z-index: 1;position: absolute; bottom: 30px; right: 30px" id="fullscreen" title="Fullscreen"
+            role="button" tabindex="0"></div>
+        <touch-joystick id="mobilejoystick" class="center" style="display:none;touch-action: none;"></touch-joystick>
     </main>
 </body>
 

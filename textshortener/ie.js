@@ -12,7 +12,7 @@
                     aaa.value = final
                     document.body.appendChild(aaa)
                     aaa.select()
-                    if (document.execCommand('copy'))
+                    if (document.execCommand('copy') || document.queryCommandSupported('copy'))
                         document.body.removeChild(aaa)
                     else throw ''
                 }

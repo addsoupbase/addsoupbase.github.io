@@ -1,18 +1,132 @@
 @import url('../cute-green.css');
 
-canvas {
+#canvas {
     background-color: #ADD8E6;
     position: fixed;
     pointer-events: auto;
     touch-action: none;
-    cursor: grab;
+    /* cursor: grab; */
+    transition: filter 400ms ease;
     --cursor-visibility: auto-hide;
     --user-select: none;
 }
 
-#view {}
+:root {
+    --gold: #f5d847;
+    --silver: #a2a2a2;
+    --bronze: #976d0a;
+}
 
-canvas:active {
+
+
+figure:first-child.winner {
+    filter: drop-shadow(0px 0px 5px var(--gold));
+}
+
+figure:first-child.winner figcaption {
+    text-decoration-color: var(--gold);
+    text-decoration-style: solid;
+    text-decoration-line: underline
+}
+
+figure:nth-child(2).winner figcaption {
+    text-decoration-color: var(--silver);
+    text-decoration-style: solid;
+    text-decoration-line: underline
+}
+
+figure:nth-child(3).winner figcaption {
+    text-decoration-color: var(--bronze);
+    text-decoration-style: solid;
+    text-decoration-line: underline;
+}
+
+figure:nth-child(2).winner {
+    filter: drop-shadow(0px 0px 5px var(--silver));
+}
+
+figure:nth-child(3).winner {
+    filter: drop-shadow(0px 0px 5px var(--bronze));
+}
+
+figure.loser>.avatar {
+    transition: opacity 300ms ease;
+    opacity: .9
+}
+
+figure.loser>.avatar:hover {
+    opacity: 1
+}
+
+.imagetitle {
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+.winner>.avatar:hover::before {
+    content: attr(data-placing);
+    position: relative;
+    color: black;
+    /* filter: invert(1); */
+    /* mix-blend-mode: difference; */
+    top: 0%;
+    left: -50%;
+    z-index: 30;
+}
+
+.avatar {
+    border-radius: 100%;
+    width: 100px;
+    height: 100px;
+    outline-width: 1.7px;
+    outline-style: solid;
+}
+
+.loser>.avatar {
+    outline-style: dashed;
+}
+
+#levelerrormsg:empty {
+    display: none;
+}
+
+figure {
+    margin-left: 12px;
+    margin-right: 12px;
+}
+
+.grid {
+    display: grid;
+    scroll-behavior: smooth;
+    /* place-self: center; */
+    place-content: center;
+
+}
+
+.levelpreview {
+    height: 110px;
+    margin-top: 10px;
+    /* display: conten; */
+    /* overflow-y: scroll; */
+
+    width: 150%;
+    /* border: 1px dashed green */
+}
+
+.grid>button {
+    margin: 15px
+}
+
+.sidediv {
+    max-width: 100%;
+}
+
+.sidediv p {
+    overflow-wrap: anywhere;
+}
+
+
+#canvas:active {
     cursor: grabbing
 }
 
@@ -62,17 +176,21 @@ touch-joystick {
 cite::before {
     content: 'By ';
 }
-.hiii > * {
-margin: 5px;
-}
-.hiii {
-    border:1px solid black;
+
+.hiii>* {
     margin: 5px;
 }
+
+.hiii {
+    border: 1px solid black;
+    margin: 5px;
+}
+
 .hiii:empty::after {
     /* content:"No racers" */
 }
-.mainmenu:open {
+
+.mainmenu {
     background-color: #28a745;
     color: white;
     border-radius: 5px;
@@ -80,6 +198,7 @@ margin: 5px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     max-width: 80vw;
     width: 400px;
+    ;
     max-height: 400px;
     overflow-x: hidden;
     text-align: center;
@@ -90,15 +209,36 @@ margin: 5px;
     backdrop-filter: blur(5px);
     gap: 10px;
 }
+
 .editable {
-    text-decoration: underline;cursor: text;overflow-wrap: anywhere;transition:text-decoration-color .3s ease;
+    text-decoration: underline;
+    cursor: text;
+    overflow-wrap: anywhere;
+    transition: text-decoration-color .3s ease;
 }
+
 dialog {
-    --interactivity: auto
+    --interactivity: auto;
+    z-index: 4;
+    width: 300px;
 }
+
+@supports (-webkit-touch-callout: none) {
+    dialog {
+        touch-action: none;
+    }
+}
+
+@supports not (-webkit-touch-callout: none) {
+    #canvas {
+        touch-action: pinch-zoom;
+    }
+}
+
 .dialog::backdrop {
     background-color: rgba(0, 0, 0, 0.275);
 }
+
 .place {
     border-radius: 100%;
     width: 80px;
@@ -166,7 +306,8 @@ dialog {
 }
 
 .short {
-    width: 120px
+    width: 120px;
+    max-width: 100%;
 }
 
 .inputholder:empty {
@@ -215,7 +356,6 @@ iframe {
 
 #container {
     display: flex;
-
 }
 
 #mobile-mover {
@@ -224,6 +364,25 @@ iframe {
     height: 50px;
     position: relative;
     background-color: #000;
+}
+
+#fullscreen.playing {
+    opacity: 0.2
+}
+
+#fullscreen:hover {
+    opacity: 1;
+    transform: scale(1.1, 1.1)
+}
+
+#fullscreen {
+    transition: opacity .2s ease, transform .2s ease;
+    opacity: 1;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    background-image: url(./media/fullscreen.png);
+    background-size: contain
 }
 
 #mobile-joystick {
@@ -246,16 +405,16 @@ iframe {
 }
 
 @media (orientation: portrait) {
-    #mobile-joystick {
+    #mobilejoystick {
         top: 70%;
         justify-self: anchor-center;
     }
 }
 
 @media (orientation: landscape) {
-    #mobile-joystick {
-        top: 55%;
-        left: -80%;
+    #mobilejoystick {
+        top: 45%;
+        left: -70%;
         justify-self: anchor-center;
     }
 }

@@ -43,6 +43,8 @@
     <link rel="prefetch" as="document" crossorigin="anonymous" href="./stuff.html" fetchpriority="low">
     <link rel="prefetch" as="document" crossorigin="anonymous" href="./about.html" fetchpriority="low">
     <link rel="prefetch" as="document" crossorigin="anonymous" href="./diary.html" fetchpriority="low">
+        <link rel="prefetch" as="document" crossorigin="anonymous" href="./bubbles.html" fetchpriority="low">
+
     <!-- <link rel="preload" as="font" href="./media/Chococooky.woff2" crossorigin="anonymous" type="font/woff2" fetchpriority="high"> -->
     <link rel="apple-touch-icon" sizes="57x57" href="./icon-57x57.png">
     <link rel="apple-touch-icon" sizes="60x60" href="./icon-60x60.png">
@@ -100,7 +102,7 @@
     <script type="module">
         import $ from './yay.js'
         const h = window[Symbol.for('[[HModule]]')]
-     
+
         let { show, frame } = $.id
         show.debounce({
             click() {
@@ -108,7 +110,6 @@
                 this.fadeOut()
             }
         }, 1500)
-        let unloading = false
 
         !function doThing(e) {
             let f = $(frames[0].frameElement)
@@ -119,15 +120,10 @@
                 me.fadeIn()
                 let controller = new AbortController
                 function ga() {
-                    unloading || doThing()
+                    doThing()
                 }
-                h.compatOn({
-                    safari: [f.contentWindow, {
-                        'pagehide':ga
-                    }],
-                    otherwise: [f.contentWindow, {
-                        '#_beforeunload': ga,
-                    }, controller]
+                h.on(f.contentWindow, {
+                    'pagehide': ga
                 })
                 /*
                 this.contentWindow.navigation && h.on(this.contentWindow.navigation, {
@@ -150,9 +146,7 @@
             }, c)
         }()
         h.on(window, {
-            '%beforeunload'() {
-                unloading = true
-            },
+
             _load() {
                 let f = $.id.frame
                 f.styles.display = ''

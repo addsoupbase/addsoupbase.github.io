@@ -10,7 +10,6 @@ Things i learned from 2nd -> 3rd:
 • using Symbols
 • finally settled on WeakMap
 */
-const inFirefox = typeof scrollMaxX === 'number'
 window.requestIdleCallback ??= function (callback, options) {
     setTimeout(callback, options.timeout)
 }
@@ -32,7 +31,7 @@ const { get, set, apply, getOwnPropertyDescriptor, ownKeys } = Reflect,
     { revocable } = Proxy,
     { create, preventExtensions, defineProperty, defineProperties, getOwnPropertyDescriptors, assign } = Object
 import './h.js'
-const h = window[Symbol.for('[[HModule]]')]
+export const h = window[Symbol.for('[[HModule]]')]
 import './css.js'
 export const css = window[Symbol.for('[[CSSModule]]')]
 function from(ArrayLike, map, thisArg) {
@@ -41,17 +40,17 @@ function from(ArrayLike, map, thisArg) {
 }
 function debounce(func, interval) {
     let waiting = false
-        , st = setTimeout.bind(window, enable, interval)
-        , app = apply.bind(1, func, this)
+        , st = setTimeout.bind(window, enable, interval),
+        app = apply.bind(1, func)
     return DebouncedFunction
     function enable() {
         waiting = false
     }
-    function DebouncedFunction() {
+    function DebouncedFunction(...a) {
         if (!waiting) {
             waiting = true
             st()
-            app(arguments)
+            app(this, a)
         }
         return !waiting
     }
@@ -86,10 +85,10 @@ function cacheFunction(maybeFunc) {
         // let wrapper = new Proxy(maybeFunc,handlers.function)
         const { name } = maybeFunc
             , wrapper = {
-                [name]() {
+                [name](...a) {
                     // Regular wrapper function for method,
                     // for usage instead of making a new one for every instance with bind()
-                    return apply(maybeFunc, base(this), arguments)
+                    return apply(maybeFunc, base(this), a)
                 }
             }[name]  // keep the original function name just in case
         BoundSet(maybeFunc, wrapper)
@@ -258,7 +257,7 @@ const attrStyleMap = 'StylePropertyMap' in window
             }
         },
     }
-const createFrag = inFirefox ? Reflect.construct.bind(1, DocumentFragment, {}) : document.createDocumentFragment.bind(document)
+const createFrag = h.firefox ? Reflect.construct.bind(1, DocumentFragment, {}) : document.createDocumentFragment.bind(document)
 // Main [[Prototype]] is on this class
 let computed = Symbol('[[ComputedStyles]]')
 let props = function () {
@@ -452,12 +451,14 @@ return eval(arguments[0])}.call(this[1],this[2])}`)).call([base(this).ownerDocum
                 } = this
         },
         on(events, controller) {
-            arguments.length > 2 && h.getLabel(controller) !== 'AbortController' && (controller = arguments[2])
-            // There used to be a 'useHandler' parameter
+            if (arguments.length > 2 && h.getLabel(controller) !== 'AbortController') {
+                // There used to be a 'useHandler' parameter
+                controller = arguments[2]
+                debugger
+            }
             let me = this
             if (typeof events === 'function') events = ProxyEventWrapperFunction.bind(old, me)
-            else
-                for (let i in events) events[i] = ProxyEventWrapperFunction.bind(events[i], me)
+            else for (let i in events) events[i] = ProxyEventWrapperFunction.bind(events[i], me)
             h.on(base(this), events, controller)
         },
         off(...events) {
@@ -481,7 +482,7 @@ return eval(arguments[0])}.call(this[1],this[2])}`)).call([base(this).ownerDocum
                 if (i.includes('@')) throw SyntaxError("Conflicting usage of a 'currentTarget' only delegating event handler")
                 events[i] = DelegationFunction.bind(events[i], me, includeSelf, filter)
             }
-            this.on(events, false, controller)
+            this.on(events, controller)
         },
         get events() {
             return h.getEventNames(base(this))
@@ -780,9 +781,9 @@ return eval(arguments[0])}.call(this[1],this[2])}`)).call([base(this).ownerDocum
                 this.on({
                     [`${flags ?? ''}${query}`]: val
                 }, controller)
-                queueMicrotask(dispatchEvent.bind(base(this)), new CustomEvent(query, {
+                queueMicrotask(dispatchEvent.bind(base(this), new CustomEvent(query, {
                     detail
-                }))
+                })))
             }
         },
         equals(other) {
@@ -1036,12 +1037,12 @@ ownKeys(props).forEach(i => {
         if (typeof value === 'function' && i !== 'eval') {
             let app = apply.bind(1, value)
             v.value = {
-                [i]() {
+                [i](...a) {
                     //  This function is for automatically returning the 'this'
                     //  value if the original return value is undefined
                     let me = prox(this)
                         // , b = base(this);if (!getValid(b) || !all_has(b)) throw TypeError('Illegal input')
-                        , r = app(me, arguments)
+                        , r = app(me, a)
                     return r === void 5 ? me : r
                 }
             }[i] //  Just want to keep the original function name intact
@@ -1107,7 +1108,7 @@ INTERSECTION OBSERVER STUFFS
 */
 let inte
 if (false && typeof
-    ContentVisibilityAutoStateChangeEvent !== 'function' || inFirefox)  /*Firefox is weird again*/ {
+    ContentVisibilityAutoStateChangeEvent !== 'function' || h.firefox)  /*Firefox is weird again*/ {
     inte = new IntersectionObserver(IntersectionObserverCallback, {
         threshold: [0, Number.MIN_VALUE]
     })
@@ -1453,29 +1454,30 @@ let temp, div, range, parsingDoc, classRegex = /(?<=\.)[\w-]+/g,
     idRegex = /(?<=#)[\w-]+/,
     typeRegex = /(?<=%)\w+/
 const { get: parseModeMap } = bind(new Map(Object.entries({
-    write(html) {
-        (parsingDoc ??= document.implementation.createHTMLDocument())
-            .open().write(html)
-        parsingDoc.close()
-        return document.adoptNode(parsingDoc.body.firstElementChild)
-    },
-    setHTMLUnsafe(html) {
-        (temp ??= document.createElement('template'))
-            .setHTMLUnsafe(html)
-        return document.adoptNode(temp.content.firstElementChild)
-    },
-    innerHTML(html) {
-        (div ??= document.createElement('div'))
-            .innerHTML = html
-        return div.removeChild(div.firstElementChild)
-    },
-    createHTMLDocument(html) {
-        (parsingDoc ??= document.implementation.createHTMLDocument()).body.outerHTML = html
-        return document.adoptNode(parsingDoc.body.firstElementChild)
-    },
+    /*  write(html) {
+          (parsingDoc ??= document.implementation.createHTMLDocument())
+              .open().write(html)
+          parsingDoc.close()
+          return document.adoptNode(parsingDoc.body.firstElementChild)
+      },
+      setHTMLUnsafe(html) {
+          (temp ??= document.createElement('template'))
+              .setHTMLUnsafe(html)
+          return document.adoptNode(temp.content.firstElementChild)
+      },
+      innerHTML(html) {
+          (div ??= document.createElement('div'))
+              .innerHTML = html
+          return div.removeChild(div.firstElementChild)
+      },
+      createHTMLDocument(html) {
+          (parsingDoc ??= document.implementation.createHTMLDocument()).body.outerHTML = html
+          return document.adoptNode(parsingDoc.body.firstElementChild)
+      },*/
     createRange(html) {
         return document.adoptNode((range ??= document.createRange()).createContextualFragment(html).firstElementChild)
     },
+    /*
     template(html) {
         //  Contender
         (temp ??= document.createElement('template')).innerHTML = html
@@ -1483,13 +1485,18 @@ const { get: parseModeMap } = bind(new Map(Object.entries({
     },
     parseHTMLUnsafe(html) {
         return document.adoptNode(Document.parseHTMLUnsafe(html).body.firstElementChild)
-    },
+    },*/
     ''(html) {
         let t = parseFromString(html, 'text/html')
         return document.adoptNode(t.body.firstElementChild)
     }
 })))
-
+export function $$(selector, base = document) {
+    return prox(base.querySelector(selector))
+}
+export function $$$(selector, base = document) {
+    return from(base.querySelectorAll(selector), prox)
+}
 function safeHTML(o) {
     return o
 }
@@ -1530,15 +1537,15 @@ const NO_INLINE = TypeError.bind(1, 'Inline event handlers are deprecated')
 /**
  * ## Use tagged templates when string is user input
  */
-function $(html, props, //...children
-) {
-    'use strict'
-    let children = [].slice.call(arguments, 2)
+function $(html, props, ...children) {
+    // 'use strict'
+    // let children = [].slice.call(arguments, 2)
     if (getValid(html)) return prox(html)
-    if (Array.isArray(html) && 'raw' in html) {
+    if (Array.isArray(html) && 'raw' in html) { // tagged template
         let strings = html,
-            values = [].slice.call(arguments, 1),
+            values = children,
             result = ''
+        children.unshift(props)
         for (let i = 0, n = strings.length, { length } = values; i < n; ++i) result = `${result}${strings[i]}${i < length ? escapeHTML(values[i]) : ''}`
         html = result.trim()
         props = null
@@ -1550,10 +1557,11 @@ function $(html, props, //...children
         html = safeHTML(html)
         element = prox((parseModeMap(parseMode) ?? parseModeMap(''))(html))
     } else {
-        element = prox(document.createElement(html.match(htmlRegex)?.[0]))
-        let classes = html.match(classRegex),
-            id = html.match(idRegex)?.[0],
-            type = html.match(typeRegex)?.[0],
+        let match = ''.match.bind(html)
+        element = prox(document.createElement(match(htmlRegex)?.[0]))
+        let classes = match(classRegex),
+            id = match(idRegex)?.[0],
+            type = match(typeRegex)?.[0],
             toSet = {}
         classes && (toSet.class = classes.join(' '))
         id && (toSet.id = id)
@@ -1633,6 +1641,11 @@ const documentProxy = {
     }
 }
 export default defineProperties($, {
+    [Symbol.hasInstance]: {
+        value(obj) {
+            return me in Object(obj)
+        }
+    },
     idWith: {
         value(context) {
             return new Proxy(context.document || context.contentWindow.document, documentProxy)
@@ -1653,7 +1666,8 @@ export default defineProperties($, {
     },
     hasFullscreen: {
         get() {
-            return !!(document.fullscreenElement || document.fullscreen || window.fullScreen)
+            // only works if fullscreen is triggered by a browser action (so no F11)
+            return !!(document.fullscreenElement || document.fullscreen || window.fullScreen || document.webkitCurrentFullScreenElement)
         }
     },
     push: {
@@ -1746,16 +1760,14 @@ export default defineProperties($, {
 })
 $.id = $.byId
 //  createRange seems to be *slightly* faster on firefox
-let parseMode = inFirefox ? 'createRange' : ''
+let parseMode = h.firefox ? 'createRange' : ''
 function badAttrName(name) {
     return regex.onXYZ.test(name)
 }
-
 function allElementStuff(e) {
     return e.getAttributeNames().some(badAttrName)
     // return [].some.call(e.attributes, badAttrName)
 }
-
 export const define = function () {
     let dfn
     if (Function.prototype.toString.call(customElements.define) === String(Function.prototype).replace('function ', 'function define')) return customElements.define.bind(customElements)
@@ -1773,15 +1785,27 @@ export const define = function () {
         return dfn.apply(1, args)
     }
 }()
-typeof mozInnerScreenX === 'number' && !supported('paint') && addEventListener('MozAfterPaint', () => painted ||= !dispatchEvent(new Event('first-paint')), { once: true })
+h.firefox && !supported('paint') && addEventListener('MozAfterPaint', () => painted ||= !dispatchEvent(new Event('first-paint')), { once: true })
 supported = null
-// diary stuff
-if (location.pathname.startsWith('/entries') && (location.host === 'localhost:3000' || location.host === 'addsoupbase.github.io')) document.querySelector('script[src="../../diary.js"]') ?? import('./diary.js');
-// /localhost/.test(origin) && (window.$ = $)
+if (/localhost/.test(origin)) {
+    let connectedDomains = new Set
+    h.on(window, {
+        'network-request'(e) {
+            let url = new URL(e.name),
+                o = url.origin
+            let type = e.deliveryType === 'cache' ? 'dns-prefetch' : 'preconnect'
+            if (o !== origin && !connectedDomains.has(o) && !document.head?.querySelector(`link[rel="${type}"][href^="${o}"]`)) {
+                connectedDomains.add(o)
+                let str = `<link rel="${type}" href="${o}">`
+                console.warn(`Consider adding ${str} to the head for better user experience.`)
+            }
+        }
+    }, new AbortController)
+}
 h.on(window, {
     '^keydown'(e) {
-        let k = e.key.toUpperCase()
-        if (e.shiftKey && e.altKey && !e.repeat && k.length === 1) {
+        let k = e.key?.toUpperCase()
+        if (k && e.shiftKey && e.altKey && !e.repeat && k.length === 1) {
             let str = `Alt+Shift+${k}`,
                 el = document.querySelector(`[aria-keyshortcuts="${str}"]`)
             if (el && !el.hasAttribute('disabled')) {

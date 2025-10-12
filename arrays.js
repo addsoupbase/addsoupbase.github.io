@@ -33,7 +33,7 @@ export function parse(str) {
     return Object(n) === n ? deep(uproot(n)) : n
 }
 function uproot(n){
-    return Array.isArray(n) ? n : {__proto__: proto, ...n}
+    return isArray(n) ? n : {__proto__: proto, ...n}
 }
 function deep(obj) {
     for (let i in obj = uproot(obj)) {
@@ -80,8 +80,8 @@ export function center(array) {
     return array[(array.length / 2) | 0]
 }
 
-export function insert(array, item, index) {
-    return array.splice(index, 0, item)
+export function insert(array, index, ...items) {
+    return array.splice(index, 0, ...items)
 }
 /*
 export function* edgeCases(...rest) {

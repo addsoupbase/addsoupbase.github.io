@@ -27,18 +27,18 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
-    <meta name="description" content="Stuff that addsoupbase made. Check it out!">
-    <meta property="og:image:width" content="683">
+    <meta name="description" content="View every user currently in a bubble>
+    <meta property=" og:image:width" content="683">
     <meta property="og:image:height" content="881">
     <meta property="og:image:type" content="image/png">
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://addsoupbase.github.io/stuff-preview.png">
     <meta property="og:url" content="https://addsoupbase.github.io/">
-    <meta property="og:description" content="Stuff that addsoupbase made. Check it out!">
-    <meta property="og:title" content="addsoupbase🍜 - Stuff I Made">
-    <meta property="og:site_name" content="addsoupbase🍜 - Stuff I Made">
-    <meta name="twitter:title" content="addsoupbase🍜 - Stuff I Made">
-    <meta name="application-name" content="addsoupbase🍜 - Stuff I Made">
+    <meta property="og:description" content="View every user currently in a bubble>
+    <meta property=" og:title" content="addsoupbase🍜 - Bubbles">
+    <meta property="og:site_name" content="addsoupbase🍜 - Bubbles">
+    <meta name="twitter:title" content="addsoupbase🍜 - Bubbles">
+    <meta name="application-name" content="addsoupbase🍜 - Bubbles">
     <meta name="application-url" content="https://addsoupbase.github.io/">
     <meta name="twitter:url" content="https://addsoupbase.github.io/">
     <meta name="web_author" content="addsoupbase">
@@ -59,8 +59,8 @@
     <meta name="msapplication-wide310x150logo" content="./apple-touch-icon-180x180.png">
     <meta name="msapplication-TileImage" content="./apple-touch-icon-180x180.png">
     <meta name="msapplication-starturl" content="https://addsoupbase.github.io/">
-    <meta name="msapplication-tooltip" content="addsoupbase🍜 - Stuff I Made">
-    <meta name="prism:alternateTitle" content="addsoupbase🍜 - Stuff I Made">
+    <meta name="msapplication-tooltip" content="addsoupbase🍜 - Bubbles">
+    <meta name="prism:alternateTitle" content="addsoupbase🍜 - Bubbles">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="thumbnail" content="https://addsoupbase.github.io/stuff-preview.png">
     <meta property="profile:username" content="addsoupbase">
@@ -72,7 +72,7 @@
     <meta name="author" content="addsoupbase">
     <link rel="canonical" href="https://addsoupbase.github.io/">
     <script
-        type="application/ld+json">{"@context":"https://schema.org","@type": "WebSite","name":"addsoupbase","url":"https://addsoupbase.github.io/","description":"Stuff that addsoupbase made. Check it out!","author":{"@type": "Person","name":"addsoupbase","sameAs":["https://twitter.com/addsoupbase"]},"mainEntityOfPage":{"@type":"WebPage","@id":"https://addsoupbase.github.io/"},"image":{"@type":"ImageObject","url":"https://addsoupbase.github.io/stuff-preview.png","width":683,"height":881}}</script>
+        type="application/ld+json">{"@context":"https://schema.org","@type": "WebSite","name":"addsoupbase","url":"https://addsoupbase.github.io/","description":"View every user currently in a bubble,"author":{"@type": "Person","name":"addsoupbase","sameAs":["https://twitter.com/addsoupbase"]},"mainEntityOfPage":{"@type":"WebPage","@id":"https://addsoupbase.github.io/"},"image":{"@type":"ImageObject","url":"https://addsoupbase.github.io/stuff-preview.png","width":683,"height":881}}</script>
     <link rel="apple-touch-icon" sizes="57x57" href="./apple-touch-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="60x60" href="./apple-touch-icon-60x60.png">
     <link rel="apple-touch-icon" sizes="72x72" href="./apple-touch-icon-72x72.png">
@@ -85,37 +85,98 @@
     <meta name="mobile-web-app-capable" content="no">
     <meta name="apple-mobile-web-app-capable" content="no">
     <!--^ yes if the site has stuff like back buttons-->
-    <meta name="apple-mobile-web-app-title" content="addsoupbase🍜 - Stuff I Made">
+    <meta name="apple-mobile-web-app-title" content="addsoupbase🍜 - Bubbles">
     <link rel="apple-touch-startup-image" href="favicon.ico">
-    <script src="css.js" blocking="render"></script><script src="css_bad.js" nomodule></script>
+    <script src="css.js" blocking="render"></script>
+    <script src="css_bad.js" nomodule></script>
     <link rel="stylesheet" href="styles.css">
-    <title>addsoupbase🍜 - Stuff I Made</title>
+    <title>addsoupbase🍜 - Bubbles</title>
+    <link rel="preload" as="fetch" crossorigin="anonymous" href="allava.json">
     <!--https://wiki.whatwg.org/wiki/MetaExtensions-->
     <!--[if IE]><script>alert('Please update your browser')</script><![endif]-->
+    <style>
+        #holder:empty::after {
+            content: "Loading..."
+        }
+
+        #holder {
+            scrollbar-width: thin;
+            width: 70vw;
+            height: 62vh;
+            --user-select: none;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+        #holder::-webkit-scrollbar {
+            display: block;
+        }
+        img {
+            width: 60px;
+            height: 60px;
+            image-rendering: auto;
+            border-radius: 100%;
+            margin:5px;
+            transition: transform 100ms ease-in;
+        }
+        img:hover{
+            transform:scale(1.1,1.1)
+        }
+
+        figcaption {
+            overflow-wrap: anywhere;
+            word-break: break-all;
+        }
+
+        figure {
+            width: 70px;
+            height: 70px;
+            display: inline;
+            place-content: center;
+            place-items: center;
+            place-self: center;
+        }
+    </style>
 </head>
 
 <body class="cute-green" id="main">
     <!-- <script src="fallback.js"></script> -->
-        <main class="center " style="opacity: 0.95;margin: 0;width:100%">
-            <section style="    margin-top: 59px;">
-                <h1>Random stuff I made</h1>
-                <h3>Some of it might be broken</h3>
-                <div id="newStuff" class="lholder" style="display:inline-grid;word-break:break-word;">
-                    <a class="tiny" href="https://marbles.deno.dev/?level=circus" target="_blank">Marbles</a>
-                    <a class="tiny" href="./cute-emojis" target="_blank">cute-emojis</a>
-                    <a class="tiny" href="./textshortener" target="_blank">Text Shortener Tool</a>
-                </div>
-                <h2>Old stuff</h2>
-                <div id="oldStuff" class="lholder" style="display:inline-grid;word-break:break-word;">
-                    <a class="tiny" target="_blank" href="./intro">Old Intro</a>
-                    <a class="tiny" href="./whatever" target="_blank">Whatever</a>
-                    <a class="tiny" href="./twehg" target="_blank">T.W.E.H.G.</a>
-                    <a class="tiny" href="./randomstuff/magnificent-cream-beginner/" target="_blank">Speed
-                        Comparison</a>
-                </div>
-            </section>
-            <a  role="button" class="cute-green-button back" href="main.html" rel="prev" aria-keyshortcuts="Alt+Shift+B">Back</a>
-        </main>
+    <main class="center " style="opacity: 0.95;margin: 0;width:100%">
+        <section style="margin-top: 59px;">
+            <h1>Thank you for everything guys 🥹</h1>
+            <output id="output"></output>
+            <div id="holder" class="centerx"  aria-busy="true"></div>
+        </section>
+        <a role="button" class="cute-green-button back" href="main.html" rel="prev"
+            aria-keyshortcuts="Alt+Shift+B">Back</a>
+    </main>
+    <script>
+        !function (div, xhr, output) {
+            'use strict'
+            xhr.open('GET', 'allava.json')
+            xhr.responseType = 'json'
+            xhr.onload = function (e) {
+                div.setAttribute('aria-busy','false')
+                var all = typeof xhr.response === 'string' ? (typeof JSON === 'object' ? JSON.parse : eval)(xhr.responseText) : xhr.response
+                output.textContent = 'Count: '+all.length
+                for (var i = all.length; i--;) {
+                    var src = all[i]
+                    // var figure = document.createElement('figure')
+                    // var figcaption = document.createElement('figcaption')
+                    var name = src.split('.webp')[0]
+                    // figcaption.textContent = name
+                    var img = new Image
+                    img.decoding = 'sync'
+                    img.loading = 'eager'
+                    img.src = './media/avatars/' + src
+                    img.alt = img.title = name
+                    // figure.appendChild(img)
+                    // figure.appendChild(figcaption)
+                    div.appendChild(img)
+                }
+            }
+            xhr.send()
+        }(document.getElementById('holder'), new XMLHttpRequest, document.getElementById('output'))
+    </script>
 </body>
 
 </html>

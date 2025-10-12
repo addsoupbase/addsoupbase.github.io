@@ -12,19 +12,20 @@ export const birthday =
 const width = Symbol.for('width'),
     name = Symbol.for('name')
 let avatars, mons
+    let st ={events: 'load error'.split(' ')}
 export let time = new Promise(async (resolve) => {
     avatars = (await Promise.allSettled((await jason('./allava.json')).map(
         async function (o) {
             let n = new Image
             n.src = `./media/avatars/${o}`
-            await Promise.all([until(n, 'load', 'error'), n.decode()])
+            await Promise.all([until(n,st), n.decode()])
             return n
         }
     ))).filter(o => o.status === 'fulfilled').map(o => o.value)
     console.debug("🪪 Avatars loaded")
     if (birthday) {
         console.log('%cOMG ITS MY BIRTHDAY YAYYY 🎂🎂', 'font-size:2em;')
-        if (!bubble.complete) await Promise.all([until(bubble, 'load'), bubble.decode()])
+        if (!bubble.complete) await Promise.all([until(bubble, {events:'load'}), bubble.decode()])
         let { width: w, height: h } = bubble
         let ctx = Object.assign(new OffscreenCanvas(w, h).getContext('2d'), {
             imageSmoothingEnabled: 'true',
@@ -98,7 +99,7 @@ export let time = new Promise(async (resolve) => {
                 [width]: +Width,
                 [name]: src
             })
-            await Promise.all([until(img, 'load', 'error'), img.decode()])
+            await Promise.all([until(img, st), img.decode()])
             return img
         })))
             .filter(o => o.status === 'fulfilled')

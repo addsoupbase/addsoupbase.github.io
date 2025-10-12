@@ -86,17 +86,19 @@ class Joystick extends HTMLElement {
 
     constructor() {
         super()
+        this.setAttribute('role', [this.getAttribute('role') || '','application'].filter(Boolean).join(' '))
         let t = $(this)
         for (let i in Joystick.#events) this[`on${i}`] = Joystick.#events[i]
         t.on({$contextmenu:no})
         let shadow = t.attachShadow({ mode: 'closed' })
         shadow.appendChild($('style', {
-            textContent: `
+            textContent: `        
                 div {
                 ${css.toCSS({
                 width: '50px',
                 'border-radius': '100%',
                 height: '50px',
+                cursor:'move',
                 'touch-action': 'none',
                 'background-color': '#000',
                 '--user-select': 'none',

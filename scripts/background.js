@@ -2,8 +2,8 @@ import'../css.js'
 const { registerCSS, registerCSSAll } = window[Symbol.for("[[CSSModule]]")]
 let regex = /[\w.\-%汝起亚]+\.(?:webp|a?png|gif|jpe?g)/
 let all = document.getElementsByTagName('*')
-function isHidden() {
-    return violations >= 10 || all.length > 135 || hidden || !!document.fullscreenElement || document.hidden || document.visibilityState === 'hidden'
+function isHidden() {//violations >= 10 || 
+    return all.length > 135 || hidden || !!document.fullscreenElement || document.hidden || document.visibilityState === 'hidden'
 }
 async function images({ time, colorful, birthday }) {
     let pop = new Audio('media/pop.mp3')
@@ -40,7 +40,7 @@ async function images({ time, colorful, birthday }) {
         new AbortController
     ).debounce({
         '^pointermove'({ x, y }) {
-            violations < 10 && holding && makeBubble(`${x}px`, `${y}px`).fadeIn(300)
+             holding && makeBubble(`${x}px`, `${y}px`).fadeIn(300)
         }
     }, 60)
         .on({
@@ -339,15 +339,15 @@ let POP = window.POP = function () {
     }
 }
 //document.body.scrollLeft = innerHeight/2
-frame.on({
-    _load() {
-        (window.requestIdleCallback || window.queueMicrotask || setTimeout)(deadline => {
+// frame.on({
+    // _load() {
+        scheduler.postTask(() => {
             import('./images.js').then(images)
             console.debug("🐟 Loading the bg now...")
-            deadline ? console.debug(`Did timeout: `, deadline?.didTimeout) : console.debug('requestIdleCallback unsupported :(')
-        }, { timeout: 3000 })
-    }
-}, false, new AbortController)
+            // deadline ? console.debug(`Did timeout: `, deadline?.didTimeout) : console.debug('requestIdleCallback unsupported :(')
+        }, { priority:'background'})
+    // }
+// }, new AbortController)
 const parent = $('div #background .BG', {
     parent: document.body,
     attr: {
@@ -355,7 +355,7 @@ const parent = $('div #background .BG', {
         role: 'img'
     }
 })
-let violations = 0
+// let violations = 0
 /*h.on(window, {
     'long-task': downgrade,
     // 'long-animation-frame':downgrade

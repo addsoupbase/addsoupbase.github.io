@@ -2,8 +2,6 @@
 // ^ idk what that actually does
 !function () {
     'use strict'
-
-    ''.includes || (String.prototype.includes = function (a, b) { return !!~this.indexOf(a, b) })
     function h(globalThis, Reflect) {
         /*var WeakSet = globalThis.WeakSet || function () {
             var a = new WeakMap
@@ -15,17 +13,18 @@
         }*/
         typeof Symbol === 'function' || function () {
             function a(b) { return String(Math.random() + String(b) + performance.now() + String(Date.now())) }
-            a.for = function (o) { return '[]!@@@#*&$(@)' + o + 'U*(#R&HG&OHfih98geprji;)' }
+            a.for = ''.concat.bind('@@')
             globalThis.Symbol = a
         }()
         //// var queueMicrotask = globalThis.queueMicrotask || globalThis.setImmediate || setTimeout
         var MODULE = Symbol.for("[[HModule]]")
         if (globalThis[MODULE]) return globalThis[MODULE]
-        var $ = {}
-        var sym = Symbol.for("[[Events]]"),
+        ''.includes || (String.prototype.includes = function (a, b) { return !!~this.indexOf(a, b) })
+        var $ = {},
+            sym = Symbol.for("[[Events]]"),
             //  Don't collide, and make sure its usable across realms!!
             apply = Reflect.apply,
-            gpo = Reflect.getPrototypeOf,
+            // gpo = Reflect.getPrototypeOf,
             // gopd = Reflect.getOwnPropertyDescriptor,
             dp = Reflect.defineProperty,
             ownKeys = Reflect.ownKeys
@@ -52,9 +51,9 @@
         //// logger[i+"Late"] = LogOutOfGroup.bind(old)
         //// }
         //// }()
-        var source = Function.toString.call.bind(Function.prototype.toString)
-            //// , warn=logger.warn, groupCollapsed=logger.groupCollapsed, groupEnd= logger.groupEnd
-            , isArray = Array.isArray
+        ////var source = Function.toString.call.bind(Function.prototype.toString)
+        //// , warn=logger.warn, groupCollapsed=logger.groupCollapsed, groupEnd= logger.groupEnd
+        var isArray = Array.isArray
             , allEvents = $.allEvents = new WeakMap
         //{
         //var { addEventListener, removeEventListener, dispatchEvent } = globalThis.EventTarget?.prototype ?? AbortSignal.prototype
@@ -100,32 +99,32 @@
             // bool && verified.add(target)
             return 'addEventListener' in target && 'removeEventListener' in target && 'dispatchEvent' in target
         }
-
-        function lastResort(target) {
+        /*function lastResort(target) {
             /*   var a = `${addEventListener}`,
                    d = `${dispatchEvent}`,
                    r = `${removeEventListener}`*/
-            try {
-                while (target = gpo(target)) {
-                    // var ael = gopd(target, 'addEventListener')?.value,
-                    //     rel = gopd(target, 'removeEventListener')?.value,
-                    //     de = gopd(target, 'dispatchEvent')?.value,
-                    //     label = gopd(target, Symbol.toStringTag)?.value
-                    if (label === 'EventTarget'
-                        // && target.constructor.name === 'EventTarget'
-                        // && typeof ael === 'function'
-                        // && typeof rel === 'function'
-                        // && typeof de === 'function'
-                        && source(ael) === a
-                        && source(de) === d
-                        && source(rel) === r)
-                        return true
-                }
-                return false
-            } catch (e) {
-                return false
-            }
-        }
+        /*
+ try {
+     while (target = gpo(target)) {
+         // var ael = gopd(target, 'addEventListener')?.value,
+         //     rel = gopd(target, 'removeEventListener')?.value,
+         //     de = gopd(target, 'dispatchEvent')?.value,
+         //     label = gopd(target, Symbol.toStringTag)?.value
+         if (label === 'EventTarget'
+             // && target.constructor.name === 'EventTarget'
+             // && typeof ael === 'function'
+             // && typeof rel === 'function'
+             // && typeof de === 'function'
+             && source(ael) === a
+             && source(de) === d
+             && source(rel) === r)
+             return true
+     }
+     return false
+ } catch (e) {
+     return false
+ }
+}*/
         function getLabel(obj) {
             return {}.toString.call(obj).slice(8, -1).trim() || 'Object'
         }
@@ -155,12 +154,13 @@
         }
         $.emptyFileInput = emptyFileInput
         $.requestFile = $.reqFile = requestFile
-        var isAnimation = / /.test.bind(/^(animation(?:cancel|remove))$/),
-            isFocus = / /.test.bind(/^(?:focus(?:in|out))$/),
-            isDOMThing = / /.test.bind(/^(?:DOM(?:Activate|MouseScroll|Focus(?:In|Out)|(?:Attr|CharacterData|Subtree)Modified|NodeInserted(?:IntoDocument)?|NodeRemoved(?:FromDocument)?))$/),
-            isMediaQuery = / /.test.bind(/^(?:\(.+\))$/)
+        var test = Set.bind.bind(/ /.test),
+            isAnimation = test(/^(animation(?:cancel|remove))$/),
+            isFocus = test(/^(?:focus(?:in|out))$/),
+            isDOMThing = test(/^(?:DOM(?:Activate|MouseScroll|Focus(?:In|Out)|(?:Attr|CharacterData|Subtree)Modified|NodeInserted(?:IntoDocument)?|NodeRemoved(?:FromDocument)?))$/),
+            isMediaQuery = test(/^(?:\(.+\))$/)
         // var reqFile = requestFile
-        var isTouch = / /.test.bind(/^(?:touch(?:cancel|end|move|start|forcechange))$/)
+        var isTouch = test(/^(?:touch(?:cancel|end|move|start|forcechange))$/)
         // var MSEventSyntax = /((?:(?<a>g)ot|(?<a>l)ost)(?<b>p)ointer(?<c>c)apture)|(?<a>p)ointer(?:(?<b>d)own|(?<b>c)ancel|(?<b>u)p|(?<b>e)nter|(?<b>l)eave|(?<b>m)ove|(?<b>o)(?:ut|ver))/
         function getIEPointerEvent(name) {
             var n = name.split('pointer')
@@ -316,9 +316,9 @@
         }
         var SUPPORTS_OPTIONS_PARAM = function () {
             var out = false
-                , obj = {get capture(){out=true}}
+                , obj = { get capture() { out = true } }
                 // that's genius!
-                , args = ['',console.debug,obj]
+                , args = ['', console.debug, obj]
             addEventListener.apply(globalThis, args)
             removeEventListener.apply(globalThis, args)
             return out
@@ -357,9 +357,9 @@
                 events = Object.fromEntries(events)
             for (var i = names.length; i--;) {
                 var eventName = names[i],
-                    includes = ''.includes.bind(eventName)
-                var func = events[eventName]
-                var once = +includes(ONCE) && FLAG_ONCE,
+                    includes = ''.includes.bind(eventName),
+                    func = events[eventName],
+                    once = +includes(ONCE) && FLAG_ONCE,
                     prevents = +includes(PREVENT_DEFAULT) && FLAG_PREVENTS,
                     passive = +includes(PASSIVE) && FLAG_PASSIVE,
                     capture = +includes(CAPTURE) && FLAG_CAPTURE,
@@ -375,9 +375,9 @@
                         capture: !!capture,
                         //once
                         passive: !!passive,
-                    }
-                var flags = once | prevents | passive | capture | stopProp | stopImmediateProp | onlyTrusted | onlyCurrentTarget | autoabort | wantsUntrusted | onlyOriginalTarget | onlyExplicitOriginalTarget
-                var newTarget = target
+                    },
+                    flags = once | prevents | passive | capture | stopProp | stopImmediateProp | onlyTrusted | onlyCurrentTarget | autoabort | wantsUntrusted | onlyOriginalTarget | onlyExplicitOriginalTarget,
+                    newTarget = target
                 if (flags & FLAG_PASSIVE && flags & FLAG_PREVENTS) throw TypeError("Cannot call 'preventDefault' on a passive function")
                 eventName = verifyEventName(newTarget, eventName.replace(formatEventName, ''))
                 var b = supportOrientationChangeEvent(target, eventName, label)
@@ -385,10 +385,8 @@
                     newTarget = b.target
                     eventName = b.name
                 }
-                if (myEvents.has(eventName) && controller == null) {
-                    console.warn("🔕 Skipped duplicate '" + eventName + "' listener. Call on() again with the signal parameter to bypass this.")
-                    continue
-                }
+                if (myEvents.has(eventName) && controller == null) throw TypeError("Duplicate '" + eventName + "' listener not allowed if 'signal' parameter is absent")
+                    // console.warn
                 controller && (options.once = !!once, options.signal = controller.signal)
                 var type = getLabel(func)
                 if (type === 'GeneratorFunction') {
@@ -400,12 +398,9 @@
                     // the first 'yield' has no value, for some reason 
                     //    ;(func = iterator.next.bind(iterator))() 
                 }
-                var listener = EventWrapper.bind(newTarget,
-                    func, controller,
-                    controller && controller.abort.bind(controller, 'Automatic abort (#)'),
-                    flags)
+                var listener = EventWrapper.bind(newTarget, func, controller, controller && controller.abort.bind(controller, 'Automatic abort (#)'), flags)
                 if (autoabort && getLabel(controller) !== 'AbortController') throw TypeError("AbortController required if #autoabort flag is present")
-                newTarget.addEventListener(eventName, listener, SUPPORTS_OPTIONS_PARAM ? options : !!capture/*, typeof scrollMaxX === 'number' && wantsUntrusted*/)
+                newTarget.addEventListener(eventName, listener, SUPPORTS_OPTIONS_PARAM ? options : options.capture/*, typeof scrollMaxX === 'number' && wantsUntrusted*/)
                 // if (eventName === 'load' && /^(?:HTMLIFrameElement|Window)$/.test(getLabel(target)) && (target.contentWindow || target).document?.readyState === 'complete') {
                 // setTimeout(listener.bind(target, new Event('load')))
                 // logger.warnLate(`'${eventName}' event was fired before listener was added`, target)
@@ -433,13 +428,12 @@
             return target
         }
         $.on = on
-        var safari = $.safari = typeof webkitConvertPointFromPageToNode === 'function'
+        var safari = $.safari = typeof ongestureend !== 'undefined' || typeof onwebkitmouseforceup !== 'undefined'
             , firefox = $.firefox = typeof scrollMaxX === 'number'
             , ie = $.ie = typeof msAnimationStartTime === 'number'
-            , chrome = $.chrome = typeof webkitRequestFileSystem === 'function'
+            , chrome = $.chrome = typeof globalThis.chrome === 'object'  // chromium based (opera, edge, brave)
         function compatOn(variants) {
-            var data
-            if (chrome) data = variants.chrome
+            if (chrome) var data = variants.chrome
             else if (firefox) data = variants.firefox
             else if (safari) data = variants.safari
             else if (ie) data = variants.ie
@@ -451,20 +445,20 @@
                 return p in t || p in Object(t.detail)
             },
             set: function (t, p, v) {
-                return Reflect.set(p in t ? t : t.detail, p, v, t)
+                return Reflect.set(p in t ? t : t.detail, p, v)
             },
             get: function (t, p) {
                 if (p in t) return t[p]
                 var detail = t.detail
                 if (p in Object(detail)) {
-                    var out = Reflect.get(detail, p, t)
+                    var out = Reflect.get(detail, p)
                     return typeof out === 'function' ? out.bind(detail) : out
                 }
             }
         }
         function EventWrapper(f, s, abrt, flags) {
-            var args = [].slice.call(arguments, 4)
-            var t = flags & FLAG_ONLY_TRUSTED,
+            var args = [].slice.call(arguments, 4),
+                t = flags & FLAG_ONLY_TRUSTED,
                 oct = flags & FLAG_ONLY_CURRENT_TARGET,
                 p = flags & FLAG_PREVENTS,
                 sp = flags & FLAG_STOP_PROP,
@@ -472,8 +466,8 @@
                 aa = flags & FLAG_AUTO_ABORT,
                 once = flags & FLAG_ONCE,
                 originalTarget = flags & FLAG_ONLY_ORIGINAL_TARGET,
-                explicitOriginalTarget = flags & FLAG_ONLY_EXPLICIT_ORIGINAL_TARGET
-            var event = args[0],
+                explicitOriginalTarget = flags & FLAG_ONLY_EXPLICIT_ORIGINAL_TARGET,
+                event = args[0],
                 label = getLabel(event),
                 name = event.type,
                 currentTarget = event.currentTarget,
@@ -507,7 +501,7 @@
                 if (sp) event.cancelBubble = !event.stopPropagation()
                 sip && event.stopImmediatePropagation()
                 aa && abrt()
-                if (once || (result && result.hasOwnProperty('value') && result.hasOwnProperty('done') && result.done === true)) off(currentTarget, name)
+                if (once || (result && result.propertyIsEnumerable('value') && result.propertyIsEnumerable('done') && result.done === true)) off(currentTarget, name)
             }
         }
         function off(target
@@ -537,7 +531,7 @@
                     name = b.name
                 }
                 var capture = !!(settings.flags & FLAG_CAPTURE)
-                newTarget.removeEventListener(name, listener, SUPPORTS_OPTIONS_PARAM ? {capture: capture} : capture)
+                newTarget.removeEventListener(name, listener, SUPPORTS_OPTIONS_PARAM ? { capture: capture } : capture)
                 map.delete(name)
                 //// && logger.info("🔕 '"+name+"' event removed")
                 mySet.delete(name)
@@ -549,21 +543,53 @@
             //// }
         }
         $.off = off
-        function until(target, eventName, failureName, filter, timeout) {
-            if (typeof filter === 'number') {
-                timeout = filter
-                filter = null
+        function filterResult(event, filter) {
+            if (typeof filter !== 'function') return true
+            var hi = { __proto__: null }
+            hi[event.type] = event
+            debugger
+            return filter(hi)
+        }
+        function until(target, settings) {
+            if (typeof settings === 'object') {
+                var events = settings.events,
+                    failures = settings.failure,
+                    filter = settings.filter,
+                    timeout = settings.timeout
+            }
+            else {
+                events = settings
+                failures = arguments[2]
+                timeout = arguments[4]
+                if (typeof (filter = arguments[3]) === 'number') {
+                    timeout = filter
+                    filter = null
+                }
+                debugger
             }
             return new Promise(waitForEvent)
             function waitForEvent(resolve, reject) {
-                var id = timeout && setTimeout(function (err) {
-                    reject(err)
-                    controller.abort(RangeError("⏰ Promise for '" + eventName + "' expired after " + timeout + "ms"))
-                }, timeout)
-                    , controller = new AbortController
-                    , e = {}
+                var controller = new AbortController
+                if (timeout > 0) {
+                    if (AbortSignal.timeout) {
+                        var n = AbortSignal.timeout(timeout)
+                        n.onabort = function () {
+                            var reason = n.reason
+                            reject(reason)
+                            controller.abort(reason)
+                        }
+                    }
+                    else {
+                        var id = setTimeout(function () {
+                            var err = RangeError("⏰ Promise for '" + events + "' expired after " + timeout + "ms")
+                            reject(err)
+                            controller.abort(err)
+                        }, timeout)
+                    }
+                }
+                var e = {}
                 function onsuccess(event, abort) {
-                    if (!filter || (typeof filter === 'function' && filter(event, null))) try {
+                    if (filterResult(event, filter)) try {
                         resolve(event)
                     } catch (e) {
                         reject(e)
@@ -572,19 +598,23 @@
                         abort()
                     }
                 }
-                e[eventName] = onsuccess
-                if (failureName)
-                    e[failureName] = function (e, abort) {
-                        if (!filter || (typeof filter === 'function' && filter(null, e)))
-                            try {
-                                reject(e)
-                            } catch (e) {
-                                reportError(e)
-                            } finally {
-                                timeout && clearTimeout(id)
-                                abort()
-                            }
-                    }
+                if (typeof events === 'string') events = events.split(' ')
+                for (var i = events.length; i--;) e[events[i]] = onsuccess
+                if (failures) {
+                    if (typeof failures === 'string') failures = failures.split(' ')
+                    for (var i = failures.length; i--;) e[failures[i]] = onfail
+                }
+                function onfail(event, abort) {
+                    if (filterResult(event, filter))
+                        try {
+                            reject(event)
+                        } catch (e) {
+                            reportError(e)
+                        } finally {
+                            timeout && clearTimeout(id)
+                            abort()
+                        }
+                }
                 on(target, e, controller)
             }
         }
