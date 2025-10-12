@@ -222,5 +222,6 @@ form.on({
     }
 },  controller)
 fetch('https://misha-mail-85.deno.dev', {
+    method: 'head',
     mode: 'cors'
 }).then(disableForm,disableForm)

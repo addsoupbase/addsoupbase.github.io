@@ -1,16 +1,4 @@
 (function (w, sym) {
-    /*if (!(Symbol.for('CSS') in window)) {
-        Object.defineProperty(window, Symbol.for('CSS'), {
-            get() {
-                debugger
-            },
-            set() {
-                debugger
-            }
-        })
-    }*/
-     // document.readyState === 'loading' && !inModule && document.write('<pre aria-hidden="true" style="transform:scale(0);position:absolute">.</pre>')
-    // ('<!--[if IE]><link rel="stylesheet" href="' + location.origin + '/ie.css><![endif]-->')
     return cssSetup(sessionStorage, !this)
     function cssSetup(S, inModule) {
         'use strict'
@@ -46,6 +34,7 @@
             return (gn = S.getItem.bind(S, ''))() || ''
         }
         function gn() {
+            // performance.mark('css-cache-start')
             try {
                 if (typeof scrollMaxX !== 'number') {
                     // sessionStorage seems to be faster on FireFox 
@@ -58,6 +47,7 @@
                 e && reportError(e)
                 return ftss()
             }
+            // finally { performance.mark('css-cache-end') }
         }
         w.CSS || (w.CSS = function () { var s = document.createElement('style'), computed = getComputedStyle(s); gwn().appendChild(s); return { supports: window.supportsCSS || supports }; function supports(propOrSelector, value) { var isSelector = propOrSelector.slice(0, 8) === 'selector'; if (isSelector && value == null) { s.textContent = propOrSelector.slice(9, -1) + '{width:auto;}'; return (s.sheet.cssRules || s.sheet.rules).length === 1 } return propOrSelector in computed } }())
         var Reflect = w.Reflect || { set: function (t, p, v) { t[p] = v }, get: function (t, p) { return t[p] } }
@@ -135,8 +125,8 @@
             return formatClass(formatElement(s))
         }
         // var imp  = /!\s*important\s*$/
-        function b(p,v) {
-            return '('+p+': '+v+')'
+        function b(p, v) {
+            return '(' + p + ': ' + v + ')'
         }
         function vendor(p, v) {
             if (p.startsWith('--'))
@@ -190,7 +180,7 @@
                     sup(b(a = '-epub-' + p, v)) ||
                     // IDK
                     // sup(prefix = `-internal-${prop}`, val) ||
-                    badCSS("Unrecognized CSS at '" + b(a = p, v).slice(1,-1)+ "'", arguments[2]),
+                    badCSS("Unrecognized CSS at '" + b(a = p, v).slice(1, -1) + "'", arguments[2]),
                     dset(p, a),
                     // Sorry!
                     a)
@@ -283,10 +273,9 @@
                         // this branch is slower
                         return document.write('<style id="'+disambiguity+'" blocking="render">'+str+'</style>'), get()
                     }*/
-                    , out = ce('style'),
-                    l = out.setAttribute.bind(out)
-                l('id', disambiguity)
-                l('blocking', out.blocking = 'render')
+                    , out = ce('style')
+                out.setAttribute('id', disambiguity)
+                out.blocking = 'render'
                 out.textContent = str
                 addElement(out)
                 return out
@@ -331,6 +320,7 @@
         var fallback,
             uv = { 'box-sizing': 'border-box', 'overflow-wrap': 'var(--word-wrap)', 'scrollbar-color': 'var(--scrollbar-thumb-color) var(--scrollbar-color)' }
         // , all = [
+        // performance.mark('css-property-start')
         g("user-select", "auto", true, '*') // Most important one
             ("user-modify", "auto", false, '*')
             ("zoom", "auto", false, '*')
@@ -424,8 +414,10 @@
             ('buffered-rendering', 'auto', false, '*')
             ('color-rendering', 'auto', false, '*')
             ('word-wrap', 'normal', false, '*')
+        // performance.mark('css-property-end')
         // ],
         var dflt = name || entries(function () {
+            // performance.mark('css-default-start')
             var align = sup.bind(1, 'text-align')
                 , o = {
                     ':root': {
@@ -452,14 +444,17 @@
             o[W(':disabled,[aria-disabled=true]')] = { cursor: 'not-allowed' }
             o[W('.centerx,.center')] = { 'justify-self': 'center', margin: 'auto', 'text-align': 'center' }
             o[W('.centery,.center')] = { 'align-self': 'center', inset: 0, position: 'fixed' }
+            // performance.mark('css-default-end')
             return o
         }()).map(function (a) { return a[0] + q(toCSS(a[1])) })
             , first = gtc(), str
         try {
+            // performance.mark('css-other-start')
             func({ name: '--scrollbar-thumb-color', initialValue: 'auto', inherits: true })
             func({ name: '--scrollbar-color', initialValue: 'auto', inherits: true })
         }
         catch (e) { reportError(e) }
+        // finally { performance.mark('css-other-end') }
         stc(name || (sn(str = first + selector + q(toCSS(uv, true)) + dflt.join('')), str))
         var css = constructor.prototype[sym] = Object.freeze({
             getDefaultStyleSheet: getDefaultStyleSheet,
@@ -484,6 +479,7 @@
             formatSelector: formatSelector,
             fromCSS: fromCSS
         })
+        // console.debug(performance.measure('css-cache','css-cache-start', 'css-cache-end').toJSON(), performance.measure('css-property', 'css-property-start', 'css-property-end').toJSON())
         return css
     }
 }.call(null, window, (typeof Symbol === 'function' ? Symbol.for : String)('[[CSSModule]]')))
