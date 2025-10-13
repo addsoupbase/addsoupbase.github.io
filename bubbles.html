@@ -165,8 +165,8 @@
                     var name = src.split('.webp')[0]
                     // figcaption.textContent = name
                     var img = new Image
-                    img.decoding = 'sync'
-                    img.loading = 'eager'
+                    img.decoding = 'async'
+                    img.loading = 'lazy'
                     img.src = './media/avatars/' + src
                     img.alt = img.title = name
                     // figure.appendChild(img)

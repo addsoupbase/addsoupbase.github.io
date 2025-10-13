@@ -1,5 +1,3 @@
-//# allFunctionsCalledOnLoad
-// ^ idk what that actually does
 !function () {
     'use strict'
     function h(globalThis, Reflect) {
@@ -431,9 +429,9 @@
         var safari = $.safari = typeof ongestureend !== 'undefined' || typeof onwebkitmouseforceup !== 'undefined'
             , firefox = $.firefox = typeof scrollMaxX === 'number'
             , ie = $.ie = typeof msAnimationStartTime === 'number'
-            , chrome = $.chrome = typeof globalThis.chrome === 'object'  // chromium based (opera, edge, brave)
+            , _chrome = $.chrome = typeof chrome === 'object'  // chromium based (opera, edge, brave)
         function compatOn(variants) {
-            if (chrome) var data = variants.chrome
+            if (_chrome) var data = variants.chrome
             else if (firefox) data = variants.firefox
             else if (safari) data = variants.safari
             else if (ie) data = variants.ie
@@ -445,13 +443,13 @@
                 return p in t || p in Object(t.detail)
             },
             set: function (t, p, v) {
-                return Reflect.set(p in t ? t : t.detail, p, v)
+                return (p in t ? t : t.detail)[p] = v, true
             },
             get: function (t, p) {
                 if (p in t) return t[p]
                 var detail = t.detail
                 if (p in Object(detail)) {
-                    var out = Reflect.get(detail, p)
+                    var out = detail[p]
                     return typeof out === 'function' ? out.bind(detail) : out
                 }
             }
@@ -471,8 +469,7 @@
                 label = getLabel(event),
                 name = event.type,
                 currentTarget = event.currentTarget,
-                detail = event.detail,
-                push = args.push.bind(args)
+                detail = event.detail
             switch (label) {
                 case 'CustomEvent':
                     event = args[0] = new Proxy(event, customEventHandler)
@@ -489,8 +486,8 @@
                     }
                     break
             }
-            s && push(abrt)
-            push(off.bind(null, this, name))
+            s && args.push(abrt)
+            args.push(off.bind(null, this, name))
             if (t && event.isTrusted || !t && (!originalTarget || !('originalTarget' in event) || event.originalTarget === currentTarget) && (!explicitOriginalTarget || !('explicitOriginalTarget' in event) || event.explicitOriginalTarget === currentTarget) && (!oct || (event.target || event.srcElement) === currentTarget)) {
                 var result = apply(f, this, args)
                 if (p)

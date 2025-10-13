@@ -554,8 +554,8 @@ width: 100vw;
   @supports (-webkit-touch-callout: inherit) {
     #frame {
       /* Safari is weird */
-      width: 100vw;
-      top:-40px
+      width: 97vw;
+      /* top:0px */
     }
     #diary {
       height: 60vh

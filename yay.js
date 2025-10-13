@@ -630,13 +630,14 @@ return eval(arguments[0])}.call(this[1],this[2])}`)).call([base(this).ownerDocum
         },
         fadeIn(duration) {
             duration ||= defaultDura
-            this.show(3)
-            return this.animate([nopacity, onepacity], {
+            let a = this.animate([nopacity, onepacity], {
                 duration,
                 easing: 'ease',
                 iterations: 1,
                 // composite: 'replace',
             }).finished.then(removeInert.bind(this))
+            this.show(3)
+            return a
         },
         fadeFromTo(from, to, settings) {
             let duration = (settings ??= {}).duration || defaultDura,
@@ -1815,3 +1816,10 @@ h.on(window, {
         }
     }
 }, new AbortController)
+/*function call(func, proxy, args = []) {
+    if (typeof func !== 'function') func()
+    return Function(`
+        this.arguments = arguments
+        with(this.proxy)return(()=>{'use strict';return ${func}.apply(this.this, this.arguments)})()
+        `).apply({ proxy, this:this }, args)
+}*/
