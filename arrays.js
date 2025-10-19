@@ -1,5 +1,5 @@
-let {isArray} = Array,
-{iterator,toPrimitive} = Symbol
+let { isArray } = Array,
+    { iterator, toPrimitive } = Symbol
 /*export function assemble(arrayLike, ...sequence) {
     const out = []
         , push = [].push.bind(out),
@@ -32,8 +32,8 @@ export function parse(str) {
     let n = prse(str)
     return Object(n) === n ? deep(uproot(n)) : n
 }
-function uproot(n){
-    return isArray(n) ? n : {__proto__: proto, ...n}
+function uproot(n) {
+    return isArray(n) ? n : { __proto__: proto, ...n }
 }
 function deep(obj) {
     for (let i in obj = uproot(obj)) {
@@ -42,10 +42,10 @@ function deep(obj) {
     }
     return obj
 }
-const {call,apply} = Function.prototype
+const { call, apply } = Function.prototype
 export function forKeys(obj, callback) {
     let keys = Reflect.ownKeys(obj),
-    cal = call.bind(callback, obj)
+        cal = call.bind(callback, obj)
     for (let { length: i } = keys; i--;) cal(keys[i])
 }
 export function fresh(obj) {
@@ -53,18 +53,18 @@ export function fresh(obj) {
 }
 let fr = Array.from
 export function of(length, filler) {
-    length>>>=0
+    length >>>= 0
     return typeof filler === 'function' ?
         fr({ length }, filler) :
         Array(length).fill(filler)
 }
 const map = call.bind([].map),
-slice = call.bind([].slice)
+    slice = call.bind([].slice)
 export function from(ArrayLike, mapfn, thisArg) {
     // Array.from checks @@iterator first, which would be slower in cases where it is callable
-    return ArrayLike.length >= 0 ? mapfn ? 
-    map(ArrayLike, mapfn, thisArg) // this bit doesn't map if there are holes
-    : slice(ArrayLike) : mapfn ? fr(ArrayLike, mapfn, thisArg) : typeof ArrayLike[iterator] !== 'undefined' ? [...ArrayLike] : []
+    return ArrayLike.length >= 0 ? mapfn ?
+        map(ArrayLike, mapfn, thisArg) // this bit doesn't map if there are holes
+        : slice(ArrayLike) : mapfn ? fr(ArrayLike, mapfn, thisArg) : typeof ArrayLike[iterator] !== 'undefined' ? [...ArrayLike] : []
 }
 
 /*export function forEach(ArrayLike, callback, thisArg) {
@@ -168,7 +168,7 @@ async function fallback(src) {
     if (/^(?:application|text)\/json/.test(type) || /^(?:application\/(?:ld|vnd\.api)\+json)/.test(type)) return await n.json()
     throw TypeError(`Failed to load module script: Expected a JSON module script but the server responded with a MIME type of "${type}". Strict MIME type checking is enforced for module scripts per HTML spec.`)
 }
-export let getJson  
+export let getJson
 function TestImportSupport() {
     // Some browsers (old) throw with the 'options' parameter
     // Firefox works now thankfully, but opera needs to catch up
@@ -176,19 +176,19 @@ function TestImportSupport() {
     getJson = Function
         // Some other browsers, prefer 'assert' over 'with'
         ('n,o,j,d,s', '"use strict";return(import(j(s,o),n).then(d))')
-        .bind(void'', { assert: s, with: s }, location, resolve, def)
-        function def(o) {
-            return deep(o.default)
-        }
+        .bind(void '', { assert: s, with: s }, location, resolve, def)
+    function def(o) {
+        return deep(o.default)
+    }
 }
 function resolve(url, base) {
-     return new URL(url, globalThis.document?.baseURI ?? base)
+    return new URL(url, globalThis.document?.baseURI ?? base)
 }
 function FallbackImport() {
     getJson = fallback
 }
 
- try {
+try {
     TestImportSupport()
 } catch (e) {
     console.error(e)

@@ -108,7 +108,7 @@
             var matches = selector.match(pseudo)
             if (matches) for (var i = 0, l = matches.length; i < l; ++i) {
                 var match = matches[i]
-                selector =selector.replace(match, vendorSelector(match, d))
+                selector = selector.replace(match, vendorSelector(match, d))
             }
             return selector
         }
@@ -244,15 +244,41 @@
             stc(gtc() + str + q(toCSS(rule, silent)))
             return sheet
         }
-        function registerCSSRaw(rules) {
+        function registerCSSRaw(rules, newStyleSheet) {
+            if (newStyleSheet) {
+                var n = document.createElement('style')
+                n.blocking='render'
+                n.textContent = rules
+                addElement(n)
+                return n.sheet
+            }
             stc(gtc() + rules)
             return sheet
+
         }
+        window.importCSSSync =
+            function importCSSSync(src) {
+                // make sure to use blocking=render probably
+                if (src.startsWith('data:text')) {
+                    var split = src.split(',')[1]
+                    text = split[1]
+                    if (split[0].includes('base64,')) text = atob(text)
+                    debugger
+                }
+                else {
+                    var xhr = new XMLHttpRequest
+                    xhr.open('GET', src, false)
+                    // xhr.responseType = 'text'
+                    xhr.send()
+                    var text = xhr.responseText
+                }
+                registerCSSRaw(text, true)
+            }
         function importCSS(url) {
             var n = document.createElement('link')
-            n.rel= 'stylesheet'
-            n.fetchpriority='high'
-            n.href= url
+            n.rel = 'stylesheet'
+            n.fetchpriority = 'high'
+            n.href = url
             addElement(n)
             return n
         }

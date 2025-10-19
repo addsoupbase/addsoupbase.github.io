@@ -9,7 +9,7 @@ function sum(arr) {
     return arr.reduce(reduce, -0)
 }
 sum = Math.sumPrecise ?? sum
-const of = Reflect.apply.bind(1,Float64Array.of,Float64Array)
+const of = Reflect.apply.bind(1, Float64Array.of, Float64Array)
 export function add(...n) {
     return sum(of(n))
 }
@@ -53,7 +53,7 @@ class Cycle {
     }
     *[Symbol.iterator]() {
         let a = this.length
-        while(a--)yield this.next
+        while (a--) yield this.next
     }
     [Symbol.toPrimitive]() {
         return this.#wheel[this.current]
@@ -64,7 +64,7 @@ class Cycle {
 }
 export function average(...numbers) {
     let { length } = numbers
-    return length ? sum(numbers) / length : 0/0 
+    return length ? sum(numbers) / length : 0 / 0
 }
 export function avg(...array) {
     const { length } = array
@@ -85,16 +85,16 @@ export function avg(...array) {
 export function median(...numbers) {
     let { length } = numbers
         , sorted = numbers.sort(sort),
-        middle = length / 2 | 0
-    return length % 2 ? sorted[middle] : add(sorted[middle], sorted[middle - 1]) / 2
+        middle = length >> 1
+    return length % 2 ? sorted[middle] : add(sorted[middle], sorted[middle - 1]) >> 1
 }
-function gt(a, b) { return max(a,b) }
-function lt(a, b) { return min(a,b) }
+function gt(a, b) { return max(a, b) }
+function lt(a, b) { return min(a, b) }
 export function mode(...numbers) {
     let obj = []
     for (let { length: i } = numbers; i--;) {
         let n = numbers[i]
-        obj[n] = add(obj[n] | 0, 1) 
+        obj[n] = add(obj[n] | 0, 1)
     }
     return obj.indexOf(obj.reduce(gt))
 }
@@ -109,7 +109,7 @@ export function closest(num, ...nums) {
     for (let { length: i } = nums; i--;) {
         let n = nums[i]
         let d = diff(num, n)
-        d < abs(distance)&& (distance = n)
+        d < abs(distance) && (distance = n)
     }
     return distance
 }
@@ -119,7 +119,7 @@ export function furthest(num, ...nums) {
     for (let { length: i } = nums; i--;) {
         let n = nums[i]
         let d = diff(num, n)
-         d > abs(distance)&& (distance = n)
+        d > abs(distance) && (distance = n)
     }
     return distance
 }
@@ -134,14 +134,14 @@ export function signed(n) {
 }
 export const cycleFrom = construct.bind(1, Cycle)
 export function lerp(start, end, time) {
-    return clamp(add(start, (end - start) * time||0), min(start, end), max(start, end))
+    return clamp(add(start, (end - start) * time || 0), min(start, end), max(start, end))
 }
 export function* derp(start, end, time) {
     while (start < end) {
         yield start = lerp(start, end, time)
-        if (abs(start - end) < 1e-2) 
-            return(yield end),  end
-    } 
+        if (abs(start - end) < 1e-2)
+            return (yield end), end
+    }
     return end
 }
 export function clamp(val, MIN, MAX) {
@@ -159,12 +159,13 @@ export function toRad(deg) {
 export function compare(first, ...rest) {
     return rest.every(is.bind(1, first))
 }
-export function compareStrict(first,...rest){
-    for(let i = rest.length; i--;) if (first !== rest[i]) return false
+export function compareStrict(first, ...rest) {
+    for (let i = rest.length; i--;) if (first !== rest[i]) return false
     return true
 }
-export function compareLoose(first,...rest){
-    for(let i = rest.length; i--;) if (first !== rest[i]) return false
+export const eq = compareStrict
+export function compareLoose(first, ...rest) {
+    for (let i = rest.length; i--;) if (first != rest[i]) return false
     return true
 }
 export const sanitize = isFinite
@@ -197,10 +198,10 @@ export class Vector2 extends Float32Array {
         return new Vector2(1, 0)
     }
     static dotProduct(first, second) {
-       let x1 = v.x(first),
-        y1 = v.y(first),
-        x2 = v.x(second),
-        y2 = v.y(second)
+        let x1 = v.x(first),
+            y1 = v.y(first),
+            x2 = v.x(second),
+            y2 = v.y(second)
         return add(x1 * x2, y1 * y2)
     }
     flip() {
@@ -211,7 +212,7 @@ export class Vector2 extends Float32Array {
     }
     toString(unit) {
         // unit mainly just 'px'
-        return`(${this[0]}${unit ??= ''}, ${this[1]}${unit})`
+        return `(${this[0]}${unit ??= ''}, ${this[1]}${unit})`
     }
     static _() {
         // Older browsers cant have static init blocks
@@ -223,18 +224,17 @@ export class Vector2 extends Float32Array {
             let { value: old } = p
             delete this.prototype[i]
             Object.defineProperty(this.prototype, i, {
-                value: makeItANumber
-            })
-            function makeItANumber(x, y) {
-                typeof x === 'string' && (x = +x)
-                typeof y === 'string' && (y = +y)
-                if (typeof x === 'number' && typeof y !== 'number') y = x
-                else if (typeof x !== 'number' || typeof y !== 'number') {
-                    y = x.y ?? x[1]
-                    x = x.x ?? x[0]
+                value(x, y) {
+                    typeof x === 'string' && (x = +x)
+                    typeof y === 'string' && (y = +y)
+                    if (typeof x === 'number' && typeof y !== 'number') y = x
+                    else if (typeof x !== 'number' || typeof y !== 'number') {
+                        y = x.y ?? x[1]
+                        x = x.x ?? x[0]
+                    }
+                    return old.call(this, x, y)
                 }
-                return old.call(this, x, y)
-            }
+            })
         }
         Object.defineProperties(this.prototype, {
             [Symbol.isConcatSpreadable]: { value: true },
@@ -250,12 +250,12 @@ export class Vector2 extends Float32Array {
         //, { 0: minX = MIN_SAFE_INTEGER, 1: minY = MIN_SAFE_INTEGER } = {},
         // { 0: maxX = MAX_SAFE_INTEGER, 1: maxY = MAX_SAFE_INTEGER } = {}
     ) {
-    /*    let _min = this.#min,
-        _max= this.#max
-        _min[0] = minX
-        _min[1] = minY
-        _max[0] = maxX
-        _max[1] = maxY*/
+        /*    let _min = this.#min,
+            _max= this.#max
+            _min[0] = minX
+            _min[1] = minY
+            _max[0] = maxX
+            _max[1] = maxY*/
         Reflect.preventExtensions(super(2).set(x, y))
     }
     // #min = new Float32Array(2)
@@ -280,7 +280,7 @@ export class Vector2 extends Float32Array {
         return this.scale(1 / (mult ?? 1))
     }
     get magnitude() {
-        return abs(add(this[0],this[1]))
+        return abs(add(this[0], this[1]))
     }
     get clone() {
         return new Vector2(this[0], this[1])
@@ -292,7 +292,7 @@ export class Vector2 extends Float32Array {
         return isFinite(this[0]) && isFinite(this[1])
     }
     get inverse() {
-        return new Vector2(this[0] ** -1, this[1] ** -1)
+        return new Vector2(1 / this[0], 1 / this[1])
     }
     get negated() {
         return new Vector2(-this[0], -this[1])
@@ -325,9 +325,9 @@ export class Vector2 extends Float32Array {
     }
     static angle(first, second) {
         let x1 = v.x(first),
-        y1 = v.y(first),
-        x2 = v.x(second),
-        y2 = v.y(second)
+            y1 = v.y(first),
+            x2 = v.x(second),
+            y2 = v.y(second)
         const firstAngle = atan2(y1, x1),
             secondAngle = atan2(y2, x2)
         // , angle = secondAngle - firstAngle
@@ -335,33 +335,33 @@ export class Vector2 extends Float32Array {
     }
     static difference(first, second) {
         let x1 = v.x(first),
-        y1 = v.y(first),
-        x2 = v.x(second),
-        y2 = v.y(second)
+            y1 = v.y(first),
+            x2 = v.x(second),
+            y2 = v.y(second)
         return new Vector2(diff(x1, x2), diff(y1, y2))
     }
     static distance(first, second) {
         let x1 = v.x(first),
-        y1 = v.y(first),
-        x2 = v.x(second),
-        y2 = v.y(second)
+            y1 = v.y(first),
+            x2 = v.x(second),
+            y2 = v.y(second)
         return hypot(x1 - x2, y1 - y2)
     }
     static equals(first, second) {
         let x1 = v.x(first),
-        y1 = v.y(first),
-        x2 = v.x(second),
-        y2 = v.y(second)
+            y1 = v.y(first),
+            x2 = v.x(second),
+            y2 = v.y(second)
         return x1 === x2 && y1 === y2
     }
     lerp(pos, time, delta) {
         let x = v.x(pos)
-        , y = v.y(pos)
+            , y = v.y(pos)
         return this.subtract(this.minus(x, y).scale((time ?? .1) * (delta ?? 1)))
     }
     moveTowards(towards, maxDistance, delta) {
         let x = v.x(towards),
-        y = v.y(towards)
+            y = v.y(towards)
         const target = new Vector2(x, y)
             , direction = target.minus(this)
             , { magnitude } = direction
@@ -401,7 +401,7 @@ export class Vector2 extends Float32Array {
         yield this[0]
         yield this[1]
     }*/
-    static[Symbol.hasInstance](obj) {return(typeof obj.x === 'number' || typeof obj[0] === 'number') && (typeof obj.y === 'number' || typeof obj[1] === 'number')}
+    static [Symbol.hasInstance](obj) { return (typeof obj.x === 'number' || typeof obj[0] === 'number') && (typeof obj.y === 'number' || typeof obj[1] === 'number') }
 }
 delete Vector2._
 const v = Object.defineProperties(vect, Object.getOwnPropertyDescriptors(Vector2))

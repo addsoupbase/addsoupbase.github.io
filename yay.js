@@ -109,7 +109,7 @@ function ariaOrData(i) {
     return char === '_' ? i.replace(char, 'aria-') : char === '$' ? i.replace(char, 'data-') : i
 }
 const attrStyleMap = 'StylePropertyMap' in window
-    , customRules = css.getDefaultStyleSheet()
+    // , customRules = css.getDefaultStyleSheet()
     , handlers = {
         // Other proxies
         batchThing: {
@@ -176,12 +176,12 @@ const attrStyleMap = 'StylePropertyMap' in window
             },
             get(target, prop) {
                 try {
-                    var out = prop.startsWith('--') ? target.get(prop) : target.get(css.dashVendor(prop, 'inherit'))
+                    let out = prop.startsWith('--') ? target.get(prop) : target.get(css.dashVendor(prop, 'inherit'))
+                    return out && new Proxy(Object.freeze(out), handlers.styles.proxy)
                 }
                 catch (e) {
                     reportError(e)
                 }
-                return out && new Proxy(Object.freeze(out), handlers.styles.proxy)
             },
             set(target, prop, value) {
                 try {
@@ -1692,6 +1692,15 @@ export default defineProperties($, {
      */
     byId: {
         value: new Proxy(document, documentProxy)
+    },
+    class: {
+        value: new Proxy(document, {
+            get(t, p) {
+                let d = document.getElementsByClassName(String(p))
+                if (d.length !== 1) debugger
+                return prox(d[0])
+            }
+        })
     },
     reads: {
         get() {

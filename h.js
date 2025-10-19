@@ -53,6 +53,7 @@
         //// , warn=logger.warn, groupCollapsed=logger.groupCollapsed, groupEnd= logger.groupEnd
         var isArray = Array.isArray
             , allEvents = $.allEvents = new WeakMap
+        //// globalThis.allEvents = allEvents
         //{
         //var { addEventListener, removeEventListener, dispatchEvent } = globalThis.EventTarget?.prototype ?? AbortSignal.prototype
         //if (source(addEventListener) !== source(Function.prototype).replace('function ', 'function addEventListener')
@@ -170,6 +171,10 @@
             var a = name.split('gesture')[1]
             return 'MSGesture' + a[0].toUpperCase() + a.slice(1)
         }
+        function pointerToMouse(e, target) {
+            if (e === 'cancel') e = 'out'
+            if ('on'+(e = 'mouse'+e) in target) return e
+        }
         // var vendors = /^(?:webkit|ms|moz)(?!$)/
         function verifyEventName(target, name) {
             var original = name
@@ -187,7 +192,9 @@
                 var v
                 if ((v = 'onwebkit' + name) in target || (v = 'onmoz' + name) in target || (v = 'onms' + name) in target) return v.slice(2) + original
                 if ((v = name.slice(0, 7)) === 'pointer') {
-                    if ((v = 'mouse' + v) in target) return v // Better than nothing
+                    var canB = pointerToMouse(name.slice(7), target)
+
+                    if (canB) return canB
                     if (ie) return getIEPointerEvent(name)
                 }
                 if (name === 'wheel') {

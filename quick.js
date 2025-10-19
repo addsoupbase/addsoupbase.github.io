@@ -438,6 +438,7 @@ export class HTMLElementWrapper {
     }
 }
 const {from} = Array
+export const elem = HTMLElementWrapper
 export function getElementsByTagName(tag) {
     if (!this) {
         if (tag === 'img') return from(document.images, getProxy)
