@@ -134,9 +134,6 @@ function a() {
     }, { once: true })
 }
 function modifyHTML(html) {
-    return `<!DOCTYPE html><script src="http://localhost:3000/timing.js"></script>
-    ${html}`
-    return `${html.replace('<head>', `<head>
-    <script>!function(){"use strict";var e=function(){removeEventListener("error",r),removeEventListener("load",e),e=r=null},r=function(r){if(/syntax/i.test("name"in r.error?r.error.name:r.error.message)){e(),"yeah"!==sessionStorage.getItem("err")&&prompt("You're using a *really* old browser, or I messed something up. Please share the message below with me: ",r.message+" @line "+r.lineno+" col "+r.colno+" file "+r.filename);var t=document.getElementById("template");sessionStorage.setItem("err","yeah"),t&&(document.body.innerHTML=t.content?t.content.firstElementChild.outerHTML:t.firstElementChild.outerHTML)}};addEventListener("load",e),addEventListener("error",r)}();</script>`)}`
+    return html
 }
 //     <script>"undefined"!=typeof console&&function(){"use strict";if(!RegExp("localhost|127\.0\.0\.1").test(location.host)){setInterval(console.clear,18e4);var t=RegExp("^(?:clear|count(?:Reset)?|createTask|profile(?:End)?|context|time(?:End|Stamp|Log)?)$");for(var e in console)"function"!=typeof console[e]||t.test(e)||(console[e]=function(t){return function(){try{t.apply(console,[].map.call(arguments,function(t){var e=t;return"function"==typeof t?e=t.toString():t&&"object"==typeof t&&(e="outerHTML"in t?t.outerHTML:t.toString!==({}).toString?t.toString():JSON.stringify(t)||t+""),"string"==typeof e&&e.length>500&&(e=e.slice(0,500)+"…"),e}))}catch(e){t("Object was not logged to prevent a potential memory leak")}}}(console[e]))}}()</script>
