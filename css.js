@@ -257,7 +257,6 @@
             return sheet
 
         }
-        window.importCSSSync =
             function importCSSSync(src) {
                 // make sure to use blocking=render probably
                 if (src.startsWith('data:text')) {
