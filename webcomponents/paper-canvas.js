@@ -82,7 +82,8 @@ class PaperCanvas extends HTMLElement {
     // [internals] = this.attachInternals()
     set alpha(val) {
         this.ctx = this.canvas.setAttr({ '-moz-opaque': !val }).getContext('2d', {
-            alpha: val, willReadFrequently: true
+            alpha: val, willReadFrequently: true,
+            desynchronized: true
         })
         this.undoBuffer.length = 0
     }

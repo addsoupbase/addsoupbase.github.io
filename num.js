@@ -303,6 +303,12 @@ export class Vector2 extends Float32Array {
     reset() {
         return this.set(0, 0)
     }
+    push(target, force, maxDistance = 1/0) {
+        let diff = vect(target).subtract(this)
+        let distance = Vector2.distance(this, target)
+        if (distance > maxDistance) return this
+        return this.add(diff.normalized.scale(force))
+    }
     /*clampX(min, max) {
         this.#min[0] = +min
         this.#max[0] = +max

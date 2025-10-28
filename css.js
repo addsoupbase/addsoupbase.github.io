@@ -89,20 +89,21 @@
             return vendor(toDash(prop), val)
         }
         function capVendor(prop, val) { return toCaps(vendor(toDash(prop), val)) }
-        function badCSS(data) {
-            if (alr.has(data) || arguments[1]) return
+        function badCSS(data, _) {
+            if (alr.has(data) || _) return
             console.warn(data)
             alr.add(data)
         }
         function vendorSelector(selector, type) {
             type = String(type) || ':'
-            var og = selector = selector.replace(vendr, '')
+            var a = selector
+            , og = selector = selector.replace(vendr, '')
                 , i = br.length,
                 temp,
                 s
             while ((s = !supportsRule(temp = type + selector)) && i--)
                 selector = '-' + br[i] + '-' + og
-            return s ? arguments[0] : selector
+            return s ? a : selector
         }
         function formatGeneric(d, pseudo, selector) {
             var matches = selector.match(pseudo)
@@ -119,7 +120,7 @@
         function b(p, v) {
             return '(' + p + ': ' + v + ')'
         }
-        function vendor(p, v) {
+        function vendor(p, v, _) {
             if (p.startsWith('--'))
                 return p
             if (v.trim() && !sup(p, v)) {
@@ -171,7 +172,7 @@
                     sup(b(a = '-epub-' + p, v)) ||
                     // IDK
                     // sup(prefix = `-internal-${prop}`, val) ||
-                    badCSS("Unrecognized CSS at '" + b(a = p, v).slice(1, -1) + "'", arguments[2]),
+                    badCSS("Unrecognized CSS at '" + b(a = p, v).slice(1, -1) + "'", _),
                     dr.set(p, a),
                     // Sorry!
                     a)
@@ -217,8 +218,8 @@
          * @param {Object} o key/value pairs that match CSS
          * @returns {String}
          */
-        function toCSS(o) {
-            var str = '', v, p, silent = arguments[1]
+        function toCSS(o, _) {
+            var str = '', v, p, silent = _
             is(o) && (o = fro(o))
             for (p in o) {
                 v = String(o[p])
@@ -236,8 +237,8 @@
          * @param {String} selector A valid CSS selector (something like . or#)
          * @param {Object} rule An object which describes the selector
          */
-        function registerCSS(selector, rule) {
-            var str = '', silent = arguments[2]
+        function registerCSS(selector, rule, _) {
+            var str = '', silent = _
             selector = selector.split(',')
             var i = selector.length
             while (i--) str = formatSelector(selector[i]) + str

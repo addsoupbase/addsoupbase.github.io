@@ -1641,6 +1641,13 @@ const documentProxy = {
         return prox(t.getElementById(p))
     }
 }
+const weakDocumentProxy = {
+    get(t, p) {
+        let context = t.deref()
+        debugger
+        return prox(context.document.getElementById(p))
+    }
+}
 export default defineProperties($, {
     [Symbol.hasInstance]: {
         value(obj) {
@@ -1649,7 +1656,8 @@ export default defineProperties($, {
     },
     idWith: {
         value(context) {
-            return new Proxy(context.document || context.contentWindow.document, documentProxy)
+            let weak = new WeakRef(context)
+            return new Proxy(weak, weakDocumentProxy)
         }
     },
     orientation: {
