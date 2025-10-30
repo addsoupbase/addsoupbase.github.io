@@ -7,7 +7,8 @@ export const worker = new Worker(
 // worker.addEventListener('message', message)
 worker.addEventListener('error', reportError.bind(window))
 worker.addEventListener('messageerror', reportError.bind(window))
-export default async function canimate(src) {
+export default canimate
+async function canimate(src) {
     if (src.tagName === 'IMG' || src.tagName === 'VIDEO') src = src.src
     let a = await fetch(src)
     if (!a.ok) throw new Error(`Network response was ${a.status}: ${a.statusText}`)

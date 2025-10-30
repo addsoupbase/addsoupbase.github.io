@@ -246,7 +246,7 @@ export class Vector2 extends Float32Array {
     get y() { return this[1] }
     set y(y) { this.set(this[0], y) }
     static _ = this._()
-    constructor(x = 0, y = 0
+    '\x63\x6f\x6e\x73\x74\x72\x75\x63\x74\x6f\x72'(x = 0, y = 0
         //, { 0: minX = MIN_SAFE_INTEGER, 1: minY = MIN_SAFE_INTEGER } = {},
         // { 0: maxX = MAX_SAFE_INTEGER, 1: maxY = MAX_SAFE_INTEGER } = {}
     ) {

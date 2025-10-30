@@ -1,18 +1,17 @@
-(function (variable = 'mod') {
+(function() {
     // performance is not of big concern
-    const mod = source.bind()
-    Object.setPrototypeOf(mod, null)
-    Object.defineProperty(mod, Symbol.unscopables, {
-        value: Object.freeze({
-            __proto__: null,
-            arguments: true,
-            prototype: true,
-            eval: true // very important!
+    const mod =
+        Object.defineProperty(Object.setPrototypeOf(source.bind(), null), Symbol.unscopables, {
+            value: Object.freeze({
+                __proto__: null,
+                arguments: true,
+                prototype: true,
+                eval: true // very important!
+            })
         })
-    })
     mod.eval = evaluate
     function evaluate(str) {
-        if (typeof str === 'function') str = `(${str}).call(mod)`
+        typeof str === 'function' && (str = `(${str}).call(mod)`)
         with (mod) // break the rules a bit
         return eval(str)
     }
@@ -43,19 +42,18 @@
         get not() {
             let char = this[0][ch]
             let upper = char.toUpperCase()
-            return new CharacterEscape(upper === char ? char.toLowerCase() : upper)
+            return new new.target(upper === char ? char.toLowerCase() : upper)
         }
     }
     class Quantifier extends PatternSegment {
-        #called = false
+        #lazy = false
         lazy() {
-            if (this.#called) throw TypeError(`Lazy has already been applied to this quantifier: ${this}`)
+            if (this.#lazy) throw TypeError(`Lazy has already been applied to this quantifier: ${this}`)
             this[0][ch] += '?'
-            this.#called = true
+            this.#lazy = true
             return this
         }
     }
-    const ch = Symbol()
     class Char extends null {
         toString() {
             return this[ch]
@@ -66,28 +64,33 @@
             return Object.seal(out)
         }
     }
+    const ch = Symbol()
     function literally(char) {
+        'use strict'
         return new Char(char)
     }
     function escape(str) {
-        if (typeof str === 'object') return str
-        return RegExp.escape(str)
+        'use strict'
+        return typeof str === 'object' ? str : RegExp.escape(str)
     }
     function addStrings(obj, strings, subs) {
-        for (let i = 0, n = strings.length, { length } = subs; i < n; ++i) {
-            obj.push(escape(strings[i]))
-            i < length && obj.push(obj, subs[i])
-        }
+        'use strict'
+        for (let i = 0, n = strings.length, { length } = subs; i < n; ++i)
+            obj.push(escape(strings[i])),
+                i < length && obj.push(obj, subs[i])
     }
     mod.paren = mod.group = paren
-    function paren(strings, ...subs) {
+    function paren(strings, subs) {
+        'use strict'
+        subs = [].slice.call(arguments, 1)
         let out = new PatternSegment('(?:')
         addStrings(out, strings, subs)
         out.push(literally(')'))
         return out
     }
     mod.capture = capture
-    function capture(strings, ...subs) {
+    function capture(strings, subs) {
+        subs = [].slice.call(arguments, 1)
         let out = new PatternSegment('(')
         addStrings(out, strings, subs)
         out.push(literally(')'))
@@ -95,7 +98,9 @@
     }
     const isWord = / /.test.bind(/^\w+$/)
     mod.named_group = named_group
-    function named_group(strings, ...subs) {
+    function named_group(strings, subs) {
+        'use strict'
+        subs = [].slice.call(arguments, 1)
         let name = subs.shift()
         strings = strings.slice(1)
         if (!isWord(name)) throw SyntaxError(`Invalid capture group name: ${name}`)
@@ -104,9 +109,10 @@
         out.push(literally(')'))
         return out
     }
-    mod.charRange = charRange
-    function charRange(start, end) {
-        if (start.length !== 1 || end.length !== 1) throw SyntaxError(`Invalid character ranges: ${start} ${end}`)
+    mod.range = range
+    function range(start, end) {
+        'use strict'
+        if (start.length !== 1 || end.length !== 1) throw SyntaxError(`Invalid character range: ${start} ${end}`)
         let out = new PatternSegment()
         out.push(escape(start))
         out.push(literally('-'))
@@ -114,28 +120,34 @@
         return out
     }
     mod.chars = chars
-    function chars(...strings) {
+    function chars(strings) {
+        'use strict'
+        strings = [].slice.call(arguments)
         let out = new PatternSegment('[')
-        for (let o of strings)
-            out.push(escape(o))
+        for (let i = 0, l = strings.length; i < l; ++i)
+            out.push(escape(strings[i]))
         out.push(literally(']'))
         return out
     }
     mod.cars_not = chars_not
-    function chars_not(...strings) {
+    function chars_not(strings) {
+        'use strict'
+        strings = [].slice.call(arguments)
         let out = new PatternSegment('[^')
-        for (let o of strings)
-            out.push(escape(o))
+        for (let i = 0, l = strings.length; i < l; ++i)
+            out.push(escape(strings[i]))
         out.push(literally(']'))
         return out
     }
     mod.groupN = groupN
     function groupN(n) {
+        'use strict'
         if (isNaN(n)) throw TypeError(`Bad backreference: ${String(n)}`)
         return `\\${n}`
     }
     mod.backref = backref
     function backref(name) {
+        'use strict'
         if (!isWord(name)) throw SyntaxError(`Invalid capture group name: ${name}`)
         return new PatternSegment(`\\k<${name}>`)
     }
@@ -156,33 +168,39 @@
     mod.WILDCARD = literally('.')
     mod.BEGIN = mod.START = literally('^')
     mod.END = literally('$')
-    for(let i in mod) {
-        let a = i.toUpperCase()
-        if (i === a) mod[i.toLowerCase()] = mod[i]
-    }
+    for (let i in mod) 
+        if (i === i.toUpperCase()) mod[i.toLowerCase()] = mod[i]
     mod.behind = behind
-    function behind(strings, ...subs) {
+    function behind(strings, subs) {
+        'use strict'
+        subs = [].slice.call(arguments, 1)
         let out = new PatternSegment('(?<=')
         addStrings(out, strings, subs)
         out.push(literally(')'))
         return out
     }
     mod.not_behind = not_behind
-    function not_behind(strings, ...subs) {
+    function not_behind(strings, subs) {
+        'use strict'
+        subs = [].slice.call(arguments, 1)
         let out = new PatternSegment('(?<!')
         addStrings(out, strings, subs)
         out.push(literally(')'))
         return out
     }
     mod.ahead = ahead
-    function ahead(strings, ...subs) {
+    function ahead(strings, subs) {
+        'use strict'
+        subs = [].slice.call(arguments, 1)
         let out = new PatternSegment('(?=')
         addStrings(out, strings, subs)
         out.push(literally(')'))
         return out
     }
     mod.not_ahead = not_ahead
-    function not_ahead(strings, ...subs) {
+    function not_ahead(strings, subs) {
+        'use strict'
+        subs = [].slice.call(arguments, 1)
         let out = new PatternSegment('(?!')
         addStrings(out, strings, subs)
         out.push(literally(')'))
@@ -190,6 +208,7 @@
     }
     mod.min = min
     function min(n) {
+        'use strict'
         switch (n |= 0) {
             case 0: return new Quantifier('*')
             case 1: return new Quantifier('+')
@@ -198,6 +217,7 @@
     }
     mod.max = max
     function max(n) {
+        'use strict'
         switch (n |= 0) {
             case 0: throw TypeError('Max must be greater than 0')
             case 1: return new Quantifier('?')
@@ -206,6 +226,7 @@
     }
     mod.clamp = clamp
     function clamp(min, max) {
+        'use strict'
         min = Math.abs(min | 0)
         if (typeof max !== 'number') switch (min) {
             case 1: return ''
@@ -214,29 +235,26 @@
         max = Math.abs(max | 0)
         return new Quantifier(`{${min},${max}}`)
     }
-    mod.not = not
-    function not(m) {
-        switch (m) {
-            case '\\w': return '\\W'
-            case '\\s': return '\\S'
-            case '\\d': return '\\D'
-            case '\\b': return '\\B'
-            default: throw SyntaxError(`Cannot negate ${m}`)
-        }
-    }
     // export default source
     mod.build = build
-    function build(...patterns) {
+    function build(patterns) {
+        'use strict'
+        patterns = [].slice.call(arguments, 0)
         return RegExp(source.apply(1, patterns))
     }
     mod.source = source
-    function source(...segments) {
+    function source(segments) {
+        'use strict'
+        segments = [].slice.call(arguments)
         let out = ''
-        for (let o of segments) out += typeof o === 'string' ? escape(o) : o
+        for (let i = 0, l = segments.length; i < l; ++i) {
+            let o = segments[i]
+            out += typeof o === 'string' ? escape(o) : o
+        } 
         return out
     }
     mod.prototype = null
-    return constructor.prototype[variable] = mod
+    return constructor.prototype.r = mod
     /*
     Example usage:
         Match 'a' 'b' ']' '[' '/' '\w' or new line:
