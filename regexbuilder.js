@@ -1,4 +1,4 @@
-(function() {
+(function () {
     // performance is not of big concern
     const mod =
         Object.defineProperty(Object.setPrototypeOf(source.bind(), null), Symbol.unscopables, {
@@ -11,33 +11,30 @@
         })
     mod.eval = evaluate
     function evaluate(str) {
-        typeof str === 'function' && (str = `(${str}).call(mod)`)
         with (mod) // break the rules a bit
-        return eval(str)
+        return eval(typeof arguments[0] === 'function' ? `(${arguments[0]}).call(mod)` : arguments[0])
     }
-    class PatternSegment extends null {
-        static {
-            Object.defineProperty(this.prototype, 'push', {
-                value: [].push
-            })
-        }
-        toString() {
-            return [].join.call(this, '')
-        }
-        static #c = {
+    function PatternSegment(str) {
+        'use strict'
+        str = [].slice.call(arguments)
+        Object.defineProperty(this, 'length', {
             value: 0,
-            configurable: false,
             writable: true
-        }
-        constructor(...str) {
-            let out = { __proto__: new.target.prototype }
-            // Create array-like, because arrays' default toString() is join(',')
-            Object.defineProperty(out, 'length', PatternSegment.#c)
-            for (let i = 0, len = str.length; i < len; ++i)
-                out.push(literally(str[i]))
-            return out
-        }
+        })
+        for (let i = 0, len = str.length; i < len; ++i)
+            this.push(literally(str[i]))
     }
+    PatternSegment.prototype = Object.create(null, {
+        toString: {
+            value() {
+                'use strict'
+                return [].join.call(this, '')
+            }
+        },
+        push: {
+            value: [].push
+        }
+    })
     class CharacterEscape extends PatternSegment {
         get not() {
             let char = this[0][ch]
@@ -54,16 +51,19 @@
             return this
         }
     }
-    class Char extends null {
-        toString() {
-            return this[ch]
-        }
-        constructor(char) {
-            let out = { __proto__: Char.prototype }
-            out[ch] = char
-            return Object.seal(out)
-        }
+    function Char(char) {
+        'use strict'
+        this[ch] = char
+        Object.seal(this)
     }
+    Char.prototype = Object.create(null, {
+        toString: {
+            value() {
+                'use strict'
+                return this[ch]
+            }
+        }
+    })
     const ch = Symbol()
     function literally(char) {
         'use strict'
@@ -90,6 +90,7 @@
     }
     mod.capture = capture
     function capture(strings, subs) {
+        'use strict'
         subs = [].slice.call(arguments, 1)
         let out = new PatternSegment('(')
         addStrings(out, strings, subs)
@@ -129,7 +130,7 @@
         out.push(literally(']'))
         return out
     }
-    mod.cars_not = chars_not
+    mod.chars_not = chars_not
     function chars_not(strings) {
         'use strict'
         strings = [].slice.call(arguments)
@@ -168,7 +169,7 @@
     mod.WILDCARD = literally('.')
     mod.BEGIN = mod.START = literally('^')
     mod.END = literally('$')
-    for (let i in mod) 
+    for (let i in mod)
         if (i === i.toUpperCase()) mod[i.toLowerCase()] = mod[i]
     mod.behind = behind
     function behind(strings, subs) {
@@ -250,19 +251,22 @@
         for (let i = 0, l = segments.length; i < l; ++i) {
             let o = segments[i]
             out += typeof o === 'string' ? escape(o) : o
-        } 
+        }
         return out
     }
     mod.prototype = null
+    window.PatternSegment = PatternSegment
     return constructor.prototype.r = mod
     /*
     Example usage:
-        Match 'a' 'b' ']' '[' '/' '\w' or new line:
-        mod.eval(() => build(chars('a','b', ']', '[', '/', WORD)))
-
-    Result: 
+        r.eval(() => build(chars('a','b', ']', '[', '/', WORD)))
+        Result: 
         /[\x61\x62\]\[\/\x77]/
 
+        r.eval(()=>build('a', OR, paren`b${OR}c`))
+        Result: 
+        /\x61|(?:\x62|\x63)/
+        
     Notes: 
         - Escaped characters will still properly match (e.g. '\x61' still matches 'a')
         - RegExp.escape() is very new
