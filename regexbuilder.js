@@ -255,7 +255,6 @@
         return out
     }
     mod.prototype = null
-    window.PatternSegment = PatternSegment
     return constructor.prototype.r = mod
     /*
     Example usage:
@@ -266,7 +265,7 @@
         r.eval(()=>build('a', OR, paren`b${OR}c`))
         Result: 
         /\x61|(?:\x62|\x63)/
-        
+
     Notes: 
         - Escaped characters will still properly match (e.g. '\x61' still matches 'a')
         - RegExp.escape() is very new
