@@ -1,4 +1,10 @@
 //# allFunctionsCalledOnLoad
+/*@cc_on
+    !function(){"use strict";window.Map=window.Set=function(){var e=new ActiveXObject("Scripting.Dictionary");return{set:function(n,t){e.Add(n,t)},get:function(n){return e.Item(n)},add:function(n){e.Add(n,"")},has:function(n){return e.Exists(n)},delete:function(n){e.Remove(n)}}}}();
+@*/
+
+// ^ idk why im doing this (IE10)
+
 (function (w, sym) {
     return cssSetup(sessionStorage, !this)
     function cssSetup(S, inModule) {
