@@ -1,9 +1,42 @@
-export const worker = new Worker(
-    // '../work.js'||
-    `data:text/javascript,${encodeURIComponent("import gif from 'https://cdn.jsdelivr.net/npm/gifuct-js@2.1.2/+esm'\naddEventListener('message', message)\nlet can = new OffscreenCanvas(0,0)\nlet ctx = can.getContext('2d')\nctx.imageSmoothingEnabled=false\nasync function message({ data: { src, buffer, canvas } }) {\n    let data = buffer\n    let frames = gif.decompressFrames(gif.parseGIF(data), true)\n    let out = []\n    for (let i = 0, l = frames.length; i < l; ++i) {\n        let cur = frames[i]\n            , { width, height, left, top } = cur.dims\n        can.width = width\n        can.height = height\n        let data = new ImageData(cur.patch, width, height)\n        ctx.putImageData(data, left, top)\n        out.push({ data: await createImageBitmap(can), delay: cur.delay })\n        switch (cur.disposalType) {\n            default: ctx.clearRect(0, 0, width, height)\n                break\n            case 1: break\n        }\n    }\n    animate(canvas.getContext('2d'), out, 0)\n    postMessage({ src })\n}\nfunction animate(ctx, frames, index) {\n    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)\n    let a = frames[index]\n    ctx.drawImage(a.data, 0, 0)\n    setTimeout(animate, a.delay, ctx, frames, (index + 1) % frames.length)\n}")}`, {
-    type: 'module',
-    name: new URL(import.meta.url).pathname.slice(1,-3)
-})
+const script = "import gif from 'https://cdn.jsdelivr.net/npm/gifuct-js@2.1.2/+esm'\naddEventListener('message', message)\nlet can = new OffscreenCanvas(0,0)\nlet ctx = can.getContext('2d')\nctx.imageSmoothingEnabled=false\nasync function message({ data: { src, buffer, canvas } }) {\n    let data = buffer\n    let frames = gif.decompressFrames(gif.parseGIF(data), true)\n    let out = []\n    for (let i = 0, l = frames.length; i < l; ++i) {\n        let cur = frames[i]\n            , { width, height, left, top } = cur.dims\n        can.width = width\n        can.height = height\n        let data = new ImageData(cur.patch, width, height)\n        ctx.putImageData(data, left, top)\n        out.push({ data: await createImageBitmap(can), delay: cur.delay })\n        switch (cur.disposalType) {\n            default: ctx.clearRect(0, 0, width, height)\n                break\n            case 1: break\n        }\n    }\n    animate(canvas.getContext('2d'), out, 0)\n    postMessage({ src })\n}\nfunction animate(ctx, frames, index) {\n    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)\n    let a = frames[index]\n    ctx.drawImage(a.data, 0, 0)\n    setTimeout(animate, a.delay, ctx, frames, (index + 1) % frames.length)\n}"
+const name = new URL(import.meta.url).pathname.slice(1, -3)
+export const worker = await async function () {
+    let str = `data:text/javascript,${encodeURIComponent(script)}`,
+        worker
+    function loadWorker() {
+        worker?.terminate()
+        worker = new Worker(
+            str, {
+            type: 'module',
+            name
+        })
+        return new Promise(handle)
+    }
+    function handle(resolve, reject) {
+        worker.onerror = reject
+        worker.onload = resolve
+    }
+    try {
+        await loadWorker()
+    }
+    // loading dataURL is blocked
+    catch (e) {
+        reportError(e)
+        str = URL.createObjectURL(new Blob(str.split(), { type: 'text/javascript' }))
+        try {
+            await loadWorker()
+            URL.revokeObjectURL(str)
+        }
+        catch (e) {
+            reportError(e)
+            // object urls blocked! :(
+            URL.revokeObjectURL(str)
+            str = 'https://addsoupbase.github.io/work.js'
+            await loadWorker()
+        }
+    }
+    return worker
+}()
 // worker.addEventListener('message', message)
 worker.addEventListener('error', reportError.bind(window))
 worker.addEventListener('messageerror', reportError.bind(window))
@@ -52,13 +85,14 @@ async function canimate(src) {
     }
     else if (blob.type.startsWith('image/')) {
         let img = document.createElement('img')
-        img.src = src
-        let ctx = canvas.getContext('2d')
-        img.onload = () => {
+        function load() {
             canvas.width = img.naturalWidth
             canvas.height = img.naturalHeight
             ctx.drawImage(img, 0, 0)
         }
+        img.addEventListener('load', load, { once: true })
+        img.src = src
+        let ctx = canvas.getContext('2d')
     }
     else throw TypeError(`Unsupported media type: ${blob.type}`)
     return canvas

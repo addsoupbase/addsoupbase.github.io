@@ -3,39 +3,22 @@ const { sign, PI, abs, min, max, atan2, hypot } = Math,
     { construct } = Reflect,
     { isFinite, MIN_SAFE_INTEGER, MAX_SAFE_INTEGER, } = Number
 function reduce(a, b) {
-    return a + b
+    return +a + +b
 }
 function sum(arr) {
     return arr.reduce(reduce, -0)
 }
 sum = Math.sumPrecise ?? sum
-const of = Reflect.apply.bind(1, Float64Array.of, Float64Array)
 export function add(...n) {
-    return sum(of(n))
+    return sum(n)
 }
 function sort(a, b) {
     return a - b
 }
-// export const bit = {
-//     merge(...bits) {
-//         return bits.reduce(or, 0)
-//     },
-//     flip(bit, pos) {
-//         return bit ^ (1 << pos)
-//     }
-// }
-// function or(a,b) {
-//     return a|b
-// }
-// function noConstructor() {
-// console.warn("Use this as a factory function instead of the constructor")
-// }
 export function safe(num) {
     return clamp(num, MIN_SAFE_INTEGER, MAX_SAFE_INTEGER)
 }
-export function safeInt(num) {
-    return safe(num) | 0
-}
+export const safeInt = parseInt
 class Cycle {
     #wheel = null
     move(step) {
@@ -74,14 +57,12 @@ export function avg(...array) {
         q1 = sorted[g],
         q3 = sorted[3 * g],
         IQR = q3 - q1,
-        upperFence = add(q3, 1.5 * IQR),
-        lowerFence = q1 - 1.5 * IQR,
-        filtered = sorted.filter(filter)
+        filtered = sorted.filter(filter.bind(this, q1 - 1.5 * IQR, add(q3, 1.5 * IQR)))
     return filtered.reduce(reduce) / filtered.length
-    function filter(x) {
+}
+  function filter(x, lowerFence, upperFence) {
         return x >= lowerFence && x <= upperFence
     }
-}
 export function median(...numbers) {
     let { length } = numbers
         , sorted = numbers.sort(sort),
