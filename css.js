@@ -1,8 +1,8 @@
 //# allFunctionsCalledOnLoad
-/*@cc_on!function(){"use strict";window.Map=window.Set=function(){var e=new ActiveXObject("Scripting.Dictionary");return{set:function(n,t){e.Add(n,t)},get:function(n){return e.Item(n)},add:function(n){e.Add(n,"")},has:function(n){return e.Exists(n)},delete:function(n){e.Remove(n)}}}}();@*/
+/*@cc_on!function(){"use strict";window.Map=window.WeakMap=window.Set=function(){var e=new ActiveXObject("Scripting.Dictionary");return{set:function(n,t){e.Add(n,t)},get:function(n){return e.Item(n)},add:function(n){e.Add(n,"")},has:function(n){return e.Exists(n)},delete:function(n){e.Remove(n)}}}}();@*/
 // ^ idk why im doing this (IE10)
 (function (w, sym) {
-    return cssSetup(sessionStorage, !this, (window.requestIdleCallback && function (callback) { requestIdleCallback(callback, { timeout: 1000 }) }) || (window.scheduler && scheduler.postTask && function (callback) { scheduler.postTask(callback, { priority: 'background' }) }) || window.queueMicrotask || setImmediate)
+    return cssSetup(sessionStorage, !this, (window.requestIdleCallback && function (callback) { requestIdleCallback(callback, { timeout: 1000 }) }) || (window.scheduler && scheduler.postTask && function (callback) { scheduler.postTask(callback, { priority: 'background' }) }) || window.queueMicrotask || window.setImmediate || setTimeout)
     function cssSetup(S, inModule, late) {
         'use strict'
         // var b = document.querySelector('script[src$="css_bad.js"]')
@@ -19,16 +19,16 @@
         var d = Object.defineProperty//, script = document.currentScript; 
         ''.startsWith || d(String.prototype, 'startsWith', { value: function (s, p) { return this.slice(p = p | 0, (s += '').length + p) === s } });[].find || d(Array.prototype, 'find', { value: function (c, t, m, z) { for (var i = 0, l = (m = this).length; i < l; ++i) { z = m[i]; if (c.call(t, z)) return z } } })
         // b = b && b.remove()
-        var src
+        // var src
         w.reportError || (w.reportError = function reportError(t) {
             try {
                 var e = new ErrorEvent('error', {
                     message: t.message,
                     error: t,
-                    filename: (scr = src || inModule ? document.querySelector('script[src$="css.js"]') : script) && scr.src
+                    // filename: (scr = src || inModule ? document.querySelector('script[src$="css.js"]') : script) && scr.src
                 })
                 w.dispatchEvent(e)
-                e.defaultPrevented || console.error(t)
+                 console.error(t)
             }
             catch (e) { console.debug(e) }
         })
