@@ -38,7 +38,7 @@
             w.dispatchEvent(e)
             e.defaultPrevented || console.error('[reportError]', t.toString())
         }
-        catch (e) { console.warn(e.toString) }
+        catch (e) { console.warn(e.toString()) }
     })
     function q(n) { return '{' + n + '}' }
     function ftss() {
@@ -95,7 +95,7 @@
         // Idk why, but it seems to make the page render faster
         document.write('<p style="position:absolute;transform:scale(0);display:table-cell;z-index:-9999;" id="' + date + '" aria-hidden="true">.</p>')
         var p = document.getElementById(date)
-        p && (p = date = addEventListener('load', p.remove.bind(p), { once: true }))
+        p && (p = date = addEventListener('load', p.removeChild.bind(p.parentElement, p), { once: true }))
     }
     function dashVendor(prop, val) {
         return vendor(toDash(prop), val)
