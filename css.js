@@ -2,7 +2,10 @@
 (function CSSSetup(inModule, w, sym, S, defer) {
     'use strict'
     /*@cc_on
-    w.Map=w.WeakMap=w.Set=function(){var e=new ActiveXObject("Scripting.Dictionary");return{set:function(n,t){e.Add(n,t)},get:function(n){return e.Item(n)},add:function(n){e.Add(n,"")},has:function(n){return e.Exists(n)},delete:function(n){e.Remove(n)}}}
+    function _(){var e=new ActiveXObject("Scripting.Dictionary");return{set:function(n,t){e.Add(n,t)},get:function(n){return e.Item(n)},add:function(n){e.Add(n,"")},has:function(n){return e.Exists(n)},delete:function(n){e.Remove(n)}}}
+    w.Map=w.Map || _
+    w.WeakMap= w.WeakMap || _
+    w.Set = w.Set || _
     @*/
     // ^ idk why im doing this (IE10)
     // var b = document.querySelector('script[src$="css_bad.js"]')
