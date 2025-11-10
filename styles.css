@@ -1,7 +1,8 @@
 @import url('./cute-green.css');
 @import url('./chococooky.css');
+
 input:not([type="image"]) {
- /* height:30px */
+  /* height:30px */
 }
 
 #background {
@@ -39,7 +40,7 @@ input:not([type="image"]) {
   transform-origin: center;
   --user-drag: none;
   pointer-events: none;
-  
+
 }
 
 #drawcontrols>* {
@@ -198,8 +199,8 @@ a {
 }
 
 :is(.manaphy,
-.phione,
-.mantyke).shiny {
+  .phione,
+  .mantyke).shiny {
   filter: hue-rotate(318deg);
 }
 
@@ -216,8 +217,8 @@ a {
 }
 
 :is(.wailord,
-.kingdra,
-.wailmer).shiny {
+  .kingdra,
+  .wailmer).shiny {
   filter: hue-rotate(70deg);
 }
 
@@ -281,7 +282,7 @@ a {
 }
 
 :is(.jellicent_f,
-.jellicent_m) .shiny {
+  .jellicent_m) .shiny {
   filter: hue-rotate(302deg);
 }
 
@@ -328,7 +329,7 @@ a {
 
 .diarybutton {
   filter: hue-rotate(239deg) drop-shadow(0px 0px 4px blue);
-  touch-action:none;
+  touch-action: none;
 }
 
 input[type=image] {
@@ -530,7 +531,7 @@ html {
   --user-select: none;
   /* width: 120vw; */
   /* transform: scale(.8, .8); */
-width: 100vw;
+  width: 100vw;
   max-width: 700px;
   /*max-height:120vh;*/
   /*height: 70%;*/
@@ -544,6 +545,7 @@ width: 100vw;
   border: none;
   margin: auto;
 }
+
 @supports (zoom: 1) {
   #frame {
     transform: unset;
@@ -551,19 +553,22 @@ width: 100vw;
     width: 120vw;
     /* --zoom: 0.8; */
   }
-  @supports (-webkit-touch-callout: inherit) {
-    #frame {
-      /* Safari is weird */
-      width: 97vw;
-      /* top:0px */
-    }
-    #diary {
-      height: 60vh
-    }
+}
+
+@supports (-webkit-touch-callout: inherit) {
+  #frame {
+    /* Safari is weird */
+    width: 97vw;
+    /* top:0px */
+  }
+
+  #diary {
+    height: 60vh
   }
 }
+
 @supports (-ms-zoom: 1) {
- #frame {
+  #frame {
     transform: unset;
     -ms-zoom: 0.8;
     width: 120vw;
@@ -582,7 +587,7 @@ width: 100vw;
   left: -40%;
   position: relative;
   image-rendering: pixelated;
-  mso-shadow-color: black;
+  -mso-shadow-color: black;
   content: url(./cute-emojis/emojis/1224927639068741632.gif);
   display: block;
 }
