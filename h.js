@@ -1,15 +1,10 @@
-!function (globalThis) {
+//// window.h = 
+(function handle(globalThis) {
+    //// if (arguments[1]) return eval?.(`(${handle})(globalThis)`)
+    // ^ disable strict for caller/callee debugging
     'use strict'
     var Reflect = globalThis.Reflect || { apply: function (target, thisArg, args) { return target.apply(thisArg, args) }, getPrototypeOf: Object.getPrototypeOf || function (t) { return t.__proto__ }, /*getOwnPropertyDescriptor: Object.getOwnPropertyDescriptor,*/ defineProperty: Object.defineProperty, ownKeys: Object.getOwnPropertyNames, has: function (t, p) { return t in p } }
-    /*var WeakSet = globalThis.WeakSet || function () {
-        var a = new WeakMap
-        return {
-            add: function (t) { return a.set(t, true), this },
-            has: function (t) { return a.has(t) },
-            delete: function (t) { return a.delete(t) }
-        }
-    }*/
-    typeof Symbol==='function'||function(){function a(b){return String(Math.random()+String(b)+performance.now()+String(Date.now()))}a.for=''.concat.bind('@@');globalThis.Symbol=a}()
+    typeof Symbol === 'function' || function () { function a(b) { return String(Math.random() + String(b) + performance.now() + String(Date.now())) } a.for = ''.concat.bind('@@'); globalThis.Symbol = a }()
     //// var queueMicrotask = globalThis.queueMicrotask || globalThis.setImmediate || setTimeout
     var MODULE = Symbol.for("[[HModule]]")
     if (globalThis[MODULE]) return globalThis[MODULE]
@@ -190,14 +185,14 @@ try {
             if ((v = name.slice(0, 7)) === 'pointer') {
                 var canB = pointerToMouse(name.slice(7), target)
                 if (canB) return canB
-                if (ie) return getIEPointerEvent(name)
+                if (IE) return getIEPointerEvent(name)
             }
             if (name === 'wheel') {
                 if ((v = 'onmousewheel') in target) return v.slice(2) // iOS doesn't support 'wheel' events yet
                 if (typeof MouseScrollEvent === 'function') return 'DOMMouseScroll' // If they don't support the first 2, this one will work ~100% of the time
                 return 'MozMousePixelScroll' // The last resort, since there's no way to detect support with this one
             }
-            if (ie && v === 'gesture') return getIEGestureEvent(name)
+            if (IE && v === 'gesture') return getIEGestureEvent(name)
             if (name === 'inertiastart') return 'MSInertiaStart'
             //// logger.warnLate("'"+original+"' events might not be available on the following EventTarget:", target)
         }
@@ -378,7 +373,12 @@ try {
                 },
                 flags = once | prevents | passive | capture | stopProp | stopImmediateProp | onlyTrusted | onlyCurrentTarget | autoabort | wantsUntrusted | onlyOriginalTarget | onlyExplicitOriginalTarget,
                 newTarget = target
-            if (flags & FLAG_PASSIVE && flags & FLAG_PREVENTS) throw TypeError("Cannot call 'preventDefault' on a passive function")
+            if (flags & FLAG_PASSIVE && flags & FLAG_PREVENTS) {
+                //// let {caller} = on, a = []
+                //// do a.push(caller); while(caller = caller.caller)
+                //// console.log(...a)
+                throw TypeError("Cannot call 'preventDefault' on a passive function")
+            } 
             eventName = verifyEventName(newTarget, eventName.replace(formatEventName, ''))
             var b = supportOrientationChangeEvent(target, eventName, label)
             if (b) {
@@ -401,10 +401,6 @@ try {
             var listener = EventWrapper.bind(newTarget, func, controller, controller && controller.abort.bind(controller, 'Automatic abort (#)'), flags)
             if (autoabort && getLabel(controller) !== 'AbortController') throw TypeError("AbortController required if #autoabort flag is present")
             newTarget.addEventListener(eventName, listener, SUPPORTS_OPTIONS_PARAM ? options : options.capture/*, typeof scrollMaxX === 'number' && wantsUntrusted*/)
-            // if (eventName === 'load' && /^(?:HTMLIFrameElement|Window)$/.test(getLabel(target)) && (target.contentWindow || target).document?.readyState === 'complete') {
-            // setTimeout(listener.bind(target, new Event('load')))
-            // logger.warnLate(`'${eventName}' event was fired before listener was added`, target)
-            // }
             if (controller) {
                 //// logger.info("📡 '"+eventName+"' event added", controller)
             }
@@ -428,15 +424,15 @@ try {
         return target
     }
     $.on = on
-    var safari = $.safari = typeof ongestureend !== 'undefined' || typeof onwebkitmouseforceup !== 'undefined'
-        , firefox = $.firefox = typeof scrollMaxX === 'number'
-        , ie = $.ie = typeof msAnimationStartTime === 'number'
-        , _chrome = $.chrome = typeof chrome === 'object'  // chromium based (opera, edge, brave)
+    var SAFARI = $.safari = typeof ongestureend !== 'undefined' || typeof onwebkitmouseforceup !== 'undefined'
+        , FIREFOX = $.firefox = typeof scrollMaxX === 'number'
+        , IE = $.ie = typeof msAnimationStartTime === 'number'
+        , CHROME = $.chrome = typeof chrome === 'object'  // chromium based (opera, edge, brave)
     function compatOn(variants) {
-        if (_chrome) var data = variants.chrome
-        else if (firefox) data = variants.firefox
-        else if (safari) data = variants.safari
-        else if (ie) data = variants.ie
+        if (CHROME) var data = variants.chrome
+        else if (FIREFOX) data = variants.firefox
+        else if (SAFARI) data = variants.safari
+        else if (IE) data = variants.ie
         return (data = data || variants.otherwise) && on.apply(null, data)
     }
     $.compatOn = compatOn
@@ -658,5 +654,5 @@ try {
     }
     $.dispatch = dispatch
     return constructor.prototype[MODULE] = $
-
-}(typeof globalThis === 'undefined' ? window : globalThis)
+}(typeof globalThis === 'undefined' ? window : globalThis, ////!this
+))

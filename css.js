@@ -1,4 +1,5 @@
 //# allFunctionsCalledOnLoad
+//// window.css = 
 (function CSSSetup(inModule, w, sym, S, defer) {
     'use strict'
     /*@cc_on

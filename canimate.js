@@ -1,57 +1,66 @@
-const script = "import gif from 'https://cdn.jsdelivr.net/npm/gifuct-js@2.1.2/+esm'\naddEventListener('message', message)\nlet can = new OffscreenCanvas(0,0)\nlet ctx = can.getContext('2d')\nctx.imageSmoothingEnabled=false\nasync function message({ data: { src, buffer, canvas } }) {\n    let data = buffer\n    let frames = gif.decompressFrames(gif.parseGIF(data), true)\n    let out = []\n    for (let i = 0, l = frames.length; i < l; ++i) {\n        let cur = frames[i]\n            , { width, height, left, top } = cur.dims\n        can.width = width\n        can.height = height\n        let data = new ImageData(cur.patch, width, height)\n        ctx.putImageData(data, left, top)\n        out.push({ data: await createImageBitmap(can), delay: cur.delay })\n        switch (cur.disposalType) {\n            default: ctx.clearRect(0, 0, width, height)\n                break\n            case 1: break\n        }\n    }\n    animate(canvas.getContext('2d'), out, 0)\n    postMessage({ src })\n}\nfunction animate(ctx, frames, index) {\n    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)\n    let a = frames[index]\n    ctx.drawImage(a.data, 0, 0)\n    setTimeout(animate, a.delay, ctx, frames, (index + 1) % frames.length)\n}"
+const script = "import gif from 'https://cdn.jsdelivr.net/npm/gifuct-js@2.1.2/+esm'\naddEventListener('message', message)\nlet can = new OffscreenCanvas(0,0)\nlet ctx = can.getContext('2d')\nctx.imageSmoothingEnabled=false\nasync function message({ data: { src, buffer, canvas } }) {\n    let data = buffer\n    let frames = gif.decompressFrames(gif.parseGIF(data), true)\n    let out = []\n    for (let i = 0, l = frames.length; i < l; ++i) {\n        let cur = frames[i]\n            , { width, height, left, top } = cur.dims\n        can.width = width\n        can.height = height\n        let data = new ImageData(cur.patch, width, height)\n        ctx.putImageData(data, left, top)\n        out.push({ data: await createImageBitmap(can), delay: cur.delay })\n        switch (cur.disposalType) {\n            default: ctx.clearRect(0, 0, width, height)\n                break\n            case 1: break\n        }\n    }\n    animate(canvas.getContext('2d'), out, 0)\n    postMessage({ src })\n}\nfunction animate(ctx, frames, index) {\n    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)\n    let a = frames[index]\n        ctx.canvas.width = a.data.width\n    ctx.canvas.height = a.data.height\n    ctx.drawImage(a.data, 0, 0)\n    setTimeout(animate, a.delay, ctx, frames, (index + 1) % frames.length)\n}"
 const name = new URL(import.meta.url).pathname.slice(1, -3)
-export const worker = await async function () {
-    let str = `data:text/javascript,${encodeURIComponent(script)}`,
-        worker
-    function loadWorker() {
-        worker?.terminate()
-        worker = new Worker(
-            str, {
-            type: 'module',
-            name
-        })
-        return new Promise(handle)
-    }
-    function handle(resolve, reject) {
-        worker.onerror = reject
-        worker.onload = resolve
-    }
-    try {
-        await loadWorker()
-    }
-    // loading dataURL is blocked
-    catch (e) {
-        reportError(e)
-        str = URL.createObjectURL(new Blob(str.split(), { type: 'text/javascript' }))
-        try {
-            await loadWorker()
-            URL.revokeObjectURL(str)
-        }
-        catch (e) {
-            reportError(e)
-            // object urls blocked! :(
-            URL.revokeObjectURL(str)
-            str = 'https://addsoupbase.github.io/work.js'
-            await loadWorker()
-        }
-    }
-    return worker
-}()
+export const worker = new Worker(
+    `data:text/javascript,${encodeURIComponent(script)}`, {
+    type: 'module',
+    name
+})
+/*await async function () {
+   let str = `data:text/javascript,${encodeURIComponent(script)}`,
+       worker
+   function loadWorker() {
+       worker?.terminate()
+       worker = new Worker(
+           str, {
+           type: 'module',
+           name
+       })
+       return new Promise(handle)
+   }
+   function handle(resolve, reject) {
+       worker.onerror = reject
+       worker.onmessage = resolve
+       console.log(worker)
+   }
+   try {
+       await loadWorker()
+   }
+   // loading dataURL is blocked
+   catch (e) {
+       reportError(e)
+       str = URL.createObjectURL(new Blob(str.split(), { type: 'text/javascript' }))
+       try {
+           await loadWorker()
+           URL.revokeObjectURL(str)
+       }
+       catch (e) {
+           reportError(e)
+           // object urls blocked! :(
+           URL.revokeObjectURL(str)
+           str = 'https://addsoupbase.github.io/work.js'
+           await loadWorker()
+       }
+   }
+   return worker
+}()*/
+worker.onerror = worker.onmessage = null
 // worker.addEventListener('message', message)
 worker.addEventListener('error', reportError.bind(window))
 worker.addEventListener('messageerror', reportError.bind(window))
 export default canimate
 async function canimate(src) {
     if (src.tagName === 'IMG' || src.tagName === 'VIDEO') src = src.src
+    src = src.toString()
     let a = await fetch(src)
     if (!a.ok) throw new Error(`Network response was ${a.status}: ${a.statusText}`)
     let blob = await a.blob()
     let canvas = document.createElement('canvas')
     if (blob.type === 'image/gif') {
         if (!canvas.transferControlToOffscreen) return canvas
+        canvas.setAttribute('data-gif', 'true')
         let off = canvas.transferControlToOffscreen()
         let promise = new Promise(waitForMessageFromWorker.bind(this, src))
-        worker.postMessage({ src, buffer: await blob.arrayBuffer(), canvas: off }, [off])
+        worker.postMessage({ src: src.toString(), buffer: await blob.arrayBuffer(), canvas: off }, [off])
         await promise
     }
     else if (blob.type.startsWith('video/')) {
@@ -95,6 +104,7 @@ async function canimate(src) {
         let ctx = canvas.getContext('2d')
     }
     else throw TypeError(`Unsupported media type: ${blob.type}`)
+    canvas.setAttribute('data-src', src)
     return canvas
 }
 function waitForVideoToLoad(video) {

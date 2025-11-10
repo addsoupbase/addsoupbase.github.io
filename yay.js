@@ -1821,18 +1821,23 @@ if (/localhost/.test(origin)) {
     }, new AbortController)
 }
 h.on(window, {
-    '^keydown'(e) {
-        let k = e.key?.toUpperCase()
-        if (k && e.shiftKey && e.altKey && !e.repeat && k.length === 1) {
-            let str = `Alt+Shift+${k}`,
-                el = document.querySelector(`[aria-keyshortcuts="${str}"]`)
-            if (el && !el.hasAttribute('disabled')) {
-                el.focus()
-                el.click()
+    '#load'() {
+      document.querySelector('[aria-keyshortcuts]') &&  h.on(window, {
+            '^keydown'(e) {
+                let k = e.key?.toUpperCase()
+                if (k && e.shiftKey && e.altKey && !e.repeat && k.length === 1) {
+                    let str = `Alt+Shift+${k}`,
+                        el = document.querySelector(`[aria-keyshortcuts="${str}"]`)
+                    if (el && !el.hasAttribute('disabled')) {
+                        el.focus()
+                        el.click()
+                    }
+                }
             }
-        }
+        }, new AbortController)
     }
 }, new AbortController)
+
 /*function call(func, proxy, args = []) {
     if (typeof func !== 'function') func()
     return Function(`
