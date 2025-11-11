@@ -126,7 +126,7 @@
                         var d = new Date
                         String.prototype.padStart = ''.padStart || function (maxLength, fillString) {
                             var o = String(this)
-                            maxLength = maxLength >>> 0
+                            maxLength = maxLength | 0
                             var len = o.length
                             if (maxLength < len) return o
                             fillString = fillString === void '' ? ' ' : String(fillString)
@@ -159,8 +159,9 @@
                 <input aria-keyshortcuts="Alt+Shift+P" id="prev" type="image" title="Turn to previous page" alt="Back"
                     style="transform:scaleX(-1)" src="./cute-emojis/emojis/1321091969635848294.gif" class="diarybutton">
                 <button class="cute-green-button" id="toToday">Most Recent</button>
-                <input aria-keyshortcuts="Alt+Shift+N" style="    visibility: hidden;" id="next" type="image" title="Turn to next page" alt="Forward"
-                    src="./cute-emojis/emojis/1321091969635848294.gif" class="diarybutton">
+                <input aria-keyshortcuts="Alt+Shift+N" style="    visibility: hidden;" id="next" type="image"
+                    title="Turn to next page" alt="Forward" src="./cute-emojis/emojis/1321091969635848294.gif"
+                    class="diarybutton">
             </div>
 
         </div>
@@ -210,7 +211,15 @@
         let dates = (await jason('./dates.json')).reverse(),
             day = 0
         function hashchange(e) {
-
+            if (!location.hash) return
+            let d = location.hash.slice(1)
+            let daa = new Date(d)
+            let found = dates.findIndex(o => o.slice(0, 10) === d)
+            // im really gonna cry bro the Date api
+            if (~found) {
+                day = found
+                changeDay(0)
+            }
         }
         h.on(window, {
             hashchange
@@ -280,18 +289,20 @@
         let things = dates.map(o => new Date(o))
         currentDateInput.on({
             change() {
-                let { 0: year, 1: month, 2: date } = this.value.split('-')
-                let hi = new Date(`${month}/${date}/${year}`)
-                frame.hide(3)
-                let src = `./entries/${toNormal(hi)}/index.html`
-                frame.setAttr({
-                    src
-                })
-                let a = dates.map(o => o).indexOf(hi.toDateString())
-                if (a !== -1) {
-                    day = a
-                    showHide()
-                }
+                location.hash = this.value
+                // let { 0: year, 1: month, 2: date } = this.value.split('-')
+                // let hi = new Date(`${month}/${date}/${year}`)
+                // frame.hide(3)
+                // let src = `./entries/${toNormal(hi)}/index.html`
+                // frame.setAttr({
+                //     src
+                // })
+                // let a = dates.map(o => new Date(o).toDateString()).indexOf(hi.toDateString())
+                // if (a !== -1) {
+                //     day = a
+                //     console.debug(dates[day])
+                //     showHide()
+                // }
             }
         })
         function load() {
@@ -346,14 +357,16 @@
             if (!day) next.hide(2)
             if (day + 1 >= dates.length) prev.hide(2)
         }
-        function changeDay(dir = 1) {
+        function changeDay(dir = 1, keephash) {
             frame.hide(3)
             day += dir
+            console.debug('change')
             let c = dates[day]
             showHide()
             if (c) {
                 let date = new Date(c)
-                currentDateInput.value = toYMDFormat(date)
+                let final = currentDateInput.value = toYMDFormat(date)
+                location.hash = final
                 let src = `./entries/${toNormal(date)}/index.html`
                 frame.setAttr({
                     src
@@ -369,7 +382,13 @@
                 changeDay(day = 0)
             }
         })
-        changeDay(0)
+        if (location.hash) {
+            let {hash} = location
+            location.hash = ''
+            location.hash = hash
+        }
+        else {changeDay(0)}
+        // GOOD ENOUGH
     </script>
     <script nomodule src="h.js" name="bad"></script>
     <script nomodule src="ie.js" name="bad">

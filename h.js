@@ -1,6 +1,6 @@
 //// window.h = 
 (function handle(globalThis) {
-    //// if (arguments[1]) return eval?.(`(${handle})(globalThis)`)
+    // if (arguments[1]) return eval?.(`(${handle})(globalThis)`)
     // ^ disable strict for caller/callee debugging
     'use strict'
     var Reflect = globalThis.Reflect || { apply: function (target, thisArg, args) { return target.apply(thisArg, args) }, getPrototypeOf: Object.getPrototypeOf || function (t) { return t.__proto__ }, /*getOwnPropertyDescriptor: Object.getOwnPropertyDescriptor,*/ defineProperty: Object.defineProperty, ownKeys: Object.getOwnPropertyNames, has: function (t, p) { return t in p } }
@@ -374,9 +374,9 @@ try {
                 flags = once | prevents | passive | capture | stopProp | stopImmediateProp | onlyTrusted | onlyCurrentTarget | autoabort | wantsUntrusted | onlyOriginalTarget | onlyExplicitOriginalTarget,
                 newTarget = target
             if (flags & FLAG_PASSIVE && flags & FLAG_PREVENTS) {
-                //// let {caller} = on, a = []
-                //// do a.push(caller); while(caller = caller.caller)
-                //// console.log(...a)
+                // let {caller} = on, a = []
+                // do a.push(caller); while(caller = caller.caller)
+                // console.log(...a)
                 throw TypeError("Cannot call 'preventDefault' on a passive function")
             } 
             eventName = verifyEventName(newTarget, eventName.replace(formatEventName, ''))

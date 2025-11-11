@@ -480,9 +480,7 @@ input[type=image]:active {
   right: 0;
   bottom: 0;
   background-color: rgb(14, 132, 228, 0.1);
-  /* Slight blue tint */
   pointer-events: none;
-  /* Allow clicks to pass through the overlay */
 }
 
 img {
@@ -497,8 +495,6 @@ html {
   margin: 0;
   overflow: scroll;
 }
-
-
 
 #submit {
   display: inline-block;

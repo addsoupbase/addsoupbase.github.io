@@ -1,3 +1,4 @@
+////try {
 !function (input, frame, prev, next, toToday) {
     'use strict'
     function toNormal(date) { return date.getMonth() + 1 + "_" + date.getDate() + "_" + date.getFullYear() }
@@ -70,3 +71,7 @@
 
 }(document.getElementById('diary-heading'), document.getElementById('display'), document.getElementById('prev'), document.getElementById('next'),
     document.getElementById('toToday'))
+////}
+////catch(e) {
+////    alert(e)
+////}
