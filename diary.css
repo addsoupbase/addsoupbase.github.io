@@ -1,6 +1,8 @@
 @import url('./chococooky.css');
 @namespace svg url("http://www.w3.org/2000/svg");
-   
+   video {
+    max-width: 100%;
+   }
 .avatar {
   width: 125px;
   margin:10px;
