@@ -108,6 +108,7 @@ async function canimate(src) {
     return canvas
 }
 function waitForVideoToLoad(video) {
+    if (video.readyState === 4) return Promise.resolve()
     return new Promise(f)
     function f(resolve, reject) {
         video.addEventListener('canplaythrough', resolve, { once: true })
@@ -122,4 +123,8 @@ function waitForMessageFromWorker(src, resolve, reject) {
             resolve(e.data.canvas)
         }
     }
+}
+function sleep(ms) {
+    let t = performance.now()
+    while(performance.now() - t < ms);
 }

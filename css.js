@@ -95,11 +95,10 @@
         formatElement = formatGeneric.bind(1, '::', pseudoElement)
     CSS.registerProperty || (canWrite && (w.fallback = fallback, w.vendor = vendor, document.write('<', 'script src="' + (location.protocol + '//' + location.host) + '/no_register_property.js" async', '>', '<', '/script', '>')))
     if (canWrite && top === window) {
-        var date = Date.now()
         // Idk why, but it seems to make the page render faster
-        document.write('<p style="position:absolute !important;transform:scale(0) !important;z-index:-9999 !important;" id="' + date + '" aria-hidden="true">.</p>')
-        var p = document.getElementById(date)
-        p && (p = date = addEventListener('load', p.removeChild.bind(p.parentElement, p), { once: true }))
+        document.write('<p style="position:absolute !important;transform:scale(0) !important;z-index:-9999 !important;" data-cssid="$$$" aria-hidden="true">.</p>')
+        var p = document.querySelector('p[data-cssid="$$$"]')
+        p = addEventListener('load', p.removeChild.bind(p.parentElement, p), { once: true })
     }
     function dashVendor(prop, val) {
         return vendor(toDash(prop), val)
@@ -354,12 +353,12 @@
     defer(function () {
         // lower priority props
         g("locale", "auto", true, "*")("line-grid", "auto", true, "*")("line-snap", "auto", true, "*")("nbsp-mode", "auto", true, "*")("text-zoom", "auto", true, "*")("line-align", "auto", true, "*")("text-decorations-in-effect", "auto", false, "*")("force-broken-image-icon", "0", false, "<integer>")("float-edge", "content-box", false, "*")("image-region", "auto", true, "*")("box-orient", "inline-axis", false, "*")("box-align", "stretch", false, "*")("box-direction", "normal", false, "*")("box-flex", "0", false, "*")("box-flex-group", "0", false, "*")("box-lines", "single", false, "*")("box-ordinal-group", "1", false, "*")("box-decoration-break", "slice", false, "*")("box-pack", "start", false, "*")("line-clamp", "none", false, "*")("font-smoothing", "auto", true, "*")("mask-position-x", "0%", false, "<length-percentage>")("mask-position-y", "0%", false, "<length-percentage>")("window-dragging", "auto", false, "*")("stack-sizing", "stretch-to-fit", true, "*")("mask-composite", "source-over", false, "*")("window-shadow", "auto", false, "*")("outline-radius", "0 0 0 0", false, "*")("binding", "none", false, "*")("text-blink", "none", false, "*")("image-rect", "auto", true, "*")("content-zoom-limit", "400% 100%", false, "*")("accelerator", "0", false, "*")("context-properties", "none", true, "*")("text-kashida-space", "0%", true, "<percentage>")("interpolation-mode", "none", false, "*")("progress-appearance", "bar", false, "*")("content-zooming", "auto", false, "*")("flow-from", "none", false, "*")("flow-into", "none", false, "*")("content-zoom-chaining", "none", false, "*")("high-contrast-adjust", "auto", true, "*")("touch-select", "grippers", true, "*")("ime-mode", "auto", false, "*")("wrap-through", "wrap", false, "*")("print-color-adjust", "economy", true, "*")("pay-button-style", "white", false, "*")("color-filter", "none", true, "*")("pay-button-type", "plain", false, "*")("visual-effect", "none", true, "*")("text-spacing-trim", "normal", true, "*")("text-group-align", "none", false, "*")("text-autospace", "normal", true, "*")("orient", "inline", false, "*")("ruby-overhang", "auto", true, "*")("max-lines", "none", false, "*")("line-fit-edge", "leading", true, "*")("overflow-scrolling", "auto", false, "*")("column-progression", "auto", false, "*")("dashboard-region", "none", false, "*")("column-axis", "auto", false, "*")("text-size-adjust", "auto", true, "*")("border-vertical-spacing", "auto", false, "*")("buffered-rendering", "auto", false, "*")("behaviour", "url()", false, "<url>")
-        try {
+        // try {
             // performance.mark('css-other-start')
             func({ name: '--scrollbar-thumb-color', initialValue: 'auto', inherits: true, syntax:'*' })
             func({ name: '--scrollbar-color', initialValue: 'auto', inherits: true, syntax:'*' })
-        }
-        catch (e) { reportError(e) }
+        // }
+        // catch (e) { reportError(e) }
     })
     g("user-select", "auto", true, '*') // Most important one
         ("user-modify", "auto", false, '*')
