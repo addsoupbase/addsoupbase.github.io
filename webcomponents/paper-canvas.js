@@ -53,8 +53,8 @@ class PaperCanvas extends HTMLElement {
         return PaperCanvas.undo
     }
     // syncWithForm() {
-        // let i = this[internals]
-        // return this.toFile().then(i.setFormValue.bind(i))
+    // let i = this[internals]
+    // return this.toFile().then(i.setFormValue.bind(i))
     // // }
     // static formAssociated = true
     static undo() {
@@ -144,7 +144,7 @@ let style = $('style', {
         cursor: 'crosshair',
         'touch-action': 'none',
         'background-color': 'white',
-        display: 'inline-flex',
+        display: 'grid',
         border: '1px solid black'
     })}}`
 })

@@ -48,15 +48,6 @@ input:not([type="image"]) {
   margin-bottom: 0 !important;
 }
 
-#draw {
-  background-color: white;
-  resize: both;
-  display: block;
-  --user-select: none;
-  cursor: crosshair;
-  touch-action: none;
-  image-rendering: auto;
-}
 
 #drawInstead {
   width: 80px;

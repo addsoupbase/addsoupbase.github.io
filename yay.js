@@ -590,7 +590,10 @@ return eval(arguments[0])}.call(this[1],this[2])}`)).call([base(this).ownerDocum
                 } = n; a--;) {
                     let prop = ariaOrData(n[a])
                     if (test(prop)) throw NO_INLINE()
-                    if (typeof val === 'boolean') me.toggleAttribute(prop, val)
+                    if (typeof val === 'boolean') {
+                        me.toggleAttribute(prop, val)
+                        //// if (prop.startsWith('aria-'))debugger
+                    } 
                     else if (val === '' || val == null) me.removeAttribute(prop)
                     else me.setAttribute(prop, val)
                 }

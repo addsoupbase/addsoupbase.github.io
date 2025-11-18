@@ -1,13 +1,12 @@
 import $ from '../yay.js'
-import { wait, on } from '../handle.js'
-
-let { main, drawInstead, send1, send2, draw, drawcontrols, undoDraw, submitDrawing } = $.id
+import '../webcomponents/paper-canvas.js'
+let {  drawInstead, send1, send2, draw, drawcontrols, undoDraw } = $.id
 
 // $.id.pickAColor
 drawInstead.on({
     _click() {
         this.before.destroy()
-        ;[].forEach.call(document.querySelectorAll('[data-hi]'), o=>o.remove())
+            ;[].forEach.call(document.querySelectorAll('[data-hi]'), o => o.remove())
         this.destroy()
         send2.fadeIn()
         send1.hide(3)
@@ -17,13 +16,13 @@ send2.on({
     async $_submit() {
         try {
             let pencil = $('<img src="./cute-emojis/emojis/1216660171951046746.gif" alt="pencil loading icon">')
-            !async function () {
+            !(async()=> {
                 await this.fadeOut()
                 this.replace(pencil)
-                pencil.busy(true)
+                pencil.attr._busy = "true"
                 pencil.fadeIn()
-            }.call(this)
-            let data = draw.toDataURL('image/png', 1).slice(22)
+            })()
+            let data = draw.dataURL(1).slice(22)
             let res = await fetch(this.attr.$action, {
                 mode: 'cors',
                 method: 'post',
@@ -48,9 +47,7 @@ send2.on({
 })
 undoDraw.on({
     click() {
-        if (!undoBuffer.length) return
-        ctx.clearRect(0, 0, 250, 250)
-        ctx.putImageData(undoBuffer.pop(), 0, 0)
+        draw.undo()
     }
 })
 drawcontrols.delegate({
@@ -67,16 +64,8 @@ drawcontrols.delegate({
         }
     }
 })
-let down = false
-let ctx = draw.getContext('2d', {
-    willReadFrequently: true,
-})
-let last = {
-    x: 0 / 0,
-    y: 0 / 0,
-}
-let undoBuffer = []
-let zoom = 1
+let ctx = draw.ctx
+// let zoom = 1
 Object.assign(ctx, {
     lineJoin: 'round',
     lineCap: 'round',
@@ -84,64 +73,6 @@ Object.assign(ctx, {
 })
 ctx.fillRect(0, 0, 250, 250)
 ctx.fillStyle = 'black'
-function pointermove({ offsetX: x, offsetY: y }) {
-    if (down) {
-        if (arguments[0].touches) {
-            let touches = arguments[0].touches[0]
-            x = touches.clientX - this.offsetLeft - touches.radiusX
-            y = touches.clientY - this.offsetTop - touches.radiusY
-        }
-        ctx.beginPath()
-        // let {currentCSSZoom: zoom} = this
-        ctx.moveTo(last.x, last.y)
-        ctx.lineTo(x, y)
-        ctx.stroke()
-        last.x = x
-        last.y = y
-    }
-}
-function pointerdown(p) {
-    undoBuffer.push(ctx.getImageData(0, 0, 250, 250))
-    while (undoBuffer.length > 20) undoBuffer.shift()
-    down = true
-    if ('pointerId' in p)
-        this.setPointerCapture(p.pointerId)
-    last.x = p.offsetX
-    last.y = p.offsetY
-    ctx.beginPath()
-    let { currentCSSZoom: zoom } = this
-    ctx.arc(last.x, last.y, 0, 0, 6)
-    ctx.stroke()
-    ctx.fill()
-    // ctx.strokeRect(p.offsetX/zoom, p.offsetY/zoom, .5,.5)
-}
-let touched = false
-draw.on({
-    //Do it later
-    /*   wheel({deltaY: a}){
-           console.log(arguments[0])
-   this.styles.zoom = Math.min(Math.max((+this.styles.zoom || 1) - Math.sign(a)/30,.5), 3)
-       },*/
-    // touchstart: pointerdown,
-    /* touchmove(a){
-         pointermove.call(this,a)
-         touched ||= !!this.off('pointermove')
-     } ,*/
-    // touchcancel: cancel,
-    // touchend: cancel,
-    // mousedown: pointerdown,
-    // mousemove:pointermove,
-    // mouseup: cancel,
-    '^pointerdown': pointerdown,
-    '^pointermove': pointermove,
-    '^pointerup': cancel,
-    '^pointercancel': cancel
-})
-
-function cancel() {
-    down = false
-}
-
 if (top === window) $.id.viewframe.destroy()
 /*location.hash ? main.animate([{filter: 'blur(2px)', opacity: 0, scale: '0.8 0.8', translate: '0 -40px'}, {
         filter: '',
@@ -152,7 +83,6 @@ if (top === window) $.id.viewframe.destroy()
 /*.animate([
     { scale: '' }, { scale: '1.1 1.1' },
 ], { duration: 500, iterations: 4, direction: 'alternate', easing: 'ease-in-out' })*/
-
 if (top === window) {
     $.id.goBack.setAttr({ href: '../' })
 } else $.gid('viewbackground').debounce({
@@ -163,7 +93,7 @@ if (top === window) {
         show.fadeIn()
         show.focus()
     }
-},1500)
+}, 1500)
 // buttonholder.$(`<a class="cute-green-button" href="./diary.html">Diary</a>`)
 /*$('a,cute-green-button', {
     parent: buttonholder,
@@ -220,8 +150,8 @@ form.on({
         // }
         // form.destroy()
     }
-},  controller)
+}, controller)
 fetch('https://misha-mail-85.deno.dev', {
     method: 'head',
     mode: 'cors'
-}).then(disableForm,disableForm)
+}).then(disableForm, disableForm)
