@@ -498,6 +498,7 @@ try {
             aa && abrt()
             if (once || (result && result.propertyIsEnumerable('value') && result.propertyIsEnumerable('done') && result.done === true)) off(currentTarget, name)
         }
+        return result
     }
     function off(target
         // ,...eventNames
