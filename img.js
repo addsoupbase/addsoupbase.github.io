@@ -10,8 +10,8 @@
 */
 export function cell(width, height, cols, rows, x, y) {
     // mainly meant for the drawImage function (spread at arguments[1])
-    let w = height / rows
-        , h = width / cols
+    let h = height / rows
+        , w = width / cols
     return [ //Uint16Array.of(
         w * x % width, h * y % height, w, h
     ]

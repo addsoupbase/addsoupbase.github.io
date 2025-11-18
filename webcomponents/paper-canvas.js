@@ -123,6 +123,7 @@ class PaperCanvas extends HTMLElement {
         let height = t.attr.height || 250
         let canvas = this.canvas = $('canvas #canvas', {
             attr: {
+                style:'image-rendering:auto',
                 width,
                 height
             }
@@ -145,7 +146,7 @@ let style = $('style', {
         'touch-action': 'none',
         'background-color': 'white',
         display: 'grid',
-        border: '1px solid black'
+        border: '1px solid black',
     })}}`
 })
 define('paper-canvas', PaperCanvas)

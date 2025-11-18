@@ -1,6 +1,7 @@
 import $,{define,base,prox} from '../yay.js'
 import '../css.js'
 const css = window[Symbol.for('[[CSSModule]]')]
+console.warn('img-sprite is deprecated, use sprite-runner instead.')
 class AnimatedSprite extends HTMLElement {
     static observedAttributes = 'cols rows src width height duration direction index alt'.split(' ')
 
