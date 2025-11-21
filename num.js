@@ -60,9 +60,9 @@ export function avg(...array) {
         filtered = sorted.filter(filter.bind(this, q1 - 1.5 * IQR, add(q3, 1.5 * IQR)))
     return filtered.reduce(reduce) / filtered.length
 }
-  function filter(x, lowerFence, upperFence) {
-        return x >= lowerFence && x <= upperFence
-    }
+function filter(x, lowerFence, upperFence) {
+    return x >= lowerFence && x <= upperFence
+}
 export function median(...numbers) {
     let { length } = numbers
         , sorted = numbers.sort(sort),
@@ -164,8 +164,8 @@ export function minBigInt(...BigInts) {
 export function maxBigInt(...BigInts) {
     return BigInts.reduce(gt)
 }
-export class Vector2 extends Float32Array {
-    // Extending from a TypedArray is *significantly* faster!! (around 31x)
+export class Vector2 {
+    // 𝖤̶𝗑̶𝗍̶𝖾̶𝗇̶𝖽̶𝗂̶𝗇̶𝗀̶ Wrapping a TypedArray is *significantly* faster!! (around 31x)
     static get up() {
         return new Vector2(0, 1)
     }
@@ -195,6 +195,10 @@ export class Vector2 extends Float32Array {
         // unit mainly just 'px'
         return `(${this[0]}${unit ??= ''}, ${this[1]}${unit})`
     }
+    get x() { return this.#v[0] }
+    set x(x) { this.set(x, this.#v[1]) }
+    get y() { return this.#v[1] }
+    set y(y) { this.set(this.#v[0], y) }
     static _() {
         // Older browsers cant have static init blocks
         delete this._
@@ -217,15 +221,21 @@ export class Vector2 extends Float32Array {
                 }
             })
         }
+        let { get, set } = Object.getOwnPropertyDescriptor(this.prototype, 'x')
+        let { get: get2, set: set2 } = Object.getOwnPropertyDescriptor(this.prototype, 'y')
         Object.defineProperties(this.prototype, {
             [Symbol.isConcatSpreadable]: { value: true },
             [Symbol.toStringTag]: { value: this.name },
+            0: {
+                get,
+                set
+            },
+            1: {
+                get: get2,
+                set: set2
+            }
         })
     }
-    get x() { return this[0] }
-    set x(x) { this.set(x, this[1]) }
-    get y() { return this[1] }
-    set y(y) { this.set(this[0], y) }
     static _ = this._()
     '\x63\x6f\x6e\x73\x74\x72\x75\x63\x74\x6f\x72'(x = 0, y = 0
         //, { 0: minX = MIN_SAFE_INTEGER, 1: minY = MIN_SAFE_INTEGER } = {},
@@ -237,8 +247,9 @@ export class Vector2 extends Float32Array {
             _min[1] = minY
             _max[0] = maxX
             _max[1] = maxY*/
-        Reflect.preventExtensions(super(2).set(x, y))
+        Reflect.preventExtensions(this.set(x, y))
     }
+    #v = Float32Array.of(0, 0)
     // #min = new Float32Array(2)
     // #max = new Float32Array(2)
     //get #value() { return [this.x, this.y] }
@@ -284,7 +295,7 @@ export class Vector2 extends Float32Array {
     reset() {
         return this.set(0, 0)
     }
-    push(target, force, maxDistance = 1/0) {
+    push(target, force, maxDistance = 1 / 0) {
         let diff = vect(target).subtract(this)
         let distance = Vector2.distance(this, target)
         if (distance > maxDistance) return this
@@ -356,9 +367,10 @@ export class Vector2 extends Float32Array {
         return magnitude < target.magnitude ? this.set(target) : this.add(delta ??= 1, delta)
     }
     set(x, y) {
-        this[0] = x
+        let v = this.#v
+        v[0] = x
         // clamp(+x, this.#min[0], this.#max[0])
-        this[1] = y
+        v[1] = y
         // clamp(+y, this.#min[1], this.#max[1])
         return this
     }

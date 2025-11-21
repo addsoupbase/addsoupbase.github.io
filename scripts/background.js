@@ -1,5 +1,5 @@
-import'../css.js'
-const { registerCSS, registerCSSAll } = window[Symbol.for("[[CSSModule]]")]
+import $,{css} from '../yay.js'
+const { registerCSS, registerCSSAll } = css
 let regex = /[\w.\-%汝起亚]+\.(?:webp|a?png|gif|jpe?g)/
 let all = document.getElementsByTagName('*')
 function isHidden() {//violations >= 10 || 
@@ -40,7 +40,7 @@ async function images({ time, colorful, birthday }) {
         new AbortController
     ).debounce({
         '^pointermove'({ x, y }) {
-             holding && makeBubble(`${x}px`, `${y}px`).fadeIn(300)
+            holding && makeBubble(`${x}px`, `${y}px`).fadeIn(300)
         }
     }, 60)
         .on({
@@ -147,26 +147,23 @@ async function images({ time, colorful, birthday }) {
         }
         // out.animate([{ transform: 'rotate(0deg)' }, { transform: `rotate(${ran.choose(360, -360)}deg)` }], { composite: 'accumulate', duration: 80000, iterations: 1 / 0, easing: 'linear' })
     }
-
+    let sym = Symbol.for('name')
+    let wid = Symbol.for('width')
     function createAnimationForSpritesheet(image) {
         let dura = frameDuration
-        if (image[Symbol.for('name')] === 'groudon') {
+        if (image[sym] === 'groudon') {
             dura *= 2
         }
-        let me = $(`div.${image[Symbol.for('name')]}.sprite`, {
+        let me = $(`div.${image[sym]}.sprite`, {
             parent, attr: {
                 _hidden: 'true',
             }
         })
-        me.animate([{
-            'backgroundPositionX': '0px'
-        },
-        {
-            'backgroundPositionX': `-${image.width}px`
-        }
+        me.animate([{ 'backgroundPositionX': '0px' },
+        { 'backgroundPositionX': `-${image.width}px` }
         ], {
-            easing: `steps(${image[Symbol.for('width')]},end)`,
-            duration: dura * image[Symbol.for('width')],
+            easing: `steps(${image[wid]},end)`,
+            duration: dura * image[wid],
             iterations: 1 / 0
         })
         ran.jackpot(1000) && me.classList.add('shiny')
@@ -202,6 +199,7 @@ async function images({ time, colorful, birthday }) {
             case 'kyogreprimal':
                 duration *= 3
             case 'kyogre':
+                case 'alomomola':
                 duration *= 2
                 break
             case 'luvdisc':
@@ -293,7 +291,6 @@ async function images({ time, colorful, birthday }) {
     tinyBubbles()
 }
 
-import $ from '../yay.js'
 import *as math from '../num.js'
 import *as string from '../str.js'
 import *as h from '../handle.js'
@@ -345,7 +342,7 @@ frame.on({
             import('./images.js').then(images)
             console.debug("🐟 Loading the bg now...")
             // deadline ? console.debug(`Did timeout: `, deadline?.didTimeout) : console.debug('requestIdleCallback unsupported :(')
-        }, { priority:'background'})
+        }, { priority: 'background' })
     }
 }, new AbortController)
 const parent = $('div #background .BG', {

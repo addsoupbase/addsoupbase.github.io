@@ -199,7 +199,7 @@ a {
   scale: 1.5 1.2
 }
 
-.skrelp.shiny {
+:is(.skrelp, .alomomola).shiny {
   filter: hue-rotate(306deg);
 }
 
@@ -217,7 +217,11 @@ a {
   filter: hue-rotate(92deg)
 }
 
-.mantine, .alomomola {
+.alomomola {
+  scale: 3 3
+}
+
+.mantine {
   scale: 2 2
 }
 

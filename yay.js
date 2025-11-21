@@ -1544,6 +1544,7 @@ const NO_INLINE = TypeError.bind(1, 'Inline event handlers are deprecated')
 function $(html, props, ...children) {
     // 'use strict'
     // let children = [].slice.call(arguments, 2)
+    if (html === null) throw TypeError('Cannot wrap null')
     if (getValid(html)) return prox(html)
     if (Array.isArray(html) && 'raw' in html) { // tagged template
         let strings = html,

@@ -95,7 +95,6 @@ class Sprite extends HTMLElement {
         part.style.width = `${width}px`
         part.style.height = `${height}px`
         if (this.hasAttribute('autoplay')) this.play()
-        console.debug(this.index)
         this.#image.style.top = `-${this.index * (this.#image.naturalHeight / this.rows) % this.#image.naturalHeight}px`
     }
     attributeChangedCallback(attr, oldv, newv) {
