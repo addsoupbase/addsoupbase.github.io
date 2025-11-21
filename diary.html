@@ -107,11 +107,11 @@
             <section id="diary" class="cute-blue" style="--user-select:none;width: 746px;  place-self: center;">
                 <div id="walking"></div>
                 <h2 id="invalid" hidden>No entry for today &lpar;yet!&rpar;
-                    <img style="image-rendering: pixelated" alt="tangled speech balloon" height="34"
+                    <img style="image-rendering: pixelated" alt="tangled speech balloon" loading="lazy"  height="34"
                         src="./cute-emojis/emojis/1143313874943234058.gif">
                 </h2>
                 <h2 id="error" hidden>
-                    <img alt="error" height="50" src="./cute-emojis/emojis/1242581617084465222.gif">
+                    <img alt="error" loading="lazy" height="50" src="./cute-emojis/emojis/1242581617084465222.gif">
                     <br>
                     <samp style="color:#631414;">Error
                     </samp>
@@ -197,7 +197,7 @@
             }
         }
     </style>
-    <script>
+    <script nomodule>
         if (location.hash) document.getElementById('display').setAttribute('src', './entries/' + location.hash.slice(1).replace(/\//g, '_'))
     </script>
     <script type="module">
@@ -366,6 +366,7 @@
                 let final = currentDateInput.value = toYMDFormat(date)
                 location.hash = final
                 let src = `./entries/${toNormal(date)}/index.html`
+                if (src !== frame.attr.src)
                 frame.setAttr({
                     src
                 })

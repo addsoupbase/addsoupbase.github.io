@@ -175,7 +175,7 @@ function TestImportSupport() {
     let s = { type: 'json' }
     getJson = Function
         // Some other browsers, prefer 'assert' over 'with'
-        ('n,o,j,d,s', '"use strict";return(import(j(s,o),n).then(d))')
+        ('n,o,j,d,s', '"use strict";return import(j(s,o),n).then(d)')
         .bind(void '', { assert: s, with: s }, location, resolve, def)
     function def(o) {
         return deep(o.default)

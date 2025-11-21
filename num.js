@@ -395,11 +395,11 @@ export class Vector2 {
     pow(x, y) {
         return this.set(this[0] ** x, this[1] ** y)
     }
-    /*
+    
     *[Symbol.iterator]() {
         yield this[0]
         yield this[1]
-    }*/
+    }
     static [Symbol.hasInstance](obj) { return (typeof obj.x === 'number' || typeof obj[0] === 'number') && (typeof obj.y === 'number' || typeof obj[1] === 'number') }
 }
 delete Vector2._
