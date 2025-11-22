@@ -68,7 +68,9 @@ export let time = new Promise(async (resolve) => {
     avatars = (await Promise.allSettled((await jason('./allava.json')).map(
         async function (o) {
             let n = new Image
-            n.src = `./media/avatars/${o}`
+            let blob = await(await fetch(`./media/avatars/${o}`)).blob()
+            n.src = URL.createObjectURL(blob)
+            n.title = o
             await Promise.all([until(n, st), n.decode()])
             return n
         }

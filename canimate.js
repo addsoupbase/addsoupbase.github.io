@@ -124,7 +124,7 @@ function waitForMessageFromWorker(src, resolve, reject) {
         }
     }
 }
-function sleep(ms) {
-    let t = performance.now()
-    while(performance.now() - t < ms);
-}
+// function sleep(ms) {
+//     let t = performance.now()
+//     while(performance.now() - t < ms);
+// }

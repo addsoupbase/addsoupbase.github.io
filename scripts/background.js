@@ -67,7 +67,7 @@ async function images({ time, colorful, birthday }) {
             easing: 'ease-in-out',
             composite: 'accumulate',
         }).finished
-        let { 0: name } = this.firstElementChild.src.match(regex)[0].split(/\.(?:webp|a?png|gif|jpe?g)/)
+        let { 0: name } = this.firstElementChild.title.match(regex)[0].split(/\.(?:webp|a?png|gif|jpe?g)/)
         if (name.includes('%')) name = decodeURIComponent(name)
         let src = this.firstElementChild.src
         let me = $(`div.ava .tar .${name}`, {
@@ -139,6 +139,7 @@ async function images({ time, colorful, birthday }) {
                 _hidden: 'true',
                 width: 50,
                 height: 50,
+                title: image.title,
                 draggable: false
             }
         })
