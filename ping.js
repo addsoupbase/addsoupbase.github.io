@@ -1,5 +1,5 @@
 const env = globalThis.toString().slice(8, -1)
-let n = 0n
+let n = 0
 let pingpong
 switch (env) {
     default: {
