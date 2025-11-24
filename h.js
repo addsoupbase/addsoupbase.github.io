@@ -655,5 +655,5 @@ try {
     }
     $.dispatch = dispatch
     return constructor.prototype[MODULE] = $
-}(typeof globalThis === 'undefined' ? window : globalThis, ////!this
+}(typeof globalThis === 'undefined' ? window : globalThis ////,!this
 ))

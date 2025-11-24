@@ -103,7 +103,8 @@ class Joystick extends HTMLElement {
                 'background-color': '#000',
                 '--user-select': 'none',
                 '--touch-callout': 'none',
-                position: 'relative'
+                position: 'relative',
+                'will-change': 'transform',
             })}
                 }
                 :host {
