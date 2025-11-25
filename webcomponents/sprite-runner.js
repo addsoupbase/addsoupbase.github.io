@@ -110,4 +110,6 @@ class Sprite extends HTMLElement {
         }
     }
 }
+let d = customElements.whenDefined(elementName)
 define(elementName, Sprite)
+await d

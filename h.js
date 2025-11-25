@@ -66,15 +66,15 @@
     //    }
     //}
     // var verified = new WeakSet
-    function nodeType(node) {
-        return node.nodeType
+    // function nodeType(node) {
+        // return node.nodeType
         /*try {
             return (get = get || Function.call.bind(Object.getOwnPropertyDescriptor(Node.prototype, 'nodeType').get))(node)
         }
         catch {
             return 0 / 0
         }*/
-    }
+    // }
 
     function isValidET(target) {
         /*  var o
@@ -171,7 +171,7 @@ try {
         var original = name
         name = name.toLowerCase()
         var valid = (customEvents.has(name) || 'on' + name in target ||
-            ((original === 'DOMContentLoaded' && nodeType(target) === 9)
+            ((original === 'DOMContentLoaded' && target.nodeType === 9)
                 || (isAnimation(original) && 'onremove' in target)
                 || isFocus(original)
                 || isTouch(original)
@@ -394,7 +394,12 @@ try {
                 autoabort && args.push(controller.abort.bind(controller))
                 args.push(off.bind(null, target, eventName))
                 var iterator = apply(func, target, args)
-                func = iterator.next.bind(iterator)
+                var started = false
+                func = function(e) {
+                    started || (started = iterator.next())
+                    return iterator.next(e)
+                }
+                // func = iterator.next.bind(iterator)
                 // the first 'yield' has no value, for some reason 
                 //    ;(func = iterator.next.bind(iterator))() 
             }

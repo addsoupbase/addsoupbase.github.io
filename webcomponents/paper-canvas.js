@@ -149,4 +149,6 @@ let style = $('style', {
         border: '1px solid black',
     })}}`
 })
+let d = customElements.whenDefined('paper-canvas')
 define('paper-canvas', PaperCanvas)
+await d
