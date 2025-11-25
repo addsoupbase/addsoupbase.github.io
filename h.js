@@ -87,7 +87,7 @@
                    || (c = target.EventTarget) && c.prototype.isPrototypeOf(target)
                    || lastResort(target)) /*'addEventListener removeEventListener dispatchEvent'.split(' ').every(lastResort, target)*/
         // bool && verified.add(target)
-        return 'addEventListener' in target && 'removeEventListener' in target && 'dispatchEvent' in target
+        return target === Object(target) && 'addEventListener' in target && 'removeEventListener' in target && 'dispatchEvent' in target
     }
     /*function lastResort(target) {
         /*   var a = `${addEventListener}`,

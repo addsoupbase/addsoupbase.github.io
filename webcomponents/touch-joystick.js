@@ -86,10 +86,10 @@ class Joystick extends HTMLElement {
 
     constructor() {
         super()
-        this.setAttribute('role', [this.getAttribute('role') || '','application'].filter(Boolean).join(' '))
+        this.setAttribute('role', [this.getAttribute('role') || '', 'application'].filter(Boolean).join(' '))
         let t = $(this)
         for (let i in Joystick.#events) this[`on${i}`] = Joystick.#events[i]
-        t.on({$contextmenu:no})
+        t.on({ $contextmenu: no })
         let shadow = t.attachShadow({ mode: 'closed' })
         shadow.appendChild($('style', {
             textContent: `        
@@ -98,7 +98,7 @@ class Joystick extends HTMLElement {
                 width: '50px',
                 'border-radius': '100%',
                 height: '50px',
-                cursor:'move',
+                cursor: 'grab',
                 'touch-action': 'none',
                 'background-color': '#000',
                 '--user-select': 'none',
@@ -106,22 +106,27 @@ class Joystick extends HTMLElement {
                 position: 'relative',
                 'will-change': 'transform',
             })}
-                }
+        }
+                div:active {
+                ${css.toCSS({
+                cursor: 'grabbing',
+            })}
+        }
                 :host {
                 ${css.toCSS({
-                width: '120px',
-                height: '120px',
-                'touch-action': 'none',
-                'place-items': 'center',
-                '--user-select': 'none',
-                '--touch-callout': 'none',
-                'place-content': 'center',
-                opacity: 0.5,
-                'background-color': '#6a7b80',
-                display: 'flex',
-                // position: 'fixed',
-                'border-radius': '100%',
-            })}
+                    width: '120px',
+                    height: '120px',
+                    'touch-action': 'none',
+                    'place-items': 'center',
+                    '--user-select': 'none',
+                    '--touch-callout': 'none',
+                    'place-content': 'center',
+                    opacity: 0.5,
+                    'background-color': '#6a7b80',
+                    display: 'flex',
+                    // position: 'fixed',
+                    'border-radius': '100%',
+                })}
                 }`
         }).valueOf())
         shadow.appendChild(
@@ -129,5 +134,5 @@ class Joystick extends HTMLElement {
         )
     }
 }
-function no(){}
+function no() { }
 define('touch-joystick', Joystick)
