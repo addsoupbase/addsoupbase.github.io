@@ -56,6 +56,7 @@ async function images({ time, pkm, colorful, birthday }) {
         e.stopImmediatePropagation()
         let { transform } = this.computed
         this.pauseAnims()
+        POP()
         this.fadeOut(300)
         this.flags = 1
         await this.animate([{ transform: '' }, { transform: 'scaleX(2) scaleY(2)', }], {
