@@ -1,12 +1,13 @@
 import $,{css} from '../yay.js'
 const { registerCSS, registerCSSAll } = css
+import '../sound.js'
 let regex = /[\w.\-%汝起亚]+\.(?:webp|a?png|gif|jpe?g)/
 let all = document.getElementsByTagName('*')
 function isHidden() {//violations >= 10 || 
     return all.length > 135 || hidden || !!document.fullscreenElement || document.hidden || document.visibilityState === 'hidden'
 }
 async function images({ time, colorful, birthday }) {
-    let pop = new Audio('media/pop.mp3')
+    await audio.load('./media/pop.mp3')
     let { avatars, mons } = await time
     if (birthday) {
         $.body.animate([{ 'backdrop-filter': 'hue-rotate(0deg)', }, { 'backdrop-filter': 'hue-rotate(360deg)' }], {
@@ -57,9 +58,7 @@ async function images({ time, colorful, birthday }) {
         e.stopImmediatePropagation()
         let { transform } = this.computed
         this.pauseAnims()
-        pop.currentTime = 0
-        pop.play()
-        POP()
+        audio.play('pop.mp3')
         this.fadeOut(300)
         this.flags = 1
         await this.animate([{ transform: '' }, { transform: 'scaleX(2) scaleY(2)', }], {
