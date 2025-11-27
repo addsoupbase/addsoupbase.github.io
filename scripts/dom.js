@@ -1,5 +1,5 @@
-import $ from '../yay.js'
 import '../webcomponents/paper-canvas.js'
+import $ from '../yay.js'
 let {  drawInstead, send1, send2, draw, drawcontrols, undoDraw } = $.id
 
 // $.id.pickAColor
