@@ -12,7 +12,9 @@
             return gain.gain.value
         }
     }
-    const ctx = Reflect.construct(window.AudioContext || webkitAudioContext, [])
+    const ctx = Reflect.construct(window.AudioContext || webkitAudioContext, [{
+        latencyHint: 'interactive'
+    }])
     audio.context = ctx
     let gain = ctx.createGain()
     gain.connect(ctx.destination)
