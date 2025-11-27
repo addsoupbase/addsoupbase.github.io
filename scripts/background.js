@@ -1,4 +1,4 @@
-import $,{css} from '../yay.js'
+import $, { css } from '../yay.js'
 const { registerCSS, registerCSSAll } = css
 import '../sound.js'
 let regex = /[\w.\-%汝起亚]+\.(?:webp|a?png|gif|jpe?g)/
@@ -6,9 +6,8 @@ let all = document.getElementsByTagName('*')
 function isHidden() {//violations >= 10 || 
     return all.length > 135 || hidden || !!document.fullscreenElement || document.hidden || document.visibilityState === 'hidden'
 }
-async function images({ time, colorful, birthday }) {
+async function images({ time, pkm, colorful, birthday }) {
     await audio.load('./media/pop.mp3')
-    let { avatars, mons } = await time
     if (birthday) {
         $.body.animate([{ 'backdrop-filter': 'hue-rotate(0deg)', }, { 'backdrop-filter': 'hue-rotate(360deg)' }], {
             duration: 50_000,
@@ -25,7 +24,6 @@ async function images({ time, colorful, birthday }) {
     let bg = parent
     const frameDuration = 135
     const duration = 15_000
-    const cycle = math.cycle(...ran.shuffle(...avatars))
     let holding = false
     bg.delegate({
         contentvisibilityautostatechange({ skipped }) {
@@ -58,7 +56,6 @@ async function images({ time, colorful, birthday }) {
         e.stopImmediatePropagation()
         let { transform } = this.computed
         this.pauseAnims()
-        audio.play('pop.mp3')
         this.fadeOut(300)
         this.flags = 1
         await this.animate([{ transform: '' }, { transform: 'scaleX(2) scaleY(2)', }], {
@@ -91,7 +88,6 @@ async function images({ time, colorful, birthday }) {
         }).finished
         me.destroy()
     }
-
     function bubbleWithAva(image = cycle.next) {
         if (isHidden()) return
         const { src } = image
@@ -169,8 +165,7 @@ async function images({ time, colorful, birthday }) {
         ran.jackpot(1000) && me.classList.add('shiny')
         return me
     }
-    let groudon = [...mons].find(o => o.src.includes('groudon'))
-    mons.delete(groudon)
+
     async function spawnPkmn() {
         setTimeout(spawnPkmn, ran.range(500, 2000))
         if (isHidden() || !mons) return
@@ -199,7 +194,7 @@ async function images({ time, colorful, birthday }) {
             case 'kyogreprimal':
                 duration *= 3
             case 'kyogre':
-                case 'alomomola':
+            case 'alomomola':
                 duration *= 2
                 break
             case 'luvdisc':
@@ -241,10 +236,6 @@ async function images({ time, colorful, birthday }) {
         await element.fadeOut()
         element.destroy()
     }
-
-    setInterval(bubbleWithAva, 2000)
-    spawnPkmn()
-
     function makeBubble(x, y) {
         let bubbl = $(`<div class="bubble" style="pointer-events:none;z-index:${ran.frange(1, 3)}"></div>`, {
             parent,
@@ -282,13 +273,23 @@ async function images({ time, colorful, birthday }) {
             )
         return bubbl
     }
-
     function tinyBubbles(again = true) {
         again && setTimeout(tinyBubbles, ran.range(1000, 1200))
         isHidden() || makeBubble()
     }
-
     tinyBubbles()
+    let cycle
+    let mons
+    time.then(avatars => {
+        cycle = math.cycle(...ran.shuffle(...avatars))
+        setInterval(bubbleWithAva, 2000)
+    })
+    pkm.then(m => {
+        mons = m
+        let groudon = [...mons].find(o => o.src.includes('groudon'))
+        mons.delete(groudon)
+        spawnPkmn()
+    })
 }
 
 import *as math from '../num.js'
@@ -334,6 +335,7 @@ let POP = window.POP = function () {
             document.body.style.background = `linear-gradient(52deg, rgb(178 2 226) 0%, rgb(0 38 255) 100%) no-repeat`
             break
     }
+    audio.play('pop.mp3')
 }
 //document.body.scrollLeft = innerHeight/2
 frame.on({

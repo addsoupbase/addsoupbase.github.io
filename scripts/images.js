@@ -62,13 +62,35 @@ export const birthday =
     today.getMonth() === 6 - 1 && today.getDate() === 17
 const width = Symbol.for('width'),
     name = Symbol.for('name')
-let avatars, mons
+let avatars
+export let pkm = new Promise(async (resolve) => {
+    let mons =
+        Object.keys(dataURLS).map(function (o) {
+            let { 0: src, 1: Width } = o.split(":")
+            let img = Object.assign(new Image, {
+                src: `data:image/png;base64,${dataURLS[o]}`,
+                [width]: +Width,
+                [name]: src
+            })
+            img.onload = () => {
+                registerCSS(`.${src}`, {
+                    'background-image': `url(${img.src})`,
+                    width: `${(img.width / Width)}px`,
+                    height: `${(img.height)}px`
+                })
+            }
+            // await Promise.all([until(img, st), img.decode()])
+            return img
+        })
+    mons = new Set(mons)
+    resolve(mons)
+})
 let st = { events: 'load error'.split(' ') }
 export let time = new Promise(async (resolve) => {
     avatars = (await Promise.allSettled((await jason('./allava.json')).map(
         async function (o) {
             let n = new Image
-            let blob = await(await fetch(`./media/avatars/${o}`)).blob()
+            let blob = await (await fetch(`./media/avatars/${o}`)).blob()
             n.src = URL.createObjectURL(blob)
             n.title = o
             await Promise.all([until(n, st), n.decode()])
@@ -92,27 +114,7 @@ export let time = new Promise(async (resolve) => {
             ctx.clearRect(0, 0, w, h)
         }
     }
-    mons =
-        Object.keys(dataURLS).map(function (o) {
-            let { 0: src, 1: Width } = o.split(":")
-            let img = Object.assign(new Image, {
-                src: `data:image/png;base64,${dataURLS[o]}`,
-                [width]: +Width,
-                [name]: src
-            })
-            img.onload = () => {
-                registerCSS(`.${src}`, {
-                    'background-image': `url(${img.src})`,
-                    width: `${(img.width / Width)}px`,
-                    height: `${(img.height)}px`
-                })
-            }
-            // await Promise.all([until(img, st), img.decode()])
-            return img
-        })
-
-    mons = new Set(mons)
-    resolve({ avatars, mons })
+    resolve(avatars)
     // console.debug("🐠 Sprites loaded")
 })
 // registerCSS('.bubble',{

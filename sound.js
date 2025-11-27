@@ -12,7 +12,7 @@
             return gain.gain.value
         }
     }
-    const ctx = new AudioContext()
+    const ctx = Reflect.construct(window.AudioContext || webkitAudioContext, [])
     audio.context = ctx
     let gain = ctx.createGain()
     gain.connect(ctx.destination)
