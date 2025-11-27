@@ -4,7 +4,7 @@
     const audio = {
         __proto__: null,
         [Symbol.toStringTag]: 'AudioModule',
-        loaded: new Set,
+        // loaded: new Set,
         set volume(val) {
             gain.gain.value = val
         },
@@ -45,10 +45,11 @@
     function addToSounds(src, buffer) {
         let s = src.split('/').at(-1)
         sounds.set(s, buffer)
-        audio.loaded.add(s)
+        // audio.loaded.add(s)
     }
     // function playBackgroundMusic(delay, ...sources) {
 
     // }
-    return Object.defineProperty(constructor.prototype, 'audio', { get() { return audio } }), audio
+    return Object.defineProperty(constructor.prototype, 'audio', { get() { return audio } }), 
+    Object.freeze(audio)
 }()

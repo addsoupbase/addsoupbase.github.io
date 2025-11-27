@@ -1,6 +1,6 @@
 import '../webcomponents/paper-canvas.js'
 import $ from '../yay.js'
-let {  drawInstead, send1, send2, draw, drawcontrols, undoDraw } = $.id
+let { drawInstead, send1, send2, draw, drawcontrols, undoDraw } = $.id
 
 // $.id.pickAColor
 drawInstead.on({
@@ -16,7 +16,7 @@ send2.on({
     async $_submit() {
         try {
             let pencil = $('<img src="./cute-emojis/emojis/1216660171951046746.gif" alt="pencil loading icon">')
-            !(async()=> {
+            !(async () => {
                 await this.fadeOut()
                 this.replace(pencil)
                 pencil.attr._busy = "true"
@@ -64,15 +64,14 @@ drawcontrols.delegate({
         }
     }
 })
-let ctx = draw.ctx
-// let zoom = 1
-Object.assign(ctx, {
-    lineJoin: 'round',
-    lineCap: 'round',
-    fillStyle: 'white',
+let ctx
+h.on(window, {
+    _load() {
+        ctx = draw.ctx
+    }
 })
-ctx.fillRect(0, 0, 250, 250)
-ctx.fillStyle = 'black'
+// let zoom = 1
+
 if (top === window) $.id.viewframe.destroy()
 /*location.hash ? main.animate([{filter: 'blur(2px)', opacity: 0, scale: '0.8 0.8', translate: '0 -40px'}, {
         filter: '',
