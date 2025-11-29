@@ -477,7 +477,7 @@ return eval(arguments[0])}.call(this[1],this[2])}`)).call([base(this).ownerDocum
         },
         delegate(events, filter, includeSelf, controller) {
             let me = base(this)
-            filter ??= function () { }
+            filter ??= Function.prototype
             for (let i in events) {
                 if (i.includes('@')) throw SyntaxError("Conflicting usage of a 'currentTarget' only delegating event handler")
                 events[i] = DelegationFunction.bind(events[i], me, includeSelf, filter)

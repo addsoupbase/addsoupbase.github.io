@@ -104,10 +104,10 @@ class Joystick extends HTMLElement {
                 '--user-select': 'none',
                 '--touch-callout': 'none',
                 position: 'relative',
-                'will-change': 'transform',
             })}
-        }
-                div:active {
+            }
+            div:active {
+                will-change: transform;
                 ${css.toCSS({
                 cursor: 'grabbing',
             })}
