@@ -7,7 +7,7 @@ function isHidden() {//violations >= 10 ||
     return all.length > 135 || hidden || !!document.fullscreenElement || document.hidden || document.visibilityState === 'hidden'
 }
 async function images({ time, pkm, colorful, birthday }) {
-    audio.load('./media/pop.mp3')
+    await audio.load('./media/pop.mp3')
     if (birthday) {
         $.body.animate([{ 'backdrop-filter': 'hue-rotate(0deg)', }, { 'backdrop-filter': 'hue-rotate(360deg)' }], {
             duration: 50_000,

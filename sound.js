@@ -59,6 +59,7 @@
     async function makeAudio(src) {
         let n = new Audio(src)
         n.preload='auto'
+        n.load()
         setVolume(n)
         function done() {
             n.oncanplaythrough = n.onerror = null
