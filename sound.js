@@ -58,10 +58,15 @@
     audio.play = play
     async function makeAudio(src) {
         let n = new Audio(src)
+        n.preload='auto'
         setVolume(n)
         function done() {
             n.oncanplaythrough = n.onerror = null
             addToSounds(src, n)
+        }
+        if (n.readyState === 4) { 
+            done.call(n)
+            return Promise.resolve()
         }
         return new Promise((res, rej) => {
             n.oncanplaythrough = () => {

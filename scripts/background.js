@@ -7,7 +7,7 @@ function isHidden() {//violations >= 10 ||
     return all.length > 135 || hidden || !!document.fullscreenElement || document.hidden || document.visibilityState === 'hidden'
 }
 async function images({ time, pkm, colorful, birthday }) {
-    await audio.load('./media/pop.mp3')
+    audio.load('./media/pop.mp3')
     if (birthday) {
         $.body.animate([{ 'backdrop-filter': 'hue-rotate(0deg)', }, { 'backdrop-filter': 'hue-rotate(360deg)' }], {
             duration: 50_000,
@@ -362,7 +362,7 @@ let POP = window.POP = function () {
 //document.body.scrollLeft = innerHeight/2
 frame.on({
     _load() {
-        scheduler.postTask(() => {
+        (scheduler.postTask?.bind(scheduler) || window.requestIdleCallback || setTimeout)(() => {
             import('./images.js').then(images)
             console.debug("🐟 Loading the bg now...")
             // deadline ? console.debug(`Did timeout: `, deadline?.didTimeout) : console.debug('requestIdleCallback unsupported :(')
