@@ -1,19 +1,23 @@
 !function () {
     'use strict'
     if (window.audio) return audio
-    let globalVolume = 1
+    let volume = 1
+    let all = new Set
     const audio = {
         __proto__: null,
         [Symbol.toStringTag]: 'AudioModule',
         // loaded: new Set,
         set volume(val) {
-            for (let a of sounds.values())
-                a.volume = val
-            globalVolume = val
+            volume = Math.min(Math.max(val, 0), 1)
+            all.forEach(setVolume)
+            for (let snd of sounds.values()) setVolume(snd)
         },
         get volume() {
-            return globalVolume
+            return volume
         }
+    }
+    function setVolume(v) {
+        v.setAttribute('volume', v.volume = volume * (v.dataset.volumecontrol ?? 1), 1)
     }
     // const ctx = Reflect.construct(window.AudioContext || webkitAudioContext, [{
     latencyHint: 'interactive'
@@ -26,14 +30,19 @@
         return Promise.all(sources.map(makeAudio))
     }
     audio.load = load
-    function play(name, overlap = true) {
+    function play(name, overlap = true, volumeMultipler = 1) {
         let b = sounds.get(name)
         if (!b) return Promise.resolve(null)
         if (overlap) {
             let n = b.cloneNode()
+            n.setAttribute('data-volumecontrol', volumeMultipler)
+            setVolume(n)
             n.play()
+            all.add(n)
             return waitTilFinish(n)
         }
+        b.setAttribute('data-volumecontrol', volumeMultipler)
+        setVolume(b)
         b.play()
         return waitTilFinish(b)
     }
@@ -41,6 +50,7 @@
         return new Promise(res => {
             n.onended = e => {
                 n.onended = null
+                all.delete(n)
                 res(e)
             }
         })
@@ -48,6 +58,7 @@
     audio.play = play
     async function makeAudio(src) {
         let n = new Audio(src)
+        setVolume(n)
         function done() {
             n.oncanplaythrough = n.onerror = null
             addToSounds(src, n)
@@ -71,6 +82,8 @@
     // function playBackgroundMusic(delay, ...sources) {
 
     // }
-    return Object.defineProperty(constructor.prototype, 'audio', { get() { return audio } }),
-        Object.freeze(audio)
+    let out = (Object.defineProperty(constructor.prototype, 'audio', { get() { return audio } }),
+        Object.freeze(audio))
+    dispatchEvent(new Event('audio-loaded'))
+    return out
 }()

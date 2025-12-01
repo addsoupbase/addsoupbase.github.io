@@ -255,7 +255,7 @@
 		})
 		let parse = DOMParser.prototype.parseFromString.bind(new DOMParser)
 		let folder = null
-		if (!~dates.indexOf(new Date().toDateString())) {
+		if (!~dates.map(o => new Date(o).toDateString()).indexOf(new Date().toDateString())) {
 			if (!sessionStorage.a && confirm("Would you like to create a new entry for today?")) {
 				await fetch(`http://localhost:3003/newentry`, { mode: "cors" })
 				location.reload()
@@ -264,8 +264,8 @@
 				// await fetch(`http://localhost:3001`, {mode:'cors', method:'POST'})
 			}
 		}
-		function addPrefetch(){
-			
+		function addPrefetch() {
+
 		}
 		async function fetchHTML(src, date) {
 			let a = await fetch(src, { cache: 'no-cache' })

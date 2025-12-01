@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <!-- <base href="http://localhost:3000/marbles/"> -->
     <meta http-equiv="content-language" content="en">
     <meta property="og:locale" content="en_US">
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
@@ -73,24 +74,26 @@
     <!--^ yes if the site has stuff like back buttons-->
     <meta name="apple-mobile-web-app-title" content="YOUR TITLE HERE">
     <link rel="apple-touch-startup-image" href="favicon.ico">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net/">
     <script src="../css.js" blocking="render"></script>
     <script src="../css_bad.js" nomodule></script>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="animations.css">
     <title>YOUR TITLE HERE</title>
-    <link rel="preload" as="worker" href="gifparsing.js">
+    <!-- <link rel="preload" as="worker" href="gifparsing.js"> -->
+    <script src="../sound.js" defer></script>
     <script type="module" src="play.js"></script>
-    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net/">
-    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
-    <script src="https://cdn.jsdelivr.net/npm/pathseg@1.2.1/pathseg.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/poly-decomp@0.3.0/build/decomp.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.20.0/matter.js"></script>
+    <!-- <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com"> -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/pathseg@1.2.1/pathseg.js"></script> -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/poly-decomp@0.3.0/build/decomp.min.js"></script> -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.20.0/matter.js"></script> -->
     <!--https://wiki.whatwg.org/wiki/MetaExtensions-->
     <!--[if IE]><script>alert('Please update your browser')</script><![endif]-->
 
 </head>
 
 <body>
+
     <main>
         <dialog class="mainmenu center dialog slide-in-blurred-top" closedby="closerequest" id="dialog"
             style="display: none;">
@@ -98,8 +101,28 @@
             <div>
                 <button class="cute-green-button settingsbutton" id="settings">Settings</button>
                 <div id="settingsmenu" style="display:none">
+                    <div style="display: grid;place-content: center;text-align: center;place-items: center;">
+                        <label style="display:inline-flex;" for="volumeControl">
+                            Volume
+                        </label>
+                        <input style="display:inline-flex;" type="range" id="volumeControl" min="0" max="100" step="1"
+                            value="60">
+                    </div>
                     <label style="display: inline-flex;">Joystick<input type="checkbox" id="joystickCheck"></label>
+                    <div style="display: grid;place-content: center;text-align: center;place-items: center;">
+                        <label for="spectate" style="margin:5px">Spectate</label>
+                        <select id="spectate">
+                            <option value="manual">Manual</option>
+                            <option value="first">First Place</option>
+                            <option value="first">Last Place</option>
+                            <option value="middle">Middle Place</option>
+                            <option value="average">Average</option>
+                            <option value="averageNoOutliers">Average (no outliers)</option>
+                            <optgroup label="---Racers---"></optgroup>
+                        </select>
+                    </div>
                 </div>
+
             </div>
         </dialog>
         <canvas id="canvas" width="0" height="0"></canvas>

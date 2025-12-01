@@ -168,7 +168,9 @@ touch-joystick {
     place-items: center;
     place-content: center;
 }
-
+#settingsmenu > * {
+    margin:10px
+}
 .settingsbutton {
     filter: grayscale(0.9) brightness(0.8);
 }
@@ -285,7 +287,8 @@ dialog {
 
 #imageholder {
     display: grid;
-
+    max-height: 300px;
+    overflow: scroll;
 }
 
 #imageholder>* {
@@ -456,6 +459,10 @@ select:active {
     box-shadow: #1d8a7a 0px 0px 2px 0px;
 }
 
+select {
+    max-width: var(--stretch);
+}
+
 * {
     font-family: inherit;
 }
@@ -464,6 +471,7 @@ select:active {
     content: "No joints";
     margin: 5px;
     display: block;
+    word-wrap: break-word;
 }
 
 .bad,
@@ -494,6 +502,18 @@ select:active {
 .constraints label {
     place-content: space-between;
     display: flex;
+
+}
+
+label,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
 }
 
 input[type=range] {

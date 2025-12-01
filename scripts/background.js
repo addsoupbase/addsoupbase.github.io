@@ -237,6 +237,22 @@ async function images({ time, pkm, colorful, birthday }) {
         await element.fadeOut()
         element.destroy()
     }
+    function makeSnowflake() {
+        let flake = $`<div aria-hidden="true" class="snowflake" style="left:${ran.range(0,100)}vw"></div>`
+        parent.push(flake)
+        flake.animate([{transform: 'translateY(0)'}, {transform: 'translateY(calc(100vh + 30px))'}], {
+            duration: 17000,
+            easing: 'linear',
+            composite: 'add'
+        }).finished.then(()=>flake.destroy())
+        flake.animate([{transform:'translateX(0)'}, {transform:`translateX(${ran.choose(-80,80)}px)`}],{
+            duration: 4000,
+            iterations: 1/0,
+            direction: 'alternate',
+            easing: 'ease-in-out',
+            composite: 'add'
+        })
+    }
     function makeBubble(x, y) {
         let bubbl = $(`<div class="bubble" style="pointer-events:none;z-index:${ran.frange(1, 3)}"></div>`, {
             parent,
@@ -278,7 +294,12 @@ async function images({ time, pkm, colorful, birthday }) {
         again && setTimeout(tinyBubbles, ran.range(1000, 1200))
         isHidden() || makeBubble()
     }
+    function snowflakes() {
+        setTimeout(snowflakes, ran.range(1500, 1920))
+        isHidden() || makeSnowflake()
+    }
     tinyBubbles()
+    snowflakes()
     let cycle
     let mons
     time.then(avatars => {
@@ -351,7 +372,7 @@ frame.on({
 const parent = $('div #background .BG', {
     parent: document.body,
     attr: {
-        _label: 'Pokemon swimming deep underwater with bubbles',
+        _label: 'Pokémon swimming underwater with bubbles... and snowflakes(?)',
         role: 'img'
     }
 })
