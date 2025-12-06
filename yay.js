@@ -86,9 +86,16 @@ function cacheFunction(maybeFunc) {
         const { name } = maybeFunc
             , wrapper = {
                 [name](...a) {
+                    let m = base(this)
+                    switch (a.length) {
+                        default: return apply(maybeFunc, m, a)
+                        case 0: return maybeFunc.call(m)
+                        case 1: return maybeFunc.call(m, a[0])
+                        case 2: return maybeFunc.call(m, a[0], a[1])
+                        case 3: return maybeFunc.call(m, a[0], a[1], a[2])
+                    }
                     // Regular wrapper function for method,
                     // for usage instead of making a new one for every instance with bind()
-                    return apply(maybeFunc, base(this), a)
                 }
             }[name]  // keep the original function name just in case
         BoundSet(maybeFunc, wrapper)
@@ -295,12 +302,24 @@ let props = function () {
         o.play()
     }
     function ProxyEventWrapperFunction(me, ...args) {
-        apply(this, me, args)
+        switch (args.length) {
+            default: return apply(this, me, args)
+            case 0: return this.call(me)
+            case 1: return this.call(me, args[0])
+            case 2: return this.call(me, args[0], args[1])
+            case 3: return this.call(me, args[0], args[1], args[2])
+        }
     }
     function DelegationFunction(me, includeSelf, filter, ...args) {
         let { target } = args[0],
-            pr = prox(target);
-        (me !== target || includeSelf) && (filter(pr) ?? 1) && apply(this, pr, args)
+            pr = prox(target)
+        if ((me !== target || includeSelf) && (filter(pr) ?? 1)) switch (args.length) {
+            default: return apply(this, pr, args)
+            case 0: return this.call(pr)
+            case 1: return this.call(pr, args[0])
+            case 2: return this.call(pr, args[0], args[1])
+            case 3: return this.call(pr, args[0], args[1], args[2])
+        }
     }
     function removeInert() {
         this.restoreAttr('inert')
@@ -384,7 +403,7 @@ return eval(arguments[0])}.call(this[1],this[2])}`)).call([base(this).ownerDocum
                 el,
                 n = 0,
                 next = i.iterateNext.bind(i)
-            while (el = next()) apply(callback, thisArg, [getNodeType(el) === 1 ? prox(el) : el, n++, i])
+            while (el = next()) callback.call(thisArg, getNodeType(el) === 1 ? prox(el) : el, n++, i)
         },
         get orphans() {
             let me = base(this)
@@ -456,9 +475,9 @@ return eval(arguments[0])}.call(this[1],this[2])}`)).call([base(this).ownerDocum
                 controller = arguments[2]
                 debugger
             }
-            let me = this
-            if (typeof events === 'function') events = ProxyEventWrapperFunction.bind(old, me)
-            else for (let i in events) events[i] = ProxyEventWrapperFunction.bind(events[i], me)
+            let m = this
+            if (typeof events === 'function') events = ProxyEventWrapperFunction.bind(old, m)
+            else for (let i in events) events[i] = ProxyEventWrapperFunction.bind(events[i], m)
             h.on(base(this), events, controller)
         },
         off(...events) {
@@ -593,7 +612,7 @@ return eval(arguments[0])}.call(this[1],this[2])}`)).call([base(this).ownerDocum
                     if (typeof val === 'boolean') {
                         me.toggleAttribute(prop, val)
                         prop.startsWith('aria-') && (val = `${val}`)
-                    } 
+                    }
                     else if (val === '' || val == null) me.removeAttribute(prop)
                     else me.setAttribute(prop, val)
                 }
@@ -811,7 +830,7 @@ return eval(arguments[0])}.call(this[1],this[2])}`)).call([base(this).ownerDocum
                 current,
                 i = 0,
                 next = walker.nextNode.bind(walker)
-            while (current = next()) apply(callback, thisArg ?? this, [getValid(current) ? prox(current) : current, i++, walker])
+            while (current = next()) callback.call(thisArg ?? this, getValid(current) ? prox(current) : current, i++, walker)
         }
         /*   , resetSelfRules() {
                for (let i in this.selfRules) try {
@@ -1039,15 +1058,25 @@ ownKeys(props).forEach(i => {
             { value } = v
         v.configurable = false
         if (typeof value === 'function' && i !== 'eval') {
-            let app = apply.bind(1, value)
             v.value = {
                 [i](...a) {
                     //  This function is for automatically returning the 'this'
                     //  value if the original return value is undefined
-                    let me = prox(this)
-                        // , b = base(this);if (!getValid(b) || !all_has(b)) throw TypeError('Illegal input')
-                        , r = app(me, a)
-                    return r === void 5 ? me : r
+                    // , b = base(this);if (!getValid(b) || !all_has(b)) throw TypeError('Illegal input')
+                    let out, m = prox(this)
+                    switch (a.length) {
+                        default: out = apply(value, m, a)
+                        break
+                        case 0: out = value.call(m)
+                        break
+                        case 1: out = value.call(m, a[0])
+                        break
+                        case 2: out = value.call(m, a[0], a[1])
+                        break
+                        case 3: out = value.call(m, a[0], a[1], a[2])
+                        break
+                    }
+                    return out === void 0 ? m : out
                 }
             }[i] //  Just want to keep the original function name intact
         }
@@ -1826,7 +1855,7 @@ if (/localhost/.test(origin)) {
 }
 h.on(window, {
     '#load'() {
-      document.querySelector('[aria-keyshortcuts]') &&  h.on(window, {
+        document.querySelector('[aria-keyshortcuts]') && h.on(window, {
             '^keydown'(e) {
                 let k = e.key?.toUpperCase()
                 if (k && e.shiftKey && e.altKey && !e.repeat && k.length === 1) {

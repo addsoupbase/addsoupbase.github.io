@@ -67,13 +67,13 @@
     //}
     // var verified = new WeakSet
     // function nodeType(node) {
-        // return node.nodeType
-        /*try {
-            return (get = get || Function.call.bind(Object.getOwnPropertyDescriptor(Node.prototype, 'nodeType').get))(node)
-        }
-        catch {
-            return 0 / 0
-        }*/
+    // return node.nodeType
+    /*try {
+        return (get = get || Function.call.bind(Object.getOwnPropertyDescriptor(Node.prototype, 'nodeType').get))(node)
+    }
+    catch {
+        return 0 / 0
+    }*/
     // }
 
     function isValidET(target) {
@@ -311,11 +311,12 @@ try {
     }
     var SUPPORTS_OPTIONS_PARAM = function () {
         var out = false
-            , obj = { get capture() { out = true } }
+            , h = { get capture() { out = true } }
             // that's genius!
-            , args = ['', console.debug, obj]
-        addEventListener.apply(globalThis, args)
-        removeEventListener.apply(globalThis, args)
+            , f = '',
+            g = Function.prototype
+        addEventListener(f, g, h)
+        removeEventListener(f, g, h)
         return out
     }()
     var FLAG_ONCE = 1,
@@ -330,10 +331,10 @@ try {
         FLAG_WANTS_UNTRUSTED = 512,
         FLAG_ONLY_ORIGINAL_TARGET = 1024,
         FLAG_ONLY_EXPLICIT_ORIGINAL_TARGET = 2048
-    function on(target, events, controller) {
-        if (arguments.length > 3 && getLabel(controller) !== 'AbortController') {
+    function on(target, events, controller, _) {
+        if (typeof _ !== 'undefined' && getLabel(controller) !== 'AbortController') {
             debugger
-            controller = arguments[3]
+            controller = _
         }
         if (!isValidET(target)) throw invalid()
         var names = ownKeys(events)
@@ -378,7 +379,7 @@ try {
                 // do a.push(caller); while(caller = caller.caller)
                 // console.log(...a)
                 throw TypeError("Cannot call 'preventDefault' on a passive function")
-            } 
+            }
             eventName = verifyEventName(newTarget, eventName.replace(formatEventName, ''))
             var b = supportOrientationChangeEvent(target, eventName, label)
             if (b) {
@@ -393,9 +394,9 @@ try {
                 var args = []
                 autoabort && args.push(controller.abort.bind(controller))
                 args.push(off.bind(null, target, eventName))
-                var iterator = apply(func, target, args)
+                var iterator = func.call(target, args[0])
                 var started = false
-                func = function(e) {
+                func = function (e) {
                     started || (started = iterator.next())
                     return iterator.next(e)
                 }
@@ -492,7 +493,15 @@ try {
         s && args.push(abrt)
         args.push(off.bind(null, this, name))
         if (t && event.isTrusted || !t && (!originalTarget || !('originalTarget' in event) || event.originalTarget === currentTarget) && (!explicitOriginalTarget || !('explicitOriginalTarget' in event) || event.explicitOriginalTarget === currentTarget) && (!oct || (event.target || event.srcElement) === currentTarget)) {
-            var result = apply(f, this, args)
+            switch (args.length) {
+                case 1: var result = f(args[0])
+                break
+                case 2: result = f(args[0], args[1])
+                break
+                case 3: result = f(args[0], args[1], args[2])
+                break
+                default: result = apply(f, this, args)
+            }
             if (p)
                 if (event.cancelable)
                     if (event.defaultPrevented) console.warn("'" + name + "' event has already been cancelled")
@@ -548,10 +557,9 @@ try {
         if (typeof filter !== 'function') return true
         var hi = { __proto__: null }
         hi[event.type] = event
-        debugger
         return filter(hi)
     }
-    function until(target, settings) {
+    function until(target, settings, _, $, t) {
         if (typeof settings === 'object') {
             var events = settings.events,
                 failures = settings.failure,
@@ -560,13 +568,12 @@ try {
         }
         else {
             events = settings
-            failures = arguments[2]
-            timeout = arguments[4]
-            if (typeof (filter = arguments[3]) === 'number') {
+            failures = _
+            timeout = t
+            if (typeof (filter = $) === 'number') {
                 timeout = filter
                 filter = null
             }
-            debugger
         }
         return new Promise(waitForEvent)
         function waitForEvent(resolve, reject) {
@@ -601,10 +608,8 @@ try {
             }
             if (typeof events === 'string') events = events.split(' ')
             for (var i = events.length; i--;) e[events[i]] = onsuccess
-            if (failures) {
-                if (typeof failures === 'string') failures = failures.split(' ')
-                for (var i = failures.length; i--;) e[failures[i]] = onfail
-            }
+            if (failures) 
+                for (var i = (failures = typeof failures === 'string' ? failures.split(' ') : failures).length; i--;) e[failures[i]] = onfail
             function onfail(event, abort) {
                 if (filterResult(event, filter))
                     try {
@@ -644,10 +649,8 @@ try {
             if (i.includes('@')) throw SyntaxError("Conflicting usage of a 'currentTarget' only delegating event handler")
             var old = events[i]
             events[i] =
-                function DelegationFunction(
-                    // ...args
-                ) {
-                    var target = arguments[0].target
+                function DelegationFunction(t) {
+                    var target = t.target
                     var res = filter(target);
                     (me !== target || includeSelf) && (res == null ? true : res) && apply(old, target, arguments)
                 }

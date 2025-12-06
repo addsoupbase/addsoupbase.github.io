@@ -1,4 +1,4 @@
-import * as math from './num.js'
+// import * as math from './num.js'
 const inBrowser = !!globalThis.document
 /*async function getBlob(ctx) {
     if (inBrowser) {
@@ -43,7 +43,31 @@ const { min, max, round } = Math,
             return Reflect.construct(target, args)
         }
     }
-const Color = new Proxy(class $ extends Uint8ClampedArray {
+class $ {
+    #t = Uint8ClampedArray.of(0, 0, 0, 0)
+    constructor(r, g, b, a) {
+        if (typeof r === 'number' && g == null && b == null && a == null) {
+            let n = numToRgb(r)
+            r = n[0]
+            g = n[1]
+            b = n[2]
+            a = n[3]
+        }
+        else if (typeof r === 'string' && r[0] !== '#') {
+            // if ($.#img.test(r))
+            //     return $.#executor(r)
+            try {
+                ({ r, g, b, a } = Color[r])
+            } catch {
+                r = 255
+                g ??= 255
+                b ??= 255
+                a ??= 1
+            }
+        } else if (typeof r === 'string' && r.startsWith('#'))
+            ({ 0: r, 1: g, 2: b, 3: a } = hexToRgb(r).match(thingy))
+        Reflect.preventExtensions(Object.assign(this, { r, g, b, a }))
+    }
     //Darken Hex Colour
     //Don't ask why there's a "k" there
     static dhk(e, f = 40) {
@@ -70,53 +94,15 @@ const Color = new Proxy(class $ extends Uint8ClampedArray {
     static log(colour) {
         console.log(`%c${colour}`, `color:${colour};font-size:100px;background-color:${colour}`)
     }
-    // No static init blocks allowed
-    static _() {
-        delete this._
-        // let enumerable = 1
-        Object.defineProperties(this.prototype, {
-            [Symbol.toStringTag]: {
-                value: 'Color'
-            },
-            r: {
-                // enumerable,
-                get() {
-                    return this[0]
-                },
-                set(r) {
-                    this[0] = r
-                }
-            },
-            g: {
-                // enumerable,
-                get() {
-                    return this[1]
-                },
-                set(g) {
-                    this[1] = g
-                }
-            },
-            b: {
-                // enumerable,
-                get() {
-                    return this[2]
-                },
-                set(b) {
-                    this[2] = b
-                }
-            },
-            a: {
-                // enumerable,
-                get() {
-                    return this[3] / 255
-                },
-                set(a) {
-                    this[3] = a * 255
-                }
-            }
-        })
-        return this
-    }
+    get r() { return this.#t[0] } set r(val) { this.#t[0] = val }
+    get g() { return this.#t[1] } set g(val) { this.#t[1] = val }
+    get b() { return this.#t[2] } set b(val) { this.#t[2] = val / 255 }
+    get a() { return this.#t[3] } set a(val) { this.#t[3] = val * 255 }
+
+    get 0() { return this.#t[0] } set 0(val) { this.#t[0] = val }
+    get 1() { return this.#t[1] } set 1(val) { this.#t[1] = val }
+    get 2() { return this.#t[2] } set 2(val) { this.#t[2] = val }
+    get 3() { return this.#t[3] } set 3(val) { this.#t[3] = val }
     /*static #img = /(?:data|blob):|\.(?:webp|a?png|jpe?g|gif|(?:av|jf)if|pjp(?:eg)?)/i
     static #executor(src) {
         let image = new Image(1, 1)
@@ -147,32 +133,6 @@ const Color = new Proxy(class $ extends Uint8ClampedArray {
 
         return new Promise(GetColorFromPixel)
     }*/
-
-    constructor(r, g, b, a) {
-        super(4)
-        if (typeof r === 'number' && g == null && b == null && a == null) {
-            let n = numToRgb(r)
-            r = n[0]
-            g = n[1]
-            b = n[2]
-            a = n[3]
-        }
-        else if (typeof r === 'string' && r[0] !== '#') {
-            // if ($.#img.test(r))
-            //     return $.#executor(r)
-            try {
-                ({ r, g, b, a } = Color[r])
-            } catch {
-                r = 255
-                g ??= 255
-                b ??= 255
-                a ??= 1
-            }
-        } else if (typeof r === 'string' && r.startsWith('#'))
-            ({ 0: r, 1: g, 2: b, 3: a } = hexToRgb(r).match(thingy))
-        Reflect.preventExtensions(Object.assign(this, { r, g, b, a }))
-    }
-
     toString(format) {
         switch (format) {
             default:
@@ -250,8 +210,8 @@ const Color = new Proxy(class $ extends Uint8ClampedArray {
     }
     valueOf() {
         let r = this[0] << 16,
-        g = this[1] << 8,
-        b = this[2] << 4
+            g = this[1] << 8,
+            b = this[2] << 4
         return r | g | b
     }
     get opacity() {
@@ -271,9 +231,12 @@ const Color = new Proxy(class $ extends Uint8ClampedArray {
     darkenBy(amount) {
         return this.#copy(new $($.dhk(String(this), amount)))
     }
-}._(), handler)
+}
+Object.defineProperty($.prototype, Symbol.toStringTag, {
+    value: 'Color'
+})
+const Color = new Proxy($, handler)
 export default Color
-
 function toHex(o) {
     return (o | 0).toString(16).padStart(2, 0)
 }
@@ -283,10 +246,10 @@ export function rgbToHex(r, g, b) {
 }
 export function numToRgb(num) {
     let r = num >> 16 & 255,
-    g = num >> 8 & 255,
-    b = num >> 4 & 255
+        g = num >> 8 & 255,
+        b = num >> 4 & 255
     // ,a = num >> 2 & 255
-    return Uint8Array.of(r,g,b,255)
+    return[r, g, b, 255]
     // return `rgb(${r} ${g} ${b} / ${a / 255})`
 }
 export function hexToRgb(hex) {

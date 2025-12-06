@@ -66,6 +66,7 @@ async function canimate(src) {
     else if (blob.type.startsWith('video/')) {
         let video = document.createElement('video')
         video.preload = 'auto'
+        video.load()
         video.loop =
             video.muted = true
         video.src = src
