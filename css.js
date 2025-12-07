@@ -1,5 +1,5 @@
 //# allFunctionsCalledOnLoad
-//// window.css = 
+//// self.css = 
 (function CSSSetup(inModule, w, sym, S, defer) {
     'use strict'
     /*@cc_on
@@ -34,7 +34,7 @@
                 })
             }
             catch (_) {
-                var e = document.createEvent('ErrorEvent')
+                e = document.createEvent('ErrorEvent')
                 e.initEvent('error', true, true)
                 // e.message = t.message
                 // e.error = t
@@ -42,44 +42,43 @@
             w.dispatchEvent(e)
             e.defaultPrevented || console.error('[reportError]', t.toString())
         }
-        catch (e) { console.warn(e.toString()) }
+        catch (o) { console.warn(o.toString()) }
     })
     function q(n) { return '{' + n + '}' }
-    function ftss() {
-        sn = S.setItem.bind(S, '')
-        return (gn = S.getItem.bind(S, ''))() || ''
-    }
-    function gn() {
-        // performance.mark('css-cache-start')
-        try {
-            if (typeof scrollMaxX !== 'number') {
-                // sessionStorage seems to be faster on FireFox 
-                var o = top.name
-                if (!o || o.includes(id)) return o // name is free to use
-            }
-            return ftss()
-        }
-        catch (e) {
-            e && reportError(e)
-            return ftss()
-        }
-        // finally { performance.mark('css-cache-end') }
-    }
-    w.CSS || (w.CSS = function () { var s = document.createElement('style'), computed = getComputedStyle(s); gwn().appendChild(s); return { supports: window.supportsCSS || supports }; function supports(propOrSelector, value) { var isSelector = propOrSelector.slice(0, 8) === 'selector'; if (isSelector && value == null) { s.textContent = propOrSelector.slice(9, -1) + '{width:auto;}'; return (s.sheet.cssRules || s.sheet.rules).length === 1 } return propOrSelector in computed } }())
-        var sup = CSS.supports,
-    supportsWhere = supportsRule(':where(p)'),
+    w.CSS || (w.CSS = function () { var s = document.createElement('style'), computed = getComputedStyle(s); gwn().appendChild(s); return { supports: self.supportsCSS || supports }; function supports(propOrSelector, value) { var isSelector = propOrSelector.substring(0, 8) === 'selector'; if (isSelector && value == null) { s.textContent = propOrSelector.slice(9, -1) + '{width:auto;}'; return (s.sheet.cssRules || s.sheet.rules).length === 1 } return propOrSelector in computed } }())
+    var sup = CSS.supports,
+        supportsWhere = supportsRule(':where(p)'),
         Reflect = w.Reflect || { set: function (t, p, v) { t[p] = v }, get: function (t, p) { return t[p] } }
-        , sn = Reflect.set.bind(1, top, 'name')
+        , sn
         , canWrite = !inModule && document.readyState !== 'complete'
         , func = CSS.registerProperty || void (fallback = new Map), selector = '*' + (supportsWhere ? ',:where(::-moz-color-swatch,::-moz-focus-inner,::-moz-list-bullet,::-moz-list-number,::-moz-meter-bar,::-moz-progress-bar,::-moz-range-progress,::-moz-range-thumb,::-moz-range-track,::-webkit-inner-spin-button,::-webkit-meter-bar,::-webkit-meter-even-less-good-value,::-webkit-meter-inner-element,::-webkit-meter-optimum-value,::-webkit-meter-suboptimum-value,::-webkit-progress-bar,::-webkit-progress-inner-element,::-webkit-progress-value,::-webkit-scrollbar,::-webkit-search-cancel-button,::-webkit-search-results-button,::-webkit-slider-runnable-track,::-webkit-slider-thumb,::after,::backdrop,::before,::checkmark,::column,::cue,::details-content,::file-selector-button,::first-letter,::first-line,::grammar-error,::marker,::picker-icon,::placeholder,::scroll-marker,::scroll-marker-group,::selection,::spelling-error,::target-text,::view-transition)' : '')
-        , name = gn(),
+        , name = function () {
+            function ftss() {
+                sn = S.setItem.bind(S, '')
+                return S['']
+            }
+            // performance.mark('css-cache-start')
+            try {
+                if (typeof scrollMaxX !== 'number') {
+                    // sessionStorage seems to be faster on FireFox 
+                    var o = top.name
+                    if (!o || o.includes(id)) {
+                         sn = Reflect.set.bind(1, top, 'name')
+                        return o // name is free to use
+                    } 
+                }
+                return ftss()
+            }
+            catch (e) {
+                e && reportError(e)
+                return ftss()
+            }
+            // finally { performance.mark('css-cache-end') }
+        }(),
         fro = Object.fromEntries || function (l, o) { o = {}; l.forEach(function (e, p) { p = e[0]; o[p] = e[1] }); return o }, entries = Object.entries || function (o, i) { var x = []; for (i in o) x.push([i, o[i]]); return x },
         is = Array.isArray,
         // scr,
         sheet = getDefaultStyleSheet(),
-        descr = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent'),
-        stc = descr.set.bind(sheet),
-        gtc = descr.get.bind(sheet),
         props = new Set,
         alr = new Set,
         vendr = /^(?:-(?:webkit|moz(?:-osx)?|apple|khtml|konq|r?o|ms|xv|atsc|wap|ah|hp|rim|tc|fso|icab|epub)|prince|mso)-(?!$)/,
@@ -87,14 +86,14 @@
     try { var pseudoClass = RegExp('(?<=:)(?<!::)[\\w-]+', 'g'), pseudoElement = RegExp('(?<=::)[\\w-]+', 'g') }
     // Lookbehind is more modern
     catch (e) { }
-        var dash = /-./g,
+    var dash = /-./g,
         azregex = /[A-Z]/g,
         Rm,
         br = ['epub', 'icab', 'fso', 'tc', 'rim', 'hp', 'ah', 'wap', 'atsc', 'xv', 'ms', 'o', 'ro', 'konq', 'khtml', 'apple', 'moz', 'moz-osx', 'webkit']
         , formatClass = formatGeneric.bind(1, ':', pseudoClass),
         formatElement = formatGeneric.bind(1, '::', pseudoElement)
     CSS.registerProperty || (canWrite && (w.fallback = fallback, w.vendor = vendor, document.write('<', 'script src="' + (location.protocol + '//' + location.host) + '/no_register_property.js" async', '>', '<', '/script', '>')))
-    if (canWrite && top === window) {
+    if (canWrite && top === self) {
         // Idk why, but it seems to make the page render faster
         document.write('<p style="position:absolute !important;transform:scale(0) !important;z-index:-9999 !important;" data-cssid="$$$" aria-hidden="true">.</p>')
         var p = document.querySelector('p[data-cssid="$$$"]')
@@ -194,16 +193,16 @@
         }
         return p
     }
-    function importFont(name, src) {
+    /*function importFont(name, src) {
         if (name && src) {
             var font = new FontFace(name, "url(" + src + ")")
             font.load().then(document.fonts.add, console.warn)
             return font
         }
         throw Error('Source and name required')
-    }
+    }*/
     function toCaps(prop) {
-        return prop.includes('-') && !prop.startsWith('--') ? (prop[0] === '-' ? prop.slice(1) : prop).replace(dash, tuc) : prop
+        return prop.includes('-') && !prop.startsWith('--') ? (prop[0] === '-' ? prop.substring(1) : prop).replace(dash, tuc) : prop
     }
     function toDash(prop) {
         return prop.startsWith('--') ? prop :
@@ -253,11 +252,9 @@
      * @param {Object} rule An object which describes the selector
      */
     function registerCSS(selector, rule, _) {
-        var str = '', silent = _
-        selector = selector.split(',')
-        var i = selector.length
+        var str = '', silent = _, i = (selector = selector.split(',')).length
         while (i--) str = formatSelector(selector[i]) + str
-        stc(gtc() + str + q(toCSS(rule, silent)))
+        sheet.textContent += str + q(toCSS(rule, silent))
         return sheet
     }
     function registerCSSRaw(rules, newStyleSheet) {
@@ -268,7 +265,7 @@
             addElement(n)
             return n.sheet
         }
-        stc(gtc() + rules)
+        sheet.textContent += rules
         return sheet
     }
     /*function importCSSSync(src) {
@@ -329,21 +326,21 @@
     function supportsRule(rule) {
         return sup("selector(" + rule + ")")
     }
-    function g(name, initialValue, inherits, syntax) {
+    function g(name, iv, inh, sx) {
         props.add(name)
         var o = '--' + name,
             n = o,
             key = vendor(name, o = 'var(' + o + ')', true)
         uv[key] = o
         // try { 
-        func ? func({ name: n, initialValue: initialValue, inherits: inherits, syntax: syntax })
+        func ? func({ name: n, initialValue: iv, inherits: inh, syntax: sx })
             : fallback.set(key, vendor(key, 'inherit'))
         return g
         // }
         // catch (e) {e.name === 'InvalidModificationError' || (console.log(o), reportError(e),func || fallback.set(key, vendor(key, 'inherit')))}
     }
-    function W(selector) {
-        return ':where(' + selector + ')'
+    function W(s) {
+        return ':where(' + s + ')'
     }
     supportsWhere || (W = String)
     var fallback,
@@ -352,11 +349,11 @@
     // performance.mark('css-property-start')
     defer(function () {
         // lower priority props
-        g("locale", "auto", true, "*")("line-grid", "auto", true, "*")("line-snap", "auto", true, "*")("nbsp-mode", "auto", true, "*")("text-zoom", "auto", true, "*")("line-align", "auto", true, "*")("text-decorations-in-effect", "auto", false, "*")("force-broken-image-icon", "0", false, "<integer>")("float-edge", "content-box", false, "*")("image-region", "auto", true, "*")("box-orient", "inline-axis", false, "*")("box-align", "stretch", false, "*")("box-direction", "normal", false, "*")("box-flex", "0", false, "*")("box-flex-group", "0", false, "*")("box-lines", "single", false, "*")("box-ordinal-group", "1", false, "*")("box-decoration-break", "slice", false, "*")("box-pack", "start", false, "*")("line-clamp", "none", false, "*")("font-smoothing", "auto", true, "*")("mask-position-x", "0%", false, "<length-percentage>")("mask-position-y", "0%", false, "<length-percentage>")("window-dragging", "auto", false, "*")("stack-sizing", "stretch-to-fit", true, "*")("mask-composite", "source-over", false, "*")("window-shadow", "auto", false, "*")("outline-radius", "0 0 0 0", false, "*")("binding", "none", false, "*")("text-blink", "none", false, "*")("image-rect", "auto", true, "*")("content-zoom-limit", "400% 100%", false, "*")("accelerator", "0", false, "*")("context-properties", "none", true, "*")("text-kashida-space", "0%", true, "<percentage>")("interpolation-mode", "none", false, "*")("progress-appearance", "bar", false, "*")("content-zooming", "auto", false, "*")("flow-from", "none", false, "*")("flow-into", "none", false, "*")("content-zoom-chaining", "none", false, "*")("high-contrast-adjust", "auto", true, "*")("touch-select", "grippers", true, "*")("ime-mode", "auto", false, "*")("wrap-through", "wrap", false, "*")("print-color-adjust", "economy", true, "*")("pay-button-style", "white", false, "*")("color-filter", "none", true, "*")("pay-button-type", "plain", false, "*")("visual-effect", "none", true, "*")("text-spacing-trim", "normal", true, "*")("text-group-align", "none", false, "*")("text-autospace", "normal", true, "*")("orient", "inline", false, "*")("ruby-overhang", "auto", true, "*")("max-lines", "none", false, "*")("line-fit-edge", "leading", true, "*")("overflow-scrolling", "auto", false, "*")("column-progression", "auto", false, "*")("dashboard-region", "none", false, "*")("column-axis", "auto", false, "*")("text-size-adjust", "auto", true, "*")("border-vertical-spacing", "auto", false, "*")("buffered-rendering", "auto", false, "*")("behaviour", "url()", false, "<url>")
+        g("locale", "auto", true, "*")("line-grid", "auto", true, "*")("line-snap", "auto", true, "*")("nbsp-mode", "auto", true, "*")("text-zoom", "auto", true, "*")("line-align", "auto", true, "*")("text-decorations-in-effect", "auto", false, "*")("force-broken-image-icon", "0", false, "<integer>")("float-edge", "content-box", false, "*")("image-region", "auto", true, "*")("box-orient", "inline-axis", false, "*")("box-align", "stretch", false, "*")("box-direction", "normal", false, "*")("box-flex", "0", false, "*")("box-flex-group", "0", false, "*")("box-lines", "single", false, "*")("box-ordinal-group", "1", false, "*")("box-decoration-break", "slice", false, "*")("box-pack", "start", false, "*")("line-clamp", "none", false, "*")("font-smoothing", "auto", true, "*")("mask-position-x", "0%", false, "<length-percentage>")("mask-position-y", "0%", false, "<length-percentage>")("self-dragging", "auto", false, "*")("stack-sizing", "stretch-to-fit", true, "*")("mask-composite", "source-over", false, "*")("self-shadow", "auto", false, "*")("outline-radius", "0 0 0 0", false, "*")("binding", "none", false, "*")("text-blink", "none", false, "*")("image-rect", "auto", true, "*")("content-zoom-limit", "400% 100%", false, "*")("accelerator", "0", false, "*")("context-properties", "none", true, "*")("text-kashida-space", "0%", true, "<percentage>")("interpolation-mode", "none", false, "*")("progress-appearance", "bar", false, "*")("content-zooming", "auto", false, "*")("flow-from", "none", false, "*")("flow-into", "none", false, "*")("content-zoom-chaining", "none", false, "*")("high-contrast-adjust", "auto", true, "*")("touch-select", "grippers", true, "*")("ime-mode", "auto", false, "*")("wrap-through", "wrap", false, "*")("print-color-adjust", "economy", true, "*")("pay-button-style", "white", false, "*")("color-filter", "none", true, "*")("pay-button-type", "plain", false, "*")("visual-effect", "none", true, "*")("text-spacing-trim", "normal", true, "*")("text-group-align", "none", false, "*")("text-autospace", "normal", true, "*")("orient", "inline", false, "*")("ruby-overhang", "auto", true, "*")("max-lines", "none", false, "*")("line-fit-edge", "leading", true, "*")("overflow-scrolling", "auto", false, "*")("column-progression", "auto", false, "*")("dashboard-region", "none", false, "*")("column-axis", "auto", false, "*")("text-size-adjust", "auto", true, "*")("border-vertical-spacing", "auto", false, "*")("buffered-rendering", "auto", false, "*")("behaviour", "url()", false, "<url>")
         // try {
-            // performance.mark('css-other-start')
-            func({ name: '--scrollbar-thumb-color', initialValue: 'auto', inherits: true, syntax:'*' })
-            func({ name: '--scrollbar-color', initialValue: 'auto', inherits: true, syntax:'*' })
+        // performance.mark('css-other-start')
+        func({ name: '--scrollbar-thumb-color', initialValue: 'auto', inherits: true, syntax: '*' })
+        func({ name: '--scrollbar-color', initialValue: 'auto', inherits: true, syntax: '*' })
         // }
         // catch (e) { reportError(e) }
     })
@@ -421,9 +418,9 @@
         // performance.mark('css-default-end')
         return o
     }()).map(function (a) { return a[0] + q(toCSS(a[1])) })
-        , first = gtc(), str
+        , first = sheet.textContent, str
     // finally { performance.mark('css-other-end') }
-    stc(name || (sn(str = first + selector + q(toCSS(uv, true)) + dflt.join('')), str))
+    sheet.textContent = name || (sn(str = first + selector + q(toCSS(uv, true)) + dflt.reduce(function(a,b){return a+b},'')), str)
     var css = constructor.prototype[sym] = Object.freeze({
         getDefaultStyleSheet: getDefaultStyleSheet,
         registerCSSRaw: registerCSSRaw,
@@ -435,7 +432,7 @@
         supportsRule: supportsRule,
         registerCSS: registerCSS,
         dashVendor: dashVendor,
-        importFont: importFont,
+        // importFont: importFont,
         capVendor: capVendor,
         importCSS: importCSS,
         badCSS: badCSS,
@@ -449,6 +446,5 @@
     })
     // console.debug(performance.measure('css-cache','css-cache-start', 'css-cache-end').toJSON(), performance.measure('css-property', 'css-property-start', 'css-property-end').toJSON())
     return css
-
-}(!this, window, (typeof Symbol === 'function' ? Symbol.for : String)('[[CSSModule]]'), sessionStorage, (window.requestIdleCallback && function (callback) { return requestIdleCallback(callback, { timeout: 2000 }) }) || (window.scheduler && scheduler.postTask && function (callback) { return scheduler.postTask(callback, { priority: 'background' }) }) || window.queueMicrotask || window.setImmediate || setTimeout))
-//window[Symbol.for('[[CSSModule]]')]
+}(!this, self, (typeof Symbol === 'function' ? Symbol.for : String)('[[CSSModule]]'), sessionStorage, (self.requestIdleCallback && function (c) { return requestIdleCallback(c, { timeout: 2000 }) }) || (self.scheduler && scheduler.postTask && function (c) { return scheduler.postTask(c, { priority: 'background' }) }) || self.queueMicrotask || self.setImmediate || setTimeout))
+//self[Symbol.for('[[CSSModule]]')]

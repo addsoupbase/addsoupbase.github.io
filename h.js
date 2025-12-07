@@ -3,18 +3,16 @@
     // if (arguments[1]) return eval?.(`(${handle})(globalThis)`)
     // ^ disable strict for caller/callee debugging
     'use strict'
-    var Reflect = globalThis.Reflect || { apply: function (target, thisArg, args) { return target.apply(thisArg, args) }, getPrototypeOf: Object.getPrototypeOf || function (t) { return t.__proto__ }, /*getOwnPropertyDescriptor: Object.getOwnPropertyDescriptor,*/ defineProperty: Object.defineProperty, ownKeys: Object.getOwnPropertyNames, has: function (t, p) { return t in p } }
     typeof Symbol === 'function' || function () { function a(b) { return String(Math.random() + String(b) + performance.now() + String(Date.now())) } a.for = ''.concat.bind('@@'); globalThis.Symbol = a }()
     //// var queueMicrotask = globalThis.queueMicrotask || globalThis.setImmediate || setTimeout
     var MODULE = Symbol.for("[[HModule]]")
     if (globalThis[MODULE]) return globalThis[MODULE]
+    var Reflect = globalThis.Reflect || { apply: function (target, thisArg, args) { return target.apply(thisArg, args) }, getPrototypeOf: Object.getPrototypeOf || function (t) { return t.__proto__ }, /*getOwnPropertyDescriptor: Object.getOwnPropertyDescriptor,*/ defineProperty: Object.defineProperty, ownKeys: Object.getOwnPropertyNames, has: function (t, p) { return t in p } }
     ''.includes || (String.prototype.includes = function (a, b) { return !!~this.indexOf(a, b) })
     var $ = {},
         sym = Symbol.for("[[Events]]"),
         //  Don't collide, and make sure its usable across realms!!
         apply = Reflect.apply,
-        // gpo = Reflect.getPrototypeOf,
-        // gopd = Reflect.getOwnPropertyDescriptor,
         dp = Reflect.defineProperty,
         ownKeys = Reflect.ownKeys
     //// , logger = { __proto__: null }
@@ -45,76 +43,9 @@
     var isArray = Array.isArray
         , allEvents = $.allEvents = new WeakMap
     //// globalThis.allEvents = allEvents
-    //{
-    //var { addEventListener, removeEventListener, dispatchEvent } = globalThis.EventTarget?.prototype ?? AbortSignal.prototype
-    //if (source(addEventListener) !== source(Function.prototype).replace('function ', 'function addEventListener')
-    //|| source(removeEventListener) !== source(Function.prototype).replace('function ', 'function removeEventListener')
-    //|| source(dispatchEvent) !== source(Function.prototype).replace('function ', 'function dispatchEvent'))
-    //    // adds ~20ms
-    //    try {
-    //        console.warn('Monkeypatch detected: ', addEventListener, removeEventListener, dispatchEvent)
-    //        // in case they monkeypatch the EventTarget.prototype
-    //        var n = document.createElement('iframe'),
-    //            el = document.head ?? document
-    //        el.append(n),
-    //            { addEventListener, removeEventListener, dispatchEvent } = n.contentWindow
-    //        n.contentWindow.close()
-    //        el.removeChild(n)
-    //        n = null
-    //    } catch (e) {
-    //        console.error(e)
-    //    }
-    //}
-    // var verified = new WeakSet
-    // function nodeType(node) {
-    // return node.nodeType
-    /*try {
-        return (get = get || Function.call.bind(Object.getOwnPropertyDescriptor(Node.prototype, 'nodeType').get))(node)
-    }
-    catch {
-        return 0 / 0
-    }*/
-    // }
-
     function isValidET(target) {
-        /*  var o
-           var b
-           var c
-           var bool = target &&
-               (verified.has(target) || target instanceof EventTarget
-                   || (o = target.ownerDocument) && (o = o.defaultView) && o.EventTarget.prototype.isPrototypeOf(target)
-                   || (b = target.defaultView) && b.EventTarget.prototype.isPrototypeOf(target)
-                   || (c = target.EventTarget) && c.prototype.isPrototypeOf(target)
-                   || lastResort(target)) /*'addEventListener removeEventListener dispatchEvent'.split(' ').every(lastResort, target)*/
-        // bool && verified.add(target)
         return target === Object(target) && 'addEventListener' in target && 'removeEventListener' in target && 'dispatchEvent' in target
     }
-    /*function lastResort(target) {
-        /*   var a = `${addEventListener}`,
-               d = `${dispatchEvent}`,
-               r = `${removeEventListener}`*/
-    /*
-try {
- while (target = gpo(target)) {
-     // var ael = gopd(target, 'addEventListener')?.value,
-     //     rel = gopd(target, 'removeEventListener')?.value,
-     //     de = gopd(target, 'dispatchEvent')?.value,
-     //     label = gopd(target, Symbol.toStringTag)?.value
-     if (label === 'EventTarget'
-         // && target.constructor.name === 'EventTarget'
-         // && typeof ael === 'function'
-         // && typeof rel === 'function'
-         // && typeof de === 'function'
-         && source(ael) === a
-         && source(de) === d
-         && source(rel) === r)
-         return true
- }
- return false
-} catch (e) {
- return false
-}
-}*/
     function getLabel(obj) {
         return {}.toString.call(obj).slice(8, -1).trim() || 'Object'
     }
@@ -144,7 +75,7 @@ try {
     }
     $.emptyFileInput = emptyFileInput
     $.requestFile = $.reqFile = requestFile
-    var test = Set.bind.bind(/ /.test),
+    var test = handle.bind.bind(/ /.test),
         isAnimation = test(/^(animation(?:cancel|remove))$/),
         isFocus = test(/^(?:focus(?:in|out))$/),
         isDOMThing = test(/^(?:DOM(?:Activate|MouseScroll|Focus(?:In|Out)|(?:Attr|CharacterData|Subtree)Modified|NodeInserted(?:IntoDocument)?|NodeRemoved(?:FromDocument)?))$/),
@@ -156,11 +87,11 @@ try {
         var n = name.split('pointer')
             , prefix = n[0] && (name[0] === 'g' ? 'Got' : 'Lost')
             , p = n[1]
-        return 'MS' + prefix + 'Pointer' + p[0].toUpperCase() + p.slice(1)
+        return 'MS' + prefix + 'Pointer' + p[0].toUpperCase() + p.substring(1)
     }
     function getIEGestureEvent(name) {
         var a = name.split('gesture')[1]
-        return 'MSGesture' + a[0].toUpperCase() + a.slice(1)
+        return 'MSGesture' + a[0].toUpperCase() + a.substring(1)
     }
     function pointerToMouse(e, target) {
         if (e === 'cancel') e = 'out'
@@ -181,14 +112,14 @@ try {
         )
         if (!valid) {
             var v
-            if ((v = 'onwebkit' + name) in target || (v = 'onmoz' + name) in target || (v = 'onms' + name) in target) return v.slice(2) + original
-            if ((v = name.slice(0, 7)) === 'pointer') {
-                var canB = pointerToMouse(name.slice(7), target)
+            if ((v = 'onwebkit' + name) in target || (v = 'onmoz' + name) in target || (v = 'onms' + name) in target) return v.substring(2) + original
+            if ((v = name.substring(0, 7)) === 'pointer') {
+                var canB = pointerToMouse(name.substring(7), target)
                 if (canB) return canB
                 if (IE) return getIEPointerEvent(name)
             }
             if (name === 'wheel') {
-                if ((v = 'onmousewheel') in target) return v.slice(2) // iOS doesn't support 'wheel' events yet
+                if ((v = 'onmousewheel') in target) return v.substring(2) // iOS doesn't support 'wheel' events yet
                 if (typeof MouseScrollEvent === 'function') return 'DOMMouseScroll' // If they don't support the first 2, this one will work ~100% of the time
                 return 'MozMousePixelScroll' // The last resort, since there's no way to detect support with this one
             }
@@ -395,7 +326,7 @@ try {
                 autoabort && args.push(controller.abort.bind(controller))
                 args.push(off.bind(null, target, eventName))
                 var iterator = func.call(target, args[0])
-                var started = false
+                , started = false
                 func = function (e) {
                     started || (started = iterator.next())
                     return iterator.next(e)
@@ -459,7 +390,7 @@ try {
         }
     }
     function EventWrapper(f, s, abrt, flags) {
-        var args = [].slice.call(arguments, 4),
+        var args = [].slice.call(arguments, EventWrapper.length),
             t = flags & FLAG_ONLY_TRUSTED,
             oct = flags & FLAG_ONLY_CURRENT_TARGET,
             p = flags & FLAG_PREVENTS,
@@ -495,11 +426,11 @@ try {
         if (t && event.isTrusted || !t && (!originalTarget || !('originalTarget' in event) || event.originalTarget === currentTarget) && (!explicitOriginalTarget || !('explicitOriginalTarget' in event) || event.explicitOriginalTarget === currentTarget) && (!oct || (event.target || event.srcElement) === currentTarget)) {
             switch (args.length) {
                 case 1: var result = f(args[0])
-                break
+                    break
                 case 2: result = f(args[0], args[1])
-                break
+                    break
                 case 3: result = f(args[0], args[1], args[2])
-                break
+                    break
                 default: result = apply(f, this, args)
             }
             if (p)
@@ -512,12 +443,12 @@ try {
             aa && abrt()
             if (once || (result && result.propertyIsEnumerable('value') && result.propertyIsEnumerable('done') && result.done === true)) off(currentTarget, name)
         }
-        return result
+        // return result
     }
     function off(target
         // ,...eventNames
     ) {
-        var eventNames = [].slice.call(arguments, 1)
+        var eventNames = [].slice.call(arguments, off.length)
         if (!isValidET(target)) throw invalid()
         if (!eventNames.length || !allEvents.has(target)) return null
         var label = getLabel(target)
@@ -608,7 +539,7 @@ try {
             }
             if (typeof events === 'string') events = events.split(' ')
             for (var i = events.length; i--;) e[events[i]] = onsuccess
-            if (failures) 
+            if (failures)
                 for (var i = (failures = typeof failures === 'string' ? failures.split(' ') : failures).length; i--;) e[failures[i]] = onfail
             function onfail(event, abort) {
                 if (filterResult(event, filter))

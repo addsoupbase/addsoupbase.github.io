@@ -1,9 +1,12 @@
 const map = new Map(Object.entries({ 1: 'st', 2: 'nd', 3: 'rd' }))
-''.at || (String.prototype.at = Array.prototype.at = function (index) {
-    if (index < 0) index += this.length
-    let out = this[index]
-    return typeof this === 'string' ? out ?? '' : out
+''.at || (String.prototype.at = Array.prototype.at = function (i) {
+    if (i < 0) i += this.length
+    let a = this[i]
+    return typeof this === 'string' ? a ?? '' : a
 })
+export function getLabel(obj) {
+    return {}.toString.call(obj).slice(8, -1).trim() || 'Object'
+}
 export const ALPHABET = 'abcdefghijklmnopqrstuvwxyz'.toUpperCase(),
     alphabet = ALPHABET.toLowerCase(),
     numbers = '0123456789',
@@ -16,24 +19,26 @@ export function formatNumber(num) {
     return (+num).toLocaleString()
 }
 export function getCodePoints(string) {
-    return string.split('').map(o => `\\u${o.charCodeAt().toString(16).padStart(4, 0)}`).join('')
+    return join(string.split('').map(o => `\\u${o.charCodeAt().toString(16).padStart(4, 0)}`))
+}
+function j(a, b) { return `${a}${b}` }
+export function join(arr) {
+    return arr.reduce(j, '')
 }
 export function upper(string) {
-    return `${string[0].toUpperCase()}${string.slice(1)}`
+    return `${string[0].toUpperCase()}${string.substring(1)}`
 }
 export function splice(string, start, deleteCount, items) {
     let val = (string = String(string)).split('')
     val.splice(start = +start, deleteCount = +deleteCount, typeof items === 'function' ? items(string.slice(start, start + deleteCount), start, deleteCount, string) : items)
-    return val.join('')
+    return join(val)
 }
 export let escapeHTML
 const a = globalThis.document?.createElement?.('div')
 if (a) {
-    const textContent = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent').set.bind(a),
-        innerHTML = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML').get.bind(a)
     function esc(str) {
-        textContent(str)
-        return innerHTML()
+        a.textContent = str
+        return a.innerHTML
     }
     escapeHTML = esc
 }
@@ -58,11 +63,11 @@ export function replace(string, ...subs) {
 }
 let vowels = / /.test.bind(/[aeiou]/i)
 export function formatWord(str) {
-    return vowels(str[0]) ? `an ${str}`:`a ${str}`
+    return vowels(str[0]) ? `an ${str}` : `a ${str}`
 }
 export function shorten(str, length, tail) {
     if (typeof length !== 'number') throw RangeError('Length must be present')
-    let out = str.slice(0, length)
+    let out = str.substring(0, length)
     return str.length > length ? `${out}${tail ?? '…'}` : out
 }
 export function plural(singular, plural, count) {
@@ -83,6 +88,80 @@ export function toOrdinal(o) {
 }
 export function* groups(str, { source: s, flags: f }) {
     let v, r = RegExp(s, f)
-    if (!f.includes('g')) return yield r.exec(str).groups
-    while (v = r.exec(str)) yield v.groups
+    if (!f.includes('g')) yield r.exec(str).groups
+    else while (v = r.exec(str)) yield v.groups
+}
+export async function replaceAsync(string, regexp, replacerFunction) {
+    const replacements = await Promise.all(
+        Array.from(string.matchAll(regexp),
+            match => replacerFunction(...match)))
+    let i = 0
+    return string.replace(regexp, () => replacements[i++])
+}
+export 
+// let all = new Map(Reflect.ownKeys(globalThis).filter(o => o && typeof (o === 'object' || typeof o === 'function')).map((key) => [globalThis[key], key]))
+function uneval(o) {
+    // if (all.has(o)) return '(' + all.get(o) + ')'
+    if (Array.isArray(o))
+        return '[' + o.map(uneval).join(',') + ']'
+    if (o === null) return 'null'
+    if (o === document.all) return 'document.all'
+    if (o instanceof WeakMap || o instanceof WeakSet) return `(new ${o.constructor.name})`
+    if (o instanceof RegExp)
+        return `/${o.source}/${o.flags}`
+    if (o instanceof Map) {
+        if (!o.size) return `(new Map)`
+        return `(new Map([${Array.from(o, uneval)}]))`
+    }
+    if (o instanceof Set) {
+        if (!o.size) return `(new Set)`
+        let items = []
+        o.forEach(i => items.push(i))
+        return `(new Set(${uneval(items)}))`
+    }
+    switch (typeof o) {
+        case 'number': {
+            if (o !== o) return '(0/0)'
+            if (o === 1 / 0) return '(1/0)'
+            if (o === -1 / 0) return '(-1/0)'
+            if (Object.is(o, -0)) return '(-0)'
+        }
+        default: return String(o)
+        case 'bigint': return o + 'n'
+        case 'function': return '(' + (/^(?:async)?\s*function/.test(o) ? o : 'function ' + o) + ')'
+        case 'object': {
+            return '({' + Reflect.ownKeys(Object(o)).map(key => {
+                let out = ''
+                let descriptor = Object.getOwnPropertyDescriptor(o, key)
+                if (descriptor.set || descriptor.get) {
+                    let s = []
+                    if (descriptor.set) s.push(`${descriptor.set}`.replace(/^function /, `set ${uneval(key)}`))
+                    if (descriptor.get) s.push(`${descriptor.get}`.replace(/^function /, `get ${uneval(key)}`))
+                    return s.join(',')
+                }
+                let val = o[key]
+                if (val === o) return ''
+                if (typeof val === 'function') {
+                    let v = val.toString()
+                    if ((!/=>.*(?:\{.*\})?$/s.test(v) && !val.hasOwnProperty('prototype') && !v.endsWith('{ [native code] }')) || /^(?:Async)?GeneratorFunction$/.test(val.constructor.name)) {
+                        // method syntax
+                        return v
+                    }
+                }
+                if (typeof key === 'symbol') out = `[${uneval(key)}]`
+                else out = `${uneval(key)}`
+                return out + `:${uneval(val)}`
+            }).join(',') + '})'
+        }
+        case 'string': return `"${o.replace(/"/g, '\\"')}"`
+        case 'undefined': return '(void 0)'
+        case 'symbol': {
+            const syms = Object.getOwnPropertyNames(Symbol).filter(o => typeof Symbol[o] === 'symbol').map(o => Symbol[o])
+            let desc = o.description
+            if (syms.includes(o)) return desc
+            let key = Symbol.keyFor(o)
+            if (typeof key === 'string') return `Symbol.for(${uneval(key)})`
+            return `Symbol(${uneval(`${desc}`)})`
+        }
+    }
 }

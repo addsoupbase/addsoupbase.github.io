@@ -32,6 +32,7 @@ server.js
 gifparsing.js
 temp.sublime-workspace
 bun.js
+pie.js
 entrymaker/
 /entrymaker/
 create_entry.js
@@ -48,3 +49,5 @@ marfrget/json.js
 sound.html
 entrymaker/index.html
 html.js
+bun.*
+benchmark/

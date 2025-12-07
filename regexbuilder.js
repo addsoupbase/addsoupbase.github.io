@@ -11,8 +11,7 @@
         })
     mod.eval = evaluate
     function evaluate(str) {
-        with (mod) // break the rules a bit
-        return eval(typeof arguments[0] === 'function' ? `(${arguments[0]}).call(mod)` : arguments[0])
+        with (mod) return eval(typeof arguments[0] === 'function' ? `(${arguments[0]}).call(mod)` : arguments[0])
     }
     function PatternSegment(str) {
         'use strict'
