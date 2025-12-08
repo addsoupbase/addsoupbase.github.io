@@ -128,15 +128,18 @@ function uneval(o) {
         }
         default: return String(o)
         case 'bigint': return o + 'n'
-        case 'function': return '(' + (/^(?:async)?\s*function/.test(o) ? o : 'function ' + o) + ')'
+        case 'function': 
+        if (o.toString().startsWith('class')) return '('+o+')'
+        return '(' + (/^(?:async\s*)?function|=>.*(?:\{.*\})?$/.test(o) ? o : 'function ' + o) + ')'
         case 'object': {
-            return '({' + Reflect.ownKeys(Object(o)).map(key => {
+            return '({' +(Object.getPrototypeOf(o)===null?'__proto__:null,':'')+ Reflect.ownKeys(Object(o)).map(key => {
                 let out = ''
                 let descriptor = Object.getOwnPropertyDescriptor(o, key)
                 if (descriptor.set || descriptor.get) {
                     let s = []
-                    if (descriptor.set) s.push(`${descriptor.set}`.replace(/^function /, `set ${uneval(key)}`))
-                    if (descriptor.get) s.push(`${descriptor.get}`.replace(/^function /, `get ${uneval(key)}`))
+                    let k = uneval(key)
+                    descriptor.set && s.push(`${descriptor.set}`.replace(/^function /, `set ${k}`).replace(descriptor.set.name,''))
+                    descriptor.get && s.push(`${descriptor.get}`.replace(/^function /, `get ${k}`).replace(descriptor.get.name,''))
                     return s.join(',')
                 }
                 let val = o[key]
@@ -151,7 +154,7 @@ function uneval(o) {
                 if (typeof key === 'symbol') out = `[${uneval(key)}]`
                 else out = `${uneval(key)}`
                 return out + `:${uneval(val)}`
-            }).join(',') + '})'
+            }).filter(o=>o!=='').join(',') + '})'
         }
         case 'string': return `"${o.replace(/"/g, '\\"')}"`
         case 'undefined': return '(void 0)'
