@@ -1,4 +1,4 @@
-const script = "import gif from 'https://cdn.jsdelivr.net/npm/gifuct-js@2.1.2/+esm'\naddEventListener('message', message)\nlet can = new OffscreenCanvas(0,0)\nlet ctx = can.getContext('2d')\nctx.imageSmoothingEnabled=false\nasync function message({ data: { src, buffer, canvas } }) {\n    let data = buffer\n    let frames = gif.decompressFrames(gif.parseGIF(data), true)\n    let out = []\n    for (let i = 0, l = frames.length; i < l; ++i) {\n        let cur = frames[i]\n            , { width, height, left, top } = cur.dims\n        can.width = width\n        can.height = height\n        let data = new ImageData(cur.patch, width, height)\n        ctx.putImageData(data, left, top)\n        out.push({ data: await createImageBitmap(can), delay: cur.delay })\n        switch (cur.disposalType) {\n            default: ctx.clearRect(0, 0, width, height)\n                break\n            case 1: break\n        }\n    }\n    animate(canvas.getContext('2d'), out, 0)\n    postMessage({ src })\n}\nfunction animate(ctx, frames, index) {\n    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)\n    let a = frames[index]\n        ctx.canvas.width = a.data.width\n    ctx.canvas.height = a.data.height\n    ctx.drawImage(a.data, 0, 0)\n    setTimeout(animate, a.delay, ctx, frames, (index + 1) % frames.length)\n}"
+const script = "import gif from 'https://cdn.jsdelivr.net/npm/gifuct-js@2.1.2/+esm'\naddEventListener('message', message)\nlet can = new OffscreenCanvas(0, 0)\nlet ctx = can.getContext('2d')\nconst bitmaps = new Map\nctx.imageSmoothingEnabled = false\nasync function message({ data: { src, buffer, canvas, type } }) {\n    if (type && type === 'delete') {\n        let frames = bitmaps.get(src)\n        for (let b of frames)\n            b.close()\n        frames.clear()\n        bitmaps.delete(frames)\n        console.debug(`ImageBitmap for ${src} closed`)\n        return\n    }\n    let data = buffer\n    let frames = gif.decompressFrames(gif.parseGIF(data), true)\n    let out = []\n    let bits = new Set\n    for (let i = 0, l = frames.length; i < l; ++i) {\n        let cur = frames[i]\n            , { width, height, left, top } = cur.dims\n        can.width = width\n        can.height = height\n        let data = new ImageData(cur.patch, width, height)\n        ctx.putImageData(data, left, top)\n        let bitmap = await createImageBitmap(can)\n        bits.add(bitmap)\n        out.push({ data: bitmap, delay: cur.delay })\n        switch (cur.disposalType) {\n            default: ctx.clearRect(0, 0, width, height)\n                break\n            case 1: break\n        }\n    }\n    bitmaps.set(src, bits)\n    animate(canvas.getContext('2d'), out, 0, bits)\n    postMessage({ src })\n}\nfunction animate(ctx, frames, index, b) {\n    let a = frames[index]\n    if (!b.has(a.data))\n        return\n    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)\n    ctx.canvas.width = a.data.width\n    ctx.canvas.height = a.data.height\n    ctx.drawImage(a.data, 0, 0)\n    setTimeout(animate, a.delay, ctx, frames, (index + 1) % frames.length, b)\n}"
 const name = new URL(import.meta.url).pathname.slice(1, -3)
 export const worker = new Worker(
     `data:text/javascript,${encodeURIComponent(script)}`, {
@@ -106,8 +106,12 @@ async function canimate(src) {
     }
     else throw TypeError(`Unsupported media type: ${blob.type}`)
     canvas.setAttribute('data-src', src)
+    registry.register(canvas, src)
     return canvas
 }
+let registry = new FinalizationRegistry(src => {
+   worker.postMessage({type:'delete', src})
+})
 function waitForVideoToLoad(video) {
     if (video.readyState === 4) return Promise.resolve()
     return new Promise(f)

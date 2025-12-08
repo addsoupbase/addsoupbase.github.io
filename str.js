@@ -105,7 +105,7 @@ function uneval(o) {
     if (Array.isArray(o))
         return '[' + o.map(uneval).join(',') + ']'
     if (o === null) return 'null'
-    if (o === document.all) return 'document.all'
+    if (typeof document !== 'undefined'&&o === document.all) return 'document.all'
     if (o instanceof WeakMap || o instanceof WeakSet) return `(new ${o.constructor.name})`
     if (o instanceof RegExp)
         return `/${o.source}/${o.flags}`
