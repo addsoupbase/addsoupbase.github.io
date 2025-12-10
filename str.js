@@ -1,14 +1,14 @@
 const map = new Map(Object.entries({ 1: 'st', 2: 'nd', 3: 'rd' }))
 ''.at || (String.prototype.at = Array.prototype.at = function (i) {
-    if (i < 0) i += this.length
-    let a = this[i]
+    i = +i
+    let a = this[i < 0 ? i + this.length : i]
     return typeof this === 'string' ? a ?? '' : a
 })
 export function getLabel(obj) {
     return {}.toString.call(obj).slice(8, -1).trim() || 'Object'
 }
-export const ALPHABET = 'abcdefghijklmnopqrstuvwxyz'.toUpperCase(),
-    alphabet = ALPHABET.toLowerCase(),
+export const alphabet = 'abcdefghijklmnopqrstuvwxyz',
+    ALPHABET = alphabet.toUpperCase(),
     numbers = '0123456789',
     months = 'January February March April May June July August September October November December'
         .split(' '),
@@ -115,9 +115,7 @@ function uneval(o) {
     }
     if (o instanceof Set) {
         if (!o.size) return `(new Set)`
-        let items = []
-        o.forEach(i => items.push(i))
-        return `(new Set(${uneval(items)}))`
+        return `(new Set(${Array.from(o, uneval)}))`
     }
     switch (typeof o) {
         case 'number': {

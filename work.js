@@ -47,8 +47,8 @@ function animate(ctx, frames, index, b) {
     if (b.has(data))
     {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-        // ctx.canvas.width = a.data.width
-        // ctx.canvas.height = a.data.height
+         ctx.canvas.width = a.data.width
+        ctx.canvas.height = a.data.height
         ctx.drawImage(data, 0, 0)
         setTimeout(animate, a.delay, ctx, frames, (index + 1) % frames.length, b)
     }
