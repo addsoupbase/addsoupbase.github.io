@@ -10,7 +10,7 @@ async function message({ data: { src, buffer, canvas, type } }) {
         for (let b of frames)
             b.close()
         frames.clear()
-        bitmaps.delete(frames)
+        bitmaps.delete(src)
         console.debug(`ImageBitmap for ${src} closed`)
         return
     }
@@ -24,6 +24,7 @@ async function message({ data: { src, buffer, canvas, type } }) {
         can.width = width
         can.height = height
         let data = new ImageData(cur.patch, width, height)
+        ctx.imageSmoothingEnabled = false
         ctx.putImageData(data, left, top)
         let bitmap = await createImageBitmap(can)
         bits.add(bitmap)
@@ -35,16 +36,20 @@ async function message({ data: { src, buffer, canvas, type } }) {
         }
     }
     bitmaps.set(src, bits)
-    animate(canvas.getContext('2d'), out, 0, bits)
+    let c = canvas.getContext('2d')
+    c.imageSmoothingEnabled = false
+    animate(c, out, 0, bits)
     postMessage({ src })
 }
 function animate(ctx, frames, index, b) {
     let a = frames[index]
-    if (!b.has(a.data))
-        return
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-    ctx.canvas.width = a.data.width
-    ctx.canvas.height = a.data.height
-    ctx.drawImage(a.data, 0, 0)
-    setTimeout(animate, a.delay, ctx, frames, (index + 1) % frames.length, b)
+    let {data} = a
+    if (b.has(data))
+    {
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+        // ctx.canvas.width = a.data.width
+        // ctx.canvas.height = a.data.height
+        ctx.drawImage(data, 0, 0)
+        setTimeout(animate, a.delay, ctx, frames, (index + 1) % frames.length, b)
+    }
 }
