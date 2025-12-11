@@ -362,7 +362,7 @@ let POP = window.POP = function () {
 //document.body.scrollLeft = innerHeight/2
 frame.on({
     _load() {
-        (scheduler.postTask?.bind(scheduler) || window.requestIdleCallback || setTimeout)(() => {
+        (window.requestIdleCallback || scheduler.postTask?.bind(scheduler) ||  setTimeout)(() => {
             import('./images.js').then(images)
             console.debug("🐟 Loading the bg now...")
             // deadline ? console.debug(`Did timeout: `, deadline?.didTimeout) : console.debug('requestIdleCallback unsupported :(')
