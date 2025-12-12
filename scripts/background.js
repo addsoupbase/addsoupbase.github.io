@@ -362,11 +362,13 @@ let POP = window.POP = function () {
 //document.body.scrollLeft = innerHeight/2
 frame.on({
     _load() {
-        (window.requestIdleCallback || scheduler.postTask?.bind(scheduler) ||  setTimeout)(() => {
+        let t = new Number(3500)
+        t.priority = 'background'
+        ;(window.requestIdleCallback || scheduler.postTask?.bind(scheduler) ||  setTimeout)(() => {
             import('./images.js').then(images)
             console.debug("🐟 Loading the bg now...")
             // deadline ? console.debug(`Did timeout: `, deadline?.didTimeout) : console.debug('requestIdleCallback unsupported :(')
-        }, { priority: 'background' })
+        }, t)
     }
 }, new AbortController)
 const parent = $('div #background .BG', {

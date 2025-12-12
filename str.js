@@ -1,6 +1,6 @@
 const map = new Map(Object.entries({ 1: 'st', 2: 'nd', 3: 'rd' }))
 ''.at || (String.prototype.at = Array.prototype.at = function (i) {
-    i = +i
+    i |= 0
     let a = this[i < 0 ? i + this.length : i]
     return typeof this === 'string' ? a ?? '' : a
 })
