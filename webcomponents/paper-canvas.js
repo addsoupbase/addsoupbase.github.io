@@ -80,13 +80,13 @@ class PaperCanvas extends HTMLElement {
         return new File([a], `${title}.png`, { type: 'image/png' })
     }
     // [internals] = this.attachInternals()
-    set alpha(val) {
-        this.ctx = this.canvas.setAttr({ '-moz-opaque': !val }).getContext('2d', {
-            alpha: val, willReadFrequently: true,
-            desynchronized: true
-        })
-        this.undoBuffer.length = 0
-    }
+    // set alpha(val) {
+    //     this.ctx = this.canvas.setAttr({ '-moz-opaque': !val }).getContext('2d', {
+    //         alpha: val, willReadFrequently: true,
+    //         desynchronized: true
+    //     })
+    //     this.undoBuffer.length = 0
+    // }
     get alpha() {
         return !('-moz-opaque' in $(this).attr) && this.ctx.getContextAttributes().alpha
     }
@@ -116,6 +116,12 @@ class PaperCanvas extends HTMLElement {
                 break
         }
     }
+    set color(color) {
+        this.ctx.fillStyle = this.ctx.strokeStyle = color
+    }
+    get color() {
+        return this.ctx.fillStyle
+    }
     connectedCallback() {
         let t = $(this)
         let shadow = this.attachShadow({ mode: 'open' })
@@ -130,7 +136,14 @@ class PaperCanvas extends HTMLElement {
         })
         this.canvas.styles.height = `${height}px`
         this.canvas.styles.width = `${width}px`
-        this.ctx = Object.assign(canvas.getContext('2d', { willReadFrequently: true }), PaperCanvas.#BASE_CONTEXT_ATTRIBUTES)
+        this.ctx = Object.assign(canvas.getContext('2d', function(){
+            let out = {willReadFrequently: true}
+            let a = {
+                get desynchronized() {out = {desynchronized: true}},
+            }
+            return out
+        }()), PaperCanvas.#BASE_CONTEXT_ATTRIBUTES)
+        this.ctx.fillRect(0,0,width,height)
         $.push(shadow, canvas, style.cloneNode(true))
         t.on({
             pointermove,

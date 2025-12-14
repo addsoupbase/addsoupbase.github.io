@@ -150,7 +150,7 @@ form.on({
         // form.destroy()
     }
 }, controller)
-fetch('https://misha-mail-85.deno.dev', {
+fetch('https://drawing-submissions.deno.dev', {
     method: 'head',
     mode: 'cors'
 }).then(disableForm, disableForm)
