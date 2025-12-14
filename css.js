@@ -93,12 +93,12 @@
         , formatClass = formatGeneric.bind(1, ':', pseudoClass),
         formatElement = formatGeneric.bind(1, '::', pseudoElement)
     CSS.registerProperty || (canWrite && (w.fallback = fallback, w.vendor = vendor, document.write('<', 'script src="' + (location.protocol + '//' + location.host) + '/no_register_property.js" async', '>', '<', '/script', '>')))
-    if (canWrite && top === self) {
+  /*  if (canWrite && top === self) {
         // Idk why, but it seems to make the page render faster
         document.write('<p style="position:absolute !important;transform:scale(0) !important;z-index:-9999 !important;" data-cssid="$$$" aria-hidden="true">.</p>')
         var p = document.querySelector('p[data-cssid="$$$"]')
         p = addEventListener('load', p.removeChild.bind(p.parentElement, p), { once: true })
-    }
+    }*/
     function dashVendor(prop, val) {
         return vendor(toDash(prop), val)
     }
