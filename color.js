@@ -30,6 +30,7 @@ const { min, max, round } = Math,
     handler = {
         get(target, prop) {
             if (prop in target) return target[prop]
+            prop = String(prop)
             if (CSS.supports('color', prop)) {
                 if (!colors.has(prop)) {
                     canvas.fillStyle = prop
@@ -160,7 +161,7 @@ class $ {
     }
 
     invert() {
-        return this.#copy(new $($.opposite(String(this))))
+        return this.#copy(new $($.opposite(this.toString('hex'))))
     }
 
     get hsl() {

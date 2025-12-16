@@ -22,7 +22,7 @@ send2.on({
                 pencil.attr._busy = "true"
                 pencil.fadeIn()
             })()
-            let data = draw.dataURL(1).slice(22)
+            let data = draw.dataURL(1)
             let res = await fetch(this.attr.$action, {
                 mode: 'cors',
                 method: 'post',
