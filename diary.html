@@ -107,7 +107,7 @@
             <section id="diary" class="cute-blue" style="--user-select:none;width: 746px;  place-self: center;">
                 <div id="walking"></div>
                 <h2 id="invalid" hidden>No entry for today &lpar;yet!&rpar;
-                    <img style="image-rendering: pixelated" alt="tangled speech balloon" loading="lazy"  height="34"
+                    <img style="image-rendering: pixelated" alt="tangled speech balloon" loading="lazy" height="34"
                         src="./cute-emojis/emojis/1143313874943234058.gif">
                 </h2>
                 <h2 id="error" hidden>
@@ -157,7 +157,7 @@
                 style="--user-select:none;justify-self: center;justify-content:center;display: flex;    align-items: end;">
                 <input aria-keyshortcuts="Alt+Shift+P" id="prev" type="image" title="Turn to previous page" alt="Back"
                     style="transform:scaleX(-1)" src="./cute-emojis/emojis/1321091969635848294.gif" class="diarybutton">
-                <button class="cute-green-button" id="toToday">Most Recent</button>
+                <button class="cute-green-button" id="toToday">First</button>
                 <input aria-keyshortcuts="Alt+Shift+N" style="    visibility: hidden;" id="next" type="image"
                     title="Turn to next page" alt="Forward" src="./cute-emojis/emojis/1321091969635848294.gif"
                     class="diarybutton">
@@ -209,20 +209,20 @@
         import { closest } from './num.js'
         let dates = (await jason('./dates.json')).reverse(),
             day = 0
-        function hashchange(e) {
-            if (!location.hash) return
-            let d = location.hash.slice(1)
-            let daa = new Date(d)
-            let found = dates.findIndex(o => o.slice(0, 10) === d)
-            // im really gonna cry bro the Date api
-            if (~found) {
-                day = found
-                changeDay(0)
-            }
-        }
-        h.on(window, {
-            hashchange
-        })
+        /*   function hashchange(e) {
+               if (!location.hash) return
+               let d = location.hash.slice(1)
+               let daa = new Date(d)
+               let found = dates.findIndex(o => o.slice(0, 10) === d)
+               // im really gonna cry bro the Date api
+               if (~found) {
+                   day = found
+                   changeDay(0)
+               }
+           }
+           h.on(window, {
+               hashchange
+           })*/
         // let date
         // typeof URLSearchParams === 'function' && (date = new URLSearchParams(location.search).get('date'))
         function animateThing() {
@@ -288,20 +288,20 @@
         let things = dates.map(o => new Date(o))
         currentDateInput.on({
             change() {
-                location.hash = this.value
-                // let { 0: year, 1: month, 2: date } = this.value.split('-')
-                // let hi = new Date(`${month}/${date}/${year}`)
-                // frame.hide(3)
-                // let src = `./entries/${toNormal(hi)}/index.html`
-                // frame.setAttr({
-                //     src
-                // })
-                // let a = dates.map(o => new Date(o).toDateString()).indexOf(hi.toDateString())
-                // if (a !== -1) {
-                //     day = a
-                //     console.debug(dates[day])
-                //     showHide()
-                // }
+
+                let { 0: year, 1: month, 2: date } = this.value.split('-')
+                let hi = new Date(`${month}/${date}/${year}`)
+                frame.hide(3)
+                let src = `./entries/${toNormal(hi)}/index.html`
+                frame.setAttr({
+                    src
+                })
+                let a = dates.map(o => new Date(o).toDateString()).indexOf(hi.toDateString())
+                if (a !== -1) {
+                    day = a
+                    console.debug(dates[day])
+                    showHide()
+                }
             }
         })
         function load() {
@@ -366,7 +366,6 @@
                 let final = currentDateInput.value = toYMDFormat(date)
                 location.hash = final
                 let src = `./entries/${toNormal(date)}/index.html`
-                if (src !== frame.attr.src)
                 frame.setAttr({
                     src
                 })
@@ -378,15 +377,23 @@
         }
         toToday.on({
             click() {
-                changeDay(day = 0)
+                let txt = 'First'
+                let d
+                if (day === dates.length - 1) {
+                    txt = 'Last'
+                    d = 0
+                }
+                else {
+                    txt = 'First'
+                    d = dates.length-1
+                }
+                day = d
+                this.textContent = txt
+                changeDay(0)
             }
         })
-        if (location.hash) {
-            let {hash} = location
-            location.hash = ''
-            location.hash = hash
-        }
-        else {changeDay(0)}
+
+        changeDay(0)
         // GOOD ENOUGH
     </script>
     <script nomodule src="h.js" name="bad"></script>
