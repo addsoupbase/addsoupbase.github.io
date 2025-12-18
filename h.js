@@ -46,6 +46,7 @@
     function isValidET(target) {
         return target === Object(target) && 'addEventListener' in target && 'removeEventListener' in target && 'dispatchEvent' in target
     }
+    $.isValid = isValidET
     function getLabel(obj) {
         return {}.toString.call(obj).slice(8, -1).trim() || 'Object'
     }

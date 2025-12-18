@@ -63,9 +63,9 @@
                     // sessionStorage seems to be faster on FireFox 
                     var o = top.name
                     if (!o || o.includes(id)) {
-                         sn = Reflect.set.bind(1, top, 'name')
+                        sn = Reflect.set.bind(1, top, 'name')
                         return o // name is free to use
-                    } 
+                    }
                 }
                 return ftss()
             }
@@ -93,12 +93,12 @@
         , formatClass = formatGeneric.bind(1, ':', pseudoClass),
         formatElement = formatGeneric.bind(1, '::', pseudoElement)
     CSS.registerProperty || (canWrite && (w.fallback = fallback, w.vendor = vendor, document.write('<', 'script src="' + (location.protocol + '//' + location.host) + '/no_register_property.js" async', '>', '<', '/script', '>')))
-  /*  if (canWrite && top === self) {
-        // Idk why, but it seems to make the page render faster
-        document.write('<p style="position:absolute !important;transform:scale(0) !important;z-index:-9999 !important;" data-cssid="$$$" aria-hidden="true">.</p>')
-        var p = document.querySelector('p[data-cssid="$$$"]')
-        p = addEventListener('load', p.removeChild.bind(p.parentElement, p), { once: true })
-    }*/
+    /*  if (canWrite && top === self) {
+          // Idk why, but it seems to make the page render faster
+          document.write('<p style="position:absolute !important;transform:scale(0) !important;z-index:-9999 !important;" data-cssid="$$$" aria-hidden="true">.</p>')
+          var p = document.querySelector('p[data-cssid="$$$"]')
+          p = addEventListener('load', p.removeChild.bind(p.parentElement, p), { once: true })
+      }*/
     function dashVendor(prop, val) {
         return vendor(toDash(prop), val)
     }
@@ -134,57 +134,23 @@
     function b(p, v) {
         return '(' + p + ':' + v + ')'
     }
+    function find(p, v) {
+        for (var i = br.length, o; i--;) {
+            var prefix = br[i]
+            , prop = p
+            prefix !== 'mso' && prefix !== 'prince' && (prefix = '-' + prefix)
+            prefix += '-'
+            if (sup(b(o = prefix + prop, v))) return o
+        }
+        return ''
+    }
     function vendor(p, v, _) {
         if (p.startsWith('--'))
             return p
         if (v.trim() && !sup(p, v)) {
             var a = p = p
                 .replace(vendr, '')
-            return dr.has(p) ? dr.get(p) : (
-                sup(b(a, v)) ||
-                // Maybe you don't need a prefix?
-                sup(b(a = '-webkit-' + p, v)) ||
-                // Most likely (Chrome, Safari)
-                sup(b(a = '-moz-' + p, v)) ||
-                // Firefox
-                sup(b(a = '-moz-osx-' + p, v)) ||
-                // Firefox
-                sup(b(a = '-apple-' + p, v)) ||
-                // Apple
-                sup(b(a = '-o-' + p, v)) ||
-                // Opera
-                sup(b(a = '-ms-' + p, v)) ||
-                // Microsoft
-                sup(b(a = '-khtml-' + p, v)) ||
-                // Konqueror
-                sup(b(a = '-konq-' + p, v)) ||
-                // Konqueror
-                sup(b(a = 'mso-' + p, v)) ||
-                // Microsoft Office
-                sup(b(a = '-xv-' + p, v)) ||
-                // Opera
-                sup(b(a = '-atsc-' + p, v)) ||
-                // Advanced Television Standards Committee
-                sup(b(a = '-wap-' + p, v)) ||
-                // The WAP Forum
-                sup(b(a = 'prince-' + p, v)) ||
-                // YesLogic
-                sup(b(a = '-ah-' + p, v)) ||
-                // Antenna House
-                sup(b(a = '-hp-' + p, v)) ||
-                // Hewlett Packard
-                sup(b(a = '-ro-' + p, v)) ||
-                // Real Objects
-                sup(b(a = '-rim-' + p, v)) ||
-                // Research In Motion
-                sup(b(a = '-tc-' + p, v)) ||
-                // Tall Components
-                sup(b(a = '-fso-' + p, v)) ||
-                // IDK
-                sup(b(a = '-icab-' + p, v)) ||
-                // IDK
-                sup(b(a = '-epub-' + p, v)) ||
-                // IDK
+            return dr.has(p) ? dr.get(p) : find(p, v) || (
                 // sup(prefix = `-internal-${prop}`, val) ||
                 badCSS("Unrecognized CSS at '" + b(a = p, v).slice(1, -1) + "'", _),
                 dr.set(p, a),
@@ -420,7 +386,7 @@
     }()).map(function (a) { return a[0] + q(toCSS(a[1])) })
         , first = sheet.textContent, str
     // finally { performance.mark('css-other-end') }
-    sheet.textContent = name || (sn(str = first + selector + q(toCSS(uv, true)) + dflt.reduce(function(a,b){return a+b},'')), str)
+    sheet.textContent = name || (sn(str = first + selector + q(toCSS(uv, true)) + dflt.reduce(function (a, b) { return a + b }, '')), str)
     var css = constructor.prototype[sym] = Object.freeze({
         getDefaultStyleSheet: getDefaultStyleSheet,
         registerCSSRaw: registerCSSRaw,
