@@ -1,9 +1,7 @@
 @import url('./cute-green.css');
 @import url('./chococooky.css');
 
-input:not([type="image"]) {
-  /* height:30px */
-}
+
 
 #background {
   width: 100vw;
@@ -70,7 +68,7 @@ input:not([type="image"]) {
   display: flex;
   transform-origin: center;
   justify-content: center;
-  image-rendering: optimizeQuality;
+  image-rendering: optimizequality;
   background-position: center;
 }
 
@@ -568,7 +566,6 @@ html {
     height: 60vh
   }
 }
-
 @supports (-ms-zoom: 1) {
   #frame {
     transform: unset;

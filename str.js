@@ -98,14 +98,14 @@ export async function replaceAsync(string, regexp, replacerFunction) {
     let i = 0
     return string.replace(regexp, () => replacements[i++])
 }
-export 
-// let all = new Map(Reflect.ownKeys(globalThis).filter(o => o && typeof (o === 'object' || typeof o === 'function')).map((key) => [globalThis[key], key]))
-function uneval(o) {
+export
+    // let all = new Map(Reflect.ownKeys(globalThis).filter(o => o && typeof (o === 'object' || typeof o === 'function')).map((key) => [globalThis[key], key]))
+    function uneval(o) {
     // if (all.has(o)) return '(' + all.get(o) + ')'
     if (Array.isArray(o))
         return '[' + o.map(uneval).join(',') + ']'
     if (o === null) return 'null'
-    if (typeof document !== 'undefined'&&o === document.all) return 'document.all'
+    if (typeof document !== 'undefined' && o === document.all) return 'document.all'
     if (o instanceof WeakMap || o instanceof WeakSet) return `(new ${o.constructor.name})`
     if (o instanceof RegExp)
         return `/${o.source}/${o.flags}`
@@ -126,18 +126,18 @@ function uneval(o) {
         }
         default: return String(o)
         case 'bigint': return o + 'n'
-        case 'function': 
-        if (o.toString().startsWith('class')) return '('+o+')'
-        return '(' + (/^(?:async\s*)?function|=>.*(?:\{.*\})?$/.test(o) ? o : 'function ' + o) + ')'
+        case 'function':
+            if (o.toString().startsWith('class')) return '(' + o + ')'
+            return '(' + (/^(?:async\s*)?function|=>.*(?:\{.*\})?$/.test(o) ? o : 'function ' + o) + ')'
         case 'object': {
-            return '({' +(Object.getPrototypeOf(o)===null?'__proto__:null,':'')+ Reflect.ownKeys(Object(o)).map(key => {
+            return '({' + (Object.getPrototypeOf(o) === null ? '__proto__:null,' : '') + Reflect.ownKeys(Object(o)).map(key => {
                 let out = ''
                 let descriptor = Object.getOwnPropertyDescriptor(o, key)
                 if (descriptor.set || descriptor.get) {
                     let s = []
                     let k = uneval(key)
-                    descriptor.set && s.push(`${descriptor.set}`.replace(/^function /, `set ${k}`).replace(descriptor.set.name,''))
-                    descriptor.get && s.push(`${descriptor.get}`.replace(/^function /, `get ${k}`).replace(descriptor.get.name,''))
+                    descriptor.set && s.push(`${descriptor.set}`.replace(/^function /, `set ${k}`).replace(descriptor.set.name, ''))
+                    descriptor.get && s.push(`${descriptor.get}`.replace(/^function /, `get ${k}`).replace(descriptor.get.name, ''))
                     return s.join(',')
                 }
                 let val = o[key]
@@ -152,9 +152,9 @@ function uneval(o) {
                 if (typeof key === 'symbol') out = `[${uneval(key)}]`
                 else out = `${uneval(key)}`
                 return out + `:${uneval(val)}`
-            }).filter(o=>o!=='').join(',') + '})'
+            }).filter(o => o !== '').join(',') + '})'
         }
-        case 'string': return `"${o.replace(/"/g, '\\"')}"`
+        case 'string': return /^\w+$/.test(o) ? o : `"${o.replace(/"/g, '\\"')}"`
         case 'undefined': return '(void 0)'
         case 'symbol': {
             const syms = Object.getOwnPropertyNames(Symbol).filter(o => typeof Symbol[o] === 'symbol').map(o => Symbol[o])
