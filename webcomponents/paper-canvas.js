@@ -164,7 +164,7 @@ let style = $('style', {
         border: '1px solid black',
     })}}`
 })
-if (!customElements.get('paper-canvas'))  {
+if (customElements.get('paper-canvas') !== PaperCanvas)  {
     let d = customElements.whenDefined('paper-canvas')
     define('paper-canvas', PaperCanvas)
     await d
