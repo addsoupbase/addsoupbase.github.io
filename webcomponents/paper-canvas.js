@@ -129,21 +129,23 @@ class PaperCanvas extends HTMLElement {
         let height = t.attr.height || 250
         let canvas = this.canvas = $('canvas #canvas', {
             attr: {
-                style:'image-rendering:auto',
+                style: 'image-rendering:auto',
                 width,
                 height
             }
         })
         this.canvas.styles.height = `${height}px`
         this.canvas.styles.width = `${width}px`
-        this.ctx = Object.assign(canvas.getContext('2d', function(){
-            let out = {willReadFrequently: true}
-            let a = {
-                get desynchronized() {out = {desynchronized: true}},
+        this.ctx = Object.assign(canvas.getContext('2d', function () {
+            let out = { willReadFrequently: true }
+            , a = {
+                get desynchronized() { out = { desynchronized: true } },
             }
+            document.createElement('canvas').getContext('2d', a)
+            // idk why but both together makes it not work
             return out
         }()), PaperCanvas.#BASE_CONTEXT_ATTRIBUTES)
-        this.ctx.fillRect(0,0,width,height)
+        this.ctx.fillRect(0, 0, width, height)
         $.push(shadow, canvas, style.cloneNode(true))
         t.on({
             pointermove,
@@ -162,6 +164,8 @@ let style = $('style', {
         border: '1px solid black',
     })}}`
 })
-let d = customElements.whenDefined('paper-canvas')
-define('paper-canvas', PaperCanvas)
-await d
+if (!customElements.get('paper-canvas'))  {
+    let d = customElements.whenDefined('paper-canvas')
+    define('paper-canvas', PaperCanvas)
+    await d
+}
