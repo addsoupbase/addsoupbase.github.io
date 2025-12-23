@@ -40,7 +40,7 @@
     w.CSS || (w.CSS = function () { var s = D.createElement('style'), computed = getComputedStyle(s); put(s); return { supports: self.supportsCSS || supports }; function supports(propOrSelector, value) { var isSelector = propOrSelector.substring(0, 8) === 'selector'; if (isSelector && value == null) { s.textContent = propOrSelector.slice(9, -1) + '{width:auto;}'; return (s.sheet.cssRules || s.sheet.rules).length === 1 } return propOrSelector in computed } }())
     var sup = CSS.supports,
         selCache = new Map,
-        isSimple = /[^)(:]$/,
+        isSimple = /^[^)(:]+$/,
         where = sel(':where(p)', true),
         Reflect = w.Reflect || { set: function (t, p, v) { t[p] = v }, get: function (t, p) { return t[p] } }
         , sn
