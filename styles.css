@@ -699,7 +699,18 @@ main {
 .scale {
   animation: scaleIn 2s ease 0s normal forwards;
 }
+/*
+p:AnInvalidSelector(b){ 
+  color:red
+}
+.AnEmptyRule {
 
+}
+:not(*) {
+  invalid-property: inherit;
+  color: invalid-value
+}
+*/
 @keyframes scaleIn {
   0% {
     opacity: 0;
