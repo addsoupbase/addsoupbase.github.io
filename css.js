@@ -39,7 +39,8 @@
     })
     w.CSS || (w.CSS = function () { var s = D.createElement('style'), computed = getComputedStyle(s); put(s); return { supports: self.supportsCSS || supports }; function supports(propOrSelector, value) { var isSelector = propOrSelector.substring(0, 8) === 'selector'; if (isSelector && value == null) { s.textContent = propOrSelector.slice(9, -1) + '{width:auto;}'; return (s.sheet.cssRules || s.sheet.rules).length === 1 } return propOrSelector in computed } }())
     var sup = CSS.supports,
-         selCache = new Map,
+        selCache = new Map,
+        isSimple = /[^)(:]$/,
         where = sel(':where(p)', true),
         Reflect = w.Reflect || { set: function (t, p, v) { t[p] = v }, get: function (t, p) { return t[p] } }
         , sn
@@ -76,10 +77,9 @@
         alr = new Set,
         vendr = /^(?:-(?:webkit|moz(?:-osx)?|apple|khtml|konq|r?o|ms|xv|atsc|wap|ah|hp|rim|tc|fso|icab|epub)|prince|mso)-(?!$)/,
         dr = new Map
-    try { var pseudoClass = RegExp('(?<=:)(?<!::)[\\w-]+', 'g'), pseudoElement = RegExp('(?<=::)[\\w-]+', 'g') }
-    // Lookbehind is more modern
-    catch (e) { }
-    var dash = /-./g,
+    var pseudoClass = /(?:[^:]|^):([\w-]+)/g,  // (?<=(?:^|[^:]):)[\w-]+/g
+        pseudoElement = /::([\w-]+)/g,  // (?<=::)[\w-]+
+        dash = /-./g,
         azregex = /[A-Z]/g,
         Rm,
         br = ['epub', 'icab', 'fso', 'tc', 'rim', 'hp', 'ah', 'wap', 'atsc', 'xv', 'ms', 'o', 'ro', 'konq', 'khtml', 'apple', 'moz', 'moz-osx', 'webkit']
@@ -113,8 +113,8 @@
                 if (sel(':is(p)', true)) return 'is'
                 break
             case 'is':
-                for (var i = 2, hi, x = 'any'; i--;x='matches') 
-                    if (sel(hi = vs(':' + x + '(p)', ':'), true)) return hi.match(pseudoClass)[0]
+                for (var i = 2, hi, x = 'any'; i--; x = 'matches')
+                    if (sel(hi = vs(':' + x + '(p)', ':'), true)) return hi.replace(pseudoClass, '$1')
         }
         while ((s = !sel(type + selector, true)) && i--)
             selector = '-' + br[i] + '-' + og
@@ -142,7 +142,7 @@
         }
         return CSSObj(o)
     }
-    var CSSProto = Object.create(null, { toString: { value: function () { return toCSS(this) } } })
+    var CSSProto = Object.create(null, { supported: { get: function () { for (var i in this) if (!sup(i + ':' + this[i])) return false; return true } }, toString: { value: function () { return toCSS(this) } } })
     function CSSObj(input) {
         if (typeof input === 'string') input = fromCSS(input)
         var out = { __proto__: CSSProto }
@@ -150,8 +150,8 @@
             var v = out[p] = input[p]
             if (p.startsWith('--')) Object.defineProperty(out, '__' + toCaps(p.substring(2)), { value: v })
             else {
-                var ca = toCaps(p)
-                a in out || Object.defineProperty(out, ca, { value: v })
+                var a = toCaps(p)
+                a in out || Object.defineProperty(out, a, { value: v })
             }
         }
         return out
@@ -160,12 +160,23 @@
         , parse = /(?<selector>(?<!\s*@\w+)[^{}]+?)(?:;|(?<rule>\{.*?\}))/sg
         , semicolon = /(?:--)?[-\w]+\s*:(?:(?![^(]*\);|[^"]*";|[^']*';).)*?(?:!\s*important\s*)?(?=;(?![^(]*\)|[^"]*"|[^']*')|\s*$)/g
     function fixSheet(sheet) {
-        var xhr = new XMLHttpRequest
-        xhr.open('GET', sheet.href)
-        xhr.onload = function () {
-            var text = xhr.responseText.replace(comments, '')
-                , match
-                , sheetRules = sheet.cssRules || sheet.Rules
+        var xhr = new XMLHttpRequest,
+            href = sheet.href
+        if (href) {
+            xhr.open('GET', href)
+            xhr.onload = function () {
+                load(xhr.responseText)
+            }
+            xhr.send()
+        }
+        else {
+            load(sheet.ownerNode.textContent)
+        }
+        function load(text) {
+            var og = text
+            text = text.replace(comments, '')
+            var match
+            // , sheetRules = sheet.cssRules || sheet.Rules
             // console.clear()
             while (match = parse.exec(text)) {
                 var groups = match.groups
@@ -174,23 +185,33 @@
                     var r = rule.trim().slice(1, -1).replace(/\n/g, '')
                         , c = fromCSS(r)
                         , s = groups.selector.trim()
-                        , selector = fSelector(s)
-                    if (selector.startsWith('@supports') || selector == '100%') continue
+                    if (/^@(?:supports|media)/.test(s)) continue
+                    selector = fSelector(s)
                     if (s !== selector || c != r.replace(/\s/g, ''))
                         if (Object.keys(c).length) {
-                            var newRule = selector + ' {' + c + '}'
-                            sheet.insertRule(newRule, sheetRules.length)
+                            var lines = og.split('\n')
+                            // i will make this better later
+                            if (href && !sel(selector)) {
+                                console.debug('Fix selector', href + ':' + (lines.findIndex(function (o) { return o.includes(selector) }) + 1))
+                                // auto jump to line
+                            }
+                            for (var x in c) {
+                                var v = c[x]
+                                    , propNotSupported = !sup(x + ':' + 'inherit')
+                                    , valNotSupported = !sup(x + ':' + v)
+                                if (propNotSupported || valNotSupported) console.debug('Fix ' + (propNotSupported ? 'property' : 'value'), href + ':' + (lines.findIndex(function (o) { return o.includes(propNotSupported ? x : v) }) + 1))
+                            }
+                            // c.supported || console.warn('One or more rules/properties unsupported', c, sheet.href || sheet.outerHTML)
                         }
                 }
             }
         }
-        xhr.send()
     }
     function fgeneric(d, pseudo, selector) {
         if (sel(selector, true)) return selector
         var matches = selector.match(pseudo)
         if (matches) for (var i = 0, l = matches.length; i < l; ++i) {
-            var match = matches[i]
+            var match = matches[i].replace(pseudo, '$1')
             selector = selector.replace(match, vs(match, d))
         }
         return selector
@@ -344,10 +365,15 @@
         // }
     }
     function sel(rule, doCache) {
-        if (doCache)
-            var c
-                , cache = selCache.get(rule) || (selCache.set(rule, c = sel(rule)), c)
-        return cache || sup("selector(" + rule + ")")
+        if (isSimple.test(rule)) return true
+        if (doCache) var c, cache = selCache.get(rule) || (selCache.set(rule, c = sel(rule, false)), c)
+        cache = cache || sup("selector(" + rule + ")")
+        if (!cache) {
+            var vh = /:(?:where|is|any)\((.*)\)/g
+                , hasWhere = rule.match(vh)
+                ; (!hasWhere || (hasWhere && !sel(rule.replace(vh, '$1')))) && badCSS("Invalid selector '" + rule + "'")
+        }
+        return cache
     }
     function g(name, iv, inh, sx) {
         props.add(name)
@@ -465,8 +491,11 @@
         toCSS: toCSS,
         //// has: props.has.bind(props),
         formatSelector: fSelector,
-        fixSheet: fixSheet
-        // fromCSS: fromCSS
+        fixSheet: fixSheet,
+        checkSheets: function () {
+            typeof requestIdleCallback === 'function' && requestIdleCallback([].forEach.bind(document.styleSheets, fixSheet))
+        },
+        fromCSS: fromCSS
     })
     // console.debug(performance.measure('css-cache','css-cache-start', 'css-cache-end').toJSON(), performance.measure('css-property', 'css-property-start', 'css-property-end').toJSON())
     return css
