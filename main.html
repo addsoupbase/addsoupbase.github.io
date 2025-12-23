@@ -102,7 +102,7 @@
                         <div id="send1">
                             <iframe style="display:none" name="hi" id="prevent"></iframe>
                             <form id="submit" action="https://misha-mail-85.deno.dev" method="post" target="hi">
-                                <div id="formholder"><input class="cute-green" name="name" placeholder="Name"
+                                <div id="formholder"><input class="cute-green" name="name" placeholder="Name" enterkeyhint="next"
                                         id="form_name"><input class="cute-green" name="message" placeholder="Message"
                                         id="form_message" enterkeyhint="send" required>
                                 </div>
@@ -112,9 +112,9 @@
                      
                         <form id="send2" style="display: none;touch-action:none !important;"
                             data-action="https://drawing-submissions.deno.dev?user=misha" method="post" enctype="text/plain">
-                            <div style="overflow: hidden;place-content: center;display:inline-block;margin:5px;touch-action:none !important;">
-                                <button class="cute-green-button" id="submitDrawing">Send</button>
+                            <div style="overflow: hidden;place-content: center;display:grid;margin:5px;touch-action:none !important;place-items:center;">
                                 <paper-canvas aria-required="true" name="drawing" aria-label="Paper to draw on" width="250" height="250" id="draw"></paper-canvas>
+                                <button class="cute-green-button" id="submitDrawing" style="width:fit-content">Send</button>
                             </div>
                             <div>
                                 <div style="margin:20px;display: flex;--user-select:none" id="drawcontrols">

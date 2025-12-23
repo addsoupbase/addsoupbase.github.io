@@ -160,7 +160,7 @@ let style = $('style', {
         cursor: 'crosshair',
         'touch-action': 'none',
         'background-color': 'white',
-        display: 'grid',
+        display: 'inline-grid',
         border: '1px solid black',
     })}}`
 })
