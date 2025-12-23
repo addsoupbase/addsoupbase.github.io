@@ -215,3 +215,9 @@ let handler = {
         return target[prop].bind(target)
     }
 }
+function getCommonAncestor(a, b) {
+    let proto = a
+    while (proto = Reflect.getPrototypeOf(proto))
+        if (proto.isPrototypeOf(b)) return proto.constructor || null
+    return null
+}

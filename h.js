@@ -1,8 +1,6 @@
 //// window.h = 
 (function handle(globalThis) {
-    // if (arguments[1]) return eval?.(`(${handle})(globalThis)`)
-    // ^ disable strict for caller/callee debugging
-    'use strict'
+    //// 'use strict'
     typeof Symbol === 'function' || function () { function a(b) { return String(Math.random() + String(b) + performance.now() + String(Date.now())) } a.for = ''.concat.bind('@@'); globalThis.Symbol = a }()
     //// var queueMicrotask = globalThis.queueMicrotask || globalThis.setImmediate || setTimeout
     var MODULE = Symbol.for("[[HModule]]")

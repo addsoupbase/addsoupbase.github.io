@@ -1,8 +1,8 @@
-//# allFunctionsCalledOnLoad
+// # allFunctionsCalledOnLoad
 // console.time('css.js');
 //// self.css = 
-(function CSSSetup(inModule, w, sym, S, defer) {
-    'use strict'
+(function CSSSetup(inModule, w, sym, S, defer, D) {
+    ////'use strict'
     /*@cc_on
     function _(){var e=new ActiveXObject("Scripting.Dictionary");return{set:function(n,t){e.Add(n,t)},get:function(n){return e.Item(n)},add:function(n){e.Add(n,"")},has:function(n){return e.Exists(n)},delete:function(n){e.Remove(n)}}}
     w.Map=w.Map || _
@@ -27,23 +27,24 @@
                 })
             }
             catch (_) {
-                e = document.createEvent('ErrorEvent')
+                e = D.createEvent('ErrorEvent')
                 e.initEvent('error', true, true)
                 // e.message = t.message
                 // e.error = t
             }
             w.dispatchEvent(e)
-            e.defaultPrevented || console.error('[reportError]', t.toString())
+            e.defaultPrevented || console.error('[reportError]', String(t))
         }
-        catch (o) { console.warn(o.toString()) }
+        catch (o) { console.warn(String(o)) }
     })
-    w.CSS || (w.CSS = function () { var s = document.createElement('style'), computed = getComputedStyle(s); put(s); return { supports: self.supportsCSS || supports }; function supports(propOrSelector, value) { var isSelector = propOrSelector.substring(0, 8) === 'selector'; if (isSelector && value == null) { s.textContent = propOrSelector.slice(9, -1) + '{width:auto;}'; return (s.sheet.cssRules || s.sheet.rules).length === 1 } return propOrSelector in computed } }())
+    w.CSS || (w.CSS = function () { var s = D.createElement('style'), computed = getComputedStyle(s); put(s); return { supports: self.supportsCSS || supports }; function supports(propOrSelector, value) { var isSelector = propOrSelector.substring(0, 8) === 'selector'; if (isSelector && value == null) { s.textContent = propOrSelector.slice(9, -1) + '{width:auto;}'; return (s.sheet.cssRules || s.sheet.rules).length === 1 } return propOrSelector in computed } }())
     var sup = CSS.supports,
-        supportsWhere = supportsSelector(':where(p)'),
+         selCache = new Map,
+        where = sel(':where(p)', true),
         Reflect = w.Reflect || { set: function (t, p, v) { t[p] = v }, get: function (t, p) { return t[p] } }
         , sn
-        , canWrite = !inModule && document.readyState !== 'complete'
-        , func = CSS.registerProperty || void (fallback = new Map), selector = '*' + (supportsWhere ? ',:where(::-moz-color-swatch,::-moz-focus-inner,::-moz-list-bullet,::-moz-list-number,::-moz-meter-bar,::-moz-progress-bar,::-moz-range-progress,::-moz-range-thumb,::-moz-range-track,::-webkit-inner-spin-button,::-webkit-meter-bar,::-webkit-meter-even-less-good-value,::-webkit-meter-inner-element,::-webkit-meter-optimum-value,::-webkit-meter-suboptimum-value,::-webkit-progress-bar,::-webkit-progress-inner-element,::-webkit-progress-value,::-webkit-scrollbar,::-webkit-search-cancel-button,::-webkit-search-results-button,::-webkit-slider-runnable-track,::-webkit-slider-thumb,::after,::backdrop,::before,::checkmark,::column,::cue,::details-content,::file-selector-button,::first-letter,::first-line,::grammar-error,::marker,::picker-icon,::placeholder,::scroll-marker,::scroll-marker-group,::selection,::spelling-error,::target-text,::view-transition)' : '')
+        , canWrite = !inModule && D.readyState !== 'complete'
+        , func = CSS.registerProperty || void (fallback = new Map), selector = '*' + (where ? ',:where(::-moz-color-swatch,::-moz-focus-inner,::-moz-list-bullet,::-moz-list-number,::-moz-meter-bar,::-moz-progress-bar,::-moz-range-progress,::-moz-range-thumb,::-moz-range-track,::-webkit-inner-spin-button,::-webkit-meter-bar,::-webkit-meter-even-less-good-value,::-webkit-meter-inner-element,::-webkit-meter-optimum-value,::-webkit-meter-suboptimum-value,::-webkit-progress-bar,::-webkit-progress-inner-element,::-webkit-progress-value,::-webkit-scrollbar,::-webkit-search-cancel-button,::-webkit-search-results-button,::-webkit-slider-runnable-track,::-webkit-slider-thumb,::after,::backdrop,::before,::checkmark,::column,::cue,::details-content,::file-selector-button,::first-letter,::first-line,::grammar-error,::marker,::picker-icon,::placeholder,::scroll-marker,::scroll-marker-group,::selection,::spelling-error,::target-text,::view-transition)' : '')
         , name = function () {
             function ftss() {
                 sn = S.setItem.bind(S, '_')
@@ -70,7 +71,7 @@
         fro = Object.fromEntries || function (l, o) { o = {}; l.forEach(function (e, p) { p = e[0]; o[p] = e[1] }); return o }, entries = Object.entries || function (o, i) { var x = []; for (i in o) x.push([i, o[i]]); return x },
         is = Array.isArray,
         // scr,
-        sheet = getDefaultStyleSheet(),
+        sheet = Sheet(),
         props = new Set,
         alr = new Set,
         vendr = /^(?:-(?:webkit|moz(?:-osx)?|apple|khtml|konq|r?o|ms|xv|atsc|wap|ah|hp|rim|tc|fso|icab|epub)|prince|mso)-(?!$)/,
@@ -82,25 +83,25 @@
         azregex = /[A-Z]/g,
         Rm,
         br = ['epub', 'icab', 'fso', 'tc', 'rim', 'hp', 'ah', 'wap', 'atsc', 'xv', 'ms', 'o', 'ro', 'konq', 'khtml', 'apple', 'moz', 'moz-osx', 'webkit']
-        , formatClass = formatGeneric.bind(1, ':', pseudoClass),
-        formatElement = formatGeneric.bind(1, '::', pseudoElement)
-    CSS.registerProperty || (canWrite && (w.fallback = fallback, w.vendor = vendor, document.write('<', 'script src="' + (location.protocol + '//' + location.host) + '/no_register_property.js" async', '>', '<', '/script', '>')))
+        , fClass = fgeneric.bind(1, ':', pseudoClass),
+        fElement = fgeneric.bind(1, '::', pseudoElement)
+    CSS.registerProperty || (canWrite && (w.fallback = fallback, w.vendor = vendor, D.write('<', 'script src="' + (location.protocol + '//' + location.host) + '/no_register_property.js" async', '>', '<', '/script', '>')))
     /*  if (canWrite && top === self) {
           // Idk why, but it seems to make the page render faster
           document.write('<p style="position:absolute !important;transform:scale(0) !important;z-index:-9999 !important;" data-cssid="$$$" aria-hidden="true">.</p>')
           var p = document.querySelector('p[data-cssid="$$$"]')
           p = addEventListener('load', p.removeChild.bind(p.parentElement, p), { once: true })
       }*/
-    function dashVendor(prop, val) {
+    function dv(prop, val) {
         return vendor(toDash(prop), val)
     }
-    function capVendor(prop, val) { return toCaps(vendor(toDash(prop), val)) }
+    function cv(prop, val) { return toCaps(vendor(toDash(prop), val)) }
     function badCSS(data, _) {
         if (alr.has(data) || _) return
         console.warn(data)
         alr.add(data)
     }
-    function vendorSelector(selector, type) {
+    function vs(selector, type) {
         type = String(type) || ':'
         var a = selector
             , og = selector = selector.replace(vendr, '')
@@ -109,12 +110,13 @@
         if (type === ':') switch (selector) {
             case 'any':
             case 'matches':
-                if (supportsSelector(':is(p)')) return 'is'
+                if (sel(':is(p)', true)) return 'is'
+                break
             case 'is':
-                if (supportsSelector(':any(p)')) return 'any'
-                if (supportsSelector(':matches(p)')) return 'matches'
+                for (var i = 2, hi, x = 'any'; i--;x='matches') 
+                    if (sel(hi = vs(':' + x + '(p)', ':'), true)) return hi.match(pseudoClass)[0]
         }
-        while ((s = !supportsSelector(type + selector)) && i--)
+        while ((s = !sel(type + selector, true)) && i--)
             selector = '-' + br[i] + '-' + og
         return s ? a : selector
     }
@@ -124,11 +126,11 @@
         if (a && a.length) {
             for (var h = a.length; h--;) {
                 var hi = a[h]
-                , strings = hi.split(/;(?!url\(.*\))/).filter(Boolean)
+                    , strings = hi.split(/;(?!url\(.*\))/).filter(Boolean)
                 for (var i = strings.length; i--;) {
                     var str = strings[i]
-                    , splits = str.split(':')
-                    , b = splits,
+                        , splits = str.split(':')
+                        , b = splits,
                         l = b[0],
                         j = b[1],
                         p = l && l.trim(),
@@ -155,8 +157,8 @@
         return out
     }
     var comments = /\/\*.*?\*\//sg
-    , parse = /(?<selector>(?<!\s*@\w+)[^{}]+?)(?:;|(?<rule>\{.*?\}))/sg
-    , semicolon = /(?:--)?[-\w]+\s*:(?:(?![^(]*\);|[^"]*";|[^']*';).)*?(?:!\s*important\s*)?(?=;(?![^(]*\)|[^"]*"|[^']*')|\s*$)/g
+        , parse = /(?<selector>(?<!\s*@\w+)[^{}]+?)(?:;|(?<rule>\{.*?\}))/sg
+        , semicolon = /(?:--)?[-\w]+\s*:(?:(?![^(]*\);|[^"]*";|[^']*';).)*?(?:!\s*important\s*)?(?=;(?![^(]*\)|[^"]*"|[^']*')|\s*$)/g
     function fixSheet(sheet) {
         var xhr = new XMLHttpRequest
         xhr.open('GET', sheet.href)
@@ -172,7 +174,7 @@
                     var r = rule.trim().slice(1, -1).replace(/\n/g, '')
                         , c = fromCSS(r)
                         , s = groups.selector.trim()
-                        , selector = formatSelector(s)
+                        , selector = fSelector(s)
                     if (selector.startsWith('@supports') || selector == '100%') continue
                     if (s !== selector || c != r.replace(/\s/g, ''))
                         if (Object.keys(c).length) {
@@ -184,16 +186,17 @@
         }
         xhr.send()
     }
-    function formatGeneric(d, pseudo, selector) {
+    function fgeneric(d, pseudo, selector) {
+        if (sel(selector, true)) return selector
         var matches = selector.match(pseudo)
         if (matches) for (var i = 0, l = matches.length; i < l; ++i) {
             var match = matches[i]
-            selector = selector.replace(match, vendorSelector(match, d))
+            selector = selector.replace(match, vs(match, d))
         }
         return selector
     }
-    function formatSelector(s) {
-        return formatClass(formatElement(s))
+    function fSelector(s) {
+        return fClass(fElement(s))
     }
     var imp = /\s*!\s*important\s*$/
     function b(p, v) {
@@ -272,13 +275,13 @@
      */
     function registerCSS(selector, rule, _) {
         var str = '', silent = _, i = (selector = selector.split(',')).length
-        while (i--) str = formatSelector(selector[i]) + str
+        while (i--) str = fSelector(selector[i]) + str
         sheet.textContent += str + "{" + toCSS(rule, silent) + "}"
         return sheet
     }
     function registerCSSRaw(rules, newStyleSheet) {
         if (newStyleSheet) {
-            var n = document.createElement('style')
+            var n = D.createElement('style')
             n.blocking = 'render'
             n.textContent = rules
             put(n)
@@ -305,7 +308,7 @@
         registerCSSRaw(text, true)
     }*/
     function importCSS(url) {
-        var n = document.createElement('link')
+        var n = D.createElement('link')
         n.rel = 'stylesheet'
         n.fetchpriority = 'high'
         n.blocking = 'render'
@@ -313,12 +316,12 @@
         put(n)
         return n
     }
-    function getDefaultStyleSheet() {
-        return (document.getElementById(id) || function () {
+    function Sheet() {
+        return (D.getElementById(id) || function () {
             var str = name || "@namespace svg url('http://www.w3.org/2000/svg');@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:root{--system-font:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif}:-moz-loading{cursor: wait}:-moz-broken{border-radius:0}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not(scrollbar-color:auto){::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}" + id
             // if (canWrite) return document.write('<style id="'+id+'" blocking="render">'+str+'</style>'), getDefaultStyleSheet()
             // this branch is slower
-            var out = document.createElement('style')
+            var out = D.createElement('style')
             out.id = id
             out.blocking = 'render'
             out.textContent = str
@@ -327,7 +330,7 @@
         }())
     }
     function put(e) {
-        var p = document.head || document.body || document.documentElement || ((p = document.currentScript) && (p.parentNode || p.nextSibling)) || document.querySelector('*') || document
+        var p = D.head || D.body || D.documentElement || ((p = D.currentScript) && (p.parentNode || p.nextSibling)) || D.querySelector('*') || D
         p.appendChild(e)
     }
     function registerCSSAll(rules) {
@@ -340,8 +343,11 @@
         // reportError(e)
         // }
     }
-    function supportsSelector(rule) {
-        return sup("selector(" + rule + ")")
+    function sel(rule, doCache) {
+        if (doCache)
+            var c
+                , cache = selCache.get(rule) || (selCache.set(rule, c = sel(rule)), c)
+        return cache || sup("selector(" + rule + ")")
     }
     function g(name, iv, inh, sx) {
         props.add(name)
@@ -359,7 +365,7 @@
     function W(s) {
         return ':where(' + s + ')'
     }
-    supportsWhere || (W = String)
+    where || (W = String)
     var fallback,
         uv = { 'box-sizing': 'border-box', 'overflow-wrap': 'var(--word-wrap)', 'scrollbar-color': 'var(--scrollbar-thumb-color) var(--scrollbar-color)' }
     // , all = [
@@ -439,18 +445,18 @@
     // finally { performance.mark('css-other-end') }
     sheet.textContent = name || (sn(str = first + selector + "{" + toCSS(uv, true) + "}" + dflt.reduce(function (a, b) { return a + b }, '')), str)
     var css = constructor.prototype[sym] = Object.freeze({
-        getDefaultStyleSheet: getDefaultStyleSheet,
+        getDefaultStyleSheet: Sheet,
         registerCSSRaw: registerCSSRaw,
         get reducedMotion() {
             return Rm || (Rm = matchMedia('(prefers-reduced-motion:reduce)'))
         },
         registerCSSAll: registerCSSAll,
-        supportedPClassVendor: formatClass,
-        supportsRule: supportsSelector,
+        supportedPClassVendor: fClass,
+        supportsRule: sel,
         registerCSS: registerCSS,
-        dashVendor: dashVendor,
+        dashVendor: dv,
         // importFont: importFont,
-        capVendor: capVendor,
+        capVendor: cv,
         importCSS: importCSS,
         badCSS: badCSS,
         toCaps: toCaps,
@@ -458,12 +464,12 @@
         vendor: vendor,
         toCSS: toCSS,
         //// has: props.has.bind(props),
-        formatSelector: formatSelector,
+        formatSelector: fSelector,
         fixSheet: fixSheet
         // fromCSS: fromCSS
     })
     // console.debug(performance.measure('css-cache','css-cache-start', 'css-cache-end').toJSON(), performance.measure('css-property', 'css-property-start', 'css-property-end').toJSON())
     return css
-}(!this, self, (typeof Symbol === 'function' ? Symbol.for : String)('[[CSSModule]]'), sessionStorage, (self.requestIdleCallback && function (c) { return requestIdleCallback(c, { timeout: 2000 }) }) || (self.scheduler && scheduler.postTask && function (c) { return scheduler.postTask(c, { priority: 'background' }) }) || self.queueMicrotask || self.setImmediate || setTimeout))
+}(!this, self, (typeof Symbol === 'function' ? Symbol.for : String)('[[CSSModule]]'), sessionStorage, (self.requestIdleCallback && function (c) { return requestIdleCallback(c, { timeout: 2000 }) }) || (self.scheduler && scheduler.postTask && function (c) { return scheduler.postTask(c, { priority: 'background' }) }) || self.queueMicrotask || self.setImmediate || setTimeout, document))
 //self[Symbol.for('[[CSSModule]]')]
 // ; console.timeEnd('css.js')
