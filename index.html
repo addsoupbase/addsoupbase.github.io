@@ -69,6 +69,7 @@
         <iframe scrolling="no" src="main.html" loading="lazy" id="frame" name="content" aria-atomic="true"
             aria-live="assertive" aria-relevant="all" title="content" class="center show"
             style="pointer-events: auto;display:none;opacity:0"></iframe>
+            <noscript>#frame {opacity: 1 !important;display: block !important;}</noscript>
         <script>
             !function (a) {
                 'use strict'
@@ -77,7 +78,7 @@
                     e.style.opacity = 1
                 }
                 try {
-                    a.contentWindow.document.readyState === 'complete' ? set(a) : a.addEventListener('load', function () { set(this) }, { once: true })
+                    a.contentWindow.document.readyState === 'complete' ? set(a) : addEventListener('load', function () { set(a) }, { once: true })
                 }
                 catch (e) {
                     set(a)

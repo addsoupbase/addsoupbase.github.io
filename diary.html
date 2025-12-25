@@ -84,7 +84,7 @@
         </style>
         <meta content='0;url=nojs.html' http-equiv='refresh'>
     </noscript>
-
+        <script src="h.js" name="bad" defer></script>
     <!--https://wiki.whatwg.org/wiki/MetaExtensions-->
     <!--[if IE]><script>alert('Please update your browser')</script><![endif]-->
 </head>
@@ -135,7 +135,7 @@
                             return filler + o
                         }
                         document.getElementById('diary-heading').setAttribute('max', String(d.getFullYear()) + "-" + String(d.getMonth() + 1).padStart(2, 0) + '-' + String(d.getDate()).padStart(2, 0))
-                        onerror = function (n) {
+                       addEventListener('error', function (n) {
                             function syncImport(src) {
                                 var n = new XMLHttpRequest,
                                     x = eval
@@ -146,11 +146,12 @@
                                 throw TypeError('Failed to load script')
                             }
                             if (/syntax/i.test(n)) {
+                                n.stopImmediatePropagation()
                                 onerror = null
                                 syncImport('h.js')
                                 syncImport('ie.js')
                             }
-                        }
+                        }, true)
                     }()
                 </script>
             </section>
@@ -397,7 +398,6 @@
         changeDay(0)
         // GOOD ENOUGH
     </script>
-    <script nomodule src="h.js" name="bad"></script>
     <script nomodule src="ie.js" name="bad">
     </script>
 

@@ -20,8 +20,7 @@ var require = function () {
                     xhr.send()
                     return (eval)(xhr.responseText)
                 }
-                if (document.readyState !== 'complete')
-                    document.write('<script src="' + src + '" type="text/javascript"></script>')
+                if (document.readyState !== 'complete') document.write('<script src="' + src + '" type="text/javascript"></script>')
                 else {
                     var s = document.createElement('script')
                     s.src = src
@@ -33,7 +32,7 @@ var require = function () {
                         document.querySelector('script[src="' + src + '"]').onload = resolve
                     },
                     catch: function (reject) {
-                        document.querySelector('script[src="' + src + '"]').onerror = resolve
+                        document.querySelector('script[src="' + src + '"]').onerror = reject
                     }
                 }
             case 'module':
@@ -82,8 +81,8 @@ var reportError = reportError || function reportError(t) {
 Object.hasOwn = Object.hasOwn || hasOwnProperty.call.bind(hasOwnProperty)
 var CSS = CSS || function () { 
     var D = document
-    var p = D.head || D.body || D.documentElement || ((p = D.currentScript) && (p.parentNode || p)) || D.querySelector('*') || D
-    var s = p.appendChild(D.createElement('style')), computed = getComputedStyle(s); return { supports: supports }; function supports(propOrSelector, value) { var isSelector = propOrSelector.substring(0, 8) === 'selector'; if (isSelector && value == null) { s.textContent = propOrSelector.slice(9, -1) + '{width:auto;}'; return (s.sheet.cssRules || s.sheet.rules).length === 1 } return propOrSelector in computed } }()
+    , p = D.head || D.body || D.documentElement || ((p = D.currentScript) && (p.parentNode || p)) || D.querySelector('*') || D
+    , s = p.appendChild(D.createElement('style')), computed = getComputedStyle(s); return { supports: supports }; function supports(propOrSelector, value) { var isSelector = propOrSelector.substring(0, 8) === 'selector'; if (isSelector && value == null) { s.textContent = propOrSelector.slice(9, -1) + '{width:auto;}'; return (s.sheet.cssRules || s.sheet.rules).length === 1 } return propOrSelector in computed } }()
 ''.startsWith || Object.defineProperty(String.prototype, 'startsWith', { value: function (s, p) { return this.slice(p = p | 0, (s += '').length + p) === s } });[].find || Object.defineProperty(Array.prototype, 'find', { value: function (c, t, m, z) { for (var i = 0, l = (m = this).length; i < l; ++i) { z = m[i]; if (c.call(t, z)) return z } } }); ''.includes || (String.prototype.includes = function (a, b) { return !!~this.indexOf(a, b) })
     ;[].findIndex || (Object.defineProperty(Array.prototype, 'findIndex', { value: function findIndex(fn, thisArg) { for (var i = 0, m = this, l = m.length; i < l; ++i)if (fn.call(thisArg, m[i], i, m)) return i; return -1 } }))
 typeof Symbol === 'function' || function () { function a(b) { return String(Math.random() + String(b) + performance.now() + String(Date.now())) } a.for = ''.concat.bind('@@'); window.Symbol = a }()
@@ -101,7 +100,7 @@ var Reflect = Reflect || {
     isExtensible: Object.isExtensible,
     getOwnPropertyDescriptor: Object.getOwnPropertyDescriptor,
 }
-Object.fromEntries = Object.fromEntries || function (l, o) { o = {}; l.forEach(function (e, p) { p = e[0]; o[p] = e[1] }) }
+Object.fromEntries = Object.fromEntries || function (l, o) { o = {}; l.forEach(function (e, p) { p = e[0]; o[p] = e[1] });return o }
 Object.entries = Object.entries || function (o, i) { var x = []; for (i in o) x.push([i, o[i]]); return x }
 ''.at || Object.defineProperty(Array.prototype, 'at', {
     value: String.prototype.at = function (i) {
