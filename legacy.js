@@ -106,6 +106,8 @@ Object.entries = Object.entries || function (o, i) { var x = []; for (i in o) x.
 ''.at || Object.defineProperty(Array.prototype, 'at', {
     value: String.prototype.at = function (i) {
         i |= 0
+        if (i < 0) i += this.length
+        var a = this[i]
         return typeof this === 'string' ? (a===void 0?'':a) : a
     }
 })
