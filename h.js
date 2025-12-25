@@ -1,13 +1,10 @@
 //// window.h = 
 (function handle(globalThis) {
     //// 'use strict'
-    typeof Symbol === 'function' || function () { function a(b) { return String(Math.random() + String(b) + performance.now() + String(Date.now())) } a.for = ''.concat.bind('@@'); globalThis.Symbol = a }()
     //// var queueMicrotask = globalThis.queueMicrotask || globalThis.setImmediate || setTimeout
     var MODULE = Symbol.for("[[HModule]]")
     if (globalThis[MODULE]) return globalThis[MODULE]
-    var Reflect = globalThis.Reflect || { apply: function (target, thisArg, args) { return target.apply(thisArg, args) }, getPrototypeOf: Object.getPrototypeOf || function (t) { return t.__proto__ }, /*getOwnPropertyDescriptor: Object.getOwnPropertyDescriptor,*/ defineProperty: Object.defineProperty, ownKeys: Object.getOwnPropertyNames, has: function (t, p) { return t in p } }
-    ''.includes || (String.prototype.includes = function (a, b) { return !!~this.indexOf(a, b) })
-    var $ = {},
+     var $ = {},
         sym = Symbol.for("[[Events]]"),
         //  Don't collide, and make sure its usable across realms!!
         apply = Reflect.apply,
