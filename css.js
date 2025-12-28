@@ -24,7 +24,7 @@
                 if (typeof scrollMaxX !== 'number') {
                     // sessionStorage seems to be faster on FireFox 
                     var o = top.name
-                    if (!o || o.includes(id)) {
+                    if (!o || o.startsWith(id)) {
                         sn = Reflect.set.bind(1, top, 'name')
                         return o // name is free to use
                     }
@@ -91,7 +91,7 @@
     }
     var urlthing = /;(?!url\(.*\))/
         , toValue = function (parse) {
-            var proto = { 
+            var proto = {
                 //valueOf: { value: function () { return parseFloat(this.toString()) } } 
             }
             // valueOf messes with the + operator >:(
@@ -247,7 +247,7 @@
         return p
     }
     function toCaps(prop) {
-        return prop.includes('-') && !prop.startsWith('--') ? (prop[0] === '-' ? prop.substring(1) : prop).replace(dash, tuc) : prop
+        return prop.includes('-') && prop.startsWith('--') ? prop :(prop[0] === '-' ? prop.substring(1) : prop).replace(dash, tuc)
     }
     function toDash(prop) {
         return prop.startsWith('--') ? prop :
@@ -285,8 +285,20 @@
     function registerCSS(selector, rule, _) {
         var str = '', i = (selector = selector.split(',')).length
         while (i--) str = fSelector(selector[i]) + str
-        sheet.textContent += str + "{" + toCSS(rule, _) + "}"
+        queueWrite(str + "{" + toCSS(rule, _) + "}")
         return sheet
+    }
+    var batch = ''
+    function l() {
+        sheet.textContent += batch
+        //// console.debug("Queue emptied! Text accumulated: ", batch)
+        batch = ''
+        //// console.countReset("textContent queue")
+    }
+    function queueWrite(text) {
+        batch || requestAnimationFrame(l)
+        //// console.count('textContent queue')
+        batch += text
     }
     function registerCSSRaw(rules, newStyleSheet) {
         if (newStyleSheet) {
@@ -295,7 +307,7 @@
             n.textContent = rules
             return put(n).sheet
         }
-        sheet.textContent += rules
+        queueWrite(rules)
         return sheet
     }
     /*function importCSSSync(src) {
@@ -325,7 +337,7 @@
     }
     function Sheet() {
         return (D.getElementById(id) || function () {
-            var str = name || "@namespace svg url('http://www.w3.org/2000/svg');@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:root{--system-font:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif}:-moz-loading{cursor: wait}:-moz-broken{border-radius:0}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not(scrollbar-color:auto){::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}" + id
+            var str = name ||  id+"@namespace svg url('http://www.w3.org/2000/svg');@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:root{--system-font:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif}:-moz-loading{cursor: wait}:-moz-broken{border-radius:0}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not(scrollbar-color:auto){::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}"
             // if (canWrite) return document.write('<style id="'+id+'" blocking="render">'+str+'</style>'), getDefaultStyleSheet()
             // this branch is slower
             var o = D.createElement('style')
@@ -365,6 +377,16 @@
         inherits: false,
         syntax: ''
     }
+    function re(name, iv, inh, sx) {
+        reuse.name = name
+        reuse.initialValue = iv
+        reuse.inherits = inh
+        reuse.syntax = sx
+        debugger
+        func ? func(reuse)
+            : fallback.set(key, vendor(key, 'inherit'))
+    }
+
     function g(name, iv, inh, sx) {
         props.add(name)
         var o = '--' + name,
@@ -372,12 +394,7 @@
             key = vendor(name, o = 'var(' + o + ')', true)
         uv[key] = o
         // try { 
-        reuse.name = n
-        reuse.initialValue = iv
-        reuse.inherits = inh
-        reuse.syntax = sx
-        func ? func(reuse)
-            : fallback.set(key, vendor(key, 'inherit'))
+        re(n, iv, inh, sx)
         return g
         // }
         // catch (e) {e.name === 'InvalidModificationError' || (console.log(o), reportError(e),func || fallback.set(key, vendor(key, 'inherit')))}
@@ -390,79 +407,97 @@
         uv = { 'box-sizing': 'border-box', 'overflow-wrap': 'var(--word-wrap)', 'scrollbar-color': 'var(--scrollbar-thumb-color) var(--scrollbar-color)' }
     // , all = [
     // performance.mark('css-property-start')
-    defer(function () {
+    function lowPriority() {
         // lower priority props
         g("locale", "auto", true, "*")("line-grid", "auto", true, "*")("line-snap", "auto", true, "*")("nbsp-mode", "auto", true, "*")("text-zoom", "auto", true, "*")("line-align", "auto", true, "*")("text-decorations-in-effect", "auto", false, "*")("force-broken-image-icon", "0", false, "<integer>")("float-edge", "content-box", false, "*")("image-region", "auto", true, "*")("box-orient", "inline-axis", false, "*")("box-align", "stretch", false, "*")("box-direction", "normal", false, "*")("box-flex", "0", false, "*")("box-flex-group", "0", false, "*")("box-lines", "single", false, "*")("box-ordinal-group", "1", false, "*")("box-decoration-break", "slice", false, "*")("box-pack", "start", false, "*")("line-clamp", "none", false, "*")("font-smoothing", "auto", true, "*")("mask-position-x", "0%", false, "<length-percentage>")("mask-position-y", "0%", false, "<length-percentage>")("self-dragging", "auto", false, "*")("stack-sizing", "stretch-to-fit", true, "*")("mask-composite", "source-over", false, "*")("self-shadow", "auto", false, "*")("outline-radius", "0 0 0 0", false, "*")("binding", "none", false, "*")("text-blink", "none", false, "*")("image-rect", "auto", true, "*")("content-zoom-limit", "400% 100%", false, "*")("accelerator", "0", false, "*")("context-properties", "none", true, "*")("text-kashida-space", "0%", true, "<percentage>")("interpolation-mode", "none", false, "*")("progress-appearance", "bar", false, "*")("content-zooming", "auto", false, "*")("flow-from", "none", false, "*")("flow-into", "none", false, "*")("content-zoom-chaining", "none", false, "*")("high-contrast-adjust", "auto", true, "*")("touch-select", "grippers", true, "*")("ime-mode", "auto", false, "*")("wrap-through", "wrap", false, "*")("print-color-adjust", "economy", true, "*")("pay-button-style", "white", false, "*")("color-filter", "none", true, "*")("pay-button-type", "plain", false, "*")("visual-effect", "none", true, "*")("text-spacing-trim", "normal", true, "*")("text-group-align", "none", false, "*")("text-autospace", "normal", true, "*")("orient", "inline", false, "*")("ruby-overhang", "auto", true, "*")("max-lines", "none", false, "*")("line-fit-edge", "leading", true, "*")("overflow-scrolling", "auto", false, "*")("column-progression", "auto", false, "*")("dashboard-region", "none", false, "*")("column-axis", "auto", false, "*")("text-size-adjust", "auto", true, "*")("border-vertical-spacing", "auto", false, "*")("buffered-rendering", "auto", false, "*")("behaviour", "url()", false, "<url>")
-        // try {
-        // performance.mark('css-other-start')
-        func({ name: '--scrollbar-thumb-color', initialValue: 'auto', inherits: true, syntax: '*' })
-        func({ name: '--scrollbar-color', initialValue: 'auto', inherits: true, syntax: '*' })
+            // try {
+            // performance.mark('css-other-start')
+            ('scrollbar-thumb-color', 'auto', true, '*')
+            ('scrollbar-color-color', 'auto', true, '*')
         reuse = null
         // }
         // catch (e) { reportError(e) }
-    })
-    g("user-select", "auto", true, '*') // Most important one
-        ("user-modify", "auto", false, '*')
-        ("zoom", "auto", false, '*')
-        ('user-drag', "auto", true, '*')
-        ("user-input", "auto", true, '*')
-        ("box-reflect", "none", false, '*') // Kewl
-        ("text-stroke-color", "currentcolor", true, "<color>")
-        ("text-stroke-width", '0', false, "<length>")
-        ("text-security", "none", false, '*')
-        ("text-fill-color", "currentcolor", true, '*')
-        ("tap-highlight-color", "rgb(0, 0, 0, 0.18)", true, "<color>")
-        ("touch-callout", "auto", true, '*')
-        ("user-focus", "none", false, '*')
-        ("initial-letter", "normal", false, '*')
-        ("overflow-style", "auto", true, '*')
-        ("interactivity", "auto", true, '*')
-        ("input-security", "auto", false, '*')
-        ("caret-animation", "auto", true, '*')
-        ("cursor-visibility", "auto", true, '*')
-        ("continue", "auto", false, '*')
-        ('content-visibility', 'visible', false, '*')
-        // ^ This is a special case just to support older browsers without 'ContentVisibilityAutoStateChangeEvent'
-        ('max-logical-height', 'none', false, '*')
-        ('min-logical-height', 'none', false, '*')
-        ('max-logical-width', 'none', false, '*')
-        ('min-logical-width', 'none', false, '*')
-        ('color-rendering', 'auto', false, '*')
-        ('word-wrap', 'normal', false, '*')
+    }
+    function registerAll() {
+        g("user-select", "auto", true, '*') // Most important one
+            ("user-modify", "auto", false, '*')
+            ("zoom", "auto", false, '*')
+            ('user-drag', "auto", true, '*')
+            ("user-input", "auto", true, '*')
+            ("box-reflect", "none", false, '*') // Kewl
+            ("text-stroke-color", "currentcolor", true, "<color>")
+            ("text-stroke-width", '0', false, "<length>")
+            ("text-security", "none", false, '*')
+            ("text-fill-color", "currentcolor", true, '*')
+            ("tap-highlight-color", "rgb(0, 0, 0, 0.18)", true, "<color>")
+            ("touch-callout", "auto", true, '*')
+            ("user-focus", "none", false, '*')
+            ("initial-letter", "normal", false, '*')
+            ("overflow-style", "auto", true, '*')
+            ("interactivity", "auto", true, '*')
+            ("input-security", "auto", false, '*')
+            ("caret-animation", "auto", true, '*')
+            ("cursor-visibility", "auto", true, '*')
+            ("continue", "auto", false, '*')
+            ('content-visibility', 'visible', false, '*')
+            // ^ This is a special case just to support older browsers without 'ContentVisibilityAutoStateChangeEvent'
+            ('max-logical-height', 'none', false, '*')
+            ('min-logical-height', 'none', false, '*')
+            ('max-logical-width', 'none', false, '*')
+            ('min-logical-width', 'none', false, '*')
+            ('color-rendering', 'auto', false, '*')
+            ('word-wrap', 'normal', false, '*')
+    }
     // performance.mark('css-property-end')
     // ],
-    var dflt = name || entries(function () {
-        // performance.mark('css-default-start')
-        var align = sup.bind(1, 'text-align')
-            , o = {
-                ':root': {
-                    'transition-behavior': 'allow-discrete',
-                    'interpolate-size': 'allow-keywords',
-                    '--crisp-edges': '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(sup.bind(1, 'image-rendering')) || 'initial',
-                    '--stretch': '-moz-available -webkit-fill-available stretch'.split(' ').find(sup.bind(1, 'max-width')) || 'initial',
-                    '--center': '-moz-center -webkit-center -khtml-center'.split(' ').find(align) || 'initial',
-                    // this is different from just 'center' and idk why!!!
-                    '--match-parent': 'match-parent -moz-match-parent -webkit-match-parent'.split(' ').find(align) || 'initial'
+    var dflt = name
+    if (!dflt) {
+        dflt = entries(function () {
+            // performance.mark('css-default-start')
+            var align = sup.bind(1, 'text-align')
+                , o = {
+                    ':root': {
+                        'transition-behavior': 'allow-discrete',
+                        'interpolate-size': 'allow-keywords',
+                        '--crisp-edges': '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(sup.bind(1, 'image-rendering')) || 'initial',
+                        '--stretch': '-moz-available -webkit-fill-available stretch'.split(' ').find(sup.bind(1, 'max-width')) || 'initial',
+                        '--center': '-moz-center -webkit-center -khtml-center'.split(' ').find(align) || 'initial',
+                        // this is different from just 'center' and idk why!!!
+                        '--match-parent': 'match-parent -moz-match-parent -webkit-match-parent'.split(' ').find(align) || 'initial'
+                    }
                 }
+            o[W("button,a,input[type=button],input[type=checkbox],input[type=radio],input[type=submit],input[type=image],input[type=reset],input[type=file]")] = { cursor: 'pointer' }
+            o[W('[aria-busy=true]')] = { cursor: 'progress' }
+            o[W('[draggable=false]')] = { '--user-drag': 'none' }
+            o[W('[draggable=true]')] = { '--user-drag': 'element' }
+            o[W('[contenteditable],[contenteditable=true]')] = { '--user-modify': 'read-write' }
+            o[W('[contenteditable=false]')] = { '--user-modify': 'read-only', '--user-input': 'none' }
+            o[W('[contenteditable="plaintext-only"]')] = { '--user-modify': 'read-write-plaintext-only' }
+            o[W('[inert]')] = { '--interactivity': 'inert' }
+            o[W('img')] = { '--force-broken-image-icon': 1 }
+            o[W('input[type=range],::-webkit-scrollbar-thumb')] = { cursor: 'grab' }
+            o[W('input[type=range]:active,::-webkit-scrollbar-thumb:active')] = { cursor: 'grabbing' }
+            o[W(':disabled,[aria-disabled=true]')] = { cursor: 'not-allowed' }
+            o[W('.centerx,.center')] = { 'justify-self': 'center', margin: 'auto', 'text-align': 'center' }
+            o[W('.centery,.center')] = { 'align-self': 'center', inset: 0, position: 'fixed' }
+            // performance.mark('css-default-end')
+            return o
+        }()).map(function (a) { return a[0] + "{" + toCSS(a[1]) + "}" })
+        if (typeof CSSPropertyRule === 'function') {
+            var bulkText = ''
+            re = function (name, iv, inh, sx) {
+                bulkText += '@property ' + name + '{syntax:"' + sx + '";inherits:' + inh + ';initial-value:' + iv + '}'
             }
-        o[W("button,a,input[type=button],input[type=checkbox],input[type=radio],input[type=submit],input[type=image],input[type=reset],input[type=file]")] = { cursor: 'pointer' }
-        o[W('[aria-busy=true]')] = { cursor: 'progress' }
-        o[W('[draggable=false]')] = { '--user-drag': 'none' }
-        o[W('[draggable=true]')] = { '--user-drag': 'element' }
-        o[W('[contenteditable],[contenteditable=true]')] = { '--user-modify': 'read-write' }
-        o[W('[contenteditable=false]')] = { '--user-modify': 'read-only', '--user-input': 'none' }
-        o[W('[contenteditable="plaintext-only"]')] = { '--user-modify': 'read-write-plaintext-only' }
-        o[W('[inert]')] = { '--interactivity': 'inert' }
-        o[W('img')] = { '--force-broken-image-icon': 1 }
-        o[W('input[type=range],::-webkit-scrollbar-thumb')] = { cursor: 'grab' }
-        o[W('input[type=range]:active,::-webkit-scrollbar-thumb:active')] = { cursor: 'grabbing' }
-        o[W(':disabled,[aria-disabled=true]')] = { cursor: 'not-allowed' }
-        o[W('.centerx,.center')] = { 'justify-self': 'center', margin: 'auto', 'text-align': 'center' }
-        o[W('.centery,.center')] = { 'align-self': 'center', inset: 0, position: 'fixed' }
-        // performance.mark('css-default-end')
-        return o
-    }()).map(function (a) { return a[0] + "{" + toCSS(a[1]) + "}" })
-        , first = sheet.textContent, str
+            registerAll()
+            lowPriority()
+            dflt.push(bulkText)
+        }
+        else {
+            defer(lowPriority)
+            registerAll()
+        } 
+    }
+    var first = sheet.textContent, str
     // finally { performance.mark('css-other-end') }
     sheet.textContent = name || (sn(str = first + selector + "{" + toCSS(uv, true) + "}" + dflt.reduce(function (a, b) { return a + b }, '')), str)
     var css = y[sym] = ////Object.freeze
@@ -488,6 +523,7 @@
             //// has: props.has.bind(props),
             formatSelector: fSelector,
             fixSheet: fixSheet,
+            get queue() {return batch},
             checkSheets: defer.bind(this, [].forEach.bind(document.styleSheets, fixSheet)),
             fromCSS: fromCSS
         })
