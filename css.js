@@ -1,10 +1,12 @@
 //# allFunctionsCalledOnLoad
 // console.time('css.js');
 //// self.css = 
-(function CSSSetup(inModule, w, sym, S, defer, D, O, id, y) {
+(function CSSSetup(inModule, w, sym, defer, D, O, id, y) {
     ////'use strict'
-    if (y.hasOwnProperty(id) || w[id] instanceof HTMLStyleElement) return y[sym]
-    addEventListener('error', function n(e) { if (e.fileName.endsWith('.js')) { [].forEach.call(D.querySelectorAll('script[nomodule]'), function (s) { D.head.appendChild(D.createElement('script')).src = s.src }); removeEventListener('error', n) } })
+    if (y.propertyIsEnumerable(sym) || w[id] instanceof HTMLStyleElement) return y[sym]
+    try { var S = sessionStorage } // it just throws on read if storage is denied
+    catch (e) { reportError(e) }
+    addEventListener('error', function n(e) { if (e.filename.endsWith('.js')) { [].forEach.call(D.querySelectorAll('script[nomodule]'), function (s) { D.head.appendChild(D.createElement('script')).src = s.src }); removeEventListener('error', n) } })
     var sup = CSS.supports,
         hasOwn = O.hasOwn,
         imp = /\s*!\s*important\s*$/,
@@ -15,13 +17,9 @@
         , canWrite = !inModule && D.readyState !== 'complete'
         , func = CSS.registerProperty || void (fallback = new Map), selector = '*' + (where ? ',:where(::-moz-color-swatch,::-moz-focus-inner,::-moz-list-bullet,::-moz-list-number,::-moz-meter-bar,::-moz-progress-bar,::-moz-range-progress,::-moz-range-thumb,::-moz-range-track,::-webkit-inner-spin-button,::-webkit-meter-bar,::-webkit-meter-even-less-good-value,::-webkit-meter-inner-element,::-webkit-meter-optimum-value,::-webkit-meter-suboptimum-value,::-webkit-progress-bar,::-webkit-progress-inner-element,::-webkit-progress-value,::-webkit-scrollbar,::-webkit-search-cancel-button,::-webkit-search-results-button,::-webkit-slider-runnable-track,::-webkit-slider-thumb,::after,::backdrop,::before,::checkmark,::column,::cue,::details-content,::file-selector-button,::first-letter,::first-line,::grammar-error,::marker,::picker-icon,::placeholder,::scroll-marker,::scroll-marker-group,::selection,::spelling-error,::target-text,::view-transition)' : '')
         , name = function () {
-            function ftss() {
-                sn = S.setItem.bind(S, '_')
-                return S._
-            }
             // performance.mark('css-cache-start')
             try {
-                if (typeof scrollMaxX !== 'number') {
+                if (typeof scrollMaxX !== 'number' || !S) {
                     // sessionStorage seems to be faster on FireFox 
                     var o = top.name
                     if (!o || o.startsWith(id)) {
@@ -29,11 +27,16 @@
                         return o // name is free to use
                     }
                 }
-                return ftss()
             }
             catch (e) {
+                // cross origin frame so we can't use window.top
                 reportError(e)
-                return ftss()
+                if (!S) return void (sn = String) // we can't cache
+            }
+            return ftss()
+            function ftss() {
+                sn = S.setItem.bind(S, '_')
+                return S._
             }
             // finally { performance.mark('css-cache-end') }
         }(),
@@ -45,51 +48,22 @@
         props = new Set,
         alr = new Set,
         vendr = /^(?:-(?:webkit|moz(?:-osx)?|apple|khtml|konq|r?o|ms|xv|atsc|wap|ah|hp|rim|tc|fso|icab|epub)|prince|mso)-(?!$)/,
-        dr = new Map
-    var pseudoClass = /(?:[^:]|^):([\w-]+)/g,  // (?<=(?:^|[^:]):)[\w-]+/g
+        dr = new Map,
+        pseudoClass = /(?:[^:]|^):([\w-]+)/g,  // (?<=(?:^|[^:]):)[\w-]+/g
         pseudoElement = /::([\w-]+)/g,  // (?<=::)[\w-]+
         dash = /-./g,
         azregex = /[A-Z]/g,
         Rm,
         br = ['epub', 'icab', 'fso', 'tc', 'rim', 'hp', 'ah', 'wap', 'atsc', 'xv', 'ms', 'o', 'ro', 'konq', 'khtml', 'apple', 'moz', 'moz-osx', 'webkit']
         , fClass = fgeneric.bind(1, ':', pseudoClass),
-        fElement = fgeneric.bind(1, '::', pseudoElement)
-    CSS.registerProperty || (canWrite && (w.fallback = fallback, w.vendor = vendor, D.write('<', 'script src="' + (location.protocol + '//' + location.host) + '/no_register_property.js" async', '>', '<', '/script', '>')))
-    /*  if (canWrite && top === self) {
-          // Idk why, but it seems to make the page render faster
-          document.write('<p style="position:absolute !important;transform:scale(0) !important;z-index:-9999 !important;" data-cssid="$$$" aria-hidden="true">.</p>')
-          var p = document.querySelector('p[data-cssid="$$$"]')
-          p = addEventListener('load', p.removeChild.bind(p.parentElement, p), { once: true })
-      }*/
-    function dv(prop, val) {
-        return vendor(toDash(prop), val)
-    }
-    function cv(prop, val) { return toCaps(vendor(toDash(prop), val)) }
-    function badCSS(data, _) {
-        if (alr.has(data) || _) return
-        console.warn(data)
-        alr.add(data)
-    }
-    function vs(selector, type) {
-        type = String(type || ':')
-        var a = selector
-            , og = selector = selector.replace(vendr, '')
-            , i = br.length,
-            s
-        if (type === ':') switch (selector) {
-            case 'any':
-            case 'matches':
-                if (sel(':is(p)', true)) return 'is'
-                break
-            case 'is':
-                for (var i = 2, hi, x = 'any'; i--; x = 'matches')
-                    if (sel(hi = vs(':' + x + '(p)', ':'), true)) return hi.replace(pseudoClass, '$1')
-        }
-        while ((s = !sel(type + selector, true)) && i--)
-            selector = '-' + br[i] + '-' + og
-        return s ? a : selector
-    }
-    var urlthing = /;(?!url\(.*\))/
+        fElement = fgeneric.bind(1, '::', pseudoElement),
+        reuse = {
+            name: '',
+            initialValue: '',
+            inherits: false,
+            syntax: ''
+        },
+        url = /;(?!url\(.*\))/
         , toValue = function (parse) {
             var proto = {
                 //valueOf: { value: function () { return parseFloat(this.toString()) } } 
@@ -125,13 +99,54 @@
             }
             function b(_, v) { return Object(v.replace(imp, '')) }
         }(w.CSSStyleValue && CSSStyleValue.parse)
+        // CSSProto = O.create(null, { supported: { get: function () { for (var i in this) if (!sup(i + ':' + this[i])) return false; return true } }, toString: { value: function () { return toCSS(this) } } })
+        , comments = /\/\*[\s\S]*?\*\//g
+        , parse = /([^{}]+?)(?:;|(\{[\s\S]*?\}))/g
+        , semicolon = /(?:--)?[-\w]+\s*:(?:(?![^(]*\);|[^"]*";|[^']*';).)*?(?:!\s*important\s*)?(?=;(?![^(]*\)|[^"]*"|[^']*')|\s*$)/g,
+        batch = ''
+    CSS.registerProperty || (canWrite && (w.fallback = fallback, w.vendor = vendor, D.write('<', 'script src="' + (location.protocol + '//' + location.host) + '/no_register_property.js" async', '>', '<', '/script', '>')))
+    /*  if (canWrite && top === self) {
+          // Idk why, but it seems to make the page render faster
+          document.write('<p style="position:absolute !important;transform:scale(0) !important;z-index:-9999 !important;" data-cssid="$$$" aria-hidden="true">.</p>')
+          var p = document.querySelector('p[data-cssid="$$$"]')
+          p = addEventListener('load', p.removeChild.bind(p.parentElement, p), { once: true })
+      }*/
+    function dv(prop, val) {
+        return vendor(toDash(prop), val)
+    }
+    function cv(prop, val) { return toCaps(vendor(toDash(prop), val)) }
+    function badCSS(data, _) {
+        if (alr.has(data) || _) return
+        console.warn(data)
+        alr.add(data)
+    }
+    function vs(selector, type) {
+        type = String(type || ':')
+        var a = selector
+            , og = selector = selector.replace(vendr, '')
+            , i = br.length,
+            s
+        if (type === ':') switch (selector) {
+            case 'any':
+            case 'matches':
+                if (sel(':is(p)', true)) return 'is'
+                break
+            case 'is':
+                for (var i = 2, hi, x = 'any'; i--; x = 'matches')
+                    if (sel(hi = vs(':' + x + '(p)', ':'), true)) return hi.replace(pseudoClass, '$1')
+        }
+        while ((s = !sel(type + selector, true)) && i--)
+            selector = '-' + br[i] + '-' + og
+        return s ? a : selector
+    }
     function fromCSS(str) {
+        if (!(this instanceof fromCSS)) return new fromCSS(str)
         str = str.trim()
         var a = str.match(semicolon) || str.slice(0, -1).match(semicolon)
-            , o = { __proto__: CSSProto }
+            , o = this
         if (a) for (var h = a.length; h--;) {
             var hi = a[h]
-                , strings = hi.split(urlthing).filter(Boolean)
+                , strings = hi.split(url).filter(Boolean)
             for (var i = strings.length; i--;) {
                 var str = strings[i]
                     , splits = str.split(':')
@@ -152,12 +167,8 @@
                     catch (e) { if (e.name !== 'TypeError') throw e; o[p] = v }  // Prop unsupported 
             }
         }
-        return o
     }
-    var CSSProto = O.create(null, { supported: { get: function () { for (var i in this) if (!sup(i + ':' + this[i])) return false; return true } }, toString: { value: function () { return toCSS(this) } } })
-        , comments = /\/\*[\s\S]*?\*\//g
-        , parse = /([^{}]+?)(?:;|(\{[\s\S]*?\}))/g
-        , semicolon = /(?:--)?[-\w]+\s*:(?:(?![^(]*\);|[^"]*";|[^']*';).)*?(?:!\s*important\s*)?(?=;(?![^(]*\)|[^"]*"|[^']*')|\s*$)/g
+    fromCSS.prototype =  O.create(null, { supported: { get: function () { for (var i in this) if (!sup(i + ':' + this[i])) return false; return true } }, toString: { value: function () { return toCSS(this) } } })
     function fixSheet(me) {
         if (me === sheet.sheet) return
         var href = me.href
@@ -180,7 +191,7 @@
                 var rule = match[2]
                 if (rule) {
                     var r = rule.trim().slice(1, -1).replace(/\n/g, '')
-                        , c = fromCSS(r)
+                        , c = new fromCSS(r)
                         , s = match[1]
                     if (/^\s*@(?:supports|media)/.test(s)) continue
                     var selector = fSelector(s)
@@ -246,7 +257,7 @@
         return p
     }
     function toCaps(prop) {
-        return prop.includes('-') && prop.startsWith('--') ? prop :(prop[0] === '-' ? prop.substring(1) : prop).replace(dash, tuc)
+        return prop.includes('-') && prop.startsWith('--') ? prop : (prop[0] === '-' ? prop.substring(1) : prop).replace(dash, tuc)
     }
     function toDash(prop) {
         return prop.startsWith('--') ? prop :
@@ -287,16 +298,16 @@
         queueWrite(str + "{" + toCSS(rule, _) + "}")
         return sheet
     }
-    var batch = ''
     function l() {
         sheet.textContent += batch
-        //// console.debug("textContent queue emptied! Text accumulated: ", batch)
+        //// console.debug("textContent queue emptied! Text length accumulated:", batch.length)
         batch = ''
         //// console.countReset("textContent queue")
     }
     function queueWrite(text) {
-        text&&(batch || requestAnimationFrame(l), batch += text)
+        text && (batch || requestAnimationFrame(l), batch += text)
         //// console.count('textContent queue')
+        //// console.debug(batch.length)
     }
     function registerCSSRaw(rules, newStyleSheet) {
         if (newStyleSheet) {
@@ -335,7 +346,7 @@
     }
     function Sheet() {
         return (D.getElementById(id) || function () {
-            var str = name ||  id+"@namespace svg url('http://www.w3.org/2000/svg');@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:root{--system-font:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif}:-moz-loading{cursor: wait}:-moz-broken{border-radius:0}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not(scrollbar-color:auto){::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}"
+            var str = name || id + "@namespace svg url('http://www.w3.org/2000/svg');@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:root{--system-font:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif}:-moz-loading{cursor: wait}:-moz-broken{border-radius:0}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not(scrollbar-color:auto){::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}"
             // if (canWrite) return document.write('<style id="'+id+'" blocking="render">'+str+'</style>'), getDefaultStyleSheet()
             // this branch is slower
             var o = D.createElement('style')
@@ -368,12 +379,6 @@
         //         ; (!hasWhere || (hasWhere && !sel(rule.replace(vh, '$1')))) && badCSS("Invalid selector '" + rule + "'")
         // }
         return !!cache || sup("selector(" + rule + ")")
-    }
-    var reuse = {
-        name: '',
-        initialValue: '',
-        inherits: false,
-        syntax: ''
     }
     function re(name, iv, inh, sx) {
         reuse.name = name
@@ -415,7 +420,7 @@
         // }
         // catch (e) { reportError(e) }
     }
-    function registerAll() {
+    function properties() {
         g("user-select", "auto", true, '*') // Most important one
             ("user-modify", "auto", false, '*')
             ("zoom", "auto", false, '*')
@@ -479,25 +484,27 @@
             o[W('.centery,.center')] = { 'align-self': 'center', inset: 0, position: 'fixed' }
             // performance.mark('css-default-end')
             return o
-        }()).map(function (a) { return a[0] + "{" + toCSS(a[1]) + "}" })
+        }()).reduce(function (a, b) {
+            return a + b[0] + "{" + toCSS(b[1]) + "}"
+        }, '')
         if (typeof CSSPropertyRule === 'function') {
             var bulkText = ''
             re = function (name, iv, inh, sx) {
                 bulkText += '@property ' + name + '{syntax:"' + sx + '";inherits:' + inh + ';initial-value:' + iv + '}'
             }
-            registerAll()
+            properties()
             lowPriority()
-            dflt.push(bulkText)
+            dflt += bulkText
         }
         else {
             defer(lowPriority)
-            registerAll()
-        } 
+            properties()
+        }
     }
     var first = sheet.textContent, str
     // finally { performance.mark('css-other-end') }
-    sheet.textContent = name || (sn(str = first + selector + "{" + toCSS(uv, true) + "}" + dflt.reduce(function (a, b) { return a + b }, '')), str)
-    var css = y[sym] = ////Object.freeze
+    sheet.textContent = name || (sn(str = first + selector + "{" + toCSS(uv, true) + "}" + dflt), str)
+    var css =  ////Object.freeze
         ({
             getDefaultStyleSheet: Sheet,
             registerCSSRaw: registerCSSRaw,
@@ -520,12 +527,13 @@
             //// has: props.has.bind(props),
             formatSelector: fSelector,
             fixSheet: fixSheet,
-            get queue() {return batch},
+            get queue() { return batch },
             checkSheets: defer.bind(this, [].forEach.bind(document.styleSheets, fixSheet)),
             fromCSS: fromCSS
         })
+        O.defineProperty(y,sym,{value: css,enumerable: 1})
     // console.debug(performance.measure('css-cache','css-cache-start', 'css-cache-end').toJSON(), performance.measure('css-property', 'css-property-start', 'css-property-end').toJSON())
     return css
-}(!this, self, Symbol.for('[[CSSModule]]'), sessionStorage, (self.requestIdleCallback && function (c) { return requestIdleCallback(c, { timeout: 2000 }) }) || (self.scheduler && scheduler.postTask && function (c) { return scheduler.postTask(c, { priority: 'background' }) }) || self.queueMicrotask || self.setImmediate || setTimeout, document, Object, '/*stylesheet auto-generated by css.js*/', constructor.prototype))
+}(!this, self, Symbol.for('[[CSSModule]]'), (self.requestIdleCallback && function (c) { return requestIdleCallback(c, { timeout: 2000 }) }) || (self.scheduler && scheduler.postTask && function (c) { return scheduler.postTask(c, { priority: 'background' }) }) || self.queueMicrotask || self.setImmediate || setTimeout, document, Object, '/*stylesheet auto-generated by css.js*/', constructor.prototype))
 //self[Symbol.for('[[CSSModule]]')]
 // ; console.timeEnd('css.js')
