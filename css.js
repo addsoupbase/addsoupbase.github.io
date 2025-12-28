@@ -1,4 +1,4 @@
-// # allFunctionsCalledOnLoad
+//# allFunctionsCalledOnLoad
 // console.time('css.js');
 //// self.css = 
 (function CSSSetup(inModule, w, sym, S, defer, D, O, id, y) {
@@ -104,8 +104,7 @@
                     default: hi(prop)
                 }
             }
-            if (parse) return a
-            return b
+            return parse ? a : b
             function a(p, v) {
                 return O.defineProperty(O.defineProperties(parse(p, v.replace(imp, '')), proto), 'length', { value: v.length })
             }
@@ -113,14 +112,14 @@
                 proto[prop] = {
                     value: function (a, b, c) {
                         var l = ''[prop]
-                            , str = this.toString()
+                            , s = this.toString()
                         switch (l.length) {
-                            case 0: return l.call(str)
-                            case 1: return l.call(str, a)
-                            case 2: return l.call(str, a, b)
-                            case 3: return l.call(str, a, b, c)
+                            case 0: return l.call(s)
+                            case 1: return l.call(s, a)
+                            case 2: return l.call(s, a, b)
+                            case 3: return l.call(s, a, b, c)
                         }
-                        return Reflect.apply(l, str, arguments)
+                        return Reflect.apply(l, s, arguments)
                     }
                 }
             }
@@ -291,14 +290,13 @@
     var batch = ''
     function l() {
         sheet.textContent += batch
-        //// console.debug("Queue emptied! Text accumulated: ", batch)
+        //// console.debug("textContent queue emptied! Text accumulated: ", batch)
         batch = ''
         //// console.countReset("textContent queue")
     }
     function queueWrite(text) {
-        batch || requestAnimationFrame(l)
+        text&&(batch || requestAnimationFrame(l), batch += text)
         //// console.count('textContent queue')
-        batch += text
     }
     function registerCSSRaw(rules, newStyleSheet) {
         if (newStyleSheet) {
@@ -382,7 +380,6 @@
         reuse.initialValue = iv
         reuse.inherits = inh
         reuse.syntax = sx
-        debugger
         func ? func(reuse)
             : fallback.set(key, vendor(key, 'inherit'))
     }
