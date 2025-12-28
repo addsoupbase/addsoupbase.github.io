@@ -73,10 +73,7 @@
             Symbol.iterator && props.push(Symbol.iterator)
             for (var i = props.length; i--;) {
                 var prop = props[i]
-                if (typeof ''[prop] === 'function') switch (prop) {
-                    case 'toString': case 'valueOf': continue
-                    default: hi(prop)
-                }
+                typeof ''[prop] === 'function' && prop !== 'toString' && prop !== 'valueOf' && hi(prop)
             }
             return parse ? a : b
             function a(p, v) {
