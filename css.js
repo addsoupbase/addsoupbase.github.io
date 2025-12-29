@@ -385,10 +385,9 @@
         reuse.initialValue = iv
         reuse.inherits = inh
         reuse.syntax = sx
-        func ? func(reuse)
-            : fallback.set(key, vendor(key, 'inherit'))
+        func ? func(reuse) : fallback.set(key = vendor(name, name = 'var(' + name + ')', true), vendor(key, 'inherit'))
+        var key
     }
-
     function g(name, iv, inh, sx) {
         props.add(name)
         var o = '--' + name,
