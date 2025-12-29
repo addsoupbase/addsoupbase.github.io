@@ -3,7 +3,7 @@
 //// self.css = 
 (function CSSSetup(inModule, w, sym, defer, D, O, id, y) {
     ////'use strict'
-    if (y.propertyIsEnumerable(sym) || w[id] instanceof HTMLStyleElement) return y[sym]
+    if (y.propertyIsEnumerable(sym) && w[id]instanceof HTMLStyleElement) return y[sym]
     try { var S = sessionStorage } // it just throws on read if storage is denied
     catch (e) { reportError(e) }
     addEventListener('error', function n(e) { if (e.filename.endsWith('.js')) { [].forEach.call(D.querySelectorAll('script[nomodule]'), function (s) { D.head.appendChild(D.createElement('script')).src = s.src }); removeEventListener('error', n) } })
@@ -16,31 +16,33 @@
         sn
         , canWrite = !inModule && D.readyState !== 'complete'
         , func = CSS.registerProperty || void (fallback = new Map), selector = '*' + (where ? ',:where(::-moz-color-swatch,::-moz-focus-inner,::-moz-list-bullet,::-moz-list-number,::-moz-meter-bar,::-moz-progress-bar,::-moz-range-progress,::-moz-range-thumb,::-moz-range-track,::-webkit-inner-spin-button,::-webkit-meter-bar,::-webkit-meter-even-less-good-value,::-webkit-meter-inner-element,::-webkit-meter-optimum-value,::-webkit-meter-suboptimum-value,::-webkit-progress-bar,::-webkit-progress-inner-element,::-webkit-progress-value,::-webkit-scrollbar,::-webkit-search-cancel-button,::-webkit-search-results-button,::-webkit-slider-runnable-track,::-webkit-slider-thumb,::after,::backdrop,::before,::checkmark,::column,::cue,::details-content,::file-selector-button,::first-letter,::first-line,::grammar-error,::marker,::picker-icon,::placeholder,::scroll-marker,::scroll-marker-group,::selection,::spelling-error,::target-text,::view-transition)' : '')
-        , name = function () {
-            // performance.mark('css-cache-start')
-            try {
-                if (typeof scrollMaxX !== 'number' || !S) {
-                    // sessionStorage seems to be faster on FireFox 
-                    var o = top.name
-                    if (!o || o.startsWith(id)) {
-                        sn = Reflect.set.bind(1, top, 'name')
-                        return o // name is free to use
-                    }
+    dance: {
+        try {
+            if (typeof scrollMaxX !== 'number' || !S) {
+                // sessionStorage seems to be faster on FireFox 
+                var o = top.name
+                if (!o || o.startsWith(id)) {
+                    sn = Reflect.set.bind(1, top, 'name')
+                    var name = o // name is free to use
+                    break dance
                 }
             }
-            catch (e) {
-                // cross origin frame so we can't use window.top
-                reportError(e)
-                if (!S) return void (sn = String) // we can't cache
+        }
+        catch (e) {
+            // cross origin frame so we can't use window.top
+            reportError(e)
+            if (!S) {
+                sn = String // we can't cache
+                break dance
             }
-            return ftss()
-            function ftss() {
-                sn = S.setItem.bind(S, '_')
-                return S._
-            }
-            // finally { performance.mark('css-cache-end') }
-        }(),
-        fro = O.fromEntries,
+        }
+        if (S) {
+            sn = S.setItem.bind(S, '_')
+            name = S._
+        }
+        else sn = String
+    }
+    var fro = O.fromEntries,
         entries = O.entries,
         is = Array.isArray,
         // scr,
@@ -101,7 +103,7 @@
         , parse = /([^{}]+?)(?:;|(\{[\s\S]*?\}))/g
         , semicolon = /(?:--)?[-\w]+\s*:(?:(?![^(]*\);|[^"]*";|[^']*';).)*?(?:!\s*important\s*)?(?=;(?![^(]*\)|[^"]*"|[^']*')|\s*$)/g,
         batch = ''
-    CSS.registerProperty || (canWrite && (w.fallback = fallback, w.vendor = vendor, D.write('<', 'script src="' + (location.protocol + '//' + location.host) + '/no_register_property.js" async', '>', '<', '/script', '>')))
+    CSS.registerProperty || (canWrite && (w.fallback = fallback, w.vendor = vendor, D.write('<script src="https://addsoupbase.github.io/no_register_property.js"><\x2fscript>')))
     /*  if (canWrite && top === self) {
           // Idk why, but it seems to make the page render faster
           document.write('<p style="position:absolute !important;transform:scale(0) !important;z-index:-9999 !important;" data-cssid="$$$" aria-hidden="true">.</p>')
@@ -141,6 +143,7 @@
         str = str.trim()
         var a = str.match(semicolon) || str.slice(0, -1).match(semicolon)
             , o = this
+        var n = { writable: true, configurable: true }
         if (a) for (var h = a.length; h--;) {
             var hi = a[h]
                 , strings = hi.split(url).filter(Boolean)
@@ -154,18 +157,20 @@
                     v = j && j.trim()
                 if (p) try {
                     v = toValue(p, v)
-                    o[p] = v
-                    if (p.startsWith('--')) O.defineProperty(o, '__' + toCaps(p.substring(2)), { value: v, writable: true, configurable: true })
+                    n.value = o[p] = v
+                    if (p.startsWith('--')) O.defineProperty(o, '__' + toCaps(p.substring(2)), n)
                     else {
                         var x = toCaps(p)
-                        hasOwn(o, x) || O.defineProperty(o, x, { value: v, writable: true, configurable: true })
+                        hasOwn(o, x) || O.defineProperty(o, x, n)
                     }
                 }
                     catch (e) { if (e.name !== 'TypeError') throw e; o[p] = v }  // Prop unsupported 
             }
         }
     }
-    fromCSS.prototype =  O.create(null, { supported: { get: function () { for (var i in this) if (!sup(i + ':' + this[i])) return false; return true } }, toString: { value: function () { return toCSS(this) } } })
+    function get() { for (var i in this) if (!sup(i + ':' + this[i])) return false; return true }
+    function ts() { return toCSS(this) }
+    fromCSS.prototype = O.create(null, { supported: { get: get }, toString: { value: ts } })
     function fixSheet(me) {
         if (me === sheet.sheet) return
         var href = me.href
@@ -342,19 +347,17 @@
         return put(n)
     }
     function Sheet() {
-        return (D.getElementById(id) || function () {
-            var str = name || id + "@namespace svg url('http://www.w3.org/2000/svg');@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:root{--system-font:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif}:-moz-loading{cursor: wait}:-moz-broken{border-radius:0}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not(scrollbar-color:auto){::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}"
-            // if (canWrite) return document.write('<style id="'+id+'" blocking="render">'+str+'</style>'), getDefaultStyleSheet()
-            // this branch is slower
-            var o = D.createElement('style')
-            o.id = id
-            o.blocking = 'render'
-            o.textContent = str
-            return put(o)
-        }())
+        var o = D.getElementById(id)
+        if (o) return o
+        // if (canWrite) return document.write('<style id="'+id+'" blocking="render">'+str+'</style>'), getDefaultStyleSheet()
+        // this branch is slower
+        o = D.createElement('style')
+        o.id = id
+        o.blocking = 'render'
+        return put(o)
     }
     function put(e) {
-        var p = D.head || D.body || D.documentElement || ((p = D.currentScript) && (p.parentNode || p)) || D.querySelector('*') || D
+        var p = D.head || D.body || D.documentElement || ((p = D.currentScript) && (p.parentNode || p)) || D.querySelector('*') || D.firstElementChild || D
         return p.appendChild(e)
     }
     function registerCSSAll(rules) {
@@ -451,39 +454,35 @@
     // ],
     var dflt = name
     if (!dflt) {
-        dflt = entries(function () {
-            // performance.mark('css-default-start')
-            var align = sup.bind(1, 'text-align')
-                , o = {
-                    ':root': {
-                        'transition-behavior': 'allow-discrete',
-                        'interpolate-size': 'allow-keywords',
-                        '--crisp-edges': '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(sup.bind(1, 'image-rendering')) || 'initial',
-                        '--stretch': '-moz-available -webkit-fill-available stretch'.split(' ').find(sup.bind(1, 'max-width')) || 'initial',
-                        '--center': '-moz-center -webkit-center -khtml-center'.split(' ').find(align) || 'initial',
-                        // this is different from just 'center' and idk why!!!
-                        '--match-parent': 'match-parent -moz-match-parent -webkit-match-parent'.split(' ').find(align) || 'initial'
-                    }
+        var align = sup.bind(1, 'text-align')
+            , o = {
+                ':root': {
+                    'transition-behavior': 'allow-discrete',
+                    'interpolate-size': 'allow-keywords',
+                    '--crisp-edges': '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(sup.bind(1, 'image-rendering')) || 'initial',
+                    '--stretch': '-moz-available -webkit-fill-available stretch'.split(' ').find(sup.bind(1, 'max-width')) || 'initial',
+                    '--center': '-moz-center -webkit-center -khtml-center'.split(' ').find(align) || 'initial',
+                    // this is different from just 'center' and idk why!!!
+                    '--match-parent': 'match-parent -moz-match-parent -webkit-match-parent'.split(' ').find(align) || 'initial'
                 }
-            o[W("button,a,input[type=button],input[type=checkbox],input[type=radio],input[type=submit],input[type=image],input[type=reset],input[type=file]")] = { cursor: 'pointer' }
-            o[W('[aria-busy=true]')] = { cursor: 'progress' }
-            o[W('[draggable=false]')] = { '--user-drag': 'none' }
-            o[W('[draggable=true]')] = { '--user-drag': 'element' }
-            o[W('[contenteditable],[contenteditable=true]')] = { '--user-modify': 'read-write' }
-            o[W('[contenteditable=false]')] = { '--user-modify': 'read-only', '--user-input': 'none' }
-            o[W('[contenteditable="plaintext-only"]')] = { '--user-modify': 'read-write-plaintext-only' }
-            o[W('[inert]')] = { '--interactivity': 'inert' }
-            o[W('img')] = { '--force-broken-image-icon': 1 }
-            o[W('input[type=range],::-webkit-scrollbar-thumb')] = { cursor: 'grab' }
-            o[W('input[type=range]:active,::-webkit-scrollbar-thumb:active')] = { cursor: 'grabbing' }
-            o[W(':disabled,[aria-disabled=true]')] = { cursor: 'not-allowed' }
-            o[W('.centerx,.center')] = { 'justify-self': 'center', margin: 'auto', 'text-align': 'center' }
-            o[W('.centery,.center')] = { 'align-self': 'center', inset: 0, position: 'fixed' }
-            // performance.mark('css-default-end')
-            return o
-        }()).reduce(function (a, b) {
+            }
+        o[W("button,a,input[type=button],input[type=checkbox],input[type=radio],input[type=submit],input[type=image],input[type=reset],input[type=file]")] = { cursor: 'pointer' }
+        o[W('[aria-busy=true]')] = { cursor: 'progress' }
+        o[W('[draggable=false]')] = { '--user-drag': 'none' }
+        o[W('[draggable=true]')] = { '--user-drag': 'element' }
+        o[W('[contenteditable],[contenteditable=true]')] = { '--user-modify': 'read-write' }
+        o[W('[contenteditable=false]')] = { '--user-modify': 'read-only', '--user-input': 'none' }
+        o[W('[contenteditable="plaintext-only"]')] = { '--user-modify': 'read-write-plaintext-only' }
+        o[W('[inert]')] = { '--interactivity': 'inert' }
+        o[W('img')] = { '--force-broken-image-icon': 1 }
+        o[W('input[type=range],::-webkit-scrollbar-thumb')] = { cursor: 'grab' }
+        o[W('input[type=range]:active,::-webkit-scrollbar-thumb:active')] = { cursor: 'grabbing' }
+        o[W(':disabled,[aria-disabled=true]')] = { cursor: 'not-allowed' }
+        o[W('.centerx,.center')] = { 'justify-self': 'center', margin: 'auto', 'text-align': 'center' }
+        o[W('.centery,.center')] = { 'align-self': 'center', inset: 0, position: 'fixed' }
+        dflt = entries(o).reduce(function (a, b) {
             return a + b[0] + "{" + toCSS(b[1]) + "}"
-        }, '')
+        }, "@namespace svg url('http://www.w3.org/2000/svg');@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:root{--system-font:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif}:-moz-loading{cursor:wait}:-moz-broken{border-radius:0}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not(scrollbar-color:auto){::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}")
         if (typeof CSSPropertyRule === 'function') {
             var bulkText = ''
             re = function (name, iv, inh, sx) {
@@ -498,9 +497,9 @@
             properties()
         }
     }
-    var first = sheet.textContent, str
+    var str
     // finally { performance.mark('css-other-end') }
-    sheet.textContent = name || (sn(str = first + selector + "{" + toCSS(uv, true) + "}" + dflt), str)
+    sheet.textContent = name || (sn(str = selector + "{" + toCSS(uv, true) + "}" + dflt), id + str)
     var css =  ////Object.freeze
         ({
             getDefaultStyleSheet: Sheet,
@@ -528,7 +527,7 @@
             checkSheets: defer.bind(this, [].forEach.bind(document.styleSheets, fixSheet)),
             fromCSS: fromCSS
         })
-        O.defineProperty(y,sym,{value: css,enumerable: 1})
+    y[sym] || O.defineProperty(y, sym, { value: css, enumerable: 1 })
     // console.debug(performance.measure('css-cache','css-cache-start', 'css-cache-end').toJSON(), performance.measure('css-property', 'css-property-start', 'css-property-end').toJSON())
     return css
 }(!this, self, Symbol.for('[[CSSModule]]'), (self.requestIdleCallback && function (c) { return requestIdleCallback(c, { timeout: 2000 }) }) || (self.scheduler && scheduler.postTask && function (c) { return scheduler.postTask(c, { priority: 'background' }) }) || self.queueMicrotask || self.setImmediate || setTimeout, document, Object, '/*stylesheet auto-generated by css.js*/', constructor.prototype))
