@@ -414,7 +414,7 @@
             // try {
             // performance.mark('css-other-start')
             ('scrollbar-thumb-color', 'auto', true, '*')
-            ('scrollbar-color-color', 'auto', true, '*')
+            ('scrollbar-color', 'auto', true, '*')
         reuse = null
         // }
         // catch (e) { reportError(e) }
