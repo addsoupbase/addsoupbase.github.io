@@ -3,7 +3,7 @@
 //// self.css = 
 (function CSSSetup(inModule, w, sym, defer, D, O, id, y) {
     ////'use strict'
-    if (y.propertyIsEnumerable(sym) && w[id]instanceof HTMLStyleElement) return y[sym]
+    if (y.propertyIsEnumerable(sym) && D.getElementById(id) instanceof HTMLStyleElement) return y[sym]
     try { var S = sessionStorage } // it just throws on read if storage is denied
     catch (e) { reportError(e) }
     addEventListener('error', function n(e) { if (e.filename.endsWith('.js')) { [].forEach.call(D.querySelectorAll('script[nomodule]'), function (s) { D.head.appendChild(D.createElement('script')).src = s.src }); removeEventListener('error', n) } })
