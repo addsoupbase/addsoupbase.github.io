@@ -17,12 +17,16 @@
 .lanturn {
   filter: drop-shadow(0 0 5px yellow);
 }
-
-
+@media screen and (width < 330px) {
+  #avatar {
+    display: none;
+  }
+}
 #avatar {
   border-radius: 100%;
-  width: 60px;
-  height: 60px;
+  width: 30%;
+  max-width: 60px;
+  height: auto;
   image-rendering: auto;
   background-size: contain;
 
@@ -435,8 +439,10 @@ input[type=image]:active {
   /* min-width:150px; */
   /* max-width:560px; */
   width: 400px;
-  min-width: 300px;
-  max-height: 65vh;
+  /* min-width: 300px; */
+  display: inline-flex;
+  width: var(--stretch);
+  max-height: 62vh;
   min-height: 180px;
   max-width: 80vw;
   height: 100vh;
@@ -559,11 +565,13 @@ html {
   #frame {
     /* Safari is weird */
     width: 97vw;
+    height: 86vh;
+  
     /* top:0px */
   }
 
   #diary {
-    height: 60vh
+    height: 50vh
   }
 }
 @supports (-ms-zoom: 1) {
