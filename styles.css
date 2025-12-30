@@ -438,7 +438,7 @@ input[type=image]:active {
   /* min-width:150px; */
   /* max-width:560px; */
   width: 400px;
-  /* min-width: 300px; */
+  min-width: 100px;
   display: inline-flex;
   width: var(--stretch);
   max-height: 62vh;

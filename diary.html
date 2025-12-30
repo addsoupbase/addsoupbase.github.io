@@ -84,9 +84,12 @@
         </style>
         <meta content='0;url=nojs.html' http-equiv='refresh'>
     </noscript>
-        <script src="h.js" name="bad"></script>
+    <script src="h.js" name="bad"></script>
     <!--https://wiki.whatwg.org/wiki/MetaExtensions-->
-    <!--[if IE]><script>alert('Please update your browser')</script><![endif]-->
+    <!--[if lt IE 9]>
+           <a href='nojs.html'>Click if you are not redirected</a>
+            <meta content='0;url=nojs.html' http-equiv='refresh'>
+    </style><![endif]-->
 </head>
 
 <body class="cute-green" id="main" style="justify-items: center">
@@ -98,11 +101,12 @@
         <!-- <span> Scrolling could reveal more!</span> -->
 
         <div class="center" id="diary-container" style="display:contents;justify-items: center;">
-            <div style="display: grid;place-items: center;">
+            <div style="display: grid;place-items: center;place-self:center;width:var(--stretch);max-width:80vw;">
                 <time>
                     <input class="cute-green" style="font-size:20px;margin:20px;" id="diary-heading" type="date"
                         min="2025-04-07">
                 </time>
+                <small style="z-index: 300;;justify-self: end;align-self: end;">Issues? <a style="font-family: inherit;" href="./nojs.html">click here</a></small>
                 <!-- <label for="skip" style="margin-bottom:10px;z-index: 2;    width: fit-content;">Skip Empty Days<input style="accent-color: maroon;" id="skip" type="checkbox" checked></label> -->
             </div>
             <section id="diary" class="cute-blue" style="--user-select:none; place-self: center;">
@@ -135,7 +139,7 @@
                             return filler + o
                         }
                         document.getElementById('diary-heading').setAttribute('max', String(d.getFullYear()) + "-" + String(d.getMonth() + 1).padStart(2, 0) + '-' + String(d.getDate()).padStart(2, 0))
-                       addEventListener('error', function (n) {
+                        addEventListener('error', function (n) {
                             function syncImport(src) {
                                 var n = new XMLHttpRequest,
                                     x = eval
@@ -164,7 +168,6 @@
                     title="Turn to next page" alt="Forward" src="./cute-emojis/emojis/1321091969635848294.gif"
                     class="diarybutton">
             </div>
-
         </div>
     </main>
     <style>
@@ -387,7 +390,7 @@
                 }
                 else {
                     txt = 'Last'
-                    d = dates.length-1
+                    d = dates.length - 1
                 }
                 day = d
                 this.textContent = txt

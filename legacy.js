@@ -1,9 +1,9 @@
 'use strict'
 /*@cc_on
     function _(){var e=new ActiveXObject("Scripting.Dictionary");return{set:function(n,t){e.Add(n,t)},get:function(n){return e.Item(n)},add:function(n){e.Add(n,"")},has:function(n){return e.Exists(n)},delete:function(n){e.Remove(n)}}}
-    w.Map=w.Map || _
-    w.WeakMap= w.WeakMap || _
-    w.Set = w.Set || _
+    window.Map=window.Map || _
+    window.WeakMap= window.WeakMap || _
+    window.Set = window.Set || _
 @*/
 var globalThis = globalThis || window
 var require = function () {
@@ -86,9 +86,11 @@ var CSS = CSS || function () {
 ''.startsWith || Object.defineProperty(String.prototype, 'startsWith', { value: function (s, p) { return this.slice(p = p | 0, (s += '').length + p) === s } });[].find || Object.defineProperty(Array.prototype, 'find', { value: function (c, t, m, z) { for (var i = 0, l = (m = this).length; i < l; ++i) { z = m[i]; if (c.call(t, z)) return z } } }); ''.includes || (String.prototype.includes = function (a, b) { return !!~this.indexOf(a, b) })
 ''.endsWith || Object.defineProperty(String.prototype, 'endsWith', {
   value: function (s, p) {s+='';var len =p ===void 0?this.length:p|0;return this.slice(len-s.length,len)===s;}});[].findIndex || (Object.defineProperty(Array.prototype, 'findIndex', { value: function findIndex(fn, thisArg) { for (var i = 0, m = this, l = m.length; i < l; ++i)if (fn.call(thisArg, m[i], i, m)) return i; return -1 } }))
-typeof Symbol === 'function' || function () { function a(b) { return String(Math.random() + String(b) + performance.now() + String(Date.now())) } a.for = ''.concat.bind('@@'); window.Symbol = a }()
+var Symbol = Symbol || function () { function a(b) { return String(Math.random() + String(b) + performance.now() + String(Date.now())) } a.for = ''.concat.bind('@@'); return a }()
 var Reflect = Reflect || {
-    apply: function (target, thisArg, args) { return target.apply(thisArg, args) }, getPrototypeOf: Object.getPrototypeOf || function (t) { return t.__proto__ }, setPrototypeOf: Object.setPrototypeOf || Function.call.bind(Object.getOwnPropertyDescriptor(Object.prototype, '__proto__').set), /*getOwnPropertyDescriptor: Object.getOwnPropertyDescriptor,*/ defineProperty: Object.defineProperty, ownKeys: Object.getOwnPropertyNames, has: function (t, p) { return t in p },
+    apply: function (target, thisArg, args) { return target.apply(thisArg, args) }, getPrototypeOf: Object.getPrototypeOf || function (t) { return t.__proto__ }, 
+    setPrototypeOf: Object.setPrototypeOf,// || Function.call.bind(Object.getOwnPropertyDescriptor(Object.prototype, '__proto__').set), 
+    /*getOwnPropertyDescriptor: Object.getOwnPropertyDescriptor,*/ defineProperty: Object.defineProperty, ownKeys: Object.getOwnPropertyNames, has: function (t, p) { return t in p },
     set: function (t, p, v) { t[p] = v }, get: function (t, p) { return t[p] },
     deleteProperty: function (t, p) { return delete t[p] },
     construct: function (target, args, newTarget) {

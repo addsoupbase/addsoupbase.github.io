@@ -69,88 +69,119 @@
     <!--^ yes if the site has stuff like back buttons-->
     <meta name="apple-mobile-web-app-title" content="addsoupbase🍜 - main content">
     <link rel="apple-touch-startup-image" href="favicon.ico">
-        <script src="legacy.js" nomodule></script>
-    <script src="css.js" blocking="render"></script><script src="css_bad.js" nomodule></script>
+    <script src="legacy.js" nomodule></script>
+    <script src="css.js" blocking="render"></script>
+    <script src="css_bad.js" nomodule></script>
     <link rel="stylesheet" href="styles.css">
     <title>addsoupbase🍜 - main content</title>
     <!--https://wiki.whatwg.org/wiki/MetaExtensions-->
     <!--[if IE]><script>alert('Please update your browser')</script><![endif]-->
+    <style id="firefox-fouc-fix">
+        @supports (-moz-force-broken-image-icon: 1) {
+            body {
+                display: none !important;
+            }
+        }
+    </style>
+    <noscript>
+        <style>
+            body {
+                display: block !important;
+            }
+        </style>
+    </noscript>
+
 </head>
 
-<body class="cute-green" id="main" style="overflow-y: scroll">
-        <img id="avatar" src="./media/art.webp" title="misdreavus" alt="avatar">
-        <main class="center ">
-            <h1 class="centerx" style="margin:auto;z-index:3;position:relative;font-size: 30px;" id="main_heading" data-hi="y">addsoupbase</h1>
-            <section class="centerx" id="content">
-                <h3 style="font-size: 1em;    transform: translateY(10px);" data-hi="y">thank you so much for looking at this i love
-                    you
-                    everyone</h3><a role="button" id="goBack" style="display:contents">
-                    <button id="viewbackground" class="cute-green-button">View
-                        Background
-                    </button>
-                </a><a class="cute-green-button" role="button" href="main.html" target="_top" id="viewframe">View Frame</a>
-                <div class="lol">
-                    <div><a rel="next" class="cute-green-button" role="button" href="./about.html"
-                            title="about me" id="abtbutton" aria-keyshortcuts="Alt+Shift+A">About</a><a aria-keyshortcuts="Alt+Shift+S" rel="next"
-                            class="cute-green-button" role="button" title="stuff i made" href="./stuff.html">Stuff</a><a
-                           aria-keyshortcuts="Alt+Shift+D" rel="next" class="cute-green-button" role="button" title="daily entry thingy"
-                            href="./diary.html">Diary</a><a class="cute-green-button" role="button" aria-keyshortcuts="Alt+Shift+B" title="View Users" href="./bubbles.html" rel="next">Users</a>
-                    </div>
-                    <div>
-                        <p>Send me something, or press the paper below to draw something instead</p>
-                        <input type="image" width="80" height="80" alt="paper icon" title="Draw something instead"
-                            src="./cute-emojis/emojis/1216660228641263687.gif" id="drawInstead">
-                        <div id="send1">
-                            <iframe style="display:none" name="hi" id="prevent"></iframe>
-                            <form id="submit" action="https://misha-mail-85.deno.dev" method="post" target="hi">
-                                <div id="formholder"><input class="cute-green" name="name" placeholder="Name" enterkeyhint="next"
-                                        id="form_name"><input class="cute-green" name="message" placeholder="Message"
-                                        id="form_message" enterkeyhint="send" required>
-                                </div>
-                                <button class="cute-green-button" id="send">Send</button>
-                            </form>
-                        </div>
-                     
-                        <form id="send2" style="display: none;touch-action:none !important;"
-                            data-action="https://drawing-submissions.deno.dev?user=misha" method="post" enctype="text/plain">
-                            <div style="overflow: hidden;place-content: center;display:grid;margin:5px;touch-action:none !important;place-items:center;">
-                                <paper-canvas aria-required="true" name="drawing" aria-label="Paper to draw on" width="250" height="250" id="draw"></paper-canvas>
-                                <button class="cute-green-button" id="submitDrawing" style="width:fit-content">Send</button>
-                            </div>
-                            <div>
-                                <div style="margin:20px;display: flex;--user-select:none" id="drawcontrols">
-                                    <label style="display: grid">
-                                        Color
-                                        <input id="pickAColor" type="color" placeholder="pick a color"
-                                            title="choose a color">
-                                    </label>
-                                    <label style="display:grid">
-                                        Undo
-                                        <input type="button" value="↩️" id="undoDraw" title="undo" aria-label="Undo">
-                                    </label>
-                                    <label style="display:grid">
-                                        Brush Size
-                                        <input type="range" min="1" max="20" value="1">
-                                    </label>
-                                </div>
-                            </div>
-                        </form>
-                            <script src="h.js"></script>
-                            <script nomodule>
-                                'use strict'
-                                window[(window.Symbol ? Symbol.for : String)('[[HModule]]')].on(document.getElementById("drawInstead"), {
-                                    _click: function() {
-                                        document.getElementById('drawFallback').style.display="inline-block"
-                                        this.nextElementSibling.parentElement.removeChild(this.nextElementSibling)
-                                        this.parentElement.removeChild(this)
-                                    }
-                                })
-                            </script>
-                            <script nomodule src="paper-canvas-old.js" data-action="https://drawing-submissions.deno.dev?user=misha"></script>
-                    </div>
+<body class="cute-green" id="main" style="overflow-y: scroll;">
+    <script>
+        if (typeof scrollMaxX === 'number') {
+            document.addEventListener('DOMContentLoaded', function () {
+                document.getElementById('firefox-fouc-fix').remove()
+            })
+        }
+    </script>
+    <img id="avatar" src="./media/art.webp" title="misdreavus" alt="avatar">
+    <main class="center ">
+        <h1 class="centerx" style="margin:auto;z-index:3;position:relative;font-size: 30px;" id="main_heading"
+            data-hi="y">addsoupbase</h1>
+        <section class="centerx" id="content">
+            <h3 style="font-size: 1em;    transform: translateY(10px);" data-hi="y">thank you so much for looking at
+                this i love
+                you
+                everyone</h3><a role="button" id="goBack" style="display:contents">
+                <button id="viewbackground" class="cute-green-button">View
+                    Background
+                </button>
+            </a><a class="cute-green-button" role="button" href="main.html" target="_top" id="viewframe">View Frame</a>
+            <div class="lol">
+                <div><a rel="next" class="cute-green-button" role="button" href="./about.html" title="about me"
+                        id="abtbutton" aria-keyshortcuts="Alt+Shift+A">About</a><a aria-keyshortcuts="Alt+Shift+S"
+                        rel="next" class="cute-green-button" role="button" title="stuff i made"
+                        href="./stuff.html">Stuff</a><a aria-keyshortcuts="Alt+Shift+D" rel="next"
+                        class="cute-green-button" role="button" title="daily entry thingy"
+                        href="./diary.html">Diary</a><a class="cute-green-button" role="button"
+                        aria-keyshortcuts="Alt+Shift+B" title="View Users" href="./bubbles.html" rel="next">Users</a>
                 </div>
-            </section>
-        </main>
+                <div>
+                    <p>Send me something, or press the paper below to draw something instead</p>
+                    <input type="image" width="80" height="80" alt="paper icon" title="Draw something instead"
+                        src="./cute-emojis/emojis/1216660228641263687.gif" id="drawInstead">
+                    <div id="send1">
+                        <iframe style="display:none" name="hi" id="prevent"></iframe>
+                        <form id="submit" action="https://misha-mail-85.deno.dev" method="post" target="hi">
+                            <div id="formholder"><input class="cute-green" name="name" placeholder="Name"
+                                    enterkeyhint="next" id="form_name"><input class="cute-green" name="message"
+                                    placeholder="Message" id="form_message" enterkeyhint="send" required>
+                            </div>
+                            <button class="cute-green-button" id="send">Send</button>
+                        </form>
+                    </div>
+
+                    <form id="send2" style="display: none;touch-action:none !important;"
+                        data-action="https://drawing-submissions.deno.dev?user=misha" method="post"
+                        enctype="text/plain">
+                        <div
+                            style="overflow: hidden;place-content: center;display:grid;margin:5px;touch-action:none !important;place-items:center;">
+                            <paper-canvas aria-required="true" name="drawing" aria-label="Paper to draw on" width="250"
+                                height="250" id="draw"></paper-canvas>
+                            <button class="cute-green-button" id="submitDrawing" style="width:fit-content">Send</button>
+                        </div>
+                        <div>
+                            <div style="margin:20px;display: flex;--user-select:none" id="drawcontrols">
+                                <label style="display: grid">
+                                    Color
+                                    <input id="pickAColor" type="color" placeholder="pick a color"
+                                        title="choose a color">
+                                </label>
+                                <label style="display:grid">
+                                    Undo
+                                    <input type="button" value="↩️" id="undoDraw" title="undo" aria-label="Undo">
+                                </label>
+                                <label style="display:grid">
+                                    Brush Size
+                                    <input type="range" min="1" max="20" value="1">
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                    <script src="h.js"></script>
+                    <script nomodule>
+                        'use strict'
+                        window[(window.Symbol ? Symbol.for : String)('[[HModule]]')].on(document.getElementById("drawInstead"), {
+                            _click: function () {
+                                document.getElementById('drawFallback').style.display = "inline-block"
+                                this.nextElementSibling.parentElement.removeChild(this.nextElementSibling)
+                                this.parentElement.removeChild(this)
+                            }
+                        })
+                    </script>
+                    <script nomodule src="paper-canvas-old.js"
+                        data-action="https://drawing-submissions.deno.dev?user=misha"></script>
+                </div>
+            </div>
+        </section>
+    </main>
     <!-- <script src="fallback.js"></script> -->
     <script type="module" src="scripts/dom.js"></script>
 </body>

@@ -2,105 +2,256 @@
 <html lang="en">
 
 <head>
+    <!-- <script type="speculationrules">{"prerender":[{"urls":["main.html"],"eagerness":"immediate"}]}</script> -->
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
+    <meta http-equiv="content-language" content="en">
+    <meta property="og:locale" content="en_US">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+    <meta name="description" content="Here I write diary entries about my life">
+    <meta property="og:image:width" content="50">
+    <meta property="og:image:height" content="50">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://addsoupbase.github.io/cute-emojis/emojis/028220502816824156.gif">
+    <meta property="og:url" content="https://addsoupbase.github.io/">
+    <meta property="og:description" content="Here I write diary entries about my life">
+    <meta property="og:title" content="addsoupbase🍜 - Diary">
+    <meta property="og:site_name" content="addsoupbase🍜 - Diary">
+    <meta name="twitter:title" content="Here I write diary entries about my life">
+    <meta name="application-name" content="addsoupbase🍜 - Diary">
+    <meta name="application-url" content="https://addsoupbase.github.io/">
+    <meta name="twitter:url" content="https://addsoupbase.github.io/">
+    <meta name="web_author" content="addsoupbase">
+    <meta name="twitter:creator" content="@addsoupbase">
+    <meta name="twitter:site" content="@addsoupbase">
+    <meta name="twitter:creator:id" content="1799269566834454528">
+    <meta name="twitter:site:id" content="1799269566834454528">
+    <meta name="creator" content="addsoupbase">
+    <meta name="designer" content="addsoupbase">
+    <meta name="twitter:image" content="https://addsoupbase.github.io/cute-emojis/emojis/028220502816824156.gif">
+    <meta name="twitter:image:width" content="50">
+    <meta name="twitter:image:height" content="50">
+    <meta name="msapplication-navbutton-color" content="#399a3e">
+    <meta name="msapplication-TileColor" content="#399a3e">
+    <meta name="msapplication-square150x150logo" content="./apple-touch-icon-152x152.png">
+    <meta name="msapplication-square310x310logo" content="./apple-touch-icon-180x180.png">
+    <meta name="msapplication-square70x70logo" content="./apple-touch-icon-72x72.png">
+    <meta name="msapplication-wide310x150logo" content="./apple-touch-icon-180x180.png">
+    <meta name="msapplication-TileImage" content="./apple-touch-icon-180x180.png">
+    <meta name="msapplication-starturl" content="https://addsoupbase.github.io/">
+    <meta name="msapplication-tooltip" content="addsoupbase🍜 - Diary">
+    <meta name="prism:alternateTitle" content="addsoupbase🍜 - Diary">
+    <meta name="twitter:card" content="summary">
+    <meta name="thumbnail" content="https://addsoupbase.github.io/cute-emojis/emojis/028220502816824156.gif">
+    <meta property="profile:username" content="addsoupbase">
+    <!--summary_large_image,summary,app,or player -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <meta name="robots" content="index">
+    <meta name="theme-color" content="#399a3e">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="author" content="addsoupbase">
+    <link rel="canonical" href="https://addsoupbase.github.io/">
+    <script
+        type="application/ld+json">{"@context":"https://schema.org","@type": "WebSite","name":"addsoupbase","url":"https://addsoupbase.github.io/","description":"Here I write diary entries about my life","author":{"@type": "Person","name":"addsoupbase","sameAs":["https://twitter.com/addsoupbase"]},"mainEntityOfPage":{"@type":"WebPage","@id":"https://addsoupbase.github.io/"},"image":{"@type":"ImageObject","url":"https://addsoupbase.github.io/cute-emojis/emojis/028220502816824156.gif","width":50,"height":50}}</script>
+    <link rel="apple-touch-icon" sizes="57x57" href="./apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="./apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="./apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="./apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="./apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="./apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="./apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="./apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon-180x180.png">
+    <meta name="mobile-web-app-capable" content="no">
+    <meta name="apple-mobile-web-app-capable" content="no">
+    <!--^ yes if the site has stuff like back buttons-->
+    <meta name="apple-mobile-web-app-title" content="addsoupbase🍜 - Diary">
+    <link rel="apple-touch-startup-image" href="favicon.ico">
+    <link rel="stylesheet" href="styles.css" blocking="render">
     <title>addsoupbase🍜 - Diary</title>
-    <style>
-        #links {
-            border: 1px solid black;
-            overflow-y: scroll;
-            height: 100px;
-            display: inline-masonry;
-            width: 100%;
-            scrollbar-width: thin;
-            margin:5px
-        }
-
-        #links a {
-            margin: 5px
+    <!--[if IE]>
+    <![endif]-->
+    <!--[if IE]>
+      <style>
+        #display {
+        height: 400px !important;
         }
     </style>
+        <![endif]-->
+    <style>
+        a.hi::before,
+        a.hi::after {
+            background-image: url(./media/ribbon.webp);
+            content: '';
+            alt: '';
+            display: inline-block;
+            vertical-align: middle;
+            width: 30px;
+            height: 30px;
+            background-size: contain;
+        }
+        a.hi {
+            margin: 5px;
+            display: inline-block;
+            width: 100%
+        }
+        #diary {
+            width: -moz-available;
+            width: -webkit-fill-available;
+            width: stretch
+        }
+    </style>
+    <!--https://wiki.whatwg.org/wiki/MetaExtensions-->
 </head>
 
-<body>
-    <main>
-        <section id="diary" class="cute-blue"
-            style="--user-select:none;width: 746px;  place-self: center;    place-items: center;place-self: center;inset: 0px;position: absolute;top:15px;">
-            <div id="walking"></div>
-            <iframe allowfullscreen allow="fullscreen *; local-fonts *; autoplay *;" aria-relevant="all"
-                aria-live="assertive" id="display" name="Diary" title="Diary"
-                style="width: 100%;height: 100%;border: none;" srcdoc="&lt;p&gt;Pick a date above.&lt;/p&gt;"></iframe>
-        </section>
-        <div id="links"><a target="Diary" href="./entries/4_7_2025">4/7/2025</a><a target="Diary"
-                href="./entries/4_8_2025">4/8/2025</a><a target="Diary" href="./entries/4_10_2025">4/10/2025</a><a
-                target="Diary" href="./entries/4_11_2025">4/11/2025</a><a target="Diary"
-                href="./entries/4_12_2025">4/12/2025</a><a target="Diary" href="./entries/4_13_2025">4/13/2025</a><a
-                target="Diary" href="./entries/4_15_2025">4/15/2025</a><a target="Diary"
-                href="./entries/4_16_2025">4/16/2025</a><a target="Diary" href="./entries/4_18_2025">4/18/2025</a><a
-                target="Diary" href="./entries/4_19_2025">4/19/2025</a><a target="Diary"
-                href="./entries/4_20_2025">4/20/2025</a><a target="Diary" href="./entries/4_21_2025">4/21/2025</a><a
-                target="Diary" href="./entries/4_22_2025">4/22/2025</a><a target="Diary"
-                href="./entries/4_23_2025">4/23/2025</a><a target="Diary" href="./entries/4_25_2025">4/25/2025</a><a
-                target="Diary" href="./entries/4_26_2025">4/26/2025</a><a target="Diary"
-                href="./entries/4_27_2025">4/27/2025</a><a target="Diary" href="./entries/4_28_2025">4/28/2025</a><a
-                target="Diary" href="./entries/4_30_2025">4/30/2025</a><a target="Diary"
-                href="./entries/5_1_2025">5/1/2025</a><a target="Diary" href="./entries/5_2_2025">5/2/2025</a><a
-                target="Diary" href="./entries/5_4_2025">5/4/2025</a><a target="Diary"
-                href="./entries/5_6_2025">5/6/2025</a><a target="Diary" href="./entries/5_8_2025">5/8/2025</a><a
-                target="Diary" href="./entries/5_9_2025">5/9/2025</a><a target="Diary"
-                href="./entries/5_10_2025">5/10/2025</a><a target="Diary" href="./entries/5_11_2025">5/11/2025</a><a
-                target="Diary" href="./entries/5_12_2025">5/12/2025</a><a target="Diary"
-                href="./entries/5_13_2025">5/13/2025</a><a target="Diary" href="./entries/5_14_2025">5/14/2025</a><a
-                target="Diary" href="./entries/5_15_2025">5/15/2025</a><a target="Diary"
-                href="./entries/5_16_2025">5/16/2025</a><a target="Diary" href="./entries/5_17_2025">5/17/2025</a><a
-                target="Diary" href="./entries/5_18_2025">5/18/2025</a><a target="Diary"
-                href="./entries/5_20_2025">5/20/2025</a><a target="Diary" href="./entries/5_21_2025">5/21/2025</a><a
-                target="Diary" href="./entries/5_23_2025">5/23/2025</a><a target="Diary"
-                href="./entries/5_24_2025">5/24/2025</a><a target="Diary" href="./entries/5_25_2025">5/25/2025</a><a
-                target="Diary" href="./entries/5_26_2025">5/26/2025</a><a target="Diary"
-                href="./entries/5_29_2025">5/29/2025</a><a target="Diary" href="./entries/5_30_2025">5/30/2025</a><a
-                target="Diary" href="./entries/6_1_2025">6/1/2025</a><a target="Diary"
-                href="./entries/6_2_2025">6/2/2025</a><a target="Diary" href="./entries/6_3_2025">6/3/2025</a><a
-                target="Diary" href="./entries/6_4_2025">6/4/2025</a><a target="Diary"
-                href="./entries/6_5_2025">6/5/2025</a><a target="Diary" href="./entries/6_6_2025">6/6/2025</a><a
-                target="Diary" href="./entries/6_7_2025">6/7/2025</a><a target="Diary"
-                href="./entries/6_8_2025">6/8/2025</a><a target="Diary" href="./entries/6_9_2025">6/9/2025</a><a
-                target="Diary" href="./entries/6_10_2025">6/10/2025</a><a target="Diary"
-                href="./entries/6_11_2025">6/11/2025</a><a target="Diary" href="./entries/6_12_2025">6/12/2025</a><a
-                target="Diary" href="./entries/6_15_2025">6/15/2025</a><a target="Diary"
-                href="./entries/6_16_2025">6/16/2025</a><a target="Diary" href="./entries/6_17_2025">6/17/2025</a><a
-                target="Diary" href="./entries/6_18_2025">6/18/2025</a><a target="Diary"
-                href="./entries/6_19_2025">6/19/2025</a><a target="Diary" href="./entries/6_20_2025">6/20/2025</a><a
-                target="Diary" href="./entries/6_21_2025">6/21/2025</a><a target="Diary"
-                href="./entries/6_22_2025">6/22/2025</a><a target="Diary" href="./entries/6_23_2025">6/23/2025</a><a
-                target="Diary" href="./entries/6_25_2025">6/25/2025</a><a target="Diary"
-                href="./entries/6_26_2025">6/26/2025</a><a target="Diary" href="./entries/6_27_2025">6/27/2025</a><a
-                target="Diary" href="./entries/6_28_2025">6/28/2025</a><a target="Diary"
-                href="./entries/6_30_2025">6/30/2025</a><a target="Diary" href="./entries/7_1_2025">7/1/2025</a><a
-                target="Diary" href="./entries/7_2_2025">7/2/2025</a><a target="Diary"
-                href="./entries/7_3_2025">7/3/2025</a><a target="Diary" href="./entries/7_4_2025">7/4/2025</a><a
-                target="Diary" href="./entries/7_5_2025">7/5/2025</a><a target="Diary"
-                href="./entries/7_6_2025">7/6/2025</a><a target="Diary" href="./entries/7_7_2025">7/7/2025</a><a
-                target="Diary" href="./entries/7_8_2025">7/8/2025</a><a target="Diary"
-                href="./entries/7_10_2025">7/10/2025</a><a target="Diary" href="./entries/7_11_2025">7/11/2025</a><a
-                target="Diary" href="./entries/7_12_2025">7/12/2025</a><a target="Diary"
-                href="./entries/7_14_2025">7/14/2025</a><a target="Diary" href="./entries/7_15_2025">7/15/2025</a><a
-                target="Diary" href="./entries/7_16_2025">7/16/2025</a><a target="Diary"
-                href="./entries/7_17_2025">7/17/2025</a><a target="Diary" href="./entries/7_18_2025">7/18/2025</a><a
-                target="Diary" href="./entries/7_19_2025">7/19/2025</a><a target="Diary"
-                href="./entries/7_22_2025">7/22/2025</a><a target="Diary" href="./entries/7_24_2025">7/24/2025</a><a
-                target="Diary" href="./entries/7_25_2025">7/25/2025</a><a target="Diary"
-                href="./entries/7_26_2025">7/26/2025</a><a target="Diary" href="./entries/7_28_2025">7/28/2025</a><a
-                target="Diary" href="./entries/7_29_2025">7/29/2025</a><a target="Diary"
-                href="./entries/7_30_2025">7/30/2025</a><a target="Diary" href="./entries/7_31_2025">7/31/2025</a><a
-                target="Diary" href="./entries/8_3_2025">8/3/2025</a><a target="Diary"
-                href="./entries/8_4_2025">8/4/2025</a><a target="Diary" href="./entries/8_5_2025">8/5/2025</a><a
-                target="Diary" href="./entries/8_6_2025">8/6/2025</a><a target="Diary"
-                href="./entries/8_7_2025">8/7/2025</a><a target="Diary" href="./entries/8_10_2025">8/10/2025</a><a
-                target="Diary" href="./entries/8_12_2025">8/12/2025</a><a target="Diary"
-                href="./entries/8_13_2025">8/13/2025</a></div>
+<body class="cute-green" id="main" style="justify-items: center">
+
+    <main class="center " style="margin: 0;width:100%">
+        <a class="cute-green-button back" href="main.html" role="button" rel="prev"
+            aria-keyshortcuts="Alt+Shift+B">Back</a>
+        <!-- <span> Scrolling could reveal more!</span> -->
+        <div class="center" id="diary-container" style="display:contents;justify-items: center;">
+            <p>Pick a date below</p>
+            <div style="margin:20px">
+                <div class="cute-blue" style="
+    width: 200px;
+    display: grid;
+    overflow-y: scroll;
+    height: 60px;
+    margin: auto;
+    place-items: center;
+    place-self: center;
+    text-align: center;
+    padding: 10px;">
+                    <a class="hi" target="Diary"
+                        href="./entries/11_29_2025/index.html">11/29/2025</a><a class="hi" target="Diary"
+                        href="./entries/11_26_2025/index.html">11/26/2025</a><a class="hi" target="Diary"
+                        href="./entries/11_18_2025/index.html">11/18/2025</a><a class="hi" target="Diary"
+                        href="./entries/11_14_2025/index.html">11/14/2025</a><a class="hi" target="Diary"
+                        href="./entries/11_11_2025/index.html">11/11/2025</a><a class="hi" target="Diary"
+                        href="./entries/11_10_2025/index.html">11/10/2025</a><a class="hi" target="Diary"
+                        href="./entries/10_19_2025/index.html">10/19/2025</a><a class="hi" target="Diary"
+                        href="./entries/10_2_2025/index.html">10/2/2025</a><a class="hi" target="Diary"
+                        href="./entries/9_30_2025/index.html">9/30/2025</a><a class="hi" target="Diary"
+                        href="./entries/9_22_2025/index.html">9/22/2025</a><a class="hi" target="Diary"
+                        href="./entries/9_21_2025/index.html">9/21/2025</a><a class="hi" target="Diary"
+                        href="./entries/9_18_2025/index.html">9/18/2025</a><a class="hi" target="Diary"
+                        href="./entries/9_14_2025/index.html">9/14/2025</a><a class="hi" target="Diary"
+                        href="./entries/9_10_2025/index.html">9/10/2025</a><a class="hi" target="Diary"
+                        href="./entries/9_9_2025/index.html">9/9/2025</a><a class="hi" target="Diary"
+                        href="./entries/9_5_2025/index.html">9/5/2025</a><a class="hi" target="Diary"
+                        href="./entries/8_13_2025/index.html">8/13/2025</a><a class="hi" target="Diary"
+                        href="./entries/8_12_2025/index.html">8/12/2025</a><a class="hi" target="Diary"
+                        href="./entries/8_10_2025/index.html">8/10/2025</a><a class="hi" target="Diary"
+                        href="./entries/8_7_2025/index.html">8/7/2025</a><a class="hi" target="Diary"
+                        href="./entries/8_6_2025/index.html">8/6/2025</a><a class="hi" target="Diary"
+                        href="./entries/8_5_2025/index.html">8/5/2025</a><a class="hi" target="Diary"
+                        href="./entries/8_4_2025/index.html">8/4/2025</a><a class="hi" target="Diary"
+                        href="./entries/8_3_2025/index.html">8/3/2025</a><a class="hi" target="Diary"
+                        href="./entries/7_31_2025/index.html">7/31/2025</a><a class="hi" target="Diary"
+                        href="./entries/7_30_2025/index.html">7/30/2025</a><a class="hi" target="Diary"
+                        href="./entries/7_29_2025/index.html">7/29/2025</a><a class="hi" target="Diary"
+                        href="./entries/7_28_2025/index.html">7/28/2025</a><a class="hi" target="Diary"
+                        href="./entries/7_26_2025/index.html">7/26/2025</a><a class="hi" target="Diary"
+                        href="./entries/7_25_2025/index.html">7/25/2025</a><a class="hi" target="Diary"
+                        href="./entries/7_24_2025/index.html">7/24/2025</a><a class="hi" target="Diary"
+                        href="./entries/7_22_2025/index.html">7/22/2025</a><a class="hi" target="Diary"
+                        href="./entries/7_19_2025/index.html">7/19/2025</a><a class="hi" target="Diary"
+                        href="./entries/7_18_2025/index.html">7/18/2025</a><a class="hi" target="Diary"
+                        href="./entries/7_17_2025/index.html">7/17/2025</a><a class="hi" target="Diary"
+                        href="./entries/7_16_2025/index.html">7/16/2025</a><a class="hi" target="Diary"
+                        href="./entries/7_15_2025/index.html">7/15/2025</a><a class="hi" target="Diary"
+                        href="./entries/7_14_2025/index.html">7/14/2025</a><a class="hi" target="Diary"
+                        href="./entries/7_12_2025/index.html">7/12/2025</a><a class="hi" target="Diary"
+                        href="./entries/7_11_2025/index.html">7/11/2025</a><a class="hi" target="Diary"
+                        href="./entries/7_10_2025/index.html">7/10/2025</a><a class="hi" target="Diary"
+                        href="./entries/7_8_2025/index.html">7/8/2025</a><a class="hi" target="Diary"
+                        href="./entries/7_7_2025/index.html">7/7/2025</a><a class="hi" target="Diary"
+                        href="./entries/7_6_2025/index.html">7/6/2025</a><a class="hi" target="Diary"
+                        href="./entries/7_5_2025/index.html">7/5/2025</a><a class="hi" target="Diary"
+                        href="./entries/7_4_2025/index.html">7/4/2025</a><a class="hi" target="Diary"
+                        href="./entries/7_3_2025/index.html">7/3/2025</a><a class="hi" target="Diary"
+                        href="./entries/7_2_2025/index.html">7/2/2025</a><a class="hi" target="Diary"
+                        href="./entries/7_1_2025/index.html">7/1/2025</a><a class="hi" target="Diary"
+                        href="./entries/6_30_2025/index.html">6/30/2025</a><a class="hi" target="Diary"
+                        href="./entries/6_28_2025/index.html">6/28/2025</a><a class="hi" target="Diary"
+                        href="./entries/6_27_2025/index.html">6/27/2025</a><a class="hi" target="Diary"
+                        href="./entries/6_26_2025/index.html">6/26/2025</a><a class="hi" target="Diary"
+                        href="./entries/6_25_2025/index.html">6/25/2025</a><a class="hi" target="Diary"
+                        href="./entries/6_23_2025/index.html">6/23/2025</a><a class="hi" target="Diary"
+                        href="./entries/6_22_2025/index.html">6/22/2025</a><a class="hi" target="Diary"
+                        href="./entries/6_21_2025/index.html">6/21/2025</a><a class="hi" target="Diary"
+                        href="./entries/6_20_2025/index.html">6/20/2025</a><a class="hi" target="Diary"
+                        href="./entries/6_19_2025/index.html">6/19/2025</a><a class="hi" target="Diary"
+                        href="./entries/6_18_2025/index.html">6/18/2025</a><a class="hi" target="Diary"
+                        href="./entries/6_17_2025/index.html">6/17/2025</a><a class="hi" target="Diary"
+                        href="./entries/6_16_2025/index.html">6/16/2025</a><a class="hi" target="Diary"
+                        href="./entries/6_15_2025/index.html">6/15/2025</a><a class="hi" target="Diary"
+                        href="./entries/6_12_2025/index.html">6/12/2025</a><a class="hi" target="Diary"
+                        href="./entries/6_11_2025/index.html">6/11/2025</a><a class="hi" target="Diary"
+                        href="./entries/6_10_2025/index.html">6/10/2025</a><a class="hi" target="Diary"
+                        href="./entries/6_9_2025/index.html">6/9/2025</a><a class="hi" target="Diary"
+                        href="./entries/6_8_2025/index.html">6/8/2025</a><a class="hi" target="Diary"
+                        href="./entries/6_7_2025/index.html">6/7/2025</a><a class="hi" target="Diary"
+                        href="./entries/6_6_2025/index.html">6/6/2025</a><a class="hi" target="Diary"
+                        href="./entries/6_5_2025/index.html">6/5/2025</a><a class="hi" target="Diary"
+                        href="./entries/6_4_2025/index.html">6/4/2025</a><a class="hi" target="Diary"
+                        href="./entries/6_3_2025/index.html">6/3/2025</a><a class="hi" target="Diary"
+                        href="./entries/6_2_2025/index.html">6/2/2025</a><a class="hi" target="Diary"
+                        href="./entries/6_1_2025/index.html">6/1/2025</a><a class="hi" target="Diary"
+                        href="./entries/5_30_2025/index.html">5/30/2025</a><a class="hi" target="Diary"
+                        href="./entries/5_29_2025/index.html">5/29/2025</a><a class="hi" target="Diary"
+                        href="./entries/5_26_2025/index.html">5/26/2025</a><a class="hi" target="Diary"
+                        href="./entries/5_25_2025/index.html">5/25/2025</a><a class="hi" target="Diary"
+                        href="./entries/5_24_2025/index.html">5/24/2025</a><a class="hi" target="Diary"
+                        href="./entries/5_23_2025/index.html">5/23/2025</a><a class="hi" target="Diary"
+                        href="./entries/5_21_2025/index.html">5/21/2025</a><a class="hi" target="Diary"
+                        href="./entries/5_20_2025/index.html">5/20/2025</a><a class="hi" target="Diary"
+                        href="./entries/5_18_2025/index.html">5/18/2025</a><a class="hi" target="Diary"
+                        href="./entries/5_17_2025/index.html">5/17/2025</a><a class="hi" target="Diary"
+                        href="./entries/5_16_2025/index.html">5/16/2025</a><a class="hi" target="Diary"
+                        href="./entries/5_15_2025/index.html">5/15/2025</a><a class="hi" target="Diary"
+                        href="./entries/5_14_2025/index.html">5/14/2025</a><a class="hi" target="Diary"
+                        href="./entries/5_13_2025/index.html">5/13/2025</a><a class="hi" target="Diary"
+                        href="./entries/5_12_2025/index.html">5/12/2025</a><a class="hi" target="Diary"
+                        href="./entries/5_11_2025/index.html">5/11/2025</a><a class="hi" target="Diary"
+                        href="./entries/5_10_2025/index.html">5/10/2025</a><a class="hi" target="Diary"
+                        href="./entries/5_9_2025/index.html">5/9/2025</a><a class="hi" target="Diary"
+                        href="./entries/5_8_2025/index.html">5/8/2025</a><a class="hi" target="Diary"
+                        href="./entries/5_6_2025/index.html">5/6/2025</a><a class="hi" target="Diary"
+                        href="./entries/5_4_2025/index.html">5/4/2025</a><a class="hi" target="Diary"
+                        href="./entries/5_2_2025/index.html">5/2/2025</a><a class="hi" target="Diary"
+                        href="./entries/5_1_2025/index.html">5/1/2025</a><a class="hi" target="Diary"
+                        href="./entries/4_30_2025/index.html">4/30/2025</a><a class="hi" target="Diary"
+                        href="./entries/4_28_2025/index.html">4/28/2025</a><a class="hi" target="Diary"
+                        href="./entries/4_27_2025/index.html">4/27/2025</a><a class="hi" target="Diary"
+                        href="./entries/4_26_2025/index.html">4/26/2025</a><a class="hi" target="Diary"
+                        href="./entries/4_25_2025/index.html">4/25/2025</a><a class="hi" target="Diary"
+                        href="./entries/4_23_2025/index.html">4/23/2025</a><a class="hi" target="Diary"
+                        href="./entries/4_22_2025/index.html">4/22/2025</a><a class="hi" target="Diary"
+                        href="./entries/4_21_2025/index.html">4/21/2025</a><a class="hi" target="Diary"
+                        href="./entries/4_20_2025/index.html">4/20/2025</a><a class="hi" target="Diary"
+                        href="./entries/4_19_2025/index.html">4/19/2025</a><a class="hi" target="Diary"
+                        href="./entries/4_18_2025/index.html">4/18/2025</a><a class="hi" target="Diary"
+                        href="./entries/4_16_2025/index.html">4/16/2025</a><a class="hi" target="Diary"
+                        href="./entries/4_15_2025/index.html">4/15/2025</a><a class="hi" target="Diary"
+                        href="./entries/4_13_2025/index.html">4/13/2025</a><a class="hi" target="Diary"
+                        href="./entries/4_12_2025/index.html">4/12/2025</a><a class="hi" target="Diary"
+                        href="./entries/4_11_2025/index.html">4/11/2025</a><a class="hi" target="Diary"
+                        href="./entries/4_10_2025/index.html">4/10/2025</a><a class="hi" target="Diary"
+                        href="./entries/4_8_2025/index.html">4/8/2025</a><a class="hi" target="Diary"
+                        href="./entries/4_7_2025/index.html">4/7/2025</a>
+                </div>
+            </div>
+            <section id="diary" class="cute-blue" style="--user-select:none; place-self: center;">
+                <div id="walking"></div>
+                <iframe allowfullscreen allow="fullscreen *; local-fonts *; autoplay *;" aria-relevant="all"
+                    aria-live="assertive" id="display" name="Diary" title="Diary" src="./entries/4_7_2025/index.html"
+                    style="width: 99%;height: 100%;border: none;"></iframe>
+            </section>
+        </div>
     </main>
 </body>
-
 </html>
