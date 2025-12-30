@@ -313,15 +313,13 @@
         if (!violated) {
             sheet.onsecuritypolicyviolation = violation
             sheet.textContent += text
-            return
         }
-        var link = document.createElement('link')
-        link.rel = 'stylesheet'
-        var url = URL.createObjectURL(new Blob([text], { type: 'text/css' }))
-        link.href = url
-        sheet.onsecuritypolicyviolation = null
-        put(link).onload = URL.revokeObjectURL.bind(URL, url)
-        // if they block inline styles try to use blob:
+        else {
+            var m = new CSSStyleSheet
+            m.replaceSync(text)
+            document.adoptedStyleSheets.push(m)
+            // <style> blocked
+        }
     }
     function registerCSSRaw(rules, newStyleSheet) {
         if (newStyleSheet) {
@@ -384,14 +382,8 @@
     function sel(rule, doCache) {
         if (isSimple.test(rule)) return true
         if (doCache) var c, cache = selCache.get(rule) || (selCache.set(rule, c = sel(rule, false)), c)
-        // if (!cache) {
-        //     var vh = /:(?:where|is|any)\((.*)\)/g
-        //         , hasWhere = rule.match(vh)
-        //         ; (!hasWhere || (hasWhere && !sel(rule.replace(vh, '$1')))) && badCSS("Invalid selector '" + rule + "'")
-        // }
         return !!cache || sup("selector(" + rule + ")")
     }
-
     var bulkText = ''
     function re(name, iv, inh, sx) {
         bulkText += '@property ' + name + '{syntax:"' + sx + '";inherits:' + inh + ';initial-value:' + iv + '}'
