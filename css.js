@@ -13,16 +13,18 @@
         selCache = new Map,
         isSimple = /^[^)(:]+$/,
         where = sel(':where(p)', true),
-        sn
-        , canWrite = !inModule && D.readyState !== 'complete'
+        sn,
+        atProperty = typeof CSSPropertyRule === 'function'
+        // , canWrite = !inModule && D.readyState !== 'complete'
         , func = CSS.registerProperty || void (fallback = new Map), selector = '*' + (where ? ',:where(::-moz-color-swatch,::-moz-focus-inner,::-moz-list-bullet,::-moz-list-number,::-moz-meter-bar,::-moz-progress-bar,::-moz-range-progress,::-moz-range-thumb,::-moz-range-track,::-webkit-inner-spin-button,::-webkit-meter-bar,::-webkit-meter-even-less-good-value,::-webkit-meter-inner-element,::-webkit-meter-optimum-value,::-webkit-meter-suboptimum-value,::-webkit-progress-bar,::-webkit-progress-inner-element,::-webkit-progress-value,::-webkit-scrollbar,::-webkit-search-cancel-button,::-webkit-search-results-button,::-webkit-slider-runnable-track,::-webkit-slider-thumb,::after,::backdrop,::before,::checkmark,::column,::cue,::details-content,::file-selector-button,::first-letter,::first-line,::grammar-error,::marker,::picker-icon,::placeholder,::scroll-marker,::scroll-marker-group,::selection,::spelling-error,::target-text,::view-transition)' : '')
     dance: {
         try {
             if (typeof scrollMaxX !== 'number' || !S) {
                 // sessionStorage seems to be faster on FireFox 
                 var o = top.name
-                if (!o || o.startsWith(id)) {
-                    sn = Reflect.set.bind(1, top, 'name')
+                var starts = o.startsWith(id)
+                if (!o || starts) {
+                    if (!starts) sn = Reflect.set.bind(1, top, 'name')
                     var name = o // name is free to use
                     break dance
                 }
@@ -47,7 +49,7 @@
         is = Array.isArray,
         // scr,
         sheet = Sheet(),
-        props = new Set,
+        ////props = new Set,
         alr = new Set,
         vendr = /^(?:-(?:webkit|moz(?:-osx)?|apple|khtml|konq|r?o|ms|xv|atsc|wap|ah|hp|rim|tc|fso|icab|epub)|prince|mso)-(?!$)/,
         dr = new Map,
@@ -60,47 +62,18 @@
         , fClass = fgeneric.bind(1, ':', pseudoClass),
         fElement = fgeneric.bind(1, '::', pseudoElement),
         url = /;(?!url\(.*\))/
-        , toValue = function (parse) {
-            var proto = {
-                //valueOf: { value: function () { return parseFloat(this.toString()) } } 
-            }
-            // valueOf messes with the + operator >:(
-            var props = O.getOwnPropertyNames(String.prototype)
-            Symbol.iterator && props.push(Symbol.iterator)
-            for (var i = props.length; i--;) {
-                var prop = props[i]
-                typeof ''[prop] === 'function' && prop !== 'toString' && prop !== 'valueOf' && hi(prop)
-            }
-            return parse ? a : b
-            function a(p, v) {
-                // indexes are used for the property value, so you must use charAt()/at() to get a character
-                // (or just convert it to a string first)
-                return O.defineProperty(O.defineProperties(parse(p, v.replace(imp, '')), proto), 'length', { value: v.length })
-            }
-            function hi(prop) {
-                function value(a, b, c) {
-                    var l = ''[prop]
-                        , s = this.toString()
-                    if (prop !== 'concat') switch (l.length) {
-                        case 0: return l.call(s)
-                        case 1: return l.call(s, a)
-                        case 2: return l.call(s, a, b)
-                        case 3: return l.call(s, a, b, c)
-                    }
-                    return Reflect.apply(l, s, arguments)
-                }
-                proto[prop] = {
-                    value: value
-                }
-            }
-            function b(_, v) { return Object(v.replace(imp, '')) }
-        }(w.CSSStyleValue && CSSStyleValue.parse)
-        // CSSProto = O.create(null, { supported: { get: function () { for (var i in this) if (!sup(i + ':' + this[i])) return false; return true } }, toString: { value: function () { return toCSS(this) } } })
+        , toValue
         , comments = /\/\*[\s\S]*?\*\//g
         , parse = /([^{}]+?)(?:;|(\{[\s\S]*?\}))/g
         , semicolon = /(?:--)?[-\w]+\s*:(?:(?![^(]*\);|[^"]*";|[^']*';).)*?(?:!\s*important\s*)?(?=;(?![^(]*\)|[^"]*"|[^']*')|\s*$)/g,
         batch = ''
-    CSS.registerProperty || (canWrite && (w.fallback = fallback, w.vendor = vendor, D.write('<script src="https://addsoupbase.github.io/no_register_property.js"><\x2fscript>')))
+    /* if (!CSS.registerProperty) {
+         w.vendor = vendor
+         var script = document.createElement('script')
+         script.src = 'http://localhost:3000/no_register_property.js'
+         document.head.appendChild(script)
+          //Okay i have no idea what i did but it works without this now somehow??
+     }*/
     /*  if (canWrite && top === self) {
           // Idk why, but it seems to make the page render faster
           document.write('<p style="position:absolute !important;transform:scale(0) !important;z-index:-9999 !important;" data-cssid="$$$" aria-hidden="true">.</p>')
@@ -137,6 +110,42 @@
     }
     function fromCSS(str) {
         if (!(this instanceof fromCSS)) return new fromCSS(str)
+        if (!toValue) toValue = function (parse) {
+            var proto = {
+                //valueOf: { value: function () { return parseFloat(this.toString()) } } 
+            }
+            // valueOf messes with the + operator >:(
+            var props = O.getOwnPropertyNames(String.prototype)
+            Symbol.iterator && props.push(Symbol.iterator)
+            console.time(2)
+            for (var i = props.length; i--;) {
+                var prop = props[i]
+                typeof ''[prop] === 'function' && prop !== 'toString' && prop !== 'valueOf' && prop !== 'constructor' && hi(prop)
+            }
+            return parse ? a : b
+            function a(p, v) {
+                // indexes are used for the property value, so you must use charAt()/at() to get a character
+                // (or just convert it to a string first)
+                return O.defineProperty(O.defineProperties(parse(p, v.replace(imp, '')), proto), 'length', { value: v.length })
+            }
+            function hi(prop) {
+                function value(a, b, c) {
+                    var l = ''[prop]
+                        , s = this.toString()
+                    if (prop !== 'concat') switch (l.length) {
+                        case 0: return l.call(s)
+                        case 1: return l.call(s, a)
+                        case 2: return l.call(s, a, b)
+                        case 3: return l.call(s, a, b, c)
+                    }
+                    return Reflect.apply(l, s, arguments)
+                }
+                proto[prop] = {
+                    value: value
+                }
+            }
+            function b(_, v) { return Object(v.replace(imp, '')) }
+        }(w.CSSStyleValue && CSSStyleValue.parse)
         str = str.trim()
         var a = str.match(semicolon) || str.slice(0, -1).match(semicolon)
             , o = this
@@ -181,12 +190,10 @@
         }
         else load(me.ownerNode.textContent)
         function load(text) {
-            if (text.includes('--interactivity'))console.warn("--interactivity does not need to be a custom")
+            if (text.includes('--interactivity')) console.warn("--interactivity does not need to be a custom")
             var og = text
             text = text.replace(comments, '')
             var match
-            // , sheetRules = sheet.cssRules || sheet.Rules
-            // console.clear()
             while (match = parse.exec(text)) {
                 var rule = match[2]
                 if (rule) {
@@ -199,8 +206,7 @@
                         , line = href + ':' + (lines.findIndex(function (o) { return o.includes(selector) }) + 1)
                     if (!O.keys(c).length) console.warn('Empty ruleset:', line)
                     // i will make this better later
-                    if (href && !sel(selector))
-                        console.warn('Invalid selector:', line)
+                    if (href && !sel(selector)) console.warn('Invalid selector:', line)
                     // auto jump to line
                     for (var x in c) {
                         var v = c[x]
@@ -229,13 +235,11 @@
     function b(p, v) {
         return '(' + p + ':' + v + ')'
     }
-    function find(p, v, important) {
+    function find(p, v) {
         for (var i = br.length, o; i--;) {
             var prefix = br[i]
-                , prop = p
             prefix !== 'mso' && prefix !== 'prince' && (prefix = '-' + prefix)
-            prefix += '-'
-            if (sup(b(o = prefix + prop, v))) return o + important
+            if (sup(b(o = prefix + '-' + p, v))) return o
         }
         return ''
     }
@@ -247,7 +251,7 @@
             v = v.replace(imp, '')
             var a = p = p
                 .replace(vendr, '')
-            return dr.has(p) ? dr.get(p) : find(p, v, important) || (
+            return dr.has(p) ? dr.get(p) : find(p, v) || (
                 // sup(prefix = `-internal-${prop}`, val) ||
                 badCSS("Unrecognized CSS at '" + b(a = p, v + important).slice(1, -1) + "'", _),
                 dr.set(p, a),
@@ -317,7 +321,7 @@
         else {
             var m = new CSSStyleSheet
             m.replaceSync(text)
-            document.adoptedStyleSheets.push(m)
+            D.adoptedStyleSheets.push(m)
             // <style> blocked
         }
     }
@@ -389,7 +393,7 @@
         bulkText += '@property ' + name + '{syntax:"' + sx + '";inherits:' + inh + ';initial-value:' + iv + '}'
     }
     function g(name, iv, inh, sx) {
-        props.add(name)
+        ////props.add(name)
         var o = '--' + name,
             n = o,
             key = vendor(name, o = 'var(' + o + ')', true)
@@ -416,7 +420,6 @@
             // performance.mark('css-other-start')
             ('scrollbar-thumb-color', 'auto', true, '*')
             ('scrollbar-color', 'auto', true, '*')
-        reuse = null
         // }
         // catch (e) { reportError(e) }
     }
@@ -452,20 +455,54 @@
     }
     // performance.mark('css-property-end')
     // ],
-    var dflt = name
-    if (!dflt) {
-        var align = sup.bind(1, 'text-align')
-            , o = {
-                ':root': {
-                    'transition-behavior': 'allow-discrete',
-                    'interpolate-size': 'allow-keywords',
-                    '--crisp-edges': '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(sup.bind(1, 'image-rendering')) || 'initial',
-                    '--stretch': '-moz-available -webkit-fill-available stretch'.split(' ').find(sup.bind(1, 'max-width')) || 'initial',
-                    '--center': '-moz-center -webkit-center -khtml-center'.split(' ').find(align) || 'initial',
-                    // this is different from just 'center' and idk why!!!
-                    '--match-parent': 'match-parent -moz-match-parent -webkit-match-parent'.split(' ').find(align) || 'initial'
-                }
+    function doRegister() {
+        re = function (name, iv, inh, sx) {
+            if (func) {
+                reuse.name = name
+                reuse.initialValue = iv
+                reuse.inherits = inh
+                reuse.syntax = sx
+                func(reuse)
             }
+            else fallback.set(name, vendor(name.slice(2), 'inherit'))
+        }
+        var reuse = {
+            name: '',
+            initialValue: '',
+            inherits: false,
+            syntax: ''
+        }
+        defer(lowPriority)
+        properties()
+    }
+    var crisp, stretch, center, matchParent
+    function supportCustom() {
+        var align = sup.bind(1, 'text-align')
+        crisp = '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(sup.bind(1, 'image-rendering')) || 'initial'
+        stretch = '-moz-available -webkit-fill-available stretch'.split(' ').find(sup.bind(1, 'max-width')) || 'initial'
+        center = '-moz-center -webkit-center -khtml-center'.split(' ').find(align) || 'initial'
+        matchParent = 'match-parent -moz-match-parent -webkit-match-parent'.split(' ').find(align) || 'initial'
+        if (!func) {
+            fallback.set('--stretch', stretch)
+            fallback.set('--center', center)
+            fallback.set('--crisp-edges', crisp)
+            fallback.set('--crisp-edges', matchParent)
+        }
+    }
+    var newName = name
+    if (!newName) {
+        supportCustom()
+        var o = {
+            ':root': {
+                'transition-behavior': 'allow-discrete',
+                'interpolate-size': 'allow-keywords',
+                '--crisp-edges': crisp,
+                '--stretch': stretch,
+                '--center': center,
+                // this is different from just 'center' and idk why!!!
+                '--match-parent': matchParent
+            }
+        }
         o[W("button,a,input[type=button],input[type=checkbox],input[type=radio],input[type=submit],input[type=image],input[type=reset],input[type=file]")] = { cursor: 'pointer' }
         o[W('[aria-busy=true]')] = { cursor: 'progress' }
         o[W('[draggable=false]')] = { '--user-drag': 'none' }
@@ -480,36 +517,22 @@
         o[W(':disabled,[aria-disabled=true]')] = { cursor: 'not-allowed' }
         o[W('.centerx,.center')] = { 'justify-self': 'center', margin: 'auto', 'text-align': 'center' }
         o[W('.centery,.center')] = { 'align-self': 'center', inset: 0, position: 'fixed' }
-        dflt = entries(o).reduce(function (a, b) {
+        newName = entries(o).reduce(function (a, b) {
             return a + b[0] + "{" + toCSS(b[1]) + "}"
         }, "@namespace svg url('http://www.w3.org/2000/svg');@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:root{--system-font:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif}:-moz-loading{cursor:wait}:-moz-broken{border-radius:0}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not(scrollbar-color:auto){::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}")
-        if (typeof CSSPropertyRule === 'function') {
-            properties()
-            lowPriority()
-            dflt += bulkText
-        }
-        else {
-            re = function (name, iv, inh, sx) {
-                reuse.name = name
-                reuse.initialValue = iv
-                reuse.inherits = inh
-                reuse.syntax = sx
-                func ? func(reuse) : fallback.set(key = vendor(name, name = 'var(' + name + ')', true), vendor(key, 'inherit'))
-                var key
-            }
-            var reuse = {
-                name: '',
-                initialValue: '',
-                inherits: false,
-                syntax: ''
-            }
-            defer(lowPriority)
-            properties()
-        }
+    }
+    if (atProperty) {
+        properties()
+        lowPriority()
+        newName += bulkText
+    }
+    else {
+        supportCustom()
+        doRegister()
     }
     var str
     // finally { performance.mark('css-other-end') }
-    write(name || (sn(str = selector + "{" + toCSS(uv, true) + "}" + dflt), id + str))
+    write(name || (sn(str = selector + "{" + toCSS(uv, true) + "}" + newName), id + str))
     var css =  ////Object.freeze
         ({
             getDefaultStyleSheet: Sheet,
@@ -534,7 +557,7 @@
             formatSelector: fSelector,
             fixSheet: fixSheet,
             get queue() { return batch },
-            checkSheets: defer.bind(this, [].forEach.bind(document.styleSheets, fixSheet)),
+            checkSheets: defer.bind(this, [].forEach.bind(D.styleSheets, fixSheet)),
             fromCSS: fromCSS
         })
     y[sym] || O.defineProperty(y, sym, { value: css, enumerable: 1 })
