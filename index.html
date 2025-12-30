@@ -57,9 +57,16 @@
     <link rel="apple-touch-icon" sizes="180x180" href="./icon-180x180.png">
     <link rel="modulepreload" href="./yay.js">
     <link rel="modulepreload" href="./handle.js">
-        <script src="legacy.js" nomodule></script>
+    <script src="legacy.js" nomodule></script>
     <script src="css.js" blocking="render"></script>
     <script src="css_bad.js" nomodule></script>
+    <style id="firefox-fouc-fix">
+        @supports (-moz-force-broken-image-icon: 1) {
+            #frame {
+                visibility: hidden !important;
+            }
+        }
+    </style>
 </head>
 
 <body id="hiii"
@@ -69,7 +76,24 @@
         <iframe scrolling="no" src="main.html" loading="lazy" id="frame" name="content" aria-atomic="true"
             aria-live="assertive" aria-relevant="all" title="content" class="center show"
             style="pointer-events: auto;display:none;opacity:0"></iframe>
-            <noscript><style>#frame {opacity: 1 !important;display: block !important;}</style></noscript>
+        <script>
+            'use strict'
+            if (typeof scrollMaxX === 'number') !function (f) {
+                f.addEventListener('load', function n() {
+                    document.getElementById('firefox-fouc-fix').remove()
+                    f.removeEventListener('load', n)
+                })
+            }(document.getElementById('frame'))
+        </script>
+        <noscript>
+            <style>
+                #frame {
+                    opacity: 1 !important;
+                    display: block !important;
+                    visibility: visible !important;
+                }
+            </style>
+        </noscript>
         <script>
             !function (a) {
                 'use strict'
