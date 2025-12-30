@@ -301,7 +301,7 @@
         return sheet
     }
     function l() {
-        sheet.textContent += batch
+        write(sheet.textContent + batch)
         //// console.debug("textContent queue emptied! Text length accumulated:", batch.length)
         batch = ''
         //// console.countReset("textContent queue")
@@ -310,6 +310,20 @@
         text && (batch || requestAnimationFrame(l), batch += text)
         //// console.count('textContent queue')
         //// console.debug(batch.length)
+    }
+    function write(text) {
+        if (!violated) {
+            sheet.onsecuritypolicyviolation = violation
+            sheet.textContent += text
+            return
+        }
+        var link = document.createElement('link')
+        link.rel = 'stylesheet'
+        var url = URL.createObjectURL(new Blob([text], { type: 'text/css' }))
+        link.href = url
+        sheet.onsecuritypolicyviolation = null
+        put(link).onload = URL.revokeObjectURL.bind(URL, url)
+        // if they block inline styles try to use blob:
     }
     function registerCSSRaw(rules, newStyleSheet) {
         if (newStyleSheet) {
@@ -345,6 +359,11 @@
         n.blocking = 'render'
         n.href = url
         return put(n)
+    }
+    var violated = false
+    function violation() {
+        violated = true
+        write(this.textContent)
     }
     function Sheet() {
         var o = D.getElementById(id)
@@ -406,7 +425,8 @@
     where || (W = String)
     var fallback,
         uv = { //'box-sizing': 'border-box', it causes too many problems
-             'overflow-wrap': 'var(--word-wrap)', 'scrollbar-color': 'var(--scrollbar-thumb-color) var(--scrollbar-color)' }
+            'overflow-wrap': 'var(--word-wrap)', 'scrollbar-color': 'var(--scrollbar-thumb-color) var(--scrollbar-color)'
+        }
     // performance.mark('css-property-start')
     function lowPriority() {
         // lower priority props
@@ -498,7 +518,7 @@
     }
     var str
     // finally { performance.mark('css-other-end') }
-    sheet.textContent = name || (sn(str = selector + "{" + toCSS(uv, true) + "}" + dflt), id + str)
+    write(name || (sn(str = selector + "{" + toCSS(uv, true) + "}" + dflt), id + str))
     var css =  ////Object.freeze
         ({
             getDefaultStyleSheet: Sheet,
