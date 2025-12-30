@@ -639,7 +639,7 @@ return eval(arguments[0])}.call(this[1],this[2])}`)).call([base(this).ownerDocum
         restartAnims() {
             this.allAnims.forEach(restart)
         },
-        fadeOut(duration) {
+        fadeOut(duration, type = 3) {
             duration ||= defaultDura
             this.saveAttr('inert')
             this.attr.inert = true
@@ -648,9 +648,9 @@ return eval(arguments[0])}.call(this[1],this[2])}`)).call([base(this).ownerDocum
                 easing: 'ease',
                 // composite: 'replace',
                 iterations: 1
-            }).finished.then(this.hide.bind(this, 3))
+            }).finished.then(this.hide.bind(this, type))
         },
-        fadeIn(duration) {
+        fadeIn(duration, type = 3) {
             duration ||= defaultDura
             let a = this.animate([nopacity, onepacity], {
                 duration,
@@ -658,7 +658,7 @@ return eval(arguments[0])}.call(this[1],this[2])}`)).call([base(this).ownerDocum
                 iterations: 1,
                 // composite: 'replace',
             }).finished.then(removeInert.bind(this))
-            this.show(3)
+            this.show(type)
             return a
         },
         fadeFromTo(from, to, settings) {

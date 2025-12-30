@@ -296,7 +296,7 @@
 
                 let { 0: year, 1: month, 2: date } = this.value.split('-')
                 let hi = new Date(`${month}/${date}/${year}`)
-                frame.hide(3)
+                frame.hide(2)
                 let src = `./entries/${toNormal(hi)}/index.html`
                 frame.setAttr({
                     src
@@ -321,7 +321,7 @@
                 })
             } else {
                 invalid.hide()
-                this.fadeIn()
+                this.fadeIn(500,2)
                 let n = $(this.contentWindow.document.body).attr.$color
                 if (n) {
                     let color = n
@@ -343,7 +343,7 @@
             '%!load': load,
             error: console.warn
         })
-        frame.hide(3)
+        frame.hide(2)
         function toYMDFormat(d) {
             // fucking hate this stupid shitty Date API holy shit it's not even funny gng
             return `${d.getFullYear()}-${`${d.getMonth() + 1}`.padStart(2, 0)}-${`${d.getDate()}`.padStart(2, 0)}`
@@ -362,7 +362,7 @@
             if (day + 1 >= dates.length) prev.hide(2)
         }
         function changeDay(dir = 1, keephash) {
-            frame.hide(3)
+            frame.hide(2)
             day += dir
             let c = dates[day]
             showHide()
@@ -376,6 +376,7 @@
                 })
             }
         }
+        console.log(frame.show)
         function toNormal(date) {
             let out = `${date.getMonth() + 1}_${String(date.getDate())}_${date.getFullYear()}`
             return out
