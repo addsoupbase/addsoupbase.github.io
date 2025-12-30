@@ -1,12 +1,12 @@
 //# allFunctionsCalledOnLoad
 // console.time('css.js');
 //// self.css = 
-(function CSSSetup(inModule, w, sym, defer, D, O, id, y) {
+(function CSSSetup(inModule, w, sym, defer, D, O, id, y, rAF) {
     ////'use strict'
     if (y.propertyIsEnumerable(sym) && D.getElementById(id) instanceof HTMLStyleElement) return y[sym]
     try { var S = sessionStorage } // it just throws on read if storage is denied
     catch (e) { reportError(e) }
-    addEventListener('error', function n(e) { if (e.filename.endsWith('.js')) { [].forEach.call(D.querySelectorAll('script[nomodule]'), function (s) { D.head.appendChild(D.createElement('script')).src = s.src }); removeEventListener('error', n) } })
+    inModule || addEventListener('error', function n(e) { if (e.filename.endsWith('.js')) { [].forEach.call(D.querySelectorAll('script[nomodule]'), function (s) { D.head.appendChild(D.createElement('script')).src = s.src }); removeEventListener('error', n) } })
     var sup = CSS.supports,
         hasOwn = O.hasOwn,
         imp = /\s*!\s*important\s*$/,
@@ -59,12 +59,6 @@
         br = ['epub', 'icab', 'fso', 'tc', 'rim', 'hp', 'ah', 'wap', 'atsc', 'xv', 'ms', 'o', 'ro', 'konq', 'khtml', 'apple', 'moz', 'moz-osx', 'webkit']
         , fClass = fgeneric.bind(1, ':', pseudoClass),
         fElement = fgeneric.bind(1, '::', pseudoElement),
-        reuse = {
-            name: '',
-            initialValue: '',
-            inherits: false,
-            syntax: ''
-        },
         url = /;(?!url\(.*\))/
         , toValue = function (parse) {
             var proto = {
@@ -79,21 +73,24 @@
             }
             return parse ? a : b
             function a(p, v) {
+                // indexes are used for the property value, so you must use charAt()/at() to get a character
+                // (or just convert it to a string first)
                 return O.defineProperty(O.defineProperties(parse(p, v.replace(imp, '')), proto), 'length', { value: v.length })
             }
             function hi(prop) {
-                proto[prop] = {
-                    value: function (a, b, c) {
-                        var l = ''[prop]
-                            , s = this.toString()
-                        switch (l.length) {
-                            case 0: return l.call(s)
-                            case 1: return l.call(s, a)
-                            case 2: return l.call(s, a, b)
-                            case 3: return l.call(s, a, b, c)
-                        }
-                        return Reflect.apply(l, s, arguments)
+                function value(a, b, c) {
+                    var l = ''[prop]
+                        , s = this.toString()
+                    if (prop !== 'concat') switch (l.length) {
+                        case 0: return l.call(s)
+                        case 1: return l.call(s, a)
+                        case 2: return l.call(s, a, b)
+                        case 3: return l.call(s, a, b, c)
                     }
+                    return Reflect.apply(l, s, arguments)
+                }
+                proto[prop] = {
+                    value: value
                 }
             }
             function b(_, v) { return Object(v.replace(imp, '')) }
@@ -184,6 +181,7 @@
         }
         else load(me.ownerNode.textContent)
         function load(text) {
+            if (text.includes('--interactivity'))console.warn("--interactivity does not need to be a custom")
             var og = text
             text = text.replace(comments, '')
             var match
@@ -307,7 +305,7 @@
         //// console.countReset("textContent queue")
     }
     function queueWrite(text) {
-        text && (batch || requestAnimationFrame(l), batch += text)
+        text && (batch || rAF(l), batch += text)
         //// console.count('textContent queue')
         //// console.debug(batch.length)
     }
@@ -352,14 +350,14 @@
         }
         registerCSSRaw(text, true)
     }*/
-    function importCSS(url) {
+    /*function importCSS(url) {
         var n = D.createElement('link')
         n.rel = 'stylesheet'
         n.fetchpriority = 'high'
         n.blocking = 'render'
         n.href = url
         return put(n)
-    }
+    }*/
     var violated = false
     function violation() {
         violated = true
@@ -380,14 +378,8 @@
         return p.appendChild(e)
     }
     function registerCSSAll(rules) {
-        O.keys(rules).forEach(reg, rules)
-    }
-    function reg(r) {
-        // try {
-        registerCSS(r, this[r])
-        // } catch (e) {
-        // reportError(e)
-        // }
+        for (var i in rules)
+            registerCSS(i, rules[i])
     }
     function sel(rule, doCache) {
         if (isSimple.test(rule)) return true
@@ -399,13 +391,10 @@
         // }
         return !!cache || sup("selector(" + rule + ")")
     }
+
+    var bulkText = ''
     function re(name, iv, inh, sx) {
-        reuse.name = name
-        reuse.initialValue = iv
-        reuse.inherits = inh
-        reuse.syntax = sx
-        func ? func(reuse) : fallback.set(key = vendor(name, name = 'var(' + name + ')', true), vendor(key, 'inherit'))
-        var key
+        bulkText += '@property ' + name + '{syntax:"' + sx + '";inherits:' + inh + ';initial-value:' + iv + '}'
     }
     function g(name, iv, inh, sx) {
         props.add(name)
@@ -455,7 +444,7 @@
             ("user-focus", "none", false, '*')
             ("initial-letter", "normal", false, '*')
             ("overflow-style", "auto", true, '*')
-            ("interactivity", "auto", true, '*')
+            // ("interactivity", "auto", true, '*')
             ("input-security", "auto", false, '*')
             ("caret-animation", "auto", true, '*')
             ("cursor-visibility", "auto", true, '*')
@@ -492,7 +481,7 @@
         o[W('[contenteditable],[contenteditable=true]')] = { '--user-modify': 'read-write' }
         o[W('[contenteditable=false]')] = { '--user-modify': 'read-only', '--user-input': 'none' }
         o[W('[contenteditable="plaintext-only"]')] = { '--user-modify': 'read-write-plaintext-only' }
-        o[W('[inert]')] = { '--interactivity': 'inert' }
+        o[W('[inert]')] = { 'interactivity': 'inert' }
         o[W('img')] = { '--force-broken-image-icon': 1 }
         o[W('input[type=range],::-webkit-scrollbar-thumb')] = { cursor: 'grab' }
         o[W('input[type=range]:active,::-webkit-scrollbar-thumb:active')] = { cursor: 'grabbing' }
@@ -503,15 +492,25 @@
             return a + b[0] + "{" + toCSS(b[1]) + "}"
         }, "@namespace svg url('http://www.w3.org/2000/svg');@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:root{--system-font:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif}:-moz-loading{cursor:wait}:-moz-broken{border-radius:0}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not(scrollbar-color:auto){::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}")
         if (typeof CSSPropertyRule === 'function') {
-            var bulkText = ''
-            re = function (name, iv, inh, sx) {
-                bulkText += '@property ' + name + '{syntax:"' + sx + '";inherits:' + inh + ';initial-value:' + iv + '}'
-            }
             properties()
             lowPriority()
             dflt += bulkText
         }
         else {
+            re = function (name, iv, inh, sx) {
+                reuse.name = name
+                reuse.initialValue = iv
+                reuse.inherits = inh
+                reuse.syntax = sx
+                func ? func(reuse) : fallback.set(key = vendor(name, name = 'var(' + name + ')', true), vendor(key, 'inherit'))
+                var key
+            }
+            var reuse = {
+                name: '',
+                initialValue: '',
+                inherits: false,
+                syntax: ''
+            }
             defer(lowPriority)
             properties()
         }
@@ -533,7 +532,7 @@
             dashVendor: dv,
             // importFont: importFont,
             capVendor: cv,
-            importCSS: importCSS,
+            // importCSS: importCSS,
             badCSS: badCSS,
             toCaps: toCaps,
             toDash: toDash,
@@ -549,6 +548,6 @@
     y[sym] || O.defineProperty(y, sym, { value: css, enumerable: 1 })
     // console.debug(performance.measure('css-cache','css-cache-start', 'css-cache-end').toJSON(), performance.measure('css-property', 'css-property-start', 'css-property-end').toJSON())
     return css
-}(!this, self, Symbol.for('[[CSSModule]]'), (self.requestIdleCallback && function (c) { return requestIdleCallback(c, { timeout: 2000 }) }) || (self.scheduler && scheduler.postTask && function (c) { return scheduler.postTask(c, { priority: 'background' }) }) || self.queueMicrotask || self.setImmediate || setTimeout, document, Object, '/*stylesheet auto-generated by css.js*/', constructor.prototype))
+}(!this, self, Symbol.for('[[CSSModule]]'), (self.requestIdleCallback && function (c) { return requestIdleCallback(c, { timeout: 2000 }) }) || (self.scheduler && scheduler.postTask && function (c) { return scheduler.postTask(c, { priority: 'background' }) }) || self.queueMicrotask || self.setImmediate || setTimeout, document, Object, '/*stylesheet auto-generated by css.js*/', constructor.prototype, self.requestAnimationFrame || self.webkitRequestAnimationFrame || self.mozRequestAnimationFrame || self.msRequestAnimationFrame || self.oRequestAnimationFrame))
 //self[Symbol.for('[[CSSModule]]')]
 // ; console.timeEnd('css.js')

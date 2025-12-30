@@ -418,16 +418,14 @@
                 break
         }
         s && args.push(abrt)
-        args.push(off.bind(null, this, name))
+        args.push(off.bind(void 0, this, name))
         if (t && event.isTrusted || !t && (!originalTarget || !('originalTarget' in event) || event.originalTarget === currentTarget) && (!explicitOriginalTarget || !('explicitOriginalTarget' in event) || event.explicitOriginalTarget === currentTarget) && (!oct || (event.target || event.srcElement) === currentTarget)) {
             switch (args.length) {
-                case 1: var result = f(args[0])
-                    break
-                case 2: result = f(args[0], args[1])
+                case 2:var result = f(args[0], args[1])
                     break
                 case 3: result = f(args[0], args[1], args[2])
                     break
-                default: result = apply(f, this, args)
+                default: result = apply(f, void 0, args)
             }
             if (p)
                 if (event.cancelable)
@@ -579,7 +577,13 @@
                 function DelegationFunction(t) {
                     var target = t.target
                     var res = filter(target);
-                    (me !== target || includeSelf) && (res == null ? true : res) && apply(old, target, arguments)
+                    if ((me !== target || includeSelf) && (res == null ? true : res)) {
+                        switch(arguments.length) {
+                            case 1: return old.call(target, t)
+                            case 2: return old.call(target, t, arguments[1])
+                        }
+                        return apply(old, target, arguments)
+                    } 
                 }
         }
         return on(me, events, controller)
