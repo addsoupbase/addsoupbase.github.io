@@ -1,10 +1,10 @@
-//// window.h = 
+//// var h = 
 (function handle(globalThis) {
-    //// 'use strict'
+    'use strict'
     //// var queueMicrotask = globalThis.queueMicrotask || globalThis.setImmediate || setTimeout
     var MODULE = Symbol.for("[[HModule]]")
     if (globalThis[MODULE]) return globalThis[MODULE]
-     var $ = {},
+    var $ = {},
         sym = Symbol.for("[[Events]]"),
         //  Don't collide, and make sure its usable across realms!!
         apply = Reflect.apply,
@@ -160,7 +160,7 @@
     }
     $.delayedDispatch = delayedDispatch
     function wait(ms) {
-        return new Promise(resolveWithDelay.bind(1, ms))
+        return new Promise(resolveWithDelay.bind(void 0, ms))
     }
     $.wait = wait
     function resolveWithDelay(ms, resolve) {
@@ -173,8 +173,8 @@
     }
     $.dispatchEvent = dispatchEvent
     function getEventNames(target) {
-        target.hasOwnProperty(sym) || dp(target, sym, { value: new Set })
-        return target[sym]
+        var a = target.hasOwnProperty(sym) ? target[sym] : (dp(target, sym, { value: a = new Set }), a)
+        return a
     }
     $.getEventNames = getEventNames
     function hasEvent(target, eventName) {
@@ -321,7 +321,7 @@
                 autoabort && args.push(controller.abort.bind(controller))
                 args.push(off.bind(null, target, eventName))
                 var iterator = func.call(target, args[0])
-                , started = false
+                    , started = false
                 func = function (e) {
                     started || (started = iterator.next())
                     return iterator.next(e)
@@ -420,7 +420,7 @@
         args.push(off.bind(void 0, this, name))
         if (t && event.isTrusted || !t && (!originalTarget || !('originalTarget' in event) || event.originalTarget === currentTarget) && (!explicitOriginalTarget || !('explicitOriginalTarget' in event) || event.explicitOriginalTarget === currentTarget) && (!oct || (event.target || event.srcElement) === currentTarget)) {
             switch (args.length) {
-                case 2:var result = f(event, args[1])
+                case 2: var result = f(event, args[1])
                     break
                 case 3: result = f(event, args[1], args[2])
                     break
@@ -577,12 +577,12 @@
                     var target = t.target
                     var res = filter(target);
                     if ((me !== target || includeSelf) && (res == null ? true : res)) {
-                        switch(arguments.length) {
+                        switch (arguments.length) {
                             case 1: return old.call(target, t)
                             case 2: return old.call(target, t, arguments[1])
                         }
                         return apply(old, target, arguments)
-                    } 
+                    }
                 }
         }
         return on(me, events, controller)
