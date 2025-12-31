@@ -3,10 +3,18 @@
 //// self.css = 
 (function CSSSetup(inModule, w, sym, defer, D, O, id, y, rAF) {
     ////'use strict'
-    if (y.propertyIsEnumerable(sym) && D.getElementById(id) instanceof HTMLStyleElement) return y[sym]
+    if (y.propertyIsEnumerable(sym) && D.getElementById(id) instanceof HTMLStyleElement) {
+        var out = y[sym]
+        out.onerror && inModule && removeEventListener('error', out.onerror)
+        out.onerror = null
+        return out
+    }
     try { var S = sessionStorage } // it just throws on read if storage is denied
-    catch (e) { reportError(e) }
-    inModule || addEventListener('error', function n(e) { if (e.filename.endsWith('.js')) { [].forEach.call(D.querySelectorAll('script[nomodule]'), function (s) { D.head.appendChild(D.createElement('script')).src = s.src }); removeEventListener('error', n) } })
+    catch (e) { console.error(e) }
+    if (!inModule) {
+        var onerror = function(e) { if (e.filename.endsWith('.js')) { [].forEach.call(D.querySelectorAll('script[nomodule]'), function (s) { D.head.appendChild(D.createElement('script')).src = s.src }); removeEventListener('error', onerror) } }
+        addEventListener('error', onerror)
+    }
     var sup = CSS.supports,
         hasOwn = O.hasOwn,
         imp = /\s*!\s*important\s*$/,
@@ -32,7 +40,7 @@
         }
         catch (e) {
             // cross origin frame so we can't use window.top
-            reportError(e)
+            console.error(e)
             if (!S) {
                 sn = String // we can't cache
                 break dance
@@ -115,9 +123,8 @@
                 //valueOf: { value: function () { return parseFloat(this.toString()) } } 
             }
             // valueOf messes with the + operator >:(
-            var props = O.getOwnPropertyNames(String.prototype)
+            , props = O.getOwnPropertyNames(String.prototype)
             Symbol.iterator && props.push(Symbol.iterator)
-            console.time(2)
             for (var i = props.length; i--;) {
                 var prop = props[i]
                 typeof ''[prop] === 'function' && prop !== 'toString' && prop !== 'valueOf' && prop !== 'constructor' && hi(prop)
@@ -144,12 +151,12 @@
                     value: value
                 }
             }
-            function b(_, v) { return Object(v.replace(imp, '')) }
+            function b(_, v) { return O(v.replace(imp, '')) }
         }(w.CSSStyleValue && CSSStyleValue.parse)
         str = str.trim()
         var a = str.match(semicolon) || str.slice(0, -1).match(semicolon)
             , o = this
-        var n = { writable: true, configurable: true }
+        var n = { writable: true, configurable: true, value: null, enumerable: false }
         if (a) for (var h = a.length; h--;) {
             var hi = a[h]
                 , strings = hi.split(url).filter(Boolean)
@@ -313,9 +320,15 @@
         //// console.count('textContent queue')
         //// console.debug(batch.length)
     }
+    var violated = false
+    function violation() {
+        violated = true
+        write(this.textContent)
+    }
+    var added = false
     function write(text) {
         if (!violated) {
-            sheet.onsecuritypolicyviolation = violation
+            added || (added = !!(sheet.onsecuritypolicyviolation = violation))
             sheet.textContent += text
         }
         else {
@@ -360,11 +373,6 @@
         n.href = url
         return put(n)
     }*/
-    var violated = false
-    function violation() {
-        violated = true
-        write(this.textContent)
-    }
     function Sheet() {
         var o = D.getElementById(id)
         if (o) return o
@@ -533,7 +541,7 @@
     var str
     // finally { performance.mark('css-other-end') }
     write(name || (sn(str = selector + "{" + toCSS(uv, true) + "}" + newName), id + str))
-    var css =  ////Object.freeze
+    var css =  ////Object.seal
         ({
             getDefaultStyleSheet: Sheet,
             registerCSSRaw: registerCSSRaw,
@@ -558,7 +566,8 @@
             fixSheet: fixSheet,
             get queue() { return batch },
             checkSheets: defer.bind(this, [].forEach.bind(D.styleSheets, fixSheet)),
-            fromCSS: fromCSS
+            fromCSS: fromCSS,
+            onerror: onerror
         })
     y[sym] || O.defineProperty(y, sym, { value: css, enumerable: 1 })
     // console.debug(performance.measure('css-cache','css-cache-start', 'css-cache-end').toJSON(), performance.measure('css-property', 'css-property-start', 'css-property-end').toJSON())

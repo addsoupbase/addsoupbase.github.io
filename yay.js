@@ -41,7 +41,7 @@ function from(ArrayLike, map, thisArg) {
 function debounce(func, interval) {
     let waiting = false
         , st = setTimeout.bind(window, enable, interval),
-        app = apply.bind(1, func)
+        app = apply.bind(void 0, func)
     return DebouncedFunction
     function enable() {
         waiting = false
@@ -1458,16 +1458,20 @@ export function prox(target) {
             ; (target instanceof HTMLUnknownElement ||
                 target.ownerDocument.defaultView?.HTMLUnknownElement.prototype.isPrototypeOf(target)) &&
                 (console.warn(`Unknown element: '${target.tagName.toLowerCase()}'`))
-        revokes_set(proxy, RevokeAllProxies.bind(1, revoke, childRevoke, attrRevoke, batchRevoke, querySelectorRevoke))
+        revokes_set(proxy, RevokeAllProxies.bind(void 0, revoke, childRevoke, attrRevoke, batchRevoke, querySelectorRevoke))
         all_set(target, proxy)
         return proxy
     }
     return all_get(target)
 }
 
-function RevokeAllProxies(...args) {
+function RevokeAllProxies(a,b,c,d,e) {
     //  Make sure we have *NO* possible references left
-    args.forEach(apply)
+   a()
+   b()
+   c()
+   d()
+   e()
 }
 function getValid(target) {
     return !!target && target.nodeType === 1
@@ -1566,7 +1570,7 @@ export function escapeHTML(str) {
         .textContent = str //textContent does it for you lol
     return a.innerHTML
 }
-const NO_INLINE = TypeError.bind(1, 'Inline event handlers are deprecated')
+const NO_INLINE = TypeError.bind(void 0, 'Inline event handlers are deprecated')
 /**
  * ## Use tagged templates when string is user input
  */
@@ -1618,7 +1622,7 @@ function $(html, props, ...children) {
                <afterend>
     */
     if (props && !getValid(props) && typeof props !== 'string') {
-        let reuse = assignIfOwn.bind(1, props, element)
+        let reuse = assignIfOwn.bind(void 0, props, element)
         reuse('parent')
         hasOwn(props, 'events') && element.on(props.events)
         TEXT_THINGIES.forEach(reuse)

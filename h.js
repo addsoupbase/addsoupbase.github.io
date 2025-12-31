@@ -125,7 +125,6 @@
         }
         return original
     }
-
     var delayedEvents = new Map
         , giveItSomeTime = function (hold, secondparam) {
             hold === globalThis.requestIdleCallback &&
@@ -421,9 +420,9 @@
         args.push(off.bind(void 0, this, name))
         if (t && event.isTrusted || !t && (!originalTarget || !('originalTarget' in event) || event.originalTarget === currentTarget) && (!explicitOriginalTarget || !('explicitOriginalTarget' in event) || event.explicitOriginalTarget === currentTarget) && (!oct || (event.target || event.srcElement) === currentTarget)) {
             switch (args.length) {
-                case 2:var result = f(args[0], args[1])
+                case 2:var result = f(event, args[1])
                     break
-                case 3: result = f(args[0], args[1], args[2])
+                case 3: result = f(event, args[1], args[2])
                     break
                 default: result = apply(f, void 0, args)
             }

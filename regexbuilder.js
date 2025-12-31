@@ -87,7 +87,7 @@ var r = function () {
             let value = TypeError.bind(globalThis, 'Cannot quantify a quantifier')
             'min max min_max'.split(' ').forEach(o => {
                 Object.defineProperty(Quantifier.prototype, o, {
-                    value
+                    get: value
                 })
             })
         }

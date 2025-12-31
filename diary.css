@@ -1,23 +1,35 @@
 @import url('./chococooky.css');
 @namespace svg url("http://www.w3.org/2000/svg");
-   video {
-    max-width: 100%;
-   }
+
+video {
+  max-width: 100%;
+}
+
 .avatar {
   width: 125px;
-  margin:10px;
+  max-height: fit-content ;
+  margin: 10px;
   height: 125px;
   border-radius: 100%;
   /* max-width: 100%; */
 }
+
 figure {
   justify-self: center;
 }
-html{
+
+html {
   scrollbar-width: thin;
   --scrollbar-thumb-color: #5ACBCD;
   --scrollbar-color: rgb(244, 223, 226);
   /* font-size: smaller; */
+}
+
+article, main, img, div {
+  max-width: 100%;
+}
+img {
+  min-width: 40px;
 }
 #m {
   place-items: center;
@@ -27,24 +39,29 @@ html{
   margin-block: 0.67em;
   font-size: 2em;
 }
+
 hr {
   border-style: dashed;
-    border-color: black;
+  border-color: black;
 }
+
 iframe {
-  width:100%
+  width: 100%
 }
+
 body,
 html {
   padding: 0;
   margin: 0;
   /* overflow-x: hidden; */
 }
+
 .emoji {
   image-rendering: pixelated;
   width: 80px;
   height: 80px;
 }
+
 body {
   margin: 10px
 }
