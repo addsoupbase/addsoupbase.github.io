@@ -532,7 +532,7 @@
             }
             if (typeof events === 'string') events = events.split(' ')
             for (var i = events.length; i--;) e[events[i]] = onsuccess
-            if (failures) for (var i = (failures = typeof failures === 'string' ? failures.split(' ') : failures).length; i--;) e[failures[i]] = onfail || (onfail =
+            if (failures) for (var i = (failures = typeof failures === 'string' ? failures.split(' ') : failures).length,onfail; i--;) e[failures[i]] = onfail || (onfail =
                 function onfail(event, abort) {
                     if (filterResult(event, filter))
                         try {
