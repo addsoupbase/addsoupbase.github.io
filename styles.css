@@ -444,6 +444,7 @@ input[type=image]:active {
   max-height: 62vh;
   min-height: 180px;
   max-width: 80vw;
+  max-width:800px;
   height: 58vh;
   overflow-y: scroll;
 }

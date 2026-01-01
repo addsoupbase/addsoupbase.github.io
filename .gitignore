@@ -54,3 +54,4 @@ html.js
 bun.*
 benchmark/
 uncensor
+entrymaker/

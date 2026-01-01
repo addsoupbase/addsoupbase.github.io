@@ -38,28 +38,28 @@ if (await exists(path)) throw Error(`Entry already exists for today (${now})`)
 let template = await Deno.readFile('./template.html')
 let decoder = new TextDecoder('utf-8')
 let txt = decoder.decode(template)
-    .replace(/DATE_FOR_TODAY/g, today.toDateString().replace(dayName, repDate).replace(monthName, repMonth))
-    .replace(/ISO_DATE_TODAY/g, today.toISOString())
-    .replace(/\.\/main\.png/g, `https://addsoupbase.github.io/entries/${now}/main.png`)
-    .replace(/THEME_COLOR/g, randomColor())
+    // .replace(/DATE_FOR_TODAY/g, today.toDateString().replace(dayName, repDate).replace(monthName, repMonth))
+    // .replace(/ISO_DATE_TODAY/g, today.toISOString())
+    // .replace(/\.\/main\.png/g, `https://addsoupbase.github.io/entries/${now}/main.png`)
+    // .replace(/THEME_COLOR/g, randomColor())
 let yesterday = new Date
 yesterday.setDate(yesterday.getDate() - 1)
 let tomorrow = new Date
 tomorrow.setDate(tomorrow.getDate() + 1)
 txt = txt
-    .replace(/DATE_FOR_YESTERDAY/g, yesterday.toLocaleDateString().replace(slashes, '_').replace(dayName, repDate).replace(monthName, repMonth))
-    .replace(/DATE_FOR_TOMORROW/g, tomorrow.toLocaleDateString().replace(slashes, '_').replace(dayName, repDate).replace(monthName, repMonth))
+    // .replace(/DATE_FOR_YESTERDAY/g, yesterday.toLocaleDateString().replace(slashes, '_').replace(dayName, repDate).replace(monthName, repMonth))
+    // .replace(/DATE_FOR_TOMORROW/g, tomorrow.toLocaleDateString().replace(slashes, '_').replace(dayName, repDate).replace(monthName, repMonth))
 await Deno.mkdir(path)
-await Deno.writeTextFile(`${path}/index.html`, txt)
+await Deno.writeTextFile(`${path}/bun.index.html`, txt)
 console.log('Created entry for today!')
 let d = (await Array.fromAsync(Deno.readDir('./entries'), o => new Date(o.name.replaceAll('_', '-'))))
 await Deno.writeTextFile('./dates.json', JSON.stringify(
     d.sort((a, b) => a - b).map(o => o.toISOString())
 ))
-let n = await Deno.readTextFile('./nojs.html')
-let regex = `<div id="links"></div>`
-n =n.replace(regex,  `<div id="links">${d.map(o => `<a target="Diary" href="./entries/${toNormal(o)}">${o.toLocaleDateString()}</a>`).join('')}</div>`)
-await Deno.writeTextFile('./nojs.html', n)
+// let n = await Deno.readTextFile('./nojs.html')
+// let regex = `<div id="links"></div>`
+// n =n.replace(regex,  `<div id="links">${d.map(o => `<a target="Diary" href="./entries/${toNormal(o)}">${o.toLocaleDateString()}</a>`).join('')}</div>`)
+// await Deno.writeTextFile('./nojs.html', n)
 function toNormal(date) {
     let out = `${date.getMonth() + 1}_${String(date.getDate())}_${date.getFullYear()}`
     return out
