@@ -1,7 +1,7 @@
 import '../css.js'
 const { registerCSS } = window[Symbol.for('[[CSSModule]]')]
 import { until } from "../handle.js"
-import { jason } from '../arrays.js'
+// import { jason } from '../arrays.js'
 let bubble = Object.assign(new Image, {
     src: './media/bubble.webp'
 })
@@ -87,17 +87,6 @@ export let pkm = new Promise(async (resolve) => {
 })
 let st = { events: 'load error'.split(' ') }
 export let time = new Promise(async (resolve) => {
-    avatars = (await Promise.allSettled((await jason('./allava.json')).map(
-        async function (o) {
-            let n = new Image
-            let blob = await (await fetch(`./media/avatars/${o}`)).blob()
-            n.src = URL.createObjectURL(blob)
-            n.title = o
-            await Promise.all([until(n, st), n.decode()])
-            return n
-        }
-    ))).filter(o => o.status === 'fulfilled').map(o => o.value)
-    console.debug("🪪 Avatars loaded")
     if (birthday) {
         console.log('%cOMG ITS MY BIRTHDAY YAYYY 🎂🎂', 'font-size:2em;')
         if (!bubble.complete) await Promise.all([until(bubble, { events: 'load' }), bubble.decode()])

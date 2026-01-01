@@ -5,7 +5,7 @@ let regex = /[\w.\-%汝起亚]+\.(?:webp|a?png|gif|jpe?g)/
 let all = document.getElementsByTagName('*')
 function isHidden() {//violations >= 10 || 
     return all.length > 135 || hidden || !!document.fullscreenElement || document.hidden || document.visibilityState === 'hidden'
-}
+} 
 async function images({ time, pkm, colorful, birthday }) {
     await audio.load('./media/pop.mp3')
     if (birthday) {
@@ -91,7 +91,7 @@ async function images({ time, pkm, colorful, birthday }) {
     }
     function bubbleWithAva(image = cycle.next) {
         if (isHidden()) return
-        const { src } = image
+        const  src = `./media/avatars/${image}`
         let n = $('div.bubble.pop', {
             attr: {
                 style: 'z-index:3;',
@@ -135,7 +135,7 @@ async function images({ time, pkm, colorful, birthday }) {
                 _hidden: 'true',
                 width: 50,
                 height: 50,
-                title: image.title,
+                title: image,
                 draggable: false
             }
         })
@@ -302,7 +302,8 @@ async function images({ time, pkm, colorful, birthday }) {
     snowflakes()
     let cycle
     let mons
-    time.then(avatars => {
+    time.then(() => {
+        let avatars = ["river.webp","rikapika.webp","chlorineatt.webp","rainmint.webp","son_yukio.webp","aya.webp","may.webp","mila.webp","xzzy.webp","Dohaaa.webp","saintz.webp","elenfnf1.webp","niya.webp","mothmaddie.webp","kae.webp","lorex.webp","caelix.webp","lunza.webp","zee.webp","MRK.webp","kannadra.webp","rue.webp","znsxxe.webp","juaj.webp","ilikebugs2.webp","Professional_idiot.webp","gummicat.webp","kurispychips.webp","fourche7.webp","stav.webp","mochi.webp","khaoticgood.webp","stuella.webp","Lotus.webp","ka1ya1.webp","babby.webp","mai.webp","frannie4u.webp","ghostie.webp","glente.webp","Remi.webp","na22.webp","汝起亚.webp","valerie.webp","oli.webp","crazy.webp","zrake.webp","armaan.n.webp","auquamantis.webp","elipoopsrainbows.webp","lazy.webp","rurikuu.webp","novacans_.webp","naz.webp","west.webp","indie.webp","Lagia.webp","zoozi.webp","caevsz.webp","Violet.webp","kay_.stars.webp","morrfie.webp","kyn.webp","nova.webp","copy.webp","mr_clownette.webp","birdie.webp","lexi.webp","anarchy.webp","Leftover_Birthday-Cake.webp","gilly.webp"]
         cycle = math.cycle(...ran.shuffle(...avatars))
         setInterval(bubbleWithAva, 2000)
     })

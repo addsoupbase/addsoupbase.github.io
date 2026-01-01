@@ -5,14 +5,13 @@
     ////'use strict'
     if (y.propertyIsEnumerable(sym) && D.getElementById(id) instanceof HTMLStyleElement) {
         var out = y[sym]
-        out.onerror && inModule && removeEventListener('error', out.onerror)
-        out.onerror = null
+        out.onerror && inModule && (removeEventListener('error', out.onerror), out.onerror = null)
         return out
     }
     try { var S = sessionStorage } // it just throws on read if storage is denied
     catch (e) { console.error(e) }
     if (!inModule) {
-        var onerror = function(e) { if (e.filename.endsWith('.js')) { [].forEach.call(D.querySelectorAll('script[nomodule]'), function (s) { D.head.appendChild(D.createElement('script')).src = s.src }); removeEventListener('error', onerror) } }
+        var onerror = function (e) { if (e.filename.endsWith('.js')) { [].forEach.call(D.querySelectorAll('script[nomodule]'), function (s) { D.head.appendChild(D.createElement('script')).src = s.src }); removeEventListener('error', onerror) } }
         addEventListener('error', onerror)
     }
     var sup = CSS.supports,
@@ -122,8 +121,8 @@
             var proto = {
                 //valueOf: { value: function () { return parseFloat(this.toString()) } } 
             }
-            // valueOf messes with the + operator >:(
-            , props = O.getOwnPropertyNames(String.prototype)
+                // valueOf messes with the + operator >:(
+                , props = O.getOwnPropertyNames(String.prototype)
             Symbol.iterator && props.push(Symbol.iterator)
             for (var i = props.length; i--;) {
                 var prop = props[i]
@@ -388,7 +387,7 @@
         return p.appendChild(e)
     }
     function registerCSSAll(rules) {
-        for (var i in rules)
+        for (var i in rules) //// assertǃ(rules.hasOwnProperty(i)),
             registerCSS(i, rules[i])
     }
     function sel(rule, doCache) {

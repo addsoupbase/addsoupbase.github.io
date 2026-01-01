@@ -532,26 +532,24 @@
             }
             if (typeof events === 'string') events = events.split(' ')
             for (var i = events.length; i--;) e[events[i]] = onsuccess
-            if (failures)
-                for (var i = (failures = typeof failures === 'string' ? failures.split(' ') : failures).length; i--;) e[failures[i]] = onfail
-            function onfail(event, abort) {
-                if (filterResult(event, filter))
-                    try {
-                        reject(event)
-                    } catch (e) {
-                        reportError(e)
-                    } finally {
-                        timeout && clearTimeout(id)
-                        abort()
-                    }
-            }
+            if (failures) for (var i = (failures = typeof failures === 'string' ? failures.split(' ') : failures).length; i--;) e[failures[i]] = onfail || (onfail =
+                function onfail(event, abort) {
+                    if (filterResult(event, filter))
+                        try {
+                            reject(event)
+                        } catch (e) {
+                            reportError(e)
+                        } finally {
+                            timeout && clearTimeout(id)
+                            abort()
+                        }
+                })
             on(target, e, controller)
         }
     }
     $.until = until
     var objectURLS,
         registry
-
     function getObjUrl(thingy) {
         if ((objectURLS = objectURLS || new WeakMap).has(thingy)) return objectURLS.get(thingy)
         var url = URL.createObjectURL(thingy);
