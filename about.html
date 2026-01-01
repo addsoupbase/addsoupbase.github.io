@@ -91,7 +91,7 @@
                 </div>
                 <div class="descrHolder">
                     <p>I am...</p>
-                    <h1 id="age">~18</h1><time class="small" id="bday">June 17 2007</time>
+                    <h1 id="age">18 years old</h1><time class="small" id="bday">June 17 2007</time>
                 </div>
             </div>
         </section><a aria-keyshortcuts="Alt+Shift+B" role="button" class="cute-green-button back" href="main.html" rel="prev">Back</a>
@@ -130,21 +130,6 @@
                 </script>-->
         </div>
     </main>
-    <script type="module">
-        import $ from './yay.js'
-        import { wait } from './handle.js'
-        const { main } = $.byId
-        const bday = new Date(2007, 6 - 1, 17)
-        $.id.age.textContent = `${new Date().getFullYear() - bday.getFullYear()} years old`
-        /*
-              // main.fadeFromTo(0, .95)
-              console.log('spinda misdreavus mawile delcatty masquerain shedinja clamperl swoobat gourgeist minior trapinch pheromosa meloetta cherrim aegislash zygarde wobbuffet tinkaton ogerpon surskit darmanitan'
-                  .split(' ').map(generateImages).join('\n'))
-              function generateImages(o) {
-                  return `<img loading="lazy" decoding="async" class="pkm ${o}" src="./media/sprites/${o}.gif" alt="${o}" title="${o}">`
-              }
-                  */
-    </script>
 
 </body>
 
