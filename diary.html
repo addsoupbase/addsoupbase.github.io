@@ -104,17 +104,18 @@
                 style="display: grid;place-items: center;place-self:center;width:var(--stretch);max-width:70vw !important;max-width:800px;margin:auto">
                 <input class="cute-green" style="font-size:20px;margin:20px;" id="diary-heading" type="date"
                     min="2025-04-07" value="2026-01-01">
-                <time style="z-index: 3;" datetime="2026-01-01T05:00:00.000Z" id="timeElt">Thu Jan 01 2026</time>
+                <time style="z-index: 3;" datetime="2026-01-01T05:00:00.000Z"
+                    id="timeElt">Thu Jan 01 2026</time>
                 <script>
                     !function (time, input, h) {
                         'use strict'
                         h.on(input, {
                             change: function () {
                                 var format = this.value.split('-')
-                                , year = format[0]
-                                , month = format[1]
-                                , day = format[2]
-                                , date = new Date([month, day, year].join('/'))
+                                    , year = format[0]
+                                    , month = format[1]
+                                    , day = format[2]
+                                    , date = new Date([month, day, year].join('/'))
                                 time.textContent = date.toDateString()
                                 time.setAttribute('datetime', date.toISOString())
                             }
@@ -137,10 +138,11 @@
                     <samp style="color:#631414;">Error
                     </samp>
                 </h2>
-                <iframe allowfullscreen allow="fullscreen *; local-fonts *; autoplay *;" aria-relevant="all"
-                    aria-live="assertive" id="display" name="Diary" title="Diary"
-                    style="width: 99%;height: 100%;border: none;"
-                    src="entries/1_1_2026/index.html"></iframe>
+                <div style="display: contents;" aria-live="polite" aria-relevant="all">
+                    <iframe allowfullscreen allow="fullscreen *; local-fonts *; autoplay *;" id="display" name="Diary"
+                        title="Diary" style="width: 99%;height: 100%;border: none;"
+                        src="entries/1_1_2026/index.html"></iframe>
+                </div>
                 <script>
                     !function () {
                         'use strict'
@@ -357,9 +359,13 @@
         }
         load = load.bind(frame)
         frame.on({
-            '%!load': load,
-            error: console.warn
-        })
+            '#load'() {
+                frame.on({
+                    '%!load': load,
+                    error: console.warn
+                })
+            }
+        }, new AbortController)
         // frame.hide(2)
         function toYMDFormat(d) {
             // fucking hate this stupid shitty Date API holy shit it's not even funny gng
