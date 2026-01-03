@@ -299,7 +299,7 @@ async function images({ time, pkm, colorful, birthday }) {
         isHidden() || makeSnowflake()
     }
     tinyBubbles()
-    snowflakes()
+    // snowflakes()
     let cycle
     let mons
     time.then(() => {
