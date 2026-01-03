@@ -1,4 +1,4 @@
-VM82057 css.js:542 @namespace svg url('http://www.w3.org/2000/svg');
+@namespace svg url('http://www.w3.org/2000/svg');
 
 @media(prefers-reduced-transparency:reduce) {
     * {
@@ -182,4 +182,550 @@ input[type=range]:active,
 .center_absolute_y {
     top: 50%;
     transform: translateY(-50%);
+}
+
+@property --user-select {
+    syntax: "*";
+    inherits: true;
+    initial-value: auto
+}
+
+@property --user-modify {
+    syntax: "*";
+    inherits: false;
+    initial-value: auto
+}
+
+@property --zoom {
+    syntax: "*";
+    inherits: false;
+    initial-value: auto
+}
+
+@property --user-drag {
+    syntax: "*";
+    inherits: true;
+    initial-value: auto
+}
+
+@property --user-input {
+    syntax: "*";
+    inherits: true;
+    initial-value: auto
+}
+
+@property --box-reflect {
+    syntax: "*";
+    inherits: false;
+    initial-value: none
+}
+
+@property --text-stroke-color {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: currentcolor
+}
+
+@property --text-stroke-width {
+    syntax: "<length>";
+    inherits: false;
+    initial-value: 0
+}
+
+@property --text-security {
+    syntax: "*";
+    inherits: false;
+    initial-value: none
+}
+
+@property --text-fill-color {
+    syntax: "*";
+    inherits: true;
+    initial-value: currentcolor
+}
+
+@property --tap-highlight-color {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: rgb(0, 0, 0, 0.18)
+}
+
+@property --touch-callout {
+    syntax: "*";
+    inherits: true;
+    initial-value: auto
+}
+
+@property --user-focus {
+    syntax: "*";
+    inherits: false;
+    initial-value: none
+}
+
+@property --initial-letter {
+    syntax: "*";
+    inherits: false;
+    initial-value: normal
+}
+
+@property --overflow-style {
+    syntax: "*";
+    inherits: true;
+    initial-value: auto
+}
+
+@property --input-security {
+    syntax: "*";
+    inherits: false;
+    initial-value: auto
+}
+
+@property --caret-animation {
+    syntax: "*";
+    inherits: true;
+    initial-value: auto
+}
+
+@property --cursor-visibility {
+    syntax: "*";
+    inherits: true;
+    initial-value: auto
+}
+
+@property --continue {
+    syntax: "*";
+    inherits: false;
+    initial-value: auto
+}
+
+@property --content-visibility {
+    syntax: "*";
+    inherits: false;
+    initial-value: visible
+}
+
+@property --max-logical-height {
+    syntax: "*";
+    inherits: false;
+    initial-value: none
+}
+
+@property --min-logical-height {
+    syntax: "*";
+    inherits: false;
+    initial-value: none
+}
+
+@property --max-logical-width {
+    syntax: "*";
+    inherits: false;
+    initial-value: none
+}
+
+@property --min-logical-width {
+    syntax: "*";
+    inherits: false;
+    initial-value: none
+}
+
+@property --color-rendering {
+    syntax: "*";
+    inherits: false;
+    initial-value: auto
+}
+
+@property --word-wrap {
+    syntax: "*";
+    inherits: false;
+    initial-value: normal
+}
+
+@property --locale {
+    syntax: "*";
+    inherits: true;
+    initial-value: auto
+}
+
+@property --line-grid {
+    syntax: "*";
+    inherits: true;
+    initial-value: auto
+}
+
+@property --line-snap {
+    syntax: "*";
+    inherits: true;
+    initial-value: auto
+}
+
+@property --nbsp-mode {
+    syntax: "*";
+    inherits: true;
+    initial-value: auto
+}
+
+@property --text-zoom {
+    syntax: "*";
+    inherits: true;
+    initial-value: auto
+}
+
+@property --line-align {
+    syntax: "*";
+    inherits: true;
+    initial-value: auto
+}
+
+@property --text-decorations-in-effect {
+    syntax: "*";
+    inherits: false;
+    initial-value: auto
+}
+
+@property --force-broken-image-icon {
+    syntax: "<integer>";
+    inherits: false;
+    initial-value: 0
+}
+
+@property --float-edge {
+    syntax: "*";
+    inherits: false;
+    initial-value: content-box
+}
+
+@property --image-region {
+    syntax: "*";
+    inherits: true;
+    initial-value: auto
+}
+
+@property --box-orient {
+    syntax: "*";
+    inherits: false;
+    initial-value: inline-axis
+}
+
+@property --box-align {
+    syntax: "*";
+    inherits: false;
+    initial-value: stretch
+}
+
+@property --box-direction {
+    syntax: "*";
+    inherits: false;
+    initial-value: normal
+}
+
+@property --box-flex {
+    syntax: "*";
+    inherits: false;
+    initial-value: 0
+}
+
+@property --box-flex-group {
+    syntax: "*";
+    inherits: false;
+    initial-value: 0
+}
+
+@property --box-lines {
+    syntax: "*";
+    inherits: false;
+    initial-value: single
+}
+
+@property --box-ordinal-group {
+    syntax: "*";
+    inherits: false;
+    initial-value: 1
+}
+
+@property --box-decoration-break {
+    syntax: "*";
+    inherits: false;
+    initial-value: slice
+}
+
+@property --box-pack {
+    syntax: "*";
+    inherits: false;
+    initial-value: start
+}
+
+@property --line-clamp {
+    syntax: "*";
+    inherits: false;
+    initial-value: none
+}
+
+@property --font-smoothing {
+    syntax: "*";
+    inherits: true;
+    initial-value: auto
+}
+
+@property --mask-position-x {
+    syntax: "<length-percentage>";
+    inherits: false;
+    initial-value: 0%
+}
+
+@property --mask-position-y {
+    syntax: "<length-percentage>";
+    inherits: false;
+    initial-value: 0%
+}
+
+@property --window-dragging {
+    syntax: "*";
+    inherits: false;
+    initial-value: auto
+}
+
+@property --stack-sizing {
+    syntax: "*";
+    inherits: true;
+    initial-value: stretch-to-fit
+}
+
+@property --mask-composite {
+    syntax: "*";
+    inherits: false;
+    initial-value: source-over
+}
+
+@property --window-shadow {
+    syntax: "*";
+    inherits: false;
+    initial-value: auto
+}
+
+@property --outline-radius {
+    syntax: "*";
+    inherits: false;
+    initial-value: 0 0 0 0
+}
+
+@property --binding {
+    syntax: "*";
+    inherits: false;
+    initial-value: none
+}
+
+@property --text-blink {
+    syntax: "*";
+    inherits: false;
+    initial-value: none
+}
+
+@property --image-rect {
+    syntax: "*";
+    inherits: true;
+    initial-value: auto
+}
+
+@property --content-zoom-limit {
+    syntax: "*";
+    inherits: false;
+    initial-value: 400% 100%
+}
+
+@property --accelerator {
+    syntax: "*";
+    inherits: false;
+    initial-value: 0
+}
+
+@property --context-properties {
+    syntax: "*";
+    inherits: true;
+    initial-value: none
+}
+
+@property --text-kashida-space {
+    syntax: "<percentage>";
+    inherits: true;
+    initial-value: 0%
+}
+
+@property --interpolation-mode {
+    syntax: "*";
+    inherits: false;
+    initial-value: none
+}
+
+@property --progress-appearance {
+    syntax: "*";
+    inherits: false;
+    initial-value: bar
+}
+
+@property --content-zooming {
+    syntax: "*";
+    inherits: false;
+    initial-value: auto
+}
+
+@property --flow-from {
+    syntax: "*";
+    inherits: false;
+    initial-value: none
+}
+
+@property --flow-into {
+    syntax: "*";
+    inherits: false;
+    initial-value: none
+}
+
+@property --content-zoom-chaining {
+    syntax: "*";
+    inherits: false;
+    initial-value: none
+}
+
+@property --high-contrast-adjust {
+    syntax: "*";
+    inherits: true;
+    initial-value: auto
+}
+
+@property --touch-select {
+    syntax: "*";
+    inherits: true;
+    initial-value: grippers
+}
+
+@property --ime-mode {
+    syntax: "*";
+    inherits: false;
+    initial-value: auto
+}
+
+@property --wrap-through {
+    syntax: "*";
+    inherits: false;
+    initial-value: wrap
+}
+
+@property --print-color-adjust {
+    syntax: "*";
+    inherits: true;
+    initial-value: economy
+}
+
+@property --pay-button-style {
+    syntax: "*";
+    inherits: false;
+    initial-value: white
+}
+
+@property --color-filter {
+    syntax: "*";
+    inherits: true;
+    initial-value: none
+}
+
+@property --pay-button-type {
+    syntax: "*";
+    inherits: false;
+    initial-value: plain
+}
+
+@property --visual-effect {
+    syntax: "*";
+    inherits: true;
+    initial-value: none
+}
+
+@property --text-spacing-trim {
+    syntax: "*";
+    inherits: true;
+    initial-value: normal
+}
+
+@property --text-group-align {
+    syntax: "*";
+    inherits: false;
+    initial-value: none
+}
+
+@property --text-autospace {
+    syntax: "*";
+    inherits: true;
+    initial-value: normal
+}
+
+@property --orient {
+    syntax: "*";
+    inherits: false;
+    initial-value: inline
+}
+
+@property --ruby-overhang {
+    syntax: "*";
+    inherits: true;
+    initial-value: auto
+}
+
+@property --max-lines {
+    syntax: "*";
+    inherits: false;
+    initial-value: none
+}
+
+@property --line-fit-edge {
+    syntax: "*";
+    inherits: true;
+    initial-value: leading
+}
+
+@property --overflow-scrolling {
+    syntax: "*";
+    inherits: false;
+    initial-value: auto
+}
+
+@property --column-progression {
+    syntax: "*";
+    inherits: false;
+    initial-value: auto
+}
+
+@property --dashboard-region {
+    syntax: "*";
+    inherits: false;
+    initial-value: none
+}
+
+@property --column-axis {
+    syntax: "*";
+    inherits: false;
+    initial-value: auto
+}
+
+@property --text-size-adjust {
+    syntax: "*";
+    inherits: true;
+    initial-value: auto
+}
+
+@property --border-vertical-spacing {
+    syntax: "*";
+    inherits: false;
+    initial-value: auto
+}
+
+@property --buffered-rendering {
+    syntax: "*";
+    inherits: false;
+    initial-value: auto
+}
+
+@property --behaviour {
+    syntax: "<url>";
+    inherits: false;
+    initial-value: url()
 }
