@@ -196,10 +196,10 @@ window.addEventListener('load',
             o = $(o)
             let hasAlt = 'alt' in o.attr,
                 hasTitle = 'title' in o.attr
-            if (hasAlt && !hasTitle)
-                o.attr.title = o.attr.alt
-            else if (hasTitle && !hasAlt)
-                o.attr.alt = o.attr.title
+           if (hasTitle && !hasAlt) {
+            o.attr.alt = o.attr.title
+            delete o.attr.title // Screen readers might read both title and alt
+           }
             else if (!(hasTitle || hasAlt)) {
                 o.attr._hidden = 'true' // Screen readers might literally read the src attribute as words
                 console.warn('Missing alt or title attribute:', o.valueOf())

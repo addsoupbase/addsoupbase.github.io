@@ -111,7 +111,7 @@ let { submit: form } = $.byId
 // )
 
 function disableForm(res) {
-    if (!res?.ok) form.parent.parent.replace($(`<samp style="position: fixed;top: 50%;font-size: 1.3em;">Can't send stuff right now...<br> try again later love :(</samp>`)).destroy()
+    if (!res?.ok) form.parent.parent.replace($(`<samp style="position: fixed;top: 70%;font-size: 1.3em;">Can't send stuff right now...<br> try again later love :(</samp>`)).destroy()
 }
 
 form.on({

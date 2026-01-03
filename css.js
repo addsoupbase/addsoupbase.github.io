@@ -5,7 +5,7 @@
     ////'use strict'
     if (y.propertyIsEnumerable(sym) && D.getElementById(id) instanceof HTMLStyleElement) {
         var out = y[sym]
-        out.onerror && inModule && (removeEventListener('error', out.onerror), out.onerror = null)
+        inModule && out.onerror &&  (removeEventListener('error', out.onerror), out.onerror = null)
         return out
     }
     try { var S = sessionStorage } // it just throws on read if storage is denied
@@ -125,8 +125,9 @@
                 , props = O.getOwnPropertyNames(String.prototype)
             Symbol.iterator && props.push(Symbol.iterator)
             for (var i = props.length; i--;) {
-                var prop = props[i]
-                typeof ''[prop] === 'function' && prop !== 'toString' && prop !== 'valueOf' && prop !== 'constructor' && hi(prop)
+                var prop = props[i],
+                z = ''[prop]
+                typeof z === 'function' && prop !== 'toString' && prop !== 'valueOf' && prop !== 'constructor' && hi(prop, z)
             }
             return parse ? a : b
             function a(p, v) {
@@ -134,15 +135,14 @@
                 // (or just convert it to a string first)
                 return O.defineProperty(O.defineProperties(parse(p, v.replace(imp, '')), proto), 'length', { value: v.length })
             }
-            function hi(prop) {
+            function hi(prop, l) {
                 function value(a, b, c) {
-                    var l = ''[prop]
-                        , s = this.toString()
+                    var s = this.toString()
                     if (prop !== 'concat') switch (l.length) {
-                        case 0: return l.call(s)
-                        case 1: return l.call(s, a)
-                        case 2: return l.call(s, a, b)
-                        case 3: return l.call(s, a, b, c)
+                        case 0: return s[prop]()
+                        case 1: return s[prop](a)
+                        case 2: return s[prop](a, b)
+                        case 3: return s[prop](a, b, c)
                     }
                     return Reflect.apply(l, s, arguments)
                 }
@@ -471,7 +471,7 @@
                 reuse.syntax = sx
                 func(reuse)
             }
-            else fallback.set(name, vendor(name.slice(2), 'inherit'))
+            else fallback.set(name, vendor(name.substring(2), 'inherit'))
         }
         var reuse = {
             name: '',

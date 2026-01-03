@@ -20,7 +20,7 @@
         v.setAttribute('volume', v.volume = volume * (v.dataset.volumecontrol ?? 1), 1)
     }
     // const ctx = Reflect.construct(window.AudioContext || webkitAudioContext, [{
-    latencyHint: 'interactive'
+    // latencyHint: 'interactive'
     // }])
     // audio.context = ctx
     // let gain = ctx.createGain()
@@ -89,7 +89,10 @@
 
     // }
     let out = (Object.defineProperty(constructor.prototype, 'audio', { get() { return audio } }),
-        Object.freeze(audio))
+        ////Object.freeze(
+            audio
+        ////)
+    )
     dispatchEvent(new Event('audio-loaded'))
     return out
 }()

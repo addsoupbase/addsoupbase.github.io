@@ -163,6 +163,9 @@ async function images({ time, pkm, colorful, birthday }) {
             duration: dura * image[wid],
             iterations: 1 / 0
         })
+        // if (ran.jackpot(10)) {
+            // me.classList.add('farther')
+        // }
         ran.jackpot(1000) && me.classList.add('shiny')
         return me
     }

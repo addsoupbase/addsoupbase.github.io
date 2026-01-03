@@ -84,7 +84,7 @@
         </style>
         <meta content='0;url=nojs.html' http-equiv='refresh'>
     </noscript>
-    <script src="h.js" name="bad"></script>
+    <script src="h.js"></script>
     <!--https://wiki.whatwg.org/wiki/MetaExtensions-->
     <!--[if lt IE 9]>
            <a href='nojs.html'>Click if you are not redirected</a>
@@ -94,19 +94,35 @@
 
 <body class="cute-green" id="main" style="justify-items: center">
     <!-- <script src="fallback.js"></script> -->
-
     <main class="center " style="margin: 0;width:100%">
         <a class="cute-green-button back" href="main.html" role="button" rel="prev"
             aria-keyshortcuts="Alt+Shift+B">Back</a>
         <!-- <span> Scrolling could reveal more!</span> -->
 
         <div class="center" id="diary-container" style="display:contents;justify-items: center;">
-            <div style="display: grid;place-items: center;place-self:center;width:var(--stretch);max-width:80vw;max-width:800px;margin:auto">
-                <time>
-                    <input class="cute-green" style="font-size:20px;margin:20px;" id="diary-heading" type="date"
-                        min="2025-04-07" value="2026-01-01">
-                </time>
-                <small style="z-index: 300;;justify-self: end;align-self: end;">Issues? <a style="font-family: inherit;" href="./nojs.html">click here</a></small>
+            <div
+                style="display: grid;place-items: center;place-self:center;width:var(--stretch);max-width:80vw;max-width:800px;margin:auto">
+                <input class="cute-green" style="font-size:20px;margin:20px;" id="diary-heading" type="date"
+                    min="2025-04-07" value="2026-01-01">
+                <time style="z-index: 3;" datetime="2026-01-01T05:00:00.000Z" id="timeElt">Thu Jan 01 2026</time>
+                <script>
+                    !function (time, input, h) {
+                        'use strict'
+                        h.on(input, {
+                            change: function () {
+                                var format = this.value.split('-')
+                                , year = format[0]
+                                , month = format[1]
+                                , day = format[2]
+                                , date = new Date([month, day, year].join('/'))
+                                time.textContent = date.toDateString()
+                                time.setAttribute('datetime', date.toISOString())
+                            }
+                        })
+                    }(document.getElementById('timeElt'), document.getElementById('diary-heading'), window[Symbol.for('[[HModule]]')])
+                </script>
+                <small style="z-index: 300;;justify-self: end;align-self: end;">Issues? <a style="font-family: inherit;"
+                        href="./nojs.html">click here</a></small>
                 <!-- <label for="skip" style="margin-bottom:10px;z-index: 2;    width: fit-content;">Skip Empty Days<input style="accent-color: maroon;" id="skip" type="checkbox" checked></label> -->
             </div>
             <section id="diary" class="cute-blue" style="--user-select:none; place-self: center;">
@@ -123,7 +139,8 @@
                 </h2>
                 <iframe allowfullscreen allow="fullscreen *; local-fonts *; autoplay *;" aria-relevant="all"
                     aria-live="assertive" id="display" name="Diary" title="Diary"
-                    style="width: 99%;height: 100%;border: none;" src="entries/1_1_2026/index.html"></iframe>
+                    style="width: 99%;height: 100%;border: none;"
+                    src="entries/1_1_2026/index.html"></iframe>
                 <script>
                     !function () {
                         'use strict'
@@ -294,7 +311,6 @@
         let things = dates.map(o => new Date(o))
         currentDateInput.on({
             change() {
-
                 let { 0: year, 1: month, 2: date } = this.value.split('-')
                 let hi = new Date(`${month}/${date}/${year}`)
                 frame.hide(2)
@@ -309,7 +325,7 @@
                     showHide()
                 }
             }
-        })
+        }, new AbortController)
         function load() {
             canMove = true
             if (!this.contentWindow.document.querySelector('[name="author"][content="addsoupbase"]')) {
@@ -322,7 +338,7 @@
                 })
             } else {
                 invalid.hide()
-                this.fadeIn(500,2)
+                this.fadeIn(500, 2)
                 let n = $(this.contentWindow.document.body).attr.$color
                 if (n) {
                     let color = n
@@ -376,6 +392,7 @@
                     src
                 })
             }
+            currentDateInput.dispatchEvent(new Event('change'))
         }
         function toNormal(date) {
             let out = `${date.getMonth() + 1}_${String(date.getDate())}_${date.getFullYear()}`
@@ -402,7 +419,7 @@
         // changeDay(0)
         // GOOD ENOUGH
     </script>
-    <script nomodule src="ie.js" name="bad">
+    <script nomodule src="ie.js">
     </script>
 
     <!-- <script async defer src="silence.js"></script> -->

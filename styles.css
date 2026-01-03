@@ -2,7 +2,11 @@
 @import url('./chococooky.css');
 
 
-
+@supports (resize: both) {
+  #diary {
+    border-bottom-right-radius: 0;
+  }
+}
 #background {
   width: 100vw;
   height: 100vh;
@@ -17,11 +21,13 @@
 .lanturn {
   filter: drop-shadow(0 0 5px yellow);
 }
+
 @media screen and (width < 330px) {
   #avatar {
     display: none;
   }
 }
+
 #avatar {
   border-radius: 100%;
   width: 60px;
@@ -302,18 +308,20 @@ a {
   background-repeat: no-repeat;
   --content-visibility: auto;
 }
+
 .snowflake {
-  width:30px;
-  height:30px;
+  width: 30px;
+  height: 30px;
   position: absolute;
   background-size: cover;
-  top:-30px;
+  top: -30px;
   z-index: 1;
   image-rendering: pixelated;
-  opacity:.81;
+  opacity: .81;
   /* --box-reflect:  below 0 linear-gradient(transparent, white);; */
   background-image: url(data:image/gif;base64,R0lGODlhFAAUAPIAAAAAAJa3/5bM/5bh/9P7/////wAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQJFAAAACwAAAAAFAAUAAADUwi6HPxwiRmrtHUArfEbIBYIm8KVpeBcJ9gC5HcChLl1TBwS/K3EHwWhQKyhIp1h0QbRaXi1EAwSStqkuRKnmmqQOq/UKoP1XI/mX/oxAa4BY0gCACH5BAkUAAAALAAAAAAUABQAAANeCLrc/i3ACYSY8rJR9bMAFw6c6FjlRi0kGyrm1nIEYXKC5AyE0r8DUMNUKAJsLU/lVSsWai/lhdSq/V4NFLZ3dQQkt1nsBMOWgqtYizJdX3I673tx+VICSoUk7l0BEgAh+QQJFAAAACwAAAAAFAAUAAADVgi63P4wBigiEHUoje1mmjeMADmG4udtJEC0T7YQxKKhwFTuROG7u0sugDnRfAXaCTPR3Vy02lO4kClotuDjxMJZQl6K6QaLVLKewORcEegg70Z8FUkAACH5BAUUAAAALAAAAAAUABQAAANeCLrc7uFJJsSUFYxm49tDqGzZtS1gyZwgejKB9Q4EoWkiJbSA3b8cHA1QKKIesh6hWKjdLI5XzRYSQSU2X+raEFWPAo9ix+Nxu0AgJAaAfs+wyNUSlkTEiwD+0tgDEgA7);
 }
+
 .zygarde {
   margin-bottom: -50px !important;
 }
@@ -438,16 +446,20 @@ input[type=image]:active {
   /* min-width:150px; */
   /* max-width:560px; */
   width: 400px;
-  min-width: 100px;
+  min-width: 40px;
   display: inline-flex;
   width: var(--stretch);
   max-height: 62vh;
   min-height: 180px;
-  max-width: 80vw;
-  max-width:800px;
-  height: 58vh;
+  max-width: 800px;
+  max-width: 70vw;
+  height: 55vh;
   display: flow;
   overflow-y: scroll;
+}
+
+.farther {
+  filter:sepia(100%) hue-rotate(90deg) saturate(500%) brightness(0.2) !important
 }
 
 @supports (bottom: anchor(top)) {
@@ -567,7 +579,7 @@ html {
     /* Safari is weird */
     width: 97vw;
     height: 86vh;
-  
+
     /* top:0px */
   }
 
@@ -575,6 +587,7 @@ html {
     height: 50vh
   }
 }
+
 @supports (-ms-zoom: 1) {
   #frame {
     transform: unset;
@@ -708,6 +721,7 @@ main {
 .scale {
   animation: scaleIn 2s ease 0s normal forwards;
 }
+
 /*
 p:AnInvalidSelector(b){ 
   color:red

@@ -77,10 +77,8 @@ var r = function () {
         lazy() {
             // if (!this.#quantified) throw SyntaxError(`No quantifier applied: ${this.char}`)
             if (this.#lazy) throw SyntaxError(`Quantifier ${this.char} is already lazy`)
-            if (!this.#lazy) {
-                this.#lazy = true
-                this.#modifier += '?'
-            }
+            this.#lazy = true
+            this.#modifier += '?'
             return this
         }
         static {

@@ -2,6 +2,9 @@
 <html lang="en">
 
 <head>
+    <script src="legacy.js" nomodule></script>
+    <script src="css.js" blocking="render"></script>
+    <script src="css_bad.js" nomodule></script>
     <!-- <script type="speculationrules">{"prerender":[{"urls":["about.html","stuff.html","diary.html"],"eagerness":"immediate"}]}</script> -->
     <meta charset="UTF-8">
     <meta http-equiv="content-language" content="en">
@@ -69,14 +72,13 @@
     <!--^ yes if the site has stuff like back buttons-->
     <meta name="apple-mobile-web-app-title" content="addsoupbase🍜 - main content">
     <link rel="apple-touch-startup-image" href="favicon.ico">
-    <script src="legacy.js" nomodule></script>
-    <script src="css.js" blocking="render"></script>
-    <script src="css_bad.js" nomodule></script>
+    <link rel="preconnect" href="https://drawing-submissions.deno.dev/">
     <link rel="stylesheet" href="styles.css">
     <title>addsoupbase🍜 - main content</title>
     <!--https://wiki.whatwg.org/wiki/MetaExtensions-->
     <!--[if IE]><script>alert('Please update your browser')</script><![endif]-->
 </head>
+
 <body class="cute-green" id="main" style="overflow-y: scroll;">
     <img id="avatar" src="./media/art.webp" title="misdreavus" alt="avatar">
     <main class="center ">

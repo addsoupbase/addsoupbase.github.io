@@ -5,8 +5,6 @@
     <meta charset="UTF-8">
     <meta http-equiv="content-language" content="en">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
-    <meta property="og:url" content="https://addsoupbase.github.io/">
-    <meta property="og:description" content="addsoupbase's page yay  🫧">
     <meta name="description" content="addsoupbase's underwater pokémon themed page!">
     <meta property="og:title" content="addsoupbase's page">
     <meta property="og:image" content="https://addsoupbase.github.io/media/preview.png">
@@ -57,7 +55,6 @@
     <link rel="apple-touch-icon" sizes="152x152" href="./icon-152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="./icon-180x180.png">
     <link rel="modulepreload" href="./yay.js">
-    <link rel="modulepreload" href="./handle.js">
     <script src="legacy.js" nomodule></script>
     <script src="css.js" blocking="render"></script>
     <script src="css_bad.js" nomodule></script>
@@ -113,11 +110,9 @@
     </main>
     <button class="cute-green-button" id="show"
         style="position: fixed;bottom:15px;right:15px;display:none;z-index: 2;">Show</button>
-
     <script type="module">
         import $ from './yay.js'
         const h = window[Symbol.for('[[HModule]]')]
-
         let { show, frame } = $.id
         show.debounce({
             click() {
