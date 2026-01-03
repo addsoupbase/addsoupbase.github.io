@@ -1,5 +1,5 @@
 //# allFunctionsCalledOnLoad
-// console.time('css.js');
+console.time('css.js');
 //// self.css = 
 (function CSSSetup(inModule, w, sym, defer, D, O, id, y, rAF) {
     ////'use strict'
@@ -29,8 +29,8 @@
             if (typeof scrollMaxX !== 'number' || !S) {
                 // sessionStorage seems to be faster on FireFox 
                 var o = top.name
-                var starts = o.startsWith(id)
-                if (!o || starts) {
+                    , starts = o.startsWith(id)
+                if (starts || !o) {
                     if (!starts) sn = Reflect.set.bind(1, top, 'name')
                     var name = o // name is free to use
                     break dance
@@ -81,12 +81,12 @@
          document.head.appendChild(script)
           //Okay i have no idea what i did but it works without this now somehow??
      }*/
-    /*  if (canWrite && top === self) {
-          // Idk why, but it seems to make the page render faster
-          document.write('<p style="position:absolute !important;transform:scale(0) !important;z-index:-9999 !important;" data-cssid="$$$" aria-hidden="true">.</p>')
-          var p = document.querySelector('p[data-cssid="$$$"]')
-          p = addEventListener('load', p.removeChild.bind(p.parentElement, p), { once: true })
-      }*/
+    /*if (canWrite && top === self) {
+        // Idk why, but it seems to make the page render faster
+        var p = D.querySelector('p[data-cssid="$$$"]')
+        D.write('<p style="position:absolute !important;transform:scale(0) !important;z-index:-9999 !important;" data-cssid="$$$" aria-hidden="true">.</p>')
+        p = addEventListener('load', p.removeChild.bind(p.parentElement, p), { once: true })
+        }*/
     function dv(prop, val) {
         return vendor(toDash(prop), val)
     }
@@ -330,15 +330,18 @@
             added || (added = !!(sheet.onsecuritypolicyviolation = violation))
             sheet.textContent += text
         }
-        else {
-            var m = new CSSStyleSheet
-            m.replaceSync(text)
-            D.adoptedStyleSheets.push(m)
-            // <style> blocked
-        }
+        else createSheet(text)
+        // <style> blocked
+    }
+    function createSheet(text) {
+        var m = new CSSStyleSheet
+        text && m.replaceSync(text)
+        D.adoptedStyleSheets.push(m)
+        return m
     }
     function registerCSSRaw(rules, newStyleSheet) {
         if (newStyleSheet) {
+            if (violated) return createSheet(rules)
             var n = D.createElement('style')
             n.blocking = 'render'
             n.textContent = rules
@@ -375,7 +378,7 @@
     function Sheet() {
         var o = D.getElementById(id)
         if (o) return o
-        // if (canWrite) return document.write('<style id="'+id+'" blocking="render">'+str+'</style>'), getDefaultStyleSheet()
+        // if (canWrite) return D.write('<style id="'+id+'" blocking="render">'+str+'</style>'), Sheet()
         // this branch is slower
         o = D.createElement('style')
         o.id = id
@@ -423,10 +426,10 @@
     function lowPriority() {
         // lower priority props
         g("locale", "auto", true, "*")("line-grid", "auto", true, "*")("line-snap", "auto", true, "*")("nbsp-mode", "auto", true, "*")("text-zoom", "auto", true, "*")("line-align", "auto", true, "*")("text-decorations-in-effect", "auto", false, "*")("force-broken-image-icon", "0", false, "<integer>")("float-edge", "content-box", false, "*")("image-region", "auto", true, "*")("box-orient", "inline-axis", false, "*")("box-align", "stretch", false, "*")("box-direction", "normal", false, "*")("box-flex", "0", false, "*")("box-flex-group", "0", false, "*")("box-lines", "single", false, "*")("box-ordinal-group", "1", false, "*")("box-decoration-break", "slice", false, "*")("box-pack", "start", false, "*")("line-clamp", "none", false, "*")("font-smoothing", "auto", true, "*")("mask-position-x", "0%", false, "<length-percentage>")("mask-position-y", "0%", false, "<length-percentage>")("window-dragging", "auto", false, "*")("stack-sizing", "stretch-to-fit", true, "*")("mask-composite", "source-over", false, "*")("window-shadow", "auto", false, "*")("outline-radius", "0 0 0 0", false, "*")("binding", "none", false, "*")("text-blink", "none", false, "*")("image-rect", "auto", true, "*")("content-zoom-limit", "400% 100%", false, "*")("accelerator", "0", false, "*")("context-properties", "none", true, "*")("text-kashida-space", "0%", true, "<percentage>")("interpolation-mode", "none", false, "*")("progress-appearance", "bar", false, "*")("content-zooming", "auto", false, "*")("flow-from", "none", false, "*")("flow-into", "none", false, "*")("content-zoom-chaining", "none", false, "*")("high-contrast-adjust", "auto", true, "*")("touch-select", "grippers", true, "*")("ime-mode", "auto", false, "*")("wrap-through", "wrap", false, "*")("print-color-adjust", "economy", true, "*")("pay-button-style", "white", false, "*")("color-filter", "none", true, "*")("pay-button-type", "plain", false, "*")("visual-effect", "none", true, "*")("text-spacing-trim", "normal", true, "*")("text-group-align", "none", false, "*")("text-autospace", "normal", true, "*")("orient", "inline", false, "*")("ruby-overhang", "auto", true, "*")("max-lines", "none", false, "*")("line-fit-edge", "leading", true, "*")("overflow-scrolling", "auto", false, "*")("column-progression", "auto", false, "*")("dashboard-region", "none", false, "*")("column-axis", "auto", false, "*")("text-size-adjust", "auto", true, "*")("border-vertical-spacing", "auto", false, "*")("buffered-rendering", "auto", false, "*")("behaviour", "url()", false, "<url>")
-            // try {
-            // performance.mark('css-other-start')
-            // ('scrollbar-thumb-color', 'auto', true, '*')
-            // ('scrollbar-color', 'auto', true, '*')
+        // try {
+        // performance.mark('css-other-start')
+        // ('scrollbar-thumb-color', 'auto', true, '*')
+        // ('scrollbar-color', 'auto', true, '*')
         // }
         // catch (e) { reportError(e) }
     }
@@ -528,13 +531,13 @@
         o[W('.center_block')] = { display: 'block', 'margin-left': 'auto', 'margin-right': 'auto' }
         o[W('.center_inline')] = { display: 'inline-block', 'text-align': 'center' }
         o[W('.center_absolute,.center_screen')] = { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }
-        o[W('.center_absolute,.center_absolute_x,.center_absolute_y')] = { position: 'absolute' }
         o[W('.center_screen')] = { position: 'fixed', 'z-index': '9999' }
+        o[W('.center_absolute,.center_absolute_x,.center_absolute_y')] = { position: 'absolute' }
         o[W('.center_flex_x,.center_flex')] = { display: 'flex', 'justify-content': 'center' }
         o[W('.center_flex_y,.center_flex')] = { display: 'flex', 'align-items': 'center' }
         o[W('.center_grid_x')] = { display: 'grid', 'place-items': 'center start' }
         o[W('.center_grid_y')] = { display: 'grid', 'place-items': 'start center' }
-        o[W('.center_absolute_x')] = {  left: '50%', transform: 'translateX(-50%)' }
+        o[W('.center_absolute_x')] = { left: '50%', transform: 'translateX(-50%)' }
         o[W('.center_absolute_y')] = { top: '50%', transform: 'translateY(-50%)' }
         newName = entries(o).reduce(function (a, b) {
             return a + b[0] + "{" + toCSS(b[1]) + "}"
@@ -552,7 +555,7 @@
     }
     var str
     // finally { performance.mark('css-other-end') }
-    write(name || (sn(str =id+ selector + "{" + toCSS(uv, true) + "}" + newName), id + str))
+    write(name || (sn(str = id + selector + "{" + toCSS(uv, true) + "}" + newName), id + str))
     var css =  ////Object.seal
         ({
             getDefaultStyleSheet: Sheet,
@@ -585,5 +588,5 @@
     // console.debug(performance.measure('css-cache','css-cache-start', 'css-cache-end').toJSON(), performance.measure('css-property', 'css-property-start', 'css-property-end').toJSON())
     return css
 }(!this, self, Symbol.for('[[CSSModule]]'), (self.requestIdleCallback && function (c) { return requestIdleCallback(c, { timeout: 2000 }) }) || (self.scheduler && scheduler.postTask && function (c) { return scheduler.postTask(c, { priority: 'background' }) }) || self.queueMicrotask || self.setImmediate || setTimeout, document, Object, '/*stylesheet auto-generated by css.js*/', constructor.prototype, self.requestAnimationFrame || self.webkitRequestAnimationFrame || self.mozRequestAnimationFrame || self.msRequestAnimationFrame || self.oRequestAnimationFrame))
-//self[Symbol.for('[[CSSModule]]')]
-// ; console.timeEnd('css.js')
+    //self[Symbol.for('[[CSSModule]]')]
+    ; console.timeEnd('css.js')
