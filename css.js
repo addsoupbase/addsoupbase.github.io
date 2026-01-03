@@ -5,7 +5,7 @@
     ////'use strict'
     if (y.propertyIsEnumerable(sym) && D.getElementById(id) instanceof HTMLStyleElement) {
         var out = y[sym]
-        inModule && out.onerror &&  (removeEventListener('error', out.onerror), out.onerror = null)
+        inModule && out.onerror && (removeEventListener('error', out.onerror), out.onerror = null)
         return out
     }
     try { var S = sessionStorage } // it just throws on read if storage is denied
@@ -126,7 +126,7 @@
             Symbol.iterator && props.push(Symbol.iterator)
             for (var i = props.length; i--;) {
                 var prop = props[i],
-                z = ''[prop]
+                    z = ''[prop]
                 typeof z === 'function' && prop !== 'toString' && prop !== 'valueOf' && prop !== 'constructor' && hi(prop, z)
             }
             return parse ? a : b
@@ -522,8 +522,21 @@
         o[W('input[type=range],::-webkit-scrollbar-thumb')] = { cursor: 'grab' }
         o[W('input[type=range]:active,::-webkit-scrollbar-thumb:active')] = { cursor: 'grabbing' }
         o[W(':disabled,[aria-disabled=true]')] = { cursor: 'not-allowed' }
-        o[W('.centerx,.center')] = { 'justify-self': 'center', margin: 'auto', 'text-align': 'center' }
-        o[W('.centery,.center')] = { 'align-self': 'center', inset: 0, position: 'fixed' }
+        /**@deprecated*/o[W('.centerx,.center')] = { 'justify-self': 'center', margin: 'auto', 'text-align': 'center' }
+        /**@deprecated*/o[W('.centery,.center')] = { 'align-self': 'center', inset: 0, position: 'fixed' }
+        o[W('.center_text')] = { 'text-align': 'center' }
+        o[W('.center_block')] = { display: 'block', 'margin-left': 'auto', 'margin-right': 'auto' }
+        o[W('.center_flex')] = { display: 'flex', 'align-items': 'center', 'justify-content': 'center' }
+        o[W('.center_inline')] = { display: 'inline-block', 'text-align': 'center' }
+        o[W('.center_absolute, .center_screen')] = { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }
+        o[W('.center_absolute')] = { position: 'absolute' }
+        o[W('.center_screen')] = { position: 'fixed', 'z-index': '9999' }
+        o[W('.center_flex_x')] = { display: 'flex', 'justify-content': 'center' }
+        o[W('.center_flex_y')] = { display: 'flex', 'align-items': 'center' }
+        o[W('.center_grid_x')] = { display: 'grid', 'place-items': 'center start' }
+        o[W('.center_grid_y')] = { display: 'grid', 'place-items': 'start center' }
+        o[W('.center_absolute_x')] = { position: 'absolute', left: '50%', transform: 'translateX(-50%)' }
+        o[W('.center_absolute_y')] = { position: 'absolute', top: '50%', transform: 'translateY(-50%)' }
         newName = entries(o).reduce(function (a, b) {
             return a + b[0] + "{" + toCSS(b[1]) + "}"
         }, "@namespace svg url('http://www.w3.org/2000/svg');@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:root{--system-font:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif}:-moz-loading{cursor:wait}:-moz-broken{border-radius:0}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not(scrollbar-color:auto){::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}")
