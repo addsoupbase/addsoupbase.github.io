@@ -425,8 +425,8 @@
         g("locale", "auto", true, "*")("line-grid", "auto", true, "*")("line-snap", "auto", true, "*")("nbsp-mode", "auto", true, "*")("text-zoom", "auto", true, "*")("line-align", "auto", true, "*")("text-decorations-in-effect", "auto", false, "*")("force-broken-image-icon", "0", false, "<integer>")("float-edge", "content-box", false, "*")("image-region", "auto", true, "*")("box-orient", "inline-axis", false, "*")("box-align", "stretch", false, "*")("box-direction", "normal", false, "*")("box-flex", "0", false, "*")("box-flex-group", "0", false, "*")("box-lines", "single", false, "*")("box-ordinal-group", "1", false, "*")("box-decoration-break", "slice", false, "*")("box-pack", "start", false, "*")("line-clamp", "none", false, "*")("font-smoothing", "auto", true, "*")("mask-position-x", "0%", false, "<length-percentage>")("mask-position-y", "0%", false, "<length-percentage>")("window-dragging", "auto", false, "*")("stack-sizing", "stretch-to-fit", true, "*")("mask-composite", "source-over", false, "*")("window-shadow", "auto", false, "*")("outline-radius", "0 0 0 0", false, "*")("binding", "none", false, "*")("text-blink", "none", false, "*")("image-rect", "auto", true, "*")("content-zoom-limit", "400% 100%", false, "*")("accelerator", "0", false, "*")("context-properties", "none", true, "*")("text-kashida-space", "0%", true, "<percentage>")("interpolation-mode", "none", false, "*")("progress-appearance", "bar", false, "*")("content-zooming", "auto", false, "*")("flow-from", "none", false, "*")("flow-into", "none", false, "*")("content-zoom-chaining", "none", false, "*")("high-contrast-adjust", "auto", true, "*")("touch-select", "grippers", true, "*")("ime-mode", "auto", false, "*")("wrap-through", "wrap", false, "*")("print-color-adjust", "economy", true, "*")("pay-button-style", "white", false, "*")("color-filter", "none", true, "*")("pay-button-type", "plain", false, "*")("visual-effect", "none", true, "*")("text-spacing-trim", "normal", true, "*")("text-group-align", "none", false, "*")("text-autospace", "normal", true, "*")("orient", "inline", false, "*")("ruby-overhang", "auto", true, "*")("max-lines", "none", false, "*")("line-fit-edge", "leading", true, "*")("overflow-scrolling", "auto", false, "*")("column-progression", "auto", false, "*")("dashboard-region", "none", false, "*")("column-axis", "auto", false, "*")("text-size-adjust", "auto", true, "*")("border-vertical-spacing", "auto", false, "*")("buffered-rendering", "auto", false, "*")("behaviour", "url()", false, "<url>")
             // try {
             // performance.mark('css-other-start')
-            ('scrollbar-thumb-color', 'auto', true, '*')
-            ('scrollbar-color', 'auto', true, '*')
+            // ('scrollbar-thumb-color', 'auto', true, '*')
+            // ('scrollbar-color', 'auto', true, '*')
         // }
         // catch (e) { reportError(e) }
     }
@@ -526,20 +526,20 @@
         /**@deprecated*/o[W('.centery,.center')] = { 'align-self': 'center', inset: 0, position: 'fixed' }
         o[W('.center_text')] = { 'text-align': 'center' }
         o[W('.center_block')] = { display: 'block', 'margin-left': 'auto', 'margin-right': 'auto' }
-        o[W('.center_flex')] = { display: 'flex', 'align-items': 'center', 'justify-content': 'center' }
         o[W('.center_inline')] = { display: 'inline-block', 'text-align': 'center' }
-        o[W('.center_absolute, .center_screen')] = { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }
-        o[W('.center_absolute')] = { position: 'absolute' }
+        o[W('.center_absolute,.center_screen')] = { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }
+        o[W('.center_absolute,.center_absolute_x,.center_absolute_y')] = { position: 'absolute' }
         o[W('.center_screen')] = { position: 'fixed', 'z-index': '9999' }
-        o[W('.center_flex_x')] = { display: 'flex', 'justify-content': 'center' }
-        o[W('.center_flex_y')] = { display: 'flex', 'align-items': 'center' }
+        o[W('.center_flex_x,.center_flex')] = { display: 'flex', 'justify-content': 'center' }
+        o[W('.center_flex_y,.center_flex')] = { display: 'flex', 'align-items': 'center' }
         o[W('.center_grid_x')] = { display: 'grid', 'place-items': 'center start' }
         o[W('.center_grid_y')] = { display: 'grid', 'place-items': 'start center' }
-        o[W('.center_absolute_x')] = { position: 'absolute', left: '50%', transform: 'translateX(-50%)' }
-        o[W('.center_absolute_y')] = { position: 'absolute', top: '50%', transform: 'translateY(-50%)' }
+        o[W('.center_absolute_x')] = {  left: '50%', transform: 'translateX(-50%)' }
+        o[W('.center_absolute_y')] = { top: '50%', transform: 'translateY(-50%)' }
         newName = entries(o).reduce(function (a, b) {
             return a + b[0] + "{" + toCSS(b[1]) + "}"
         }, "@namespace svg url('http://www.w3.org/2000/svg');@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:root{--system-font:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif}:-moz-loading{cursor:wait}:-moz-broken{border-radius:0}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not(scrollbar-color:auto){::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}")
+        //// console.debug(newName.replace(/:where\((.*?)\)/gs,'$1'))
     }
     if (atProperty) {
         properties()
@@ -552,7 +552,7 @@
     }
     var str
     // finally { performance.mark('css-other-end') }
-    write(name || (sn(str = selector + "{" + toCSS(uv, true) + "}" + newName), id + str))
+    write(name || (sn(str =id+ selector + "{" + toCSS(uv, true) + "}" + newName), id + str))
     var css =  ////Object.seal
         ({
             getDefaultStyleSheet: Sheet,
