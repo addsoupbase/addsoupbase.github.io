@@ -7,6 +7,8 @@ const css = window[Symbol.for('[[CSSModule]]')]
 function pointerup(p) {
     if (p.button === 2) return
     this.holding = false
+    this.internals?.setFormValue(this.value)
+    this.internals?.setValidity({ valueMissing: false }, 'Draw something')
 }
 
 function pointermove(p) {
@@ -46,27 +48,39 @@ function pointerdown(p) {
     // ctx.strokeRect(p.offsetX/zoom, p.offsetY/zoom, .5,.5)
 }
 class PaperCanvas extends HTMLElement {
+    static formAssociated = true
     static observedAttributes = 'maxbuffersize color brushsize width height'.split(' ')
     undoBuffer = []
     maxBufferSize = 10
-    get undo() {
-        return PaperCanvas.undo
-    }
     // syncWithForm() {
     // let i = this[internals]
     // return this.toFile().then(i.setFormValue.bind(i))
     // // }
     // static formAssociated = true
-    static undo() {
+    undo() {
         let { undoBuffer, ctx } = this
         if (!undoBuffer.length) return
         ctx.clearRect(0, 0, 250, 250)
         ctx.putImageData(undoBuffer.pop(), 0, 0)
+        if (!undoBuffer.length) {
+            this.internals?.setValidity({ valueMissing: true }, 'Draw something')
+        }
     }
+    constructor() {
+        super()
+        this.internals?.setValidity({ valueMissing: true }, 'Draw something')
+    }
+    internals = this.closest('form')?.contains(this) ? this.attachInternals() : null
     holding = false
     lastLoc = vect(0 / 0, 0 / 0)
     canvas = null
     ctx = null
+    get value() {
+        switch (this.getAttribute('type')) {
+            default: return this.dataURL(1)
+            case 'file': return new File([this.ctx.getImageData(0, 0, 255, 255)], `${this.getAttribute('name') || 'untitled'}.png`, { type: 'image/png' })
+        }
+    }
     dataURL(quality = 1) {
         return this.canvas.toDataURL('image/png', quality)
     }
@@ -95,7 +109,13 @@ class PaperCanvas extends HTMLElement {
         lineCap: 'round',
         fillStyle: 'white'
     }
-    attributeChangedCallback(name, oldValue, newValue) {
+    formResetCallback() {
+        this.undoBuffer.length = 0
+        let { width, height } = this.canvas
+        this.ctx.clearRect(0, 0, width, height)
+        this.internals?.setValidity({ valueMissing: true })
+    }
+    attributeChangedCallback(name, _, newValue) {
         if (this.canvas) switch (name) {
             case 'width':
                 var val = parseFloat(newValue) || 1
@@ -124,6 +144,7 @@ class PaperCanvas extends HTMLElement {
     }
     connectedCallback() {
         let t = $(this)
+        this.hasAttribute('tabindex') || this.setAttribute('tabindex', 0)
         let shadow = this.attachShadow({ mode: 'open' })
         let width = t.attr.width || 250
         let height = t.attr.height || 250
@@ -138,11 +159,11 @@ class PaperCanvas extends HTMLElement {
         this.canvas.styles.width = `${width}px`
         this.ctx = Object.assign(canvas.getContext('2d', function () {
             let out = { willReadFrequently: true }
-            , a = {
-                get desynchronized() { out = { desynchronized: true } },
-            }
+                , a = {
+                    get desynchronized() { out = { desynchronized: true } },
+                }
             document.createElement('canvas').getContext('2d', a)
-            // idk why but both together makes it not work
+            // idk why but both together makes it not work!
             return out
         }()), PaperCanvas.#BASE_CONTEXT_ATTRIBUTES)
         this.ctx.fillRect(0, 0, width, height)
@@ -155,16 +176,17 @@ class PaperCanvas extends HTMLElement {
     }
 }
 let style = $('style', {
-    textContent: `:host{${css.toCSS({
+    textContent: `:host{
+        ${css.toCSS({
+        cursor: 'url(http://www.rw-designer.com/cursor-extern.php?id=27347), crosshair',
         '--user-select': 'none',
-        cursor: 'crosshair',
         'touch-action': 'none',
         'background-color': 'white',
         display: 'inline-grid',
         border: '1px solid black',
     })}}`
 })
-if (customElements.get('paper-canvas') !== PaperCanvas)  {
+if (customElements.get('paper-canvas') !== PaperCanvas) {
     let d = customElements.whenDefined('paper-canvas')
     define('paper-canvas', PaperCanvas)
     await d
