@@ -1,10 +1,5 @@
-import { ProxyProtoGenerator, $, proxify, raw, Handler } from './BaseProxy.js'
+import { ProxyProtoGenerator, proxify, raw } from './BaseProxy.js'
 import { EventTargetProxy } from './EventTargetProxy.js'
-// function clamp(value, min, max) {
-//     return Math.max(Math.min(value, max), min)
-// }
-const hasOwn = Object.hasOwn
-    , isEnumerable = Object.call.bind(propertyIsEnumerable)
 function tlc(o) {
     return '-' + o.toLowerCase()
 }
@@ -84,107 +79,96 @@ class NodeProxyClass extends EventTargetProxy {
 const base = raw
 const NodeProxy = new ProxyProtoGenerator(NodeProxyClass, Node)
 export default NodeProxy
-class CachePropertyHandler extends Handler {
+class Cacher {
+    static Target = Symbol()
+    static Get = Symbol('Get')
+    $cache = { __proto__: null }
+    constructor(target) {
+        this[Cacher.Target] = target
+    }
     #queued = false
-    format(p) { return p }
-    setFinalValue(vals, t) {
-        for (let key in vals) t[key] = vals[key]
-    }
-    #reset(t) {
-        this.#queued = false
-        let me = this.target ?? t[$]
-        let keys = Object.getOwnPropertyNames(t)
-        let toSet = { __proto__: null }
-        for (let i = keys.length; i--;) {
-            let key = keys[i]
-            if (isEnumerable(t, key)) toSet[key] = t[key]
-            delete t[key]
+    #queueReset() {
+        if (!this.#queued) {
+            this.#queued = true
+            this.$wait(() => {
+                this.$finish()
+                this.$cache = {__proto__:null}
+                this.#queued = false
+            })
         }
-        this.setFinalValue(toSet, me)
     }
-    queueReset(t) {
-        if (this.#queued) return
-        this.#queued = true
-        requestAnimationFrame(() => {
-            this.#reset(t)
+    $finish(){}
+    $wait(callback) { requestAnimationFrame(callback) }
+    $transform(key) { return String(key) }
+    $getPropertyCache(key) {
+        key = this.$transform(key)
+        let cache = this.$cache
+        if (key in cache) {
+            return cache[key]
+        }
+        let value = this[Cacher.Target][key]
+        Object.defineProperty(cache, key, {
+            value,
+            writable: true,
+            configurable: true
         })
-    }
-    set(t, p, value, r) {
-        let allowed = this.constructor.allowedProperties
-        if (allowed && !allowed.has(p)) return false
-        p = this.format(p)
-        if (!isEnumerable(t, p)) {
-            Object.defineProperty(t, p, { value, configurable: true, enumerable: true })
-            this.queueReset(t)
-        }
-        return true
-    }
-    get(t, p, r) {
-        let allowed = this.constructor.allowedProperties
-        if (allowed && !allowed.has(p)) return false
-        p = this.format(p)
-        if (hasOwn(t, p)) {
-            return t[p]
-        }
-        let value = super.get(t, p, r)
-        Object.defineProperty(t, p, { value, configurable: true })
-        this.queueReset(t)
         return value
     }
-}
-class ReflowCache extends CachePropertyHandler {
-    static allowedProperties = new Set('offsetLeft offsetTop offsetWidth offsetHeight offsetParent clientLeft clientTop clientWidth clientHeight scrollWidth scrollHeight scrollTop scrollLeft'.split(' '))
-    #target
-    get target() {
-        return this.#target
+    $setPropertyCache(key, val) {
+        key = this.$transform(key)
+        this.$cache[key] = val
+        this.#queueReset()
     }
-    constructor(targ) {
-        super()
-        this.#target = targ
-    }
-    static {
-        let proto = this.prototype
-        this.allowedProperties.forEach(o => {
-            Object.defineProperty(proto, o, {
-                get() {
-                    return this.get(base(this.#target), o)
-                },
-                set(val) {
-                    this.set(base(this.#target), o, val)
-                }
-            })
+    static define(cl, key) {
+        Object.defineProperty(cl.prototype, key, {
+            get() {
+                return this.$getPropertyCache(key)
+            },
+            set(val) {
+                this.$setPropertyCache(key, val)
+            }
         })
     }
 }
-class HTMLElementReflowAvoiderProxyClass{}
-//const HTMLElementReflowAvoiderProxy = 
-new ProxyProtoGenerator(HTMLElementReflowAvoiderProxyClass, HTMLElementReflowAvoiderProxyClass, {
-    handler: new ReflowCache,
-})
-class CSSStyleDeclarationHandler extends CachePropertyHandler {
-    format(p) {
-        return toDash(p)
+class ReflowCache extends Cacher {
+    $finish() {
+        let target = this[Cacher.Target]
+        let cache = this.$cache
+        for (let i in cache) {
+            target[i] = +cache[i]
+        }
     }
-    setFinalValue(vals, t) {
-        let str = ''
-        for (let key in vals)
-            str += `${key}:${vals[key]}`
-        t.cssText = str
-    }
-    set(t, p, v, r) {
-        let b = t[$]
-        if (!hasOwn(b, p)) return !(p in b) || Reflect.set(b, p, v, r) // don't throw if css prop is unsupported
-        return super.set(t, p, v, r)
-    }
-    get(t, p, r) {
-        let b = t[$]
-        if (!hasOwn(b, p)) return b[p]
-        return super.get(t, p, r)
+    static {
+        let all = 'offsetLeft offsetTop offsetWidth offsetHeight offsetParent clientLeft clientTop clientWidth clientHeight scrollWidth scrollHeight scrollTop scrollLeft'.split(' ')
+        for (let i = all.length; i--;) {
+            let key = all[i]
+            Cacher.define(ReflowCache, key)
+        }
     }
 }
-const CSSStyleDeclarationProxy = new ProxyProtoGenerator(CSSStyleDeclarationHandler, CSSStyleDeclaration, {
-    handler: new CSSStyleDeclarationHandler
-})
+class StyleCache extends Cacher {
+    static ran = false
+    $transform(key) {return toDash(key)}
+    constructor(t) {
+        super(t)
+        if (!StyleCache.ran) {
+            StyleCache.ran = true
+            let keys = Object.keys(this[Cacher.Target])
+            for (let i = keys.length; i--;) {
+                Cacher.define(StyleCache, keys[i])
+            }
+        }
+    }
+    $finish() {
+        let c = this.$cache
+        let str = ''
+        for (let key in c) {
+            let val = c[key]
+            str += `${key}:${val}`
+        }
+        this[Cacher.Target].cssText = str
+    }
+}
 class ElementProxyClass extends NodeProxy {
     fadeOut(duration = 500, { keepSpace, easing = 'ease' } = {}) {
         let n = this.animate([, { opacity: 0 }], {
@@ -199,7 +183,6 @@ class ElementProxyClass extends NodeProxy {
         return n
     }
     fadeIn(duration = 500, { easing } = {}) {
-        debugger
         let me = proxify(this).styles
         me.visibility = me.display = ''
         return this.animate([{ opacity: me.opacity || '' }, { opacity: 1 }], {
@@ -218,7 +201,9 @@ class HTMLElementProxyClass extends ElementProxy {
         return out
     }
     get styles() {
-        return proxify(this.style)
+        let o = new StyleCache(this.style)
+        Object.defineProperty(this, 'styles', { value: o })
+        return o
     }
 }
-const _HTMLElement = new ProxyProtoGenerator(HTMLElementProxyClass, HTMLElement)
+const HTMLElementProxy = new ProxyProtoGenerator(HTMLElementProxyClass, HTMLElement)

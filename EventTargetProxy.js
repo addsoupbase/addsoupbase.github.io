@@ -1,12 +1,14 @@
-import { ProxyProtoGenerator, } from './BaseProxy.js'
+import { ProxyProtoGenerator, Base, proxify } from './BaseProxy.js'
 // import './h.js'
 let _ = Symbol.for('[[HModule]]')
 typeof window[_] === 'undefined' && await import('./h.js')
 const h = window[_]
-class EventTargetProxyClass {
+class EventTargetProxyClass extends Base {
     on(events, controller) {
+        let me = proxify(this)
+        let a = me.baseClassObject
         for (let i in events)
-            events[i] = events[i].bind(this)
+            events[i] = events[i].bind(me)
         return h.on(this, events, controller)
     }
     off(...names) {
@@ -22,8 +24,4 @@ class EventTargetProxyClass {
 }
 // const descriptors = Object.getOwnPropertyDescriptors(prototype)
 export const EventTargetProxy = new ProxyProtoGenerator(EventTargetProxyClass, EventTarget)
-function MakeProxy(target) {
-    if (!h.isValid(target)) throw TypeError('Invalid EventTarget')
-    return EventTargetProxy(target)
-}
-export default MakeProxy
+export default EventTargetProxy
