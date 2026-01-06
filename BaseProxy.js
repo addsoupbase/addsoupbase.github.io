@@ -62,7 +62,7 @@ export function cacheFunction(MyFunc) {
                 case 2: return MyFunc.call(thisArg, args[0], args[1])
                 case 3: return MyFunc.call(thisArg, args[0], args[1], args[2])
             }
-            return func.apply(MyFunc, thisArg, args)
+            return MyFunc.apply(thisArg, args)
         }
     }[MyFunc.name]
     FunctionCache.set(MyFunc, o)
