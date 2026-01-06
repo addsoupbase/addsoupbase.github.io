@@ -1,4 +1,5 @@
 import { ProxyProtoGenerator, proxify, raw } from './BaseProxy.js'
+export {proxify} from './BaseProxy.js'
 import { EventTargetProxy } from './EventTargetProxy.js'
 function tlc(o) {
     return '-' + o.toLowerCase()

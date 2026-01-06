@@ -1,9 +1,10 @@
-import { ProxyProtoGenerator, Base, proxify } from './BaseProxy.js'
+import { ProxyProtoGenerator, proxify } from './BaseProxy.js'
+export {proxify} from './BaseProxy.js'
 // import './h.js'
 let _ = Symbol.for('[[HModule]]')
 typeof window[_] === 'undefined' && await import('./h.js')
 const h = window[_]
-class EventTargetProxyClass extends Base {
+class EventTargetProxyClass {
     on(events, controller) {
         let me = proxify(this)
         let a = me.baseClassObject
