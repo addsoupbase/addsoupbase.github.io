@@ -1,5 +1,5 @@
-import { ProxyProtoGenerator, proxify, raw } from './BaseProxy.js'
-export {proxify} from './BaseProxy.js'
+import { ProxyFactory, proxify, base, WrapperItself } from './BaseProxy.js'
+export default proxify
 import { EventTargetProxy } from './EventTargetProxy.js'
 function tlc(o) {
     return '-' + o.toLowerCase()
@@ -22,7 +22,7 @@ class NodeProxyClass extends EventTargetProxy {
         return n ? proxify(n) : null
     }
     remove() {
-        this.parentNode?.removeChild(this)
+        this.remove ? this.remove() : this.parentNode?.removeChild(this)
     }
     nodeIndexOf(node) {
         return [].indexOf.call(this.childNodes, base(node))
@@ -77,12 +77,9 @@ class NodeProxyClass extends EventTargetProxy {
         parent.before(base(val))
     }
 }
-const base = raw
-const NodeProxy = new ProxyProtoGenerator(NodeProxyClass, Node)
-export default NodeProxy
+export const NodeProxy = new ProxyFactory(NodeProxyClass, Node)
 class Cacher {
-    static Target = Symbol()
-    static Get = Symbol('Get')
+    static Target = Symbol('[[CSSStyleDeclarationTarget]]')
     $cache = { __proto__: null }
     constructor(target) {
         this[Cacher.Target] = target
@@ -91,15 +88,14 @@ class Cacher {
     #queueReset() {
         if (!this.#queued) {
             this.#queued = true
-            this.$wait(() => {
+            requestAnimationFrame(() => {
+                debugger
                 this.$finish()
-                this.$cache = {__proto__:null}
+                this.$cache = { __proto__: null }
                 this.#queued = false
             })
         }
     }
-    $finish(){}
-    $wait(callback) { requestAnimationFrame(callback) }
     $transform(key) { return String(key) }
     $getPropertyCache(key) {
         key = this.$transform(key)
@@ -139,17 +135,18 @@ class ReflowCache extends Cacher {
             target[i] = +cache[i]
         }
     }
-    static {
-        let all = 'offsetLeft offsetTop offsetWidth offsetHeight offsetParent clientLeft clientTop clientWidth clientHeight scrollWidth scrollHeight scrollTop scrollLeft'.split(' ')
-        for (let i = all.length; i--;) {
-            let key = all[i]
-            Cacher.define(ReflowCache, key)
-        }
+
+}
+{
+    let all = 'offsetLeft offsetTop offsetWidth offsetHeight offsetParent clientLeft clientTop clientWidth clientHeight scrollWidth scrollHeight scrollTop scrollLeft'.split(' ')
+    for (let i = all.length; i--;) {
+        let key = all[i]
+        Cacher.define(ReflowCache, key)
     }
 }
 class StyleCache extends Cacher {
     static ran = false
-    $transform(key) {return toDash(key)}
+    $transform(key) { return toDash(key) }
     constructor(t) {
         super(t)
         if (!StyleCache.ran) {
@@ -194,17 +191,30 @@ class ElementProxyClass extends NodeProxy {
         })
     }
 }
-let ElementProxy = new ProxyProtoGenerator(ElementProxyClass, Element)
+let ElementProxy = new ProxyFactory(ElementProxyClass, Element)
 class HTMLElementProxyClass extends ElementProxy {
+    #style = null
+    #calc = null
     get calc() {
-        let out = new ReflowCache(this)
-        Object.defineProperty(this, 'calc', { value: out })
-        return out
+        return proxify(this)[WrapperItself].#style ||= new ReflowCache(this)
     }
     get styles() {
-        let o = new StyleCache(this.style)
-        Object.defineProperty(this, 'styles', { value: o })
-        return o
+        return proxify(this)[WrapperItself].#style ||= new StyleCache(this.style)
     }
 }
-const HTMLElementProxy = new ProxyProtoGenerator(HTMLElementProxyClass, HTMLElement)
+export const HTMLElementProxy = new ProxyFactory(HTMLElementProxyClass, HTMLElement)
+
+/*class MouseEventProxyClass {
+
+}
+class MouseEventHandler extends Cacher {
+
+}
+{
+    let props = 'layerX layerY offsetX offsetY'.split(' ')
+    for (let i = props.length; i--;) {
+        Cacher.define(MouseEventHandler, props[i])
+    }
+}
+new ProxyFactory(MouseEventProxyClass, MouseEvent, new MouseEventHandler)
+console.log(proxify(new MouseEvent({})))*/

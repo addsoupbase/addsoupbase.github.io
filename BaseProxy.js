@@ -1,38 +1,34 @@
 // For now [[Target]] = the object which you want to wrap
-const OriginalFunction = Symbol('[[TargetFunction]]') // The function that gets wrapped
 const TargetInterface = Symbol('[[TargetInterface]]') // the interface that [[Target]] implements (doesn't HAVE to be an interface)
-export const WrapperTarget = Symbol('[[WrapperTarget]]') // the Wrapper's reference to [[Target]]
-export const OriginalObject = Symbol('[[Target]]') // [[Target]] itself
+export const WrapperTarget = Symbol('[[Target]]') // [[Target]] itself
+export const WrapperItself = Symbol('[[WrapperThis]]') // get wrapper without the proxy getting in the way
+const InterfaceWrapping = Symbol('[[CurrentInterface]]')
+const Revoke = Symbol('[[Revoke]]')
+const Destroy = Symbol('[[DestroyMethod]]')
+const Cache = Symbol('[[Cache]]')
+function destroy() {
+    let Target = this[WrapperTarget]
+    this.constructor[Cache].delete(Target)
+    this[Revoke]()
+}
 // Structure is:
 // Proxy -> Wrapper -> [[Target]]
 export class Handler {
-    get target() { return this.#base }
-    #base
-    get(Wrapper, prop, receiver = Wrapper) {
-        if (prop === OriginalObject) return Wrapper[WrapperTarget]
-        let out
-        let wrapperObjectTarget = Wrapper[WrapperTarget]
-        if (prop in Wrapper) { out = Reflect.get(Wrapper, prop, receiver) }
-        else out = Reflect.get(wrapperObjectTarget, prop, wrapperObjectTarget)
+    get(Wrapper, prop) {
+        if (prop === WrapperItself) return Wrapper
+        let target = Wrapper[WrapperTarget]
+        let toGet = target, out
+        let receiver = toGet
+        if (prop === WrapperTarget) return target
+        if (prop in Wrapper) toGet = receiver = Wrapper
+        out = Reflect.get(toGet, prop, target)
         return typeof out === 'function' ? cacheFunction(out) : out
     }
-    set(Wrapper, prop, value, receiver = Wrapper) {
-        if (prop in Wrapper) return Reflect.set(Wrapper, prop, value, receiver)
-        let base = Wrapper[WrapperTarget]
-        if (base && prop in base) return Reflect.set(base, prop, value)
-        let wrapperObjectTarget = Wrapper[WrapperTarget]
-        return Reflect.set(wrapperObjectTarget, prop, value, wrapperObjectTarget)
+    set(Wrapper, prop, value) {
+        let assign = Wrapper[WrapperTarget]
+        if (prop in Wrapper) assign = Wrapper
+        return Reflect.set(assign, prop, value)
     }
-    /*has(t, prop) {
-        return prop in t || prop in t[this.#base]
-    }*/
-    /*getPrototypeOf(Wrapper) {
-        return Wrapper[this.#base]
-    }
-    setPrototypeOf(Wrapper, prototype) {
-        Wrapper[this.#base] = prototype
-        return true
-    }*/
     apply(func, thisArg, args) {
         switch (args.length) {
             case 0: return func.call(thisArg)
@@ -43,7 +39,7 @@ export class Handler {
         return func.apply(thisArg, args)
     }
     construct(constructor, args, newTarget) {
-        if (typeof newTarget !== 'function') switch (args.length) {
+        if (newTarget) switch (args.length) {
             case 0: return new constructor
             case 1: return new constructor(args[0])
             case 2: return new constructor(args[0], args[1])
@@ -52,17 +48,11 @@ export class Handler {
         }
         return Reflect.construct(constructor, args, newTarget)
     }
-    constructor(symbol = WrapperTarget) {
-        console.assert(typeof symbol === 'symbol', 'Wrong argument', symbol)
-        this.#base = symbol
-    }
 }
 let FunctionCache = new WeakMap
 export function cacheFunction(MyFunc) {
-    let Original = MyFunc[OriginalFunction]
-    // if (typeof base !== 'symbol' && typeof base !== 'string') throw TypeError('Base must be symbol-keyed')
-    do if (FunctionCache.has(Original)) return FunctionCache.get(Original)
-    while (Original = MyFunc[OriginalFunction])
+    if (typeof MyFunc.prototype === 'object') return MyFunc // it's a class
+    if (FunctionCache.has(MyFunc)) return FunctionCache.get(MyFunc)
     const o = {
         [MyFunc.name](...args) {
             const thisArg = getTarget(this)
@@ -72,56 +62,75 @@ export function cacheFunction(MyFunc) {
                 case 2: return MyFunc.call(thisArg, args[0], args[1])
                 case 3: return MyFunc.call(thisArg, args[0], args[1], args[2])
             }
-            return Reflect.apply(MyFunc, thisArg, args)
+            return func.apply(MyFunc, thisArg, args)
         }
     }[MyFunc.name]
-    o[OriginalFunction] = MyFunc[OriginalFunction] = MyFunc
     FunctionCache.set(MyFunc, o)
     return o
 }
-function getLabel(t) {return t[Symbol.toStringTag]}
-export function ProxyProtoGenerator(myClass, Interface = Object, { handler = new Handler(OriginalObject) } = {}) {
+function label(t) { return t[Symbol.toStringTag] }
+const defaultHandler = new Handler
+export function ProxyFactory(myClass, Interface = Object, handler = defaultHandler) {
     let cache = new WeakMap // Memoize
     Generator.prototype = myClass.prototype
+    myClass[Cache] = cache
     function Generator(Target) {
-        console.assert(Target instanceof Interface, `Expected a #<${Interface.name}>, instead got a #<${getLabel(Target)}>`, Target)
+        console.assert(Target instanceof Interface, `Expected a #<${Interface.name}>, instead got a #<${label(Target)}>`, Target)
         if (cache.has(Target)) return cache.get(Target)
-        if (new.target) var out = Reflect.construct(myClass, [Target], new.target)
-            // There is an upgrade available!
+        if (new.target && new.target !== Generator) var out = Reflect.construct(myClass, [Target], new.target)
+        // There is an upgrade available!
         else {
             // initial call is executed (once) in this block
             // ONLY put the proxy if this is the end of the inheritance chain,
             // to prevent a proxy of a proxy
-            out = new Proxy(Object.defineProperty(new myClass(Target), WrapperTarget, {value: Target}), handler)
+            ////for(let key of Reflect.ownKeys(myClass.prototype))key !== 'constructor'&&key in Interface.prototype&&console.warn(`Overwrite ${String(key)} on ${myClass.name}`) 
+            let instance = new myClass(Target)
+            let { proxy, revoke } = Proxy.revocable(Object.defineProperty(instance, WrapperTarget, { value: Target }), handler)
+            instance[Revoke] = revoke
+            instance[Destroy] = destroy
+            out = proxy
             cache.set(Target, out)
         }
         return out
     }
-    Interface !== Object && classify(Interface, Generator)
+    if (Interface !== Object) {
+        myClass[InterfaceWrapping] = Interface
+        classify(Interface, Generator)
+    }
     return Generator
 }
-export default ProxyProtoGenerator
 let Interfaces = new Map
-export function proxify(target) {
-    let Interface = target[TargetInterface]
-    let myProxy = Interfaces.get(Interface)
-    if (myProxy) return myProxy(target)
-    throw TypeError(`Cannot proxy a #<${getLabel(target)}>`)
+export default proxify
+export function proxify(any) {
+    let Interface = any[TargetInterface]
+    let Generator = Interfaces.get(Interface)
+    return Generator ? Generator(any) : any
+    // throw TypeError(`Cannot proxy a #<${getLabel(target)}>`)
 }
-function getTarget(TargetOrWrapper) {
-    return TargetOrWrapper[OriginalObject]
+Object.defineProperty(proxify, 'Upgrade', {
+    value(any) {
+        let upgrade = any[TargetInterface]
+        let myClass = any.constructor[InterfaceWrapping]
+        if (myClass.prototype.isPrototypeOf(upgrade.prototype)) {
+            console.debug(`Upgrading a #<${myClass.name}> to a #<${label(any[WrapperTarget])}>`)
+            let Target = any[WrapperTarget]
+            any[Destroy]()
+            any = proxify(Target)
+        }
+        return any
+    }
+})
+function getTarget(Wrapper) {
+    return Wrapper[WrapperTarget]
 }
-export function classify(Interface, ProxyMaker) {
+function classify(Interface, Generator) {
     // Recognize that objects of this interface will be for this proxy
     let prototype = Object.getPrototypeOf(Interface.prototype)
-    let already = prototype[TargetInterface]
-    console.log(`Setting up ${Interface.name}()${already ? ` from existing ${getLabel(prototype)}()` : ''}`)
+        , downgrade = prototype[TargetInterface]
+    console.debug(`Setting up ${Interface.name}()${downgrade ? ` from existing ${label(prototype)}()` : ''}`)
     Interface.prototype[TargetInterface] = Interface
-    Interfaces.set(Interface, ProxyMaker)
+    Interfaces.set(Interface, Generator)
 }
-export function raw(target) {
-    return target.valueOf()
-}
-export function getProxyConstructor(target) {
-    return Interfaces.get(target[TargetInterface])
+export function base(obj) {
+    return obj[WrapperTarget] ?? obj
 }
