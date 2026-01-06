@@ -11,10 +11,13 @@ function destroy() {
     this.constructor[Cache].delete(Target)
     this[Revoke]()
 }
+function readonly(target,prop,value){Reflect.defineProperty(target,prop, {value})
+return target}
 // Structure is:
 // Proxy -> Wrapper -> [[Target]]
 export class Handler {
     get(Wrapper, prop) {
+        if (prop === Revoke) return Wrapper[Revoke]
         if (prop === WrapperItself) return Wrapper
         let target = Wrapper[WrapperTarget]
         let toGet = target, out
@@ -44,7 +47,7 @@ export class Handler {
             case 1: return new constructor(args[0])
             case 2: return new constructor(args[0], args[1])
             case 3: return new constructor(args[0], args[1], args[2])
-            default: return new constructor(...args)
+          default: return new constructor(...args)
         }
         return Reflect.construct(constructor, args, newTarget)
     }
@@ -72,8 +75,9 @@ function label(t) { return t[Symbol.toStringTag] }
 const defaultHandler = new Handler
 export function ProxyFactory(myClass, Interface = Object, handler = defaultHandler) {
     let cache = new WeakMap // Memoize
-    Generator.prototype = myClass.prototype
-    myClass[Cache] = cache
+    readonly(Generator, 'prototype', myClass.prototype)
+    readonly(myClass, Cache, cache)
+    readonly(myClass.prototype, Destroy, destroy)
     function Generator(Target) {
         console.assert(Target instanceof Interface, `Expected a #<${Interface.name}>, instead got a #<${label(Target)}>`, Target)
         if (cache.has(Target)) return cache.get(Target)
@@ -85,16 +89,15 @@ export function ProxyFactory(myClass, Interface = Object, handler = defaultHandl
             // to prevent a proxy of a proxy
             ////for(let key of Reflect.ownKeys(myClass.prototype))key !== 'constructor'&&key in Interface.prototype&&console.warn(`Overwrite ${String(key)} on ${myClass.name}`) 
             let instance = new myClass(Target)
-            let { proxy, revoke } = Proxy.revocable(Object.defineProperty(instance, WrapperTarget, { value: Target }), handler)
-            instance[Revoke] = revoke
-            instance[Destroy] = destroy
+            let { proxy, revoke } = Proxy.revocable(readonly(instance, WrapperTarget, Target), handler)
+            readonly(instance, Revoke, revoke)
             out = proxy
             cache.set(Target, out)
         }
         return out
     }
     if (Interface !== Object) {
-        myClass[InterfaceWrapping] = Interface
+        readonly(myClass, InterfaceWrapping, Interface)
         classify(Interface, Generator)
     }
     return Generator
@@ -107,17 +110,35 @@ export function proxify(any) {
     return Generator ? Generator(any) : any
     // throw TypeError(`Cannot proxy a #<${getLabel(target)}>`)
 }
-Object.defineProperty(proxify, 'Upgrade', {
-    value(any) {
-        let upgrade = any[TargetInterface]
-        let myClass = any.constructor[InterfaceWrapping]
-        if (myClass.prototype.isPrototypeOf(upgrade.prototype)) {
-            console.debug(`Upgrading a #<${myClass.name}> to a #<${label(any[WrapperTarget])}>`)
-            let Target = any[WrapperTarget]
-            any[Destroy]()
-            any = proxify(Target)
+Object.defineProperties(proxify, {
+    Base: {
+        value: base
+    },
+    IsProxy: {
+        value(any) {
+            return!!(any[WrapperTarget])
         }
-        return any
+    },
+    Upgrade: {
+        value(proxy) {
+            let Target = proxy[WrapperTarget]
+            if (proxy === Target) throw TypeError(`Cannot upgrade a plain object`)
+            let upgrade = proxy[TargetInterface]
+            let myClass = proxy.constructor[InterfaceWrapping]
+            if (myClass.prototype.isPrototypeOf(upgrade.prototype)) {
+                console.debug(`Upgrading a #<${myClass.name}> to a #<${label(Target)}>`)
+                proxy[Destroy]()
+                proxy = proxify(Target)
+            }
+            return proxy
+        }
+    },
+    Destroy: {
+        value(proxy) {
+            let dest = proxy[Destroy]
+            if (dest) return dest.call(proxy)
+            throw TypeError(`Cannot destroy a plain object`)
+        }
     }
 })
 function getTarget(Wrapper) {

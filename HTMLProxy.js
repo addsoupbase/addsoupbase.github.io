@@ -1,4 +1,4 @@
-import { ProxyFactory, proxify, base, WrapperItself } from './BaseProxy.js'
+import { ProxyFactory, proxify, base, WrapperItself, WrapperTarget } from './BaseProxy.js'
 export default proxify
 import { EventTargetProxy } from './EventTargetProxy.js'
 function tlc(o) {
@@ -17,11 +17,15 @@ function toDash(prop) {
 let dash = /-./g,
     azregex = /[A-Z]/g
 class NodeProxyClass extends EventTargetProxy {
+    *[Symbol.iterator]() {
+        let n = this.nodes
+        for (let i = 0, l = n.length; i < l; ++i) yield n[i]
+    }
     nodeAt(index) {
         let n = [].at.call(this.childNodes, index)
         return n ? proxify(n) : null
     }
-    remove() {
+    removeNode() {
         this.remove ? this.remove() : this.parentNode?.removeChild(this)
     }
     nodeIndexOf(node) {
@@ -58,13 +62,14 @@ class NodeProxyClass extends EventTargetProxy {
     }
     set nodes(childs) {
         let me = this
+        if (me.replaceChildren) {
+            return me.replaceChildren(...childs)
+        }
         let children = me.childNodes
-        for (let i = children.length; i--;) {
+        for (let i = children.length; i--;)
             me.removeChild(children[i])
-        }
-        if (childs !== void 0) for (let i = 0, len = childs.length; i < len; ++i) {
+        if (childs !== void 0) for (let i = 0, len = childs.length; i < len; ++i)
             me.appendChild(childs[i])
-        }
     }
     get prev() {
         let node = this.previousSibling
@@ -79,7 +84,8 @@ class NodeProxyClass extends EventTargetProxy {
 }
 export const NodeProxy = new ProxyFactory(NodeProxyClass, Node)
 class Cacher {
-    static Target = Symbol('[[CSSStyleDeclarationTarget]]')
+    // https://gist.github.com/paulirish/5d52fb081b3570c81e3a
+    static Target = Symbol('[[Target]]')
     $cache = { __proto__: null }
     constructor(target) {
         this[Cacher.Target] = target
@@ -90,19 +96,19 @@ class Cacher {
             this.#queued = true
             requestAnimationFrame(() => {
                 debugger
-                this.$finish()
-                this.$cache = { __proto__: null }
-                this.#queued = false
+                try {
+                    this.$finish()
+                }
+                finally {
+                    this.$cache = { __proto__: null }
+                    this.#queued = false
+                }
             })
         }
     }
-    $transform(key) { return String(key) }
     $getPropertyCache(key) {
-        key = this.$transform(key)
         let cache = this.$cache
-        if (key in cache) {
-            return cache[key]
-        }
+        if (key in cache) return cache[key]
         let value = this[Cacher.Target][key]
         Object.defineProperty(cache, key, {
             value,
@@ -111,9 +117,13 @@ class Cacher {
         })
         return value
     }
-    $setPropertyCache(key, val) {
-        key = this.$transform(key)
-        this.$cache[key] = val
+    $setPropertyCache(key, value) {
+        Object.defineProperty(this.$cache, key, {
+            value,
+            enumerable: true,
+            configurable: true,
+            writable: true
+        })
         this.#queueReset()
     }
     static define(cl, key) {
@@ -128,14 +138,14 @@ class Cacher {
     }
 }
 class ReflowCache extends Cacher {
+    $setPropertyCache(key, value) {
+        super.$setPropertyCache(key, parseFloat(value))
+    }
     $finish() {
         let target = this[Cacher.Target]
         let cache = this.$cache
-        for (let i in cache) {
-            target[i] = +cache[i]
-        }
+        for (let i in cache) target[i] = cache[i]
     }
-
 }
 {
     let all = 'offsetLeft offsetTop offsetWidth offsetHeight offsetParent clientLeft clientTop clientWidth clientHeight scrollWidth scrollHeight scrollTop scrollLeft'.split(' ')
@@ -146,15 +156,27 @@ class ReflowCache extends Cacher {
 }
 class StyleCache extends Cacher {
     static ran = false
-    $transform(key) { return toDash(key) }
+    /*$setPropertyCache(key, value) {
+        try {value = CSSStyleValue.parse(key, value)}
+        catch{}
+        super.$setPropertyCache(key,value)
+    }*/
+    /*$getPropertyCache(key) {
+        let val = super.$getPropertyCache(key)
+        try {
+            return CSSStyleValue.parse(key, val)
+        }
+        catch {
+            return val
+        }
+    }*/
     constructor(t) {
         super(t)
         if (!StyleCache.ran) {
             StyleCache.ran = true
             let keys = Object.keys(this[Cacher.Target])
-            for (let i = keys.length; i--;) {
+            for (let i = keys.length; i--;)
                 Cacher.define(StyleCache, keys[i])
-            }
         }
     }
     $finish() {
@@ -162,17 +184,27 @@ class StyleCache extends Cacher {
         let str = ''
         for (let key in c) {
             let val = c[key]
-            str += `${key}:${val}`
+            str += `${toDash(key)}:${val};`
         }
         this[Cacher.Target].cssText = str
     }
 }
 class ElementProxyClass extends NodeProxy {
+    *[Symbol.iterator]() {
+        let k = this.children
+        for (let i = 0, l = k.length; i < l; ++i) yield proxify(k[i])
+    }
+    eltAt(index) {
+        let n = [].at.call(this.children, index)
+        return n ? proxify(n) : null
+    }
     fadeOut(duration = 500, { keepSpace, easing = 'ease' } = {}) {
-        let n = this.animate([, { opacity: 0 }], {
+        // idk if 'filter: opacity()' or 'opacity' is better for animating, we can see i guess
+        let n = this.animate([{ filter: 'opacity(100%)' }, { filter: 'opacity(0%)' }], {
             duration,
             iterations: 1,
             easing,
+            composite: 'replace',
             fill: 'forwards'
         })
         n.finished.then(() => {
@@ -183,10 +215,11 @@ class ElementProxyClass extends NodeProxy {
     fadeIn(duration = 500, { easing } = {}) {
         let me = proxify(this).styles
         me.visibility = me.display = ''
-        return this.animate([{ opacity: me.opacity || '' }, { opacity: 1 }], {
+        return this.animate([{ filter: 'opacity(0%)' }, { filter: 'opacity(100%)' }], {
             duration,
             iterations: 1,
             easing,
+            composite: 'replace',
             fill: 'forwards'
         })
     }
@@ -203,18 +236,26 @@ class HTMLElementProxyClass extends ElementProxy {
     }
 }
 export const HTMLElementProxy = new ProxyFactory(HTMLElementProxyClass, HTMLElement)
-
-/*class MouseEventProxyClass {
-
-}
-class MouseEventHandler extends Cacher {
-
-}
-{
-    let props = 'layerX layerY offsetX offsetY'.split(' ')
-    for (let i = props.length; i--;) {
-        Cacher.define(MouseEventHandler, props[i])
+class MouseEventProxy {
+    #cacher
+    static #already = false
+    static setup() {
+        if (this.#already) return
+        this.#already = true
+        let all = 'layerX layerY offsetX offsetY'.split(' ')
+        let {prototype} = this
+        for(let i = all.length; i--;) {
+            let key = all[i]
+            Reflect.defineProperty(prototype, key, {
+                get() {
+                    return proxify(this)[WrapperItself].#cacher.$getPropertyCache(key)
+                }
+            })
+        }
+    }
+    constructor(e) {
+        MouseEventProxy.setup()
+        this.#cacher = new Cacher(e)
     }
 }
-new ProxyFactory(MouseEventProxyClass, MouseEvent, new MouseEventHandler)
-console.log(proxify(new MouseEvent({})))*/
+new ProxyFactory(MouseEventProxy, MouseEvent)

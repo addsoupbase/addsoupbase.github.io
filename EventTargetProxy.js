@@ -7,19 +7,23 @@ h = window[h]
 class EventTargetProxyClass {
     on(events, controller) {
         let me = proxify(this)
-        let a = me.baseClassObject
-        for (let i in events)
-            events[i] = events[i].bind(me)
+        for (let i in events) {
+            let old = events[i]
+            events[i] = Wrapped
+            function Wrapped(e) {
+                return old.call(me, proxify(e))
+            }
+        }
         return h.on(this, events, controller)
     }
     off(...names) {
-        let base = this
+        if (!names.length) return h.off(this, ...h.getEventNames(this))
         switch (names.length) {
             case 0: return
-            case 1: return h.off(base, names[0])
-            case 2: return h.off(base, names[0], names[1])
-            case 3: return h.off(base, names[0], names[1], names[2])
-            default: return h.off(base, ...names)
+            case 1: return h.off(this, names[0])
+            case 2: return h.off(this, names[0], names[1])
+            case 3: return h.off(this, names[0], names[1], names[2])
+            default: return h.off(this, ...names)
         }
     }
 }
