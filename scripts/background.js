@@ -1,7 +1,7 @@
 import $, { css } from '../yay.js'
 const { registerCSS, registerCSSAll } = css
 import '../sound.js'
-let regex = /[\w.\-%汝起亚]+\.(?:webp|a?png|gif|jpe?g)/
+let regex = /[\w.\-%汝起亚]+\.(?:webp|a?png|gif|jpe?g|avif)/
 let all = document.getElementsByTagName('*')
 function isHidden() {//violations >= 10 || 
     return all.length > 135 || hidden || !!document.fullscreenElement || document.hidden || document.visibilityState === 'hidden'
@@ -64,7 +64,7 @@ async function images({ time, pkm, colorful, birthday }) {
             easing: 'ease-in-out',
             composite: 'accumulate',
         }).finished
-        let { 0: name } = this.firstElementChild.title.match(regex)[0].split(/\.(?:webp|a?png|gif|jpe?g)/)
+        let { 0: name } = this.firstElementChild.title.match(regex)[0].split(/\.(?:webp|a?png|gif|jpe?g|avif)/)
         if (name.includes('%')) name = decodeURIComponent(name)
         let src = this.firstElementChild.src
         let me = $(`div.ava .tar .${name}`, {
