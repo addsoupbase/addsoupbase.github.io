@@ -4,7 +4,7 @@ export default proxify
 let h = Symbol.for('[[HModule]]')
 typeof window[h] === 'undefined' && await import('./h.js')
 h = window[h]
-class EventTargetProxyClass {
+class EventTarget$ {
     on(events, controller) {
         let me = proxify(this)
         for (let i in events) {
@@ -17,7 +17,7 @@ class EventTargetProxyClass {
         return h.on(this, events, controller)
     }
     off(...names) {
-        if (!names.length) return h.off(this, ...h.getEventNames(this))
+        if (names[0] === true && names.length===1) return h.off(this, ...h.getEventNames(this))
         switch (names.length) {
             case 0: return
             case 1: return h.off(this, names[0])
@@ -28,4 +28,4 @@ class EventTargetProxyClass {
     }
 }
 // const descriptors = Object.getOwnPropertyDescriptors(prototype)
-export const EventTargetProxy = new ProxyFactory(EventTargetProxyClass, EventTarget)
+export const EventTargetProxy = new ProxyFactory(EventTarget$)

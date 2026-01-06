@@ -539,7 +539,8 @@
         o[W('.center_grid_y')] = { display: 'grid', 'place-items': 'start center' }
         o[W('.center_absolute_x')] = { left: '50%', transform: 'translateX(-50%)' }
         o[W('.center_absolute_y')] = { top: '50%', transform: 'translateY(-50%)' }
-        o[W('.v-dialog')] = {'max-width': '100%', 'overflow-x': 'clip','word-break': 'break-word'}
+        // o[W('.v-dialog')] = {'max-width': '100%', 'overflow-x': 'clip','word-break': 'break-word'}
+        o[W('img')] = {'max-inline-size': '100%','block-size':'auto'} // https://web.dev/learn/design/responsive-images
         newName = entries(o).reduce(function (a, b) {
             return a + b[0] + "{" + toCSS(b[1]) + "}"
         }, "@namespace svg url('http://www.w3.org/2000/svg');@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:root{--system-font:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif}:-moz-loading{cursor:wait}:-moz-broken{border-radius:0}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not(scrollbar-color:auto){::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}")

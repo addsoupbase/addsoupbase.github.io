@@ -1,5 +1,5 @@
-import { ProxyFactory, proxify, base, WrapperItself, WrapperTarget } from './BaseProxy.js'
-export default proxify
+import P, { ProxyFactory, base, WrapperItself } from './BaseProxy.js'
+export default P
 import { EventTargetProxy } from './EventTargetProxy.js'
 function tlc(o) {
     return '-' + o.toLowerCase()
@@ -16,14 +16,17 @@ function toDash(prop) {
 }
 let dash = /-./g,
     azregex = /[A-Z]/g
-class NodeProxyClass extends EventTargetProxy {
+class Node$ extends EventTargetProxy {
     *[Symbol.iterator]() {
-        let n = this.nodes
-        for (let i = 0, l = n.length; i < l; ++i) yield n[i]
+        let n = this.childNodes
+        for (let i = 0, l = n.length; i < l; ++i) yield P(n[i])
     }
     nodeAt(index) {
         let n = [].at.call(this.childNodes, index)
-        return n ? proxify(n) : null
+        return n ? P(n) : null
+    }
+    pushNode(...nodes) {
+        for (let i = 0, l = nodes.length; i < l; ++i) this.appendChild(base(nodes[i]))
     }
     removeNode() {
         this.remove ? this.remove() : this.parentNode?.removeChild(this)
@@ -32,7 +35,7 @@ class NodeProxyClass extends EventTargetProxy {
         return [].indexOf.call(this.childNodes, base(node))
     }
     /*splice(start, count, ...items) {
-        let o = proxify(this).slice(start, count)
+        let o = P(this).slice(start, count)
     },
     slice(start, end) {
         start = +clamp(start, 0, this.childNodes.length - 1) | 0
@@ -44,21 +47,21 @@ class NodeProxyClass extends EventTargetProxy {
     },*/
     get lastNode() {
         let c = this.lastChild
-        return c && proxify(c)
+        return c && P(c)
     }
     set lastNode(val) {
         this.appendChild(base(val))
     }
     get firstNode() {
         let c = this.firstChild
-        return c && proxify(c)
+        return c && P(c)
     }
     set firstNode(node) {
         let l = this.firstChild
         l ? this.insertBefore(base(node), l) : this.appendChild(base(node))
     }
     get nodes() {
-        return [].map.call(this.childNodes, proxify)
+        return [].map.call(this.childNodes, P)
     }
     set nodes(childs) {
         let me = this
@@ -71,18 +74,27 @@ class NodeProxyClass extends EventTargetProxy {
         if (childs !== void 0) for (let i = 0, len = childs.length; i < len; ++i)
             me.appendChild(childs[i])
     }
-    get prev() {
-        let node = this.previousSibling
-        return node === null ? null : proxify(node)
+    get prevNode() {
+        let n = this.previousSibling
+        return n && P(n)
     }
-    set prev(val) {
-        let me = this
-        let parent = me.parentNode
-        if (parent === null) throw TypeError(`Cannot set siblings on an orphan`)
-        parent.before(base(val))
+    set prevNode(val) {
+        if (!parent) throw TypeError(`Cannot set prev on orphan`)
+        let parent = this.parentNode
+        parent.insertBefore(base(val), this)
+    }
+    get nextNode() {
+        let n = this.nextSibling
+        return n && P(n)
+    }
+    set nextNode(val) {
+        let parent = this.parentNode
+        if (!parent) throw TypeError(`Cannot set next on orphan`)
+        let next = this.nextSibling
+        next ? parent.insertBefore(base(val), next) : parent.appendChild(base(val))
     }
 }
-export const NodeProxy = new ProxyFactory(NodeProxyClass, Node)
+export const NodeProxy = new ProxyFactory(Node$)
 class Cacher {
     // https://gist.github.com/paulirish/5d52fb081b3570c81e3a
     static Target = Symbol('[[Target]]')
@@ -189,14 +201,21 @@ class StyleCache extends Cacher {
         this[Cacher.Target].cssText = str
     }
 }
-class ElementProxyClass extends NodeProxy {
+class Element$ extends NodeProxy {
     *[Symbol.iterator]() {
         let k = this.children
-        for (let i = 0, l = k.length; i < l; ++i) yield proxify(k[i])
+        for (let i = 0, l = k.length; i < l; ++i) yield P(k[i])
+    }
+    get last() {
+        let o = this.lastElementChild
+        return o && P(o)
+    }
+    set last(n) {
+        this.appendChild(base(n))
     }
     eltAt(index) {
         let n = [].at.call(this.children, index)
-        return n ? proxify(n) : null
+        return n ? P(n) : null
     }
     fadeOut(duration = 500, { keepSpace, easing = 'ease' } = {}) {
         // idk if 'filter: opacity()' or 'opacity' is better for animating, we can see i guess
@@ -208,12 +227,12 @@ class ElementProxyClass extends NodeProxy {
             fill: 'forwards'
         })
         n.finished.then(() => {
-            proxify(this).styles[keepSpace ? 'visibility' : 'display'] = keepSpace ? 'hidden' : 'none'
+            P(this).styles[keepSpace ? 'visibility' : 'display'] = keepSpace ? 'hidden' : 'none'
         })
         return n
     }
     fadeIn(duration = 500, { easing } = {}) {
-        let me = proxify(this).styles
+        let me = P(this).styles
         me.visibility = me.display = ''
         return this.animate([{ filter: 'opacity(0%)' }, { filter: 'opacity(100%)' }], {
             duration,
@@ -224,38 +243,27 @@ class ElementProxyClass extends NodeProxy {
         })
     }
 }
-let ElementProxy = new ProxyFactory(ElementProxyClass, Element)
-class HTMLElementProxyClass extends ElementProxy {
+let ElementProxy = new ProxyFactory(Element$)
+class HTMLElement$ extends ElementProxy {
     #style = null
     #calc = null
     get calc() {
-        return proxify(this)[WrapperItself].#style ||= new ReflowCache(this)
+        super.#calc
+        return P.GetWrapper(this).#style ||= new ReflowCache(this)
     }
     get styles() {
-        return proxify(this)[WrapperItself].#style ||= new StyleCache(this.style)
+        return P.GetWrapper(this).#style ||= new StyleCache(this.style)
     }
 }
-export const HTMLElementProxy = new ProxyFactory(HTMLElementProxyClass, HTMLElement)
-class MouseEventProxy {
-    #cacher
-    static #already = false
-    static setup() {
-        if (this.#already) return
-        this.#already = true
-        let all = 'layerX layerY offsetX offsetY'.split(' ')
-        let {prototype} = this
-        for(let i = all.length; i--;) {
-            let key = all[i]
-            Reflect.defineProperty(prototype, key, {
-                get() {
-                    return proxify(this)[WrapperItself].#cacher.$getPropertyCache(key)
-                }
-            })
-        }
-    }
-    constructor(e) {
-        MouseEventProxy.setup()
-        this.#cacher = new Cacher(e)
-    }
+export const HTMLElementProxy = new ProxyFactory(HTMLElement$)
+class MouseEvent$ {
+    #layerX = null
+    #layerY = null
+    #offsetX = null
+    #offsetY = null
+    get layerX() { return P.GetWrapper(this).#layerX ??= this.layerX }
+    get layerY() { return P.GetWrapper(this).#layerY ??= this.layerY }
+    get offsetX() { return P.GetWrapper(this).#offsetX ??= this.offsetX }
+    get offsetY() { return P.GetWrapper(this).#offsetY ??= this.offsetY }
 }
-new ProxyFactory(MouseEventProxy, MouseEvent)
+new ProxyFactory(MouseEvent$)

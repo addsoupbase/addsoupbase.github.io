@@ -16,7 +16,7 @@ proxy does not allow lying about non-writable non-configurable props
 and so it throws which is easier for me
 */
 function readonly(target, prop, value) {
-    Reflect.defineProperty(target, prop, {value})
+    Reflect.defineProperty(target, prop, { value })
     return target
 }
 // Structure is:
@@ -34,9 +34,10 @@ export class Handler {
         return typeof out === 'function' ? cacheFunction(out) : out
     }
     set(Wrapper, prop, value) {
-        let assign = Wrapper[WrapperTarget]
-        if (prop in Wrapper) assign = Wrapper
-        return Reflect.set(assign, prop, value)
+        let Target = Wrapper, Receiver = Target
+        if (prop in Wrapper) Receiver = Wrapper[WrapperTarget]
+        else Target = Receiver = Wrapper[WrapperTarget]
+        return Reflect.set(Target, prop, value, Receiver)
     }
     apply(func, thisArg, args) {
         switch (args.length) {
@@ -53,7 +54,7 @@ export class Handler {
             case 1: return new constructor(args[0])
             case 2: return new constructor(args[0], args[1])
             case 3: return new constructor(args[0], args[1], args[2])
-          default: return new constructor(...args)
+            default: return new constructor(...args)
         }
         return Reflect.construct(constructor, args, newTarget)
     }
@@ -79,13 +80,13 @@ export function cacheFunction(MyFunc) {
 }
 function label(t) { return t[Symbol.toStringTag] }
 const defaultHandler = new Handler
-export function ProxyFactory(myClass, Interface = Object, handler = defaultHandler) {
+export function ProxyFactory(myClass, Interface = globalThis[myClass.name.replace(/\$$/, '')] ?? Object, handler = defaultHandler) {
     let cache = new WeakMap // Memoize
     readonly(Generator, 'prototype', myClass.prototype)
     readonly(myClass, Cache, cache)
     readonly(myClass.prototype, Destroy, destroy)
     function Generator(Target) {
-        console.assert(Target instanceof Interface, `Expected a #<${Interface.name}>, instead got a #<${label(Target)}>`, Target)
+        console.assert(Interface.prototype.isPrototypeOf(Target), `Expected a #<${Interface.name}>, instead got a #<${label(Target)}>`, Target)
         if (cache.has(Target)) return cache.get(Target)
         if (new.target && new.target !== Generator) var out = Reflect.construct(myClass, [Target], new.target)
         // There is an upgrade available!
@@ -122,7 +123,7 @@ Object.defineProperties(proxify, {
     },
     IsProxy: {
         value(any) {
-            return!!(any[WrapperTarget])
+            return !!(any[WrapperTarget])
         }
     },
     Upgrade: {
@@ -137,6 +138,11 @@ Object.defineProperties(proxify, {
                 proxy = proxify(Target)
             }
             return proxy
+        }
+    },
+    GetWrapper: {
+        value(t) {
+            return proxify(t)[WrapperItself]
         }
     },
     Destroy: {
