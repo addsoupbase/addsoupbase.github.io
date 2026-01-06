@@ -3,7 +3,11 @@ const { registerCSS } = window[Symbol.for('[[CSSModule]]')]
 import { until } from "../handle.js"
 // import { jason } from '../arrays.js'
 let bubble = Object.assign(new Image, {
-    src: './media/bubble.webp'
+    src: `data:image/svg+xml,<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <circle r="95" cx="100" cy="100" fill="rgba(15, 20, 210, 0.4)" stroke="#1043E5" stroke-width="10" />
+  <path d="M 180 100 A 80 80 0 0 0 100 20" fill="none" stroke="white" stroke-width="9" />
+</svg>
+`
 })
 let dataURLS = {
     "horsea:4": "iVBORw0KGgoAAAANSUhEUgAAAGAAAAAwBAMAAAAcOGL8AAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAhUExURQAAAAAAAB+f5wBnt4/f//////+HX58AAL93J9+3AP/nn6Kr/dAAAAABdFJOUwBA5thmAAAAAWJLR0QAiAUdSAAAAUpJREFUSMftkzFygzAQRbU3YIUK4k5YF0DhAsjLTNxm7OQIqTOTC1C6dJe4c+tTBoQlFqL0mQxbofeX1Uf6CPFnCvkCsrTCueQ9oEVS4XzWM3udK/xl5KYQ0wrjudmyHusqkVAYB0nUTIMMUZZQGIdGTT1C4dTEFcalatpD8Aqa1PEuoFeyHzzX9PKxw2BVtW/ON8HJK3rJBebmNW4NaNt30sMCbl5xuOCi/7L2mXbj1N4pHUe3cBmUgx/FuYByR9qO/jZXaWonqfKWutKRNsMozgUojdn9Vh4u6BDB+FWBaouZbJYcnPwMp1qclD6H0EE1+Pepm/EC60sX7gRR3eIRW7yKBN90Zq9iynL6CjEDsw+DZrw4l08yZkOaLkag51WKo93m0w7lowqCLesU77/FuvjcBy7uhibNh6xPz8D+h9/4WmuttdZ/qW9RaUWCFWhK2wAAAABJRU5ErkJggg==",

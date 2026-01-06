@@ -55,3 +55,5 @@ bun.*
 benchmark/
 uncensor
 entrymaker/
+media/bubble.svg
+media/bubble2.svg

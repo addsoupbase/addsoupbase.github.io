@@ -11,8 +11,14 @@ function destroy() {
     this.constructor[Cache].delete(Target)
     this[Revoke]()
 }
-function readonly(target,prop,value){Reflect.defineProperty(target,prop, {value})
-return target}
+/* 
+proxy does not allow lying about non-writable non-configurable props
+and so it throws which is easier for me
+*/
+function readonly(target, prop, value) {
+    Reflect.defineProperty(target, prop, {value})
+    return target
+}
 // Structure is:
 // Proxy -> Wrapper -> [[Target]]
 export class Handler {

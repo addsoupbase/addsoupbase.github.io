@@ -305,8 +305,15 @@ async function images({ time, pkm, colorful, birthday }) {
     // snowflakes()
     let cycle
     let mons
-    time.then(() => {
+    time.then(async() => {
+        let isAvifSupported = await new Promise(resolve => {
+            let n = new Image
+            n.onerror = () =>resolve(false)
+            n.onload = () => resolve(true)
+            n.src = `data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADybWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAeaWxvYwAAAABEAAABAAEAAAABAAABGgAAAB0AAAAoaWluZgAAAAAAAQAAABppbmZlAgAAAAABAABhdjAxQ29sb3IAAAAAamlwcnAAAABLaXBjbwAAABRpc3BlAAAAAAAAAAIAAAACAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQ0MAAAAABNjb2xybmNseAACAAIAAYAAAAAXaXBtYQAAAAAAAAABAAEEAQKDBAAAACVtZGF0EgAKCBgANogQEAwgMg8f8D///8WfhwB8+ErK42A=`
+        })
         let avatars = ["river.webp","rikapika.webp","chlorineatt.webp","rainmint.webp","son_yukio.webp","aya.webp","may.webp","mila.webp","xzzy.webp","Dohaaa.webp","saintz.webp","elenfnf1.webp","niya.webp","mothmaddie.webp","kae.webp","lorex.webp","caelix.webp","lunza.webp","zee.webp","MRK.webp","kannadra.webp","rue.webp","znsxxe.webp","juaj.webp","ilikebugs2.webp","Professional_idiot.webp","gummicat.webp","kurispychips.webp","fourche7.webp","stav.webp","mochi.webp","khaoticgood.webp","stuella.webp","Lotus.webp","ka1ya1.webp","babby.webp","mai.webp","frannie4u.webp","ghostie.webp","glente.webp","Remi.webp","na22.webp","汝起亚.webp","valerie.webp","oli.webp","crazy.webp","zrake.webp","armaan.n.webp","auquamantis.webp","elipoopsrainbows.webp","lazy.webp","rurikuu.webp","novacans_.webp","naz.webp","west.webp","indie.webp","Lagia.webp","zoozi.webp","caevsz.webp","Violet.webp","kay_.stars.webp","morrfie.webp","kyn.webp","nova.webp","copy.webp","mr_clownette.webp","birdie.webp","lexi.webp","anarchy.webp","Leftover_Birthday-Cake.webp","gilly.webp"]
+        if (isAvifSupported) avatars = avatars.map(o=>o.replace('.webp','.avif'))
         cycle = math.cycle(...ran.shuffle(...avatars))
         setInterval(bubbleWithAva, 2000)
     })
