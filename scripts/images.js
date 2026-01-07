@@ -2,13 +2,7 @@ import '../css.js'
 const { registerCSS } = window[Symbol.for('[[CSSModule]]')]
 import { until } from "../handle.js"
 // import { jason } from '../arrays.js'
-let bubble = Object.assign(new Image, {
-    src: `data:image/svg+xml,<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
-  <circle r="95" cx="100" cy="100" fill="rgba(15, 20, 210, 0.4)" stroke="#1043E5" stroke-width="10" />
-  <path d="M 180 100 A 80 80 0 0 0 100 20" fill="none" stroke="white" stroke-width="9" />
-</svg>
-`
-})
+
 let dataURLS = {
     "horsea:4": "iVBORw0KGgoAAAANSUhEUgAAAGAAAAAwBAMAAAAcOGL8AAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAhUExURQAAAAAAAB+f5wBnt4/f//////+HX58AAL93J9+3AP/nn6Kr/dAAAAABdFJOUwBA5thmAAAAAWJLR0QAiAUdSAAAAUpJREFUSMftkzFygzAQRbU3YIUK4k5YF0DhAsjLTNxm7OQIqTOTC1C6dJe4c+tTBoQlFqL0mQxbofeX1Uf6CPFnCvkCsrTCueQ9oEVS4XzWM3udK/xl5KYQ0wrjudmyHusqkVAYB0nUTIMMUZZQGIdGTT1C4dTEFcalatpD8Aqa1PEuoFeyHzzX9PKxw2BVtW/ON8HJK3rJBebmNW4NaNt30sMCbl5xuOCi/7L2mXbj1N4pHUe3cBmUgx/FuYByR9qO/jZXaWonqfKWutKRNsMozgUojdn9Vh4u6BDB+FWBaouZbJYcnPwMp1qclD6H0EE1+Pepm/EC60sX7gRR3eIRW7yKBN90Zq9iynL6CjEDsw+DZrw4l08yZkOaLkag51WKo93m0w7lowqCLesU77/FuvjcBy7uhibNh6xPz8D+h9/4WmuttdZ/qW9RaUWCFWhK2wAAAABJRU5ErkJggg==",
     "qwilfish:4": "iVBORw0KGgoAAAANSUhEUgAAAIAAAAAgBAMAAAAoDG0WAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAnUExURQAAAAAAAGeHrzc/j09fl7/P96dvAN+3AP/3AJ8AAP+HX9c/AP///+A2u6UAAAABdFJOUwBA5thmAAAAAWJLR0QAiAUdSAAAAWVJREFUSMftk01OwzAQhe0beDKWI9hFKgdo7YIQbBKP2oodPxeokJJuIyEneyToNTgCa1bcDBc1adLWFYgd6pOyeP7GM/ZkzNi/Ef8jZ5HYjheHuI/Y2oDQqxEBpIe4gH5GjkTtCgfBgAbDEF8JyAroeGnozDYBSCk32R2JAF8lNERp2itIWbtBOeP9gCDAv2tAdt8pKPwnqTkzzkrrC8gkwFc3sEnW3JGb+mmIFMm2a6p6QZIjeSn2c3+mCG0q156fm1erpZHJzfpMOK3QJjQ+Efs5QyOJRpsERe3SAY3l1TqA5876JtFtiBunyT7QW5NAFyn63/RZtjcE1IbsPMBxMlWGrk/fG58/CqWNveh0WWmtG7/DcbqMnzV9bOYGGC8WteskgLxaNH6Hy9lUFfWy7A4WV5Wbd7xQeRWLAJeTMlbOiV6CEqBk3YW4N/s9jhPBPWc9ie3Xx8OcA/vB8z7qqKN+qS8RHlIRDzq4GQAAAABJRU5ErkJggg==",
@@ -64,18 +58,16 @@ export let colorful = new Set
 let today = new Date
 export const birthday =
     today.getMonth() === 6 - 1 && today.getDate() === 17
-const width = Symbol.for('width'),
-    name = Symbol.for('name')
 let avatars
 export let pkm = new Promise(async (resolve) => {
     let mons =
-        Object.keys(dataURLS).map(function (o) {
-            let { 0: src, 1: Width } = o.split(":")
+        Object.keys(dataURLS).map(key => {
+            let { 0: src, 1: Width } = key.split(":")
             let img = Object.assign(new Image, {
-                src: `data:image/png;base64,${dataURLS[o]}`,
-                [width]: +Width,
-                [name]: src
+                src: `data:image/png;base64,${dataURLS[key]}`,
             })
+            img.dataset.width = Width
+            img.dataset.name = src
             img.onload = () => {
                 registerCSS(`.${src}`, {
                     'background-image': `url(${img.src})`,
@@ -93,6 +85,13 @@ let st = { events: 'load error'.split(' ') }
 export let time = new Promise(async (resolve) => {
     if (birthday) {
         console.log('%cOMG ITS MY BIRTHDAY YAYYY 🎂🎂', 'font-size:2em;')
+        let bubble = Object.assign(new Image, {
+            src: `data:image/svg+xml,<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <circle r="95" cx="100" cy="100" fill="rgba(15, 20, 210, 0.4)" stroke="#1043E5" stroke-width="10" />
+  <path d="M 180 100 A 80 80 0 0 0 100 20" fill="none" stroke="white" stroke-width="9" />
+</svg>
+`
+        })
         if (!bubble.complete) await Promise.all([until(bubble, { events: 'load' }), bubble.decode()])
         let { width: w, height: h } = bubble
         let ctx = Object.assign(new OffscreenCanvas(w, h).getContext('2d'), {

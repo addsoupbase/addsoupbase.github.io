@@ -144,14 +144,12 @@ async function images({ time, pkm, colorful, birthday }) {
         }
         // out.animate([{ transform: 'rotate(0deg)' }, { transform: `rotate(${ran.choose(360, -360)}deg)` }], { composite: 'accumulate', duration: 80000, iterations: 1 / 0, easing: 'linear' })
     }
-    let sym = Symbol.for('name')
-    let wid = Symbol.for('width')
     function createAnimationForSpritesheet(image) {
         let dura = frameDuration
-        if (image[sym] === 'groudon') {
+        if (image.dataset.name === 'groudon') {
             dura *= 2
         }
-        let me = $(`div.${image[sym]}.sprite`, {
+        let me = $(`div.${image.dataset.name}.sprite`, {
             parent, attr: {
                 _hidden: 'true',
             }
@@ -159,8 +157,8 @@ async function images({ time, pkm, colorful, birthday }) {
         me.animate([{ 'backgroundPositionX': '0px' },
         { 'backgroundPositionX': `-${image.width}px` }
         ], {
-            easing: `steps(${image[wid]},end)`,
-            duration: dura * image[wid],
+            easing: `steps(${image.dataset.width},end)`,
+            duration: dura * image.dataset.width,
             iterations: 1 / 0
         })
         // if (ran.jackpot(10)) {
@@ -185,7 +183,7 @@ async function images({ time, pkm, colorful, birthday }) {
             ? [{ transform: `translate(calc(100vw + ${offsetWidth}px), 0)` }, { transform: `translate(calc(-10vw - ${offsetWidth}px), 0)` },]
             : [{ transform: `translate(calc(-10vw - ${offsetWidth}px), 0)` }, { transform: `translate(calc(100vw + ${offsetWidth}px), 0)` }],
             duration = 15000
-        switch (pick[Symbol.for('name')]) {
+        switch (pick.dataset.name) {
             case 'wailord':
                 duration *= 20
                 break
@@ -317,9 +315,10 @@ async function images({ time, pkm, colorful, birthday }) {
         cycle = math.cycle(...ran.shuffle(...avatars))
         setInterval(bubbleWithAva, 2000)
     })
+    let groudon
     pkm.then(m => {
         mons = m
-        let groudon = [...mons].find(o => o.src.includes('groudon'))
+        groudon = [...mons].find(o => o.dataset.name==='groudon')
         mons.delete(groudon)
         spawnPkmn()
     })
