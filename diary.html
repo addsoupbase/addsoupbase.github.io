@@ -126,7 +126,11 @@
                         href="./nojs.html">click here</a></small>
                 <!-- <label for="skip" style="margin-bottom:10px;z-index: 2;    width: fit-content;">Skip Empty Days<input style="accent-color: maroon;" id="skip" type="checkbox" checked></label> -->
             </div>
-            <section id="diary" class="cute-blue" style="--user-select:none; place-self: center;">
+            <section id="diary" class="cute-blue" style="--user-select:none; place-self: center;width: 603px;
+    height: 389px;">
+                <script>
+                    top === this || (document.currentScript.parentElement.style.height = '300px')
+                </script>
                 <div id="walking"></div>
                 <h2 id="invalid" hidden>No entry for today &lpar;yet!&rpar;
                     <img style="image-rendering: pixelated" alt="tangled speech balloon" loading="lazy" height="34"
@@ -181,10 +185,13 @@
             <div id="controlsholder"
                 style="--user-select:none;justify-self: center;justify-content:center;display: flex;    align-items: end;">
                 <input aria-keyshortcuts="Alt+Shift+P" id="prev" type="image" title="Turn to previous page" alt="Back"
-                    style="transform:scaleX(-1)" src="data:image/gif;base64,R0lGODlhFAAUAPIAAP+A///D7//b9////wAAAAAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQJMgAEACwAAAAAFAAUAAADQki63P4wyikmq0QATLfiFrgEpMWQQwmRLDqkwfrOb1DHjt22dw7vLtXoB7SlGrqiUahIAntI2myJQz6hFhQzuzVFEgAh+QQJMgAFACwAAAAAFAAUAIL/gv//yMj/w+//2/f///8AAAAAAAAAAAADRFi63P4wylkAXbaKPMFWHBUuQ3mRA2FCZVsS8OqkcK3Gw5O6Lj6rvJaPsQsKVY2icUgCBplNWwyK4tVkkxc2kN2eHIEEADs=" class="diarybutton">
+                    style="transform:scaleX(-1)"
+                    src="data:image/gif;base64,R0lGODlhFAAUAPIAAP+A///D7//b9////wAAAAAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQJMgAEACwAAAAAFAAUAAADQki63P4wyikmq0QATLfiFrgEpMWQQwmRLDqkwfrOb1DHjt22dw7vLtXoB7SlGrqiUahIAntI2myJQz6hFhQzuzVFEgAh+QQJMgAFACwAAAAAFAAUAIL/gv//yMj/w+//2/f///8AAAAAAAAAAAADRFi63P4wylkAXbaKPMFWHBUuQ3mRA2FCZVsS8OqkcK3Gw5O6Lj6rvJaPsQsKVY2icUgCBplNWwyK4tVkkxc2kN2eHIEEADs="
+                    class="diarybutton">
                 <button class="cute-green-button" id="toToday">First</button>
                 <input aria-keyshortcuts="Alt+Shift+N" style="    visibility: hidden;" id="next" type="image"
-                    title="Turn to next page" alt="Forward" src="data:image/gif;base64,R0lGODlhFAAUAPIAAP+A///D7//b9////wAAAAAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQJMgAEACwAAAAAFAAUAAADQki63P4wyikmq0QATLfiFrgEpMWQQwmRLDqkwfrOb1DHjt22dw7vLtXoB7SlGrqiUahIAntI2myJQz6hFhQzuzVFEgAh+QQJMgAFACwAAAAAFAAUAIL/gv//yMj/w+//2/f///8AAAAAAAAAAAADRFi63P4wylkAXbaKPMFWHBUuQ3mRA2FCZVsS8OqkcK3Gw5O6Lj6rvJaPsQsKVY2icUgCBplNWwyK4tVkkxc2kN2eHIEEADs="
+                    title="Turn to next page" alt="Forward"
+                    src="data:image/gif;base64,R0lGODlhFAAUAPIAAP+A///D7//b9////wAAAAAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQJMgAEACwAAAAAFAAUAAADQki63P4wyikmq0QATLfiFrgEpMWQQwmRLDqkwfrOb1DHjt22dw7vLtXoB7SlGrqiUahIAntI2myJQz6hFhQzuzVFEgAh+QQJMgAFACwAAAAAFAAUAIL/gv//yMj/w+//2/f///8AAAAAAAAAAAADRFi63P4wylkAXbaKPMFWHBUuQ3mRA2FCZVsS8OqkcK3Gw5O6Lj6rvJaPsQsKVY2icUgCBplNWwyK4tVkkxc2kN2eHIEEADs="
                     class="diarybutton">
             </div>
         </div>
@@ -328,6 +335,7 @@
                 }
             }
         }, new AbortController)
+        let initial = true
         function load() {
             canMove = true
             if (!this.contentWindow.document.querySelector('[name="author"][content="addsoupbase"]')) {
@@ -340,7 +348,12 @@
                 })
             } else {
                 invalid.hide()
-                this.fadeIn(500, 2)
+                if (initial) {
+                    initial = false
+                    this.show(2)
+                }
+                else
+                    this.fadeIn(500, 2)
                 let n = $(this.contentWindow.document.body).attr.$color
                 if (n) {
                     let color = n
@@ -359,13 +372,9 @@
         }
         load = load.bind(frame)
         frame.on({
-            '#load'() {
-                frame.on({
-                    '%!load': load,
-                    error: console.warn
-                })
-            }
-        }, new AbortController)
+            '%!load': load,
+            error: console.warn
+        })
         // frame.hide(2)
         function toYMDFormat(d) {
             // fucking hate this stupid shitty Date API holy shit it's not even funny gng

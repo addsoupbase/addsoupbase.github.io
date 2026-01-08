@@ -384,7 +384,7 @@ frame.on({
 const parent = $('div #background .BG', {
     parent: document.body,
     attr: {
-        _label: 'Pokémon swimming underwater with bubbles... and snowflakes(?)',
+        _label: 'Pokémon swimming underwater with bubbles!',
         role: 'img'
     }
 })
