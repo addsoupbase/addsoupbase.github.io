@@ -43,6 +43,8 @@
 .ava {
   border-radius: 100%;
   transform: scale(.75, .75);
+      width: 50px;
+    height: 50px;
   opacity: 0.96;
   transform-origin: center;
   --user-drag: none;
