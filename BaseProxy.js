@@ -29,8 +29,11 @@ export class Handler {
         let toGet = target, out
         let receiver = toGet
         if (prop === WrapperTarget) return target
-        if (prop in Wrapper) toGet = receiver = Wrapper
-        out = Reflect.get(toGet, prop, target)
+        if (prop in Wrapper) {
+            toGet = receiver = Wrapper
+            if (prop in target) receiver = target
+        } 
+        out = Reflect.get(toGet, prop, target, receiver)
         return typeof out === 'function' ? cacheFunction(out) : out
     }
     set(Wrapper, prop, value) {
@@ -94,7 +97,7 @@ export function ProxyFactory(myClass, Interface = globalThis[myClass.name.replac
             // initial call is executed (once) in this block
             // ONLY put the proxy if this is the end of the inheritance chain,
             // to prevent a proxy of a proxy
-            ////for(let key of Reflect.ownKeys(myClass.prototype))key !== 'constructor'&&key in Interface.prototype&&console.warn(`Overwrite ${String(key)} on ${myClass.name}`) 
+            ////for(let key of Reflect.ownKeys(myClass.prototype))key !== 'constructor'&&key in Interface.prototype&&!Object.getOwnPropertyDescriptor(myClass.prototype,key).get&&console.warn(`Overwrite ${String(key)} on ${myClass.name}`) 
             let instance = new myClass(Target)
             let { proxy, revoke } = Proxy.revocable(readonly(instance, WrapperTarget, Target), handler)
             readonly(instance, Revoke, revoke)

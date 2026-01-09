@@ -182,7 +182,14 @@
     }
     function get() { for (var i in this) if (!sup(i + ':' + this[i])) return false; return true }
     function ts() { return toCSS(this) }
-    fromCSS.prototype = O.create(null, { supported: { get: get }, toString: { value: ts } })
+    fromCSS.prototype = O.create(null, { supported: { get: get }, toString: { value: ts }, cssFloat: {
+        get: function() {
+            return this.float
+        },
+        set: function(val) {
+            this.float = val
+        }
+    }})
     function fixSheet(me) {
         if (me === sheet.sheet) return
         var href = me.href

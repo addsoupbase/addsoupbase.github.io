@@ -4,7 +4,7 @@
     //// var queueMicrotask = globalThis.queueMicrotask || globalThis.setImmediate || setTimeout
     var MODULE = Symbol.for("[[HModule]]")
     if (globalThis[MODULE]) return globalThis[MODULE]
-    var $ = {},
+    var h = {},
         sym = Symbol.for("[[Events]]"),
         //  Don't collide, and make sure its usable across realms!!
         apply = Reflect.apply,
@@ -36,16 +36,16 @@
     ////var source = Function.toString.call.bind(Function.prototype.toString)
     //// , warn=logger.warn, groupCollapsed=logger.groupCollapsed, groupEnd= logger.groupEnd
     var isArray = Array.isArray
-        , allEvents = $.allEvents = new WeakMap
+        , allEvents = h.allEvents = new WeakMap
     //// globalThis.allEvents = allEvents
     function isValidET(target) {
         return target === Object(target) && 'addEventListener' in target && 'removeEventListener' in target && 'dispatchEvent' in target
     }
-    $.isValid = isValidET
+    h.isValid = isValidET
     function getLabel(obj) {
         return {}.toString.call(obj).slice(8, -1).trim() || 'Object'
     }
-    $.getLabel = getLabel
+    h.getLabel = getLabel
     var f
     function requestFile(accept, multiple) {
         f = f || Object.assign(document.createElement('input'), {
@@ -69,8 +69,8 @@
             type: 'file'
         })
     }
-    $.emptyFileInput = emptyFileInput
-    $.requestFile = $.reqFile = requestFile
+    h.emptyFileInput = emptyFileInput
+    h.requestFile = h.reqFile = requestFile
     var test = handle.bind.bind(/ /.test),
         isAnimation = test(/^(animation(?:cancel|remove))$/),
         isFocus = test(/^(?:focus(?:in|out))$/),
@@ -149,6 +149,7 @@
     }
     var invalid = TypeError.bind(1, "🚫 Invalid event target")
     function delayedDispatch(id, target, event) {
+        debugger
         if (!isValidET(target)) throw invalid()
         delayedEvents.has(id) || delayedEvents.set(id, new Set)
         var set = delayedEvents.get(id)
@@ -158,11 +159,11 @@
             event: event
         })
     }
-    $.delayedDispatch = delayedDispatch
+    h.delayedDispatch = delayedDispatch
     function wait(ms) {
         return new Promise(resolveWithDelay.bind(void 0, ms))
     }
-    $.wait = wait
+    h.wait = wait
     function resolveWithDelay(ms, resolve) {
         setTimeout(resolve, ms)
     }
@@ -171,30 +172,30 @@
         var event = new (constr || Event)(type, init)
         return target.dispatchEvent(event)
     }
-    $.dispatchEvent = dispatchEvent
+    h.dispatchEvent = dispatchEvent
     function getEventNames(target) {
         var a = target.hasOwnProperty(sym) ? target[sym] : (dp(target, sym, { value: a = new Set }), a)
         return a
     }
-    $.getEventNames = getEventNames
+    h.getEventNames = getEventNames
     function hasEvent(target, eventName) {
         var a = target[sym]
         return !!(a && a.has(eventName))
     }
-    $.hasEvent = hasEvent
-    var CURRENT_TARGET = $.CURRENT_TARGET = '@',
-        AUTO_ABORT = $.AUTO_ABORT = '#',
-        TRUSTED = $.TRUSTED = '?',
-        ONCE = $.ONCE = '_',
-        PREVENT_DEFAULT = $.PREVENT_DEFAULT = '$',
-        PASSIVE = $.PASSIVE = '^',
-        CAPTURE = $.CAPTURE = '%',
-        STOP_PROPAGATION = $.STOP_PROPAGATION = '&',
-        STOP_IMMEDIATE_PROPAGATION = $.STOP_IMMEDIATE_PROPAGATION = '!',
+    h.hasEvent = hasEvent
+    var CURRENT_TARGET = h.CURRENT_TARGET = '@',
+        AUTO_ABORT = h.AUTO_ABORT = '#',
+        TRUSTED = h.TRUSTED = '?',
+        ONCE = h.ONCE = '_',
+        PREVENT_DEFAULT = h.PREVENT_DEFAULT = '$',
+        PASSIVE = h.PASSIVE = '^',
+        CAPTURE = h.CAPTURE = '%',
+        STOP_PROPAGATION = h.STOP_PROPAGATION = '&',
+        STOP_IMMEDIATE_PROPAGATION = h.STOP_IMMEDIATE_PROPAGATION = '!',
         // FireFox only:
-        WANTS_UNTRUSTED = $.WANTS_UNTRUSTED = '|', // not really sure what this even does
-        ONLY_ORIGINAL_TARGET = $.ONLY_ORIGINAL_TARGET = '>',
-        ONLY_EXPLICIT_ORIGINAL_TARGET = $.ONLY_EXPLICIT_ORIGINAL_TARGET = '<'
+        WANTS_UNTRUSTED = h.WANTS_UNTRUSTED = '|', // not really sure what this even does
+        ONLY_ORIGINAL_TARGET = h.ONLY_ORIGINAL_TARGET = '>',
+        ONLY_EXPLICIT_ORIGINAL_TARGET = h.ONLY_EXPLICIT_ORIGINAL_TARGET = '<'
     /*export var {
         currentTarget: CURRENT_TARGET, autoAbort: AUTO_ABORT, trusted: TRUSTED, once: ONCE,
         preventDefault: PREVENT_DEFAULT, passive: PASSIVE,
@@ -215,7 +216,7 @@
     function addCustomEvent(names) {
         for (var name in names) customEvents[names[name] ? 'add' : 'delete'](name.toLowerCase())
     }
-    $.addCustomEvent = addCustomEvent
+    h.addCustomEvent = addCustomEvent
     var formatEventName = /[_$^%&!?@#<>|]|^(?:bound )+/g
     function supportOrientationChangeEvent(target, eventName, label) {
         if (eventName === 'change' && label === 'ScreenOrientation') {
@@ -355,11 +356,11 @@
         //// }
         return target
     }
-    $.on = on
-    var SAFARI = $.safari = typeof ongestureend !== 'undefined' || typeof onwebkitmouseforceup !== 'undefined'
-        , FIREFOX = $.firefox = typeof scrollMaxX === 'number'
-        , IE = $.ie = typeof msAnimationStartTime === 'number'
-        , CHROME = $.chrome = typeof chrome === 'object'  // chromium based (opera, edge, brave)
+    h.on = on
+    var SAFARI = h.safari = typeof ongestureend !== 'undefined' || typeof onwebkitmouseforceup !== 'undefined'
+        , FIREFOX = h.firefox = typeof scrollMaxX === 'number'
+        , IE = h.ie = typeof msAnimationStartTime === 'number'
+        , CHROME = h.chrome = typeof chrome === 'object'  // chromium based (opera, edge, brave)
     function compatOn(variants) {
         if (CHROME) var data = variants.chrome
         else if (FIREFOX) data = variants.firefox
@@ -367,7 +368,7 @@
         else if (IE) data = variants.ie
         return (data = data || variants.otherwise) && on.apply(null, data)
     }
-    $.compatOn = compatOn
+    h.compatOn = compatOn
     var customEventHandler = typeof Proxy === 'function' && {
         has: function (t, p) {
             return p in t || p in Object(t.detail)
@@ -420,9 +421,9 @@
         args.push(off.bind(void 0, this, name))
         if (t && event.isTrusted || !t && (!originalTarget || !('originalTarget' in event) || event.originalTarget === currentTarget) && (!explicitOriginalTarget || !('explicitOriginalTarget' in event) || event.explicitOriginalTarget === currentTarget) && (!oct || (event.target || event.srcElement) === currentTarget)) {
             switch (args.length) {
-                case 2: var result = f.call(this,event, args[1])
+                case 2: var result = f.call(this, event, args[1])
                     break
-                case 3: result = f.call(this,event, args[1], args[2])
+                case 3: result = f.call(this, event, args[1], args[2])
                     break
                 default: result = apply(f, this, args)
             }
@@ -476,7 +477,7 @@
         //// groupEnd()
         //// }
     }
-    $.off = off
+    h.off = off
     function filterResult(event, filter) {
         if (typeof filter !== 'function') return true
         var hi = { __proto__: null }
@@ -532,7 +533,7 @@
             }
             if (typeof events === 'string') events = events.split(' ')
             for (var i = events.length; i--;) e[events[i]] = onsuccess
-            if (failures) for (var i = (failures = typeof failures === 'string' ? failures.split(' ') : failures).length,onfail; i--;) e[failures[i]] = onfail || (onfail =
+            if (failures) for (var i = (failures = typeof failures === 'string' ? failures.split(' ') : failures).length, onfail; i--;) e[failures[i]] = onfail || (onfail =
                 function onfail(event, abort) {
                     if (filterResult(event, filter))
                         try {
@@ -547,7 +548,7 @@
             on(target, e, controller)
         }
     }
-    $.until = until
+    h.until = until
     var objectURLS,
         registry
     function getObjUrl(thingy) {
@@ -557,14 +558,14 @@
         objectURLS.set(thingy, url)
         return url
     }
-    $.getObjUrl = getObjUrl
+    h.getObjUrl = getObjUrl
     var anchor
     function download(blob, title) {
         (anchor = anchor || document.createElement('a')).download = title || 'download'
         anchor.href = getObjUrl(blob)
         anchor.click()
     }
-    $.download = download
+    h.download = download
     function delegate(me, events, filter, includeSelf, controller) {
         filter = filter || function () { }
         for (var i in events) {
@@ -585,11 +586,30 @@
         }
         return on(me, events, controller)
     }
-    $.delegate = delegate
+    h.delegate = delegate
     function dispatch(target, event) {
         return target.dispatchEvent(typeof event === 'string' ? new Event(event) : event)
     }
-    $.dispatch = dispatch
-    return constructor.prototype[MODULE] = $
+    h.dispatch = dispatch
+    function debounce(target, events, delay) {
+        function go(old) {
+            var waiting = false
+            function wait() {
+                waiting = false
+            }
+            function out() {
+                if (!waiting) {
+                    setTimeout(wait, delay)
+                    waiting = true
+                    old.apply(this, arguments)
+                }
+            }
+            return out
+        }
+        for (var i in events) events[i] = go(events[i])
+        return h.on(target, events)
+    }
+    h.debounce = debounce
+    return constructor.prototype[MODULE] = h
 }(typeof globalThis === 'undefined' ? window : globalThis ////,!this
 ))

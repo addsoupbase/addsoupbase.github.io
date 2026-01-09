@@ -1,5 +1,5 @@
-//  The journey begins...
-// Most recent attempt
+// this file is 3rd attempt
+// Goto v4.js for 4th attempt
 // Goto quick.js for 2nd attempt
 // Goto favourites/utils.js for 1st attempt
 /*
