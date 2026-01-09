@@ -553,12 +553,11 @@
              } // https://web.dev/learn/design/responsive-images
         o['img,video,canvas,svg,picture'] = { //display: 'block', 
             'max-width': '100%' }
-        o[W('p,h1,h2,h3,h4,h5,h6')] = { 'overflow-wrap': 'break-word' }
         o[W('h1')] = {'margin-block':'.67em','font-size':'2em'}
         o.html = {margin: 'auto'}
         newName = entries(o).reduce(function (a, b) {
             return a + b[0] + "{" + toCSS(b[1]) + "}"
-        }, "@namespace svg url('http://www.w3.org/2000/svg');p{text-wrap:pretty}h1,h2,h3,h4,h5,h6{text-wrap:balance}body{line-height:1.5;--font-smoothing:antialiased}@media(prefers-reduced-motion:no-preference){:root{interpolate-size: allow-keywords}}@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:root{--system-font:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif}:-moz-loading{cursor:wait}:-moz-broken{border-radius:0}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not(scrollbar-color:auto){::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}")
+        }, "@namespace svg url('http://www.w3.org/2000/svg');\np{text-wrap:pretty}h1,h2,h3,h4,h5,h6,:where(p){text-wrap:balance;overflow-wrap:break-word}body{line-height:1.5;--font-smoothing:antialiased}@media(prefers-reduced-motion:no-preference){:root{interpolate-size: allow-keywords}}@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:root{--system-font:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif}:-moz-loading{cursor:wait}:-moz-broken{border-radius:0}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not(scrollbar-color:auto){::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}")
         //// console.debug(newName.replace(/:where\(([\s\S]*?)\)/g,'$1'))
     }
     if (atProperty) {

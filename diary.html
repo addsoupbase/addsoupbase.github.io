@@ -94,7 +94,7 @@
 
 <body class="cute-green" id="main" style="justify-items: center">
     <!-- <script src="fallback.js"></script> -->
-    <main class="center " style="margin: 0;width:100%">
+    <main class="center bleh" style="margin: 0;width:100%">
         <a class="cute-green-button back" href="main.html" role="button" rel="prev"
             aria-keyshortcuts="Alt+Shift+B">Back</a>
         <!-- <span> Scrolling could reveal more!</span> -->
@@ -352,8 +352,9 @@
                     initial = false
                     this.show(2)
                 }
-                else
+                else {
                     this.fadeIn(500, 2)
+                }
                 let n = $(this.contentWindow.document.body).attr.$color
                 if (n) {
                     let color = n
