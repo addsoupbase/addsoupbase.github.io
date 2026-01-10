@@ -1,7 +1,7 @@
-//// var h = 
+//@dev var h = 
 (function handle(globalThis) {
     'use strict'
-    //// var queueMicrotask = globalThis.queueMicrotask || globalThis.setImmediate || setTimeout
+    //@dev var queueMicrotask = globalThis.queueMicrotask || globalThis.setImmediate || setTimeout
     var MODULE = Symbol.for("[[HModule]]")
     if (globalThis[MODULE]) return globalThis[MODULE]
     var h = {},
@@ -10,34 +10,36 @@
         apply = Reflect.apply,
         dp = Reflect.defineProperty,
         ownKeys = Reflect.ownKeys
-    //// , logger = { __proto__: null }
-    //// !function(){
-    //// var aa = '%c@handle.js +color:pink;'.split('+')
-    //// ,c = aa[0], cc = aa[1]
-    //// function DelayedLog() {
-    //// var args = [].slice.call(arguments)
-    //// args.unshift(1, c, cc)
-    //// queueMicrotask(this.bind.apply(this, args))
-    //// }
-    //// function LogOutOfGroup() {
-    //// var args = [].slice.call(arguments)
-    //// args.unshift(1, c, cc)
-    //// setTimeout(this.bind.apply(this, args))
-    //// }
-    //// for (var i in console) {
+    /*@dev
+    , logger = { __proto__: null }
+     !function(){
+     var aa = '%c@handle.js +color:pink;'.split('+')
+     ,c = aa[0], cc = aa[1]
+     function DelayedLog() {
+     var args = [].slice.call(arguments)
+     args.unshift(1, c, cc)
+     queueMicrotask(this.bind.apply(this, args))
+     }
+     function LogOutOfGroup() {
+     var args = [].slice.call(arguments)
+     args.unshift(1, c, cc)
+     setTimeout(this.bind.apply(this, args))
+     }
+     for (var i in console) {
     // Because the groupCollapsed() method was suppressing errors, delay them instead
-    //// var old = console[i]
-    //// if (typeof old === 'function')
-    //// old=old.bind(console),
-    //// logger[i] = DelayedLog.bind(old),
-    //// logger[i+"Late"] = LogOutOfGroup.bind(old)
-    //// }
-    //// }()
-    ////var source = Function.toString.call.bind(Function.prototype.toString)
-    //// , warn=logger.warn, groupCollapsed=logger.groupCollapsed, groupEnd= logger.groupEnd
+     var old = console[i]
+     if (typeof old === 'function')
+     old=old.bind(console),
+     logger[i] = DelayedLog.bind(old),
+     logger[i+"Late"] = LogOutOfGroup.bind(old)
+     }
+     }()
+    var source = Function.toString.call.bind(Function.prototype.toString)
+     , warn=logger.warn, groupCollapsed=logger.groupCollapsed, groupEnd= logger.groupEnd
+    */
     var isArray = Array.isArray
         , allEvents = h.allEvents = new WeakMap
-    //// globalThis.allEvents = allEvents
+    //@dev globalThis.allEvents = allEvents
     function isValidET(target) {
         return target === Object(target) && 'addEventListener' in target && 'removeEventListener' in target && 'dispatchEvent' in target
     }
@@ -121,7 +123,7 @@
             }
             if (IE && v === 'gesture') return getIEGestureEvent(name)
             if (name === 'inertiastart') return 'MSInertiaStart'
-            //// logger.warnLate("'"+original+"' events might not be available on the following EventTarget:", target)
+            //@dev logger.warnLate("'"+original+"' events might not be available on the following EventTarget:", target)
         }
         return original
     }
@@ -232,7 +234,7 @@
                     if (hi) out.name = 'orientationchange'
                 }
             }
-            //// logger.warn("'"+eventName+"' was changed to '"+out.name+"' on "+getLabel(out.target))
+            //@dev logger.warn("'"+eventName+"' was changed to '"+out.name+"' on "+getLabel(out.target))
             return out
         }
     }
@@ -267,9 +269,9 @@
         var names = ownKeys(events)
         if (!names.length) return target
         var label = getLabel(target)
-        //// try {
-        //// groupCollapsed("on("+label+")")
-        //// logger.dirxml(target)
+        //@dev try {
+        //@dev groupCollapsed("on("+label+")")
+        //@dev logger.dirxml(target)
         var myEvents = getEventNames(target)
         if (typeof events === 'function') !function () {
             var a = {}
@@ -335,7 +337,7 @@
             if (autoabort && getLabel(controller) !== 'AbortController') throw TypeError("AbortController required if #autoabort flag is present")
             newTarget.addEventListener(eventName, listener, SUPPORTS_OPTIONS_PARAM ? options : options.capture/*, typeof scrollMaxX === 'number' && wantsUntrusted*/)
             if (controller) {
-                //// logger.info("📡 '"+eventName+"' event added", controller)
+                //@dev logger.info("📡 '"+eventName+"' event added", controller)
             }
             else {
                 allEvents.has(newTarget) || allEvents.set(newTarget, new Map)
@@ -347,13 +349,13 @@
                     listener: listener,
                 })
                 myEvents.add(eventName)
-                //// logger.info("🔔 '"+eventName+"' event added")
+                //@dev logger.info("🔔 '"+eventName+"' event added")
             }
         }
-        //// }
-        //// finally {
-        //// groupEnd()
-        //// }
+        //@dev }
+        //@dev finally {
+        //@dev groupEnd()
+        //@dev }
         return target
     }
     h.on = on
@@ -446,9 +448,9 @@
         if (!isValidET(target)) throw invalid()
         if (!eventNames.length || !allEvents.has(target)) return null
         var label = getLabel(target)
-        //// try {
-        //// groupCollapsed("off("+label+")")
-        //// logger.dirxml(target)
+        //@dev try {
+        //@dev groupCollapsed("off("+label+")")
+        //@dev logger.dirxml(target)
         var map = allEvents.get(target),
             mySet = target[sym]
         for (var i = eventNames.length; i--;) {
@@ -468,14 +470,14 @@
             var capture = !!(settings.flags & FLAG_CAPTURE)
             newTarget.removeEventListener(name, listener, SUPPORTS_OPTIONS_PARAM ? { capture: capture } : capture)
             map.delete(name)
-            //// && logger.info("🔕 '"+name+"' event removed")
+            //@dev && logger.info("🔕 '"+name+"' event removed")
             mySet.delete(name)
             map.size || allEvents.delete(newTarget)
         }
-        //// }
-        //// finally {
-        //// groupEnd()
-        //// }
+        //@dev }
+        //@dev finally {
+        //@dev groupEnd()
+        //@dev }
     }
     h.off = off
     function filterResult(event, filter) {
@@ -567,22 +569,24 @@
     }
     h.download = download
     function delegate(me, events, filter, includeSelf, controller) {
-        filter = filter || function () { }
+        filter = filter || Function.prototype
+        function add(old) {
+            return DelegationFunction
+            function DelegationFunction(t) {
+                var target = t.target
+                    , res
+                if (((me !== target) || includeSelf) && ((res = filter(target)) == null ? true : res)) {
+                    switch (arguments.length) {
+                        case 1: return old.call(target, t)
+                        case 2: return old.call(target, t, arguments[1])
+                    }
+                    return apply(old, target, arguments)
+                }
+            }
+        }
         for (var i in events) {
             if (i.includes('@')) throw SyntaxError("Conflicting usage of a 'currentTarget' only delegating event handler")
-            var old = events[i]
-            events[i] =
-                function DelegationFunction(t) {
-                    var target = t.target
-                    var res = filter(target);
-                    if ((me !== target || includeSelf) && (res == null ? true : res)) {
-                        switch (arguments.length) {
-                            case 1: return old.call(target, t)
-                            case 2: return old.call(target, t, arguments[1])
-                        }
-                        return apply(old, target, arguments)
-                    }
-                }
+            events[i]= add(events[i])
         }
         return on(me, events, controller)
     }
@@ -611,5 +615,5 @@
     }
     h.debounce = debounce
     return constructor.prototype[MODULE] = h
-}(typeof globalThis === 'undefined' ? window : globalThis ////,!this
+}(typeof globalThis === 'undefined' ? window : globalThis //@dev,!this
 ))

@@ -1,4 +1,4 @@
-import Proxify, { ProxyFactory, } from './BaseProxy.js'
+import Proxify, { ProxyFactory } from './BaseProxy.js'
 import './h.js'
 export default Proxify
 export const h = window[Symbol.for('[[HModule]]')]
@@ -10,16 +10,14 @@ function wrap(func, target, events, ...args) {
         events[i] = Wrapped
         function Wrapped(e, off, abort) {
             e = Proxify(e)
-            if (abort) return old.call(me, e, off, abort)
-            if (off) return old.call(me, e, off)
-            return old.call(me, e)
+            return abort ? old.call(me, e, off, abort) : off ? old.call(me, e, off) : old.call(me, e)
         }
     }
     return func(target, events, ...args)
 }
 class EventTarget$ {
     until(settings) {
-        return h.until(this, settings)
+        return Proxify(h.until(this, settings))
     }
     debounce(events, interval) {
         return Proxify(wrap(h.debounce, this, events, interval))
@@ -38,5 +36,4 @@ class EventTarget$ {
         }
     }
 }
-// const descriptors = Object.getOwnPropertyDescriptors(prototype)
 export const EventTargetProxy = new ProxyFactory(EventTarget$)

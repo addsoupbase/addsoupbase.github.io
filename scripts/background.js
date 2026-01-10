@@ -1,11 +1,13 @@
-import $, { css } from '../yay.js'
+import * as v from '../v4.js'
+import('./images.js').then(images)
+const { css } = v
 const { registerCSS, registerCSSAll } = css
 import '../sound.js'
 let regex = /[\w.\-%汝起亚]+\.(?:webp|a?png|gif|jpe?g|avif)/
 let all = document.getElementsByTagName('*')
 function isHidden() {//violations >= 10 || 
     return all.length > 135 || hidden || !!document.fullscreenElement || document.hidden || document.visibilityState === 'hidden'
-} 
+}
 async function images({ time, pkm, colorful, birthday }) {
     await audio.load('./media/pop.mp3')
     if (birthday) {
@@ -34,7 +36,7 @@ async function images({ time, pkm, colorful, birthday }) {
         },
         '^pointerdown': click
     }, o =>
-        o.classList.contains('bubble') && o.flags === 0,
+        o.classList.contains('bubble') && o.childElementCount && o.dataset.popped === 'false',
         false,
         new AbortController
     ).debounce({
@@ -54,9 +56,10 @@ async function images({ time, pkm, colorful, birthday }) {
 
     async function click(e) {
         e.stopImmediatePropagation()
-        let { transform } = this.computed
-        this.pauseAnims()
+        let { transform } = this.getComputedStyle()
+        this.getAnimations({ subtree: true }).forEach(o => o.pause())
         POP()
+        this.dataset.popped = ''
         this.fadeOut(300)
         this.flags = 1
         await this.animate([{ transform: '' }, { transform: 'scaleX(2) scaleY(2)', }], {
@@ -67,38 +70,28 @@ async function images({ time, pkm, colorful, birthday }) {
         let { 0: name } = this.firstElementChild.title.match(regex)[0].split(/\.(?:webp|a?png|gif|jpe?g|avif)/)
         if (name.includes('%')) name = decodeURIComponent(name)
         let src = this.firstElementChild.src
-        let me = $(`div.ava .tar .${name}`, {
-            styles: {
-                'backgroundImage': `url(${src})`,
-                'z-index': 3
-            },
-            attributes: {
-                _hidden: 'true',
-                alt: name,
-            },
-            parent: bg,
-        }, $('p.displayName', { txt: '@' + string.upper(name) }))
+        let me = v.esc`<div aria-hidden="true"  style="place-items:center;text-align:center;position:absolute;z-index: 3;display:inline-grid;">
+        <img src="${src}"style="width:60px;height:60px;border-radius:100%;" draggable="false" alt="${name}">
+        <span style="text-transform:capitalize">@${name}</span>
+        </div>`
+            .setParent(bg)
         this.remove()
         me.fadeIn()
-        me.setStyles({ transform })
+        me.style.display='inline-grid'
+        me.style.transform = transform
         await me.animate([{ opacity: 1 }, { transform: 'scale(0, 0)', opacity: 0, filter: 'opacity(0%) grayscale(100%) blur(20px) brightness(0%)' }], {
             duration: 1000,
             delay: 2000,
             composite: 'add',
             easing: 'ease'
         }).finished
-        me.destroy()
+        me.purge()
     }
     function bubbleWithAva(image = cycle.next) {
         if (isHidden()) return
-        const  src = `./media/avatars/${image}`
-        let n = $('div.bubble.pop', {
-            attr: {
-                style: 'z-index:3;',
-                _hidden: 'true',
-                width: 50, height: 50
-            }, parent
-        })
+        const src = `./media/avatars/${image}`
+        let n = v.esc`<div class="bubble pop" data-popped="false" aria-hidden="true" style="z-index:3"></div>`
+            .setParent(parent)
         if (birthday) {
             let image = ran.choose(...colorful)
 
@@ -109,12 +102,12 @@ async function images({ time, pkm, colorful, birthday }) {
                 iterations: 1 / 0,
                 easing: 'linear',
             })
-            n.setStyles({ 'background-image': `url("${image}")` })
+            n.setStyle({ 'background-image': `url("${image}")` })
         }
         let settings = ran.coin
             ? [{ transform: `translateX(calc(100vw + ${n.offsetWidth}px))` }, { transform: `translateX(calc(-10vw - ${n.offsetWidth}px))` },]
             : [{ transform: `translateX(calc(-10vw - ${n.offsetWidth}px))` }, { transform: `translateX(calc(100vw + ${n.offsetWidth}px))` }]
-        n.animate(settings, { duration }).finished.then(() => n.destroy())
+        n.animate(settings, { duration }).finished.then(() => n.purge())
         const c = ran.range(0, innerHeight)
         n.animate([{ transform: `translate(0, ${c}px)` }, { transform: `translate(0, ${c - 200}px)` }], {
             composite: 'accumulate',
@@ -123,24 +116,10 @@ async function images({ time, pkm, colorful, birthday }) {
             iterations: 1 / 0,
             direction: 'alternate'
         })
-        $('img.ava', {
-            parent: n,
-            styles: {
-                '--user-drag': 'none'
-            },
-            attributes: {
-                src,
-                decoding: 'async',
-                // alt: src,
-                _hidden: 'true',
-                width: 50,
-                height: 50,
-                title: image,
-                draggable: false
-            }
-        })
+        v.esc`<img class="ava" style="--user-drag:none" src="${src}" decoding="async" aria-hidden="true" width="50" height="50" title="${image}" draggable="false">`
+            .setParent(n)
         if (birthday) {
-            n.push($(`div .centerx .party .party${ran.choose(1, 2, 3)}`))
+            n.pushNode($(`div .centerx .party .party${ran.choose(1, 2, 3)}`))
         }
         // out.animate([{ transform: 'rotate(0deg)' }, { transform: `rotate(${ran.choose(360, -360)}deg)` }], { composite: 'accumulate', duration: 80000, iterations: 1 / 0, easing: 'linear' })
     }
@@ -149,11 +128,8 @@ async function images({ time, pkm, colorful, birthday }) {
         if (image.dataset.name === 'groudon') {
             dura *= 2
         }
-        let me = $(`div.${image.dataset.name}.sprite`, {
-            parent, attr: {
-                _hidden: 'true',
-            }
-        })
+        let me = v.esc`<div aria-hidden="true" class="${image.dataset.name} sprite"></div>`
+            .setParent(parent)
         me.animate([{ 'backgroundPositionX': '0px' },
         { 'backgroundPositionX': `-${image.width}px` }
         ], {
@@ -162,7 +138,7 @@ async function images({ time, pkm, colorful, birthday }) {
             iterations: 1 / 0
         })
         // if (ran.jackpot(10)) {
-            // me.classList.add('farther')
+        // me.classList.add('farther')
         // }
         ran.jackpot(1000) && me.classList.add('shiny')
         return me
@@ -177,7 +153,7 @@ async function images({ time, pkm, colorful, birthday }) {
         const element = createAnimationForSpritesheet(pick)
         element.fadeIn()
         let { coin } = ran
-        element.setStyles({ transform: `translateY(${ran.range(0, innerHeight)}px) scaleX(${coin ? '-1' : '1'})`, })
+        element.setStyle({ transform: `translateY(${ran.range(0, innerHeight)}px) scaleX(${coin ? '-1' : '1'})`, })
         let { offsetWidth } = element
         let settings = coin
             ? [{ transform: `translate(calc(100vw + ${offsetWidth}px), 0)` }, { transform: `translate(calc(-10vw - ${offsetWidth}px), 0)` },]
@@ -236,40 +212,36 @@ async function images({ time, pkm, colorful, birthday }) {
             fill: 'forwards'
         }).finished
         await element.fadeOut()
-        element.destroy()
+        element.purge()
     }
     function makeSnowflake() {
-        let flake = $`<div aria-hidden="true" class="snowflake" style="left:${ran.range(0,100)}vw"></div>`
+        let flake = $`<div aria-hidden="true" class="snowflake" style="left:${ran.range(0, 100)}vw"></div>`
         parent.push(flake)
-        flake.animate([{transform: 'translateY(0)'}, {transform: 'translateY(calc(100vh + 30px))'}], {
+        flake.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(calc(100vh + 30px))' }], {
             duration: 17000,
             easing: 'linear',
             composite: 'add'
-        }).finished.then(()=>flake.destroy())
-        flake.animate([{transform:'translateX(0)'}, {transform:`translateX(${ran.choose(-80,80)}px)`}],{
+        }).finished.then(() => flake.purge())
+        flake.animate([{ transform: 'translateX(0)' }, { transform: `translateX(${ran.choose(-80, 80)}px)` }], {
             duration: 4000,
-            iterations: 1/0,
+            iterations: 1 / 0,
             direction: 'alternate',
             easing: 'ease-in-out',
             composite: 'add'
         })
     }
     function makeBubble(x, y) {
-        let bubbl = $(`<div class="bubble" style="pointer-events:none;z-index:${ran.frange(1, 3)}"></div>`, {
-            parent,
-            attr: {
-                _hidden: 'true'
-            }
-        })
+        let bubbl = v.esc`<div aria-hidden="true" class="bubble" style="pointer-events:none;z-index:${ran.frange(1, 3)}"></div>`
+            .setParent(parent)
         bubbl.flags = 1
         if (birthday) {
             let image = ran.choose(...colorful)
-            bubbl.setStyles({
+            bubbl.setStyle({
                 'background-image': `url("${image}")`
             })
         }
         let num = ran.range(13, 23)
-        bubbl.setStyles({
+        bubbl.setStyle({
             width: `${num}px`,
             height: `${num}px`,
             left: x ?? `${ran.range(0, innerWidth)}px`,
@@ -287,7 +259,7 @@ async function images({ time, pkm, colorful, birthday }) {
             duration: 8000,
             composite: 'add'
         }).finished
-            .then(() => bubbl.destroy()
+            .then(() => bubbl.purge()
             )
         return bubbl
     }
@@ -303,22 +275,22 @@ async function images({ time, pkm, colorful, birthday }) {
     // snowflakes()
     let cycle
     let mons
-    time.then(async() => {
+    time.then(async () => {
         let isAvifSupported = await new Promise(resolve => {
             let n = new Image
-            n.onerror = () =>resolve(false)
+            n.onerror = () => resolve(false)
             n.onload = () => resolve(true)
             n.src = `data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADybWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAeaWxvYwAAAABEAAABAAEAAAABAAABGgAAAB0AAAAoaWluZgAAAAAAAQAAABppbmZlAgAAAAABAABhdjAxQ29sb3IAAAAAamlwcnAAAABLaXBjbwAAABRpc3BlAAAAAAAAAAIAAAACAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQ0MAAAAABNjb2xybmNseAACAAIAAYAAAAAXaXBtYQAAAAAAAAABAAEEAQKDBAAAACVtZGF0EgAKCBgANogQEAwgMg8f8D///8WfhwB8+ErK42A=`
         })
         let avatars = ["river.webp","rikapika.webp","chlorineatt.webp","rainmint.webp","son_yukio.webp","aya.webp","may.webp","mila.webp","xzzy.webp","Dohaaa.webp","saintz.webp","elenfnf1.webp","niya.webp","mothmaddie.webp","kae.webp","lorex.webp","caelix.webp","lunza.webp","zee.webp","MRK.webp","kannadra.webp","rue.webp","znsxxe.webp","juaj.webp","ilikebugs2.webp","Professional_idiot.webp","gummicat.webp","kurispychips.webp","fourche7.webp","stav.webp","mochi.webp","khaoticgood.webp","stuella.webp","Lotus.webp","ka1ya1.webp","babby.webp","mai.webp","frannie4u.webp","ghostie.webp","glente.webp","Remi.webp","na22.webp","汝起亚.webp","valerie.webp","oli.webp","crazy.webp","zrake.webp","armaan.n.webp","auquamantis.webp","elipoopsrainbows.webp","lazy.webp","rurikuu.webp","novacans_.webp","naz.webp","west.webp","indie.webp","Lagia.webp","zoozi.webp","caevsz.webp","Violet.webp","kay_.stars.webp","morrfie.webp","kyn.webp","nova.webp","copy.webp","mr_clownette.webp","birdie.webp","lexi.webp","anarchy.webp","Leftover_Birthday-Cake.webp","gilly.webp"]
-        if (isAvifSupported) avatars = avatars.map(o=>o.replace('.webp','.avif'))
+        if (isAvifSupported) avatars = avatars.map(o => o.replace('.webp', '.avif'))
         cycle = math.cycle(...ran.shuffle(...avatars))
         setInterval(bubbleWithAva, 2000)
     })
     let groudon
     pkm.then(m => {
         mons = m
-        groudon = [...mons].find(o => o.dataset.name==='groudon')
+        groudon = [...mons].find(o => o.dataset.name === 'groudon')
         mons.delete(groudon)
         spawnPkmn()
     })
@@ -350,11 +322,11 @@ h.on(document, {
     freeze: hide,
     resume: show
 })
-const { frame, count } = $.id
+const { count } = v.id
 let popped = 0
 let POP = window.POP = function () {
     popped++ || count.fadeIn()
-    count.show()
+    count.style.visibility = ''
     count.textContent = popped.toLocaleString()
     switch (popped) {
         case 100: registerCSSAll({ '.bubble': { filter: 'drop-shadow(0px 0px 6px red)' } })
@@ -369,41 +341,21 @@ let POP = window.POP = function () {
     }
     audio.play('pop.mp3')
 }
-//document.body.scrollLeft = innerHeight/2
-frame.on({
-    _load() {
-        let t = new Number(3500)
-        t.priority = 'background'
-        ;(window.requestIdleCallback || scheduler.postTask?.bind(scheduler) ||  setTimeout)(() => {
-            import('./images.js').then(images)
-            console.debug("🐟 Loading the bg now...")
-            // deadline ? console.debug(`Did timeout: `, deadline?.didTimeout) : console.debug('requestIdleCallback unsupported :(')
-        }, t)
-    }
-}, new AbortController)
-const parent = $('div #background .BG', {
-    parent: document.body,
-    attr: {
-        _label: 'Pokémon swimming underwater with bubbles!',
-        role: 'img'
-    }
-})
-// let violations = 0
-/*h.on(window, {
-    'long-task': downgrade,
-    // 'long-animation-frame':downgrade
-}, new AbortController)
-function downgrade(_, abort) {
-    console.debug(`%cPerformance Violations: ${++violations}`, 'color:red;')
-    if (violations === 23) {
-        console.warn('Background disabled to improve user experience')
-        abort()
-        parent.hide(3).destroy()
-        clearInterval(lower)
-    }
-}
-function lowerViolations() {
-    violations && --violations
-}
-let lower = setInterval(lowerViolations, 1000)
-*/
+
+const parent = v.esc`<div id="background" class="BG" aria-label="Pokémon swimming underwater with bubbles!" role="img">
+</div>`.setParent(document.body)
+/*
+`<div class="holder" name="ava" aria-hidden="true" style="z-index:0;top: ${range(0, innerHeight)}px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">
+        <circle cursor="pointer" pointer-events="painted" r="${95 * scale}" cx="${100 * scale}" cy="${100 * scale}" fill="rgba(15, 20, 210, 0.4)" stroke="#1043E5" stroke-width="${10 * scale}">
+        </circle>
+        <foreignObject x="${30 * scale}" y="${30 * scale}" width="${140 * scale}" pointer-events="painted"  height="${140 * scale}" cursor="pointer">
+            <picture>
+                <source srcset="./media/avatars/${name}.avif" type="image/avif">
+                <source srcset="./media/avatars/${name}.webp" type="image/webp">
+                <img draggable="false" src="./media/avatars/${name}.jpg" class="avatar" title="${name}">
+            </picture>
+        </foreignObject>
+        <path cursor="pointer" d="M ${180 * scale} ${100 * scale} A ${80 * scale} ${80 * scale} 0 0 0 ${100 * scale} ${20 * scale}" fill="none" stroke="white" stroke-width="${9 * scale}" pointer-events="painted">
+        </path>
+    </svg></div>`*/

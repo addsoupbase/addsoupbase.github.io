@@ -1,5 +1,7 @@
 // most recent attempt (and hopefully the best!)
-import Proxify from './HTMLProxy.js'
+import Proxify, {css} from './HTMLProxy.js'
+export {css}
+export {Proxify}
 import { base } from './BaseProxy.js'
 const D = document
 function isHTMLSyntax(string) {

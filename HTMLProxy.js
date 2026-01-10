@@ -2,7 +2,7 @@ import Proxify, { ProxyFactory, base } from './BaseProxy.js'
 import { EventTargetProxy, h } from './EventTargetProxy.js'
 import './css.js'
 export default Proxify
-const css = window[Symbol.for('[[CSSModule]]')]
+export const css = window[Symbol.for('[[CSSModule]]')]
 const D = document
 function tlc(o) {
     return '-' + o.toLowerCase()
@@ -232,14 +232,16 @@ class StyleCache extends Cacher {
             let val = c[key]
             str += `${toDash(key)}:${val};`
         }
-        this[Cacher.Target].cssText = str
+        this[Cacher.Target].cssText += str
     }
 }
 class Element$ extends NodeProxy {
+    static AnimationCache = new Map;
     *[Symbol.iterator]() {
         let k = this.children
         for (let i = 0, l = k.length; i < l; ++i) yield Proxify(k[i])
     }
+    getComputedStyle() { return getComputedStyle(this) }
     setParent(node) {
         let n = Proxify(this)
         n.parent = node
@@ -260,9 +262,50 @@ class Element$ extends NodeProxy {
         let n = [].at.call(this.children, index)
         return n ? Proxify(n) : null
     }
+    animFrom(animationName, { duration = 1000, delay = 0, direction = duration > 0 ? 'normal' : 'reverse',
+        iterations = 1 / 0, fill = 'forwards',
+        composite = 'accumulate',
+        easing = 'ease' } = {}) {
+        let frames = Element$.AnimationCache.get(animationName)
+        if (!frames) {
+            let thing
+            _: {
+                for (let o of D.styleSheets)
+                    for (let a of o.cssRules) {
+                        if (a.type === 7 && a.name === animationName) {
+                            thing = a
+                            break _
+                        }
+                    }
+                throw TypeError(`Animation not found: ${animationName}`)
+            }
+            let fr = []
+            for (let { style } of thing) {
+                let a = {}
+                for (let prop of style)
+                    a[prop] = style[prop]
+                fr.push(a)
+            }
+            Element$.AnimationCache.set(animationName, frames = fr)
+        }
+        let n = new Animation(new KeyframeEffect(this, frames, {
+            duration: Math.abs(duration),
+            iterations,
+            fill,
+            delay,
+            easing,
+            composite,
+            direction
+        }))
+        n.play()
+        return n
+    }
+    anim(className) {
+
+    }
     fadeOut(duration = 500, { keepSpace, easing = 'ease' } = {}) {
         // idk if 'filter: opacity()' or 'opacity' is better for animating, we can see i guess
-        let n = this.animate([{ opacity:1 }, { opacity:0}], {
+        let n = this.animate([{ opacity: 1 }, { opacity: 0 }], {
             duration,
             iterations: 1,
             easing,
@@ -274,10 +317,10 @@ class Element$ extends NodeProxy {
         })
         return n
     }
-    fadeIn(duration = 500, { easing = 'ease'} = {}) {
+    fadeIn(duration = 500, { easing = 'ease' } = {}) {
         let me = this.style
         me.visibility = me.display = ''
-        return this.animate([{ opacity:0}, { opacity:1}], {
+        return this.animate([{ opacity: 0 }, { opacity: 1 }], {
             duration,
             iterations: 1,
             easing,
@@ -286,6 +329,7 @@ class Element$ extends NodeProxy {
         })
     }
 }
+const ElementProxy = new ProxyFactory(Element$)
 {
     let p = 'innerHTML outerHTML innerText outerText textContent'.split(' ')
     for (let i = p.length; i--;) {
@@ -301,7 +345,7 @@ class Element$ extends NodeProxy {
         })
     }
 }
-class HTMLElement$ extends Element$ {
+class HTMLElement$ extends ElementProxy {
     #style = null
     #calc = null
     hide() {

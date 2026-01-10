@@ -1,4 +1,4 @@
-import $, { define } from '../yay.js'
+import * as v from '../v4.js'
 import { vect } from "../num.js"
 import '../css.js'
 const css = window[Symbol.for('[[CSSModule]]')]
@@ -102,7 +102,7 @@ class PaperCanvas extends HTMLElement {
     //     this.undoBuffer.length = 0
     // }
     get alpha() {
-        return !('-moz-opaque' in $(this).attr) && this.ctx.getContextAttributes().alpha
+        return !this.hasAttribute('moz-opaque') && this.ctx.getContextAttributes().alpha
     }
     static #BASE_CONTEXT_ATTRIBUTES = {
         lineJoin: 'round',
@@ -143,20 +143,12 @@ class PaperCanvas extends HTMLElement {
         return this.ctx.fillStyle
     }
     connectedCallback() {
-        let t = $(this)
+        let t = v.Proxify(this)
         this.hasAttribute('tabindex') || this.setAttribute('tabindex', 0)
         let shadow = this.attachShadow({ mode: 'open' })
-        let width = t.attr.width || 250
-        let height = t.attr.height || 250
-        let canvas = this.canvas = $('canvas #canvas', {
-            attr: {
-                style: 'image-rendering:auto',
-                width,
-                height
-            }
-        })
-        this.canvas.styles.height = `${height}px`
-        this.canvas.styles.width = `${width}px`
+        let width = +t.getAttribute('width') || 250
+        let height = +t.getAttribute('height') || 250
+        let canvas = this.canvas = v.esc`<canvas id="canvas" style="image-rendering:auto;width:${width}px;height:${height}px" width="${width}" height="${height}">`
         this.ctx = Object.assign(canvas.getContext('2d', function () {
             let out = { willReadFrequently: true }
                 , a = {
@@ -167,7 +159,7 @@ class PaperCanvas extends HTMLElement {
             return out
         }()), PaperCanvas.#BASE_CONTEXT_ATTRIBUTES)
         this.ctx.fillRect(0, 0, width, height)
-        $.push(shadow, canvas, style.cloneNode(true))
+        v.Proxify(shadow).pushNode(canvas, style.cloneNode(true))
         t.on({
             pointermove,
             pointerdown,
@@ -175,19 +167,17 @@ class PaperCanvas extends HTMLElement {
         }, new AbortController)
     }
 }
-let style = $('style', {
-    textContent: `:host{
+let style = v.esc`<style>:host{
         ${css.toCSS({
-        cursor: 'url(http://www.rw-designer.com/cursor-extern.php?id=27347), crosshair',
-        '--user-select': 'none',
-        'touch-action': 'none',
-        'background-color': 'white',
-        display: 'inline-grid',
-        border: '1px solid black',
-    })}}`
-})
+    cursor: 'url(http://www.rw-designer.com/cursor-extern.php?id=27347), crosshair',
+    '--user-select': 'none',
+    'touch-action': 'none',
+    'background-color': 'white',
+    display: 'inline-grid',
+    border: '1px solid black',
+})}}</style>`
 if (customElements.get('paper-canvas') !== PaperCanvas) {
     let d = customElements.whenDefined('paper-canvas')
-    define('paper-canvas', PaperCanvas)
+    customElements.define('paper-canvas', PaperCanvas)
     await d
 }

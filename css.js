@@ -1,8 +1,8 @@
 //# allFunctionsCalledOnLoad
 // console.time('css.js');
-//// self.css = 
+//@dev self.css = 
 (function CSSSetup(inModule, w, sym, defer, D, O, id, y, rAF) {
-    ////'use strict'
+    //@dev'use strict'
     if (y.propertyIsEnumerable(sym) && D.getElementById(id) instanceof HTMLStyleElement) {
         var out = y[sym]
         inModule && out.onerror && (removeEventListener('error', out.onerror), out.onerror = null)
@@ -56,7 +56,7 @@
         is = Array.isArray,
         // scr,
         sheet = Sheet(),
-        ////props = new Set,
+        //@devprops = new Set,
         alr = new Set,
         vendr = /^(?:-(?:webkit|moz(?:-osx)?|apple|khtml|konq|r?o|ms|xv|atsc|wap|ah|hp|rim|tc|fso|icab|epub)|prince|mso)-(?!$)/,
         dr = new Map,
@@ -182,14 +182,16 @@
     }
     function get() { for (var i in this) if (!sup(i + ':' + this[i])) return false; return true }
     function ts() { return toCSS(this) }
-    fromCSS.prototype = O.create(null, { supported: { get: get }, toString: { value: ts }, cssFloat: {
-        get: function() {
-            return this.float
-        },
-        set: function(val) {
-            this.float = val
+    fromCSS.prototype = O.create(null, {
+        supported: { get: get }, toString: { value: ts }, cssFloat: {
+            get: function () {
+                return this.float
+            },
+            set: function (val) {
+                this.float = val
+            }
         }
-    }})
+    })
     function fixSheet(me) {
         if (me === sheet.sheet) return
         var href = me.href
@@ -316,15 +318,15 @@
         return sheet
     }
     function l() {
-        write(sheet.textContent + batch)
-        //// console.debug("textContent queue emptied! Text length accumulated:", batch.length)
+        write(batch)
+        //@dev console.debug("textContent queue emptied! Text length accumulated:", batch.length)
         batch = ''
-        //// console.countReset("textContent queue")
+        //@dev console.countReset("textContent queue")
     }
     function queueWrite(text) {
         text && (batch || rAF(l), batch += text)
-        //// console.count('textContent queue')
-        //// console.debug(batch.length)
+        //@dev console.count('textContent queue')
+        //@dev console.debug(batch.length)
     }
     var violated = false
     function violation() {
@@ -397,7 +399,7 @@
         return p.appendChild(e)
     }
     function registerCSSAll(rules) {
-        for (var i in rules) //// assertǃ(rules.hasOwnProperty(i)),
+        for (var i in rules) //@dev assertǃ(rules.hasOwnProperty(i)),
             registerCSS(i, rules[i])
     }
     function sel(rule, doCache) {
@@ -407,16 +409,16 @@
     }
     var bulkText = ''
     function re(name, iv, inh, sx) {
-        bulkText += '@property ' + name + '{syntax:"' + sx + '";inherits:' + inh + ';initial-value:' + iv + '}'
+        return '@property ' + name + '{syntax:"' + sx + '";inherits:' + inh + ';initial-value:' + iv + '}'
     }
     function g(name, iv, inh, sx) {
-        ////props.add(name)
+        //@devprops.add(name)
         var o = '--' + name,
             n = o,
             key = vendor(name, o = 'var(' + o + ')', true)
         uv[key] = o
         // try { 
-        re(n, iv, inh, sx)
+        bulkText += re(n, iv, inh, sx)
         return g
         // }
         // catch (e) {e.name === 'InvalidModificationError' || (console.log(o), reportError(e),func || fallback.set(key, vendor(key, 'inherit')))}
@@ -428,7 +430,7 @@
     var fallback,
         uv = { //'box-sizing': 'border-box', it causes too many problems
             'font-family': 'inherit',
-            'overflow-wrap': 'var(--word-wrap)', 'scrollbar-color': 'var(--scrollbar-thumb-color) var(--scrollbar-color)'
+            'overflow-wrap': 'var(--word-wrap)', 'scrollbar-color': 'var(--scrollbar-thumb-color) var(--scrollbar-color)', 'scrollbar-width': 'var(--scrollbar-width)'
         }
     // performance.mark('css-property-start')
     function lowPriority() {
@@ -548,17 +550,19 @@
         o[W('.center_absolute_x')] = { left: '50%', transform: 'translateX(-50%)' }
         o[W('.center_absolute_y')] = { top: '50%', transform: 'translateY(-50%)' }
         // o[W('.v-dialog')] = {'max-width': '100%', 'overflow-x': 'clip','word-break': 'break-word'}
-        o[W('img')] = { 'max-inline-size': '100%', 'block-size': 'auto',
-             //'object-fit': 'contain'
-             } // https://web.dev/learn/design/responsive-images
+        o[W('img')] = {
+            'max-inline-size': '100%', 'block-size': 'auto',
+            //'object-fit': 'contain'
+        } // https://web.dev/learn/design/responsive-images
         o['img,video,canvas,svg,picture'] = { //display: 'block', 
-            'max-width': '100%' }
-        o[W('h1')] = {'margin-block':'.67em','font-size':'2em'}
-        o.html = {margin: 'auto'}
+            'max-width': '100%'
+        }
+        o[W('h1')] = { 'margin-block': '.67em', 'font-size': '2em' }
+        o.html = { margin: 'auto' }
         newName = entries(o).reduce(function (a, b) {
             return a + b[0] + "{" + toCSS(b[1]) + "}"
-        }, "@namespace svg url('http://www.w3.org/2000/svg');\np{text-wrap:pretty}h1,h2,h3,h4,h5,h6,:where(p){text-wrap:balance;overflow-wrap:break-word}body{line-height:1.5;--font-smoothing:antialiased}@media(prefers-reduced-motion:no-preference){:root{interpolate-size: allow-keywords}}@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:root{--system-font:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif}:-moz-loading{cursor:wait}:-moz-broken{border-radius:0}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not(scrollbar-color:auto){::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}")
-        //// console.debug(newName.replace(/:where\(([\s\S]*?)\)/g,'$1'))
+        }, "@namespace svg url('http://www.w3.org/2000/svg');\np{text-wrap:pretty}h1,h2,h3,h4,h5,h6,:where(p){text-wrap:balance;overflow-wrap:break-word}body{line-height:1.5;--font-smoothing:antialiased}@media(prefers-reduced-motion:no-preference){:root{interpolate-size: allow-keywords}}@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:root{--system-font:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif}:-moz-loading{cursor:wait}:-moz-broken{border-radius:0}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}")
+        //@dev console.debug(newName.replace(/:where\(([\s\S]*?)\)/g,'$1'))
     }
     if (atProperty) {
         properties()
@@ -572,7 +576,7 @@
     var str
     // finally { performance.mark('css-other-end') }
     write(name || (sn(str = id + selector + "{" + toCSS(uv, true) + "}" + newName), id + str))
-    var css =  ////Object.seal
+    var css =  //@devObject.seal
         ({
             getDefaultStyleSheet: Sheet,
             registerCSSRaw: registerCSSRaw,
@@ -592,7 +596,10 @@
             toDash: toDash,
             vendor: vendor,
             toCSS: toCSS,
-            //// has: props.has.bind(props),
+            registerProperty: function (name, initialValue, inherits, syntax) {
+                // queueWrite(re(name, initialValue, inherits, syntax))
+            },
+            //@dev has: props.has.bind(props),
             formatSelector: fSelector,
             fixSheet: fixSheet,
             get queue() { return batch },
