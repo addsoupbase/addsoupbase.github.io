@@ -59,6 +59,7 @@
     <meta name="robots" content="index">
     <meta name="theme-color" content="#0265E2">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="preload" as="font" crossorigin href="./chococooky.css">
     <meta name="author" content="addsoupbase🍜">
     <link rel="canonical" href="https://addsoupbase.github.io">
     <script
@@ -408,7 +409,11 @@
             width: 100vw;
             height: 100vh;
             opacity: 1;
-            filter: drop-shadow(0px 0px 5px green);
+            /* filter: drop-shadow(0px 0px 5px green); */ 
+            /*
+            filter is doing some stupid rendering bug right now and idk how to fix it, so im just 
+            gonna disable it for now
+            */
             /* transform-origin: center center; */
             image-rendering: pixelated;
             transition: opacity .3s ease-in-out, background-color 0.3s ease, border-color 0.3s ease;
@@ -515,14 +520,16 @@
                 opacity: 1;
                 translate: 0 0;
                 scale: 1 1;
-                filter: drop-shadow(0px 0px 5px green) brightness(1);
+                filter: /*drop-shadow(0px 0px 5px green) */
+                brightness(1);
             }
 
             100% {
                 opacity: 0;
                 translate: calc(80px * var(--transition-direction, 1)) 0;
                 scale: .9 .9;
-                filter: drop-shadow(0px 0px 5px green) brightness(.9);
+                filter: /*drop-shadow(0px 0px 5px green) */
+                brightness(.9);
             }
         }
 
@@ -531,14 +538,16 @@
                 opacity: 0;
                 translate: calc(-80px * var(--transition-direction, 1)) 0;
                 scale: .9 .9;
-                filter: drop-shadow(0px 0px 5px green) brightness(.9);
+                filter: /*drop-shadow(0px 0px 5px green) */
+                brightness(.9);
             }
 
             100% {
                 opacity: 1;
                 translate: 0 0;
                 scale: 1 1;
-                filter: drop-shadow(0px 0px 5px green) brightness(1);
+                filter: /*drop-shadow(0px 0px 5px green) */
+                brightness(1);
             }
         }
 
@@ -705,7 +714,7 @@
     <link rel="modulepreload" href="bubbles.js">
     <link rel="modulepreload" href="v4.js">
     <link rel="modulepreload" href="./webcomponents/paper-canvas.js">
-    <noscript>
+    <noscript id="trash">
         <style>
             section {
                 display: block !important
@@ -732,10 +741,8 @@
             }#bad_browser{display:block !important}
         </style>
     </noscript>
-    <script
-        nomodule>document.write('<style>[data-transitions], #viewbackground,.divider{display:none}#bad_browser{display:block !important}hr{display:block}section{display:block !important;}.backbutton{display:none}</style>')</script>
+    <script nomodule>document.write(document.getElementById('trash').textContent)</script>
 </head>
-
 <body>
     <div id="background" style="--user-select:none"></div>
     <div id="holder" class="center_screen clamped">
@@ -1667,7 +1674,7 @@
                 <!-- <aside style="font-style: italic;">With code!</aside> -->
                 <h2>Art</h2>
                 <nav class="lholder">
-                    <a href="./marbles/play?level=EMM" target="_blank"
+                    <a href="./marbles/?level=EMM" target="_blank"
                         title="marble run game thing idk (it's so bad and not done)">Marbles</a>
                     <a href="./cute-emojis" target="_blank" title="a bunch of pixely shiny emojis">cute-emojis</a>
                     <a href="https://dohaaa0268.github.io/" target="_blank">Dohaaa's Page</a>
