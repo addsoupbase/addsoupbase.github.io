@@ -1,3 +1,5 @@
+# YES, I'M WELL AWARE THIS REPO IS A MESS RIGHT NOW, NO I'M NOT GOING TO FIX IT ANYTIME SOON
+
 My intro page portforlio wjatever, would NOT be possible without this website right here https://sprites.pmdcollab.org/ for the sprites so check it out yay
 
 i hope i didn't miss any of the credits plz tell me if i did 😭
