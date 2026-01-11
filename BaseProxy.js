@@ -52,7 +52,7 @@ export class Handler {
         return func.apply(thisArg, args)
     }
     construct(constructor, args, newTarget) {
-        if (newTarget) switch (args.length) {
+        if (!newTarget) switch (args.length) {
             case 0: return new constructor
             case 1: return new constructor(args[0])
             case 2: return new constructor(args[0], args[1])
