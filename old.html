@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="content-language" content="en">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+    <meta name="description" content="addsoupbase's underwater pokémon themed page!">
+    <meta property="og:title" content="addsoupbase's page">
+    <meta property="og:image" content="https://addsoupbase.github.io/media/preview.png">
+    <meta property="og:image:width" content="1920">
+    <meta property="og:image:height" content="1080">
+    <meta property="og:image:type" content="image/png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="theme-color" content="#0265E2">
+    <link rel="apple-touch-icon" href="./media/IMG_0748.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta property="og:locale" content="en_US">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="twitter:creator" content="@addsoupbase">
+    <meta name="author" content="addsoupbase">
+    <meta property="profile:username" content="addsoupbase">
+    <meta name="robots" content="index">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://addsoupbase.github.io/">
+    <meta property="og:description"
+        content="addsoupbase's water pokémon themed page, featuring user avatars as bubbles!">
+    <meta name="twitter:url" content="https://addsoupbase.github.io/">
+    <meta property="og:site_name" content="addsoupbase.github.io">
+    <meta name="twitter:title" content="addsoupbase.github.io">
+    <meta name="twitter:description"
+        content="addsoupbase's water pokémon themed page, featuring user avatars as bubbles!">
+    <meta name="twitter:image" content="https://addsoupbase.github.io/media/preview.png">
+    <meta name="twitter:site" content="@addsoupbase">
+    <link rel="canonical" href="https://addsoupbase.github.io/">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/x-icon" href="favicon.ico" fetchpriority="low">
+    <title>addsoupbase🍜</title>
+    <link rel="prefetch" as="document" crossorigin="anonymous" href="./stuff.html" fetchpriority="low">
+    <link rel="prefetch" as="document" crossorigin="anonymous" href="./about.html" fetchpriority="low">
+    <link rel="prefetch" as="document" crossorigin="anonymous" href="./diary.html" fetchpriority="low">
+    <link rel="prefetch" as="document" crossorigin="anonymous" href="./bubbles.html" fetchpriority="low">
+    <link rel="preload" as="font" href="./media/Chococooky.woff2" crossorigin="anonymous" type="font/woff2">
+    <!-- <link rel="preload" href="./media/bubble.webp" as="image" type="image/webp"> -->
+    <link rel="apple-touch-icon" sizes="57x57" href="./icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="./icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="./icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="./icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="./icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="./icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="./icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="./icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./icon-180x180.png">
+    <link rel="modulepreload" href="./yay.js">
+    <script src="legacy.js" nomodule></script>
+    <script src="css.js" blocking="render"></script>
+    <script src="css_bad.js" nomodule></script>
+    <style id="firefox-fouc-fix">
+        @supports (-moz-force-broken-image-icon: 1) {
+            #frame {
+                visibility: hidden !important;
+            }
+        }
+    </style>
+</head>
+
+<body id="hiii"
+    style="height:100vh;background:rgb(24 161 220);background:linear-gradient(52deg, rgba(2, 101, 226, 1) 0%, rgba(0, 212, 255, 1) 100%) no-repeat;"
+    class="BG">
+    <main id="wrapper" style="display:grid;z-index: 4;pointer-events: none;overflow-x: hidden">
+        <iframe scrolling="no" src="main.html" loading="lazy" id="frame" name="content" aria-atomic="true"
+            aria-live="assertive" aria-relevant="all" title="content" class="center show"
+            style="pointer-events: auto;display:none;opacity:0"></iframe>
+        <script>
+            'use strict'
+            if (typeof scrollMaxX === 'number') !function (f) {
+                f.addEventListener('load', function n() {
+                    document.getElementById('firefox-fouc-fix').remove()
+                    f.removeEventListener('load', n)
+                })
+            }(document.getElementById('frame'))
+        </script>
+        <noscript>
+            <style>
+                #frame {
+                    opacity: 1 !important;
+                    display: block !important;
+                    visibility: visible !important;
+                }
+            </style>
+        </noscript>
+        <script>
+            !function (a) {
+                'use strict'
+                function set(e) {
+                    e.style.display = ''
+                    e.style.opacity = 1
+                }
+                try {
+                    a.contentWindow.document.readyState === 'complete' ? set(a) : addEventListener('load', function () { set(a) }, { once: true })
+                }
+                catch (e) {
+                    set(a)
+                }
+            }(document.getElementById('frame'))
+        </script>
+    </main>
+    <button class="cute-green-button" id="show"
+        style="position: fixed;bottom:15px;right:15px;display:none;z-index: 2;">Show</button>
+    <script type="module">
+        import $ from './yay.js'
+        const h = window[Symbol.for('[[HModule]]')]
+        let { show, frame } = $.id
+        show.debounce({
+            click() {
+                frame.fadeIn()
+                this.fadeOut()
+            }
+        }, 1500)
+
+        !function doThing(e) {
+            let f = $(frames[0].frameElement)
+            f.hide(3)
+
+            function _load() {
+                let me = f
+                me.fadeIn()
+                let controller = new AbortController
+                function ga() {
+                    doThing()
+                }
+                h.on(f.contentWindow, {
+                    'pagehide': ga
+                })
+                /*
+                this.contentWindow.navigation && h.on(this.contentWindow.navigation, {
+                    '#_navigate': doThing
+                }, false, controller)*/
+                /* if (top === window) {
+                     $.id.goBack.setAttribute('href', './')
+                 }*/
+            }
+
+            let c = new AbortController
+            f.on({
+                '#load': _load
+            }, c)
+            h.on(f.contentWindow.document, {
+                '#DOMContentLoaded': _load
+            }, c)
+            h.on(f.contentWindow, {
+                '#load': _load
+            }, c)
+        }()
+        h.on(window, {
+
+            _load() {
+                let f = $.id.frame
+                f.styles.display = ''
+                // f.animate([{ translate: '0px -50px', transform: 'scale(0.7,0.7)' }, {}], {
+                //     duration: 500,
+                //     iterations: 1,
+                //     easing: 'ease'
+                // })
+            }
+        })
+    </script>
+    <span id="count" hidden aria-label="Count"></span>
+    <!--[if IE ]>
+<script>
+    alert('⚠️ For your security, it is crucial that you switch to a modern browser immediately.')
+    document.bgColor = document.body.bgColor = '#FFFFFF'
+    document.body.innerHTML = '<a href="https://www.google.com/chrome/fallback/?brand=CHNY&utm_campaign=en&utm_source=en-et-youtube&utm_medium=et"><big>Download Chrome</big></a>'
+    document.body.style.background = '#FFFFFF'
+</script>
+<![endif]-->
+    <script src="./scripts/background.js" type="module" async></script>
+    <script>console.log('%c🆓 Sprites credit: https://sprites.pmdcollab.org/', 'font-size:2em')</script>
+    <!-- <script async defer src="silence.js"></script> -->
+</body>
+
+</html>

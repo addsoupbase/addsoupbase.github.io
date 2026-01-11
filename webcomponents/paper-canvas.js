@@ -36,7 +36,6 @@ function pointerdown(p) {
     undoBuffer.push(ctx.getImageData(0, 0, 250, 250))
     while (this.undoBuffer.length > this.maxBufferSize) undoBuffer.shift()
     this.holding = true
-    if ('pointerId' in p) this.setPointerCapture(p.pointerId)
     let { lastLoc } = this
     let zoom = this.canvas.currentCSSZoom || 1
     lastLoc.set(p.offsetX, p.offsetY)
@@ -45,6 +44,7 @@ function pointerdown(p) {
     ctx.arc(lastLoc.x / zoom, lastLoc.y / zoom, 0, 0, 6)
     ctx.stroke()
     ctx.fill()
+    this.setPointerCapture(p.pointerId)
     // ctx.strokeRect(p.offsetX/zoom, p.offsetY/zoom, .5,.5)
 }
 class PaperCanvas extends HTMLElement {
@@ -135,6 +135,12 @@ class PaperCanvas extends HTMLElement {
                     this.ctx.fillStyle = newValue
                 break
         }
+    }
+    get brushsize() {
+        return this.ctx.strokeWidth
+    }
+    set brushsize(val) {
+        this.setAttribute('brushsize', val)
     }
     set color(color) {
         this.ctx.fillStyle = this.ctx.strokeStyle = color

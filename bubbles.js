@@ -9,7 +9,32 @@ const { Proxify } = v
 css.registerProperty('--size', '0px', false, '<length>',)
 css.registerProperty('--width', '0px', false, '<length>',)
 css.registerProperty('--frames', 0, false, '<integer>',)
-const { background: bg, count, holder } = v.id
+const {
+    brushsize, undo, color,
+    background: bg, count, holder, senddrawing, sendmessage, papericon, senddrawingform, paper } = v.id
+papericon.on({
+    _click() {
+        sendmessage.hide()
+        senddrawing.show()
+        this.hide()
+        paper.scrollIntoView()
+    }
+})
+color.on({
+    change() {
+        paper.color = this.value
+    }
+})
+undo.on({
+    click() {
+        paper.undo()
+    }
+})
+brushsize.on({
+    change() {
+        paper.brushsize = this.value
+    }
+})
 let isHolding = false
 /*  bg.delegate({
       contentvisibilityautostatechange(e) {
@@ -22,26 +47,26 @@ bg.delegate({
         e.stopImmediatePropagation()
         count.style.opacity = 1
         audio.play('pop.mp3')
-        let div = Proxify(this.closest('div'))
+        let parent = Proxify(this.closest('span'))
         count.textContent = `${++popped}`
         // count.ariaNotify?.(`Popped ${popped} bubbles`)
-        div.dataset.popped = ''
+        parent.dataset.popped = 'true'
         count.ariaHidden = 'false'
-        let me = div.eltAt()
-        div.getAnimations({ subtree: true }).forEach(o => o.pause())
-        await div.animFrom('pop', { duration: 300, iterations: 1, easing: 'ease', fill: 'none' }).finished
-        let picture = Proxify(div.querySelector('foreignObject').firstElementChild)
-        picture.className = 'preview'
-        let img = Proxify(div.firstElementChild.querySelector('img'))
-        img.className = 'avatarpopped'
-        img.nextNode = v.esc`<span class="caption">${img.title}</span>`
-        div.style.willChange = 'transform,filter'
-        div.animFrom('fade_in', { duration: 300, iterations: 1 })
-        div.replaceChildren(picture.valueOf())
-        div.animFrom('dissolve', { duration: 700, iterations: 1, delay: 2000, composite: 'add' })
-            .onfinish = kill
+        let me = parent.eltAt()
+        let pic = Proxify(me.querySelector('div'))
+        // pic.parent = bg
+        parent.getAnimations({ subtree: true }).forEach(o => o.pause())
+        await parent.animFrom('pop', { duration: 300, iterations: 1, easing: 'ease', fill: 'none' }).finished
+        pic.classList.add('preview', 'avatarpopped', 'popped')
+        // pic.parent = bg
+        parent.replaceChildren(pic.valueOf())
+        pic.style.willChange = 'transform,filter'
+        pic.animFrom('fade_in', { duration: 300, iterations: 1 })
+        pic.animFrom('dissolve', { duration: 700, iterations: 1, delay: 2000, composite: 'add' })
+        .onfinish = kill
+        
     }
-}, o => o.closest('div').dataset.popped === 'false', false, new AbortController)
+}, o => o.closest('span')?.dataset.popped === 'false', false, new AbortController)
 bg.on({
     pointerdown(e) {
         this.setPointerCapture(e.pointerId)
@@ -55,7 +80,7 @@ bg.debounce({
     pointermove({ pageX, pageY }) {
         if (isHolding) {
             bubble(range(15, 20), pageX, pageY).setParent(bg)
-            .animFrom('fade_in', {duration: 200, fill:'forwards', iterations:1})
+                .animFrom('fade_in', { duration: 200, fill: 'forwards', iterations: 1 })
         }
     }
 }, 60)
@@ -64,10 +89,18 @@ bg.delegate({
         v.sel(this.parentElement).purge()
     }
 })
+let fileFormat = await new Promise(resolve => {
+    let n = new Image
+    n.src = `data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADybWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAeaWxvYwAAAABEAAABAAEAAAABAAABGgAAAB0AAAAoaWluZgAAAAAAAQAAABppbmZlAgAAAAABAABhdjAxQ29sb3IAAAAAamlwcnAAAABLaXBjbwAAABRpc3BlAAAAAAAAAAIAAAACAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQ0MAAAAABNjb2xybmNseAACAAIAAYAAAAAXaXBtYQAAAAAAAAABAAEEAQKDBAAAACVtZGF0EgAKCBgANogQEAwgMg8f8D///8WfhwB8+ErK42A=`
+    n.onload = () => resolve('.avif')
+    n.onerror = () => resolve('.webp')
+})
 let avatars  = ["xzzy","auquamantis","kannadra","kae","fourche7","glente","elipoopsrainbows","niya","mr_clownette","lorex","mochi","Dohaaa","armaan.n","zoozi","frannie4u","west","kyn","ilikebugs2","juaj","zee","znsxxe","ghostie","babby","kay_.stars","ka1ya1","river","gilly","lexi","na22","khaoticgood","indie","copy","nova","Leftover_Birthday-Cake","elenfnf1","caelix","mai","stuella","son_yukio","chlorineatt","oli","morrfie","gummicat","anarchy","rue","birdie","汝起亚","saintz","may","valerie","mila","Professional_idiot","Remi","Violet","zrake","novacans_","naz","caevsz","rurikuu","Lotus","Lagia","stav","aya","MRK","lunza","crazy","mothmaddie","rainmint","lazy","rikapika","kurispychips"]
 for (let i = 0, { length } = avatars; i < length; ++i) {
-    const pick = Math.floor(Math.random() * (i + 1));
-    ({ 0: avatars[i], 1: avatars[pick] } = [avatars[pick], avatars[i]])
+    const pick = Math.floor(Math.random() * (i + 1))
+    let p = avatars[i]
+    css.registerCSSRaw(`.user-${CSS.escape(p)} {background-image: url("./media/avatars/${p}${fileFormat}")}`)
+        ; ({ 0: avatars[i], 1: avatars[pick] } = [avatars[pick], avatars[i]])
 }
 let i = 0
 function isHidden() {
@@ -104,20 +137,16 @@ function kill(e) {
 }
 const avatar = (name, size = 60) => {
     const scale = size / 200
-    let out = v.esc`<div data-popped="false" class="holder" name="ava" aria-hidden="true" style="--size: ${size}px;transform-origin:center center;z-index:0;top: ${range(0, innerHeight)}px;">
+    let out = v.esc`<span data-popped="false" class="holder" name="ava" aria-hidden="true" style="--size: ${size}px;transform-origin:center center;z-index:0;top: ${range(0, innerHeight)}px;">
         <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">
         <circle cursor="pointer" pointer-events="painted" r="${95 * scale}" cx="${100 * scale}" cy="${100 * scale}" fill="rgba(15, 20, 210, 0.4)" stroke="#1043E5" stroke-width="${10 * scale}">
         </circle>
         <foreignObject x="${30 * scale}" y="${30 * scale}" width="${140 * scale}" pointer-events="painted"  height="${140 * scale}" cursor="pointer">
-            <picture>
-                <source srcset="./media/avatars/${name}.avif" type="image/avif">
-                <source srcset="./media/avatars/${name}.webp" type="image/webp">
-                <img draggable="false" src="./media/avatars/${name}.jpg" class="avatar" title="${name}">
-            </picture>
+        <div class="avatar user-${name}" title="${name}"></div>    
         </foreignObject>
         <path cursor="pointer" d="M ${180 * scale} ${100 * scale} A ${80 * scale} ${80 * scale} 0 0 0 ${100 * scale} ${20 * scale}" fill="none" stroke="white" stroke-width="${9 * scale}" pointer-events="painted">
         </path>
-    </svg></div>`
+    </svg></span>`
     out.animFrom('yAxis', { duration: range(3000, 3500), easing: 'ease-in-out', direction: 'alternate' })
     out.animFrom('xAxis', { duration: 16000 * (Math.random() > .5 ? -1 : 1), easing: 'linear', iterations: 1 })
         .onfinish = kill
@@ -181,6 +210,9 @@ function pokemonthing(i) {
             case 'manaphy':
                 scale *= 1.3
                 break
+            case 'eelektross':
+                scale *= 1.5
+                break
             case 'alomomola':
                 scale *= 1.6
                 break
@@ -220,7 +252,7 @@ function pokemonthing(i) {
                 break
             case 'clawitzer':
             case 'nihilego':
-                scale *= 1.55
+                scale *= 1.75
                 break
         }
         scale *= range(.90, 1.1)
