@@ -37,9 +37,9 @@ class Node$ extends EventTargetProxy {
             function Wrapped(e, off, abort) {
                 let me = Proxify(this)
                 e = Proxify(e)
-                if (abort) return old.call(me, e, off, abort)
-                if (off) return old.call(me, e, off)
-                return old.call(me, e)
+                return abort? old.call(me, e, off, abort):
+                off? old.call(me, e, off): 
+                old.call(me, e)
             }
         }
         return Proxify(h.delegate(this, events, filter, includeSelf, controller))
@@ -98,7 +98,11 @@ class Node$ extends EventTargetProxy {
     get nodes() {
         return [].map.call(this.childNodes, Proxify)
     }
-    set nodes(childs) {
+    empty() {
+        this.replaceChildren()
+        return Proxify(this)
+    }
+    /*set nodes(childs) {
         let me = this
         if (me.replaceChildren)
             return me.replaceChildren(...childs)
@@ -107,7 +111,7 @@ class Node$ extends EventTargetProxy {
             me.removeChild(base(children[i]))
         if (childs !== void 0) for (let i = 0, len = childs.length; i < len; ++i)
             me.appendChild(base(childs[i]))
-    }
+    }*/
     get prevNode() {
         let n = this.previousSibling
         return n && Proxify(n)
@@ -227,7 +231,7 @@ class StyleCache extends Cacher {
     }
     $finish() {
         let c = this.$cache
-        let str = ''
+        , str = ''
         for (let key in c) {
             let val = c[key]
             str += `${toDash(key)}:${val};`
@@ -270,23 +274,31 @@ class Element$ extends NodeProxy {
         if (!frames) {
             let thing
             _: {
-                for (let o of D.styleSheets)
-                    for (let a of o.cssRules) {
+                let rules = D.styleSheets
+                for (let i = rules.length; i--;) {
+                    let b = rules[i].cssRules
+                    for (let ii = b.length; ii--;) {
+                        let a = b[ii]
                         if (a.type === 7 && a.name === animationName) {
                             thing = a
                             break _
                         }
                     }
+                }
                 throw TypeError(`Animation not found: ${animationName}`)
             }
             let fr = []
-            for (let { style } of thing) {
+            let t = thing.cssRules
+            for (let i = t.length; i--;) {
+                let { style } = t[i]
                 let a = {}
-                for (let prop of style)
+                for (let ii = style.length; ii--;) {
+                    let prop = style[ii]
                     a[prop] = style[prop]
+                }
                 fr.push(a)
             }
-            Element$.AnimationCache.set(animationName, frames = fr)
+            Element$.AnimationCache.set(animationName, frames = fr.reverse())
         }
         let n = new Animation(new KeyframeEffect(this, frames, {
             duration: Math.abs(duration),
@@ -299,9 +311,6 @@ class Element$ extends NodeProxy {
         }))
         n.play()
         return n
-    }
-    anim(className) {
-
     }
     fadeOut(duration = 500, { keepSpace, easing = 'ease' } = {}) {
         // idk if 'filter: opacity()' or 'opacity' is better for animating, we can see i guess
@@ -348,8 +357,16 @@ const ElementProxy = new ProxyFactory(Element$)
 class HTMLElement$ extends ElementProxy {
     #style = null
     #calc = null
+    #savedDisplay = ''
     hide() {
-        this.style.display = 'none'
+        let {style} = this
+        let display = style.display
+        if (display === 'none') display = ''
+        Proxify.GetWrapper(this).#savedDisplay = display
+        style.display = 'none'
+    }
+    show() {
+        this.style.display = Proxify.GetWrapper(this).#savedDisplay
     }
     get calc() {
         return Proxify.GetWrapper(this).#style ||= new ReflowCache(this)
@@ -361,7 +378,7 @@ class HTMLElement$ extends ElementProxy {
         return Object.assign(Proxify(this).styles, o)
     }
 }
-new ProxyFactory(HTMLElement$)
+const HTMLElementProxy = new ProxyFactory(HTMLElement$)
 class MouseEvent$ {
     #layerX = null
     #layerY = null
@@ -371,5 +388,4 @@ class MouseEvent$ {
     get layerY() { return Proxify.GetWrapper(this).#layerY ??= this.layerY }
     get offsetX() { return Proxify.GetWrapper(this).#offsetX ??= this.offsetX }
     get offsetY() { return Proxify.GetWrapper(this).#offsetY ??= this.offsetY }
-}
-new ProxyFactory(MouseEvent$)
+}new ProxyFactory(MouseEvent$)

@@ -83,6 +83,14 @@
     <script src="css_bad.js" nomodule></script>
     <!--https://wiki.whatwg.org/wiki/MetaExtensions-->
     <style>
+        section {
+            display: none;
+        }
+
+        section.active {
+            display: block;
+        }
+
         @keyframes slideshow {
             0% {
                 background-position-x: 0%;
@@ -156,12 +164,24 @@
             overflow: hidden;
         }
 
-        .pkm,
+        /* .pkm,
         .holder {
             content-visibility: auto;
+        } */
+
+
+
+        section {
+            /* view-transition-name: content; */
+        }
+
+        body,
+        html {
+            view-transition-name: none;
         }
 
         #background {
+            view-transition-name: none;
             position: fixed;
             width: 100vw;
             z-index: -2;
@@ -263,7 +283,6 @@
         }
 
         figure {
-
             text-align: center;
         }
 
@@ -342,8 +361,9 @@
         #holder:not(.clamped) {
             font-size: 1.5em;
         }
+
         #holder:not(.clamped) main {
-            border-radius:  0;
+            border-radius: 0;
         }
 
         #holder {
@@ -351,8 +371,8 @@
             width: 100vw;
             height: 100vh;
             opacity: 1;
-            filter: drop-shadow(0px 0px 10px green);
-            transform-origin: center center;
+            filter: drop-shadow(0px 0px 5px green);
+            /* transform-origin: center center; */
             image-rendering: pixelated;
             transition: opacity .3s ease-in-out, background-color 0.3s ease, border-color 0.3s ease;
             /* resize: both; */
@@ -362,7 +382,10 @@
         main {
             animation: intro .5s ease forwards;
             height: 100%;
+            view-transition-name: content;
             overflow-y: auto;
+            overflow-x: hidden;
+            display: block;
             border-radius: inherit;
             --scrollbar-width: 5px;
             scrollbar-width: thin;
@@ -398,6 +421,13 @@
             place-self: center;
         }
 
+        a,
+        button {
+            font-size: .8rem;
+            line-height: normal;
+        }
+
+
         @keyframes intro {
             0% {
                 filter: opacity(0%)
@@ -405,54 +435,222 @@
 
             100% {}
         }
+
+
+
+
+        ::view-transition-old(content) {
+            animation: mainSlideOut 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        ::view-transition-new(content) {
+            animation: mainSlideIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes mainSlideOut {
+            0% {
+                opacity: 1;
+                translate: 0 0;
+                scale: 1 1;
+                filter: drop-shadow(0px 0px 5px green) brightness(1);
+            }
+
+            100% {
+                opacity: 0;
+                translate: calc(80px * var(--transition-direction, 1)) 0;
+                scale: .9 .9;
+                filter: drop-shadow(0px 0px 5px green) brightness(.9);
+            }
+        }
+
+        @keyframes mainSlideIn {
+            0% {
+                opacity: 0;
+                translate: calc(-80px * var(--transition-direction, 1)) 0;
+                scale: .9 .9;
+                filter: drop-shadow(0px 0px 5px green) brightness(.9);
+            }
+
+            100% {
+                opacity: 1;
+                translate: 0 0;
+                scale: 1 1;
+                filter: drop-shadow(0px 0px 5px green) brightness(1);
+            }
+        }
+
+        .zygarde {
+            margin-top: 25px !important;
+            margin-bottom: -50px !important
+        }
+
+        .tinkaton {
+            margin: -20px !important
+        }
+
+        @supports (-webkit-touch-callout: none) {
+
+            /*
+            Safari has some bullshit bug affecting positioning with drop-shadow(), because of course it does! 😁
+            It's Safari! Everyone has an iPhone!
+            I love it when completely unrelated properties affect each other in completely random ways...
+            But that's CSS in a nutshell
+            */
+            main {
+                border: none !important
+            }
+            #holder {
+                filter: none !important
+            }
+
+            @keyframes mainSlideOut {
+                0% {
+                    opacity: 1;
+                    translate: 0 0;
+                    scale: 1 1;
+                    filter: brightness(1);
+                }
+
+                100% {
+                    opacity: 0;
+                    translate: calc(80px * var(--transition-direction, 1)) 0;
+                    scale: .9 .9;
+                    filter: brightness(.9);
+                }
+            }
+
+            @keyframes mainSlideIn {
+                0% {
+                    opacity: 0;
+                    translate: calc(-80px * var(--transition-direction, 1)) 0;
+                    scale: .9 .9;
+                    filter: brightness(.9);
+                }
+
+                100% {
+                    opacity: 1;
+                    translate: 0 0;
+                    scale: 1 1;
+                    filter: brightness(1);
+                }
+            }
+        }
+
+        .backbutton {
+            position: fixed;
+            top: 5px;
+            left: 5px;
+        }
+
+        .pokemon {
+            image-rendering: pixelated;
+            transform: scale(1.5, 1.5)
+        }
+
+        #pokemonholder {
+            --user-select: none
+        }
+
+        #pokemonholder img {
+            margin: 10px
+        }
     </style>
     <link rel="modulepreload" href="bubbles.js">
     <link rel="modulepreload" href="v4.js">
     <link rel="modulepreload" href="./webcomponents/paper-canvas.js">
     <noscript>
         <style>
-            #holder {
-                opacity: 1
+            section {
+                display: block !important
+            }
+
+            .backbutton {
+                display: none
             }
         </style>
     </noscript>
+    <script
+        nomodule>document.write('<style>section{display:block !important;}.backbutton{display:none}</style>')</script>
 </head>
 
 <body>
     <div id="background" style="--user-select:none"></div>
     <div id="holder" class="center_screen clamped">
         <main style="opacity:1" class="cute-green" id="main">
-            <div>
-                <picture>
-                    <source srcset="./media/art.avif" type="image/avif">
-                    <source srcset="./media/art.webp" type="image/webp">
-                    <img decoding="async" src="./media/art.jpg" alt="avatar"
-                        style="position: fixed;border-radius: 100%;width:50px;height:50px;max-width: unset;left:10px;top:10px"
-                        width="50" height="50"
-                        title="Mila (my old best friend) drew this!! She left though because she didn't like the fact that I had other friends!">
-                </picture>
-            </div>
-            <h1 style="display: contents;">addsoupbase</h1>
-            <h2 style="font-size: 1em;">thank you so much for looking at this i love you everyone</h2>
-            <div style="place-content: center;place-items: center;" id="buttons"><button class="cute-green-button"
-                    id="viewbackground">Background</button><img decoding="async"
-                    src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><button
-                    class="cute-green-button" id="viewfullscreen">Focus</button>
-            </div>
-            <p>Send me something, or press the paper below to draw something instead</p>
-            <form action="https://misha-mail-85.deno.dev" method="POST"
-                style="display: grid;width: max-content;place-self: center;margin:auto;place-self:center">
-                <input class="cute-green" name="name" placeholder="Name" enterkeyhint="next">
-                <input class="cute-green" name="message" placeholder="Message" required enterkeyhint="send">
-                <div style="--user-select:none;display: flex;place-content: center;place-items: center;"><img
-                        decoding="async" src="./cute-emojis/emojis/1319311940304113736.gif" class="hellokitty" alt
-                        draggable="false"><button id="send" class="cute-green-button">Send</button><img decoding="async"
-                        src="./cute-emojis/emojis/1319312145560895591.gif" class="hellokitty" alt draggable="false">
+            <section name="sect" id="home" class="active">
+                <div>
+                    <picture>
+                        <source srcset="./media/art.avif" type="image/avif">
+                        <source srcset="./media/art.webp" type="image/webp">
+                        <img decoding="async" src="./media/art.jpg" alt="avatar"
+                            style="position: fixed;border-radius: 100%;width:50px;height:50px;max-width: unset;left:10px;top:10px"
+                            width="50" height="50"
+                            title="Mila (my old best friend) drew this!! She left though because she didn't like the fact that I had other friends!">
+                    </picture>
                 </div>
-            </form>
-            <form action="https://drawing-submissions.deno.dev/?user=misha" method="POST">
-                <!-- <paper-canvas></paper-canvas> -->
-            </form>
+                <h1 style="display: inline;">addsoupbase</h1>
+                <h2 style="font-size: 1em;">thank you so much for looking at this i love you everyone</h2>
+                <div style="place-content: center;place-items: center;" id="buttons"><button class="cute-green-button"
+                        id="viewbackground">Hide</button><img decoding="async"
+                        src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><button
+                        style="display: none;" class="cute-green-button" id="viewfullscreen">Focus</button><img
+                        style="display: none;" decoding="async" src="./cute-emojis/emojis/02665925378628511.gif"
+                        class="divider" alt><button class="cute-green-button" data-transitions="about">About</button>
+                </div>
+                <p>Send me something, or press the paper below to draw something instead</p>
+                <form action="https://misha-mail-85.deno.dev" method="POST"
+                    style="display: grid;width: max-content;place-self: center;margin:auto;place-self:center">
+                    <input class="cute-green" name="name" placeholder="Name" enterkeyhint="next">
+                    <input class="cute-green" name="message" placeholder="Message" required enterkeyhint="send">
+                    <div style="--user-select:none;display: flex;place-content: center;place-items: center;"><img
+                            decoding="async" src="./cute-emojis/emojis/1319311940304113736.gif" class="hellokitty" alt
+                            draggable="false"><button id="send" class="cute-green-button">Send</button><img
+                            decoding="async" src="./cute-emojis/emojis/1319312145560895591.gif" class="hellokitty" alt
+                            draggable="false">
+                    </div>
+                </form>
+                <form action="https://drawing-submissions.deno.dev/?user=misha" method="POST">
+                    <!-- <paper-canvas></paper-canvas> -->
+                </form>
+            </section>
+            <section name="sect" id="about">
+                <button class="cute-green-button backbutton" id="backbutton" data-transitions="home">Back</button>
+                <div style="display: flex;place-content: space-around; margin:5px">
+                    <div>
+                        <p style="font-weight: bold;font-size:1.5em">Age: 18</p>
+                        <small><time datetime="2007-06-17">June 17, 2007</time></small>
+                    </div>
+                    <div>
+                        <p style="font-weight: bold;font-size:1.5em">Name: Misha</p>
+                        <small></small>
+                    </div>
+                </div>
+                <h1 style="display: inline;">Favourite Pokemon!!</h1>
+                <div id="pokemonholder" role="img">
+                    <img loading="lazy" src="./media/sprites/surskit.gif" alt="surskit"
+                        class="surskit pokemon"><img loading="lazy" src="./media/sprites/swoobat.gif" alt="swoobat"
+                        class="swoobat pokemon"><img loading="lazy" src="./media/sprites/clamperl.gif" alt="clamperl"
+                        class="clamperl pokemon"><img loading="lazy" src="./media/sprites/darmanitan.gif" alt="darmanitan"
+                        class="darmanitan pokemon"><img loading="lazy" src="./media/sprites/aegislash.gif" alt="aegislash"
+                        class="aegislash pokemon"><img loading="lazy" src="./media/sprites/spinda.gif" alt="spinda"
+                        class="spinda pokemon"><img loading="lazy" src="./media/sprites/mawile.gif" alt="mawile"
+                        class="mawile pokemon"><img loading="lazy" src="./media/sprites/shedinja.gif" alt="shedinja"
+                        class="shedinja pokemon"><img loading="lazy" src="./media/sprites/gourgeist.gif" alt="gourgeist"
+                        class="gourgeist pokemon"><img loading="lazy" src="./media/sprites/trapinch.gif" alt="trapinch"
+                        class="trapinch pokemon"><img loading="lazy" src="./media/sprites/wobbuffet.gif" alt="wobbuffet"
+                        class="wobbuffet pokemon"><img loading="lazy" src="./media/sprites/misdreavus.gif" alt="misdreavus"
+                        class="misdreavus pokemon"><img loading="lazy" src="./media/sprites/zygarde.gif" alt="zygarde"
+                        class="zygarde pokemon"><img loading="lazy" src="./media/sprites/minior.gif" alt="minior"
+                        class="minior pokemon"><img loading="lazy" src="./media/sprites/cherrim.gif" alt="cherrim"
+                        class="cherrim pokemon"><img loading="lazy" src="./media/sprites/masquerain.gif" alt="masquerain"
+                        class="masquerain pokemon"><img loading="lazy" src="./media/sprites/ogerpon.gif" alt="ogerpon"
+                        class="ogerpon pokemon"><img loading="lazy" src="./media/sprites/delcatty.gif" alt="delcatty"
+                        class="delcatty pokemon"><img loading="lazy" src="./media/sprites/pheromosa.gif" alt="pheromosa"
+                        class="pheromosa pokemon"><img loading="lazy" src="./media/sprites/tinkaton.gif" alt="tinkaton"
+                        class="tinkaton pokemon"><img loading="lazy" src="./media/sprites/meloetta.gif" alt="meloetta"
+                        class="meloetta pokemon">
+                </div>
+            </section>
         </main>
     </div>
     <output id="count" aria-live="polite" aria-hidden="true"
@@ -464,7 +662,32 @@
     import './h.js'
     import * as v from './v4.js'
     const h = window[Symbol.for('[[HModule]]')]
-    const { viewbackground, holder, show, viewfullscreen } = v.id
+    const { viewbackground, holder, show, viewfullscreen, main, backbutton } = v.id
+    let sections = [].map.call(document.getElementsByName('sect'), v.Proxify)
+    let startViewTransition = document.startViewTransition?.bind(document) || function (callback) { setTimeout(callback) }
+    let lastSection = 'home'
+    main.delegate({
+        click() {
+            let targetId = this.dataset.transitions
+                , back = targetId === 'home' && lastSection !== 'home'
+            document.documentElement.style.setProperty('--transition-direction', back ? '-1' : '1')
+            for (let n of sections) {
+                if (n.id === targetId && n.id !== 'home') {
+                    backbutton.parent = n
+                    break
+                } 
+            }
+            startViewTransition(() =>
+                doDomThing(lastSection = targetId)
+            )
+        }
+    }, o => o.hasAttribute('data-transitions'))
+    function doDomThing(id) {
+        for (let n of sections) {
+            if (n.id === id) n.classList.add('active')
+            else n.classList.remove('active')
+        }
+    }
     viewfullscreen.on({
         click() {
             holder.classList.toggle('clamped')
@@ -518,18 +741,19 @@
         })
     </script>
     -->
-<script>
-    addEventListener('load', setTimeout.bind(window, function () {
-        'use strict'
-        function load() {
-            import('./webcomponents/paper-canvas.js')
-            import('./bubbles.js')
-        }
-        if (typeof requestIdleCallback === 'function') {
-            requestIdleCallback(load)
-        }
-        else load()
-    }, 300))
+<script src="./webcomponents/paper-canvas.js" async type="module"></script>
+<script src="./bubbles.js" async type="module">
+    // addEventListener('load', setTimeout.bind(window, function () {
+    //     'use strict'
+    //     function load() {
+    //         import('./webcomponents/paper-canvas.js')
+    //         import('./bubbles.js')
+    //     }
+    //     if (typeof requestIdleCallback === 'function') {
+    //         requestIdleCallback(load)
+    //     }
+    //     else load()
+    // }, 300))
 </script>
 
 </html>

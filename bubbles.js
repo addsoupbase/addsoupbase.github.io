@@ -55,15 +55,10 @@ bg.debounce({
     pointermove({ pageX, pageY }) {
         if (isHolding) {
             bubble(range(15, 20), pageX, pageY).setParent(bg)
-                .animate([{ opacity: 0 }, { opacity: 1 }], {
-                    easing: 'ease',
-                    iterations: 1,
-                    duration: 200,
-                    fill: 'forwards'
-                })
+            .animFrom('fade_in', {duration: 200, fill:'forwards', iterations:1})
         }
     }
-}, 50)
+}, 60)
 bg.delegate({
     animationend() {
         v.sel(this.parentElement).purge()
@@ -145,7 +140,7 @@ function pokemonthing(i) {
                 scale *= 1.3
                 break
             case 'corsola':
-                scale *= .7
+                scale *= .87
                 duration *= 1.5
                 break
             case 'wishiwashischool':
@@ -176,7 +171,7 @@ function pokemonthing(i) {
                 duration *= 2.5
                 break
             case 'wailord':
-                scale *= 7
+                scale *= 5.3
                 duration *= 8
                 break
             case 'groudon':
@@ -228,8 +223,8 @@ function pokemonthing(i) {
                 scale *= 1.55
                 break
         }
-        scale *= range(.95, 1.05)
-        duration *= range(.95, 1.05)
+        scale *= range(.90, 1.1)
+        duration *= range(.90, 1.1)
         pokemon.push({ name: pkm, scale: scale * 1.75, duration: duration * 1000 * .7 })
         css.registerCSSRaw(`.${pkm} {
                 animation: slideshow ${frames * 150}ms steps(${frames}, end) infinite;
