@@ -6,9 +6,9 @@ import dataURLS from './scripts/dataURLS.js'
 audio.load('./media/pop.mp3')
 const { css } = v
 const { Proxify } = v
-css.registerProperty('--size', '0px', false, '<length>',)
-css.registerProperty('--width', '0px', false, '<length>',)
-css.registerProperty('--frames', 0, false, '<integer>',)
+// css.registerProperty('--size', '0px', false, '<length>',)
+// css.registerProperty('--width', '0px', false, '<length>',)
+// css.registerProperty('--frames', 0, false, '<integer>',)
 const {
     brushsize, undo, color,
     background: bg, count, holder, senddrawing, sendmessage, papericon, senddrawingform, paper } = v.id
