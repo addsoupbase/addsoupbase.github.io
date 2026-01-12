@@ -22,6 +22,9 @@ function readonly(target, prop, value) {
 // Structure is:
 // Proxy -> Wrapper -> [[Target]]
 export class Handler {
+    has(Wrapper, p) {
+        return p in Wrapper || p in Wrapper[WrapperTarget]
+    }
     get(Wrapper, prop) {
         if (prop === Revoke) return Wrapper[Revoke]
         if (prop === WrapperItself) return Wrapper

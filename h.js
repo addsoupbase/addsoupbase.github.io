@@ -403,25 +403,25 @@
             name = event.type,
             currentTarget = event.currentTarget,
             detail = event.detail
-        switch (label) {
-            case 'CustomEvent':
-                event = args[0] = new Proxy(event, customEventHandler)
-                break
-            case 'MouseScrollEvent':
-                event.deltaZ = 0
-                if (event.axis === 2) {
-                    event.deltaX = 0
-                    event.deltaY = 50 * detail
-                }
-                else if (event.axis === 1) {
-                    event.deltaX = 50 * detail
-                    event.deltaY = 0
-                }
-                break
-        }
-        s && args.push(abrt)
-        args.push(off.bind(void 0, this, name))
         if (t && event.isTrusted || !t && (!originalTarget || !('originalTarget' in event) || event.originalTarget === currentTarget) && (!explicitOriginalTarget || !('explicitOriginalTarget' in event) || event.explicitOriginalTarget === currentTarget) && (!oct || (event.target || event.srcElement) === currentTarget)) {
+            switch (label) {
+                case 'CustomEvent':
+                    event = args[0] = new Proxy(event, customEventHandler)
+                    break
+                case 'MouseScrollEvent':
+                    event.deltaZ = 0
+                    if (event.axis === 2) {
+                        event.deltaX = 0
+                        event.deltaY = 50 * detail
+                    }
+                    else if (event.axis === 1) {
+                        event.deltaX = 50 * detail
+                        event.deltaY = 0
+                    }
+                    break
+            }
+            s && args.push(abrt)
+            args.push(off.bind(void 0, this, name))
             switch (args.length) {
                 case 2: var result = f.call(this, event, args[1])
                     break
@@ -586,7 +586,7 @@
         }
         for (var i in events) {
             if (i.includes('@')) throw SyntaxError("Conflicting usage of a 'currentTarget' only delegating event handler")
-            events[i]= add(events[i])
+            events[i] = add(events[i])
         }
         return on(me, events, controller)
     }
