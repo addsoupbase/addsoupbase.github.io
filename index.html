@@ -702,7 +702,7 @@
         }
 
         .lholder {
-            display: grid;
+            display: inline-grid;
             margin: 20px
         }
 
@@ -716,10 +716,11 @@
     <link rel="modulepreload" href="./webcomponents/paper-canvas.js">
     <noscript id="trash">
         <style>
+            #nojs,
             section {
                 display: block !important
             }
-
+            
             hr {
                 display: block;
             }
@@ -1657,9 +1658,7 @@
                         id="datepicker">
                     <time datetime="2026-01-08" id="datetime">Thursday, January 8th, 2026</time>
                 </div>
-                <noscript>
-                    <iframe loading="lazy" src="./nojs.html" style="width:100%;height:100%;border:none"></iframe>
-                </noscript>
+                <iframe id="nojs" loading="lazy" src="./nojs.html" style="width:100%;height:100%;border:none;display:none"></iframe>
                 <iframe loading="lazy" src="./entries/1_8_2026/index.html" id="book" class="cute-blue"></iframe>
                 <div id="controls"><input id="prev" class="days buttonimage" type="image"
                         src="data:image/gif;base64,R0lGODlhFAAUAPIAAP+A///D7//b9////wAAAAAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQJMgAEACwAAAAAFAAUAAADQki63P4wyikmq0QATLfiFrgEpMWQQwmRLDqkwfrOb1DHjt22dw7vLtXoB7SlGrqiUahIAntI2myJQz6hFhQzuzVFEgAh+QQJMgAFACwAAAAAFAAUAIL/gv//yMj/w+//2/f///8AAAAAAAAAAAADRFi63P4wylkAXbaKPMFWHBUuQ3mRA2FCZVsS8OqkcK3Gw5O6Lj6rvJaPsQsKVY2icUgCBplNWwyK4tVkkxc2kN2eHIEEADs="><button
