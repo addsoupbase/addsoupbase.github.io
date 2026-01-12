@@ -23,7 +23,11 @@
         sn,
         atProperty = typeof CSSPropertyRule === 'function'
         // , canWrite = !inModule && D.readyState !== 'complete'
-        , func = CSS.registerProperty || void (fallback = new Map), selector = '*' + (where ? ',:where(::-moz-color-swatch,::-moz-focus-inner,::-moz-list-bullet,::-moz-list-number,::-moz-meter-bar,::-moz-progress-bar,::-moz-range-progress,::-moz-range-thumb,::-moz-range-track,::-webkit-inner-spin-button,::-webkit-meter-bar,::-webkit-meter-even-less-good-value,::-webkit-meter-inner-element,::-webkit-meter-optimum-value,::-webkit-meter-suboptimum-value,::-webkit-progress-bar,::-webkit-progress-inner-element,::-webkit-progress-value,::-webkit-scrollbar,::-webkit-search-cancel-button,::-webkit-search-results-button,::-webkit-slider-runnable-track,::-webkit-slider-thumb,::after,::backdrop,::before,::checkmark,::column,::cue,::details-content,::file-selector-button,::first-letter,::first-line,::grammar-error,::marker,::picker-icon,::placeholder,::scroll-marker,::scroll-marker-group,::selection,::spelling-error,::target-text,::view-transition)' : '')
+        , func = CSS.registerProperty || function (a) {
+                (a.inherits ? uv : o[':root'])[a.name] = a.initialValue
+                // i didn't know CSS --properties were so old,
+                // i just assumed they were as old as registerProperty and @property...
+        }, selector = '*' + (where ? ',:where(::-moz-color-swatch,::-moz-focus-inner,::-moz-list-bullet,::-moz-list-number,::-moz-meter-bar,::-moz-progress-bar,::-moz-range-progress,::-moz-range-thumb,::-moz-range-track,::-webkit-inner-spin-button,::-webkit-meter-bar,::-webkit-meter-even-less-good-value,::-webkit-meter-inner-element,::-webkit-meter-optimum-value,::-webkit-meter-suboptimum-value,::-webkit-progress-bar,::-webkit-progress-inner-element,::-webkit-progress-value,::-webkit-scrollbar,::-webkit-search-cancel-button,::-webkit-search-results-button,::-webkit-slider-runnable-track,::-webkit-slider-thumb,::after,::backdrop,::before,::checkmark,::column,::cue,::details-content,::file-selector-button,::first-letter,::first-line,::grammar-error,::marker,::picker-icon,::placeholder,::scroll-marker,::scroll-marker-group,::selection,::spelling-error,::target-text,::view-transition)' : '')
     dance: {
         try {
             if (typeof scrollMaxX !== 'number' || !S) {
@@ -74,13 +78,6 @@
         , parse = /([^{}]+?)(?:;|(\{[\s\S]*?\}))/g
         , semicolon = /(?:--)?[-\w]+\s*:(?:(?![^(]*\);|[^"]*";|[^']*';).)*?(?:!\s*important\s*)?(?=;(?![^(]*\)|[^"]*"|[^']*')|\s*$)/g,
         batch = ''
-    /* if (!CSS.registerProperty) {
-         w.vendor = vendor
-         var script = document.createElement('script')
-         script.src = 'http://localhost:3000/no_register_property.js'
-         document.head.appendChild(script)
-          //Okay i have no idea what i did but it works without this now somehow??
-     }*/
     /*if (canWrite && top === self) {
         // Idk why, but it seems to make the page render faster
         var p = D.querySelector('p[data-cssid="$$$"]')
@@ -427,11 +424,12 @@
         return ':where(' + s + ')'
     }
     where || (W = String)
-    var fallback,
-        uv = { //'box-sizing': 'border-box', it causes too many problems
-            'font-family': 'inherit',
-            'overflow-wrap': 'var(--word-wrap)', 'scrollbar-color': 'var(--scrollbar-thumb-color) var(--scrollbar-color)', 'scrollbar-width': 'var(--scrollbar-width)'
-        }
+    var uv = { //'box-sizing': 'border-box', it causes too many problems
+        'font-family': 'inherit',
+        'overflow-wrap': 'var(--word-wrap)',
+        'scrollbar-color': 'var(--scrollbar-thumb-color) var(--scrollbar-color)',
+        'scrollbar-width': 'var(--scrollbar-width)'
+    }
     // performance.mark('css-property-start')
     function lowPriority() {
         // lower priority props
@@ -477,14 +475,11 @@
     // ],
     function doRegister() {
         re = function (name, iv, inh, sx) {
-            if (func) {
-                reuse.name = name
-                reuse.initialValue = iv
-                reuse.inherits = inh
-                reuse.syntax = sx
-                func(reuse)
-            }
-            else fallback.set(name, vendor(name.substring(2), 'inherit'))
+            reuse.name = name
+            reuse.initialValue = iv
+            reuse.inherits = inh
+            reuse.syntax = sx
+            func(reuse)
         }
         var reuse = {
             name: '',
@@ -502,12 +497,6 @@
         stretch = '-moz-available -webkit-fill-available stretch'.split(' ').find(sup.bind(1, 'max-width')) || 'initial'
         center = '-moz-center -webkit-center -khtml-center'.split(' ').find(align) || 'initial'
         matchParent = 'match-parent -moz-match-parent -webkit-match-parent'.split(' ').find(align) || 'initial'
-        if (!func) {
-            fallback.set('--stretch', stretch)
-            fallback.set('--center', center)
-            fallback.set('--crisp-edges', crisp)
-            fallback.set('--crisp-edges', matchParent)
-        }
     }
     var newName = name
     if (!newName) {
@@ -517,6 +506,7 @@
                 'transition-behavior': 'allow-discrete',
                 // 'interpolate-size': 'allow-keywords',
                 '--crisp-edges': crisp,
+                '--system-font': "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif",
                 '--stretch': stretch,
                 '--center': center,
                 // this is different from just 'center' and idk why!!!
@@ -559,19 +549,19 @@
         }
         o[W('h1')] = { 'margin-block': '.67em', 'font-size': '2em' }
         o.html = { margin: 'auto' }
-        newName = entries(o).reduce(function (a, b) {
+        if (atProperty) {
+            properties()
+            lowPriority()
+            newName = bulkText
+        }
+        else {
+            supportCustom()
+            doRegister()
+        }
+        newName += entries(o).reduce(function (a, b) {
             return a + b[0] + "{" + toCSS(b[1]) + "}"
-        }, "@namespace svg url('http://www.w3.org/2000/svg');\np{text-wrap:pretty}h1,h2,h3,h4,h5,h6,:where(p){text-wrap:balance;overflow-wrap:break-word}body{line-height:1.5;--font-smoothing:antialiased}@media(prefers-reduced-motion:no-preference){:root{interpolate-size: allow-keywords}}@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:root{--system-font:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif}:-moz-loading{cursor:wait}:-moz-broken{border-radius:0}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}")
+        }, "@namespace svg url('http://www.w3.org/2000/svg');\np{text-wrap:pretty}h1,h2,h3,h4,h5,h6,:where(p){text-wrap:balance;overflow-wrap:break-word}body{line-height:1.5;--font-smoothing:antialiased}@media(prefers-reduced-motion:no-preference){:root{interpolate-size: allow-keywords}}@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:-moz-loading{cursor:wait}:-moz-broken{border-radius:0}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}")
         //@dev console.debug(newName.replace(/:where\(([\s\S]*?)\)/g,'$1'))
-    }
-    if (atProperty) {
-        properties()
-        lowPriority()
-        newName += bulkText
-    }
-    else {
-        supportCustom()
-        doRegister()
     }
     var str
     // finally { performance.mark('css-other-end') }
@@ -596,9 +586,9 @@
             toDash: toDash,
             vendor: vendor,
             toCSS: toCSS,
-            registerProperty: function (name, initialValue, inherits, syntax) {
+            /*registerProperty: function (name, initialValue, inherits, syntax) {
                 // queueWrite(re(name, initialValue, inherits, syntax))
-            },
+            },*/
             //@dev has: props.has.bind(props),
             formatSelector: fSelector,
             fixSheet: fixSheet,
