@@ -403,15 +403,11 @@
         }
 
         #holder {
+            filter: drop-shadow(0px 0px 5px green);
             padding: 1px;
             width: 100vw;
             height: 100vh;
             opacity: 1;
-            /* filter: drop-shadow(0px 0px 5px green); */ 
-            /*
-            filter is doing some stupid rendering bug right now and idk how to fix it, so im just 
-            gonna disable it for now
-            */
             /* transform-origin: center center; */
             image-rendering: pixelated;
             transition: opacity .3s ease-in-out, background-color 0.3s ease, border-color 0.3s ease;
@@ -426,6 +422,7 @@
         }
 
         main {
+            /* border-style: inset !important; */
             scroll-behavior: smooth;
             animation: intro .5s ease forwards;
             height: 100%;
@@ -519,16 +516,18 @@
                 opacity: 1;
                 translate: 0 0;
                 scale: 1 1;
-                filter: /*drop-shadow(0px 0px 5px green) */
-                brightness(1);
+                filter:
+                    /*drop-shadow(0px 0px 5px green) */
+                    brightness(1);
             }
 
             100% {
                 opacity: 0;
                 translate: calc(80px * var(--transition-direction, 1)) 0;
                 scale: .9 .9;
-                filter: /*drop-shadow(0px 0px 5px green) */
-                brightness(.9);
+                filter:
+                    /*drop-shadow(0px 0px 5px green) */
+                    brightness(.9);
             }
         }
 
@@ -537,16 +536,18 @@
                 opacity: 0;
                 translate: calc(-80px * var(--transition-direction, 1)) 0;
                 scale: .9 .9;
-                filter: /*drop-shadow(0px 0px 5px green) */
-                brightness(.9);
+                filter:
+                    /*drop-shadow(0px 0px 5px green) */
+                    brightness(.9);
             }
 
             100% {
                 opacity: 1;
                 translate: 0 0;
                 scale: 1 1;
-                filter: /*drop-shadow(0px 0px 5px green) */
-                brightness(1);
+                filter:
+                    /*drop-shadow(0px 0px 5px green) */
+                    brightness(1);
             }
         }
 
@@ -719,7 +720,7 @@
             section {
                 display: block !important
             }
-            
+
             hr {
                 display: block;
             }
@@ -733,16 +734,26 @@
             .divider {
                 display: none
             }
-            #book, #controls, #datestuff {
+
+            #book,
+            #controls,
+            #datestuff {
                 display: none
             }
+
             noscript .divider {
                 display: initial !important;
-            }#bad_browser{display:block !important}
+            }
+
+            #bad_browser {
+                display: block !important
+            }
         </style>
     </noscript>
-    <script nomodule>document.write(document.getElementById('trash').textContent + '<style>#book,#controls,#datestuff{display:initial}</style>')</script>
+    <script
+        nomodule>document.write(document.getElementById('trash').textContent + '<style>#book,#controls,#datestuff{display:initial}</style>')</script>
 </head>
+
 <body>
     <div id="background" style="--user-select:none"></div>
     <div id="holder" class="center_screen clamped">
@@ -763,12 +774,12 @@
                 <div style="place-content: center;place-items: center;" id="buttons">
                     <nav id="bad_browser" style="display: none;">
                         <a href="#about" class="cute-green-button">About</a> <img decoding="async"
-                        src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><a href="#friends"
-                        class="cute-green-button">Friends</a> <img decoding="async"
-                        src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><a href="#log"
-                        class="cute-green-button">Log</a> <img decoding="async"
-                        src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><a href="#stuff"
-                        class="cute-green-button">Stuff</a>
+                            src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><a href="#friends"
+                            class="cute-green-button">Friends</a> <img decoding="async"
+                            src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><a href="#log"
+                            class="cute-green-button">Log</a> <img decoding="async"
+                            src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><a href="#stuff"
+                            class="cute-green-button">Stuff</a>
                     </nav>
                     <button class="cute-green-button" id="viewbackground">Hide</button><img decoding="async"
                         src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><button
@@ -1658,7 +1669,8 @@
                     <time datetime="2026-01-08" id="datetime">Thursday, January 8th, 2026</time>
                 </div>
                 <noscript>
-                    <iframe id="nojs" loading="lazy" src="./nojs.html" style="width:100%;height:100%;border:none;"></iframe>
+                    <iframe id="nojs" loading="lazy" src="./nojs.html"
+                        style="width:100%;height:100%;border:none;"></iframe>
                 </noscript>
                 <iframe loading="lazy" src="./entries/1_8_2026/index.html" id="book" class="cute-blue"></iframe>
                 <div id="controls"><input id="prev" class="days buttonimage" type="image"
@@ -1696,7 +1708,8 @@
                     <a href="https://addsoupbase.github.io/intro" target="_blank"
                         title="The very first version of this site">Take 1 🎬</a>
                     <a href="./old.html" target="_blank" title="The same site ~2 years later">Take 2 🎬</a>
-                    <a href="https://addsoupbase.github.io/favourites" target="_blank" title="A list of my favourite things!">Favourites</a>
+                    <a href="https://addsoupbase.github.io/favourites" target="_blank"
+                        title="A list of my favourite things!">Favourites</a>
                     <a href="https://addsoupbase.github.io/twehg" target="_blank" style="font-size: .8em;"
                         title="My take on the worlds hardest game">The worlds
                         even harder&lpar;est&rpar;? game!!</a>

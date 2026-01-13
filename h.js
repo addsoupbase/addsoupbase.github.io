@@ -397,13 +397,13 @@
             aa = flags & FLAG_AUTO_ABORT,
             once = flags & FLAG_ONCE,
             originalTarget = flags & FLAG_ONLY_ORIGINAL_TARGET,
-            explicitOriginalTarget = flags & FLAG_ONLY_EXPLICIT_ORIGINAL_TARGET,
-            event = args[0],
-            label = getLabel(event),
-            name = event.type,
-            currentTarget = event.currentTarget,
-            detail = event.detail
+            explicitOriginalTarget = flags & FLAG_ONLY_EXPLICIT_ORIGINAL_TARGET
         if (t && event.isTrusted || !t && (!originalTarget || !('originalTarget' in event) || event.originalTarget === currentTarget) && (!explicitOriginalTarget || !('explicitOriginalTarget' in event) || event.explicitOriginalTarget === currentTarget) && (!oct || (event.target || event.srcElement) === currentTarget)) {
+            var event = args[0],
+                label = getLabel(event),
+                name = event.type,
+                currentTarget = event.currentTarget,
+                detail = event.detail
             switch (label) {
                 case 'CustomEvent':
                     event = args[0] = new Proxy(event, customEventHandler)

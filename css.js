@@ -432,6 +432,7 @@
     }
     // performance.mark('css-property-start')
     function lowPriority() {
+        //@dev console.time('low priority')
         // lower priority props
         g("locale", "auto", true, "*")("line-grid", "auto", true, "*")("line-snap", "auto", true, "*")("nbsp-mode", "auto", true, "*")("text-zoom", "auto", true, "*")("line-align", "auto", true, "*")("text-decorations-in-effect", "auto", false, "*")("force-broken-image-icon", "0", false, "<integer>")("float-edge", "content-box", false, "*")("image-region", "auto", true, "*")("box-orient", "inline-axis", false, "*")("box-align", "stretch", false, "*")("box-direction", "normal", false, "*")("box-flex", "0", false, "*")("box-flex-group", "0", false, "*")("box-lines", "single", false, "*")("box-ordinal-group", "1", false, "*")("box-decoration-break", "slice", false, "*")("box-pack", "start", false, "*")("line-clamp", "none", false, "*")("font-smoothing", "auto", true, "*")("mask-position-x", "0%", false, "<length-percentage>")("mask-position-y", "0%", false, "<length-percentage>")("window-dragging", "auto", false, "*")("stack-sizing", "stretch-to-fit", true, "*")("mask-composite", "source-over", false, "*")("window-shadow", "auto", false, "*")("outline-radius", "0 0 0 0", false, "*")("binding", "none", false, "*")("text-blink", "none", false, "*")("image-rect", "auto", true, "*")("content-zoom-limit", "400% 100%", false, "*")("accelerator", "0", false, "*")("context-properties", "none", true, "*")("text-kashida-space", "0%", true, "<percentage>")("interpolation-mode", "none", false, "*")("progress-appearance", "bar", false, "*")("content-zooming", "auto", false, "*")("flow-from", "none", false, "*")("flow-into", "none", false, "*")("content-zoom-chaining", "none", false, "*")("high-contrast-adjust", "auto", true, "*")("touch-select", "grippers", true, "*")("ime-mode", "auto", false, "*")("wrap-through", "wrap", false, "*")("print-color-adjust", "economy", true, "*")("pay-button-style", "white", false, "*")("color-filter", "none", true, "*")("pay-button-type", "plain", false, "*")("visual-effect", "none", true, "*")("text-spacing-trim", "normal", true, "*")("text-group-align", "none", false, "*")("text-autospace", "normal", true, "*")("orient", "inline", false, "*")("ruby-overhang", "auto", true, "*")("max-lines", "none", false, "*")("line-fit-edge", "leading", true, "*")("overflow-scrolling", "auto", false, "*")("column-progression", "auto", false, "*")("dashboard-region", "none", false, "*")("column-axis", "auto", false, "*")("text-size-adjust", "auto", true, "*")("border-vertical-spacing", "auto", false, "*")("buffered-rendering", "auto", false, "*")("behaviour", "url()", false, "<url>")
         // try {
@@ -440,8 +441,10 @@
         // ('scrollbar-color', 'auto', true, '*')
         // }
         // catch (e) { reportError(e) }
+        //@dev console.timeEnd('low priority')
     }
     function properties() {
+        //@dev console.time('properties')
         g("user-select", "auto", true, '*') // Most important one
             ("user-modify", "auto", false, '*')
             ("zoom", "auto", false, '*')
@@ -470,6 +473,7 @@
             ('min-logical-width', 'none', false, '*')
             ('color-rendering', 'auto', false, '*')
             ('word-wrap', 'normal', false, '*')
+        //@dev console.timeEnd('properties')
     }
     // performance.mark('css-property-end')
     // ],
@@ -499,6 +503,7 @@
         matchParent = 'match-parent -moz-match-parent -webkit-match-parent'.split(' ').find(align) || 'initial'
     }
     var newName = name
+    if (!atProperty && CSS.registerProperty) doRegister()
     if (!newName) {
         supportCustom()
         var o = {
@@ -554,7 +559,7 @@
             lowPriority()
             newName = bulkText
         }
-        else {
+        else if (!CSS.registerProperty) {
             supportCustom()
             doRegister()
         }
