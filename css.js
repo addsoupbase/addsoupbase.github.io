@@ -24,9 +24,9 @@
         atProperty = typeof CSSPropertyRule === 'function'
         // , canWrite = !inModule && D.readyState !== 'complete'
         , func = CSS.registerProperty || function (a) {
-                (a.inherits ? uv : o[':root'])[a.name] = a.initialValue
-                // i didn't know CSS --properties were so old,
-                // i just assumed they were as old as registerProperty and @property...
+            (a.inherits ? uv : o[':root'])[a.name] = a.initialValue
+            // i didn't know CSS --properties were so old,
+            // i just assumed they were as old as registerProperty and @property...
         }, selector = '*' + (where ? ',:where(::-moz-color-swatch,::-moz-focus-inner,::-moz-list-bullet,::-moz-list-number,::-moz-meter-bar,::-moz-progress-bar,::-moz-range-progress,::-moz-range-thumb,::-moz-range-track,::-webkit-inner-spin-button,::-webkit-meter-bar,::-webkit-meter-even-less-good-value,::-webkit-meter-inner-element,::-webkit-meter-optimum-value,::-webkit-meter-suboptimum-value,::-webkit-progress-bar,::-webkit-progress-inner-element,::-webkit-progress-value,::-webkit-scrollbar,::-webkit-search-cancel-button,::-webkit-search-results-button,::-webkit-slider-runnable-track,::-webkit-slider-thumb,::after,::backdrop,::before,::checkmark,::column,::cue,::details-content,::file-selector-button,::first-letter,::first-line,::grammar-error,::marker,::picker-icon,::placeholder,::scroll-marker,::scroll-marker-group,::selection,::spelling-error,::target-text,::view-transition)' : '')
     dance: {
         try {
@@ -510,8 +510,9 @@
                 '--stretch': stretch,
                 '--center': center,
                 // this is different from just 'center' and idk why!!!
-                '--match-parent': matchParent
-            }
+                '--match-parent': matchParent,
+            },
+            html: { margin: 'auto' }
         }
         o[W("button,a,input[type=button],input[type=checkbox],input[type=radio],input[type=submit],input[type=image],input[type=reset],input[type=file]")] = { cursor: 'pointer' }
         o[W('[aria-busy=true]')] = { cursor: 'progress' }
@@ -548,7 +549,6 @@
             'max-width': '100%'
         }
         o[W('h1')] = { 'margin-block': '.67em', 'font-size': '2em' }
-        o.html = { margin: 'auto' }
         if (atProperty) {
             properties()
             lowPriority()
@@ -563,9 +563,10 @@
         }, "@namespace svg url('http://www.w3.org/2000/svg');\np{text-wrap:pretty}h1,h2,h3,h4,h5,h6,:where(p){text-wrap:balance;overflow-wrap:break-word}body{line-height:1.5;--font-smoothing:antialiased}@media(prefers-reduced-motion:no-preference){:root{interpolate-size: allow-keywords}}@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:-moz-loading{cursor:wait}:-moz-broken{border-radius:0}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}")
         //@dev console.debug(newName.replace(/:where\(([\s\S]*?)\)/g,'$1'))
     }
+
     var str
     // finally { performance.mark('css-other-end') }
-    write(name || (sn(str = id + selector + "{" + toCSS(uv, true) + "}" + newName), id + str))
+    write(name || (sn(str = id + selector + "{" + toCSS(uv, true) + "}" + newName), str))
     var css =  //@devObject.seal
         ({
             getDefaultStyleSheet: Sheet,
