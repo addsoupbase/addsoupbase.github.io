@@ -2,6 +2,36 @@
 <html lang="en">
 
 <head>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/eruda"></script> -->
+    <!-- <script>eruda.init();</script> -->
+    <script>
+        !function () {
+            'use strict'
+            'securitypolicyviolation unhandledrejection abort offline timeout'.split(' ').forEach(function (o) { addEventListener(o, console.error.bind(console, o)) })
+            var errors = []
+            addEventListener('error', function (e) {
+                errors.push(e.error + ' at ' + e.filename)
+            })
+            onload = function () {
+                if ('noModule' in HTMLScriptElement.prototype) {
+                    document.write = function () {
+                        document.body.insertAdjacentHTML('aftereend', [].join.call(arguments, ''))
+                    }
+                        //something like went wrong and the modules didn't load (like it's doing on safari right now!)
+                        // trying to fix!
+                        ;[].forEach.call(document.querySelectorAll('script[nomodule]'), function (e) {
+                            if (e.src) {
+                                var n = e.cloneNode(true)
+                                n.removeAttribute('nomodule')
+                                document.head.appendChild(n)
+                            }
+                            else (eval)(e.textContent)
+                        })
+                    // prompt("If you're reading this then something went wrong. Please send me the text below:", navigator.userAgent + '\n' + errors.join('\n'))
+                }
+            }
+        }()
+    </script>
     <meta charset="UTF-8">
     <noscript>
         <link rel="stylesheet" href="noscript.css">
@@ -711,8 +741,8 @@
             border: 1px solid #ff1fff
         }
     </style>
-    <link rel="modulepreload" href="bubbles.js">
-    <link rel="modulepreload" href="v4.js">
+    <link rel="modulepreload" href="./bubbles.js">
+    <link rel="modulepreload" href="./v4.js">
     <link rel="modulepreload" href="./webcomponents/paper-canvas.js">
     <noscript id="trash">
         <style>
@@ -769,7 +799,7 @@
                             title="Mila (my old best friend) drew this!! She left though because she didn't like the fact that I had other friends!">
                     </picture>
                 </div>
-                <h1 style="display: inline;">addsoupbase</h1>
+                <h1 style="display: inline;" id="myusername">addsoupbase</h1>
                 <h2 style="font-size: 1em;">thank you so much for looking at this i love you everyone</h2>
                 <div style="place-content: center;place-items: center;" id="buttons">
                     <nav id="bad_browser" style="display: none;">
@@ -1664,15 +1694,17 @@
             <hr>
             <section name="sect" id="log" style="width:100%;height:100%;padding-top:20px;place-content:center">
                 <div style="margin:auto;width:fit-content;place-self: center;" id="datestuff">
-                    <input min="2025-04-07" max="2026-01-13" type="date" class="cute-green" value="2026-01-13"
-                        id="datepicker">
-                    <time datetime="2026-01-13" id="datetime">Tuesday, January 13, 2026</time>
+                    <input min="2025-04-07" max="2026-01-13" type="date"
+                        class="cute-green" value="2026-01-13" id="datepicker">
+                    <time datetime="2026-01-13"
+                        id="datetime">Tuesday, January 13, 2026</time>
                 </div>
                 <noscript>
                     <iframe id="nojs" loading="lazy" src="./nojs.html"
                         style="width:100%;height:100%;border:none;"></iframe>
                 </noscript>
-                <iframe loading="lazy" src="./entries/1_13_2026/index.html" id="book" class="cute-blue"></iframe>
+                <iframe loading="lazy" src="./entries/1_13_2026/index.html" id="book"
+                    class="cute-blue"></iframe>
                 <div id="controls"><input id="prev" class="days buttonimage" type="image"
                         src="data:image/gif;base64,R0lGODlhFAAUAPIAAP+A///D7//b9////wAAAAAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQJMgAEACwAAAAAFAAUAAADQki63P4wyikmq0QATLfiFrgEpMWQQwmRLDqkwfrOb1DHjt22dw7vLtXoB7SlGrqiUahIAntI2myJQz6hFhQzuzVFEgAh+QQJMgAFACwAAAAAFAAUAIL/gv//yMj/w+//2/f///8AAAAAAAAAAAADRFi63P4wylkAXbaKPMFWHBUuQ3mRA2FCZVsS8OqkcK3Gw5O6Lj6rvJaPsQsKVY2icUgCBplNWwyK4tVkkxc2kN2eHIEEADs="><button
                         class="cute-green-button" id="firstlast">First</button><input style="visibility: hidden;"
@@ -1725,7 +1757,7 @@
         style="position: fixed;bottom:10px;right:10px; transition: opacity .3s ease-in-out;visibility:hidden;opacity: 0;">Show</button>
 </body>
 <script type="module">
-    import './h.js'
+    // import './h.js'
     import * as v from './v4.js'
     const h = window[Symbol.for('[[HModule]]')]
     const { viewbackground, holder, show, viewfullscreen, main, backbutton } = v.id
@@ -1789,7 +1821,6 @@
         show.style.visibility = 'visible'
         show.style.opacity = 1
         holder.classList.toggle('hidden')
-
         holder.on({
             transitionend({ propertyName }, off) {
                 if (propertyName === 'opacity') {
@@ -1806,29 +1837,8 @@
         _click: HideBg
     })
 </script>
-<!--
-    <script>
-        addEventListener('load', function () {
-            'use strict'
-            var style = document.getElementById('holder').style
-            style.opacity = 1
-        })
-    </script>
-    -->
-<script src="./webcomponents/paper-canvas.js" async type="module"></script>
-<script src="./bubbles.js" async type="module">
-    // addEventListener('load', setTimeout.bind(window, function () {
-    //     'use strict'
-    //     function load() {
-    //         import('./webcomponents/paper-canvas.js')
-    //         import('./bubbles.js')
-    //     }
-    //     if (typeof requestIdleCallback === 'function') {
-    //         requestIdleCallback(load)
-    //     }
-    //     else load()
-    // }, 300))
-</script>
+<script src="./webcomponents/paper-canvas.js" type="module"></script>
+<script src="./bubbles.js" type="module"></script>
 <script>
     !function (D, h) {
         'use strict'
@@ -1863,15 +1873,14 @@
         var datepicker = D.getElementById('datepicker')
         var datetime = D.getElementById('datetime')
         h.on(datepicker, {
-            change: function () {
+            input: function () {
                 var a = this.value.split('-')
                 var year = a[0]
                 var month = a[1]
                 var day = a[2]
                 var index = sources.indexOf(+month + '_' + +day + '_' + year)
-                debugger
                 if (index !== -1) setDate(sources[index], index)
-                else alert('No entry for that day!')
+                // else alert('No entry for that day!')
             }
         })
         var daysOfTheWeek = 'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.split(' ')

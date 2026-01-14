@@ -6,6 +6,7 @@ import dataURLS from './scripts/dataURLS.js'
 audio.load('./media/pop.mp3')
 const { css } = v
 const { Proxify } = v
+onload = null
 // css.registerProperty('--size', '0px', false, '<length>',)
 // css.registerProperty('--width', '0px', false, '<length>',)
 // css.registerProperty('--frames', 0, false, '<integer>',)
@@ -62,9 +63,7 @@ bg.delegate({
         parent.replaceChildren(pic.valueOf())
         pic.style.willChange = 'transform,filter'
         pic.animFrom('fade_in', { duration: 300, iterations: 1 })
-        pic.animFrom('dissolve', { duration: 700, iterations: 1, delay: 2000, composite: 'add' })
-        .onfinish = kill
-        
+        pic.animFrom('dissolve', { duration: 700, iterations: 1, delay: 2000, composite: 'add' }).onfinish = kill
     }
 }, o => o.closest('span')?.dataset.popped === 'false', false, new AbortController)
 bg.on({
