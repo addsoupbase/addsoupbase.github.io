@@ -191,6 +191,7 @@
         }
 
         .pkm {
+            /* --box-reflect: below -50px linear-gradient(transparent, white); */
             background-repeat: no-repeat;
             image-rendering: pixelated;
             position: absolute;
@@ -240,6 +241,11 @@
             /* will-change: transform; */
         }
 
+        svg,
+        svg * {
+            --tap-highlight-color: transparent
+        }
+
         svg {
             /* --zoom: 0.3; */
             max-width: unset;
@@ -248,10 +254,6 @@
             transform-origin: center;
             --user-select: none;
         }
-
-
-
-
 
         @keyframes dissolve {
             100% {
@@ -369,7 +371,8 @@
             }
 
             100% {
-                transform: scale(2, 2); /*safari is messed up idk just deal with it*/
+                transform: scale(2, 2);
+                /*safari is messed up idk just deal with it*/
                 filter: opacity(0%)
             }
         }
@@ -1774,17 +1777,12 @@
                 , back = targetId === 'home' && lastSection !== 'home'
             document.documentElement.style.setProperty('--transition-direction', back ? '-1' : '1')
             for (let n of sections) {
+                let type = 'section-transition'
                 if (n.id === targetId && n.id !== 'home') {
                     backbutton.parent = n
-                    queueMicrotask(() => {
-                        n.dispatchEvent(new Event('section-transition'))
-                    })
                 }
-                else {
-                    queueMicrotask(() => {
-                        n.dispatchEvent(new Event('section-transition-leave'))
-                    })
-                }
+                else type = 'section-transition-end'
+                queueMicrotask(() => n.dispatchEvent(new Event(type)))
             }
             startViewTransition(() =>
                 doDomThing(lastSection = targetId)

@@ -202,6 +202,12 @@ function pokemonthing(i) {
                 scale *= 5.3
                 duration *= 8
                 break
+            case 'arctovish':
+                scale *= 2
+                break
+            case 'relicanth':
+                scale *= 1.6
+                break
             case 'groudon':
                 scale *= 3
                 duration *= 1.2
@@ -213,7 +219,10 @@ function pokemonthing(i) {
                 scale *= 1.5
                 break
             case 'alomomola':
-                scale *= 1.6
+                scale *= 2
+                break
+            case 'qwilfish':
+                scale *= 1.3
                 break
             case 'wailmer':
                 scale *= 2.3

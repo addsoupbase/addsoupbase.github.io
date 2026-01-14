@@ -60,7 +60,7 @@
         is = Array.isArray,
         // scr,
         sheet = Sheet(),
-        //@devprops = new Set,
+        //@dev props = new Set,
         alr = new Set,
         vendr = /^(?:-(?:webkit|moz(?:-osx)?|apple|khtml|konq|r?o|ms|xv|atsc|wap|ah|hp|rim|tc|fso|icab|epub)|prince|mso)-(?!$)/,
         dr = new Map,
@@ -74,8 +74,8 @@
         fElement = fgeneric.bind(1, '::', pseudoElement),
         url = /;(?!url\(.*\))/
         , toValue
-        , comments = /\/\*[\s\S]*?\*\//g
-        , parse = /([^{}]+?)(?:;|(\{[\s\S]*?\}))/g
+        //@dev, comments = /\/\*[\s\S]*?\*\//g
+        //@dev, parse = /([^{}]+?)(?:;|(\{[\s\S]*?\}))/g
         , semicolon = /(?:--)?[-\w]+\s*:(?:(?![^(]*\);|[^"]*";|[^']*';).)*?(?:!\s*important\s*)?(?=;(?![^(]*\)|[^"]*"|[^']*')|\s*$)/g,
         batch = ''
     /*if (canWrite && top === self) {
@@ -112,7 +112,25 @@
             selector = '-' + br[i] + '-' + og
         return s ? a : selector
     }
+    var instantiated = false
     function fromCSS(str) {
+        if (!instantiated) {
+            instantiated = true
+            fromCSS.prototype = O.create(null, {
+                supported: {
+                    get: function () { for (var i in this) if (!sup(i + ':' + this[i])) return false; return true }
+                }, toString: {
+                    value: function () { return toCSS(this) }
+                }, cssFloat: {
+                    get: function () {
+                        return this.float
+                    },
+                    set: function (val) {
+                        this.float = val
+                    }
+                }
+            })
+        }
         if (!(this instanceof fromCSS)) return new fromCSS(str)
         if (!toValue) toValue = function (parse) {
             var proto = {
@@ -177,19 +195,8 @@
             }
         }
     }
-    function get() { for (var i in this) if (!sup(i + ':' + this[i])) return false; return true }
-    function ts() { return toCSS(this) }
-    fromCSS.prototype = O.create(null, {
-        supported: { get: get }, toString: { value: ts }, cssFloat: {
-            get: function () {
-                return this.float
-            },
-            set: function (val) {
-                this.float = val
-            }
-        }
-    })
-    function fixSheet(me) {
+
+    /*@dev function fixSheet(me) {
         if (me === sheet.sheet) return
         var href = me.href
         if (href) {
@@ -232,6 +239,7 @@
             }
         }
     }
+        */
     function fgeneric(d, pseudo, selector) {
         if (sel(selector, true)) return selector
         var matches = selector.match(pseudo)
@@ -409,7 +417,7 @@
         return '@property ' + name + '{syntax:"' + sx + '";inherits:' + inh + ';initial-value:' + iv + '}'
     }
     function g(name, iv, inh, sx) {
-        //@devprops.add(name)
+        //@dev props.add(name)
         var o = '--' + name,
             n = o,
             key = vendor(name, o = 'var(' + o + ')', true)
@@ -519,7 +527,7 @@
             },
             html: { margin: 'auto' }
         }
-        o[W("input[type=date]")] = {cursor:'text'}
+        o[W("input[type=date]")] = { cursor: 'text' }
         o[W("button,a,input[type=button],input[type=checkbox],input[type=radio],input[type=submit],input[type=image],input[type=reset],input[type=file]")] = { cursor: 'pointer' }
         o[W('[aria-busy=true]')] = { cursor: 'progress' }
         o[W('[draggable=false]')] = { '--user-drag': 'none' }
@@ -598,9 +606,9 @@
             },*/
             //@dev has: props.has.bind(props),
             formatSelector: fSelector,
-            fixSheet: fixSheet,
+            //@dev fixSheet: fixSheet,
             get queue() { return batch },
-            checkSheets: defer.bind(this, [].forEach.bind(D.styleSheets, fixSheet)),
+            //@dev checkSheets: defer.bind(this, [].forEach.bind(D.styleSheets, fixSheet)),
             fromCSS: fromCSS,
             onerror: onerror
         })
