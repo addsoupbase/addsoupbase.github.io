@@ -15,7 +15,7 @@
             onload = function () {
                 if ('noModule' in HTMLScriptElement.prototype) {
                     document.write = function () {
-                        document.body.insertAdjacentHTML('aftereend', [].join.call(arguments, ''))
+                        document.body.insertAdjacentHTML('afterEnd', [].join.call(arguments, ''))
                     }
                         //something like went wrong and the modules didn't load (like it's doing on safari right now!)
                         // trying to fix!
