@@ -126,12 +126,12 @@ const bubble = (size, x = range(0, innerWidth), y = innerHeight) => {
         <path d="M ${180 * scale} ${100 * scale} A ${80 * scale} ${80 * scale} 0 0 0 ${100 * scale} ${20 * scale}" fill="none" stroke="white" stroke-width="${9 * scale}" pointer-events="painted">
         </path>
     </svg></div>`
-    out.animFrom('wiggle', { easing: 'ease-in-out', duration: 200, direction: 'alternate' })
+    out.animFrom('wiggle', { easing: 'ease-in-out', duration: 170, direction: 'alternate' })
     out.animFrom('up', { duration: 10000, easing: 'linear', iterations: 1 })
         .onfinish = kill
     return out
 }
-function kill(e) {
+function kill() {
     Proxify(this.effect.target).purge()
 }
 const avatar = (name, size = 60) => {

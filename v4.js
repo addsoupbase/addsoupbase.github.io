@@ -17,18 +17,19 @@ export function ce(htmlOrTag) {
     else {
         let tag = htmlOrTag.match(Regex.tag)?.[0]
         elt = D.createElement(tag)
-        elt.className = htmlOrTag.match(Regex.class)?.join(' ') || ''
-        let id = htmlOrTag.match(Regex.id)?.[0] || ''
+        elt.className = htmlOrTag.match(Regex.class)?.map(o=>o.substring(1)).join(' ') || ''
+        let id = htmlOrTag.match(Regex.id)?.[0].substring(1) || ''
         if (id) elt.id = id
         console.assert(elt.matches(htmlOrTag))
     }
     console.assert(Element.prototype.isPrototypeOf(elt), `Output wasn't an element (${elt[Symbol.toStringTag]})`)
     return Proxify(elt)
 }
+window.v4 = ce
 const Regex = {
     tag: /[\w-]+/i,
-    class: /(?<=\.)[\w-]+/g,
-    id: /(?<=#)[\w-]+/,
+    class: /\.([\w-]+)/g,
+    id: /#([\w-]+)/,
     evtAttr: /^\(([_$^%&!?@#<>|]?\w+)\)$/,
 }
 export let body = document.body && Proxify(document.body)

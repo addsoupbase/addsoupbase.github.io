@@ -245,20 +245,13 @@
             max-width: unset;
             user-select: none;
             pointer-events: auto;
+            transform-origin: center;
             --user-select: none;
         }
 
 
 
-        @keyframes xAxis {
-            0% {
-                transform: translateX(calc(0vw - var(--size)));
-            }
 
-            100% {
-                transform: translateX(calc(100vw + var(--size)));
-            }
-        }
 
         @keyframes dissolve {
             100% {
@@ -269,11 +262,21 @@
 
         @keyframes yAxis {
             0% {
-                transform: translateY(-100px);
+                transform: translate(0, -100px);
             }
 
             100% {
-                transform: translateY(100px);
+                transform: translate(0, 100px);
+            }
+        }
+
+        @keyframes xAxis {
+            0% {
+                translate: calc(0vw - var(--size)) 0;
+            }
+
+            100% {
+                translate: calc(100vw + var(--size)) 0;
             }
         }
 
@@ -289,11 +292,11 @@
 
         @keyframes wiggle {
             0% {
-                transform: translateX(-10px)
+                translate: -10px 0
             }
 
             100% {
-                transform: translateX(10px)
+                transform: 10px 0
             }
         }
 
@@ -366,7 +369,7 @@
             }
 
             100% {
-                transform: scale(2, 2);
+                transform: scale(2, 2); /*safari is messed up idk just deal with it*/
                 filter: opacity(0%)
             }
         }
