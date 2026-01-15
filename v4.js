@@ -1,7 +1,7 @@
 // most recent attempt (and hopefully the best!)
-import Proxify, {css} from './HTMLProxy.js'
-export {css}
-export {Proxify}
+import Proxify, { css } from './HTMLProxy.js'
+export { css }
+export { Proxify }
 import { base } from './BaseProxy.js'
 const D = document
 function isHTMLSyntax(string) {
@@ -17,7 +17,7 @@ export function ce(htmlOrTag) {
     else {
         let tag = htmlOrTag.match(Regex.tag)?.[0]
         elt = D.createElement(tag)
-        elt.className = htmlOrTag.match(Regex.class)?.map(o=>o.substring(1)).join(' ') || ''
+        elt.className = htmlOrTag.match(Regex.class)?.map(o => o.substring(1)).join(' ') || ''
         let id = htmlOrTag.match(Regex.id)?.[0].substring(1) || ''
         if (id) elt.id = id
         console.assert(elt.matches(htmlOrTag))
@@ -25,19 +25,19 @@ export function ce(htmlOrTag) {
     console.assert(Element.prototype.isPrototypeOf(elt), `Output wasn't an element (${elt[Symbol.toStringTag]})`)
     return Proxify(elt)
 }
-window.v4 = ce
 const Regex = {
     tag: /[\w-]+/i,
     class: /\.([\w-]+)/g,
     id: /#([\w-]+)/,
-    evtAttr: /^\(([_$^%&!?@#<>|]?\w+)\)$/,
+    evtAttr: /^\(([_$^%&!?@#<>|\w]+)\)$/,
+    comment: /^@Replace #\d+$/
 }
-export let body = document.body && Proxify(document.body)
+export let body = D.body && Proxify(D.body)
 export function esc(strings, ...subs) {
     let result = []
-    , replace = new Map
-    , toReplace = 0
-    , embeds = false
+        , replace = new Map
+        , toReplace = 0
+        , embeds = false
     function handleSub(sub) {
         if (sub === Object(sub)) {
             embeds = true
@@ -63,13 +63,13 @@ export function esc(strings, ...subs) {
     }
     let out = ce(result.join(''))
     let node = base(out)
-    let events = {}
     if (embeds) {
-        // literally the only use of XPath
-        let xpath = document.evaluate("//comment()[contains(., '@Replace #')]", base(out), null, 7, null)
-            , o
-            , i = 0
-        while (o = xpath.snapshotItem(i++)) o.replaceWith(replace.get(o.textContent))
+        let events = {}
+        //  ̶l̶i̶t̶e̶r̶a̶l̶l̶y̶ ̶t̶h̶e̶ ̶o̶n̶l̶y̶ ̶u̶s̶e̶ ̶o̶f̶ ̶X̶P̶a̶t̶h̶
+        // Update: use TreeWalker instead bc XPath is slow a hellll aparently, (so i guess XPath is useless then!)
+        let walker = D.createTreeWalker(base(out), 128, commentFilter)
+        let o
+        while (o = walker.nextNode()) o.replaceWith(replace.get(o.textContent))
         let attr = node.getAttributeNames()
         for (let i = attr.length; i--;) {
             let a = attr[i]
@@ -78,24 +78,29 @@ export function esc(strings, ...subs) {
                 match = match[1]
                 let func = node.getAttribute(a)
                 node.removeAttribute(a)
-                Object.defineProperty(events, match, {value: replace.get(func), enumerable:true})
+                Object.defineProperty(events, match, { value: replace.get(func), enumerable: true })
             }
         }
+        out.on(events)
     }
-    return out.on(events)
+    return out
+}
+function commentFilter(e) {
+    return Regex.comment.test(e.textContent) ? 1 : 3
 }
 export const id = new Proxy({ __proto__: null }, {
     // ownKeys() {
-    //     return[].map.call(document.querySelectorAll('[id]'), Proxify)
+    //     return[].map.call(D.querySelectorAll('[id]'), Proxify)
     // },
     get(_, id) {
-        return Proxify(document.getElementById(id))
+        let o = D.getElementById(id)
+        if (o) return Proxify(o)
+        throw ReferenceError(`Cannot find element #${String(id)}`)
     },
     deleteProperty(_, id) {
-        document.getElementById(id)?.remove()
+        D.getElementById(id)?.remove()
         return true
     },
-    set() { }
 })
 export function div(strings, ...subs) {
     let n = esc(strings, ...subs)

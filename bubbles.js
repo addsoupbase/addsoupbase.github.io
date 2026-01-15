@@ -119,7 +119,7 @@ function range(MIN, MAX) {
 }
 const bubble = (size, x = range(0, innerWidth), y = innerHeight) => {
     const scale = size / 200
-    let out = v.esc`<div class="holder" aria-hidden="true" style="will-change:transform;--size: ${size | 0};z-index: -1;left: ${x}px;top:${y}px;">
+    let out = v.esc`<div class="holder tinybubble" aria-hidden="true" style="will-change:transform;--size: ${size | 0};z-index: -1;left: ${x}px;top:${y}px;">
         <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">
         <circle pointer-events="painted" r="${95 * scale}" cx="${100 * scale}" cy="${100 * scale}" fill="rgba(15, 20, 210, 0.4)" stroke="#1043E5" stroke-width="${10 * scale}">
         </circle>

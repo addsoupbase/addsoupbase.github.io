@@ -27,6 +27,7 @@ input.cute-green::placeholder {
     background-color: #67db71;
 }
 .cute-green-button {
+    --tap-highlight-color: hsla(350, 71%, 66%, 0.3);
     --touch-callout: none;
     background-color: #b0e57c;
     text-decoration: none;

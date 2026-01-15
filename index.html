@@ -118,7 +118,9 @@
         section[name=sect] {
             display: none;
         }
-
+        .tinybubble {
+            pointer-events: none;
+        }
         #book {
             opacity: 1;
             --user-select: none;
@@ -230,6 +232,7 @@
             z-index: -2;
             height: 100vh;
             touch-action: none;
+            touch-action: pinch-zoom;
             background: linear-gradient(52deg, rgba(2, 101, 226, 1) 0%, rgba(0, 212, 255, 1) 100%);
             overflow: hidden;
             animation: bg 1s ease infinite
@@ -835,7 +838,7 @@
                     alt="paper icon" id="papericon" width="80" height="80">
                 <form id="sendmessage" action="https://misha-mail-85.deno.dev" method="POST"
                     style="display: grid;width: max-content;place-self: center;margin:auto;place-self:center">
-                    <input class="cute-green" name="name" placeholder="Name" enterkeyhint="next">
+                    <input class="cute-green" name="name" placeholder="Name" autocomplete="username" enterkeyhint="next">
                     <input class="cute-green" name="message" placeholder="Message" required enterkeyhint="send">
                     <div style="--user-select:none;display: flex;place-content: center;place-items: center;"><img
                             decoding="async" src="./cute-emojis/emojis/1319311940304113736.gif" class="hellokitty" alt

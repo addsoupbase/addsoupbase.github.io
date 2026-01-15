@@ -9,7 +9,7 @@
         return out
     }
     try { var S = sessionStorage } // it just throws on read if storage is denied
-    catch (e) { console.error(e) }
+    catch (e) { console.warn(e) }
     if (!inModule) {
         var onerror = function (e) { if (e.filename.endsWith('.js')) { [].forEach.call(D.querySelectorAll('script[nomodule]'), function (s) { D.head.appendChild(D.createElement('script')).src = s.src }); removeEventListener('error', onerror) } }
         addEventListener('error', onerror)
@@ -43,7 +43,7 @@
         }
         catch (e) {
             // cross origin frame so we can't use window.top
-            console.error(e)
+            console.warn(e)
             if (!S) {
                 sn = String // we can't cache
                 break dance

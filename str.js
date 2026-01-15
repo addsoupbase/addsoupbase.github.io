@@ -1,9 +1,13 @@
 const map = new Map(Object.entries({ 1: 'st', 2: 'nd', 3: 'rd' }))
-''.at || (String.prototype.at = Array.prototype.at = function (i) {
-    i |= 0
-    let a = this[i < 0 ? i + this.length : i]
-    return typeof this === 'string' ? a ?? '' : a
-})
+if (!''.at) {
+    function at(i) {
+        i |= 0
+        let a = this[i < 0 ? i + this.length : i]
+        return typeof this === 'string' ? a ?? '' : a
+    }
+    Object.defineProperty(String.prototype, 'at', { value: at })
+    Object.defineProperty(Array.prototype, 'at', { value: at })
+}
 export function getLabel(obj) {
     return {}.toString.call(obj).slice(8, -1).trim() || 'Object'
 }

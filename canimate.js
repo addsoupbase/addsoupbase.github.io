@@ -1,4 +1,4 @@
-const name = new URL(import.meta.url).pathname.slice(1, -3)
+const name = import.meta.url ? new URL(import.meta.url).pathname.slice(1, -3) : 'canimate'
 export const worker = new Worker(
     `data:text/javascript,${encodeURIComponent("import gif from 'https://cdn.jsdelivr.net/npm/gifuct-js@2.1.2/+esm'\naddEventListener('message', message)\nlet can = new OffscreenCanvas(0, 0)\nlet ctx = can.getContext('2d')\nconst bitmaps = new Map\nctx.imageSmoothingEnabled = false\nasync function message({ data: { src, buffer, canvas, type } }) {\n    if (type && type === 'delete') {\n        let frames = bitmaps.get(src)\n        for (let b of frames)\n            b.close()\n        frames.clear()\n        bitmaps.delete(src)\n        console.debug(`ImageBitmap for ${src} closed`)\n        return\n    }\n    let data = buffer\n    let frames = gif.decompressFrames(gif.parseGIF(data), true)\n    let out = []\n    let bits = new Set\n    for (let i = 0, l = frames.length; i < l; ++i) {\n        let cur = frames[i]\n            , { width, height, left, top } = cur.dims\n        can.width = width\n        can.height = height\n        let data = new ImageData(cur.patch, width, height)\n        ctx.imageSmoothingEnabled = false\n        ctx.putImageData(data, left, top)\n        let bitmap = await createImageBitmap(can)\n        bits.add(bitmap)\n        out.push({ data: bitmap, delay: cur.delay })\n        switch (cur.disposalType) {\n            default: ctx.clearRect(0, 0, width, height)\n                break\n            case 1: break\n        }\n    }\n    bitmaps.set(src, bits)\n    let c = canvas.getContext('2d')\n    c.imageSmoothingEnabled = false\n    animate(c, out, 0, bits)\n    postMessage({ src })\n}\nfunction animate(ctx, frames, index, b) {\n    let a = frames[index]\n    let {data} = a\n    if (b.has(data))\n    {\n        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)\n         ctx.canvas.width = a.data.width\n        ctx.canvas.height = a.data.height\n        ctx.drawImage(data, 0, 0)\n        setTimeout(animate, a.delay, ctx, frames, (index + 1) % frames.length, b)\n    }\n}")}`, {
     type: 'module',
@@ -89,7 +89,3 @@ function waitForMessageFromWorker(src, resolve, reject) {
         }
     }
 }
-// function sleep(ms) {
-//     let t = performance.now()
-//     while(performance.now() - t < ms);
-// }
