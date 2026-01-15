@@ -25,7 +25,6 @@ export function ce(htmlOrTag) {
     console.assert(Element.prototype.isPrototypeOf(elt), `Output wasn't an element (${elt[Symbol.toStringTag]})`)
     return Proxify(elt)
 }
-window.v4 = ce
 const Regex = {
     tag: /[\w-]+/i,
     class: /\.([\w-]+)/g,
