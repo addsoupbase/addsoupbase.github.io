@@ -195,12 +195,12 @@ input[type=range]:active,
     align-items: center;
 }
 
-.center_grid_x {
+.center_grid_x, .center_grid {
     display: grid;
     place-items: center start;
 }
 
-.center_grid_y {
+.center_grid_y, .center_grid {
     display: grid;
     place-items: start center;
 }

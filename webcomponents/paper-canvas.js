@@ -6,6 +6,7 @@ const css = window[Symbol.for('[[CSSModule]]')]
 // let internals = Symbol()
 function pointerup(p) {
     if (p.button === 2) return
+    this.releasePointerCapture(p.pointerId)
     this.holding = false
     this.internals?.setFormValue(this.value)
     this.internals?.setValidity({ valueMissing: false }, 'Draw something')
@@ -32,6 +33,7 @@ function pointermove(p) {
 }
 function pointerdown(p) {
     if (p.button === 2) return this.undo()
+        this.setPointerCapture(p.pointerId)
     let { undoBuffer, ctx } = this
     undoBuffer.push(ctx.getImageData(0, 0, 250, 250))
     while (this.undoBuffer.length > this.maxBufferSize) undoBuffer.shift()
@@ -44,7 +46,6 @@ function pointerdown(p) {
     ctx.arc(lastLoc.x / zoom, lastLoc.y / zoom, 0, 0, 6)
     ctx.stroke()
     ctx.fill()
-    this.setPointerCapture(p.pointerId)
     // ctx.strokeRect(p.offsetX/zoom, p.offsetY/zoom, .5,.5)
 }
 class PaperCanvas extends HTMLElement {
@@ -155,24 +156,18 @@ class PaperCanvas extends HTMLElement {
         let width = +t.getAttribute('width') || 250
         let height = +t.getAttribute('height') || 250
         let canvas = this.canvas = v.esc`<canvas id="canvas" style="image-rendering:auto;width:${width}px;height:${height}px" width="${width}" height="${height}">`
-        this.ctx = Object.assign(canvas.getContext('2d', function () {
-            let out = { willReadFrequently: true }
-                , a = {
-                    get desynchronized() { out = { desynchronized: true } },
-                }
-            document.createElement('canvas').getContext('2d', a)
-            // idk why but both together makes it not work!
-            return out
-        }()), PaperCanvas.#BASE_CONTEXT_ATTRIBUTES)
+        this.ctx = Object.assign(canvas.getContext('2d', { willReadFrequently: true }), PaperCanvas.#BASE_CONTEXT_ATTRIBUTES)
         this.ctx.fillRect(0, 0, width, height)
         v.Proxify(shadow).pushNode(canvas, style.cloneNode(true))
         t.on({
             pointermove,
             pointerdown,
-            pointerup
+            pointerup,
+            $contextmenu
         }, new AbortController)
     }
 }
+function $contextmenu(){}
 let style = v.esc`<style>:host{
         ${css.toCSS({
     cursor: 'url(http://www.rw-designer.com/cursor-extern.php?id=27347), crosshair',
