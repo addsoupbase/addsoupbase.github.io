@@ -282,7 +282,7 @@ function spawnPkm(choice = pokemon[Math.floor(Math.random() * pokemon.length)]) 
     setTimeout(spawnPkm, range(500, 2000))
     if (!pokemon.length || isHidden()) return
     let scale = Math.random() > .5 ? -1 : 1
-    let thing = v.esc`<div class="${choice.name} pkm${range(0, 1000) > 999 ? ' shiny' : ''}" style="top: ${Math.random() * innerHeight}px;transform:scale(${1.5 * choice.scale * scale}, ${1.5 * choice.scale})"></div>`
+    let thing = v.esc`<div aria-hidden="true" class="${choice.name} pkm${range(0, 1000) > 999 ? ' shiny' : ''}" style="top: ${Math.random() * innerHeight}px;transform:scale(${1.5 * choice.scale * scale}, ${1.5 * choice.scale})"></div>`
         .setParent(bg)
     thing.animFrom('xAxis', { duration: choice.duration * scale, iterations: 1, easing: 'linear', })
         .onfinish = kill
