@@ -603,7 +603,7 @@
             //@dev fixSheet: fixSheet,
             //@dev get queue() { return batch },
             //@dev checkSheets: defer.bind(this, [].forEach.bind(D.styleSheets, fixSheet)),
-            fromCSS: fromCSS,
+            //@devfromCSS: fromCSS,
             onerror: onerror
         })
     y[sym] || O.defineProperty(y, sym, { value: css, enumerable: 1 })
