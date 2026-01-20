@@ -1,13 +1,13 @@
 // most recent attempt (and hopefully the best!)
 import Proxify, { css } from './HTMLProxy.js'
-export { css }
-export { Proxify }
+export { css, Proxify }
 import { base } from './BaseProxy.js'
 const D = document
 function isHTMLSyntax(string) {
     let trim = string.trim()
     return trim[0] === '<' && trim.at(-1) === '>'
 }
+function label(r){return r[Symbol.toStringTag]}
 const parse = Range.prototype.createContextualFragment.bind(new Range)
 export function ce(htmlOrTag) {
     let elt
@@ -22,7 +22,7 @@ export function ce(htmlOrTag) {
         if (id) elt.id = id
         console.assert(elt.matches(htmlOrTag))
     }
-    console.assert(Element.prototype.isPrototypeOf(elt), `Output wasn't an element (${elt[Symbol.toStringTag]})`)
+    console.assert(Element.prototype.isPrototypeOf(elt), `Output wasn't an element (${label(elt)})`)
     return Proxify(elt)
 }
 const Regex = {
@@ -33,7 +33,7 @@ const Regex = {
     comment: /^@Replace #\d+$/
 }
 export let body = D.body && Proxify(D.body)
-export function esc(strings, ...subs) {
+export function $(strings, ...subs) {
     let result = []
         , replace = new Map
         , toReplace = 0
@@ -50,7 +50,14 @@ export function esc(strings, ...subs) {
             if (Node.prototype.isPrototypeOf(sub)) {
                 let comment = `@Replace #${toReplace++}`
                 // this bit is really helpful:
-                // esc`<div><h1>${'Some <escaped> text'}</h1> ${esc`<button>Click me</button>`.on({click(){alert('hello!')}})}</div>`
+                // $`<div><h1>${'Some <escaped> text'}</h1> ${$esc`<button>Click me</button>`.on({click(){alert('hello!')}})}</div>`
+
+                // $`<form>${$`<button (onclick)="${function(e){
+                // if (someCondition) e.preventDefault()
+                // }}"></button>`}</form>`
+                // the parenthesis around the event name are required!!
+                // i can add flags to them as well:
+                // $`<div (%_$onclick)=${...}></div>`
                 replace.set(comment, sub)
                 return `<!--${comment}-->`
             }
@@ -71,20 +78,21 @@ export function esc(strings, ...subs) {
         let o
         while (o = walker.nextNode()) o.replaceWith(replace.get(o.textContent))
         let attr = node.getAttributeNames()
+        let config = { enumerable: true, writable: true, configurable: true }
         for (let i = attr.length; i--;) {
             let a = attr[i]
             let match = a.match(Regex.evtAttr)
             if (match) {
-                match = match[1]
-                let func = node.getAttribute(a)
                 node.removeAttribute(a)
-                Object.defineProperty(events, match, { value: replace.get(func), enumerable: true })
+                config.value = replace.get(node.getAttribute(a))
+                Object.defineProperty(events, match[1], config)
             }
         }
         out.on(events)
     }
     return out
 }
+export const esc = $
 function commentFilter(e) {
     return Regex.comment.test(e.textContent) ? 1 : 3
 }
@@ -108,7 +116,8 @@ export function div(strings, ...subs) {
     n.parent = a
     return a
 }
-export function sel(target) {
-    return Proxify(target)
+export function sel(t) {
+    if (Element.prototype.isPrototypeOf(t)) return Proxify(t)
+    throw TypeError(`Target must be an element: ${label(t)}`)
 }
 function escapeHTML(s) { (a ??= D.createElement('p')).textContent = s; return a.innerHTML } let a

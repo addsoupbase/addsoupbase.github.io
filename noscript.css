@@ -8,7 +8,6 @@
 p {
     text-wrap: pretty
 }
-
 h1,
 h2,
 h3,
@@ -45,9 +44,9 @@ body {
     cursor: wait
 }
 
-:-moz-broken {
+/*:-moz-broken {
     border-radius: 0
-}
+}*/
 
 @supports not(content-visibility:auto) {
     * {
@@ -65,7 +64,6 @@ body {
         background-color: var(--scrollbar-thumb-color)
     }
 }
-
 :root {
     transition-behavior: allow-discrete;
     --crisp-edges: -webkit-optimize-contrast;
@@ -73,7 +71,6 @@ body {
     --center: -webkit-center;
     --match-parent: match-parent;
 }
-
 button,
 a,
 input[type=button],

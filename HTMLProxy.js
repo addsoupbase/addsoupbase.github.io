@@ -348,7 +348,7 @@ const ElementProxy = new ProxyFactory(Element$)
                 return this[key]
             },
             set(val) {
-                if (this.childElementCount) throw TypeError(`Cannot set ${key} since <${this.tagName.toLowerCase()}> has child elements`)
+                if (this.childElementCount) throw TypeError(`Cannot set ${key} since <${this.tagName.toLowerCase()}> has child elements. Use insertAdjacentText/insertAdjacentHTML instead`)
                 this[key] = val
             }
         })

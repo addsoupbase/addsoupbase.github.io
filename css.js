@@ -15,7 +15,7 @@
         addEventListener('error', onerror)
     }
     var sup = CSS.supports,
-        hasOwn = O.hasOwn,
+        //@dev hasOwn = O.hasOwn,
         imp = /\s*!\s*important\s*$/,
         selCache = new Map,
         isSimple = /^[^)(:]+$/,
@@ -60,7 +60,6 @@
         is = Array.isArray,
         // scr,
         sheet = Sheet(),
-        //@dev props = new Set,
         alr = new Set,
         vendr = /^(?:-(?:webkit|moz(?:-osx)?|apple|khtml|konq|r?o|ms|xv|atsc|wap|ah|hp|rim|tc|fso|icab|epub)|prince|mso)-(?!$)/,
         dr = new Map,
@@ -71,12 +70,11 @@
         Rm,
         br = ['epub', 'icab', 'fso', 'tc', 'rim', 'hp', 'ah', 'wap', 'atsc', 'xv', 'ms', 'o', 'ro', 'konq', 'khtml', 'apple', 'moz', 'moz-osx', 'webkit']
         , fClass = fgeneric.bind(1, ':', pseudoClass),
-        fElement = fgeneric.bind(1, '::', pseudoElement),
-        url = /;(?!url\(.*\))/
-        , toValue
+        fElement = fgeneric.bind(1, '::', pseudoElement)
+       //@dev , toValue
         //@dev, comments = /\/\*[\s\S]*?\*\//g
         //@dev, parse = /([^{}]+?)(?:;|(\{[\s\S]*?\}))/g
-        , semicolon = /(?:--)?[-\w]+\s*:(?:(?![^(]*\);|[^"]*";|[^']*';).)*?(?:!\s*important\s*)?(?=;(?![^(]*\)|[^"]*"|[^']*')|\s*$)/g,
+        //@dev, semicolon = /(?:--)?[-\w]+\s*:(?:(?![^(]*\);|[^"]*";|[^']*';).)*?(?:!\s*important\s*)?(?=;(?![^(]*\)|[^"]*"|[^']*')|\s*$)/g,
         batch = ''
     /*if (canWrite && top === self) {
         // Idk why, but it seems to make the page render faster
@@ -112,6 +110,7 @@
             selector = '-' + br[i] + '-' + og
         return s ? a : selector
     }
+    /*@dev
     var instantiated = false
     function fromCSS(str) {
         if (!instantiated) {
@@ -169,7 +168,8 @@
         }(w.CSSStyleValue && CSSStyleValue.parse)
         str = str.trim()
         var a = str.match(semicolon) || str.slice(0, -1).match(semicolon)
-            , o = this
+            , o = this,
+        url = /;(?!url\(.*\))/
         var n = { writable: true, configurable: true, value: null, enumerable: false }
         if (a) for (var h = a.length; h--;) {
             var hi = a[h]
@@ -191,11 +191,11 @@
                         hasOwn(o, x) || O.defineProperty(o, x, n)
                     }
                 }
-                    catch (e) { if (e.name !== 'TypeError') throw e; o[p] = v }  // Prop unsupported 
+                catch (e) { if (e.name !== 'TypeError') throw e; o[p] = v }  // Prop unsupported 
             }
         }
     }
-
+*/
     /*@dev function fixSheet(me) {
         if (me === sheet.sheet) return
         var href = me.href
@@ -404,7 +404,7 @@
         return p.appendChild(e)
     }
     function registerCSSAll(rules) {
-        for (var i in rules) //@dev assertǃ(rules.hasOwnProperty(i)),
+        for (var i in rules)
             registerCSS(i, rules[i])
     }
     function sel(rule, doCache) {
@@ -417,13 +417,10 @@
         return '@property ' + name + '{syntax:"' + sx + '";inherits:' + inh + ';initial-value:' + iv + '}'
     }
     function g(name, iv, inh, sx) {
-        //@dev props.add(name)
         var o = '--' + name,
-            n = o,
-            key = vendor(name, o = 'var(' + o + ')', true)
-        uv[key] = o
+            key = vendor(name, uv[key] = 'var(' + o + ')', true)
         // try { 
-        bulkText += re(n, iv, inh, sx)
+        bulkText += re(o, iv, inh, sx)
         return g
         // }
         // catch (e) {e.name === 'InvalidModificationError' || (console.log(o), reportError(e),func || fallback.set(key, vendor(key, 'inherit')))}
@@ -554,7 +551,6 @@
         o[W('.center_grid_y')] = { display: 'grid', 'place-items': 'start center' }
         o[W('.center_absolute_x')] = { left: '50%', transform: 'translateX(-50%)' }
         o[W('.center_absolute_y')] = { top: '50%', transform: 'translateY(-50%)' }
-        // o[W('.v-dialog')] = {'max-width': '100%', 'overflow-x': 'clip','word-break': 'break-word'}
         o[W('img')] = {
             'max-inline-size': '100%', 'block-size': 'auto',
             //'object-fit': 'contain'
@@ -574,10 +570,9 @@
         }
         newName += entries(o).reduce(function (a, b) {
             return a + b[0] + "{" + toCSS(b[1]) + "}"
-        }, "@namespace svg url('http://www.w3.org/2000/svg');\np{text-wrap:pretty}h1,h2,h3,h4,h5,h6,:where(p){text-wrap:balance;overflow-wrap:break-word}body{line-height:1.5;--font-smoothing:antialiased}@media(prefers-reduced-motion:no-preference){:root{interpolate-size: allow-keywords}}@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:-moz-loading{cursor:wait}:-moz-broken{border-radius:0}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}")
+        }, "@namespace svg url('http://www.w3.org/2000/svg');\np{text-wrap:pretty}h1,h2,h3,h4,h5,h6,:where(p){text-wrap:balance;overflow-wrap:break-word}body{line-height:1.5;--font-smoothing:antialiased}@media(prefers-reduced-motion:no-preference){:root{interpolate-size: allow-keywords}}@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:-moz-loading{cursor:wait}:-moz-broken{border-radius:0}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not(scrollbar-width: thin){::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}")
         //@dev console.debug(newName.replace(/:where\(([\s\S]*?)\)/g,'$1'))
     }
-
     var str
     // finally { performance.mark('css-other-end') }
     write(name || (sn(str = id + selector + "{" + toCSS(uv, true) + "}" + newName), str))
@@ -604,10 +599,9 @@
             /*registerProperty: function (name, initialValue, inherits, syntax) {
                 // queueWrite(re(name, initialValue, inherits, syntax))
             },*/
-            //@dev has: props.has.bind(props),
             formatSelector: fSelector,
             //@dev fixSheet: fixSheet,
-            get queue() { return batch },
+            //@dev get queue() { return batch },
             //@dev checkSheets: defer.bind(this, [].forEach.bind(D.styleSheets, fixSheet)),
             fromCSS: fromCSS,
             onerror: onerror
