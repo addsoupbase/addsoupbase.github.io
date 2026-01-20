@@ -342,7 +342,7 @@
     function write(text) {
         if (!violated) {
             added || (added = !!(sheet.onsecuritypolicyviolation = violation))
-            sheet.textContent += text
+            sheet.insertAdjacentText('beforeend', text)
         }
         else createSheet(text)
         // <style> blocked
@@ -350,7 +350,7 @@
     function createSheet(text) {
         var m = new CSSStyleSheet
         text && m.replaceSync(text)
-        D.adoptedStyleSheets.push(m)
+        D.adoptedStyleSheets = [].concat.call(D.adoptedStyleSheets, m)
         return m
     }
     function registerCSSRaw(rules, newStyleSheet) {

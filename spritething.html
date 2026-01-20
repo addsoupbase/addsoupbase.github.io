@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        @keyframes slideshow {
+            0% {
+                background-position-x: 0%;
+            }
+
+            100% {
+                background-position-x: calc(var(--width) * -1 * var(--frames))
+            }
+        }
+
+        a {
+            display: block;
+            width: 100px;
+        }
+
+        .slideshow {
+            background-repeat: no-repeat;
+            width: calc(var(--width));
+            animation: slideshow 1200ms steps(var(--frames), end) infinite;
+        }
+
+        figure {
+            border: 1px solid black;
+            text-align: center;
+            place-items: center;
+        }
+    </style>
+</head>
+
+<body>
+    <input type="file" id="u" webkitdirectory>
+    <div id="holder" style="display: flex;flex-wrap: wrap;"></div>
+    <script type="module">
+        import * as v from './v4.js'
+        let $ = v.esc
+        let { u, holder } = v.id
+        u.on({
+            async change(e) {
+                let name = this.files[0].webkitRelativePath.split('/')[0]
+                let xml = new DOMParser().parseFromString(await [].find.call(this.files, o => o.name === 'AnimData.xml').text(), 'application/xml')
+                for (let o of this.files) if (!/-(?:Offsets|Shadow)\.png$/.test(o.name) && o.name !== "AnimData.xml")
+                    handleSpriteSheet(o, xml, name)
+            }
+        })
+        async function handleSpriteSheet(sprite, doc, title) {
+            let name = sprite.name.replace('-Anim.png', '')
+            let xpath = doc.evaluate(`//Name[text()="${name}"]/..`, doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)
+            let res = xpath.singleNodeValue
+            let url = URL.createObjectURL(sprite)
+            let durations = [...res.querySelectorAll('Duration')]
+            let frames = durations.length
+            let height = +res.querySelector('FrameHeight').textContent
+            let width = +res.querySelector('FrameWidth').textContent
+            let m = $`<figure><div style="height: ${height}px;--frames: ${frames};background-image: url(${url}); --width: ${width}px;"class="slideshow"></div><figcaption>${name}</figcaption></figure>`
+            holder.pushNode(m)
+            let n = $`<img src="${url}">`
+            await n.until('load')
+            generateCanvas(frames, m, n, doc, durations, height, width, title, name)
+        }
+        async function generateCanvas(frames, holder, img, doc, durations, height, width, title, name) {
+            let totalFrames = durations.reduce((a, b) => +a + +b.textContent, 0)
+            let w = width * totalFrames
+            for (let y = 0; y < 8; ++y) {
+                let n = document.createElement('canvas')
+                n.width = w
+                n.height = height
+                let ctx = n.getContext('2d')
+                let bitmaps = []
+                for (let i = 0; i < frames; ++i) {
+                    let b = await createImageBitmap(img.valueOf(), i * width, y * height, width, height)
+                    let timing = +durations[i].textContent
+                    while (timing--) bitmaps.push(b)
+                }
+                for (let i = 0; i < totalFrames; ++i) {
+                    let x = i * width
+                    ctx.drawImage(bitmaps[i], x, 0)
+                }
+                switch (y) {
+                    case 0: var dir = 'Down'
+                        break
+                    case 1: dir = 'Down Right'
+                        break
+                    case 2: dir = 'Right'
+                        break
+                    case 3: dir = 'Up Right'
+                        break
+                    case 4: dir = 'Up'
+                        break
+                    case 5: dir = 'Up Left'
+                        break
+                    case 6: dir = 'Left'
+                        break
+                    case 7: dir = 'Down Left'
+                        break
+                }
+                let isShiny = title.includes('.shiny') ? '.shiny' : ''
+                title = title.replace('.shiny', '')
+                holder.pushNode($`<a download="${title}${name === 'Walk' ? '' : '_' + name.toLowerCase()}${isShiny}-${totalFrames}.png" href="${URL.createObjectURL(await new Promise(r => n.toBlob(r, 'image/png', 1)))}">${dir}</a>`)
+                /*holder.pushNode($`<button (click)="${function () {
+                    let dataURL = n.toDataURL('image/png', 1)
+                    console.log(dataURL)
+                    navigator.clipboard.writeText(`'${title}_${name.toLowerCase()}:${totalWidth}':'${dataURL.slice(22)}',`).catch(alert)
+                }}">${dir}</button>`)*/
+                bitmaps.forEach(o => o.close())
+            }
+        }
+    </script>
+</body>
+
+</html>
