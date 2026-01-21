@@ -70,8 +70,8 @@
         Rm,
         br = ['epub', 'icab', 'fso', 'tc', 'rim', 'hp', 'ah', 'wap', 'atsc', 'xv', 'ms', 'o', 'ro', 'konq', 'khtml', 'apple', 'moz', 'moz-osx', 'webkit']
         , fClass = fgeneric.bind(1, ':', pseudoClass),
-        fElement = fgeneric.bind(1, '::', pseudoElement)
-       //@dev , toValue
+        fElement = fgeneric.bind(1, '::', pseudoElement),
+       //@dev toValue
         //@dev, comments = /\/\*[\s\S]*?\*\//g
         //@dev, parse = /([^{}]+?)(?:;|(\{[\s\S]*?\}))/g
         //@dev, semicolon = /(?:--)?[-\w]+\s*:(?:(?![^(]*\);|[^"]*";|[^']*';).)*?(?:!\s*important\s*)?(?=;(?![^(]*\)|[^"]*"|[^']*')|\s*$)/g,
@@ -85,7 +85,7 @@
     function dv(prop, val) {
         return vendor(toDash(prop), val)
     }
-    function cv(prop, val) { return toCaps(vendor(toDash(prop), val)) }
+    function cv(prop, val) { return toCaps(dv(prop, val)) }
     function badCSS(data, _) {
         if (alr.has(data) || _) return
         console.warn(data)
