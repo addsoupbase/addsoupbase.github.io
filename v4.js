@@ -7,12 +7,12 @@ function isHTMLSyntax(string) {
     let trim = string.trim()
     return trim[0] === '<' && trim.at(-1) === '>'
 }
-function label(r){return r[Symbol.toStringTag]}
-const parse = Range.prototype.createContextualFragment.bind(new Range)
+function label(r) { return r[Symbol.toStringTag] }
+var parse = (parse = new Range).createContextualFragment.bind(parse)
 export function ce(htmlOrTag) {
     let elt
     if (isHTMLSyntax(htmlOrTag)) {
-        elt = D.adoptNode(parse(htmlOrTag).firstElementChild)
+        elt = parse(htmlOrTag).firstElementChild
     }
     else {
         let tag = htmlOrTag.match(Regex.tag)?.[0]
@@ -20,9 +20,9 @@ export function ce(htmlOrTag) {
         elt.className = htmlOrTag.match(Regex.class)?.map(o => o.substring(1)).join(' ') || ''
         let id = htmlOrTag.match(Regex.id)?.[0].substring(1) || ''
         if (id) elt.id = id
-        console.assert(elt.matches(htmlOrTag))
+        //@dev console.assert(elt.matches(htmlOrTag))
     }
-    console.assert(Element.prototype.isPrototypeOf(elt), `Output wasn't an element (${label(elt)})`)
+    //@dev console.assert(Element.prototype.isPrototypeOf(elt), `Output wasn't an element (${label(elt)})`)
     return Proxify(elt)
 }
 const Regex = {
@@ -33,58 +33,66 @@ const Regex = {
     comment: /^@Replace #\d+$/
 }
 export let body = D.body && Proxify(D.body)
-export function $(strings, ...subs) {
-    let result = []
-        , replace = new Map
-        , toReplace = 0
-        , embeds = false
-    function handleSub(sub) {
-        if (sub === Object(sub)) {
-            embeds = true
-            if (typeof sub === 'function') {
-                let r = escapeHTML(sub.toString())
-                replace.set(r, sub)
-                return r
-            }
-            sub = base(sub)
-            if (Node.prototype.isPrototypeOf(sub)) {
-                let comment = `@Replace #${toReplace++}`
-                // this bit is really helpful:
-                // $`<div><h1>${'Some <escaped> text'}</h1> ${$esc`<button>Click me</button>`.on({click(){alert('hello!')}})}</div>`
-
-                // $`<form>${$`<button (onclick)="${function(e){
-                // if (someCondition) e.preventDefault()
-                // }}"></button>`}</form>`
-                // the parenthesis around the event name are required!!
-                // i can add flags to them as well:
-                // $`<div (%_$onclick)=${...}></div>`
-                replace.set(comment, sub)
-                return `<!--${comment}-->`
-            }
+const nodeCache = new Map
+function handleSub(sub, replace) {
+    if (sub === Object(sub)) {
+        if (typeof sub === 'function') {
+            let r = sub.toString()
+            replace.map.set(r, sub)
+            return escapeHTML(r)
         }
-        return escapeHTML(String(sub))
+        sub = base(sub)
+        if (Node.prototype.isPrototypeOf(sub)) {
+            let comment = `@Replace #${++replace.toReplace}`
+            // this bit is really helpful:
+            // $`<form>${$`<button (click)="${function(e){
+            // if (someCondition) e.preventDefault()
+            // }}"></button>`}</form>`
+
+            // the parenthesis around the event name are required!!
+            // i can add flags to them as well:
+            // $`<div (%_$click)=${...}></div>`
+            replace.map.set(comment, sub)
+            return `<!--${comment}-->`
+        }
     }
+    return escapeHTML(String(sub))
+}
+export function $(strings, ...subs) {
+    const hasSubs = !!subs.length
+    if (!hasSubs) {
+        if (nodeCache.has(strings)) return Proxify(nodeCache.get(strings).cloneNode(true))
+        let out = ce(strings.join(''))
+        let node = base(out)
+        nodeCache.set(strings, node.cloneNode(true))
+        return out
+    }
+    let result = []
+        , replace = { map: new Map, toReplace: 0 }
     for (let i = 0, n = strings.length, { length } = subs; i < n; ++i) {
         let sub = subs[i]
-        result.push(`${strings[i]}${i < length ? handleSub(sub) : ''}`)
+        result.push(`${strings[i]}${i < length ? handleSub(sub, replace) : ''}`)
     }
     let out = ce(result.join(''))
     let node = base(out)
-    if (embeds) {
-        let events = {}
-        //  ̶l̶i̶t̶e̶r̶a̶l̶l̶y̶ ̶t̶h̶e̶ ̶o̶n̶l̶y̶ ̶u̶s̶e̶ ̶o̶f̶ ̶X̶P̶a̶t̶h̶
-        // Update: use TreeWalker instead bc XPath is slow a hellll aparently, (so i guess XPath is useless then!)
+    // conclusion: TreeWalker > XPath & NodeIterator
+    let { map } = replace
+    if (replace.toReplace) {
         let walker = D.createTreeWalker(base(out), 128, commentFilter)
         let o
-        while (o = walker.nextNode()) o.replaceWith(replace.get(o.textContent))
+        while (o = walker.nextNode()) o.replaceWith(map.get(o.textContent))
+    }
+    if (node.hasAttributes()) {
+        let events = {}
         let attr = node.getAttributeNames()
         let config = { enumerable: true, writable: true, configurable: true }
         for (let i = attr.length; i--;) {
             let a = attr[i]
             let match = a.match(Regex.evtAttr)
             if (match) {
+                let func = config.value = map.get(node.getAttribute(a))
                 node.removeAttribute(a)
-                config.value = replace.get(node.getAttribute(a))
+                if (typeof func !== 'function') throw TypeError(`Invalid event handler for ${match[1]}`)
                 Object.defineProperty(events, match[1], config)
             }
         }
@@ -93,6 +101,7 @@ export function $(strings, ...subs) {
     return out
 }
 export const esc = $
+export default $
 function commentFilter(e) {
     return Regex.comment.test(e.textContent) ? 1 : 3
 }
@@ -120,4 +129,6 @@ export function sel(t) {
     if (Element.prototype.isPrototypeOf(t)) return Proxify(t)
     throw TypeError(`Target must be an element: ${label(t)}`)
 }
-function escapeHTML(s) { (a ??= D.createElement('p')).textContent = s; return a.innerHTML } let a
+function escapeHTML(s) { (a ??= D.createElement('p')).textContent = s; return a.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;') } let a
+
+//@dev window.$ = esc

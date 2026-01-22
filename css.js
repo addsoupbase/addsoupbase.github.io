@@ -56,7 +56,6 @@
         else sn = String
     }
     var fro = O.fromEntries,
-        entries = O.entries,
         is = Array.isArray,
         // scr,
         sheet = Sheet(),
@@ -71,7 +70,7 @@
         br = ['epub', 'icab', 'fso', 'tc', 'rim', 'hp', 'ah', 'wap', 'atsc', 'xv', 'ms', 'o', 'ro', 'konq', 'khtml', 'apple', 'moz', 'moz-osx', 'webkit']
         , fClass = fgeneric.bind(1, ':', pseudoClass),
         fElement = fgeneric.bind(1, '::', pseudoElement),
-       //@dev toValue
+        //@dev toValue
         //@dev, comments = /\/\*[\s\S]*?\*\//g
         //@dev, parse = /([^{}]+?)(?:;|(\{[\s\S]*?\}))/g
         //@dev, semicolon = /(?:--)?[-\w]+\s*:(?:(?![^(]*\);|[^"]*";|[^']*';).)*?(?:!\s*important\s*)?(?=;(?![^(]*\)|[^"]*"|[^']*')|\s*$)/g,
@@ -521,8 +520,7 @@
                 '--center': center,
                 // this is different from just 'center' and idk why!!!
                 '--match-parent': matchParent,
-            },
-            html: { margin: 'auto' }
+            }
         }
         o[W("input[type=date]")] = { cursor: 'text' }
         o[W("button,a,input[type=button],input[type=checkbox],input[type=radio],input[type=submit],input[type=image],input[type=reset],input[type=file]")] = { cursor: 'pointer' }
@@ -533,7 +531,6 @@
         o[W('[contenteditable=false]')] = { '--user-modify': 'read-only', '--user-input': 'none' }
         o[W('[contenteditable="plaintext-only"]')] = { '--user-modify': 'read-write-plaintext-only' }
         o[W('[inert]')] = { 'interactivity': 'inert' }
-        o[W('img')] = { '--force-broken-image-icon': 1 }
         o[W('input[type=range],::-webkit-scrollbar-thumb')] = { cursor: 'grab' }
         o[W('input[type=range]:active,::-webkit-scrollbar-thumb:active')] = { cursor: 'grabbing' }
         o[W(':disabled,[aria-disabled=true]')] = { cursor: 'not-allowed' }
@@ -552,6 +549,7 @@
         o[W('.center_absolute_x')] = { left: '50%', transform: 'translateX(-50%)' }
         o[W('.center_absolute_y')] = { top: '50%', transform: 'translateY(-50%)' }
         o[W('img')] = {
+             '--force-broken-image-icon': 1,
             'max-inline-size': '100%', 'block-size': 'auto',
             //'object-fit': 'contain'
         } // https://web.dev/learn/design/responsive-images
@@ -568,10 +566,9 @@
             supportCustom()
             doRegister()
         }
-        newName += entries(o).reduce(function (a, b) {
-            return a + b[0] + "{" + toCSS(b[1]) + "}"
-        }, "@namespace svg url('http://www.w3.org/2000/svg');\np{text-wrap:pretty}h1,h2,h3,h4,h5,h6,:where(p){text-wrap:balance;overflow-wrap:break-word}body{line-height:1.5;--font-smoothing:antialiased}@media(prefers-reduced-motion:no-preference){:root{interpolate-size: allow-keywords}}@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:-moz-loading{cursor:wait}:-moz-broken{border-radius:0}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not(scrollbar-width: thin){::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}")
-        //@dev console.debug(newName.replace(/:where\(([\s\S]*?)\)/g,'$1'))
+        for (var x in o) newName += x + "{" + toCSS(o[x]) + "}"
+        newName += "@namespace svg url('http://www.w3.org/2000/svg');\nhtml{margin:auto}p{text-wrap:pretty}h1,h2,h3,h4,h5,h6,:where(p){text-wrap:balance;overflow-wrap:break-word}body{line-height:1.5;--font-smoothing:antialiased}@media(prefers-reduced-motion:no-preference){:root{interpolate-size: allow-keywords}}@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:-moz-loading{cursor:wait}:-moz-broken{border-radius:0}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not(scrollbar-width: thin){::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}"
+        //@dev console.debug(newName.replace(/:where\(([\S\s]*?)\)/g,'$1'))
     }
     var str
     // finally { performance.mark('css-other-end') }

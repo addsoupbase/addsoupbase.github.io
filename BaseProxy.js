@@ -6,6 +6,7 @@ const InterfaceWrapping = Symbol('[[CurrentInterface]]')
 const Revoke = Symbol('[[Revoke]]')
 const Destroy = Symbol('[[DestroyMethod]]')
 const Cache = Symbol('[[Cache]]')
+let {apply} = Reflect
 function destroy() {
     let Target = this[WrapperTarget]
     this.constructor[Cache].delete(Target)
@@ -35,7 +36,7 @@ export class Handler {
         if (prop in Wrapper) {
             toGet = receiver = Wrapper
             if (prop in target) receiver = target
-        } 
+        }
         out = Reflect.get(toGet, prop, target, receiver)
         return typeof out === 'function' ? cacheFunction(out) : out
     }
@@ -46,16 +47,22 @@ export class Handler {
         return Reflect.set(Target, prop, value, Receiver)
     }
     apply(func, thisArg, args) {
+        if (thisArg === void 0) switch (args.length) {
+            case 0: return func()
+            case 1: return func(args[0])
+            case 2: return func(args[0], args[1])
+            case 3: return func(args[0], args[1], args[2])
+        }
         switch (args.length) {
             case 0: return func.call(thisArg)
             case 1: return func.call(thisArg, args[0])
             case 2: return func.call(thisArg, args[0], args[1])
             case 3: return func.call(thisArg, args[0], args[1], args[2])
         }
-        return func.apply(thisArg, args)
+        return apply(func, thisArg, args)
     }
     construct(constructor, args, newTarget) {
-        if (!newTarget) switch (args.length) {
+        if (!newTarget || newTarget === constructor) switch (args.length) {
             case 0: return new constructor
             case 1: return new constructor(args[0])
             case 2: return new constructor(args[0], args[1])
@@ -69,8 +76,8 @@ let FunctionCache = new WeakMap
 export function cacheFunction(MyFunc) {
     if (typeof MyFunc.prototype === 'object') return MyFunc // it's a class
     if (FunctionCache.has(MyFunc)) return FunctionCache.get(MyFunc)
-    const o = {
-        [MyFunc.name](...args) {
+    var o = {
+        [o=MyFunc.name](...args) {
             const thisArg = getTarget(this)
             switch (args.length) {
                 case 0: return MyFunc.call(thisArg)
@@ -78,9 +85,9 @@ export function cacheFunction(MyFunc) {
                 case 2: return MyFunc.call(thisArg, args[0], args[1])
                 case 3: return MyFunc.call(thisArg, args[0], args[1], args[2])
             }
-            return MyFunc.apply(thisArg, args)
+            return apply(MyFunc, thisArg, args)
         }
-    }[MyFunc.name]
+    }[o]
     FunctionCache.set(MyFunc, o)
     return o
 }
@@ -92,7 +99,7 @@ export function ProxyFactory(myClass, Interface = globalThis[myClass.name.replac
     readonly(myClass, Cache, cache)
     readonly(myClass.prototype, Destroy, destroy)
     function Generator(Target) {
-        console.assert(Interface.prototype.isPrototypeOf(Target), `Expected a #<${Interface.name}>, instead got a #<${label(Target)}>`, Target)
+        //@dev console.assert(Interface.prototype.isPrototypeOf(Target), `Expected a #<${Interface.name}>, instead got a #<${label(Target)}>`, Target)
         if (cache.has(Target)) return cache.get(Target)
         if (new.target && new.target !== Generator) var out = Reflect.construct(myClass, [Target], new.target)
         // There is an upgrade available!
@@ -138,9 +145,9 @@ Object.defineProperties(proxify, {
             if (proxy === Target) throw TypeError(`Cannot upgrade a plain object`)
             let upgrade = proxy[TargetInterface]
             let myClass = proxy.constructor[InterfaceWrapping]
+            proxy[Destroy]()
             if (myClass.prototype.isPrototypeOf(upgrade.prototype)) {
                 console.debug(`Upgrading a #<${myClass.name}> to a #<${label(Target)}>`)
-                proxy[Destroy]()
                 proxy = proxify(Target)
             }
             return proxy

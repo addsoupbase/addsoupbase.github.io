@@ -220,7 +220,7 @@
     }
     h.addCustomEvent = addCustomEvent
     var formatEventName = /[_$^%&!?@#<>|]|^(?:bound )+/g
-    function supportOrientationChangeEvent(target, eventName, label) {
+    function orient(target, eventName, label) {
         if (eventName === 'change' && label === 'ScreenOrientation') {
             var n = ['msonorientationchange', 'mozonorientationchange', 'orientationchange'].find(Reflect.has.bind(1, target))
                 , out = {
@@ -310,7 +310,7 @@
                 throw TypeError("Cannot call 'preventDefault' on a passive function")
             }
             eventName = verifyEventName(newTarget, eventName.replace(formatEventName, ''))
-            var b = supportOrientationChangeEvent(target, eventName, label)
+            var b = orient(target, eventName, label)
             if (b) {
                 newTarget = b.target
                 eventName = b.name
@@ -423,9 +423,9 @@
             s && args.push(abrt)
             args.push(off.bind(void 0, this, name))
             switch (args.length) {
-                case 2: var result = f.call(this, event, args[1])
+                case 2: var result = this !== void 0 ? f.call(this, event, args[1]) : f(event, args[1])
                     break
-                case 3: result = f.call(this, event, args[1], args[2])
+                case 3: result = this !== void 0 ? f.call(this, event, args[1], args[2]) : f(event, args[1], args[2])
                     break
                 default: result = apply(f, this, args)
             }
@@ -462,7 +462,7 @@
                 newTarget = name.target
                 name = name.name
             }
-            var b = supportOrientationChangeEvent(target, name, label)
+            var b = orient(target, name, label)
             if (b) {
                 newTarget = b.target
                 name = b.name
