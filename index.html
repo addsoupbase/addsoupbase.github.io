@@ -255,6 +255,7 @@
             user-select: none;
             pointer-events: auto;
             transform-origin: center;
+            touch-action: none;
             --user-select: none;
         }
 
@@ -277,11 +278,11 @@
 
         @keyframes xAxis {
             0% {
-                translate: calc(0vw - var(--size)) 0;
+                translate: calc(0vw - 400%) 0;
             }
 
             100% {
-                translate: calc(100vw + var(--size)) 0;
+                translate: calc(100vw + 400%) 0;
             }
         }
 
@@ -297,11 +298,11 @@
 
         @keyframes wiggle {
             0% {
-                translate: -10px 0
+                translate: -14px 0
             }
 
             100% {
-                transform: 10px 0
+                transform: 14px 0
             }
         }
 
@@ -330,6 +331,7 @@
             text-transform: capitalize;
             color: white;
             position: relative;
+            word-break: keep-all;
             top: 35px;
         }
 

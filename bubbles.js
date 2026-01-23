@@ -1,11 +1,23 @@
 
 import './sound.js'
+import preload from '../webcomponents/cel-runner.js'
 import * as v from './v4.js'
+let mons = ["seadra-44","relicanth-40","mantine-68","wailmer-46","qwilfish_hisui-32","feebas-72","jellicent_m-46","luvdisc-96","qwilfish-32","sharpedo-68","huntail-32","jellicent_f-46","arrokuda-40","clawitzer-40","wishiwashi-32","tentacool-36","basculegion_f-68","mantyke-40","wishiwashischool-90","gorebyss-70","remoraid-32","basculegion_m-68","inkay-36","lumineon-40","basculin_blue-24","finneon-52","lanturn-32","kyogreprimal-80","arctovish-40","alomomola-96","eelektross-68","manaphy-40","kingdra-36","basculin_white-24","tentacruel-36","bruxish-96","seaking-36","corsola-36","overqwil-44","wailord-90","phione-40","nihilego-62","goldeen-80","tynamo-24","carvanha-24","corsolagalar-36","basculin-24","kyogre-80","horsea-40"]
+let pokemons = []
+console.log(mons)
 const h = window[Symbol.for('[[HModule]]')]
-import dataURLS from './scripts/dataURLS.js'
 audio.load('./media/pop.mp3')
 const { css } = v
 const { Proxify } = v
+preload(...mons.map(o => {
+    let x = +o.match(/-(\d+)$/)[1]
+    pokemonthing(o.match(/\w+/), o)
+    return {
+        x,
+        y: 1,
+        src: `./seasprites/${o}.png`
+    }
+}))
 onload = null
 // css.registerProperty('--size', '0px', false, '<length>',)
 // css.registerProperty('--width', '0px', false, '<length>',)
@@ -56,7 +68,10 @@ bg.delegate({
         let me = parent.eltAt()
         let pic = Proxify(me.querySelector('div'))
         // pic.parent = bg
-        parent.getAnimations({ subtree: true }).forEach(o => o.pause())
+        let {x,y} = parent.getBoundingClientRect()
+        parent.getAnimations({ subtree: true }).forEach(o => o.cancel())
+        parent.style.left = `${x}px`
+        parent.style.top = `${y}px`
         await parent.animFrom('pop', { duration: 300, iterations: 1, easing: 'ease', fill: 'none' }).finished
         pic.classList.add('preview', 'avatarpopped', 'popped')
         // pic.parent = bg
@@ -85,7 +100,7 @@ bg.debounce({
 }, 60)
 bg.delegate({
     animationend() {
-        v.sel(this.parentElement).purge()
+        // v.sel(this.parentElement).purge()
     }
 })
 let fileFormat = await new Promise(resolve => {
@@ -126,7 +141,7 @@ const bubble = (size, x = range(0, innerWidth), y = innerHeight) => {
         <path d="M ${180 * scale} ${100 * scale} A ${80 * scale} ${80 * scale} 0 0 0 ${100 * scale} ${20 * scale}" fill="none" stroke="white" stroke-width="${9 * scale}" pointer-events="painted">
         </path>
     </svg></div>`
-    out.animFrom('wiggle', { easing: 'ease-in-out', duration: 170, direction: 'alternate' })
+    out.animFrom('wiggle', { easing: 'ease-in-out', duration: 180, direction: 'alternate' })
     out.animFrom('up', { duration: 10000, easing: 'linear', iterations: 1 })
         .onfinish = kill
     return out
@@ -154,137 +169,125 @@ const avatar = (name, size = 60) => {
 avabubble()
 setInterval(avabubble, 2000)
 tinybubble()
-let pokemon = []
-function pokemonthing(i) {
-    let { 0: pkm, 1: frames } = i.split(':')
-    let url = `data:image/png;base64,${dataURLS[i]}`
-    let n = new Image
-    n.src = url
-    n.onload = () => {
-        let scale = .5
-        let duration = 38.0
-        switch (pkm) {
-            case 'kingdra':
-                scale *= 1.3
+function pokemonthing(i, name) {
+    let pkm = i[0]
+    let scale = .5
+    let duration = 38.0
+    switch (pkm) {
+        case 'kingdra':
+            scale *= 1.3
+            break
+        case 'corsola':
+            scale *= .87
+            duration *= 1.5
+            break
+        case 'wishiwashischool':
+            scale *= 2
+            duration *= 4
+            break
+        case 'wishiwashi':
+            duration *= 2
+            scale *= .8
+            break
+        case 'jellicent_m':
+        case 'jellicent_f':
+            scale *= 1.5
+            duration *= 1.6
+            break
+        case 'gorebyss':
+        case 'huntail':
+        case 'sharpedo':
+            scale *= 1.6
+            duration *= 1.2
+            break
+        case 'kyogre':
+            scale *= 3
+            duration *= 2
+            break
+        case 'kyogreprimal':
+            scale *= 4
+            duration *= 2.5
+            break
+        case 'wailord':
+            scale *= 5.3
+            duration *= 8
+            break
+        case 'arctovish':
+            scale *= 2
+            break
+        case 'relicanth':
+            scale *= 1.6
+            break
+        case 'groudon':
+            scale *= 3
+            duration *= 1.2
+            break
+        case 'manaphy':
+            scale *= 1.3
+            break
+        case 'eelektross':
+            scale *= 1.5
+            break
+        case 'alomomola':
+            scale *= 2
+            break
+        case 'qwilfish':
+            scale *= 1.3
+            break
+        case 'wailmer':
+            scale *= 2.3
+            duration *= 2
+            break
+        case 'mantine':
+            scale *= 1.7
+            duration *= .9
+            break
+        case 'palafin':
+            scale *= 1.4
+            break
+        case 'seaking':
+            scale *= 1.4
+            break
+        case 'skrelp':
+        case 'luvdisc':
+            scale *= .8
+            break
+        case 'basculegion_f':
+        case 'basculegion_m':
+            scale *= 1.4
+            break
+        case 'overqwil':
+            scale *= 1.5
+            break
+        case 'lanturn':
+        case 'lumineon':
+            scale *= 1.5
+            break
+        case 'basculin':
+        case 'basculin_white':
+        case 'basculin_blue':
+            scale *= 1.2
+            break
+            case 'tentacruel':
+                scale*=2
                 break
-            case 'corsola':
-                scale *= .87
-                duration *= 1.5
-                break
-            case 'wishiwashischool':
-                scale *= 2
-                duration *= 4
-                break
-            case 'wishiwashi':
-                duration *= 2
-                scale *= .8
-                break
-            case 'jellicent_m':
-            case 'jellicent_f':
-                scale *= 1.5
-                duration *= 1.6
-                break
-            case 'gorebyss':
-            case 'huntail':
-            case 'sharpedo':
-                scale *= 1.6
-                duration *= 1.2
-                break
-            case 'kyogre':
-                scale *= 3
-                duration *= 2
-                break
-            case 'kyogreprimal':
-                scale *= 4
-                duration *= 2.5
-                break
-            case 'wailord':
-                scale *= 5.3
-                duration *= 8
-                break
-            case 'arctovish':
-                scale *= 2
-                break
-            case 'relicanth':
-                scale *= 1.6
-                break
-            case 'groudon':
-                scale *= 3
-                duration *= 1.2
-                break
-            case 'manaphy':
-                scale *= 1.3
-                break
-            case 'eelektross':
-                scale *= 1.5
-                break
-            case 'alomomola':
-                scale *= 2
-                break
-            case 'qwilfish':
-                scale *= 1.3
-                break
-            case 'wailmer':
-                scale *= 2.3
-                duration *= 2
-                break
-            case 'mantine':
-                scale *= 1.7
-                duration *= .9
-                break
-            case 'palafin':
-                scale *= 1.4
-                break
-            case 'seaking':
-                scale *= 1.4
-                break
-            case 'skrelp':
-            case 'luvdisc':
-                scale *= .8
-                break
-            case 'basculegion-f':
-            case 'basculegion-m':
-                scale *= 1.4
-                break
-            case 'overqwil':
-                scale *= 1.5
-                break
-            case 'lanturn':
-            case 'lumineon':
-                scale *= 1.5
-                break
-            case 'basculin':
-            case 'basculin-white':
-            case 'basculin-blue':
-                scale *= 1.2
-                break
-            case 'clawitzer':
-            case 'nihilego':
-                scale *= 1.75
-                break
-        }
-        scale *= range(.90, 1.1)
-        duration *= range(.90, 1.1)
-        pokemon.push({ name: pkm, scale: scale * 1.75, duration: duration * 1000 * .7 })
-        css.registerCSSRaw(`.${pkm} {
-                animation: slideshow ${frames * 150}ms steps(${frames}, end) infinite;
-                --frames: ${frames}; 
-                --width: ${n.naturalWidth}px;
-                --size: ${n.naturalWidth}px;
-                background-image: url(${url}); 
-                height: ${n.naturalHeight}px;
-                width: ${n.naturalWidth / frames}px;
-                }`)
+        case 'clawitzer':
+        case 'nihilego':
+            scale *= 1.75
+            break
+        // scale *= range(.90, 1.1)
+        // duration *= range(.90, 1.1)
     }
+    pokemons.push({ name, scale: scale * 2.5, duration: duration * 1000 * .7, pkm: i })
 }
-for (let i in dataURLS) pokemonthing(i)
-function spawnPkm(choice = pokemon[Math.floor(Math.random() * pokemon.length)]) {
+function spawnPkm(choice = pokemons[Math.floor(Math.random() * pokemons.length)]) {
     setTimeout(spawnPkm, range(500, 2000))
-    if (!pokemon.length || isHidden()) return
+    if (!pokemons.length || isHidden()) return
     let scale = Math.random() > .5 ? -1 : 1
-    let thing = v.esc`<div aria-hidden="true" class="${choice.name} pkm${range(0, 1000) > 999 ? ' shiny' : ''}" style="top: ${Math.random() * innerHeight}px;transform:scale(${1.5 * choice.scale * scale}, ${1.5 * choice.scale})"></div>`
+    let dura = 17
+    let thing = v.esc`<cel-runner aria-hidden="true" dura="${dura}ms" src="./seasprites/${choice.name}.png" class="${choice.pkm} pkm${range(0, 1000) > 999 ? ' shiny' : ''}" style="top: ${Math.random() * innerHeight}px;scale:${scale * choice.scale} ${choice.scale}"></cel-runner>`
         .setParent(bg)
-    thing.animFrom('xAxis', { duration: choice.duration * scale, iterations: 1, easing: 'linear', })
+        .animFrom('xAxis', { composite: 'add', iterations: 1, duration: choice.duration * scale, easing: 'linear' })
         .onfinish = kill
 }
 spawnPkm()
