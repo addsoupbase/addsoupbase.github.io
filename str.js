@@ -54,7 +54,7 @@ else {
         let { 0: regex, 1: rep } = arr[i]
         return `${a.replace(regex, rep)}${typeof b === 'string' ? b.replace(regex, rep) : ''}`
     }
-    const specialChars = [].reduce.bind([[/>/g, '&gt;'], [/</g, '&lt;'], [/&[^#\w]+;)/g, '&amp;'], [/'/g, '&apos;'], [/"/g, '&quot;']])
+    const specialChars = [].reduce.bind([[/>/g, '&gt;'], [/</g, '&lt;'], [/&[^#\w]+;/g, '&amp;'], [/'/g, '&apos;'], [/"/g, '&quot;']])
     escapeHTML = esc
 }
 export function replace(string, ...subs) {
