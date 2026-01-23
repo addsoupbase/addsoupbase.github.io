@@ -417,9 +417,10 @@
     }
     function g(name, iv, inh, sx) {
         var o = '--' + name,
-            key = vendor(name, uv[key] = 'var(' + o + ')', true)
+            key = vendor(name, o = 'var(' + o + ')', true)
         // try { 
-        bulkText += re(o, iv, inh, sx)
+        uv[key] = o
+        bulkText += re('--'+name, iv, inh, sx)
         return g
         // }
         // catch (e) {e.name === 'InvalidModificationError' || (console.log(o), reportError(e),func || fallback.set(key, vendor(key, 'inherit')))}
@@ -549,7 +550,7 @@
         o[W('.center_absolute_x')] = { left: '50%', transform: 'translateX(-50%)' }
         o[W('.center_absolute_y')] = { top: '50%', transform: 'translateY(-50%)' }
         o[W('img')] = {
-             '--force-broken-image-icon': 1,
+            '--force-broken-image-icon': 1,
             'max-inline-size': '100%', 'block-size': 'auto',
             //'object-fit': 'contain'
         } // https://web.dev/learn/design/responsive-images

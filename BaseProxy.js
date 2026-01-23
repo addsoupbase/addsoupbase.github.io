@@ -9,8 +9,14 @@ const Cache = Symbol('[[Cache]]')
 let {apply} = Reflect
 function destroy() {
     let Target = this[WrapperTarget]
-    this.constructor[Cache].delete(Target)
-    this[Revoke]()
+    if (Target) {
+        this.constructor[Cache].delete(Target)
+        this[Revoke]()
+    }
+    else {
+        console.log(this)
+        debugger
+    } 
 }
 /* 
 proxy does not allow lying about non-writable non-configurable props
@@ -74,6 +80,10 @@ export class Handler {
 }
 let FunctionCache = new WeakMap
 export function cacheFunction(MyFunc) {
+    if (MyFunc === destroy) {
+        
+        return destroy
+    } 
     if (typeof MyFunc.prototype === 'object') return MyFunc // it's a class
     if (FunctionCache.has(MyFunc)) return FunctionCache.get(MyFunc)
     var o = {

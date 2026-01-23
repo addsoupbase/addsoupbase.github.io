@@ -50,7 +50,7 @@ class Node$ extends EventTargetProxy {
         me.remove()
         if (deep) {
             let l
-            while (l = me.lastNode) l.purge(true)
+            while (l = me.lastElementChild) Proxify(l).purge(true)
         }
         Proxify.Destroy(me)
         return null
