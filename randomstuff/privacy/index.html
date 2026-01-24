@@ -53,12 +53,25 @@
     <title>Web Privacy</title>
     <!-- https://ogp.me/ https://developer.x.com/en/docs/x-for-websites/cards/overview/markup -->
 </head>
+
 <body>
     <style>
         .sect {
             border: 1px solid white;
             padding: 10px;
             margin: 5px;
+        }
+
+        .touchtarget {
+            /* width: 40px; */
+            height: 40px;
+            border: 1px dotted white;
+            place-content: center;
+            font-family: monospace;
+            cursor: pointer;
+            display: inline-block;
+            padding: 10px;
+            font-size: larger;
         }
 
         html {
@@ -142,7 +155,7 @@
     <main>
         <h1>Privacy</h1>
         <div style="display: grid;">
-            <small>Note: some information may be incorrect</small>
+            <!-- <small>Note: some information may be incorrect</small> -->
         </div>
         <h1>Available:</h1>
         <div class="sect" id="y"></div>
@@ -172,23 +185,26 @@
                 function addEvent(target, event, val, func) {
                     target = this || target
                     var i = 0
-                    var ev = 'on' + event
-                    if (ev in target) {
-                        if (!func) val.nextElementSibling.textContent = 'Detected: ' + i++
-                        target[ev] = function (e) {
-                            (func || fallback)(e)
-                            val.classList.add('changed')
-                        }
-                        var fallback = function () {
-                            val.nextElementSibling.textContent = 'Detected: ' + i++
+                    var ev = event
+                    for (var a = prefixes.length; a--;) {
+                        var prefix = prefixes[a]
+                        var name = 'on' + prefix + ev
+                        if (name in target) {
+                            if (!func) val.nextElementSibling.textContent = 'Detected: ' + i++
+                            target[name] = function (e) {
+                                (func || fallback)(e)
+                                val.classList.add('changed')
+                            }
+                            var fallback = function () {
+                                val.nextElementSibling.textContent = 'Detected: ' + i++
+                            }
+                            return
                         }
                     }
-                    else {
-                        reject(getLabel(target) + '.' + ev)
-                        var p = val.parentElement
-                        p.removeChild(val.nextElementSibling)
-                        p.removeChild(val)
-                    }
+                    reject(getLabel(target) + '.' + ev)
+                    var p = val.parentElement
+                    p.removeChild(val.nextElementSibling)
+                    p.removeChild(val)
                 }
                 var old = D.documentElement.scrollTop
                 setTimeout(function () {
@@ -250,7 +266,7 @@
                     }
                     return na
                 }
-                function precise(a) {return a && a.toFixed(2)}
+                function precise(a) { return a && a.toFixed(2) }
                 function addSect(title, base) {
                     var n = D.createElement('div')
                     n.className = 'sect'
@@ -334,12 +350,14 @@
                         'pageshow',
                         'pageswap',
                         'resize',
-                        'storage',
+                        // 'storage',
                         'vrdisplayactivate',
                         'vrdisplayconnect',
                         'vrdisplayconnect',
                         'vrdisplaydisconnect',
-                        'vrdisplaypresentchange'
+                        'vrdisplaypresentchange',
+                        'fullscreenchange',
+                        'fullscreenerror'
                     ].sort().forEach(function (e) {
                         var func
                         var sect
@@ -377,9 +395,9 @@
                                     var gamma = addProp(sect, 'gamma', null, 'Rotation of the device around the Y axis').nextElementSibling
                                     func = function (e) {
                                         if (absolute) absolute.textContent = e.absolute
-                                        alpha.textContent = String(e.alpha)
-                                        beta.textContent = String(e.beta)
-                                        gamma.textContent = String(e.gamma)
+                                        alpha.textContent = String(e.alpha !== null ? precise(e.alpha) : a.alpha)
+                                        beta.textContent = String(e.beta !== null ? precise(e.beta) : a.beta)
+                                        gamma.textContent = String(e.gamma !== null ? precise(e.gamma) : e.gamma)
                                     }
                                 }
                                 break
@@ -392,7 +410,7 @@
                                      debugger
                                      navigationType.textContent = e.navigationType
                                  }
-                             }*/
+                             }
                             case 'storage': if (typeof StorageEvent === 'function') {
                                 sect = addSect('', windowSect)
                                 var key = addProp(sect, 'key', null).nextElementSibling
@@ -406,7 +424,7 @@
                                     url.textContent = e.url
                                 }
                             }
-                                break
+                                break*/
                         }
                         addEvent(window, e, a, func)
                     })
@@ -453,7 +471,7 @@
                         var hint
                         switch (o) {
                             case 'deviceMemory':
-                                val += 'GB'
+                                val = 'at least ' + val + 'GB'
                                 break
                             case 'globalPrivacyControl':
                                 hint = 'Does the user consent to their data being sold'
@@ -474,6 +492,7 @@
                     var nisect = addSect('network')
                     var connection = ['downlink', 'downlinkMax', 'effectiveType', 'rtt', 'saveData', 'type'].sort()
                     connection.forEach(defaultProp.bind(navigator.connection, nisect, 'navigator.connection.'))
+                    addEvent(navigator.connection, 'change', addProp(nisect, 'change event', null))
                 }
                 else reject('navigator.connection')
                 var pluginSect = addSect('plugins')
@@ -487,6 +506,7 @@
                 if (navigator.devicePosture) {
                     var postureSect = addSect('devicePosture')
                     defaultProp.call(navigator.devicePosture, postureSect, 'navigator.deviceposture', 'type')
+                    addEvent(navigator.devicePosture, 'change', addProp(postureSect, 'change event', null))
                 }
                 else reject('navigator.devicePosture')
                 if (navigator.gpu) {
@@ -534,7 +554,7 @@
                 var docSect = addSect('document')
                     ;['fullscreenEnabled', 'cookie', 'hidden',
                         //'preferredStyleSheetSet', 'prerendering', 
-                        'referrer'].sort().forEach(defaultProp.bind(document, docSect, 'document'))
+                        'referrer', 'pictureInPictureEnabled', 'lastModified'].sort().forEach(defaultProp.bind(document, docSect, 'document'))
                 if (document.hasStorageAccess || document.hasUnpartitionedCookieAccess) {
                     (document.hasStorageAccess || document.hasUnpartitionedCookieAccess).call(document).then(function (e) {
                         addProp(docSect, 'hasStorageAccess', e)
@@ -548,6 +568,8 @@
                     addProp(features, 'allowedFeatures', document.featurePolicy.allowedFeatures().join(', '))
                 }
                 else reject('document.featurePolicy')
+                addEvent(document, 'fullscreenchange', addProp(docSect, 'fullscreenchange event', null))
+                addEvent(document, 'fullscreenerror', addProp(docSect, 'fullscreenerror event', null))
                 if (window.navigation) {
                     var navigationSect = addSect('navigation')
                         ;['canGoBack', 'canGoForward'].forEach(defaultProp.bind(navigation, navigationSect, 'navigation'))
@@ -587,6 +609,7 @@
                         var screenOrientationSect = addSect('orientation:', screenSect)
                         addProp(screenOrientationSect, 'angle', screen.orientation.angle + '°')
                         addProp(screenOrientationSect, 'type', screen.orientation.type)
+                        addEvent(screen.orientation, 'change', addProp(screenOrientationSect, 'change event', null))
                     }
                     else reject('screen.orientation')
                 }
@@ -614,6 +637,7 @@
                             "scale",
                             "width"
                         ].forEach(defaultProp.bind(visualViewport, visualViewportSect, 'visualViewport'))
+                            ;['resize', 'scroll', 'scrollend'].forEach(function (n) { addEvent(visualViewport, n, addProp(visualViewportSect, n + ' event', null)) })
                     }
                 }
                 else reject('visualViewport')
@@ -646,7 +670,77 @@
                     })
                 }
                 else reject('navigator.keyboard')
+                if (window.chrome) {
+                    var chromeSect = addSect('chrome')
+                    var loadTimes = addSect('loadTimes', chromeSect)
+                    var csi = addSect('CSI', chromeSect)
+                    var cs = chrome.csi()
+                    var lt = chrome.loadTimes()
+                    for (var p in lt) {
+                        addProp(loadTimes, p, lt[p])
+                    }
+                    for (var p in cs) {
+                        addProp(csi, p, cs[p])
+                    }
+                }
+                else reject('Chrome')
+                /* if ('ontouchstart' in window) {
+                     var click = addSect('touch')
+                     // var touchstart = addSect('\0touchstart', touches)
+                     // var touchmove = addSect('\0touchmove', touches)
+                     // var touchend = addSect('\0touchend', touches)
+                     var clickfunc = function (list, e) {
+                         list.innerHTML = '';
+                         [].forEach.call(e.changedTouches, function (t) {
+                             ['clientX', 'clientY', 'force', 'pageX', 'pageY', 'radiusX', 'radiusY', 'rotationAngle', 'screenX', 'screenY']
+                                 .sort().forEach(function (n) {
+                                     addProp(list, n, precise(t[n]))
+                                 })
+                         })
+                     };
+                     ['touchstart', 'touchmove', 'touchend'].forEach(function (e) {
+                         var sect = addSect('', click)
+                         var prop = addSect(e + ' event', sect)
+                         var list = addSect('touches:', prop)
+                         addEvent(window, e, sect, clickfunc.bind(prop.nextElementSibling, list))
+                     })
+                 }
+                 else reject('Touch events')*/
+                if ('onmousedown' in window) {
+                    var click = addSect('mouse')
+                    // var touchstart = addSect('\0touchstart', touches)
+                    // var touchmove = addSect('\0touchmove', touches)
+                    // var touchend = addSect('\0touchend', touches)
+
+                    var all = ['clientX', 'clientY', 'force', 'pageX', 'pageY', 'radiusX', 'radiusY', 'rotationAngle', 'screenX', 'screenY',
+                        'layerX', 'layerY', 'metaKey', 'ctrlKey', 'movementX', 'movementY', 'mozInputSource', 'offsetX', 'offsetY',
+                        'shiftKey', 'webkitForce', 'which', 'button'
+                    ].filter(function (e) { return e in MouseEvent.prototype }).sort()
+                        ;['mousemove', 'mousedown', 'mouseup'].forEach(function (e) {
+                            var vals = {}
+                            var clickfunc = function (e) {
+                                all.forEach(function (n) {
+                                    vals[n].textContent = e[n]
+                                })
+                            }
+                            var sect = addSect(e + ' event', click)
+                            addEvent(window, e, sect, clickfunc)
+                            all.forEach(function (e) {
+                                vals[e] = addProp(sect, e, null).nextElementSibling
+                            })
+                        })
+                }
+                else reject('Mouse events')
             }
+            /*function createReciever(sect, type) {
+                var n = D.createElement('div')
+                n.className = 'touchtarget'
+                sect.appendChild(n)
+                var after = D.createElement('aside')
+                n.textContent = type + ' here'
+                sect.appendChild(after)
+                return n
+            }*/
         }(document)
     </script>
     <footer>
