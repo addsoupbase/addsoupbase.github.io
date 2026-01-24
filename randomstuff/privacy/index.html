@@ -48,301 +48,608 @@
     <!-- ^ yes if the site has stuff like back buttons -->
     <meta name="apple-mobile-web-app-title" content="Web Privacy">
     <link rel="apple-touch-startup-image" href="favicon.ico">
-    <script src="../../css.js" blocking="render"></script><script src="../../css_bad.js" nomodule></script>
-    <link rel="stylesheet" href="styles.css">
+    <!-- <script src="../../css.js" blocking="render"></script> -->
+    <!-- <script src="../../css_bad.js" nomodule></script> -->
     <title>Web Privacy</title>
     <!-- https://ogp.me/ https://developer.x.com/en/docs/x-for-websites/cards/overview/markup -->
 </head>
-
 <body>
-<style>
-    .sect {
-        border: 1px solid white;
-        padding: 10px;
-        margin: 5px;
-    }
-
-    :root {
-        word-break: break-word;
-        font-family: arial, sans-serif;
-    }
-</style>
-<div>
-    <h1>Privacy</h1>
-    <div style="display: grid;">
-        <small>Note: some information may be incorrect</small>
-        <!-- <small>Note: the 'name' property (the really long one) is set by me and will likely not</small> -->
-    </div>
-    <button id="redo">Refresh</button>
-    <section>
-        <h2>Available:</h2>
-        <div id="yes">
-        </div>
-        <h2>Headers:</h2>
-        <div id="headers" class="sect">
-            <progress></progress>
-        </div>
-    </section>
-    <section>
-        <h2>Unavailable:</h2>
-        <div id="no" class="sect">
-        </div>
-    </section>
-</div>
-<script type="module">
-    import $ from '../../yay.js'
-    import {jason} from '../../arrays.js'
-
-    let {yes, no, redo, headers} = $.id
-    redo.on({
-        click: go
-    })
-
-    function addSect(type) {
-        yes.push($(`<section id="sect-${type}" class="sect"><h3>${type}:</h3></section>`))
-    }
-
-    async function go() {
-        yes.destroyChildren()
-        no.destroyChildren()
-        // navigator:
-        addSect('Window');
-        ['orientation', 'innerWidth', 'innerHeight', 'outerWidth', 'outerHeight',
-            'screenX',
-            'screenY',
-            'pageXOffset',
-            'pageYOffset',
-            'mozInnerScreenX',
-            'mozInnerScreenY',
-            // 'isSecureContext',
-            'devicePixelRatio', 'top', 'parent', 'locationbar', 'menubar', 'personalbar', 'statusbar', 'toolbar', 'originAgentCluster',].sort().forEach(function (o) {
-            main.call(window, o, 'Window')
-        })
-        addSect('Date');
-        ['now'].forEach(function (o) {
-            main.call(Date, o, 'Date')
-        });
-        ['toGMTString', 'toTimeString', 'toUTCString', 'toLocaleTimeString', 'toLocaleDateString'].sort().forEach(function (o) {
-            main.call(Date.prototype, o, 'Date')
-        })
-        addSect('Navigator');
-        ["appVersion",
-            "buildID",
-            "connection",
-            "cookieEnabled",
-            "deviceMemory",
-            "devicePosture",
-            "doNotTrack",
-            "globalPrivacyControl",
-            "hardwareConcurrency",
-            "keyboard",
-            "language",
-            'languages',
-            'maxTouchPoints',
-            'onLine',
-            'oscpu',
-            'pdfViewerEnabled',
-            'platform',
-            'productSub',
-            'storage',
-            'userAgent',
-            'userAgentData',
-            'webdriver'].sort().forEach(function (o) {
-            main.call(navigator, o, 'Navigator')
-        })
-        addSect('Screen');
-        ['availHeight', 'availWidth', 'colorDepth', 'height', 'isExtended', 'mozBrightness', 'mozEnabled', 'orientation', 'pixelDepth', 'width'].sort().forEach(function (o) {
-            main.call(screen, o, 'Screen')
-        })
-        addSect('Document');
-        ['cookie', 'referrer'].sort().forEach(function (o) {
-            addToYes.call(document, o, 'Document')
-        })
-        addSect('Visual Viewport');
-        ['offsetLeft', 'offsetTop', 'pageLeft', 'pageTop', 'width', 'height', 'scale']
-        .sort().forEach(function(o) {
-            addToYes.call(visualViewport,o, 'Visual Viewport')
-        })
-        try {
-            let a = await document.featurePolicy.allowedFeatures()
-            addToYes.call({featurePolicy: a.join(' ')}, 'featurePolicy', 'Document')
-        } catch (e) {
-            addToNo('featurePolicy', e)
-        }
-        try {
-            let a = await navigator.getBattery()
-            addToYes.call({battery: a}, 'battery', 'Navigator')
-        } catch (e) {
-            if (e.name === 'TypeError') addToNo('getBattery()', 'Unsupported')
+    <style>
+        .sect {
+            border: 1px solid white;
+            padding: 10px;
+            margin: 5px;
         }
 
-        function cleanse(obj) {
-            for (let i in obj)
-                typeof obj[i] === 'undefined' && delete obj[i]
+        html {
+            color-scheme: dark;
         }
 
-        async function addToYes(prop, sect) {
-            let val = this[prop] ?? prop
-            switch (prop) {
-                case 'now':
-                    val = Date.now()
-                    break
-                case 'toGMTString':
-                case 'toTimeString':
-                case 'toUTCString':
-                case 'toLocaleTimeString':
-                case 'toLocaleDateString':
-                    val = new Date()[prop]()
-                    break
-                case 'date':
-                    val = new Date
-                    break
-                case'locationbar':
-                case 'menubar':
-                case 'personalbar':
-                case 'toolbar':
-                case 'statusbar':
-                    val = val.visible
-                    break
-                case 'parent':
-                case 'top':
-                case 'opener':
-                    val = val.location.href
-                    break
-                case'orientation':
-                    if (this !== window) {
-                        val = {
-                            angle: val.angle,
-                            type: val.type,
+        .sect:empty {
+            border: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* .sect:hover {
+            background-color: grey;
+        } */
+        .sect:empty::after {
+            content: "None"
+        }
+
+        :root {
+            word-break: break-word;
+            font-family: arial, sans-serif;
+        }
+
+        :is(h1, h2, h3, h4, h5, h6)::first-letter {
+            text-transform: capitalize;
+        }
+
+        .prop {
+            margin-top: 7px;
+            margin-bottom: 7px;
+            display: inlines;
+        }
+
+        body {
+            margin-right: 0;
+            margin-top: 0;
+        }
+
+        @supports not (color-scheme: dark) {
+            body {
+                color: white;
+                background-color: rgb(18, 18, 18);
+            }
+        }
+
+        /* .sect:hover {
+            background-color: highlight;
+        }
+
+        .sect:hover .sect {
+            background-color: initial;
+        }*/
+        .changed {
+            animation: flash .5s ease 1 .1s
+        }
+
+        @keyframes flash {
+            0% {
+                color: currentColor
+                    /* text-shadow: 0px 0px 0px rgb(255, 255, 255); */
+            }
+
+            50% {
+                color: rgb(54, 218, 255)
+                    /* text-shadow: 0px 0px 10px lightblue; */
+            }
+
+            100% {
+                color: currentColor
+                    /* text-shadow: 0px 0px 0px rgb(255, 255, 255); */
+            }
+        }
+
+        [title] b {
+            text-decoration: underline dotted;
+            text-underline-offset: 3px;
+        }
+    </style>
+    <button id="redo" style="cursor:pointer; position: sticky;top: 0;left: 100%;padding:5px;">Refresh</button>
+    <main>
+        <h1>Privacy</h1>
+        <div style="display: grid;">
+            <small>Note: some information may be incorrect</small>
+        </div>
+        <h1>Available:</h1>
+        <div class="sect" id="y"></div>
+        <h1>Unavailable:</h1>
+        <div class="sect" id="n"></div>
+    </main>
+    <script>
+        !function (D) {
+            'use strict'
+            var redo = D.getElementById('redo')
+            redo.onclick = go
+            var yes = D.getElementById('y')
+            var no = D.getElementById('n')
+            document.domain = document.domain
+            var prefixes = ['', 'webkit', 'moz', 'o', 'ms']
+            var main = D.querySelector('main')
+            main.addEventListener('animationend', function (e) {
+                e.target.classList.remove('changed')
+            })
+            main.addEventListener('touchstart', function (e) {
+                var t = e.target
+                if (t.title || (t = t.parentNode).title) alert(t.textContent.match(/\w+/) + ': ' + t.title)
+            })
+            go()
+            function getLabel(t) { return t.toString().slice(8, -1) }
+            function go() {
+                function addEvent(target, event, val, func) {
+                    target = this || target
+                    var i = 0
+                    var ev = 'on' + event
+                    if (ev in target) {
+                        if (!func) val.nextElementSibling.textContent = 'Detected: ' + i++
+                        target[ev] = function (e) {
+                            (func || fallback)(e)
+                            val.classList.add('changed')
                         }
-                        if (typeof val.angle === 'number')
-                            val.angle += '°'
-                    } else val += '°'
-                    break
-                case 'battery':
-                    val = {
-                        charging: val.charging,
-                        chargingTime: val.chargingTime,
-                        dischargingTime: val.dischargingTime,
-                        level: `${val.level * 100}%`
+                        var fallback = function () {
+                            val.nextElementSibling.textContent = 'Detected: ' + i++
+                        }
                     }
-                    break
-                case 'userAgentData':
-                    val = await val.getHighEntropyValues('architecture bitness formFactor fullVersionList model platformVersion uaFullVersion wow64'.split(' '))
-                    break
-                case'storage':
-                    val = {
-                        estimate: await val.estimate(),
-                        persist: await val.persist(),
-                        persisted: await val.persisted(),
+                    else {
+                        reject(getLabel(target) + '.' + ev)
+                        var p = val.parentElement
+                        p.removeChild(val.nextElementSibling)
+                        p.removeChild(val)
                     }
-                    break
-                case'languages':
-                    val = val.join(' ')
-                    break
-                case 'keyboard':
-                    let a = await val.getLayoutMap()
-                    val = `${[...a.values()].sort().join(' ')}`
-                    break
-                case 'doNotTrack':
-                    switch (val) {
-                        case '0':
-                        case 'no':
-                            val = 'true'
-                            break
-                        case '1':
-                        case 'yes':
-                            val = 'false'
-                            break
-                        default:
-                            val = 'unspecified'
-                            break
-                    }
-                    break
-                case 'devicePosture':
-                    val = val.type
-                    break
-                case 'deviceMemory':
-                    val = `at least ${val}GB`
-                    break
-                case'connection':
-                    val = {
-                        downLink: val.downLink,
-                        downlinkMax: val.downlinkMax,
-                        effectiveType: val.effectiveType,
-                        rtt: val.rtt,
-                        saveData: val.saveData,
-                        type: val.type,
-                    }
-                    break
-            }
-            cleanse(val)
-            let targ = $.id[`sect-${sect}`]
-            if (typeof val === 'object') {
-                let s = $.id[`sect-${sect}-${prop}`] ?? $('section .sect', {
-                    id: `sect-${sect}-${prop}`,
-                    parent: targ
-                }, $('h4', {
-                    textContent: `${prop[0].toUpperCase()}${prop.slice(1)}:`
-                }))
-                for (let i in val) {
-                    let v = val[i], t = typeof v === 'string' ? v : JSON.stringify(v)
-                    s.push($('p', {
-                        textContent: `${i}: ${t}`
-                    }))
                 }
-            } else {
-                if (typeof val === 'string' && !val.trim()) val = `"${val}"`
-                console.log(prop, val)
-                targ.push($('p', {
-                    textContent: `${prop}: ${val}`
-                }))
-            }
-        }
-
-        function addToNo(prop, reason) {
-            no.push($('p', {
-                textContent: `${prop} (${reason})`
-            }))
-        }
-
-        async function main(prop, sect) {
-            if (prop in this) {
-                try {
-                    await addToYes.call(this, prop, sect)
-                } catch (e) {
-                    addToNo.call(this, prop, e.message)
+                var old = D.documentElement.scrollTop
+                setTimeout(function () {
+                    D.documentElement.scrollTop = old
+                })
+                no.textContent =
+                    yes.textContent = ''
+                function defaultProp(sect, root, prop) {
+                    root = root || ''
+                    for (var i = prefixes.length; i--;) {
+                        var prefix = prefixes[i]
+                        var newProp = prop
+                        if (prefix)
+                            newProp = prefix + prop.charAt(0).toUpperCase() + prefix.substring(1)
+                        if (newProp in this) {
+                            var hint
+                            var val = this[newProp]
+                            if (getLabel(this) === 'NetworkInformation') switch (newProp) {
+                                case 'downlink': {
+                                    hint = 'The effective bandwidth estimate in megabits per second'
+                                    val += 'Mb/s'
+                                }
+                                    break
+                                case 'rtt':
+                                    hint = 'The estimated effective round-trip time of the current connection'
+                                    val += 'ms'
+                                    break
+                            }
+                            addProp(sect, newProp, val, hint)
+                            return
+                        }
+                    }
+                    reject(prop + root)
                 }
-            } else addToNo.call(this, prop, 'Unsupported')
-        }
-        let media = $("section.sect")
-        $.id.mq?.destroy()
-        yes.parent.push($("<h2 id='mq'>Media Queries:</h2>"),media);
-        ['(any-hover: hover)','(grid: 0)','(hover:hover)','(inverted-colors:inverted)','(prefers-reduced-data:reduce)',
-        '(prefers-reduced-motion: reduce)','(prefers-reduced-transparency: reduce)','(shape: rect)','(video-dynamic-range: standard)'].map(matchMedia).forEach(o=>{
-            media.push($(`<p class="${CSS.escape(o.media)}"></p>`, {
-                class:o.media,
-                textContent:`${o.media}: ${o.matches}`
-            }))
-        })
-        try {
-            let n = await jason('https://my-headers.deno.dev')
-            headers.destroyChildren()
-            for (let i in n) {
-                headers.push($('p', {
-                    textContent: `${i}: ${n[i]}`
-                }))
+                function reject(name, reason) {
+                    var n = addProp(no, name, reason || 'Unsupported')
+                    // n.style.textDecoration = 'line-through'
+                }
+                function addProp(sect, name, value, hint) {
+                    var n = D.createElement('div')
+                    var na = D.createElement('b')
+                    na.textContent = name + ': '
+                    n.appendChild(na)
+                    var val = D.createElement(value === '' || value === 'Unsupported' ? 'span' : 'samp')
+                    if (value === '') value = '(empty string)'
+                    n.className = 'prop'
+                    /*if (/^https?:\/\//.test(value)) {
+                        var anchor = D.createElement('a')
+                        anchor.href = anchor.textContent = anchor.title = value
+                        anchor.target = '_blank'
+                        val.appendChild(anchor)
+                    }
+                    else */val.textContent = value
+                    n.appendChild(val)
+                    sect.appendChild(n)
+                    if (hint) {
+                        n.title = hint
+                        n.style.cursor = 'help'
+                    }
+                    return na
+                }
+                function addSect(title, base) {
+                    var n = D.createElement('div')
+                    n.className = 'sect'
+                    n.id = title
+                    var el = base || yes
+                    el.appendChild(n)
+                    var t = D.createElement('h' + Math.min(depth(el), 6))
+                    t.textContent = title
+                    n.parentNode.insertBefore(t, n)
+                    return n
+                }
+                function depth(e) {
+                    var i = 0
+                    var e = e.parentElement
+                    while (e) {
+                        ++i
+                        e = e.parentElement
+                    }
+                    return i
+                }
+                var windowSect = addSect('window')
+                var windowProps = ['orientation', 'innerWidth', 'innerHeight', 'outerWidth', 'outerHeight',
+                    'screenX',
+                    'screenY',
+                    'pageXOffset',
+                    'pageYOffset',
+                    'mozInnerScreenX',
+                    'mozInnerScreenY',
+                    'scrollMaxX',
+                    'scrollMaxY',
+                    'scrollX',
+                    'scrollY',
+                    'screenLeft',
+                    'screenTop',
+                    'doNotTrack',
+                    'credentialless',
+                    'fullScreen',
+                    'isSecureContext',
+                    'offscreenBuffering',
+                    'devicePixelRatio',
+                    //'top', 'parent', 
+                    'locationbar', 'menubar', 'personalbar', 'statusbar', 'toolbar', 'scrollbars',
+                    'originAgentCluster'].sort()
+                windowProps.forEach(function (prop) {
+                    if (prop in window) {
+                        var val = window[prop]
+                        var hint
+                        if (val instanceof BarProp) {
+                            val = val.visible
+                        }
+                        else switch (prop) {
+                            case 'orientation':
+                                val += '°'
+                                break
+                            case 'outerWidth':
+                                hint = 'Width outside the window'
+                                break
+                            case 'outerHeight':
+                                hint = 'Height outside the window'
+                                break
+                            case 'credentialless':
+                                hint = '"The window.credentialless read-only property returns a boolean that indicates whether the current document was loaded inside a credentialless <iframe>, meaning that it is loaded in a new, ephemeral context."'
+                                break
+                            case 'offscreenBuffering':
+                                hint = 'Whether objects are drawn offscreen before being made visible to the user'
+                                break
+                        }
+                        addProp(windowSect, prop, val, hint)
+                    }
+                    else reject('window.' + prop)
+                })
+                    ;['afterprint', 'appinstalled', 'beforeinstallprompt', 'beforeprint', 'beforeunload', 'blur', 'devicemotion', 'deviceorientation', 'deviceorientationabsolute',
+                        'focus', 'gamepadconnected', 'gamepaddisconnected',
+                        'hashchange',
+                        'languagechange',
+                        'offline',
+                        'online',
+                        'orientationchange',
+                        'pagehide',
+                        'pagereveal',
+                        'pageshow',
+                        'pageswap',
+                        'resize',
+                        'storage',
+                        'vrdisplayactivate',
+                        'vrdisplayconnect',
+                        'vrdisplayconnect',
+                        'vrdisplaydisconnect',
+                        'vrdisplaypresentchange'
+                    ].sort().forEach(function (e) {
+                        var func
+                        var sect
+                        var hint
+                        var a = addProp(windowSect, e + ' event', ' ')
+                        switch (e) {
+                            case 'devicemotion': if (typeof DeviceMotionEvent === 'function')
+                                sect = addSect('', windowSect)
+                                var acc = valIfcan('acceleration', DeviceMotionEvent.prototype, sect)
+                                var accWithGravity = valIfcan('accelerationIncludingGravity', DeviceMotionEvent.prototype, sect)
+                                var interval = valIfcan('interval', DeviceMotionEvent.prototype, sect)
+                                var rotRate = valIfcan('rotationRate', DeviceMotionEvent.prototype, sect)
+                                func = function (e) {
+                                    if (acc) {
+                                        var a = e.acceleration
+                                        acc.textContent = '(' + a.x + ', ' + a.y + ', ' + a.z + ')'
+                                    }
+                                    if (accWithGravity) {
+                                        a = e.accelerationIncludingGravity
+                                        accWithGravity.textContent = '(' + a.x + ', ' + a.y + ', ' + a.z + ')'
+                                    }
+                                    if (interval) interval.textContent = e.interval
+                                    if (rotRate) rotRate.textContent = '(' + e.rotationRate.alpha + ', ' + e.rotationRate.beta + ', ' + e.rotationRate.gamma + ')'
+                                }
+                                break
+                            case 'deviceorientation':
+                            case 'deviceorientationabsolute':
+                                if (typeof DeviceOrientationEvent === 'function') {
+                                    hint = 'New data from orientation sensor'
+                                    sect = addSect('', windowSect)
+                                    var absolute = valIfcan('absolute', DeviceOrientationEvent.prototype, sect)
+                                    var alpha = addProp(sect, 'alpha', null, 'The number of degrees by which the device is being twisted around the center of the screen').nextElementSibling
+                                    var beta = addProp(sect, 'beta', null, 'Rotation of the device around the X axis').nextElementSibling
+                                    var gamma = addProp(sect, 'gamma', null, 'Rotation of the device around the Y axis').nextElementSibling
+                                    func = function (e) {
+                                        if (absolute) absolute.textContent = e.absolute
+                                        alpha.textContent = String(e.alpha)
+                                        beta.textContent = String(e.beta)
+                                        gamma.textContent = String(e.gamma)
+                                    }
+                                }
+                                break
+                            /* case 'pageswap': if (typeof PageSwapEvent === 'function') {
+                                 sect = addSect('', windowSect)
+                                 // var subSect = addSect('activation:', sect)
+                                 var entry = addProp(sect, 'entry', null).nextElementSibling
+                                 var navigationType = addProp(sect, 'navigationType', null).nextElementSibling
+                                 func = function(e) {
+                                     debugger
+                                     navigationType.textContent = e.navigationType
+                                 }
+                             }*/
+                            case 'storage': if (typeof StorageEvent === 'function') {
+                                sect = addSect('', windowSect)
+                                var key = addProp(sect, 'key', null).nextElementSibling
+                                var newValue = addProp(sect, 'newValue', null).nextElementSibling
+                                var oldValue = addProp(sect, 'oldValue', null).nextElementSibling
+                                var url = addProp(sect, 'url', null).nextElementSibling
+                                func = function (e) {
+                                    key.textContent = e.key
+                                    newValue.textContent = e.newValue
+                                    oldValue.textContent = e.oldValue
+                                    url.textContent = e.url
+                                }
+                            }
+                                break
+                        }
+                        addEvent(window, e, a, func)
+                    })
+                function valIfcan(prop, target, sect, val) { return prop in target ? addProp(sect, prop, val || ' ').nextElementSibling : null }
+                var navProps = [
+                    "appVersion",
+                    "buildID",
+                    "cookieEnabled",
+                    "deviceMemory",
+                    "doNotTrack",
+                    "globalPrivacyControl",
+                    "hardwareConcurrency",
+                    "language",
+                    'cpuPerformance',
+                    'deprecatedRunAdAuctionEnforcesKAnonymity',
+                    "maxTouchPoints",
+                    "onLine",
+                    "oscpu",
+                    'languages',
+                    "pdfViewerEnabled",
+                    "platform",
+                    "productSub",
+                    "userAgent",
+                    "webdriver"
+                ].sort()
+                var navigatorSect = addSect('navigator')
+                navProps.forEach(function (o) {
+                    if (o in navigator) {
+                        var val = navigator[o]
+                        if (o === 'doNotTrack') switch (val) {
+                            case '0':
+                            case 'no':
+                                val = 'true'
+                                break
+                            case '1':
+                            case 'yes':
+                                val = 'false'
+                                break
+                            default:
+                                val = 'unspecified'
+                                break
+                        }
+                        else if (o === 'languages') val = val.join(', ')
+                        var hint
+                        switch (o) {
+                            case 'deviceMemory':
+                                val += 'GB'
+                                break
+                            case 'globalPrivacyControl':
+                                hint = 'Does the user consent to their data being sold'
+                                break
+                            case 'hardwareConcurency':
+                                hint = 'A number between 1 and the number of logical processors potentially available to the user agent'
+                                break
+                        }
+                        addProp(navigatorSect, o, val, hint)
+                    }
+                    else reject('navigator.' + o)
+                })
+                /*if (navigator.getAutoplayPolicy) {
+                    addProp(navigatorSect, 'autoplayPolicy', navigator.getAutoplayPolicy())
+                }
+                else reject('navigator.getAutoplayPolicy')*/
+                if (navigator.connection) {
+                    var nisect = addSect('network')
+                    var connection = ['downlink', 'downlinkMax', 'effectiveType', 'rtt', 'saveData', 'type'].sort()
+                    connection.forEach(defaultProp.bind(navigator.connection, nisect, 'navigator.connection.'))
+                }
+                else reject('navigator.connection')
+                var pluginSect = addSect('plugins')
+                if (navigator.plugins) [].forEach.call(navigator.plugins, function (n) {
+                    var sect = addSect(n.name + ':', pluginSect)
+                    // addProp(sect, 'description', n.description)
+                    addProp(sect, 'name', n.name)
+                    addProp(sect, 'types', [].map.call(n, function (o) { return o.type }).join(', '))
+                })
+                else reject('navigator.plugins')
+                if (navigator.devicePosture) {
+                    var postureSect = addSect('devicePosture')
+                    defaultProp.call(navigator.devicePosture, postureSect, 'navigator.deviceposture', 'type')
+                }
+                else reject('navigator.devicePosture')
+                if (navigator.gpu) {
+                    var gpu = navigator.gpu
+                    var gpusect = addSect('GPU')
+                    if (gpu.wgslLanguageFeatures) {
+                        addProp(gpusect, 'wgslLanguageFeatures', Array.from(gpu.wgslLanguageFeatures).join(', '))
+                    }
+                    else reject('GPU.wgslLanguageFeatures')
+                    if (gpu.getPreferredCanvasFormat) {
+                        addProp(gpusect, 'preferredCanvasFormat', gpu.getPreferredCanvasFormat())
+                    }
+                    else reject('GPU.getPreferredCanvasFormat')
+                }
+                else reject('navigator.gpu')
+                if (navigator.preferences) {
+                    var prefs = navigator.preferences
+                    var prefSect = addSect('preferences')
+                    !function () {
+                        for (var i in prefs) {
+                            addProp(prefSect, i, prefs[i].value)
+                        }
+                    }()
+                }
+                else reject('navigator.preferences')
+                if (navigator.userAgentData) {
+                    var uadata = navigator.userAgentData
+                    var uasect = addSect('NavigatorUAData')
+                    defaultProp.call(uadata, uasect, 'navigator.userAgentData.mobile', 'mobile')
+                    defaultProp.call(uadata, uasect, 'navigator.userAgentData.platform', 'platform')
+                    var uaBrandsSect = addSect('Brands:', uasect)
+                    uadata.brands.forEach(function (o) {
+                        addProp(uaBrandsSect, o.brand, 'Version ' + o.version)
+                    })
+                }
+                else reject('navigator.userAgentData')
+                if (location.ancestorOrigins) {
+                    if (location.ancestorOrigins.length) {
+                        var ancestorSect = addSect('location')
+                        addProp(ancestorSect, 'ancestorOrigins', [].join.call(location.ancestorOrigins, ' '))
+                    }
+                }
+                else reject('location.ancestorOrigins')
+
+                var docSect = addSect('document')
+                    ;['fullscreenEnabled', 'cookie', 'hidden',
+                        //'preferredStyleSheetSet', 'prerendering', 
+                        'referrer'].sort().forEach(defaultProp.bind(document, docSect, 'document'))
+                if (document.hasStorageAccess || document.hasUnpartitionedCookieAccess) {
+                    (document.hasStorageAccess || document.hasUnpartitionedCookieAccess).call(document).then(function (e) {
+                        addProp(docSect, 'hasStorageAccess', e)
+                    }, function (e) {
+                        reject('document.hasStorageAccess/document.hasUnpartitionedCookieAccess', e.toString())
+                    })
+                }
+                else reject('document.hasStorageAccess/document.hasUnpartitionedCookieAccess')
+                if (document.featurePolicy) {
+                    var features = addSect('featurePolicy:', docSect)
+                    addProp(features, 'allowedFeatures', document.featurePolicy.allowedFeatures().join(', '))
+                }
+                else reject('document.featurePolicy')
+                if (window.navigation) {
+                    var navigationSect = addSect('navigation')
+                        ;['canGoBack', 'canGoForward'].forEach(defaultProp.bind(navigation, navigationSect, 'navigation'))
+                    if (navigation.entries) {
+                        addProp(navigationSect, 'entries', navigation.entries().map(function (e) { return e.url }).join(', '))
+                    }
+                    else reject('navigation.entries')
+                }
+                else reject('navigation')
+                if (window.performance) {
+                    var perfSect = addSect('performance')
+                    if (performance.navigation) {
+                        addProp(perfSect, 'redirectCount', performance.navigation.redirectCount)
+                    }
+                    else reject('performance.navigation.redirectCount')
+                        ;['timeOrigin', 'interactionCount'].sort().forEach(defaultProp.bind(performance, perfSect, 'performance'))
+                    if (performance.eventCounts) {
+                        addProp(perfSect, 'eventCounts', performance.eventCounts.size)
+                    }
+                    else reject('performance.eventCounts')
+                    if (performance.now) {
+                        addProp(perfSect, 'now', performance.now())
+                    }
+                    else reject('performance.now')
+                    if (performance.memory) {
+                        var perfMemSect = addSect('memory:', perfSect)
+                        for (var m in performance.memory) addProp(perfMemSect, m, performance.memory[m])
+                    }
+                    else reject('performance.memory')
+                }
+                else reject('performance')
+                if (window.screen) {
+                    var screenSect = addSect('screen')
+                        ;['availWidth', 'availHeight', 'colorDepth', 'height', 'width', 'isExtended', 'mozBrightness', 'mozBrightness', 'mozEnabled', 'pixelDepth']
+                            .sort().forEach(defaultProp.bind(screen, screenSect, 'screen'))
+                    if (screen.orientation) {
+                        var screenOrientationSect = addSect('orientation:', screenSect)
+                        addProp(screenOrientationSect, 'angle', screen.orientation.angle + '°')
+                        addProp(screenOrientationSect, 'type', screen.orientation.type)
+                    }
+                    else reject('screen.orientation')
+                }
+                else reject('screen')
+                if (window.viewport) {
+                    var viewportSect = addSect('viewport')
+                    var addSectForScreen = function (obj, key) {
+                        addProp(this, key, obj[key])
+                    }
+                    viewport.segments.forEach(function (o, i) {
+                        var s = addSect((i + 1) + '.', viewportSect)
+                            ;['x', 'y', 'width', 'top', 'right', 'left', 'height', 'bottom'].sort().forEach(addSectForScreen.bind(s, o))
+                    })
+                }
+                else reject('viewport')
+                if (window.visualViewport === null || window.visualViewport) {
+                    var visualViewportSect = addSect('visualViewport')
+                    if (visualViewport) {
+                        [
+                            "height",
+                            "offsetLeft",
+                            "offsetTop",
+                            "pageLeft",
+                            "pageTop",
+                            "scale",
+                            "width"
+                        ].forEach(defaultProp.bind(visualViewport, visualViewportSect, 'visualViewport'))
+                    }
+                }
+                else reject('visualViewport')
+                if (navigator.battery || navigator.getBattery) try {
+                    var bat = navigator.battery
+                    var batSect = addSect('battery')
+                    var doBattery = function (bat) {
+                        ['charging', 'chargingTime', 'dischargingTime', 'level'].sort().forEach(defaultProp.bind(bat, batSect, 'battery'))
+                    }
+                    if (bat) doBattery(bat)
+                    else navigator.getBattery().then(doBattery, function (e) { reject('battery', e.toString()) })
+                }
+                    catch (e) {
+                        reject('battery', e.toString())
+                    }
+                else reject('battery')
+                if (navigator.virtualKeyboard) {
+                    var virtualKeyboardSect = addSect('virtualKeyboard')
+                    addProp(virtualKeyboardSect, 'overlaysContent', navigator.virtualKeyboard.overlaysContent)
+                    var keyboardBoundRectSect = addSect('Bounding Rect:', virtualKeyboardSect)
+                        ;['x', 'y', 'width', 'height', 'top', 'right', 'bottom', 'left'].sort().forEach(function (e) {
+                            addProp(keyboardBoundRectSect, e, navigator.virtualKeyboard.boundingRect[e])
+                        })
+                }
+                else reject('virtualKeyboard')
+                if (navigator.keyboard) {
+                    var keyboardSect = addSect('keyboard')
+                    navigator.keyboard.getLayoutMap().then(function (e) {
+                        addProp(keyboardSect, 'keys', Array.from(e.values()).sort().join(''))
+                    })
+                }
+                else reject('navigator.keyboard')
             }
-        } catch(e) {
-            headers.destroyChildren()
-            headers.push($(`<samp>Failed to load headers: ${e}</samp>`))
-        }
-
-    }
-
-    go()
-
-</script>
+        }(document)
+    </script>
+    <footer>
+        <p style="font-size: 2em;text-align: center;">I'll add more stuff later!</p>
+    </footer>
 </body>
 
 </html>
