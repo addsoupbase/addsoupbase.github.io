@@ -1,23 +1,15 @@
 // Okaay attempt #3 of spritesheet webcomponent
 
 // Mainly just for the Pokemon sprites from https://sprites.pmdcollab.org/
-
 import * as v from '../v4.js'
 const animationName = '.'
 const h = window[Symbol.for('[[HModule]]')]
-const { default: $ } = v,
+const { default: $, css } = v,
     name = 'cel-runner'
-const globalStyleSheet = $`<style></style>`.setParent(document.head)
-let acc = []
+const sheet = new CSSStyleSheet
 function updateGlobalSheet(src, img, x, y) {
-    acc.push(`${name}[src="${CSS.escape(src)}"] {
-    background-image: url("${src}") !important;
-    --width: ${img.naturalWidth}px !important;
-    --height: ${img.naturalHeight}px !important;
-    --frames-x: ${x | 0};
-    --frames-y: ${y | 0};
-    }`)
-    globalStyleSheet.textContent = acc.join('\n')
+    let rule = `:host([src="${CSS.escape(src)}"]),:host([src="${CSS.escape(new URL(src, document.baseURI))}"]){background-image:url("${src}") !important;--width:${img.naturalWidth}px !important;--height:${img.naturalHeight}px !important;--frames-x:${x | 0};--frames-y:${y | 0}}`
+    sheet.insertRule(rule)
 }
 function iterEvent() {
     return new Event('spriteended', { bubbles: true })
@@ -56,10 +48,10 @@ class CelRunner extends HTMLElement {
     connectedCallback() {
         this.addEventListener('animationiteration', iter, true)
         // called when connected to DOM for the first time
-        this.attachShadow({ mode: 'open' })
-            .appendChild(
-                $
-                    `<style>
+        let shadow = this.attachShadow({ mode: 'open' })
+        shadow.appendChild(
+            $
+                `<style>
             :host{
             display:block !important; 
             background-repeat: no-repeat;
@@ -90,6 +82,7 @@ class CelRunner extends HTMLElement {
             }
         }
 </style>`.valueOf())
+        shadow.adoptedStyleSheets = [sheet]
     }
     get #animation() {
         return this.getAnimations().find(o => o.animationName === '.')
