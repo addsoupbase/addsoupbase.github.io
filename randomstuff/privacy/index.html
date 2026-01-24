@@ -162,9 +162,9 @@
             main.addEventListener('animationend', function (e) {
                 e.target.classList.remove('changed')
             })
-            main.addEventListener('touchstart', function (e) {
+            main.addEventListener('click', function (e) {
                 var t = e.target
-                if (t.title || (t = t.parentNode).title) alert(t.textContent.match(/\w+/) + ': ' + t.title)
+                if (e.pointerType === 'touch' && t.title || (t = t.parentNode).title) alert(t.textContent.match(/\w+/) + ': ' + t.title)
             })
             go()
             function getLabel(t) { return t.toString().slice(8, -1) }
@@ -250,6 +250,7 @@
                     }
                     return na
                 }
+                function precise(a) {return a && a.toFixed(2)}
                 function addSect(title, base) {
                     var n = D.createElement('div')
                     n.className = 'sect'
@@ -345,7 +346,7 @@
                         var hint
                         var a = addProp(windowSect, e + ' event', ' ')
                         switch (e) {
-                            case 'devicemotion': if (typeof DeviceMotionEvent === 'function')
+                            case 'devicemotion': if (typeof DeviceMotionEvent === 'function') {
                                 sect = addSect('', windowSect)
                                 var acc = valIfcan('acceleration', DeviceMotionEvent.prototype, sect)
                                 var accWithGravity = valIfcan('accelerationIncludingGravity', DeviceMotionEvent.prototype, sect)
@@ -354,15 +355,16 @@
                                 func = function (e) {
                                     if (acc) {
                                         var a = e.acceleration
-                                        acc.textContent = '(' + a.x + ', ' + a.y + ', ' + a.z + ')'
+                                        acc.textContent = '(' + precise(a.x) + ', ' + precise(a.y) + ', ' + precise(a.z) + ')'
                                     }
                                     if (accWithGravity) {
                                         a = e.accelerationIncludingGravity
-                                        accWithGravity.textContent = '(' + a.x + ', ' + a.y + ', ' + a.z + ')'
+                                        accWithGravity.textContent = '(' + precise(a.x) + ', ' + precise(a.y) + ', ' + precise(a.z) + ')'
                                     }
                                     if (interval) interval.textContent = e.interval
-                                    if (rotRate) rotRate.textContent = '(' + e.rotationRate.alpha + ', ' + e.rotationRate.beta + ', ' + e.rotationRate.gamma + ')'
+                                    if (rotRate) rotRate.textContent = '(' + precise(e.rotationRate.alpha) + ', ' + precise(e.rotationRate.beta) + ', ' + precise(e.rotationRate.gamma) + ')'
                                 }
+                            }
                                 break
                             case 'deviceorientation':
                             case 'deviceorientationabsolute':
