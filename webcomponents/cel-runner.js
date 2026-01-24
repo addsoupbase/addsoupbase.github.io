@@ -8,7 +8,9 @@ const { default: $, css } = v,
     name = 'cel-runner'
 const sheet = new CSSStyleSheet
 function updateGlobalSheet(src, img, x, y) {
-    let rule = `:host([src="${CSS.escape(src)}"]),:host([src="${CSS.escape(new URL(src, document.baseURI))}"]){background-image:url("${src}") !important;--width:${img.naturalWidth}px !important;--height:${img.naturalHeight}px !important;--frames-x:${x | 0};--frames-y:${y | 0}}`
+    // Why tf did they separate :host and :host()??
+    // i spent like 30 mins trying to figure out why it wasn't working
+    let rule = `:host([src="${CSS.escape(new URL(src, document.baseURI))}"]){background-image:url("${src}") !important;--width:${img.naturalWidth}px !important;--height:${img.naturalHeight}px !important;--frames-x:${x | 0};--frames-y:${y | 0}}`
     sheet.insertRule(rule)
 }
 function iterEvent() {
@@ -35,6 +37,7 @@ class CelRunner extends HTMLElement {
     static preload(...sources) {
         for (let i = sources.length; i--;) {
             let { src, x = 8, y = 8 } = sources[i]
+            src = new URL(src, document.baseURI).toString()
             if (CelRunner.loaded.has(src)) continue
             CelRunner.loaded.add(src)
             let im = new Image
@@ -111,11 +114,13 @@ class CelRunner extends HTMLElement {
                 else this.style.animationDuration = 'var(--dura)'
                 break
             case 'src':
+                let url = new URL(newVal, this.baseURI).toString()
+                if (url !== newVal) return this.setAttribute('src', url)
                 if (!CelRunner.loaded.has(newVal)) {
-                    let x = this.getAttribute('frames-x'), y = this.getAttribute('frames-y')
-                    CelRunner.preload({ src: newVal, x: +x || 8, y: +y || 8 })
-                    //@devif (!x || !y)  console.warn(`Sprite not explicitly defined ${!x ? 'x' : ''}${!y ? 'y' : ''}: "${newVal}"`)
-                }
+                        let x = this.getAttribute('frames-x'), y = this.getAttribute('frames-y')
+                        CelRunner.preload({ src: newVal, x: +x || 8, y: +y || 8 })
+                        //@devif (!x || !y)  console.warn(`Sprite not explicitly defined ${!x ? 'x' : ''}${!y ? 'y' : ''}: "${newVal}"`)
+                    }
                 break
             case 'index':
                 newVal %= (this['frames-y'] | 0) || 8
