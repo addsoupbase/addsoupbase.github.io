@@ -1,4 +1,4 @@
-import Proxify, { ProxyFactory, base } from './BaseProxy.js'
+import Proxify, {  ProxyFactory, base } from './BaseProxy.js'
 import { EventTargetProxy, h } from './EventTargetProxy.js'
 import './css.js'
 export default Proxify

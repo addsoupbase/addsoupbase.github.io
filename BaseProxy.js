@@ -1,23 +1,51 @@
 // For now [[Target]] = the object which you want to wrap
 const TargetInterface = Symbol('[[TargetInterface]]') // the interface that [[Target]] implements (doesn't HAVE to be an interface)
-export const WrapperTarget = Symbol('[[Target]]') // [[Target]] itself
-export const WrapperItself = Symbol('[[WrapperThis]]') // get wrapper without the proxy getting in the way
-const InterfaceWrapping = Symbol('[[CurrentInterface]]')
-const Revoke = Symbol('[[Revoke]]')
-const Destroy = Symbol('[[DestroyMethod]]')
+//@devconst InterfaceWrapping = Symbol('[[CurrentInterface]]')
 const Cache = Symbol('[[Cache]]')
-let {apply} = Reflect
-function destroy() {
-    let Target = this[WrapperTarget]
-    if (Target) {
-        this.constructor[Cache].delete(Target)
-        this[Revoke]()
+let { apply } = Reflect
+const Destroyers = new WeakMap
+class SpecialProxy extends function MakeProxy(target, handler) {
+    let { proxy, revoke } = Proxy.revocable(target, handler)
+    Destroyers.set(proxy, revoke)
+    return proxy
+    } {
+    #wrapper
+    #handler
+    #cstr
+    //@dev#target
+    #destroy() {
+        let wrapper = this.#wrapper
+        if (this.#wrapper) {
+            targets.delete(this, wrapper)
+            this.#cstr[Cache].delete(getTarget(wrapper))
+            Destroyers.get(this)()
+            Destroyers.delete(this)
+            //@devthis.#target =
+            this.#wrapper = this.#handler = null
+        }
+        else throw ReferenceError('Proxy revoked twice')
     }
-    else {
-        console.log(this)
-        debugger
-    } 
+    static destroy(t) {
+        t.#destroy()
+    }
+    static isProxy(t) {
+        return #wrapper in t
+    }
+    static getHandler(t) {
+        return t.#handler
+    }
+    static getWrapper(t) {
+        return t.#wrapper
+    }
+    constructor(a, b) {
+        super(a, b)
+        this.#wrapper = a
+        this.#handler = b
+        //@devthis.#target = arguments[2]
+        this.#cstr = a.constructor
+    }
 }
+const targets = new WeakMap
 /* 
 proxy does not allow lying about non-writable non-configurable props
 and so it throws which is easier for me
@@ -30,15 +58,12 @@ function readonly(target, prop, value) {
 // Proxy -> Wrapper -> [[Target]]
 export class Handler {
     has(Wrapper, p) {
-        return p in Wrapper || p in Wrapper[WrapperTarget]
+        return p in Wrapper || p in targets.get(Wrapper)
     }
     get(Wrapper, prop) {
-        if (prop === Revoke) return Wrapper[Revoke]
-        if (prop === WrapperItself) return Wrapper
-        let target = Wrapper[WrapperTarget]
+        let target = targets.get(Wrapper)
         let toGet = target, out
         let receiver = toGet
-        if (prop === WrapperTarget) return target
         if (prop in Wrapper) {
             toGet = receiver = Wrapper
             if (prop in target) receiver = target
@@ -48,8 +73,8 @@ export class Handler {
     }
     set(Wrapper, prop, value) {
         let Target = Wrapper, Receiver = Target
-        if (prop in Wrapper) Receiver = Wrapper[WrapperTarget]
-        else Target = Receiver = Wrapper[WrapperTarget]
+        if (prop in Wrapper) Receiver = targets.get(Wrapper)
+        else Target = Receiver = targets.get(Wrapper)
         return Reflect.set(Target, prop, value, Receiver)
     }
     apply(func, thisArg, args) {
@@ -80,15 +105,11 @@ export class Handler {
 }
 let FunctionCache = new WeakMap
 export function cacheFunction(MyFunc) {
-    if (MyFunc === destroy) {
-        
-        return destroy
-    } 
     if (typeof MyFunc.prototype === 'object') return MyFunc // it's a class
     if (FunctionCache.has(MyFunc)) return FunctionCache.get(MyFunc)
     var o = {
-        [o=MyFunc.name](...args) {
-            const thisArg = getTarget(this)
+        [o = MyFunc.name](...args) {
+            const thisArg = getTarget(SpecialProxy.getWrapper(this))
             switch (args.length) {
                 case 0: return MyFunc.call(thisArg)
                 case 1: return MyFunc.call(thisArg, args[0])
@@ -107,7 +128,6 @@ export function ProxyFactory(myClass, Interface = globalThis[myClass.name.replac
     let cache = new WeakMap // Memoize
     readonly(Generator, 'prototype', myClass.prototype)
     readonly(myClass, Cache, cache)
-    readonly(myClass.prototype, Destroy, destroy)
     function Generator(Target) {
         //@dev console.assert(Interface.prototype.isPrototypeOf(Target), `Expected a #<${Interface.name}>, instead got a #<${label(Target)}>`, Target)
         if (cache.has(Target)) return cache.get(Target)
@@ -117,17 +137,17 @@ export function ProxyFactory(myClass, Interface = globalThis[myClass.name.replac
             // initial call is executed (once) in this block
             // ONLY put the proxy if this is the end of the inheritance chain,
             // to prevent a proxy of a proxy
-            ////for(let key of Reflect.ownKeys(myClass.prototype))key !== 'constructor'&&key in Interface.prototype&&!Object.getOwnPropertyDescriptor(myClass.prototype,key).get&&console.warn(`Overwrite ${String(key)} on ${myClass.name}`) 
+            //@devfor(let key of Reflect.ownKeys(myClass.prototype))key !== 'constructor'&&key in Interface.prototype&&!Object.getOwnPropertyDescriptor(myClass.prototype,key).get&&console.warn(`Overwrite ${String(key)} on ${myClass.name}`) 
             let instance = new myClass(Target)
-            let { proxy, revoke } = Proxy.revocable(readonly(instance, WrapperTarget, Target), handler)
-            readonly(instance, Revoke, revoke)
-            out = proxy
-            cache.set(Target, out)
+            targets.set(instance, Target)
+            let proxy = new SpecialProxy(instance, handler, Target)
+            cache.set(Target, out = proxy)
+            //@devif (proxify(Target) !== proxify(Target)) throw ReferenceError('Proxy identity check failed')
         }
         return out
     }
     if (Interface !== Object) {
-        readonly(myClass, InterfaceWrapping, Interface)
+        //@devreadonly(myClass, InterfaceWrapping, Interface)
         classify(Interface, Generator)
     }
     return Generator
@@ -146,47 +166,39 @@ Object.defineProperties(proxify, {
     },
     IsProxy: {
         value(any) {
-            return !!(any[WrapperTarget])
+            return SpecialProxy.isProxy(any)
         }
     },
     Upgrade: {
         value(proxy) {
-            let Target = proxy[WrapperTarget]
-            if (proxy === Target) throw TypeError(`Cannot upgrade a plain object`)
-            let upgrade = proxy[TargetInterface]
-            let myClass = proxy.constructor[InterfaceWrapping]
-            proxy[Destroy]()
-            if (myClass.prototype.isPrototypeOf(upgrade.prototype)) {
-                console.debug(`Upgrading a #<${myClass.name}> to a #<${label(Target)}>`)
-                proxy = proxify(Target)
-            }
-            return proxy
+            let Target = getTarget(SpecialProxy.getWrapper(proxy))
+            SpecialProxy.destroy(proxy)
+            return proxify(Target)
         }
     },
-    GetWrapper: {
+    /*GetWrapper: {
         value(t) {
-            return proxify(t)[WrapperItself]
+            return SpecialProxy.getWrapper(proxify(t))
         }
-    },
+    },*/
     Destroy: {
         value(proxy) {
-            let dest = proxy[Destroy]
-            if (dest) return dest.call(proxy)
-            throw TypeError(`Cannot destroy a plain object`)
+            SpecialProxy.destroy(proxy)
         }
     }
 })
 function getTarget(Wrapper) {
-    return Wrapper[WrapperTarget]
+    return targets.get(Wrapper)
 }
 function classify(Interface, Generator) {
     // Recognize that objects of this interface will be for this proxy
-    let prototype = Object.getPrototypeOf(Interface.prototype)
+    /*@devlet prototype = Object.getPrototypeOf(Interface.prototype)
         , downgrade = prototype[TargetInterface]
-    console.debug(`Setting up ${Interface.name}()${downgrade ? ` from existing ${label(prototype)}()` : ''}`)
+    console.debug(`* Setting up proxy for ${Interface.name}${downgrade ? ` from existing ${label(prototype)}` : ''}`)*/
     Interface.prototype[TargetInterface] = Interface
     Interfaces.set(Interface, Generator)
 }
 export function base(obj) {
-    return obj[WrapperTarget] ?? obj
+    return getTarget(obj) ?? obj
 }
+//@dev window.proxify = proxify

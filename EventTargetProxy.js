@@ -1,4 +1,4 @@
-import Proxify, { ProxyFactory } from './BaseProxy.js'
+import Proxify, {  ProxyFactory } from './BaseProxy.js'
 import './h.js'
 export default Proxify
 export const h = window[Symbol.for('[[HModule]]')]
@@ -15,7 +15,7 @@ function wrap(func, target, events, ...args) {
     }
     return func(target, events, ...args)
 }
-class EventTarget$ {
+class EventTarget$  {
     until(settings) {
         return Proxify(h.until(this, settings))
     }

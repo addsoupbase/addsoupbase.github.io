@@ -2,7 +2,7 @@
 import './sound.js'
 import preload from '../webcomponents/cel-runner.js'
 import * as v from './v4.js'
-let mons = ["seadra-44","relicanth-40","mantine-68","wailmer-46","qwilfish_hisui-32","feebas-72","jellicent_m-46","luvdisc-96","qwilfish-32","sharpedo-68","huntail-32","jellicent_f-46","arrokuda-40","clawitzer-40","wishiwashi-32","tentacool-36","basculegion_f-68","mantyke-40","wishiwashischool-90","gorebyss-70","remoraid-32","basculegion_m-68","inkay-36","lumineon-40","basculin_blue-24","finneon-52","lanturn-32","kyogreprimal-80","arctovish-40","alomomola-96","eelektross-68","manaphy-40","kingdra-36","basculin_white-24","tentacruel-36","bruxish-96","seaking-36","corsola-36","overqwil-44","wailord-90","phione-40","nihilego-62","goldeen-80","tynamo-24","carvanha-24","corsolagalar-36","basculin-24","kyogre-80","horsea-40"]
+let mons = ["seadra-44","relicanth-40","mantine-68","wailmer-46","qwilfish_hisui-32","feebas-72","jellicent_m-46","luvdisc-96","qwilfish-32","sharpedo-68","huntail-32","jellicent_f-46","arrokuda-40","clawitzer-40","wishiwashi-32","tentacool-36","basculegion_f-68","mantyke-40","wishiwashischool-90","gorebyss-70","remoraid-32","basculegion_m-68","inkay-36","lumineon-40","basculin_blue-24","finneon-52","lanturn-32","kyogreprimal-80","arctovish-40","alomomola-96","eelektross-68","manaphy-40","kingdra-36","basculin_white-24","tentacruel-36","bruxish-96","seaking-36","corsola-36","overqwil-44","wailord-90","phione-40","nihilego-62","goldeen-80","dhelmise-64","tynamo-24","carvanha-24","corsolagalar-36","basculin-24","kyogre-80","horsea-40"]
 let pokemons = []
 console.log(mons)
 const h = window[Symbol.for('[[HModule]]')]
@@ -68,7 +68,7 @@ bg.delegate({
         let me = parent.eltAt()
         let pic = Proxify(me.querySelector('div'))
         // pic.parent = bg
-        let {x,y} = parent.getBoundingClientRect()
+        let { x, y } = parent.getBoundingClientRect()
         parent.getAnimations({ subtree: true }).forEach(o => o.cancel())
         parent.style.left = `${x}px`
         parent.style.top = `${y}px`
@@ -232,7 +232,11 @@ function pokemonthing(i, name) {
             scale *= 2
             break
         case 'qwilfish':
+        case 'qwilfish_hisui':
             scale *= 1.3
+            break
+        case 'bruxish':
+            scale *= 2
             break
         case 'wailmer':
             scale *= 2.3
@@ -268,9 +272,9 @@ function pokemonthing(i, name) {
         case 'basculin_blue':
             scale *= 1.2
             break
-            case 'tentacruel':
-                scale*=2
-                break
+        case 'tentacruel':
+            scale *= 2
+            break
         case 'clawitzer':
         case 'nihilego':
             scale *= 1.75
@@ -281,7 +285,7 @@ function pokemonthing(i, name) {
     pokemons.push({ name, scale: scale * 2.5, duration: duration * 1000 * .7, pkm: i })
 }
 function spawnPkm(choice = pokemons[Math.floor(Math.random() * pokemons.length)]) {
-    setTimeout(spawnPkm, range(500, 2000))
+    setTimeout(spawnPkm, range(500, 2500))
     if (!pokemons.length || isHidden()) return
     let scale = Math.random() > .5 ? -1 : 1
     let dura = 17
