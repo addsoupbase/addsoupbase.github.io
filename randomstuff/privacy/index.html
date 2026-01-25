@@ -237,7 +237,7 @@
                             return
                         }
                     }
-                    reject(prop + root)
+                    reject(root + prop)
                 }
                 function reject(name, reason) {
                     var n = addProp(no, name, reason || 'Unsupported')
@@ -513,7 +513,7 @@
                     var gpu = navigator.gpu
                     var gpusect = addSect('GPU')
                     if (gpu.wgslLanguageFeatures) {
-                        addProp(gpusect, 'wgslLanguageFeatures', Array.from(gpu.wgslLanguageFeatures).join(', '))
+                        addProp(gpusect, 'wgslLanguageFeatures', Array.from(gpu.wgslLanguageFeatures).sort().join(', '))
                     }
                     else reject('GPU.wgslLanguageFeatures')
                     if (gpu.getPreferredCanvasFormat) {
@@ -565,7 +565,7 @@
                 else reject('document.hasStorageAccess/document.hasUnpartitionedCookieAccess')
                 if (document.featurePolicy) {
                     var features = addSect('featurePolicy:', docSect)
-                    addProp(features, 'allowedFeatures', document.featurePolicy.allowedFeatures().join(', '))
+                    addProp(features, 'allowedFeatures', document.featurePolicy.allowedFeatures().sort().join(', '))
                 }
                 else reject('document.featurePolicy')
                 addEvent(document, 'fullscreenchange', addProp(docSect, 'fullscreenchange event', null))
@@ -603,8 +603,8 @@
                 else reject('performance')
                 if (window.screen) {
                     var screenSect = addSect('screen')
-                        ;['availWidth', 'availHeight', 'colorDepth', 'height', 'width', 'isExtended', 'mozBrightness', 'mozBrightness', 'mozEnabled', 'pixelDepth']
-                            .sort().forEach(defaultProp.bind(screen, screenSect, 'screen'))
+                        ;['availWidth', 'availHeight', 'colorDepth', 'height', 'width', 'isExtended', 'mozBrightness',  'mozEnabled', 'pixelDepth']
+                            .sort().forEach(defaultProp.bind(screen, screenSect, 'screen.'))
                     if (screen.orientation) {
                         var screenOrientationSect = addSect('orientation:', screenSect)
                         addProp(screenOrientationSect, 'angle', screen.orientation.angle + '°')
