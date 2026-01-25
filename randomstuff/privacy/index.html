@@ -56,6 +56,37 @@
 
 <body>
     <style>
+        @media (prefers-reduced-motion: no-preference) {
+            html {
+                scroll-behavior: smooth;
+            }
+        }
+
+        button[aria-pressed="false"] {
+            background-color: rgb(216, 3, 3);
+        }
+
+        button[aria-pressed="true"] {
+            background-color: rgb(17, 128, 1);
+        }
+
+        button {
+            border: none;
+            /* color:black; */
+            border-radius: 2px;
+            cursor: pointer;
+            transition: filter .2s ease
+        }
+
+        button:active {
+            filter: brightness(80%)
+        }
+
+        nav {
+            text-align: center;
+            font-size: 1.5rem;
+        }
+
         .sect {
             border: 1px solid white;
             padding: 10px;
@@ -146,7 +177,7 @@
             }
         }
 
-        [title] b {
+        [title] {
             text-decoration: underline dotted;
             text-underline-offset: 3px;
         }
@@ -154,22 +185,69 @@
     <button id="redo" style="cursor:pointer; position: sticky;top: 0;left: 100%;padding:5px;">Refresh</button>
     <main>
         <h1>Privacy</h1>
-        <div style="display: grid;">
-            <!-- <small>Note: some information may be incorrect</small> -->
+        <nav style="display: grid;">
+            <p>Jump to sections:</p>
+            <a href="#triggers">Triggers</a>
+            <a href="#mouse">Mouse Events</a>
+            <a href="#unavailable">Unvailable</a>
+        </nav>
+        <h1 id="available">Available:</h1>
+        <div class="sect" id="y">
+            <noscript>
+                <div class="prop"><b>JavaScript: </b><samp>false</samp></div>
+            </noscript>
         </div>
-        <h1>Available:</h1>
-        <div class="sect" id="y"></div>
-        <h1>Unavailable:</h1>
-        <div class="sect" id="n"></div>
+        <h1 id="triggers">Triggers:</h1>
+        <div>
+            <div style="display: flex;flex-direction: column;align-items: flex-start;gap:20px">
+                <button id="vibrate">Click to Vibrate Device</button>
+                <button id="togglefullscreen">Fullscreen</button>
+                <button id="triggerprint" style="font-variant-emoji: unicode;">Trigger Print prompt</button>
+                <button id="togglewakelock" aria-pressed="false">Toggle WakeLock</button>
+                <button id="ann">Announce on screen reader</button>
+                <!-- <button id="blurbtn" title="Does nothing in modern browsers">Blur</button> -->
+                <!-- <button id="blurbtn" title="print to stdout">Dump</button> -->
+            </div>
+        </div>
+        <h1 id="unavailable">Unavailable:</h1>
+        <div class="sect" id="n">
+            <noscript>
+                <b>Anything JavaScript related</b>
+            </noscript>
+        </div>
     </main>
     <script>
         !function (D) {
             'use strict'
+            var number = 1
+            D.getElementById('ann').onclick = function () {
+                D.ariaNotify('Example announcement number ' + number++, {priority: 'high'})
+            }
+            D.getElementById('vibrate').onclick = function () {
+                navigator.vibrate(100)
+            }
+            D.getElementById('triggerprint').onclick = function () {
+                print()
+            }
+            D.getElementById('togglewakelock').onclick = function (e) {
+                var m = e.target
+                navigator.wakeLock.request("screen").then(function (n) {
+                    var now = m.ariaPressed !== 'true'
+                    m.ariaPressed = now + ''
+                    now || n.release()
+                    console.log('WakeLock:', now)
+
+                })
+            }
+            D.getElementById('togglefullscreen').onclick = function () {
+                if (!resolveVendor(D, 'fullscreenElement') && !resolveVendor(D, 'fullScreenElement') &&  !resolveVendor(D, 'currentFullScreenElement')) (resolveVendor(D.documentElement, 'requestFullscreen') || resolveVendor(D.documentElement, 'requestFullScreen')).call(D.documentElement)
+                else (resolveVendor(D, 'exitFullscreen') || resolveVendor(D, 'cancelFullScreen')).call(D)
+            }
             var redo = D.getElementById('redo')
             redo.onclick = go
             var yes = D.getElementById('y')
             var no = D.getElementById('n')
-            document.domain = document.domain
+            D.domain = D.domain
             var prefixes = ['', 'webkit', 'moz', 'o', 'ms']
             var main = D.querySelector('main')
             main.addEventListener('animationend', function (e) {
@@ -177,11 +255,30 @@
             })
             main.addEventListener('click', function (e) {
                 var t = e.target
-                if (e.pointerType === 'touch' && t.title || (t = t.parentNode).title) alert(t.textContent.match(/\w+/) + ': ' + t.title)
+                if (e.pointerType === 'touch' && (t.title || (t = t.parentNode).title)) alert(t.textContent.match(/\w+/) + ': ' + t.title)
             })
+            var rAF = resolveVendor(window, 'requestAnimationFrame')
+            var navigator = window.navigator || clientInformation
             go()
+            function resolveVendor(target, prop) {
+                for (var i = prefixes.length; i--;) {
+                    var newProp = prop
+                    var p = prefixes[i]
+                    if (p) newProp = p + prop.charAt(0).toUpperCase() + prop.substring(1)
+                    if (newProp in target) return target[newProp]
+                }
+                return target[prop]
+            }
             function getLabel(t) { return t.toString().slice(8, -1) }
             function go() {
+                if (D.readyState === 'complete') {
+                    D.documentElement.style.opacity = 0
+                    var old = D.documentElement.scrollTop
+                    setTimeout(function () {
+                        D.documentElement.style.opacity = 1
+                        D.documentElement.scrollTop = old
+                    }, 3)
+                }
                 function addEvent(target, event, val, func) {
                     target = this || target
                     var i = 0
@@ -201,15 +298,11 @@
                             return
                         }
                     }
-                    reject(getLabel(target) + '.' + ev)
+                    reject(getLabel(target) + '.on' + ev)
                     var p = val.parentElement
                     p.removeChild(val.nextElementSibling)
                     p.removeChild(val)
                 }
-                var old = D.documentElement.scrollTop
-                setTimeout(function () {
-                    D.documentElement.scrollTop = old
-                })
                 no.textContent =
                     yes.textContent = ''
                 function defaultProp(sect, root, prop) {
@@ -218,7 +311,7 @@
                         var prefix = prefixes[i]
                         var newProp = prop
                         if (prefix)
-                            newProp = prefix + prop.charAt(0).toUpperCase() + prefix.substring(1)
+                            newProp = prefix + prop.charAt(0).toUpperCase() + prop.substring(1)
                         if (newProp in this) {
                             var hint
                             var val = this[newProp]
@@ -248,7 +341,7 @@
                     var na = D.createElement('b')
                     na.textContent = name + ': '
                     n.appendChild(na)
-                    var val = D.createElement(value === '' || value === 'Unsupported' ? 'span' : 'samp')
+                    var val = D.createElement(value === '' || /^Unsupported/.test(value) ? 'span' : 'samp')
                     if (value === '') value = '(empty string)'
                     n.className = 'prop'
                     /*if (/^https?:\/\//.test(value)) {
@@ -294,6 +387,8 @@
                     'pageXOffset',
                     'pageYOffset',
                     'mozInnerScreenX',
+                    'animationStartTime',
+                    'paintCount',
                     'mozInnerScreenY',
                     'scrollMaxX',
                     'scrollMaxY',
@@ -338,6 +433,7 @@
                     }
                     else reject('window.' + prop)
                 })
+                addProp(windowSect, 'ES6 Modules', 'noModule'in HTMLScriptElement.prototype)
                     ;['afterprint', 'appinstalled', 'beforeinstallprompt', 'beforeprint', 'beforeunload', 'blur', 'devicemotion', 'deviceorientation', 'deviceorientationabsolute',
                         'focus', 'gamepadconnected', 'gamepaddisconnected',
                         'hashchange',
@@ -470,6 +566,9 @@
                         else if (o === 'languages') val = val.join(', ')
                         var hint
                         switch (o) {
+                            case 'buildID':
+                                hint = 'Returns "20181001000000" in Firefox 64 and later'
+                                break
                             case 'deviceMemory':
                                 val = 'at least ' + val + 'GB'
                                 break
@@ -488,6 +587,14 @@
                     addProp(navigatorSect, 'autoplayPolicy', navigator.getAutoplayPolicy())
                 }
                 else reject('navigator.getAutoplayPolicy')*/
+                if (navigator.canShare) {
+                    addProp(navigatorSect, 'canShare', navigator.canShare())
+                }
+                else reject('navigator.canShare', 'Unsupported or insecure context')
+                if (navigator.canLoadAdAuctionFencedFrame) {
+                    addProp(navigatorSect, 'canLoadAdAuctionFencedFrame', navigator.canLoadAdAuctionFencedFrame())
+                }
+                else reject('navigator.canLoadAdAuctionFencedFrame')
                 if (navigator.connection) {
                     var nisect = addSect('network')
                     var connection = ['downlink', 'downlinkMax', 'effectiveType', 'rtt', 'saveData', 'type'].sort()
@@ -521,7 +628,7 @@
                     }
                     else reject('GPU.getPreferredCanvasFormat')
                 }
-                else reject('navigator.gpu')
+                else reject('navigator.gpu', 'Unsupported or insecure context')
                 if (navigator.preferences) {
                     var prefs = navigator.preferences
                     var prefSect = addSect('preferences')
@@ -552,24 +659,23 @@
                 else reject('location.ancestorOrigins')
 
                 var docSect = addSect('document')
-                    ;['fullscreenEnabled', 'cookie', 'hidden',
-                        //'preferredStyleSheetSet', 'prerendering', 
-                        'referrer', 'pictureInPictureEnabled', 'lastModified'].sort().forEach(defaultProp.bind(document, docSect, 'document'))
-                if (document.hasStorageAccess || document.hasUnpartitionedCookieAccess) {
-                    (document.hasStorageAccess || document.hasUnpartitionedCookieAccess).call(document).then(function (e) {
+                    ;['fullscreenEnabled', 'cookie', 'hidden', 'isFullScreen', 'fullscreen','wasDiscarded','prerendering','title',
+                        'referrer', 'pictureInPictureEnabled', 'lastModified'].sort().forEach(defaultProp.bind(D, docSect, 'document.'))
+                if (D.hasStorageAccess || D.hasUnpartitionedCookieAccess) {
+                    (D.hasStorageAccess || D.hasUnpartitionedCookieAccess).call(D).then(function (e) {
                         addProp(docSect, 'hasStorageAccess', e)
                     }, function (e) {
                         reject('document.hasStorageAccess/document.hasUnpartitionedCookieAccess', e.toString())
                     })
                 }
                 else reject('document.hasStorageAccess/document.hasUnpartitionedCookieAccess')
-                if (document.featurePolicy) {
+                if (D.featurePolicy) {
                     var features = addSect('featurePolicy:', docSect)
-                    addProp(features, 'allowedFeatures', document.featurePolicy.allowedFeatures().sort().join(', '))
+                    addProp(features, 'allowedFeatures', D.featurePolicy.allowedFeatures().sort().join(', '))
                 }
                 else reject('document.featurePolicy')
-                addEvent(document, 'fullscreenchange', addProp(docSect, 'fullscreenchange event', null))
-                addEvent(document, 'fullscreenerror', addProp(docSect, 'fullscreenerror event', null))
+                addEvent(D, 'fullscreenchange', addProp(docSect, 'fullscreenchange event', null))
+                addEvent(D, 'fullscreenerror', addProp(docSect, 'fullscreenerror event', null))
                 if (window.navigation) {
                     var navigationSect = addSect('navigation')
                         ;['canGoBack', 'canGoForward'].forEach(defaultProp.bind(navigation, navigationSect, 'navigation'))
@@ -603,7 +709,7 @@
                 else reject('performance')
                 if (window.screen) {
                     var screenSect = addSect('screen')
-                        ;['availWidth', 'availHeight', 'colorDepth', 'height', 'width', 'isExtended', 'mozBrightness',  'mozEnabled', 'pixelDepth']
+                        ;['availWidth', 'availHeight', 'colorDepth', 'height', 'width', 'isExtended', 'mozBrightness', 'mozEnabled', 'pixelDepth']
                             .sort().forEach(defaultProp.bind(screen, screenSect, 'screen.'))
                     if (screen.orientation) {
                         var screenOrientationSect = addSect('orientation:', screenSect)
@@ -645,7 +751,11 @@
                     var bat = navigator.battery
                     var batSect = addSect('battery')
                     var doBattery = function (bat) {
-                        ['charging', 'chargingTime', 'dischargingTime', 'level'].sort().forEach(defaultProp.bind(bat, batSect, 'battery'))
+                        ['charging', 'chargingTime', 'dischargingTime'].sort().forEach(defaultProp.bind(bat, batSect, 'battery'))
+                        addProp(batSect, 'level', (bat.level * 100) + '%')
+                            ;['chargingchange', 'chargingtimechange', 'dischargingtimechange', 'levelchange'].forEach(function (n) {
+                                addEvent(bat, n, addProp(batSect, n + ' event', null))
+                            })
                     }
                     if (bat) doBattery(bat)
                     else navigator.getBattery().then(doBattery, function (e) { reject('battery', e.toString()) })
@@ -653,7 +763,7 @@
                     catch (e) {
                         reject('battery', e.toString())
                     }
-                else reject('battery')
+                else reject('battery','Unsupported or insecure context')
                 if (navigator.virtualKeyboard) {
                     var virtualKeyboardSect = addSect('virtualKeyboard')
                     addProp(virtualKeyboardSect, 'overlaysContent', navigator.virtualKeyboard.overlaysContent)
@@ -669,7 +779,7 @@
                         addProp(keyboardSect, 'keys', Array.from(e.values()).sort().join(''))
                     })
                 }
-                else reject('navigator.keyboard')
+                else reject('navigator.keyboard', 'Unsupported or insecure context')
                 if (window.chrome) {
                     var chromeSect = addSect('chrome')
                     var loadTimes = addSect('loadTimes', chromeSect)
@@ -716,7 +826,7 @@
                         'layerX', 'layerY', 'metaKey', 'ctrlKey', 'movementX', 'movementY', 'mozInputSource', 'offsetX', 'offsetY',
                         'shiftKey', 'webkitForce', 'which', 'button'
                     ].filter(function (e) { return e in MouseEvent.prototype }).sort()
-                        ;['mousemove', 'mousedown', 'mouseup'].forEach(function (e) {
+                        ;['mousemove', 'mousedown'].forEach(function (e) {
                             var vals = {}
                             var clickfunc = function (e) {
                                 all.forEach(function (n) {
@@ -744,6 +854,12 @@
         }(document)
     </script>
     <footer>
+        <nav style="display: grid;">
+            <p>Jump to sections:</p>
+            <a href="#triggers">Triggers</a>
+            <a href="#mouse">Mouse Events</a>
+            <a href="#available">Available</a>
+        </nav>
         <p style="font-size: 2em;text-align: center;">I'll add more stuff later!</p>
     </footer>
 </body>
