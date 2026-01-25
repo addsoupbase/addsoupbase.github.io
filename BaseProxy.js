@@ -176,11 +176,11 @@ Object.defineProperties(proxify, {
             return proxify(Target)
         }
     },
-    /*GetWrapper: {
+    GetWrapper: {
         value(t) {
             return SpecialProxy.getWrapper(proxify(t))
         }
-    },*/
+    },
     Destroy: {
         value(proxy) {
             SpecialProxy.destroy(proxy)
@@ -199,6 +199,7 @@ function classify(Interface, Generator) {
     Interfaces.set(Interface, Generator)
 }
 export function base(obj) {
-    return getTarget(obj) ?? obj
+    return SpecialProxy.isProxy(obj) ? getTarget(SpecialProxy.getWrapper(obj))
+    : obj
 }
 //@dev window.proxify = proxify

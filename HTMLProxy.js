@@ -1,4 +1,4 @@
-import Proxify, {  ProxyFactory, base } from './BaseProxy.js'
+import Proxify, { ProxyFactory, base } from './BaseProxy.js'
 import { EventTargetProxy, h } from './EventTargetProxy.js'
 import './css.js'
 export default Proxify
@@ -17,9 +17,11 @@ function toDash(prop) {
     return prop.startsWith('--') ? prop :
         prop.replace(azregex, tlc)
 }
-function frag(...nodes) {
+function frag(nodes) {
     let n = document.createDocumentFragment()
-    n.append(...nodes.map(base))
+    nodes = [].slice.call(nodes)
+    for(let i = 0, l = nodes.length; i < l; ++i) 
+        n.appendChild(nodes[i])
     return n
 }
 let dash = /-./g,
@@ -37,9 +39,9 @@ class Node$ extends EventTargetProxy {
             function Wrapped(e, off, abort) {
                 let me = Proxify(this)
                 e = Proxify(e)
-                return abort? old.call(me, e, off, abort):
-                off? old.call(me, e, off): 
-                old.call(me, e)
+                return abort ? old.call(me, e, off, abort) :
+                    off ? old.call(me, e, off) :
+                        old.call(me, e)
             }
         }
         return Proxify(h.delegate(this, events, filter, includeSelf, controller))
@@ -48,10 +50,7 @@ class Node$ extends EventTargetProxy {
         let me = Proxify(this)
         me.off(true)
         me.remove()
-        if (deep) {
-            let l
-            while (l = me.lastElementChild) Proxify(l).purge(true)
-        }
+        me.empty(deep)
         Proxify.Destroy(me)
         return null
     }
@@ -70,7 +69,7 @@ class Node$ extends EventTargetProxy {
         return n ? Proxify(n) : null
     }
     pushNode(...nodes) {
-        let a = frag(...nodes)
+        let a = frag(nodes.map(base))
         this.appendChild(a)
         return Proxify(this)
     }
@@ -98,8 +97,15 @@ class Node$ extends EventTargetProxy {
     get nodes() {
         return [].map.call(this.childNodes, Proxify)
     }
-    empty() {
-        this.replaceChildren()
+    empty(kill) {
+        if (kill) {
+            let l
+            while (l = this.lastElementChild) Proxify(l).purge(true)
+        }
+        else {
+            let n = frag(this.childNodes)
+            return n
+        }
         return Proxify(this)
     }
     /*set nodes(childs) {
@@ -231,7 +237,7 @@ class StyleCache extends Cacher {
     }
     $finish() {
         let c = this.$cache
-        , str = ''
+            , str = ''
         for (let key in c) {
             let val = c[key]
             str += `${toDash(key)}:${val};`
@@ -359,7 +365,7 @@ class HTMLElement$ extends ElementProxy {
     #calc = null
     #savedDisplay = ''
     hide() {
-        let {style} = this
+        let { style } = this
         let display = style.display
         if (display === 'none') display = ''
         Proxify.GetWrapper(this).#savedDisplay = display
@@ -388,4 +394,4 @@ class MouseEvent$ {
     get layerY() { return Proxify.GetWrapper(this).#layerY ??= this.layerY }
     get offsetX() { return Proxify.GetWrapper(this).#offsetX ??= this.offsetX }
     get offsetY() { return Proxify.GetWrapper(this).#offsetY ??= this.offsetY }
-}new ProxyFactory(MouseEvent$)
+} new ProxyFactory(MouseEvent$)
