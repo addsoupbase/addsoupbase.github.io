@@ -10,7 +10,7 @@ const sheet = new CSSStyleSheet
 function updateGlobalSheet(src, img, x, y) {
     // Why tf did they separate :host and :host()??
     // i spent like 30 mins trying to figure out why it wasn't working
-    let rule = `:host([src="${CSS.escape(new URL(src, document.baseURI))}"]){background-image:url("${src}") !important;--width:${img.naturalWidth}px !important;--height:${img.naturalHeight}px !important;--frames-x:${x | 0};--frames-y:${y | 0}}`
+    let rule = `:host([src="${CSS.escape(src)}"]){background-image:url("${src}");--cel-runner-width:${img.naturalWidth}px !important;--cel-runner-height:${img.naturalHeight}px !important;--frames-x:${x | 0};--frames-y:${y | 0}}`
     sheet.insertRule(rule)
 }
 function iterEvent() {
@@ -59,14 +59,14 @@ class CelRunner extends HTMLElement {
             display:block !important; 
             background-repeat: no-repeat;
             --dura: 400ms;
-            --width: 100px;
-            --height: 100px;
+            --cel-runner-width: 100px;
+            --cel-runner-height: 100px;
             --index: 0;
             position: relative;
-            translate: -50% -50% ;
-            background-size: var(--width) var(--height) !important;
-            width: calc(var(--width) / var(--frames-x, 1)) !important;
-            height: calc(var(--height) / var(--frames-y, 1)) !important;
+            translate: -50% -50%;
+            background-size: var(--cel-runner-width) var(--cel-runner-height) !important;
+            width: calc(var(--cel-runner-width) / var(--frames-x, 1)) !important;
+            height: calc(var(--cel-runner-height) / var(--frames-y, 1)) !important;
             animation-name: \\.;
             animation-duration: calc(var(--frames-x) * var(--dura));
             animation-timing-function: steps(var(--frames-x), end);
@@ -74,14 +74,14 @@ class CelRunner extends HTMLElement {
             animation-fill-mode: forwards;
             animation-direction: var(--direction, normal);
             image-rendering: pixelated;
-            background-position-y: calc(var(--index) * (var(--height) / var(--frames-y)) * -1);
+            background-position-y: calc(var(--index) * (var(--cel-runner-height) / var(--frames-y)) * -1);
             }  
             @keyframes \\. {
             0% {
                 background-position-x: 0%;
             }
             100% {
-                background-position-x: calc(var(--width) * -1)
+                background-position-x: calc(var(--cel-runner-width) * -1)
             }
         }
 </style>`.valueOf())
@@ -99,6 +99,10 @@ class CelRunner extends HTMLElement {
     }
     resume() {
         this.#animation.play()
+    }
+    pauseOtherAnims() {
+        let a = this.#animation
+        this.getAnimations().forEach(o=>o!==a && o.pause())
     }
     disconnectedCallback() {
         // called when removed from DOM (e.g. remove(), replaceWith())
@@ -124,10 +128,9 @@ class CelRunner extends HTMLElement {
                 break
             case 'index':
                 newVal %= (this['frames-y'] | 0) || 8
+                newVal |= 0
                 // case 'frames-x':
                 // case 'frames-y':
-                this.style.setProperty(`--${attr}`, (newVal | 0))
-                break
             default:
                 this.style.setProperty(`--${attr}`, newVal)
                 break
