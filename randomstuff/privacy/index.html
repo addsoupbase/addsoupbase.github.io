@@ -409,7 +409,7 @@
                     if (prop in window) {
                         var val = window[prop]
                         var hint
-                        if (val instanceof BarProp) {
+                        if (getLabel(val) === 'BarProp') {
                             val = val.visible
                         }
                         else switch (prop) {

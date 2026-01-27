@@ -1,11 +1,7 @@
 // Okaay attempt #3 of spritesheet webcomponent
-
 // Mainly just for the Pokemon sprites from https://sprites.pmdcollab.org/
-import * as v from '../v4.js'
 const animationName = '.'
-const h = window[Symbol.for('[[HModule]]')]
-const { default: $, css } = v,
-    name = 'cel-runner'
+const name = 'cel-runner'
 const sheet = new CSSStyleSheet
 function updateGlobalSheet(src, img, x, y) {
     // Why tf did they separate :host and :host()??
@@ -52,9 +48,9 @@ class CelRunner extends HTMLElement {
         this.addEventListener('animationiteration', iter, true)
         // called when connected to DOM for the first time
         let shadow = this.attachShadow({ mode: 'open' })
-        shadow.appendChild(
-            $
-                `<style>
+        shadow.innerHTML = (
+
+            `<style>
             :host{
             display:block !important; 
             background-repeat: no-repeat;
@@ -84,7 +80,7 @@ class CelRunner extends HTMLElement {
                 background-position-x: calc(var(--cel-runner-width) * -1)
             }
         }
-</style>`.valueOf())
+</style>`)
         shadow.adoptedStyleSheets = [sheet]
     }
     get #animation() {
@@ -102,7 +98,7 @@ class CelRunner extends HTMLElement {
     }
     pauseOtherAnims() {
         let a = this.#animation
-        this.getAnimations().forEach(o=>o!==a && o.pause())
+        this.getAnimations().forEach(o => o !== a && o.pause())
     }
     disconnectedCallback() {
         // called when removed from DOM (e.g. remove(), replaceWith())
@@ -121,16 +117,16 @@ class CelRunner extends HTMLElement {
                 let url = new URL(newVal, this.baseURI).toString()
                 if (url !== newVal) return this.setAttribute('src', url)
                 if (!CelRunner.loaded.has(newVal)) {
-                        let x = this.getAttribute('frames-x'), y = this.getAttribute('frames-y')
-                        CelRunner.preload({ src: newVal, x: +x || 8, y: +y || 8 })
-                        //@devif (!x || !y)  console.warn(`Sprite not explicitly defined ${!x ? 'x' : ''}${!y ? 'y' : ''}: "${newVal}"`)
-                    }
+                    let x = this.getAttribute('frames-x'), y = this.getAttribute('frames-y')
+                    CelRunner.preload({ src: newVal, x: +x || 8, y: +y || 8 })
+                    //@devif (!x || !y)  console.warn(`Sprite not explicitly defined ${!x ? 'x' : ''}${!y ? 'y' : ''}: "${newVal}"`)
+                }
                 break
             case 'index':
                 newVal %= (this['frames-y'] | 0) || 8
                 newVal |= 0
-                // case 'frames-x':
-                // case 'frames-y':
+            // case 'frames-x':
+            // case 'frames-y':
             default:
                 this.style.setProperty(`--${attr}`, newVal)
                 break

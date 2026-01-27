@@ -8,14 +8,14 @@ class SpecialProxy extends function MakeProxy(target, handler) {
     let { proxy, revoke } = Proxy.revocable(target, handler)
     Destroyers.set(proxy, revoke)
     return proxy
-    } {
+} {
     #wrapper
     #handler
     #cstr
     //@dev#target
     #destroy() {
         let wrapper = this.#wrapper
-        if (this.#wrapper) {
+        if (wrapper) {
             targets.delete(this, wrapper)
             this.#cstr[Cache].delete(getTarget(wrapper))
             Destroyers.get(this)()
@@ -78,17 +78,12 @@ export class Handler {
         return Reflect.set(Target, prop, value, Receiver)
     }
     apply(func, thisArg, args) {
-        if (thisArg === void 0) switch (args.length) {
-            case 0: return func()
-            case 1: return func(args[0])
-            case 2: return func(args[0], args[1])
-            case 3: return func(args[0], args[1], args[2])
-        }
+        let nil = thisArg === void 0
         switch (args.length) {
-            case 0: return func.call(thisArg)
-            case 1: return func.call(thisArg, args[0])
-            case 2: return func.call(thisArg, args[0], args[1])
-            case 3: return func.call(thisArg, args[0], args[1], args[2])
+            case 0: return nil ? func() : func.call(thisArg)
+            case 1: return nil ? func(args[0]) : func.call(thisArg, args[0])
+            case 2: return nil ? func(args[0], args[1]) : func.call(thisArg, args[0], args[1])
+            case 3: return nil ? func(args[0], args[1], args[2]) : func.call(thisArg, args[0], args[1], args[2])
         }
         return apply(func, thisArg, args)
     }
@@ -103,48 +98,39 @@ export class Handler {
         return Reflect.construct(constructor, args, newTarget)
     }
 }
-let FunctionCache = new WeakMap
-export function cacheFunction(MyFunc) {
-    if (typeof MyFunc.prototype === 'object') return MyFunc // it's a class
-    if (FunctionCache.has(MyFunc)) return FunctionCache.get(MyFunc)
+let apple = Handler.prototype.apply
+const FunctionCache = new WeakMap
+export function cacheFunction(f) {
+    if (typeof f.prototype === 'object') return f // it's a class
+    if (FunctionCache.has(f)) return FunctionCache.get(f)
     var o = {
-        [o = MyFunc.name](...args) {
-            const thisArg = getTarget(SpecialProxy.getWrapper(this))
-            switch (args.length) {
-                case 0: return MyFunc.call(thisArg)
-                case 1: return MyFunc.call(thisArg, args[0])
-                case 2: return MyFunc.call(thisArg, args[0], args[1])
-                case 3: return MyFunc.call(thisArg, args[0], args[1], args[2])
-            }
-            return apply(MyFunc, thisArg, args)
+        [o = f.name](...args) {
+            return apple(f, getTarget(SpecialProxy.getWrapper(this)), args)
         }
     }[o]
-    FunctionCache.set(MyFunc, o)
+    FunctionCache.set(f, o)
     return o
 }
-function label(t) { return t[Symbol.toStringTag] }
+//@devfunction label(t) { return {}.toString.call(t).slice(8,-1)}
 const defaultHandler = new Handler
 export function ProxyFactory(myClass, Interface = globalThis[myClass.name.replace(/\$$/, '')] ?? Object, handler = defaultHandler) {
     let cache = new WeakMap // Memoize
-    readonly(Generator, 'prototype', myClass.prototype)
+    readonly(Generator, 'prototype', myClass.prototype) // We must make sure the new object has the right prototype
     readonly(myClass, Cache, cache)
     function Generator(Target) {
         //@dev console.assert(Interface.prototype.isPrototypeOf(Target), `Expected a #<${Interface.name}>, instead got a #<${label(Target)}>`, Target)
         if (cache.has(Target)) return cache.get(Target)
-        if (new.target && new.target !== Generator) var out = Reflect.construct(myClass, [Target], new.target)
-        // There is an upgrade available!
-        else {
-            // initial call is executed (once) in this block
-            // ONLY put the proxy if this is the end of the inheritance chain,
-            // to prevent a proxy of a proxy
-            //@devfor(let key of Reflect.ownKeys(myClass.prototype))key !== 'constructor'&&key in Interface.prototype&&!Object.getOwnPropertyDescriptor(myClass.prototype,key).get&&console.warn(`Overwrite ${String(key)} on ${myClass.name}`) 
-            let instance = new myClass(Target)
-            targets.set(instance, Target)
-            let proxy = new SpecialProxy(instance, handler, Target)
-            cache.set(Target, out = proxy)
-            //@devif (proxify(Target) !== proxify(Target)) throw ReferenceError('Proxy identity check failed')
-        }
-        return out
+        if (new.target && new.target !== Generator) return Reflect.construct(myClass, [Target], new.target) // There is an upgrade available!
+        // initial call is executed (once)
+        // ONLY put the proxy if this is the end of the inheritance chain,
+        // to prevent a proxy of a proxy
+        //@devfor(let key of Reflect.ownKeys(myClass.prototype))key !== 'constructor'&&key in Interface.prototype&&!Object.getOwnPropertyDescriptor(myClass.prototype,key).get&&console.warn(`Overwrite ${String(key)} on ${myClass.name}`) 
+        let instance = new myClass(Target)
+        targets.set(instance, Target)
+        let proxy = new SpecialProxy(instance, handler, Target)
+        cache.set(Target, proxy)
+        //@devif (proxify(Target) !== proxify(Target)) throw ReferenceError('Proxy identity check failed')
+        return proxy
     }
     if (Interface !== Object) {
         //@devreadonly(myClass, InterfaceWrapping, Interface)
@@ -200,6 +186,6 @@ function classify(Interface, Generator) {
 }
 export function base(obj) {
     return SpecialProxy.isProxy(obj) ? getTarget(SpecialProxy.getWrapper(obj))
-    : obj
+        : obj
 }
 //@dev window.proxify = proxify

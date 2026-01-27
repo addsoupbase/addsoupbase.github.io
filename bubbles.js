@@ -236,7 +236,7 @@ function pokemonthing(i, name) {
             scale *= 1.3
             break
         case 'bruxish':
-            scale *= 2
+            scale *= 1.6
             break
         case 'wailmer':
             scale *= 2.3
@@ -289,6 +289,14 @@ function spawnPkm(choice = pokemons[Math.floor(Math.random() * pokemons.length)]
     if (!pokemons.length || isHidden()) return
     let scale = Math.random() > .5 ? -1 : 1
     let dura = 17
+    switch (choice.name.match(/\w+/)[0]) {
+        case 'phione':
+        case 'manaphy':
+        case 'wailmer':
+            case 'mantyke':
+            dura += 6
+            break
+    }
     let thing = v.esc`<cel-runner aria-hidden="true" dura="${dura}ms" src="./seasprites/${choice.name}.png" class="${choice.pkm} pkm${range(0, 1000) > 999 ? ' shiny' : ''}" style="top: ${Math.random() * innerHeight}px;scale:${scale * choice.scale} ${choice.scale}"></cel-runner>`
         .setParent(bg)
         .animFrom('xAxis', { composite: 'add', iterations: 1, duration: choice.duration * scale, easing: 'linear' })
