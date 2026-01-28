@@ -3,10 +3,10 @@ const TargetInterface = Symbol('[[TargetInterface]]') // the interface that [[Ta
 //@devconst InterfaceWrapping = Symbol('[[CurrentInterface]]')
 const Cache = Symbol('[[Cache]]')
 let { apply } = Reflect
-const Destroyers = new WeakMap
-class SpecialProxy extends function MakeProxy(target, handler) {
+const Revokes = new WeakMap
+class SpecialProxy extends function (target, handler) {
     let { proxy, revoke } = Proxy.revocable(target, handler)
-    Destroyers.set(proxy, revoke)
+    Revokes.set(proxy, revoke)
     return proxy
 } {
     #wrapper
@@ -18,8 +18,8 @@ class SpecialProxy extends function MakeProxy(target, handler) {
         if (wrapper) {
             targets.delete(this, wrapper)
             this.#cstr[Cache].delete(getTarget(wrapper))
-            Destroyers.get(this)()
-            Destroyers.delete(this)
+            Revokes.get(this)()
+            Revokes.delete(this)
             //@devthis.#target =
             this.#wrapper = this.#handler = null
         }

@@ -2,6 +2,9 @@
 import './sound.js'
 import preload from '../webcomponents/cel-runner.js'
 import * as v from './v4.js'
+if (matchMedia('(prefers-reduced-motion:reduce)').matches) {
+    throw Error('User turned on prefers reduced motion')
+}
 let mons = ["seadra-44","relicanth-40","mantine-68","wailmer-46","qwilfish_hisui-32","feebas-72","jellicent_m-46","luvdisc-96","qwilfish-32","sharpedo-68","huntail-32","jellicent_f-46","arrokuda-40","clawitzer-40","wishiwashi-32","tentacool-36","basculegion_f-68","mantyke-40","wishiwashischool-90","gorebyss-70","remoraid-32","basculegion_m-68","inkay-36","lumineon-40","basculin_blue-24","finneon-52","lanturn-32","kyogreprimal-80","arctovish-40","alomomola-96","eelektross-68","manaphy-40","kingdra-36","basculin_white-24","tentacruel-36","bruxish-96","seaking-36","corsola-36","overqwil-44","wailord-90","phione-40","nihilego-62","goldeen-80","dhelmise-64","tynamo-24","carvanha-24","corsolagalar-36","basculin-24","kyogre-80","horsea-40"]
 let pokemons = []
 console.log(mons)
@@ -59,6 +62,7 @@ bg.delegate({
     async pointerdown(e) {
         e.stopImmediatePropagation()
         count.style.opacity = 1
+        count.style.visibility='visible'
         audio.play('pop.mp3')
         let parent = Proxify(this.closest('span'))
         count.textContent = `${++popped}`
@@ -107,7 +111,11 @@ let fileFormat = await new Promise(resolve => {
     let n = new Image
     n.src = `data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADybWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAeaWxvYwAAAABEAAABAAEAAAABAAABGgAAAB0AAAAoaWluZgAAAAAAAQAAABppbmZlAgAAAAABAABhdjAxQ29sb3IAAAAAamlwcnAAAABLaXBjbwAAABRpc3BlAAAAAAAAAAIAAAACAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQ0MAAAAABNjb2xybmNseAACAAIAAYAAAAAXaXBtYQAAAAAAAAABAAEEAQKDBAAAACVtZGF0EgAKCBgANogQEAwgMg8f8D///8WfhwB8+ErK42A=`
     n.onload = () => resolve('.avif')
-    n.onerror = () => resolve('.webp')
+    n.onerror = () => {
+        let n = document.createElement('canvas')
+        n.width = n.height = 0
+        resolve(n.toDataURL('image/webp').indexOf('data:image/webp') == 0 ? '.webp' : '.jpg')
+    }
 })
 let avatars  = ["xzzy","auquamantis","kannadra","kae","fourche7","glente","elipoopsrainbows","niya","mr_clownette","lorex","mochi","Dohaaa","armaan.n","zoozi","frannie4u","west","kyn","ilikebugs2","juaj","zee","znsxxe","ghostie","babby","kay_.stars","ka1ya1","river","gilly","lexi","na22","khaoticgood","indie","copy","nova","Leftover_Birthday-Cake","elenfnf1","caelix","mai","stuella","son_yukio","chlorineatt","oli","morrfie","gummicat","anarchy","rue","birdie","汝起亚","saintz","may","valerie","mila","Professional_idiot","Remi","Violet","zrake","novacans_","naz","caevsz","rurikuu","Lotus","Lagia","stav","aya","MRK","lunza","crazy","mothmaddie","rainmint","lazy","rikapika","kurispychips"]
 for (let i = 0, { length } = avatars; i < length; ++i) {
@@ -209,6 +217,7 @@ function pokemonthing(i, name) {
             duration *= 2.5
             break
         case 'wailord':
+            if (document.querySelector('.wailord')) return
             scale *= 5.3
             duration *= 8
             break
@@ -293,7 +302,7 @@ function spawnPkm(choice = pokemons[Math.floor(Math.random() * pokemons.length)]
         case 'phione':
         case 'manaphy':
         case 'wailmer':
-            case 'mantyke':
+        case 'mantyke':
             dura += 6
             break
     }

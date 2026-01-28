@@ -115,12 +115,20 @@
     <script src="h.js"></script>
     <!--https://wiki.whatwg.org/wiki/MetaExtensions-->
     <style>
+        @media (prefers-reduced-motion: reduce) {
+            #rm {
+                display: inline !important;
+            }
+        }
+
         section[name=sect] {
             display: none;
         }
+
         .tinybubble {
             pointer-events: none;
         }
+
         #book {
             opacity: 1;
             --user-select: none;
@@ -406,6 +414,7 @@
 
         #count {
             opacity: 0;
+            visibility: hidden;
             --user-select: none;
             transition: opacity .3s ease-out;
             pointer-events: none;
@@ -787,18 +796,34 @@
             }
 
             #bad_browser {
-                display: block !important
+                display: block !important;
+                position: sticky;
+                top: 0;
+                text-align: center;
+                z-index: 2;
+                margin-top: 10px;
+                margin-bottom: 10px;
             }
         </style>
     </noscript>
     <script
-        nomodule>document.write(document.getElementById('trash').textContent + '<style>#book,#controls,#datestuff{display:initial}</style>')</script>
+        nomodule>document.write(document.getElementById('trash').textContent + '<style>#book,#datestuff{display:unset}#controls{display:flex}</style>')</script>
 </head>
 
 <body>
-    <div id="background" style="--user-select:none" role="img" aria-label="Pokémon swimming underwater with bubbles"></div>
+    <div id="background" style="--user-select:none" role="img" aria-label="Pokémon swimming underwater with bubbles">
+    </div>
     <div id="holder" class="center_screen clamped">
+        <nav id="bad_browser" style="display: none;">
+            <a href="#about" class="cute-green-button">About</a> <img decoding="async"
+                src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><a href="#friends"
+                class="cute-green-button">Friends</a> <img decoding="async"
+                src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><a href="#log"
+                class="cute-green-button">Log</a> <img decoding="async" src="./cute-emojis/emojis/02665925378628511.gif"
+                class="divider" alt><a href="#stuff" class="cute-green-button">Stuff</a>
+        </nav>
         <main style="opacity:1" class="cute-green" id="main">
+
             <section name="sect" id="home" class="active">
                 <div>
                     <picture>
@@ -813,15 +838,7 @@
                 <h1 style="display: inline;" id="myusername">addsoupbase</h1>
                 <h2 style="font-size: 1em;">thank you so much for looking at this i love you everyone</h2>
                 <div style="place-content: center;place-items: center;" id="buttons">
-                    <nav id="bad_browser" style="display: none;">
-                        <a href="#about" class="cute-green-button">About</a> <img decoding="async"
-                            src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><a href="#friends"
-                            class="cute-green-button">Friends</a> <img decoding="async"
-                            src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><a href="#log"
-                            class="cute-green-button">Log</a> <img decoding="async"
-                            src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><a href="#stuff"
-                            class="cute-green-button">Stuff</a>
-                    </nav>
+
                     <button class="cute-green-button" id="viewbackground">Hide</button><img decoding="async"
                         src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><button
                         style="display: none;" class="cute-green-button" id="viewfullscreen">Focus</button><img
@@ -840,7 +857,8 @@
                     alt="paper icon" id="papericon" width="80" height="80">
                 <form id="sendmessage" action="https://misha-mail-85.deno.dev" method="POST"
                     style="display: grid;width: max-content;place-self: center;margin:auto;place-self:center">
-                    <input class="cute-green" name="name" placeholder="Name" autocomplete="username" enterkeyhint="next">
+                    <input class="cute-green" name="name" placeholder="Name" autocomplete="username"
+                        enterkeyhint="next">
                     <input class="cute-green" name="message" placeholder="Message" required enterkeyhint="send">
                     <div style="--user-select:none;display: flex;place-content: center;place-items: center;"><img
                             decoding="async" src="./cute-emojis/emojis/1319311940304113736.gif" class="hellokitty" alt
@@ -1762,6 +1780,8 @@
             </section>
         </main>
     </div>
+    <span id="rm" style="display:none; font-size: 1.5em;position: fixed;top:10px;left:10px">Reduced motion enabled: fun
+        disabled :&lpar;</span>
     <output id="count" aria-live="polite" aria-hidden="true"
         style="font-size: 2em;position: fixed;bottom:10px;left:10px;color:white">0</output>
     <button id="show" class="cute-green-button"
@@ -1810,34 +1830,29 @@
         holder.style.display = ''
         this.style.opacity = 0
         holder.classList.toggle('hidden')
-        this.on({
-            transitionend({ propertyName }, off) {
-                if (propertyName === 'opacity') {
-                    off()
-                    this.style.visibility = 'hidden'
+        holder.style.visibility = 'visible'
+        Promise.race([holder.until({ events: 'transitionend', filter: o => o.propertyName === 'opacity' }), new Promise(e => setTimeout(e, 500))])
+            .then(
+                () => {
+                    show.style.visibility = 'hidden'
                     viewbackground.on({
                         _click: HideBg
                     })
                 }
-            }
-        })
+            )
     }
     function HideBg() {
         holder.style.opacity = 0
         show.style.visibility = 'visible'
         show.style.opacity = 1
         holder.classList.toggle('hidden')
-        holder.on({
-            transitionend({ propertyName }, off) {
-                if (propertyName === 'opacity') {
-                    off()
-                    holder.style.display = 'none'
-                    show.on({
-                        _click: ShowBg
-                    })
-                }
-            }
-        })
+        Promise.race([holder.until({ events: 'transitionend', filter: o => o.propertyName === 'opacity' }), new Promise(e => setTimeout(e, 500))])
+            .then(() => {
+                holder.style.visibility = 'hidden'
+                show.on({
+                    _click: ShowBg
+                })
+            })
     }
     viewbackground.on({
         _click: HideBg
