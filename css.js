@@ -24,7 +24,7 @@
         atProperty = typeof CSSPropertyRule === 'function'
         // , canWrite = !inModule && D.readyState !== 'complete'
         , func = CSS.registerProperty || function (a) {
-            (a.inherits ? uv : o[':root'])[a.name] = a.initialValue
+            (a.inherits ? uv : root)[a.name] = a.initialValue
             // i didn't know CSS --properties were so old,
             // i just assumed they were as old as registerProperty and @property...
         }
@@ -414,9 +414,9 @@
     }
     function g(name, iv, inh, sx) {
         var o = '--' + name,
-            key = vendor(name, o = 'var(' + o + ')', true)
+            key = vendor(name, o = 'var(' + o + ')', true);
         // try { 
-        uv[key] = o
+        (inh ? root : uv)[key] = o
         bulkText += re('--' + name, iv, inh, sx)
         return g
         // }
@@ -436,7 +436,7 @@
     function lowPriority() {
         //@dev console.time('low priority')
         // lower priority props
-        g("locale", "auto", true, "*")("line-grid", "auto", true, "*")("line-snap", "auto", true, "*")("nbsp-mode", "auto", true, "*")("text-zoom", "auto", true, "*")("line-align", "auto", true, "*")("text-decorations-in-effect", "auto", false, "*")("force-broken-image-icon", "0", false, "<integer>")("float-edge", "content-box", false, "*")("image-region", "auto", true, "*")("box-orient", "inline-axis", false, "*")("box-align", "stretch", false, "*")("box-direction", "normal", false, "*")("box-flex", "0", false, "*")("box-flex-group", "0", false, "*")("box-lines", "single", false, "*")("box-ordinal-group", "1", false, "*")("box-decoration-break", "slice", false, "*")("box-pack", "start", false, "*")("line-clamp", "none", false, "*")("font-smoothing", "auto", true, "*")("mask-position-x", "0%", false, "<length-percentage>")("mask-position-y", "0%", false, "<length-percentage>")("window-dragging", "auto", false, "*")("stack-sizing", "stretch-to-fit", true, "*")("mask-composite", "source-over", false, "*")("window-shadow", "auto", false, "*")("outline-radius", "0 0 0 0", false, "*")("binding", "none", false, "*")("text-blink", "none", false, "*")("image-rect", "auto", true, "*")("content-zoom-limit", "400% 100%", false, "*")("accelerator", "0", false, "*")("context-properties", "none", true, "*")("text-kashida-space", "0%", true, "<percentage>")("interpolation-mode", "none", false, "*")("progress-appearance", "bar", false, "*")("content-zooming", "auto", false, "*")("flow-from", "none", false, "*")("flow-into", "none", false, "*")("content-zoom-chaining", "none", false, "*")("high-contrast-adjust", "auto", true, "*")("touch-select", "grippers", true, "*")("ime-mode", "auto", false, "*")("wrap-through", "wrap", false, "*")("print-color-adjust", "economy", true, "*")("pay-button-style", "white", false, "*")("color-filter", "none", true, "*")("pay-button-type", "plain", false, "*")("visual-effect", "none", true, "*")("text-spacing-trim", "normal", true, "*")("text-group-align", "none", false, "*")("text-autospace", "normal", true, "*")("orient", "inline", false, "*")("ruby-overhang", "auto", true, "*")("max-lines", "none", false, "*")("line-fit-edge", "leading", true, "*")("overflow-scrolling", "auto", false, "*")("column-progression", "auto", false, "*")("dashboard-region", "none", false, "*")("column-axis", "auto", false, "*")("text-size-adjust", "auto", true, "*")("border-vertical-spacing", "auto", false, "*")("buffered-rendering", "auto", false, "*")("behaviour", "url()", false, "<url>")
+        g("locale", "auto", true, "*")("line-grid", "auto", true, "*")("line-snap", "auto", true, "*")("nbsp-mode", "auto", true, "*")("text-zoom", "auto", false, "*")("line-align", "auto", true, "*")("text-decorations-in-effect", "auto", false, "*")("force-broken-image-icon", "0", false, "<integer>")("float-edge", "content-box", false, "*")("image-region", "auto", true, "*")("box-orient", "inline-axis", false, "*")("box-align", "stretch", false, "*")("box-direction", "normal", false, "*")("box-flex", "0", false, "*")("box-flex-group", "0", false, "*")("box-lines", "single", false, "*")("box-ordinal-group", "1", false, "*")("box-decoration-break", "slice", false, "*")("box-pack", "start", false, "*")("line-clamp", "none", false, "*")("font-smoothing", "auto", true, "*")("mask-position-x", "0%", false, "<length-percentage>")("mask-position-y", "0%", false, "<length-percentage>")("window-dragging", "auto", false, "*")("stack-sizing", "stretch-to-fit", true, "*")("mask-composite", "source-over", false, "*")("window-shadow", "auto", false, "*")("outline-radius", "0 0 0 0", false, "*")("binding", "none", false, "*")("text-blink", "none", false, "*")("image-rect", "auto", true, "*")("content-zoom-limit", "400% 100%", false, "*")("accelerator", "0", false, "*")("context-properties", "none", true, "*")("text-kashida-space", "0%", true, "<percentage>")("interpolation-mode", "none", false, "*")("progress-appearance", "bar", false, "*")("content-zooming", "auto", false, "*")("flow-from", "none", false, "*")("flow-into", "none", false, "*")("content-zoom-chaining", "none", false, "*")("high-contrast-adjust", "auto", true, "*")("touch-select", "grippers", true, "*")("ime-mode", "auto", false, "*")("wrap-through", "wrap", false, "*")("print-color-adjust", "economy", true, "*")("pay-button-style", "white", false, "*")("color-filter", "none", true, "*")("pay-button-type", "plain", false, "*")("visual-effect", "none", true, "*")("text-spacing-trim", "normal", true, "*")("text-group-align", "none", false, "*")("text-autospace", "normal", true, "*")("orient", "inline", false, "*")("ruby-overhang", "auto", true, "*")("max-lines", "none", false, "*")("line-fit-edge", "leading", true, "*")("overflow-scrolling", "auto", false, "*")("column-progression", "auto", false, "*")("dashboard-region", "none", false, "*")("column-axis", "auto", false, "*")("text-size-adjust", "auto", true, "*")("border-vertical-spacing", "auto", false, "*")("buffered-rendering", "auto", false, "*")("behaviour", "url()", false, "<url>")
         // try {
         // performance.mark('css-other-start')
         // ('scrollbar-thumb-color', 'auto', true, '*')
@@ -447,7 +447,7 @@
     }
     function properties() {
         //@dev console.time('properties')
-        g("user-select", "auto", true, '*') // Most important one
+        g("user-select", "auto", false, '*') // Most important one
             ("user-modify", "auto", false, '*')
             ("zoom", "auto", false, '*')
             ('user-drag', "auto", true, '*')
@@ -507,7 +507,7 @@
         matchParent = 'match-parent -moz-match-parent -webkit-match-parent'.split(' ').find(align) || 'initial'
         var o = {
             ':root': {
-                'transition-behavior': 'allow-discrete',
+                // 'transition-behavior': 'allow-discrete',
                 // 'interpolate-size': 'allow-keywords',
                 '--crisp-edges': crisp,
                 '--system-font': "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif",
@@ -552,6 +552,7 @@
              'max-width': '100%'
          }*/
         o[W('h1')] = { 'margin-block': '.67em', 'font-size': '2em' }
+        var root = o[':root']
         if (atProperty) {
             properties()
             lowPriority()
@@ -560,63 +561,13 @@
         else if (!CSS.registerProperty)
             doRegister()
         for (var x in o) newName += x + "{" + toCSS(o[x]) + "}"
-        newName += "@namespace svg url('http://www.w3.org/2000/svg');\nhtml{margin:auto}p{text-wrap:pretty}h1,h2,h3,h4,h5,h6,:where(p){text-wrap:balance;overflow-wrap:break-word}body{line-height:1.5;--font-smoothing:antialiased}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto !important}}@media(prefers-reduced-motion:no-preference){:root{interpolate-size: allow-keywords}}@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:-moz-loading{cursor:wait}:-moz-broken{border-radius:0}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not(scrollbar-width: thin){::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}"
+        newName = "@namespace svg url('http://www.w3.org/2000/svg');\nhtml{margin:auto}p{text-wrap:pretty}h1,h2,h3,h4,h5,h6,:where(p){text-wrap:balance;overflow-wrap:break-word}body{line-height:1.5;--font-smoothing:antialiased}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto !important}}@media(prefers-reduced-motion:no-preference){:root{interpolate-size: allow-keywords}}@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:-moz-loading{cursor:wait}:-moz-broken{border-radius:0}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not(scrollbar-width: thin){::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}" + newName
         //@dev console.debug(newName.replace(/:where\(([\S\s]*?)\)/g,'$1'))
     }
     var str = name
     // finally { performance.mark('css-other-end') }
-    if (!str) {
-        str = '*';
-        [
-            "::-moz-color-swatch",
-            "::-moz-focus-inner",
-            "::-moz-list-bullet",
-            "::-moz-list-number",
-            "::-moz-meter-bar",
-            "::-moz-progress-bar",
-            "::-moz-range-progress",
-            "::-moz-range-thumb",
-            "::-moz-range-track",
-            "::-webkit-inner-spin-button",
-            "::-webkit-meter-bar",
-            "::-webkit-meter-even-less-good-value",
-            "::-webkit-meter-inner-element",
-            "::-webkit-meter-optimum-value",
-            "::-webkit-meter-suboptimum-value",
-            "::-webkit-progress-bar",
-            "::-webkit-progress-inner-element",
-            "::-webkit-progress-value",
-            "::-webkit-scrollbar",
-            "::-webkit-search-cancel-button",
-            "::-webkit-search-results-button",
-            "::-webkit-slider-runnable-track",
-            "::-webkit-slider-thumb",
-            "::after",
-            "::backdrop",
-            "::before",
-            "::checkmark",
-            "::column",
-            "::cue",
-            "::details-content",
-            "::file-selector-button",
-            "::first-letter",
-            "::first-line",
-            "::grammar-error",
-            "::marker",
-            "::picker-icon",
-            "::placeholder",
-            "::scroll-marker",
-            "::scroll-marker-group",
-            "::selection",
-            "::spelling-error",
-            "::target-text",
-            "::view-transition"
-        ].forEach(function (p) {
-            sel(p) && (str += ','+p)
-        })
-        str = id + str + "{" + toCSS(uv, true) + "}" + newName
-        sn(str)
-    }
+    if (!str) // Selecting all pseudo elements has a massive performance hit
+        sn(str = id + '*' + "{" + toCSS(uv, true) + "}" + newName)
     write(str)
     var css =  //@devObject.seal
         ({
