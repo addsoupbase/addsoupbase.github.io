@@ -27,54 +27,7 @@
             (a.inherits ? uv : o[':root'])[a.name] = a.initialValue
             // i didn't know CSS --properties were so old,
             // i just assumed they were as old as registerProperty and @property...
-        }, selector = '*'
-        ;[
-            "::-moz-color-swatch",
-            "::-moz-focus-inner",
-            "::-moz-list-bullet",
-            "::-moz-list-number",
-            "::-moz-meter-bar",
-            "::-moz-progress-bar",
-            "::-moz-range-progress",
-            "::-moz-range-thumb",
-            "::-moz-range-track",
-            "::-webkit-inner-spin-button",
-            "::-webkit-meter-bar",
-            "::-webkit-meter-even-less-good-value",
-            "::-webkit-meter-inner-element",
-            "::-webkit-meter-optimum-value",
-            "::-webkit-meter-suboptimum-value",
-            "::-webkit-progress-bar",
-            "::-webkit-progress-inner-element",
-            "::-webkit-progress-value",
-            "::-webkit-scrollbar",
-            "::-webkit-search-cancel-button",
-            "::-webkit-search-results-button",
-            "::-webkit-slider-runnable-track",
-            "::-webkit-slider-thumb",
-            "::after",
-            "::backdrop",
-            "::before",
-            "::checkmark",
-            "::column",
-            "::cue",
-            "::details-content",
-            "::file-selector-button",
-            "::first-letter",
-            "::first-line",
-            "::grammar-error",
-            "::marker",
-            "::picker-icon",
-            "::placeholder",
-            "::scroll-marker",
-            "::scroll-marker-group",
-            "::selection",
-            "::spelling-error",
-            "::target-text",
-            "::view-transition"
-        ].forEach(function (p) {
-            sel(p) && (selector += ','+p)
-        })
+        }
     dance: {
         try {
             if (typeof scrollMaxX !== 'number' || !S) {
@@ -610,9 +563,61 @@
         newName += "@namespace svg url('http://www.w3.org/2000/svg');\nhtml{margin:auto}p{text-wrap:pretty}h1,h2,h3,h4,h5,h6,:where(p){text-wrap:balance;overflow-wrap:break-word}body{line-height:1.5;--font-smoothing:antialiased}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto !important}}@media(prefers-reduced-motion:no-preference){:root{interpolate-size: allow-keywords}}@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:-moz-loading{cursor:wait}:-moz-broken{border-radius:0}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not(scrollbar-width: thin){::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}"
         //@dev console.debug(newName.replace(/:where\(([\S\s]*?)\)/g,'$1'))
     }
-    var str
+    var str = name
     // finally { performance.mark('css-other-end') }
-    write(name || (sn(str = id + selector + "{" + toCSS(uv, true) + "}" + newName), str))
+    if (!str) {
+        str = '*';
+        [
+            "::-moz-color-swatch",
+            "::-moz-focus-inner",
+            "::-moz-list-bullet",
+            "::-moz-list-number",
+            "::-moz-meter-bar",
+            "::-moz-progress-bar",
+            "::-moz-range-progress",
+            "::-moz-range-thumb",
+            "::-moz-range-track",
+            "::-webkit-inner-spin-button",
+            "::-webkit-meter-bar",
+            "::-webkit-meter-even-less-good-value",
+            "::-webkit-meter-inner-element",
+            "::-webkit-meter-optimum-value",
+            "::-webkit-meter-suboptimum-value",
+            "::-webkit-progress-bar",
+            "::-webkit-progress-inner-element",
+            "::-webkit-progress-value",
+            "::-webkit-scrollbar",
+            "::-webkit-search-cancel-button",
+            "::-webkit-search-results-button",
+            "::-webkit-slider-runnable-track",
+            "::-webkit-slider-thumb",
+            "::after",
+            "::backdrop",
+            "::before",
+            "::checkmark",
+            "::column",
+            "::cue",
+            "::details-content",
+            "::file-selector-button",
+            "::first-letter",
+            "::first-line",
+            "::grammar-error",
+            "::marker",
+            "::picker-icon",
+            "::placeholder",
+            "::scroll-marker",
+            "::scroll-marker-group",
+            "::selection",
+            "::spelling-error",
+            "::target-text",
+            "::view-transition"
+        ].forEach(function (p) {
+            sel(p) && (str += ','+p)
+        })
+        str = id + str + "{" + toCSS(uv, true) + "}" + newName
+        sn(str)
+    }
+    write(str)
     var css =  //@devObject.seal
         ({
             getDefaultStyleSheet: Sheet,
