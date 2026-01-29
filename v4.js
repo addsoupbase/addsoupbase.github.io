@@ -3,10 +3,6 @@ import Proxify, { css } from './HTMLProxy.js'
 export { css, Proxify }
 import { base } from './BaseProxy.js'
 const D = document
-function isHTMLSyntax(string) {
-    let trim = string.trim()
-    return trim[0] === '<' && trim.at(-1) === '>'
-}
 function label(r) { return r[Symbol.toStringTag] }
 var parse = (parse = new Range).createContextualFragment.bind(parse)
 export function ce(htmlOrTag) {
@@ -30,8 +26,10 @@ const Regex = {
     class: /\.([\w-]+)/g,
     id: /#([\w-]+)/,
     evtAttr: /^\(([_$^%&!?@#<>|\w]+)\)$/,
-    comment: /^@Replace #\d+$/
+    comment: /^@Replace #\d+$/,
+    html: /^\s*<.*>\s*$/s
 }
+const isHTMLSyntax = / /.test.bind(Regex.html)
 export let body = D.body && Proxify(D.body)
 const nodeCache = new Map
 function handleSub(sub, replace) {
@@ -119,12 +117,6 @@ export const id = new Proxy({ __proto__: null }, {
         return true
     },
 })
-export function div(strings, ...subs) {
-    let n = esc(strings, ...subs)
-    let a = ce('div')
-    n.parent = a
-    return a
-}
 export function sel(t) {
     if (Element.prototype.isPrototypeOf(t)) return Proxify(t)
     throw TypeError(`Target must be an element: ${label(t)}`)

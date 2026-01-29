@@ -5,7 +5,7 @@
     //@dev'use strict'
     if (y.propertyIsEnumerable(sym) && D.getElementById(id) instanceof HTMLStyleElement) {
         var out = y[sym]
-        inModule && out.onerror && (removeEventListener('error', out.onerror), out.onerror = null)
+        inModule && (inModule = out.onerror) && (removeEventListener('error', inModule), out.onerror = null)
         return out
     }
     try { var S = sessionStorage } // it just throws on read if storage is denied
@@ -27,7 +27,54 @@
             (a.inherits ? uv : o[':root'])[a.name] = a.initialValue
             // i didn't know CSS --properties were so old,
             // i just assumed they were as old as registerProperty and @property...
-        }, selector = '*' + (where ? ',:where(::-moz-color-swatch,::-moz-focus-inner,::-moz-list-bullet,::-moz-list-number,::-moz-meter-bar,::-moz-progress-bar,::-moz-range-progress,::-moz-range-thumb,::-moz-range-track,::-webkit-inner-spin-button,::-webkit-meter-bar,::-webkit-meter-even-less-good-value,::-webkit-meter-inner-element,::-webkit-meter-optimum-value,::-webkit-meter-suboptimum-value,::-webkit-progress-bar,::-webkit-progress-inner-element,::-webkit-progress-value,::-webkit-scrollbar,::-webkit-search-cancel-button,::-webkit-search-results-button,::-webkit-slider-runnable-track,::-webkit-slider-thumb,::after,::backdrop,::before,::checkmark,::column,::cue,::details-content,::file-selector-button,::first-letter,::first-line,::grammar-error,::marker,::picker-icon,::placeholder,::scroll-marker,::scroll-marker-group,::selection,::spelling-error,::target-text,::view-transition)' : '')
+        }, selector = '*'
+        ;[
+            "::-moz-color-swatch",
+            "::-moz-focus-inner",
+            "::-moz-list-bullet",
+            "::-moz-list-number",
+            "::-moz-meter-bar",
+            "::-moz-progress-bar",
+            "::-moz-range-progress",
+            "::-moz-range-thumb",
+            "::-moz-range-track",
+            "::-webkit-inner-spin-button",
+            "::-webkit-meter-bar",
+            "::-webkit-meter-even-less-good-value",
+            "::-webkit-meter-inner-element",
+            "::-webkit-meter-optimum-value",
+            "::-webkit-meter-suboptimum-value",
+            "::-webkit-progress-bar",
+            "::-webkit-progress-inner-element",
+            "::-webkit-progress-value",
+            "::-webkit-scrollbar",
+            "::-webkit-search-cancel-button",
+            "::-webkit-search-results-button",
+            "::-webkit-slider-runnable-track",
+            "::-webkit-slider-thumb",
+            "::after",
+            "::backdrop",
+            "::before",
+            "::checkmark",
+            "::column",
+            "::cue",
+            "::details-content",
+            "::file-selector-button",
+            "::first-letter",
+            "::first-line",
+            "::grammar-error",
+            "::marker",
+            "::picker-icon",
+            "::placeholder",
+            "::scroll-marker",
+            "::scroll-marker-group",
+            "::selection",
+            "::spelling-error",
+            "::target-text",
+            "::view-transition"
+        ].forEach(function (p) {
+            sel(p) && (selector += ','+p)
+        })
     dance: {
         try {
             if (typeof scrollMaxX !== 'number' || !S) {
@@ -57,7 +104,6 @@
     }
     var fro = O.fromEntries,
         is = Array.isArray,
-        // scr,
         sheet = Sheet(),
         alr = new Set,
         vendr = /^(?:-(?:webkit|moz(?:-osx)?|apple|khtml|konq|r?o|ms|xv|atsc|wap|ah|hp|rim|tc|fso|icab|epub)|prince|mso)-(?!$)/,
@@ -70,11 +116,11 @@
         br = ['epub', 'icab', 'fso', 'tc', 'rim', 'hp', 'ah', 'wap', 'atsc', 'xv', 'ms', 'o', 'ro', 'konq', 'khtml', 'apple', 'moz', 'moz-osx', 'webkit']
         , fClass = fgeneric.bind(1, ':', pseudoClass),
         fElement = fgeneric.bind(1, '::', pseudoElement),
-        //@dev toValue
-        //@dev, comments = /\/\*[\s\S]*?\*\//g
-        //@dev, parse = /([^{}]+?)(?:;|(\{[\s\S]*?\}))/g
-        //@dev, semicolon = /(?:--)?[-\w]+\s*:(?:(?![^(]*\);|[^"]*";|[^']*';).)*?(?:!\s*important\s*)?(?=;(?![^(]*\)|[^"]*"|[^']*')|\s*$)/g,
         batch = ''
+    //@dev ,toValue
+    //@dev, comments = /\/\*[\s\S]*?\*\//g
+    //@dev, parse = /([^{}]+?)(?:;|(\{[\s\S]*?\}))/g
+    //@dev, semicolon = /(?:--)?[-\w]+\s*:(?:(?![^(]*\);|[^"]*";|[^']*';).)*?(?:!\s*important\s*)?(?=;(?![^(]*\)|[^"]*"|[^']*')|\s*$)/g
     /*if (canWrite && top === self) {
         // Idk why, but it seems to make the page render faster
         var p = D.querySelector('p[data-cssid="$$$"]')
@@ -325,12 +371,9 @@
         write(batch)
         //@dev console.debug("textContent queue emptied! Text length accumulated:", batch.length)
         batch = ''
-        //@dev console.countReset("textContent queue")
     }
     function queueWrite(text) {
         text && (batch || rAF(l), batch += text)
-        //@dev console.count('textContent queue')
-        //@dev console.debug(batch.length)
     }
     var violated = false
     function violation() {
@@ -339,11 +382,11 @@
     }
     var added = false
     function write(text) {
-        if (!violated) {
+        if (violated) createSheet(text)
+        else {
             added || (added = !!(sheet.onsecuritypolicyviolation = violation))
             sheet.insertAdjacentText('beforeend', text)
         }
-        else createSheet(text)
         // <style> blocked
     }
     function createSheet(text) {
@@ -396,6 +439,7 @@
         o = D.createElement('style')
         o.id = id
         o.blocking = 'render'
+        o.insertAdjacentText || (o.insertAdjacentText = function (_, txt) { o.appendChild(D.createTextNode(txt)) })
         return put(o)
     }
     function put(e) {
@@ -420,7 +464,7 @@
             key = vendor(name, o = 'var(' + o + ')', true)
         // try { 
         uv[key] = o
-        bulkText += re('--'+name, iv, inh, sx)
+        bulkText += re('--' + name, iv, inh, sx)
         return g
         // }
         // catch (e) {e.name === 'InvalidModificationError' || (console.log(o), reportError(e),func || fallback.set(key, vendor(key, 'inherit')))}
@@ -454,7 +498,7 @@
             ("user-modify", "auto", false, '*')
             ("zoom", "auto", false, '*')
             ('user-drag', "auto", true, '*')
-            ("user-input", "auto", true, '*')
+            // ("user-input", "auto", true, '*')
             ("box-reflect", "none", false, '*') // Kewl
             ("text-stroke-color", "currentcolor", true, "<color>")
             ("text-stroke-width", '0', false, "<length>")
@@ -462,7 +506,7 @@
             ("text-fill-color", "currentcolor", true, '*')
             ("tap-highlight-color", "rgb(0, 0, 0, 0.18)", true, "<color>")
             ("touch-callout", "auto", true, '*')
-            ("user-focus", "none", false, '*')
+            // ("user-focus", "none", false, '*')
             ("initial-letter", "normal", false, '*')
             ("overflow-style", "auto", true, '*')
             // ("interactivity", "auto", true, '*')
@@ -500,17 +544,14 @@
         properties()
     }
     var crisp, stretch, center, matchParent
-    function supportCustom() {
-        var align = sup.bind(1, 'text-align')
-        crisp = '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(sup.bind(1, 'image-rendering')) || 'initial'
-        stretch = '-moz-available -webkit-fill-available stretch'.split(' ').find(sup.bind(1, 'max-width')) || 'initial'
-        center = '-moz-center -webkit-center -khtml-center'.split(' ').find(align) || 'initial'
-        matchParent = 'match-parent -moz-match-parent -webkit-match-parent'.split(' ').find(align) || 'initial'
-    }
     var newName = name
     if (!atProperty && CSS.registerProperty) doRegister()
     if (!newName) {
-        supportCustom()
+        var align = sup.bind(1, 'text-align')
+        crisp = '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(sup.bind(1, 'image-rendering')) || 'initial'
+        stretch = '-webkit-fill-available stretch -moz-available'.split(' ').find(sup.bind(1, 'max-width')) || 'initial'
+        center = '-moz-center -webkit-center -khtml-center'.split(' ').find(align) || 'initial'
+        matchParent = 'match-parent -moz-match-parent -webkit-match-parent'.split(' ').find(align) || 'initial'
         var o = {
             ':root': {
                 'transition-behavior': 'allow-discrete',
@@ -532,8 +573,8 @@
         o[W('[contenteditable=false]')] = { '--user-modify': 'read-only', '--user-input': 'none' }
         o[W('[contenteditable="plaintext-only"]')] = { '--user-modify': 'read-write-plaintext-only' }
         o[W('[inert]')] = { 'interactivity': 'inert' }
-        o[W('input[type=range],::-webkit-scrollbar-thumb')] = { cursor: 'grab' }
-        o[W('input[type=range]:active,::-webkit-scrollbar-thumb:active')] = { cursor: 'grabbing' }
+        o[W('input[type=range]') + ',::-webkit-scrollbar-thumb'] = { cursor: 'grab' }
+        o[W('input[type=range]:active') + ',::-webkit-scrollbar-thumb:active'] = { cursor: 'grabbing' }
         o[W(':disabled,[aria-disabled=true]')] = { cursor: 'not-allowed' }
         /**@deprecated*/o[W('.centerx,.center')] = { 'justify-self': 'center', margin: 'auto', 'text-align': 'center' }
         /**@deprecated*/o[W('.centery,.center')] = { 'align-self': 'center', inset: 0, position: 'fixed' }
@@ -554,19 +595,17 @@
             'max-inline-size': '100%', 'block-size': 'auto',
             //'object-fit': 'contain'
         } // https://web.dev/learn/design/responsive-images
-        o['img,video,canvas,svg,picture'] = { //display: 'block', 
-            'max-width': '100%'
-        }
+        /*o[W('img,video,canvas,svg,picture')] = { //display: 'block', 
+             'max-width': '100%'
+         }*/
         o[W('h1')] = { 'margin-block': '.67em', 'font-size': '2em' }
         if (atProperty) {
             properties()
             lowPriority()
             newName = bulkText
         }
-        else if (!CSS.registerProperty) {
-            supportCustom()
+        else if (!CSS.registerProperty)
             doRegister()
-        }
         for (var x in o) newName += x + "{" + toCSS(o[x]) + "}"
         newName += "@namespace svg url('http://www.w3.org/2000/svg');\nhtml{margin:auto}p{text-wrap:pretty}h1,h2,h3,h4,h5,h6,:where(p){text-wrap:balance;overflow-wrap:break-word}body{line-height:1.5;--font-smoothing:antialiased}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto !important}}@media(prefers-reduced-motion:no-preference){:root{interpolate-size: allow-keywords}}@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:-moz-loading{cursor:wait}:-moz-broken{border-radius:0}@supports not(content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not(scrollbar-width: thin){::-webkit-scrollbar{width:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}"
         //@dev console.debug(newName.replace(/:where\(([\S\s]*?)\)/g,'$1'))
@@ -578,6 +617,7 @@
         ({
             getDefaultStyleSheet: Sheet,
             registerCSSRaw: registerCSSRaw,
+            write: registerCSSRaw,
             get reducedMotion() {
                 return Rm || (Rm = matchMedia('(prefers-reduced-motion:reduce)'))
             },
