@@ -408,7 +408,7 @@
             display: flex;
             width: max-content;
             place-items: end;
-            place-self: center;
+            justify-content: center;
             margin: auto;
         }
 
@@ -440,6 +440,7 @@
             max-width: 600px;
             max-width: min(700px, 95vw);
             height: 100%;
+            max-height: 500px;
             max-height: min(520px, 85vh);
             border-radius: 15px;
         }
@@ -485,7 +486,15 @@
             scrollbar-width: thin;
             --scrollbar-thumb-color: hsl(350, 42%, 75%);
             --scrollbar-color: #3a9d61;
-            background-image: url(./media/flowers.webp), url(./media/topdecor.webp), url(./media/roses.webp);
+            background-image: url(./media/flowers.gif), url(./media/topdecor.gif), url(./media/roses.webp);
+            background-image:
+                image-set(url(./media/flowers.webp) type("image/webp"), url(./media/flowers.gif) type("image/gif")),
+                image-set(url(./media/topdecor.webp) type("image/webp"), url(./media/topdecor.gif) type("image/gif")),
+                image-set(url(./media/roses.avif) type("image/avif"),url(./media/roses.webp) type("image/webp"),  url(./media/roses.gif) type("image/gif"));
+            background-image:
+                -webkit-image-set(url(./media/flowers.webp) type("image/webp"), url(./media/flowers.gif) type("image/gif")),
+                -webkit-image-set(url(./media/topdecor.webp) type("image/webp"), url(./media/topdecor.gif) type("image/gif")),
+                -webkit-image-set(url(./media/roses.avif) type("image/avif"), url(./media/roses.webp) type("image/webp"), url(./media/roses.gif) type("image/gif"));
             background-repeat: no-repeat, no-repeat, no-repeat;
             background-size: contain, 130px, 13%;
             background-position-y: bottom, top;
@@ -741,7 +750,8 @@
 
         .lholder>a::before,
         .lholder>a::after {
-            background-image: url(./media/ribbon.webp);
+            background-image: url(./media/ribbon.gif);
+            background-image: image-set(url(./media/ribbon.webp) type("image/webp"), url(./media/ribbon.gif) type("image/gif"));
             content: '';
             alt: '';
             display: inline-block;
@@ -797,10 +807,13 @@
 
             #bad_browser {
                 display: block !important;
-                position: sticky;
-                top: 0;
+                position: fixed;
+                bottom: 0;
+                margin: auto;
+                justify-self: center;
+                width: 100%;
                 text-align: center;
-                z-index: 2;
+                z-index: 50;
                 margin-top: 10px;
                 margin-bottom: 10px;
             }
@@ -814,16 +827,7 @@
     <div id="background" style="--user-select:none" role="img" aria-label="Pokémon swimming underwater with bubbles">
     </div>
     <div id="holder" class="center_screen clamped">
-        <nav id="bad_browser" style="display: none;">
-            <a href="#about" class="cute-green-button">About</a> <img decoding="async"
-                src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><a href="#friends"
-                class="cute-green-button">Friends</a> <img decoding="async"
-                src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><a href="#log"
-                class="cute-green-button">Log</a> <img decoding="async" src="./cute-emojis/emojis/02665925378628511.gif"
-                class="divider" alt><a href="#stuff" class="cute-green-button">Stuff</a>
-        </nav>
         <main style="opacity:1" class="cute-green" id="main">
-
             <section name="sect" id="home" class="active">
                 <div>
                     <picture>
@@ -860,7 +864,7 @@
                     <input class="cute-green" name="name" placeholder="Name" autocomplete="username"
                         enterkeyhint="next">
                     <input class="cute-green" name="message" placeholder="Message" required enterkeyhint="send">
-                    <div style="--user-select:none;display: flex;place-content: center;place-items: center;"><img
+                    <div style="--user-select:none;display: flex;justify-content: center;justify-items: center;align-items: center;"><img
                             decoding="async" src="./cute-emojis/emojis/1319311940304113736.gif" class="hellokitty" alt
                             draggable="false"><button id="send" class="cute-green-button">Send</button><img
                             decoding="async" src="./cute-emojis/emojis/1319312145560895591.gif" class="hellokitty" alt
@@ -1722,9 +1726,10 @@
             </section>
             <hr>
             <section name="sect" id="log" style="width:100%;height:100%;padding-top:20px;place-content:center">
-                <div style="margin:auto;width:fit-content;place-self: center;" id="datestuff">
+                <div style="margin:auto;width:fit-content;justify-self: center;" id="datestuff">
                     <input min="2025-04-07" max="2026-01-13" type="date"
-                        class="cute-green" value="2026-01-13" id="datepicker">
+                        class="cute-green" style="margin: auto;" value="2026-01-13"
+                        id="datepicker">
                     <time datetime="2026-01-13"
                         id="datetime">Tuesday, January 13, 2026</time>
                 </div>
@@ -1780,6 +1785,14 @@
             </section>
         </main>
     </div>
+    <nav id="bad_browser" style="display: none;">
+        <a href="#about" class="cute-green-button">About</a> <img decoding="async"
+            src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><a href="#friends"
+            class="cute-green-button">Friends</a> <img decoding="async" src="./cute-emojis/emojis/02665925378628511.gif"
+            class="divider" alt><a href="#log" class="cute-green-button">Log</a> <img decoding="async"
+            src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><a href="#stuff"
+            class="cute-green-button">Stuff</a>
+    </nav>
     <span id="rm" style="display:none; font-size: 1.5em;position: fixed;top:10px;left:10px">Reduced motion enabled: fun
         disabled :&lpar;</span>
     <output id="count" aria-live="polite" aria-hidden="true"
@@ -1865,17 +1878,17 @@
         'use strict'
         function srcToDate(o) {
             var a = o.split('_')
-            var month = a[0]
-            var day = a[1]
-            var year = a[2]
+                , month = a[0]
+                , day = a[1]
+                , year = a[2]
             return new Date(year, month - 1, day)
         }
         var sources = ["1_13_2026","1_8_2026","1_1_2026","11_29_2025","11_26_2025","11_18_2025","11_14_2025","11_11_2025","11_10_2025","10_19_2025","10_2_2025","9_30_2025","9_22_2025","9_21_2025","9_18_2025","9_14_2025","9_10_2025","9_9_2025","9_5_2025","8_13_2025","8_12_2025","8_10_2025","8_7_2025","8_6_2025","8_5_2025","8_4_2025","8_3_2025","7_31_2025","7_30_2025","7_29_2025","7_28_2025","7_26_2025","7_25_2025","7_24_2025","7_22_2025","7_19_2025","7_18_2025","7_17_2025","7_16_2025","7_15_2025","7_14_2025","7_12_2025","7_11_2025","7_10_2025","7_8_2025","7_7_2025","7_6_2025","7_5_2025","7_4_2025","7_3_2025","7_2_2025","7_1_2025","6_30_2025","6_28_2025","6_27_2025","6_26_2025","6_25_2025","6_23_2025","6_22_2025","6_21_2025","6_20_2025","6_19_2025","6_18_2025","6_17_2025","6_16_2025","6_15_2025","6_12_2025","6_11_2025","6_10_2025","6_9_2025","6_8_2025","6_7_2025","6_6_2025","6_5_2025","6_4_2025","6_3_2025","6_2_2025","6_1_2025","5_30_2025","5_29_2025","5_26_2025","5_25_2025","5_24_2025","5_23_2025","5_21_2025","5_20_2025","5_18_2025","5_17_2025","5_16_2025","5_15_2025","5_14_2025","5_13_2025","5_12_2025","5_11_2025","5_10_2025","5_9_2025","5_8_2025","5_6_2025","5_4_2025","5_2_2025","5_1_2025","4_30_2025","4_28_2025","4_27_2025","4_26_2025","4_25_2025","4_23_2025","4_22_2025","4_21_2025","4_20_2025","4_19_2025","4_18_2025","4_16_2025","4_15_2025","4_13_2025","4_12_2025","4_11_2025","4_10_2025","4_8_2025","4_7_2025"]
         var dates = sources.map(srcToDate)
-        var book = D.getElementById('book')
-        var prev = D.getElementById('prev')
-        var next = D.getElementById('next')
-        var firstlast = D.getElementById('firstlast')
+            , book = D.getElementById('book')
+            , prev = D.getElementById('prev')
+            , next = D.getElementById('next')
+            , firstlast = D.getElementById('firstlast')
         h.on(firstlast, {
             click: function () {
                 switch (this.textContent) {

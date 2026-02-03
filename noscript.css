@@ -55,15 +55,16 @@ body {
     border-radius: 0
 }*/
 
-@supports not(content-visibility:auto) {
+@supports not (content-visibility:auto) {
     * {
         visibility: var(--content-visibility)
     }
 }
 
-@supports not(scrollbar-color:auto) {
+@supports not (scrollbar-width:thin) {
     ::-webkit-scrollbar {
         width: var(--scrollbar-width);
+        height: var(--scrollbar-width);
         background-color: var(--scrollbar-color)
     }
 
