@@ -4,6 +4,7 @@
 <head>
     <!-- <script src="https://cdn.jsdelivr.net/npm/eruda"></script> -->
     <!-- <script>eruda.init();</script> -->
+    
     <script>
         !function () {
             'use strict'
@@ -132,10 +133,11 @@
         #book {
             opacity: 1;
             --user-select: none;
+            padding:3px;
             resize: both;
             max-width: min(90%, 500px);
-            max-height: 70%;
-            height: 70%;
+            max-height: 75%;
+            height: 75%;
             width: 90%;
             min-width: 200px;
             min-height: 200px;
@@ -912,10 +914,10 @@
                 <h1 style="display: inline;">Favourite Pokemon!!</h1>
                 <div id="pokemonholder" role="img">
                     <img loading="lazy" src="./media/sprites/surskit.gif" alt="surskit"
-                        class="surskit pokemon"><img loading="lazy" src="./media/sprites/swoobat.gif" alt="swoobat"
-                        class="swoobat pokemon"><img loading="lazy" src="./media/sprites/clamperl.gif" alt="clamperl"
+                        class="surskit pokemon"><img loading="lazy" src="./media/sprites/clamperl.gif" alt="clamperl"
                         class="clamperl pokemon"><img loading="lazy" src="./media/sprites/darmanitan.gif" alt="darmanitan"
-                        class="darmanitan pokemon"><img loading="lazy" src="./media/sprites/aegislash.gif" alt="aegislash"
+                        class="darmanitan pokemon"><img loading="lazy" src="./media/sprites/swoobat.gif" alt="swoobat"
+                        class="swoobat pokemon"><img loading="lazy" src="./media/sprites/aegislash.gif" alt="aegislash"
                         class="aegislash pokemon"><img loading="lazy" src="./media/sprites/spinda.gif" alt="spinda"
                         class="spinda pokemon"><img loading="lazy" src="./media/sprites/mawile.gif" alt="mawile"
                         class="mawile pokemon"><img loading="lazy" src="./media/sprites/shedinja.gif" alt="shedinja"
@@ -966,13 +968,13 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
-                            <source srcset="./media/avatars/river.avif" type="image/avif">
-                            <source srcset="./media/avatars/river.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-river"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/river.jpg"
-                                alt="river">
+                            <source srcset="./media/avatars/auquamantis.avif" type="image/avif">
+                            <source srcset="./media/avatars/auquamantis.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-auquamantis"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/auquamantis.jpg"
+                                alt="auquamantis">
                         </picture>
-                        <figcaption class="ava-river username" style="text-transform: capitalize;">river</figcaption>
+                        <figcaption class="ava-auquamantis username" style="text-transform: capitalize;">auquamantis</figcaption>
                     </figure>
                     
                     <figure style="display:inline-block;--user-select:none;">
@@ -988,13 +990,13 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
-                            <source srcset="./media/avatars/auquamantis.avif" type="image/avif">
-                            <source srcset="./media/avatars/auquamantis.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-auquamantis"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/auquamantis.jpg"
-                                alt="auquamantis">
+                            <source srcset="./media/avatars/river.avif" type="image/avif">
+                            <source srcset="./media/avatars/river.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-river"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/river.jpg"
+                                alt="river">
                         </picture>
-                        <figcaption class="ava-auquamantis username" style="text-transform: capitalize;">auquamantis</figcaption>
+                        <figcaption class="ava-river username" style="text-transform: capitalize;">river</figcaption>
                     </figure>
                     
                     <figure style="display:inline-block;--user-select:none;">
@@ -1010,17 +1012,6 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
-                            <source srcset="./media/avatars/kannadra.avif" type="image/avif">
-                            <source srcset="./media/avatars/kannadra.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-kannadra"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/kannadra.jpg"
-                                alt="kannadra">
-                        </picture>
-                        <figcaption class="ava-kannadra username" style="text-transform: capitalize;">kannadra</figcaption>
-                    </figure>
-                    
-                    <figure style="display:inline-block;--user-select:none;">
-                        <picture>
                             <source srcset="./media/avatars/kae.avif" type="image/avif">
                             <source srcset="./media/avatars/kae.webp" type="image/webp">
                             <img loading="lazy" class="friend ava-kae"
@@ -1032,13 +1023,24 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
-                            <source srcset="./media/avatars/nova.avif" type="image/avif">
-                            <source srcset="./media/avatars/nova.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-nova"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/nova.jpg"
-                                alt="nova">
+                            <source srcset="./media/avatars/kannadra.avif" type="image/avif">
+                            <source srcset="./media/avatars/kannadra.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-kannadra"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/kannadra.jpg"
+                                alt="kannadra">
                         </picture>
-                        <figcaption class="ava-nova username" style="text-transform: capitalize;">nova</figcaption>
+                        <figcaption class="ava-kannadra username" style="text-transform: capitalize;">kannadra</figcaption>
+                    </figure>
+                    
+                    <figure style="display:inline-block;--user-select:none;">
+                        <picture>
+                            <source srcset="./media/avatars/glente.avif" type="image/avif">
+                            <source srcset="./media/avatars/glente.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-glente"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/glente.jpg"
+                                alt="glente">
+                        </picture>
+                        <figcaption class="ava-glente username" style="text-transform: capitalize;">glente</figcaption>
                     </figure>
                     
                     <figure style="display:inline-block;--user-select:none;">
@@ -1054,13 +1056,13 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
-                            <source srcset="./media/avatars/glente.avif" type="image/avif">
-                            <source srcset="./media/avatars/glente.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-glente"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/glente.jpg"
-                                alt="glente">
+                            <source srcset="./media/avatars/nova.avif" type="image/avif">
+                            <source srcset="./media/avatars/nova.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-nova"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/nova.jpg"
+                                alt="nova">
                         </picture>
-                        <figcaption class="ava-glente username" style="text-transform: capitalize;">glente</figcaption>
+                        <figcaption class="ava-nova username" style="text-transform: capitalize;">nova</figcaption>
                     </figure>
                     
                     <figure style="display:inline-block;--user-select:none;">
@@ -1109,17 +1111,6 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
-                            <source srcset="./media/avatars/mr_clownette.avif" type="image/avif">
-                            <source srcset="./media/avatars/mr_clownette.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-mr_clownette"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/mr_clownette.jpg"
-                                alt="mr_clownette">
-                        </picture>
-                        <figcaption class="ava-mr_clownette username" style="text-transform: capitalize;">mr_clownette</figcaption>
-                    </figure>
-                    
-                    <figure style="display:inline-block;--user-select:none;">
-                        <picture>
                             <source srcset="./media/avatars/son_yukio.avif" type="image/avif">
                             <source srcset="./media/avatars/son_yukio.webp" type="image/webp">
                             <img loading="lazy" class="friend ava-son_yukio"
@@ -1131,13 +1122,13 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
-                            <source srcset="./media/avatars/aya.avif" type="image/avif">
-                            <source srcset="./media/avatars/aya.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-aya"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/aya.jpg"
-                                alt="aya">
+                            <source srcset="./media/avatars/mr_clownette.avif" type="image/avif">
+                            <source srcset="./media/avatars/mr_clownette.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-mr_clownette"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/mr_clownette.jpg"
+                                alt="mr_clownette">
                         </picture>
-                        <figcaption class="ava-aya username" style="text-transform: capitalize;">aya</figcaption>
+                        <figcaption class="ava-mr_clownette username" style="text-transform: capitalize;">mr_clownette</figcaption>
                     </figure>
                     
                     <figure style="display:inline-block;--user-select:none;">
@@ -1149,6 +1140,17 @@
                                 alt="may">
                         </picture>
                         <figcaption class="ava-may username" style="text-transform: capitalize;">may</figcaption>
+                    </figure>
+                    
+                    <figure style="display:inline-block;--user-select:none;">
+                        <picture>
+                            <source srcset="./media/avatars/aya.avif" type="image/avif">
+                            <source srcset="./media/avatars/aya.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-aya"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/aya.jpg"
+                                alt="aya">
+                        </picture>
+                        <figcaption class="ava-aya username" style="text-transform: capitalize;">aya</figcaption>
                     </figure>
                     
                     <figure style="display:inline-block;--user-select:none;">
@@ -1197,17 +1199,6 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
-                            <source srcset="./media/avatars/mochi.avif" type="image/avif">
-                            <source srcset="./media/avatars/mochi.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-mochi"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/mochi.jpg"
-                                alt="mochi">
-                        </picture>
-                        <figcaption class="ava-mochi username" style="text-transform: capitalize;">mochi</figcaption>
-                    </figure>
-                    
-                    <figure style="display:inline-block;--user-select:none;">
-                        <picture>
                             <source srcset="./media/avatars/znsxxe.avif" type="image/avif">
                             <source srcset="./media/avatars/znsxxe.webp" type="image/webp">
                             <img loading="lazy" class="friend ava-znsxxe"
@@ -1215,6 +1206,17 @@
                                 alt="znsxxe">
                         </picture>
                         <figcaption class="ava-znsxxe username" style="text-transform: capitalize;">znsxxe</figcaption>
+                    </figure>
+                    
+                    <figure style="display:inline-block;--user-select:none;">
+                        <picture>
+                            <source srcset="./media/avatars/mochi.avif" type="image/avif">
+                            <source srcset="./media/avatars/mochi.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-mochi"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/mochi.jpg"
+                                alt="mochi">
+                        </picture>
+                        <figcaption class="ava-mochi username" style="text-transform: capitalize;">mochi</figcaption>
                     </figure>
                     
                     <figure style="display:inline-block;--user-select:none;">
@@ -1340,17 +1342,6 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
-                            <source srcset="./media/avatars/MRK.avif" type="image/avif">
-                            <source srcset="./media/avatars/MRK.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-MRK"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/MRK.jpg"
-                                alt="MRK">
-                        </picture>
-                        <figcaption class="ava-MRK username" style="text-transform: capitalize;">MRK</figcaption>
-                    </figure>
-                    
-                    <figure style="display:inline-block;--user-select:none;">
-                        <picture>
                             <source srcset="./media/avatars/ilikebugs2.avif" type="image/avif">
                             <source srcset="./media/avatars/ilikebugs2.webp" type="image/webp">
                             <img loading="lazy" class="friend ava-ilikebugs2"
@@ -1358,6 +1349,17 @@
                                 alt="ilikebugs2">
                         </picture>
                         <figcaption class="ava-ilikebugs2 username" style="text-transform: capitalize;">ilikebugs2</figcaption>
+                    </figure>
+                    
+                    <figure style="display:inline-block;--user-select:none;">
+                        <picture>
+                            <source srcset="./media/avatars/MRK.avif" type="image/avif">
+                            <source srcset="./media/avatars/MRK.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-MRK"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/MRK.jpg"
+                                alt="MRK">
+                        </picture>
+                        <figcaption class="ava-MRK username" style="text-transform: capitalize;">MRK</figcaption>
                     </figure>
                     
                     <figure style="display:inline-block;--user-select:none;">
@@ -1538,13 +1540,13 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
-                            <source srcset="./media/avatars/na22.avif" type="image/avif">
-                            <source srcset="./media/avatars/na22.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-na22"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/na22.jpg"
-                                alt="na22">
+                            <source srcset="./media/avatars/stuella.avif" type="image/avif">
+                            <source srcset="./media/avatars/stuella.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-stuella"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/stuella.jpg"
+                                alt="stuella">
                         </picture>
-                        <figcaption class="ava-na22 username" style="text-transform: capitalize;">na22</figcaption>
+                        <figcaption class="ava-stuella username" style="text-transform: capitalize;">stuella</figcaption>
                     </figure>
                     
                     <figure style="display:inline-block;--user-select:none;">
@@ -1560,17 +1562,6 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
-                            <source srcset="./media/avatars/stuella.avif" type="image/avif">
-                            <source srcset="./media/avatars/stuella.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-stuella"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/stuella.jpg"
-                                alt="stuella">
-                        </picture>
-                        <figcaption class="ava-stuella username" style="text-transform: capitalize;">stuella</figcaption>
-                    </figure>
-                    
-                    <figure style="display:inline-block;--user-select:none;">
-                        <picture>
                             <source srcset="./media/avatars/copy.avif" type="image/avif">
                             <source srcset="./media/avatars/copy.webp" type="image/webp">
                             <img loading="lazy" class="friend ava-copy"
@@ -1582,13 +1573,13 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
-                            <source srcset="./media/avatars/novacans_.avif" type="image/avif">
-                            <source srcset="./media/avatars/novacans_.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-novacans_"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/novacans_.jpg"
-                                alt="novacans_">
+                            <source srcset="./media/avatars/na22.avif" type="image/avif">
+                            <source srcset="./media/avatars/na22.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-na22"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/na22.jpg"
+                                alt="na22">
                         </picture>
-                        <figcaption class="ava-novacans_ username" style="text-transform: capitalize;">novacans_</figcaption>
+                        <figcaption class="ava-na22 username" style="text-transform: capitalize;">na22</figcaption>
                     </figure>
                     
                     <figure style="display:inline-block;--user-select:none;">
@@ -1604,13 +1595,13 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
-                            <source srcset="./media/avatars/Lagia.avif" type="image/avif">
-                            <source srcset="./media/avatars/Lagia.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-Lagia"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/Lagia.jpg"
-                                alt="Lagia">
+                            <source srcset="./media/avatars/novacans_.avif" type="image/avif">
+                            <source srcset="./media/avatars/novacans_.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-novacans_"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/novacans_.jpg"
+                                alt="novacans_">
                         </picture>
-                        <figcaption class="ava-Lagia username" style="text-transform: capitalize;">Lagia</figcaption>
+                        <figcaption class="ava-novacans_ username" style="text-transform: capitalize;">novacans_</figcaption>
                     </figure>
                     
                     <figure style="display:inline-block;--user-select:none;">
@@ -1622,61 +1613,6 @@
                                 alt="mai">
                         </picture>
                         <figcaption class="ava-mai username" style="text-transform: capitalize;">mai</figcaption>
-                    </figure>
-                    
-                    <figure style="display:inline-block;--user-select:none;">
-                        <picture>
-                            <source srcset="./media/avatars/oli.avif" type="image/avif">
-                            <source srcset="./media/avatars/oli.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-oli"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/oli.jpg"
-                                alt="oli">
-                        </picture>
-                        <figcaption class="ava-oli username" style="text-transform: capitalize;">oli</figcaption>
-                    </figure>
-                    
-                    <figure style="display:inline-block;--user-select:none;">
-                        <picture>
-                            <source srcset="./media/avatars/rurikuu.avif" type="image/avif">
-                            <source srcset="./media/avatars/rurikuu.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-rurikuu"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/rurikuu.jpg"
-                                alt="rurikuu">
-                        </picture>
-                        <figcaption class="ava-rurikuu username" style="text-transform: capitalize;">rurikuu</figcaption>
-                    </figure>
-                    
-                    <figure style="display:inline-block;--user-select:none;">
-                        <picture>
-                            <source srcset="./media/avatars/crazy.avif" type="image/avif">
-                            <source srcset="./media/avatars/crazy.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-crazy"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/crazy.jpg"
-                                alt="crazy">
-                        </picture>
-                        <figcaption class="ava-crazy username" style="text-transform: capitalize;">crazy</figcaption>
-                    </figure>
-                    
-                    <figure style="display:inline-block;--user-select:none;">
-                        <picture>
-                            <source srcset="./media/avatars/Remi.avif" type="image/avif">
-                            <source srcset="./media/avatars/Remi.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-Remi"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/Remi.jpg"
-                                alt="Remi">
-                        </picture>
-                        <figcaption class="ava-Remi username" style="text-transform: capitalize;">Remi</figcaption>
-                    </figure>
-                    
-                    <figure style="display:inline-block;--user-select:none;">
-                        <picture>
-                            <source srcset="./media/avatars/汝起亚.avif" type="image/avif">
-                            <source srcset="./media/avatars/汝起亚.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-汝起亚"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/汝起亚.jpg"
-                                alt="汝起亚">
-                        </picture>
-                        <figcaption class="ava-汝起亚 username" style="text-transform: capitalize;">汝起亚</figcaption>
                     </figure>
                     
                     <figure style="display:inline-block;--user-select:none;">
@@ -1703,17 +1639,6 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
-                            <source srcset="./media/avatars/naz.avif" type="image/avif">
-                            <source srcset="./media/avatars/naz.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-naz"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/naz.jpg"
-                                alt="naz">
-                        </picture>
-                        <figcaption class="ava-naz username" style="text-transform: capitalize;">naz</figcaption>
-                    </figure>
-                    
-                    <figure style="display:inline-block;--user-select:none;">
-                        <picture>
                             <source srcset="./media/avatars/caevsz.avif" type="image/avif">
                             <source srcset="./media/avatars/caevsz.webp" type="image/webp">
                             <img loading="lazy" class="friend ava-caevsz"
@@ -1723,22 +1648,99 @@
                         <figcaption class="ava-caevsz username" style="text-transform: capitalize;">caevsz</figcaption>
                     </figure>
                     
+                    <figure style="display:inline-block;--user-select:none;">
+                        <picture>
+                            <source srcset="./media/avatars/Lagia.avif" type="image/avif">
+                            <source srcset="./media/avatars/Lagia.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-Lagia"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/Lagia.jpg"
+                                alt="Lagia">
+                        </picture>
+                        <figcaption class="ava-Lagia username" style="text-transform: capitalize;">Lagia</figcaption>
+                    </figure>
+                    
+                    <figure style="display:inline-block;--user-select:none;">
+                        <picture>
+                            <source srcset="./media/avatars/Remi.avif" type="image/avif">
+                            <source srcset="./media/avatars/Remi.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-Remi"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/Remi.jpg"
+                                alt="Remi">
+                        </picture>
+                        <figcaption class="ava-Remi username" style="text-transform: capitalize;">Remi</figcaption>
+                    </figure>
+                    
+                    <figure style="display:inline-block;--user-select:none;">
+                        <picture>
+                            <source srcset="./media/avatars/汝起亚.avif" type="image/avif">
+                            <source srcset="./media/avatars/汝起亚.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-汝起亚"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/汝起亚.jpg"
+                                alt="汝起亚">
+                        </picture>
+                        <figcaption class="ava-汝起亚 username" style="text-transform: capitalize;">汝起亚</figcaption>
+                    </figure>
+                    
+                    <figure style="display:inline-block;--user-select:none;">
+                        <picture>
+                            <source srcset="./media/avatars/oli.avif" type="image/avif">
+                            <source srcset="./media/avatars/oli.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-oli"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/oli.jpg"
+                                alt="oli">
+                        </picture>
+                        <figcaption class="ava-oli username" style="text-transform: capitalize;">oli</figcaption>
+                    </figure>
+                    
+                    <figure style="display:inline-block;--user-select:none;">
+                        <picture>
+                            <source srcset="./media/avatars/crazy.avif" type="image/avif">
+                            <source srcset="./media/avatars/crazy.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-crazy"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/crazy.jpg"
+                                alt="crazy">
+                        </picture>
+                        <figcaption class="ava-crazy username" style="text-transform: capitalize;">crazy</figcaption>
+                    </figure>
+                    
+                    <figure style="display:inline-block;--user-select:none;">
+                        <picture>
+                            <source srcset="./media/avatars/rurikuu.avif" type="image/avif">
+                            <source srcset="./media/avatars/rurikuu.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-rurikuu"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/rurikuu.jpg"
+                                alt="rurikuu">
+                        </picture>
+                        <figcaption class="ava-rurikuu username" style="text-transform: capitalize;">rurikuu</figcaption>
+                    </figure>
+                    
+                    <figure style="display:inline-block;--user-select:none;">
+                        <picture>
+                            <source srcset="./media/avatars/naz.avif" type="image/avif">
+                            <source srcset="./media/avatars/naz.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-naz"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/naz.jpg"
+                                alt="naz">
+                        </picture>
+                        <figcaption class="ava-naz username" style="text-transform: capitalize;">naz</figcaption>
+                    </figure>
+                    
                 </section>
             </section>
             <hr>
             <section name="sect" id="log" style="width:100%;height:100%;padding-top:20px;place-content:center">
                 <div style="margin:auto;width:fit-content;justify-self: center;" id="datestuff">
-                    <input min="2025-04-07" max="2026-01-13" type="date"
-                        class="cute-green" style="margin: auto;" value="2026-01-13"
+                    <input min="2025-04-07" max="2026-02-06" type="date"
+                        class="cute-green" style="margin: auto;" value="2026-02-06"
                         id="datepicker">
-                    <time datetime="2026-01-13"
-                        id="datetime">Tuesday, January 13, 2026</time>
+                    <time datetime="2026-02-06"
+                        id="datetime">Friday, February 6, 2026</time>
                 </div>
                 <noscript>
                     <iframe id="nojs" loading="lazy" src="./nojs.html"
                         style="width:100%;height:100%;border:none;"></iframe>
                 </noscript>
-                <iframe loading="lazy" src="./entries/1_13_2026/index.html" id="book"
+                <iframe loading="lazy" src="./entries/2_6_2026/index.html" id="book"
                     class="cute-blue"></iframe>
                 <div id="controls"><input id="prev" class="days buttonimage" type="image"
                         src="data:image/gif;base64,R0lGODlhFAAUAPIAAP+A///D7//b9////wAAAAAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQJMgAEACwAAAAAFAAUAAADQki63P4wyikmq0QATLfiFrgEpMWQQwmRLDqkwfrOb1DHjt22dw7vLtXoB7SlGrqiUahIAntI2myJQz6hFhQzuzVFEgAh+QQJMgAFACwAAAAAFAAUAIL/gv//yMj/w+//2/f///8AAAAAAAAAAAADRFi63P4wylkAXbaKPMFWHBUuQ3mRA2FCZVsS8OqkcK3Gw5O6Lj6rvJaPsQsKVY2icUgCBplNWwyK4tVkkxc2kN2eHIEEADs="><button
@@ -1756,7 +1758,8 @@
                     <a href="https://violetxzzz.github.io/" target="_blank">Violet's Page</a>
                     <a href="https://dohaaa0268.github.io/" target="_blank">Dohaaa's Page</a>
                     <a href="./cute-emojis" target="_blank" title="a bunch of pixely shiny emojis">cute-emojis</a>
-                    <a href="./marbles/?level=EMM" target="_blank"title="marble run game thing idk (it's so bad and not done)">Marbles</a>
+                    <a href="./marbles/?level=EMM" target="_blank"
+                        title="marble run game thing idk (it's so bad and not done)">Marbles</a>
                 </nav>
                 <h2>Tools</h2>
                 <nav class="lholder">
@@ -1857,7 +1860,7 @@
     }
     function HideBg() {
         holder.style.opacity = 0
-        show.style.visibility = 'visible'
+        show.style.visibility = 'visible' 
         show.style.opacity = 1
         holder.classList.toggle('hidden')
         Promise.race([holder.until({ events: 'transitionend', filter: o => o.propertyName === 'opacity' }), new Promise(e => setTimeout(e, 500))])
@@ -1884,7 +1887,7 @@
                 , year = a[2]
             return new Date(year, month - 1, day)
         }
-        var sources = ["1_13_2026","1_8_2026","1_1_2026","11_29_2025","11_26_2025","11_18_2025","11_14_2025","11_11_2025","11_10_2025","10_19_2025","10_2_2025","9_30_2025","9_22_2025","9_21_2025","9_18_2025","9_14_2025","9_10_2025","9_9_2025","9_5_2025","8_13_2025","8_12_2025","8_10_2025","8_7_2025","8_6_2025","8_5_2025","8_4_2025","8_3_2025","7_31_2025","7_30_2025","7_29_2025","7_28_2025","7_26_2025","7_25_2025","7_24_2025","7_22_2025","7_19_2025","7_18_2025","7_17_2025","7_16_2025","7_15_2025","7_14_2025","7_12_2025","7_11_2025","7_10_2025","7_8_2025","7_7_2025","7_6_2025","7_5_2025","7_4_2025","7_3_2025","7_2_2025","7_1_2025","6_30_2025","6_28_2025","6_27_2025","6_26_2025","6_25_2025","6_23_2025","6_22_2025","6_21_2025","6_20_2025","6_19_2025","6_18_2025","6_17_2025","6_16_2025","6_15_2025","6_12_2025","6_11_2025","6_10_2025","6_9_2025","6_8_2025","6_7_2025","6_6_2025","6_5_2025","6_4_2025","6_3_2025","6_2_2025","6_1_2025","5_30_2025","5_29_2025","5_26_2025","5_25_2025","5_24_2025","5_23_2025","5_21_2025","5_20_2025","5_18_2025","5_17_2025","5_16_2025","5_15_2025","5_14_2025","5_13_2025","5_12_2025","5_11_2025","5_10_2025","5_9_2025","5_8_2025","5_6_2025","5_4_2025","5_2_2025","5_1_2025","4_30_2025","4_28_2025","4_27_2025","4_26_2025","4_25_2025","4_23_2025","4_22_2025","4_21_2025","4_20_2025","4_19_2025","4_18_2025","4_16_2025","4_15_2025","4_13_2025","4_12_2025","4_11_2025","4_10_2025","4_8_2025","4_7_2025"]
+        var sources = ["2_6_2026","1_13_2026","1_8_2026","1_1_2026","11_29_2025","11_26_2025","11_18_2025","11_14_2025","11_11_2025","11_10_2025","10_19_2025","10_2_2025","9_30_2025","9_22_2025","9_21_2025","9_18_2025","9_14_2025","9_10_2025","9_9_2025","9_5_2025","8_13_2025","8_12_2025","8_10_2025","8_7_2025","8_6_2025","8_5_2025","8_4_2025","8_3_2025","7_31_2025","7_30_2025","7_29_2025","7_28_2025","7_26_2025","7_25_2025","7_24_2025","7_22_2025","7_19_2025","7_18_2025","7_17_2025","7_16_2025","7_15_2025","7_14_2025","7_12_2025","7_11_2025","7_10_2025","7_8_2025","7_7_2025","7_6_2025","7_5_2025","7_4_2025","7_3_2025","7_2_2025","7_1_2025","6_30_2025","6_28_2025","6_27_2025","6_26_2025","6_25_2025","6_23_2025","6_22_2025","6_21_2025","6_20_2025","6_19_2025","6_18_2025","6_17_2025","6_16_2025","6_15_2025","6_12_2025","6_11_2025","6_10_2025","6_9_2025","6_8_2025","6_7_2025","6_6_2025","6_5_2025","6_4_2025","6_3_2025","6_2_2025","6_1_2025","5_30_2025","5_29_2025","5_26_2025","5_25_2025","5_24_2025","5_23_2025","5_21_2025","5_20_2025","5_18_2025","5_17_2025","5_16_2025","5_15_2025","5_14_2025","5_13_2025","5_12_2025","5_11_2025","5_10_2025","5_9_2025","5_8_2025","5_6_2025","5_4_2025","5_2_2025","5_1_2025","4_30_2025","4_28_2025","4_27_2025","4_26_2025","4_25_2025","4_23_2025","4_22_2025","4_21_2025","4_20_2025","4_19_2025","4_18_2025","4_16_2025","4_15_2025","4_13_2025","4_12_2025","4_11_2025","4_10_2025","4_8_2025","4_7_2025"]
         var dates = sources.map(srcToDate)
             , book = D.getElementById('book')
             , prev = D.getElementById('prev')

@@ -145,7 +145,7 @@ async function images({ time, pkm, colorful, birthday }) {
     }
 
     async function spawnPkmn() {
-        setTimeout(spawnPkmn, ran.range(500, 2000))
+        setTimeout(spawnPkmn, ran.range(1000, 2500))
         if (isHidden() || !mons) return
         let pick = ran.choose(...mons)
         if (ran.jackpot(10_000))
@@ -186,6 +186,7 @@ async function images({ time, pkm, colorful, birthday }) {
                 duration *= 4
                 break
             case 'qwilfish':
+                case 'qwilfish_hisui':
                 duration *= 1.5
                 break
             case 'lanturn':
@@ -199,6 +200,7 @@ async function images({ time, pkm, colorful, birthday }) {
             case 'nihilego':
             case 'lumineon':
             case 'sharpedo':
+                case 'bruxish':
                 duration *= 2
                 break
             //        case 'corsola': element.animate([{transform: 'rotateZ(0deg)'}, {transform: `rotateZ(360deg)`}], {composite:'add',easing:'linear',duration:5000, iterations:1/0,direction:coin?'reverse':'normal'})
@@ -254,7 +256,7 @@ async function images({ time, pkm, colorful, birthday }) {
             easing: 'ease-in-out',
             composite: 'add'
         })
-        bubbl.animate([{ transform: `translateY(0px)`, }, { transform: `translateY(-110vh)` }], {
+        bubbl.animate([{ transform: `translateY(0px)`, }, { transform: `translateY(-100vh)` }], {
             easing: 'linear',
             duration: 8000,
             composite: 'add'
@@ -282,7 +284,7 @@ async function images({ time, pkm, colorful, birthday }) {
             n.onload = () => resolve(true)
             n.src = `data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADybWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAeaWxvYwAAAABEAAABAAEAAAABAAABGgAAAB0AAAAoaWluZgAAAAAAAQAAABppbmZlAgAAAAABAABhdjAxQ29sb3IAAAAAamlwcnAAAABLaXBjbwAAABRpc3BlAAAAAAAAAAIAAAACAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQ0MAAAAABNjb2xybmNseAACAAIAAYAAAAAXaXBtYQAAAAAAAAABAAEEAQKDBAAAACVtZGF0EgAKCBgANogQEAwgMg8f8D///8WfhwB8+ErK42A=`
         })
-        let avatars = ["river.webp","rikapika.webp","chlorineatt.webp","rainmint.webp","son_yukio.webp","aya.webp","may.webp","mila.webp","xzzy.webp","Dohaaa.webp","saintz.webp","elenfnf1.webp","niya.webp","mothmaddie.webp","kae.webp","lorex.webp","caelix.webp","lunza.webp","zee.webp","MRK.webp","kannadra.webp","rue.webp","znsxxe.webp","juaj.webp","ilikebugs2.webp","Professional_idiot.webp","gummicat.webp","kurispychips.webp","fourche7.webp","stav.webp","mochi.webp","khaoticgood.webp","stuella.webp","Lotus.webp","ka1ya1.webp","babby.webp","mai.webp","frannie4u.webp","ghostie.webp","glente.webp","Remi.webp","na22.webp","汝起亚.webp","valerie.webp","oli.webp","crazy.webp","zrake.webp","armaan.n.webp","auquamantis.webp","elipoopsrainbows.webp","lazy.webp","rurikuu.webp","novacans_.webp","naz.webp","west.webp","indie.webp","Lagia.webp","zoozi.webp","caevsz.webp","Violet.webp","kay_.stars.webp","morrfie.webp","kyn.webp","nova.webp","copy.webp","mr_clownette.webp","birdie.webp","lexi.webp","anarchy.webp","Leftover_Birthday-Cake.webp","gilly.webp"]
+        let avatars = ["rikapika.webp","river.webp","chlorineatt.webp","rainmint.webp","son_yukio.webp","aya.webp","mila.webp","may.webp","xzzy.webp","Dohaaa.webp","saintz.webp","elenfnf1.webp","niya.webp","kae.webp","mothmaddie.webp","lorex.webp","caelix.webp","lunza.webp","zee.webp","MRK.webp","kannadra.webp","rue.webp","juaj.webp","znsxxe.webp","ilikebugs2.webp","Professional_idiot.webp","gummicat.webp","kurispychips.webp","fourche7.webp","stav.webp","mochi.webp","khaoticgood.webp","stuella.webp","Lotus.webp","ka1ya1.webp","babby.webp","mai.webp","frannie4u.webp","ghostie.webp","Remi.webp","glente.webp","na22.webp","汝起亚.webp","valerie.webp","oli.webp","crazy.webp","zrake.webp","armaan.n.webp","auquamantis.webp","elipoopsrainbows.webp","lazy.webp","rurikuu.webp","novacans_.webp","naz.webp","west.webp","indie.webp","zoozi.webp","Lagia.webp","caevsz.webp","Violet.webp","kay_.stars.webp","morrfie.webp","kyn.webp","nova.webp","copy.webp","mr_clownette.webp","birdie.webp","lexi.webp","anarchy.webp","Leftover_Birthday-Cake.webp","gilly.webp"]
         if (isAvifSupported) avatars = avatars.map(o => o.replace('.webp', '.avif'))
         cycle = math.cycle(...ran.shuffle(...avatars))
         setInterval(bubbleWithAva, 2000)

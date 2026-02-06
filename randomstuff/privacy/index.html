@@ -205,6 +205,7 @@
                 <button id="triggerprint" style="font-variant-emoji: unicode;">Trigger Print prompt</button>
                 <button id="togglewakelock" aria-pressed="false">Toggle WakeLock</button>
                 <button id="ann">Announce on screen reader</button>
+                <button id="selectall">Select All</button>
                 <!-- <button id="blurbtn" title="Does nothing in modern browsers">Blur</button> -->
                 <!-- <button id="blurbtn" title="print to stdout">Dump</button> -->
             </div>
@@ -228,6 +229,9 @@
             }
             D.getElementById('triggerprint').onclick = function () {
                 print()
+            }
+            D.getElementById('selectall').onclick = function() {
+                D.execCommand('selectAll', false)
             }
             D.getElementById('togglewakelock').onclick = function (e) {
                 var m = e.target
@@ -269,7 +273,7 @@
                 }
                 return target[prop]
             }
-            function getLabel(t) { return t.toString().slice(8, -1) }
+            function getLabel(t) { try {return toString.call(t).slice(8, -1)}catch(e){return ''} }
             function go() {
                 if (D.readyState === 'complete') {
                     D.documentElement.style.opacity = 0
@@ -395,6 +399,7 @@
                     'scrollX',
                     'scrollY',
                     'screenLeft',
+                    'maxConnectionsPerServer',
                     'screenTop',
                     'doNotTrack',
                     'credentialless',
@@ -538,6 +543,13 @@
                     'deprecatedRunAdAuctionEnforcesKAnonymity',
                     "maxTouchPoints",
                     "onLine",
+                    'pointerEnabled',
+                    'userLanguage',
+                    'systemLanguage',
+                    'cpuClass',
+                    'browserLanguage',
+                    'appMinorVersion',
+                    'manipulationViewsEnabled',
                     "oscpu",
                     'languages',
                     "pdfViewerEnabled",
@@ -660,7 +672,8 @@
 
                 var docSect = addSect('document')
                     ;['fullscreenEnabled', 'cookie', 'hidden', 'isFullScreen', 'fullscreen','wasDiscarded','prerendering','title',
-                        'referrer', 'pictureInPictureEnabled', 'lastModified'].sort().forEach(defaultProp.bind(D, docSect, 'document.'))
+                        'referrer', 'pictureInPictureEnabled', 'lastModified','defaultCharset','fileCreatedDate','fileModifiedDate','fileUpdatedDate','mimeType',
+                    'protocol','security','capsLockWarning','nameProp'].sort().forEach(defaultProp.bind(D, docSect, 'document.'))
                 if (D.hasStorageAccess || D.hasUnpartitionedCookieAccess) {
                     (D.hasStorageAccess || D.hasUnpartitionedCookieAccess).call(D).then(function (e) {
                         addProp(docSect, 'hasStorageAccess', e)
@@ -720,7 +733,7 @@
                     else reject('screen.orientation')
                 }
                 else reject('screen')
-                if (window.viewport) {
+                if (window.viewport && window.Viewport) {
                     var viewportSect = addSect('viewport')
                     var addSectForScreen = function (obj, key) {
                         addProp(this, key, obj[key])
