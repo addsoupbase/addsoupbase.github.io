@@ -5,7 +5,7 @@ import * as v from './v4.js'
 if (matchMedia('(prefers-reduced-motion:reduce)').matches) {
     throw Error('User turned on prefers reduced motion')
 }
-let mons = ["seadra-44","relicanth-40","mantine-68","wailmer-46","qwilfish_hisui-32","feebas-72","jellicent_m-46","luvdisc-96","qwilfish-32","sharpedo-68","huntail-32","jellicent_f-46","arrokuda-40","clawitzer-40","wishiwashi-32","tentacool-36","basculegion_f-68","mantyke-40","wishiwashischool-90","gorebyss-70","remoraid-32","basculegion_m-68","inkay-36","lumineon-40","basculin_blue-24","finneon-52","lanturn-32","kyogreprimal-80","arctovish-40","alomomola-96","eelektross-68","manaphy-40","kingdra-36","basculin_white-24","tentacruel-36","bruxish-96","seaking-36","corsola-36","overqwil-44","wailord-90","phione-40","nihilego-62","goldeen-80","dhelmise-64","tynamo-24","carvanha-24","corsolagalar-36","basculin-24","kyogre-80","horsea-40"]
+let mons = ["seadra-44","relicanth-40","mantine-68","wailmer-46","qwilfish_hisui-32","feebas-72","jellicent_m-46","luvdisc-96","qwilfish-32","sharpedo-68","huntail-32","jellicent_f-46","arrokuda-40","clawitzer-40","wishiwashi-32","tentacool-36","basculegion_f-68","mantyke-40","wishiwashischool-90","gorebyss-70","remoraid-32","inkay-36","basculegion_m-68","lumineon-40","basculin_blue-24","finneon-52","lanturn-32","kyogreprimal-80","arctovish-40","alomomola-96","eelektross-68","manaphy-40","kingdra-36","basculin_white-24","tentacruel-36","bruxish-96","seaking-36","corsola-36","wailord-90","overqwil-44","phione-40","nihilego-62","goldeen-80","dhelmise-64","tynamo-24","carvanha-24","corsolagalar-36","kyogre-80","basculin-24","horsea-40"]
 let pokemons = []
 console.log(mons)
 const h = window[Symbol.for('[[HModule]]')]
@@ -62,7 +62,7 @@ bg.delegate({
     async pointerdown(e) {
         e.stopImmediatePropagation()
         count.style.opacity = 1
-        count.style.visibility='visible'
+        count.style.visibility = 'visible'
         audio.play('pop.mp3')
         let parent = Proxify(this.closest('span'))
         count.textContent = `${++popped}`
@@ -117,7 +117,7 @@ let fileFormat = await new Promise(resolve => {
         resolve(n.toDataURL('image/webp').indexOf('data:image/webp') == 0 ? '.webp' : '.jpg')
     }
 })
-let avatars  = ["xzzy","auquamantis","kannadra","kae","fourche7","glente","elipoopsrainbows","niya","mr_clownette","lorex","mochi","Dohaaa","armaan.n","zoozi","frannie4u","west","kyn","ilikebugs2","juaj","zee","znsxxe","ghostie","babby","kay_.stars","ka1ya1","river","gilly","lexi","na22","khaoticgood","indie","copy","nova","Leftover_Birthday-Cake","elenfnf1","caelix","mai","stuella","son_yukio","chlorineatt","oli","morrfie","gummicat","anarchy","rue","birdie","汝起亚","saintz","may","valerie","mila","Professional_idiot","Remi","Violet","zrake","novacans_","naz","caevsz","rurikuu","Lotus","Lagia","stav","aya","MRK","lunza","crazy","mothmaddie","rainmint","lazy","rikapika","kurispychips"]
+let avatars  = ["xzzy","auquamantis","kannadra","kae","fourche7","glente","elipoopsrainbows","niya","mr_clownette","lorex","mochi","Dohaaa","armaan.n","zoozi","frannie4u","west","kyn","ilikebugs2","juaj","znsxxe","zee","ghostie","babby","kay_.stars","ka1ya1","river","lexi","gilly","na22","khaoticgood","indie","copy","nova","Leftover_Birthday-Cake","elenfnf1","caelix","mai","stuella","son_yukio","chlorineatt","oli","morrfie","gummicat","anarchy","rue","汝起亚","birdie","saintz","may","valerie","Professional_idiot","mila","Violet","Remi","zrake","novacans_","naz","rurikuu","caevsz","Lotus","Lagia","stav","aya","MRK","lunza","crazy","rainmint","mothmaddie","lazy","rikapika","kurispychips"]
 for (let i = 0, { length } = avatars; i < length; ++i) {
     const pick = Math.floor(Math.random() * (i + 1))
     let p = avatars[i]
@@ -217,7 +217,6 @@ function pokemonthing(i, name) {
             duration *= 2.5
             break
         case 'wailord':
-            if (document.querySelector('.wailord')) return
             scale *= 5.3
             duration *= 8
             break
@@ -298,13 +297,18 @@ function spawnPkm(choice = pokemons[Math.floor(Math.random() * pokemons.length)]
     if (!pokemons.length || isHidden()) return
     let scale = Math.random() > .5 ? -1 : 1
     let dura = 17
-    switch (choice.name.match(/\w+/)[0]) {
+    let n = choice.name.match(/\w+/)[0]
+    switch (n) {
         case 'phione':
         case 'manaphy':
         case 'wailmer':
         case 'mantyke':
             dura += 6
             break
+        case 'kyogre':
+        case 'kyogreprimal':
+        case 'wailord':
+            if (document.querySelector(`.${n}`)) return
     }
     let thing = v.esc`<cel-runner aria-hidden="true" dura="${dura}ms" src="./seasprites/${choice.name}.png" class="${choice.pkm} pkm${range(0, 1000) > 999 ? ' shiny' : ''}" style="top: ${Math.random() * innerHeight}px;scale:${scale * choice.scale} ${choice.scale}"></cel-runner>`
         .setParent(bg)

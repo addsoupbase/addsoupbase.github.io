@@ -440,7 +440,7 @@
         .clamped {
             width: 100%;
             max-width: 600px;
-            max-width: min(700px, 95vw);
+            max-width: min(700px, 100vw);
             height: 100%;
             max-height: 500px;
             max-height: min(520px, 85vh);
@@ -461,6 +461,7 @@
             width: 100vw;
             height: 100vh;
             opacity: 1;
+            contain: layout style paint;
             /* transform-origin: center center; */
             image-rendering: pixelated;
             transition: opacity .3s ease-in-out, background-color 0.3s ease, border-color 0.3s ease;
@@ -564,13 +565,15 @@
             scale: 0.9 0.9;
         }
 
+
         ::view-transition-old(content) {
-            animation: mainSlideOut 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            animation: mainSlideOut 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
 
         ::view-transition-new(content) {
-            animation: mainSlideIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            animation: mainSlideIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
+
 
         @keyframes mainSlideOut {
             0% {
@@ -919,20 +922,20 @@
                         class="clamperl pokemon"><img loading="lazy" src="./media/sprites/darmanitan.gif" alt="darmanitan"
                         class="darmanitan pokemon"><img loading="lazy" src="./media/sprites/aegislash.gif" alt="aegislash"
                         class="aegislash pokemon"><img loading="lazy" src="./media/sprites/spinda.gif" alt="spinda"
-                        class="spinda pokemon"><img loading="lazy" src="./media/sprites/mawile.gif" alt="mawile"
-                        class="mawile pokemon"><img loading="lazy" src="./media/sprites/shedinja.gif" alt="shedinja"
+                        class="spinda pokemon"><img loading="lazy" src="./media/sprites/shedinja.gif" alt="shedinja"
                         class="shedinja pokemon"><img loading="lazy" src="./media/sprites/gourgeist.gif" alt="gourgeist"
-                        class="gourgeist pokemon"><img loading="lazy" src="./media/sprites/wobbuffet.gif" alt="wobbuffet"
-                        class="wobbuffet pokemon"><img loading="lazy" src="./media/sprites/trapinch.gif" alt="trapinch"
-                        class="trapinch pokemon"><img loading="lazy" src="./media/sprites/misdreavus.gif" alt="misdreavus"
+                        class="gourgeist pokemon"><img loading="lazy" src="./media/sprites/mawile.gif" alt="mawile"
+                        class="mawile pokemon"><img loading="lazy" src="./media/sprites/trapinch.gif" alt="trapinch"
+                        class="trapinch pokemon"><img loading="lazy" src="./media/sprites/wobbuffet.gif" alt="wobbuffet"
+                        class="wobbuffet pokemon"><img loading="lazy" src="./media/sprites/misdreavus.gif" alt="misdreavus"
                         class="misdreavus pokemon"><img loading="lazy" src="./media/sprites/minior.gif" alt="minior"
                         class="minior pokemon"><img loading="lazy" src="./media/sprites/zygarde.gif" alt="zygarde"
-                        class="zygarde pokemon"><img loading="lazy" src="./media/sprites/cherrim.gif" alt="cherrim"
-                        class="cherrim pokemon"><img loading="lazy" src="./media/sprites/masquerain.gif" alt="masquerain"
-                        class="masquerain pokemon"><img loading="lazy" src="./media/sprites/ogerpon.gif" alt="ogerpon"
-                        class="ogerpon pokemon"><img loading="lazy" src="./media/sprites/delcatty.gif" alt="delcatty"
-                        class="delcatty pokemon"><img loading="lazy" src="./media/sprites/pheromosa.gif" alt="pheromosa"
-                        class="pheromosa pokemon"><img loading="lazy" src="./media/sprites/tinkaton.gif" alt="tinkaton"
+                        class="zygarde pokemon"><img loading="lazy" src="./media/sprites/ogerpon.gif" alt="ogerpon"
+                        class="ogerpon pokemon"><img loading="lazy" src="./media/sprites/masquerain.gif" alt="masquerain"
+                        class="masquerain pokemon"><img loading="lazy" src="./media/sprites/cherrim.gif" alt="cherrim"
+                        class="cherrim pokemon"><img loading="lazy" src="./media/sprites/pheromosa.gif" alt="pheromosa"
+                        class="pheromosa pokemon"><img loading="lazy" src="./media/sprites/delcatty.gif" alt="delcatty"
+                        class="delcatty pokemon"><img loading="lazy" src="./media/sprites/tinkaton.gif" alt="tinkaton"
                         class="tinkaton pokemon"><img loading="lazy" src="./media/sprites/meloetta.gif" alt="meloetta"
                         class="meloetta pokemon">
                 </div>
@@ -979,6 +982,17 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
+                            <source srcset="./media/avatars/river.avif" type="image/avif">
+                            <source srcset="./media/avatars/river.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-river"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/river.jpg"
+                                alt="river">
+                        </picture>
+                        <figcaption class="ava-river username" style="text-transform: capitalize;">river</figcaption>
+                    </figure>
+                    
+                    <figure style="display:inline-block;--user-select:none;">
+                        <picture>
                             <source srcset="./media/avatars/auquamantis.avif" type="image/avif">
                             <source srcset="./media/avatars/auquamantis.webp" type="image/webp">
                             <img loading="lazy" class="friend ava-auquamantis"
@@ -997,6 +1011,17 @@
                                 alt="gilly">
                         </picture>
                         <figcaption class="ava-gilly username" style="text-transform: capitalize;">gilly</figcaption>
+                    </figure>
+                    
+                    <figure style="display:inline-block;--user-select:none;">
+                        <picture>
+                            <source srcset="./media/avatars/kae.avif" type="image/avif">
+                            <source srcset="./media/avatars/kae.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-kae"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/kae.jpg"
+                                alt="kae">
+                        </picture>
+                        <figcaption class="ava-kae username" style="text-transform: capitalize;">kae</figcaption>
                     </figure>
                     
                     <figure style="display:inline-block;--user-select:none;">
@@ -1023,13 +1048,35 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
-                            <source srcset="./media/avatars/kae.avif" type="image/avif">
-                            <source srcset="./media/avatars/kae.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-kae"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/kae.jpg"
-                                alt="kae">
+                            <source srcset="./media/avatars/fourche7.avif" type="image/avif">
+                            <source srcset="./media/avatars/fourche7.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-fourche7"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/fourche7.jpg"
+                                alt="fourche7">
                         </picture>
-                        <figcaption class="ava-kae username" style="text-transform: capitalize;">kae</figcaption>
+                        <figcaption class="ava-fourche7 username" style="text-transform: capitalize;">fourche7</figcaption>
+                    </figure>
+                    
+                    <figure style="display:inline-block;--user-select:none;">
+                        <picture>
+                            <source srcset="./media/avatars/glente.avif" type="image/avif">
+                            <source srcset="./media/avatars/glente.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-glente"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/glente.jpg"
+                                alt="glente">
+                        </picture>
+                        <figcaption class="ava-glente username" style="text-transform: capitalize;">glente</figcaption>
+                    </figure>
+                    
+                    <figure style="display:inline-block;--user-select:none;">
+                        <picture>
+                            <source srcset="./media/avatars/elipoopsrainbows.avif" type="image/avif">
+                            <source srcset="./media/avatars/elipoopsrainbows.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-elipoopsrainbows"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/elipoopsrainbows.jpg"
+                                alt="elipoopsrainbows">
+                        </picture>
+                        <figcaption class="ava-elipoopsrainbows username" style="text-transform: capitalize;">elipoopsrainbows</figcaption>
                     </figure>
                     
                     <figure style="display:inline-block;--user-select:none;">
@@ -1045,13 +1092,13 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
-                            <source srcset="./media/avatars/mr_clownette.avif" type="image/avif">
-                            <source srcset="./media/avatars/mr_clownette.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-mr_clownette"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/mr_clownette.jpg"
-                                alt="mr_clownette">
+                            <source srcset="./media/avatars/chlorineatt.avif" type="image/avif">
+                            <source srcset="./media/avatars/chlorineatt.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-chlorineatt"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/chlorineatt.jpg"
+                                alt="chlorineatt">
                         </picture>
-                        <figcaption class="ava-mr_clownette username" style="text-transform: capitalize;">mr_clownette</figcaption>
+                        <figcaption class="ava-chlorineatt username" style="text-transform: capitalize;">chlorineatt</figcaption>
                     </figure>
                     
                     <figure style="display:inline-block;--user-select:none;">
@@ -1067,35 +1114,13 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
-                            <source srcset="./media/avatars/aya.avif" type="image/avif">
-                            <source srcset="./media/avatars/aya.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-aya"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/aya.jpg"
-                                alt="aya">
+                            <source srcset="./media/avatars/mr_clownette.avif" type="image/avif">
+                            <source srcset="./media/avatars/mr_clownette.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-mr_clownette"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/mr_clownette.jpg"
+                                alt="mr_clownette">
                         </picture>
-                        <figcaption class="ava-aya username" style="text-transform: capitalize;">aya</figcaption>
-                    </figure>
-                    
-                    <figure style="display:inline-block;--user-select:none;">
-                        <picture>
-                            <source srcset="./media/avatars/rainmint.avif" type="image/avif">
-                            <source srcset="./media/avatars/rainmint.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-rainmint"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/rainmint.jpg"
-                                alt="rainmint">
-                        </picture>
-                        <figcaption class="ava-rainmint username" style="text-transform: capitalize;">rainmint</figcaption>
-                    </figure>
-                    
-                    <figure style="display:inline-block;--user-select:none;">
-                        <picture>
-                            <source srcset="./media/avatars/mila.avif" type="image/avif">
-                            <source srcset="./media/avatars/mila.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-mila"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/mila.jpg"
-                                alt="mila">
-                        </picture>
-                        <figcaption class="ava-mila username" style="text-transform: capitalize;">mila</figcaption>
+                        <figcaption class="ava-mr_clownette username" style="text-transform: capitalize;">mr_clownette</figcaption>
                     </figure>
                     
                     <figure style="display:inline-block;--user-select:none;">
@@ -1111,6 +1136,39 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
+                            <source srcset="./media/avatars/mila.avif" type="image/avif">
+                            <source srcset="./media/avatars/mila.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-mila"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/mila.jpg"
+                                alt="mila">
+                        </picture>
+                        <figcaption class="ava-mila username" style="text-transform: capitalize;">mila</figcaption>
+                    </figure>
+                    
+                    <figure style="display:inline-block;--user-select:none;">
+                        <picture>
+                            <source srcset="./media/avatars/rainmint.avif" type="image/avif">
+                            <source srcset="./media/avatars/rainmint.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-rainmint"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/rainmint.jpg"
+                                alt="rainmint">
+                        </picture>
+                        <figcaption class="ava-rainmint username" style="text-transform: capitalize;">rainmint</figcaption>
+                    </figure>
+                    
+                    <figure style="display:inline-block;--user-select:none;">
+                        <picture>
+                            <source srcset="./media/avatars/aya.avif" type="image/avif">
+                            <source srcset="./media/avatars/aya.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-aya"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/aya.jpg"
+                                alt="aya">
+                        </picture>
+                        <figcaption class="ava-aya username" style="text-transform: capitalize;">aya</figcaption>
+                    </figure>
+                    
+                    <figure style="display:inline-block;--user-select:none;">
+                        <picture>
                             <source srcset="./media/avatars/Leftover_Birthday-Cake.avif" type="image/avif">
                             <source srcset="./media/avatars/Leftover_Birthday-Cake.webp" type="image/webp">
                             <img loading="lazy" class="friend ava-Leftover_Birthday-Cake"
@@ -1118,17 +1176,6 @@
                                 alt="Leftover_Birthday-Cake">
                         </picture>
                         <figcaption class="ava-Leftover_Birthday-Cake username" style="text-transform: capitalize;">Leftover_Birthday-Cake</figcaption>
-                    </figure>
-                    
-                    <figure style="display:inline-block;--user-select:none;">
-                        <picture>
-                            <source srcset="./media/avatars/Dohaaa.avif" type="image/avif">
-                            <source srcset="./media/avatars/Dohaaa.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-Dohaaa"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/Dohaaa.jpg"
-                                alt="Dohaaa">
-                        </picture>
-                        <figcaption class="ava-Dohaaa username" style="text-transform: capitalize;">Dohaaa</figcaption>
                     </figure>
                     
                     <figure style="display:inline-block;--user-select:none;">
@@ -1144,13 +1191,13 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
-                            <source srcset="./media/avatars/znsxxe.avif" type="image/avif">
-                            <source srcset="./media/avatars/znsxxe.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-znsxxe"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/znsxxe.jpg"
-                                alt="znsxxe">
+                            <source srcset="./media/avatars/Dohaaa.avif" type="image/avif">
+                            <source srcset="./media/avatars/Dohaaa.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-Dohaaa"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/Dohaaa.jpg"
+                                alt="Dohaaa">
                         </picture>
-                        <figcaption class="ava-znsxxe username" style="text-transform: capitalize;">znsxxe</figcaption>
+                        <figcaption class="ava-Dohaaa username" style="text-transform: capitalize;">Dohaaa</figcaption>
                     </figure>
                     
                     <figure style="display:inline-block;--user-select:none;">
@@ -1166,13 +1213,13 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
-                            <source srcset="./media/avatars/elenfnf1.avif" type="image/avif">
-                            <source srcset="./media/avatars/elenfnf1.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-elenfnf1"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/elenfnf1.jpg"
-                                alt="elenfnf1">
+                            <source srcset="./media/avatars/znsxxe.avif" type="image/avif">
+                            <source srcset="./media/avatars/znsxxe.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-znsxxe"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/znsxxe.jpg"
+                                alt="znsxxe">
                         </picture>
-                        <figcaption class="ava-elenfnf1 username" style="text-transform: capitalize;">elenfnf1</figcaption>
+                        <figcaption class="ava-znsxxe username" style="text-transform: capitalize;">znsxxe</figcaption>
                     </figure>
                     
                     <figure style="display:inline-block;--user-select:none;">
@@ -1188,6 +1235,17 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
+                            <source srcset="./media/avatars/elenfnf1.avif" type="image/avif">
+                            <source srcset="./media/avatars/elenfnf1.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-elenfnf1"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/elenfnf1.jpg"
+                                alt="elenfnf1">
+                        </picture>
+                        <figcaption class="ava-elenfnf1 username" style="text-transform: capitalize;">elenfnf1</figcaption>
+                    </figure>
+                    
+                    <figure style="display:inline-block;--user-select:none;">
+                        <picture>
                             <source srcset="./media/avatars/armaan.n.avif" type="image/avif">
                             <source srcset="./media/avatars/armaan.n.webp" type="image/webp">
                             <img loading="lazy" class="friend ava-armaan.n"
@@ -1195,17 +1253,6 @@
                                 alt="armaan.n">
                         </picture>
                         <figcaption class="ava-armaan.n username" style="text-transform: capitalize;">armaan.n</figcaption>
-                    </figure>
-                    
-                    <figure style="display:inline-block;--user-select:none;">
-                        <picture>
-                            <source srcset="./media/avatars/zoozi.avif" type="image/avif">
-                            <source srcset="./media/avatars/zoozi.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-zoozi"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/zoozi.jpg"
-                                alt="zoozi">
-                        </picture>
-                        <figcaption class="ava-zoozi username" style="text-transform: capitalize;">zoozi</figcaption>
                     </figure>
                     
                     <figure style="display:inline-block;--user-select:none;">
@@ -1221,6 +1268,17 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
+                            <source srcset="./media/avatars/zoozi.avif" type="image/avif">
+                            <source srcset="./media/avatars/zoozi.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-zoozi"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/zoozi.jpg"
+                                alt="zoozi">
+                        </picture>
+                        <figcaption class="ava-zoozi username" style="text-transform: capitalize;">zoozi</figcaption>
+                    </figure>
+                    
+                    <figure style="display:inline-block;--user-select:none;">
+                        <picture>
                             <source srcset="./media/avatars/frannie4u.avif" type="image/avif">
                             <source srcset="./media/avatars/frannie4u.webp" type="image/webp">
                             <img loading="lazy" class="friend ava-frannie4u"
@@ -1232,17 +1290,6 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
-                            <source srcset="./media/avatars/caelix.avif" type="image/avif">
-                            <source srcset="./media/avatars/caelix.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-caelix"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/caelix.jpg"
-                                alt="caelix">
-                        </picture>
-                        <figcaption class="ava-caelix username" style="text-transform: capitalize;">caelix</figcaption>
-                    </figure>
-                    
-                    <figure style="display:inline-block;--user-select:none;">
-                        <picture>
                             <source srcset="./media/avatars/morrfie.avif" type="image/avif">
                             <source srcset="./media/avatars/morrfie.webp" type="image/webp">
                             <img loading="lazy" class="friend ava-morrfie"
@@ -1250,6 +1297,17 @@
                                 alt="morrfie">
                         </picture>
                         <figcaption class="ava-morrfie username" style="text-transform: capitalize;">morrfie</figcaption>
+                    </figure>
+                    
+                    <figure style="display:inline-block;--user-select:none;">
+                        <picture>
+                            <source srcset="./media/avatars/caelix.avif" type="image/avif">
+                            <source srcset="./media/avatars/caelix.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-caelix"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/caelix.jpg"
+                                alt="caelix">
+                        </picture>
+                        <figcaption class="ava-caelix username" style="text-transform: capitalize;">caelix</figcaption>
                     </figure>
                     
                     <figure style="display:inline-block;--user-select:none;">
@@ -1287,17 +1345,6 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
-                            <source srcset="./media/avatars/lunza.avif" type="image/avif">
-                            <source srcset="./media/avatars/lunza.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-lunza"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/lunza.jpg"
-                                alt="lunza">
-                        </picture>
-                        <figcaption class="ava-lunza username" style="text-transform: capitalize;">lunza</figcaption>
-                    </figure>
-                    
-                    <figure style="display:inline-block;--user-select:none;">
-                        <picture>
                             <source srcset="./media/avatars/ilikebugs2.avif" type="image/avif">
                             <source srcset="./media/avatars/ilikebugs2.webp" type="image/webp">
                             <img loading="lazy" class="friend ava-ilikebugs2"
@@ -1309,13 +1356,13 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
-                            <source srcset="./media/avatars/juaj.avif" type="image/avif">
-                            <source srcset="./media/avatars/juaj.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-juaj"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/juaj.jpg"
-                                alt="juaj">
+                            <source srcset="./media/avatars/lunza.avif" type="image/avif">
+                            <source srcset="./media/avatars/lunza.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-lunza"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/lunza.jpg"
+                                alt="lunza">
                         </picture>
-                        <figcaption class="ava-juaj username" style="text-transform: capitalize;">juaj</figcaption>
+                        <figcaption class="ava-lunza username" style="text-transform: capitalize;">lunza</figcaption>
                     </figure>
                     
                     <figure style="display:inline-block;--user-select:none;">
@@ -1331,13 +1378,13 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
-                            <source srcset="./media/avatars/river.avif" type="image/avif">
-                            <source srcset="./media/avatars/river.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-river"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/river.jpg"
-                                alt="river">
+                            <source srcset="./media/avatars/juaj.avif" type="image/avif">
+                            <source srcset="./media/avatars/juaj.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-juaj"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/juaj.jpg"
+                                alt="juaj">
                         </picture>
-                        <figcaption class="ava-river username" style="text-transform: capitalize;">river</figcaption>
+                        <figcaption class="ava-juaj username" style="text-transform: capitalize;">juaj</figcaption>
                     </figure>
                     
                     <figure style="display:inline-block;--user-select:none;">
@@ -1353,17 +1400,6 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
-                            <source srcset="./media/avatars/elipoopsrainbows.avif" type="image/avif">
-                            <source srcset="./media/avatars/elipoopsrainbows.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-elipoopsrainbows"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/elipoopsrainbows.jpg"
-                                alt="elipoopsrainbows">
-                        </picture>
-                        <figcaption class="ava-elipoopsrainbows username" style="text-transform: capitalize;">elipoopsrainbows</figcaption>
-                    </figure>
-                    
-                    <figure style="display:inline-block;--user-select:none;">
-                        <picture>
                             <source srcset="./media/avatars/zrake.avif" type="image/avif">
                             <source srcset="./media/avatars/zrake.webp" type="image/webp">
                             <img loading="lazy" class="friend ava-zrake"
@@ -1371,6 +1407,17 @@
                                 alt="zrake">
                         </picture>
                         <figcaption class="ava-zrake username" style="text-transform: capitalize;">zrake</figcaption>
+                    </figure>
+                    
+                    <figure style="display:inline-block;--user-select:none;">
+                        <picture>
+                            <source srcset="./media/avatars/ghostie.avif" type="image/avif">
+                            <source srcset="./media/avatars/ghostie.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-ghostie"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/ghostie.jpg"
+                                alt="ghostie">
+                        </picture>
+                        <figcaption class="ava-ghostie username" style="text-transform: capitalize;">ghostie</figcaption>
                     </figure>
                     
                     <figure style="display:inline-block;--user-select:none;">
@@ -1452,35 +1499,13 @@
                     
                     <figure style="display:inline-block;--user-select:none;">
                         <picture>
-                            <source srcset="./media/avatars/fourche7.avif" type="image/avif">
-                            <source srcset="./media/avatars/fourche7.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-fourche7"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/fourche7.jpg"
-                                alt="fourche7">
+                            <source srcset="./media/avatars/Violet.avif" type="image/avif">
+                            <source srcset="./media/avatars/Violet.webp" type="image/webp">
+                            <img loading="lazy" class="friend ava-Violet"
+                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/Violet.jpg"
+                                alt="Violet">
                         </picture>
-                        <figcaption class="ava-fourche7 username" style="text-transform: capitalize;">fourche7</figcaption>
-                    </figure>
-                    
-                    <figure style="display:inline-block;--user-select:none;">
-                        <picture>
-                            <source srcset="./media/avatars/ghostie.avif" type="image/avif">
-                            <source srcset="./media/avatars/ghostie.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-ghostie"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/ghostie.jpg"
-                                alt="ghostie">
-                        </picture>
-                        <figcaption class="ava-ghostie username" style="text-transform: capitalize;">ghostie</figcaption>
-                    </figure>
-                    
-                    <figure style="display:inline-block;--user-select:none;">
-                        <picture>
-                            <source srcset="./media/avatars/chlorineatt.avif" type="image/avif">
-                            <source srcset="./media/avatars/chlorineatt.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-chlorineatt"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/chlorineatt.jpg"
-                                alt="chlorineatt">
-                        </picture>
-                        <figcaption class="ava-chlorineatt username" style="text-transform: capitalize;">chlorineatt</figcaption>
+                        <figcaption class="ava-Violet username" style="text-transform: capitalize;">Violet</figcaption>
                     </figure>
                     
                     <figure style="display:inline-block;--user-select:none;">
@@ -1558,28 +1583,6 @@
                                 alt="copy">
                         </picture>
                         <figcaption class="ava-copy username" style="text-transform: capitalize;">copy</figcaption>
-                    </figure>
-                    
-                    <figure style="display:inline-block;--user-select:none;">
-                        <picture>
-                            <source srcset="./media/avatars/Violet.avif" type="image/avif">
-                            <source srcset="./media/avatars/Violet.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-Violet"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/Violet.jpg"
-                                alt="Violet">
-                        </picture>
-                        <figcaption class="ava-Violet username" style="text-transform: capitalize;">Violet</figcaption>
-                    </figure>
-                    
-                    <figure style="display:inline-block;--user-select:none;">
-                        <picture>
-                            <source srcset="./media/avatars/glente.avif" type="image/avif">
-                            <source srcset="./media/avatars/glente.webp" type="image/webp">
-                            <img loading="lazy" class="friend ava-glente"
-                                style="border-radius: 100%;width: 70px;height:70px" src="./media/avatars/glente.jpg"
-                                alt="glente">
-                        </picture>
-                        <figcaption class="ava-glente username" style="text-transform: capitalize;">glente</figcaption>
                     </figure>
                     
                     <figure style="display:inline-block;--user-select:none;">
@@ -1738,7 +1741,8 @@
                     <iframe id="nojs" loading="lazy" src="./nojs.html"
                         style="width:100%;height:100%;border:none;"></iframe>
                 </noscript>
-                <iframe loading="lazy" src="./entries/2_6_2026/index.html" id="book" class="cute-blue"></iframe>
+                <iframe loading="lazy" data-src="./entries/2_6_2026/index.html" src="./entries/2_6_2026/index.html" id="book"
+                    class="cute-blue"></iframe>
                 <div id="controls"><input id="prev" class="days buttonimage" type="image"
                         src="data:image/gif;base64,R0lGODlhFAAUAPIAAP+A///D7//b9////wAAAAAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQJMgAEACwAAAAAFAAUAAADQki63P4wyikmq0QATLfiFrgEpMWQQwmRLDqkwfrOb1DHjt22dw7vLtXoB7SlGrqiUahIAntI2myJQz6hFhQzuzVFEgAh+QQJMgAFACwAAAAAFAAUAIL/gv//yMj/w+//2/f///8AAAAAAAAAAAADRFi63P4wylkAXbaKPMFWHBUuQ3mRA2FCZVsS8OqkcK3Gw5O6Lj6rvJaPsQsKVY2icUgCBplNWwyK4tVkkxc2kN2eHIEEADs="><button
                         class="cute-green-button" id="firstlast">First</button><input style="visibility: hidden;"
@@ -1876,7 +1880,7 @@
 <script src="./bubbles.js" type="module"></script>
 <script>
     !function (D, h) {
-        'use strict'
+        // 'use strict'
         function srcToDate(o) {
             var a = o.split('_')
                 , month = a[0]
@@ -1890,6 +1894,11 @@
             , prev = D.getElementById('prev')
             , next = D.getElementById('next')
             , firstlast = D.getElementById('firstlast')
+        h.on(book, {
+            load: function () {
+                this.contentWindow.document.documentElement.scrollTop = 0
+            }
+        })
         h.on(firstlast, {
             click: function () {
                 switch (this.textContent) {
@@ -1908,7 +1917,7 @@
         var datepicker = D.getElementById('datepicker')
         var datetime = D.getElementById('datetime')
         h.on(datepicker, {
-            input: function () {
+            change: function () {
                 var a = this.value.split('-')
                 var year = a[0]
                 var month = a[1]
@@ -1935,26 +1944,45 @@
             datetime.textContent = formatDate(val)
         }
         var interval = 200
+        var waiting = false
         function setDate(date, index) {
-            var p = book.parentNode
-            var old = book
-            p.replaceChild(book = D.createElement('iframe'), old)
-            var l = old.attributes.length
-            while (l--) {
-                var n = old.attributes[l]
-                old.removeAttributeNode(n)
-                book.setAttributeNode(n)
+            if (!waiting) {
+                waiting = true
+                var xhr = new XMLHttpRequest
+                var src = './entries/' + date + '/index.html'
+                if (book.src !== 'about:blank') book.src = 'about:blank'
+                xhr.open('GET', src, true)
+                xhr.onload = function () {
+                    waiting = false
+                    var html = xhr.responseText.replace(/(\<\!DOCTYPE html\>)/i, '$1' + '<base href="' + src + '">')
+                    var base = D.createElement('base')
+                    book.dataset.src = base.href = src
+                    with (book.contentWindow) {
+                        location.reload()
+                        document.open().write(html)
+                        document.close()
+                    }
+                    updateValues(date)
+                    hideButtonsIfNeeded(index)
+                }
+                xhr.send()
+                // var p = book.parentNode
+                // var old = book
+                // p.replaceChild(book = D.createElement('iframe'), old)
+                // var l = old.attributes.length
+                // while (l--) {
+                //     var n = old.attributes[l]
+                //     old.removeAttributeNode(n)
+                //     book.setAttributeNode(n)
+                // }
+                // old.removeAttribute('src')
+                // old.srcdoc = ''
+                // old = null
+                // // iframe navigation causes a *huge* memory leak
+                // book.src = './entries/' + date + '/index.html'
+                // book.addEventListener('load', blockBFCache, { once: true })
             }
-            old.removeAttribute('src')
-            old.srcdoc = ''
-            old = null
-            // iframe navigation causes a *huge* memory leak
-            book.src = './entries/' + date + '/index.html'
-            book.addEventListener('load', blockBFCache, { once: true })
-            updateValues(date)
-            hideButtonsIfNeeded(index)
-        }
-        function blockBFCache() {
+        } function blockBFCache() {
             // unload listeners prevent bfcache so i hope that helps with the memory leak a bit
             this.contentWindow.addEventListener('unload', console.log, { once: true })
         }
@@ -1973,7 +2001,7 @@
             }
         }, interval)
         function getIndex() {
-            return sources.indexOf(book.getAttribute('src').split('/')[2])
+            return sources.indexOf(book.getAttribute('data-src').split('/')[2])
         }
     }(document, window[Symbol.for('[[HModule]]')])
 </script>
