@@ -145,8 +145,8 @@
             border: 1px solid #7ec8d8;
         }
 
-        .btn-primary:hover,
-        button.primary:hover {
+        :is(.btn-primary,
+            button.primary):hover {
             background-color: #7ec8d8;
             box-shadow: 0 4px 12px rgba(126, 200, 216, 0.3);
             transform: translateY(-2px);
@@ -159,8 +159,8 @@
             border: 1px solid #d0dce8;
         }
 
-        .btn-secondary:hover,
-        button.secondary:hover {
+        :is(.btn-secondary,
+            button.secondary):hover {
             background-color: #d0dce8;
             color: #2d3748;
         }
@@ -201,9 +201,9 @@
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
-        input:focus,
-        textarea:focus,
-        select:focus {
+        :is(input,
+            textarea,
+            select):focus {
             outline: none;
             border-color: #a8d8e8;
             box-shadow: 0 0 0 3px rgba(168, 216, 232, 0.15);
@@ -341,10 +341,9 @@
                 -->
             </div>
             <code id="dir"></code>
-            <div id="pairStatus" style="margin-top: 0.5rem; font-size: 0.9rem;"></div>
+            <!-- <div id="pairStatus" style="margin-top: 0.5rem; font-size: 0.9rem;"></div> -->
         </div>
-        <div id="pairsContainer" class="file-pair-list"
-            style="display: none; width: 80%; margin-left: auto; margin-right: auto;"></div>
+        <!-- <div id="pairsContainer" class="file-pair-list"style="display: none; width: 80%; margin-left: auto; margin-right: auto;"></div> -->
         <ul class="card"
             style="overflow-y:auto;max-height: 70vh;display: grid;padding:5px;word-break: break-word;width:80%;place-self: center; text-align: left;"
             id="output"></ul>
@@ -353,6 +352,8 @@
     <script type="module">
         import * as v from './v4.js'
         const { $ } = v
+        class TemplateProcessingError extends Error { name = 'TemplateProcessingError' }
+        class PathNotFoundError extends Error { name = 'PathNotFoundError' }
         function setStatus(state) {
             let color = 'grey'
             blob.classList.remove('active')
@@ -390,7 +391,7 @@
         let defineComment = /<\!--{{@define((?:(?!}}).)*?)}}--\>/s
         let scriptComment = /<\!--@script\(([^)]+)\)--\>/
         let postProcess = /<\!--{{@postprocess((?:(?!}}).)*?)}}--\>/s
-        const prefix = /^(?:dove|bun)\.(?!(?:html|js)$)/
+        const prefix = /^(?:dove|bun)\.(?!(?:js|html?|css|xml|json)$)/
         const { uploadDirectory, //uploadPairs, 
             output, blob } = v.id
         const AsyncFunction = async function () { }.constructor
@@ -399,23 +400,24 @@
         let observer = new FileSystemObserver(async function (e) {
             // fileCache.clear()
             setStatus('active')
-            for (let record of e) {
-                let rel
+            for (let i = 0, l = e.length; i < l; ++i) {
+                const record = e[i]
+                let rel = record.relativePathComponents
                     , path
-                if (record.relativePathComponents[0]?.[0] !== '.') try {
-                    rel = record.relativePathComponents
+                if (rel[0]?.[0] !== '.') try {
                     path = rel.join('/')
                     let { changedHandle: ch } = record
                     fileCache.delete(path)
                     switch (record.type) {
                         case 'appeared': {
                             let isTemplate = prefix.test(ch.name)
-                            log(rel, 'success', `Create ${path}`)
-                            if (ch.kind === 'file' && isTemplate) {
+                            log(rel, 'success', `Create ${path}${ch.kind === 'directory' ? '/' : ''}`)
+                            if (ch.kind === 'file' && isTemplate)
                                 await editFile(rel, ch)
-                            }
-                            let subs = dynamicFolders.get(rel.slice(0, -1).join('/'))
+                            let myFolder = rel.slice(0, -1).join('/')
+                            let subs = dynamicFolders.get(myFolder)
                             if (subs) {
+                                directoryCache.delete(myFolder)
                                 let promises = []
                                 for (let sub of subs) {
                                     let thisPath = sub.split('/')
@@ -438,6 +440,7 @@
                             else if (dynamicFolders.has(folderPath)) {
                                 // let folder = await getFolderFromPath(dir)
                                 let subs = dynamicFolders.get(folderPath)
+                                directoryCache.delete(folderPath)
                                 let promises = []
                                 for (let sub of subs) {
                                     let thisPath = sub.split('/')
@@ -454,10 +457,9 @@
                                 debugger
                                 // }
                             }
-                            else {
-                                if (prefix.test(ch.name)) {
+                            else if (ch.kind === 'file') {
+                                if (prefix.test(ch.name))
                                     await editFile(rel, ch)
-                                }
                                 else if (dynamicFiles.has(path)) {
                                     let subscribers = dynamicFiles.get(path)
                                     let promises = []
@@ -469,9 +471,21 @@
                                     await Promise.all(promises)
                                 }
                             }
+                            else debugger
                         }
                             break
                         case 'moved':
+                            let oldPathSegments = record.relativePathMovedFrom
+                            let oldPath = oldPathSegments.join('/')
+                            if (ch.kind === 'file' && prefix.test(ch.name)) {
+                                log(path, 'warning', `Moved a template file ${oldPath} to ${path}. Maybe not what you meant to do?`)
+                            }
+                            else {
+                                if (dynamicFolders.has(oldPath)) {
+                                    log(oldPathSegments, 'warning', `Moved a dynamic folder ${oldPath} to ${path}. Maybe not what you meant to do?`)
+                                }
+                                directoryCache.delete(oldPath)
+                            }
                             break
                         default: console.error(record)
                     }
@@ -497,8 +511,7 @@
                                     await editFile(path, file, true)
                                 }
                                 catch (e) {
-                                    path = path.join('/')
-                                    log(path, 'error', `${e} (${path})`)
+                                    log(path, 'error', `${e} (${path.join('/')})`)
                                     setStatus('error')
                                     throw e
                                 }
@@ -508,7 +521,7 @@
                 }
                 setStatus('finished')
                 observer.observe(folder, { recursive: true })
-                this.purge()
+                this.style.visibility = 'hidden'
                 // console.log(fileCache)
             }
         })
@@ -530,13 +543,13 @@
         }
         async function editFile(path, file, firstTime) {
             let folder = await getFolderFromPath(path.slice(0, -1))
-            let pathString = path.join('/')
-            let fileName = file.name
-            let newFileName = fileName.replace(prefix, '')
-            let output = await folder.getFileHandle(newFileName, { create: true })
-            let outputFile = await output.getFile()
-            let inputFile = await file.getFile()
-            let text = await evaluate(await inputFile.text(), new URL(pathString, baseURL), path)
+            , pathString = path.join('/')
+            , fileName = file.name
+            , newFileName = fileName.replace(prefix, '')
+            , output = await folder.getFileHandle(newFileName, { create: true })
+            , outputFile = await output.getFile()
+            , inputFile = await file.getFile()
+            , text = await evaluate(await inputFile.text(), new URL(pathString, baseURL), path)
             if (text == null) {
                 log(path, 'warning', `Template for ${pathString} returned ${text} `)
             }
@@ -562,6 +575,7 @@
                     return await getFileText(src, localPath)
                 },
                 async script(src) {
+                    // specifically for inline scripts in html
                     return (await context.file(src)).replace(/<\/script>/g, '<\x2fscript>')
                 },
                 get currentPath() {
@@ -597,28 +611,44 @@
                     text = text.replaceAll(template, out)
                 }
             }
-            if (post && func) if (typeof(text = await func(context, text)) !== 'string') throw TypeError(`Bad value passed from postprocessor: ${{}.toString.call(text).slice(8,-1)}`)
+            if (post && func) if (typeof (text = await func(context, text)) !== 'string') throw new TemplateProcessingError(`Bad value passed from postprocessor: ${{}.toString.call(text).slice(8, -1)}`, { cause: func })
             // So the file can process itself afterwards
             return text
         }
         let fileCache = new Map
+        let directoryCache = new Map
         let dependencies = new Map
         let evalCache = new Map
         function cacheFunc(sourceCode) {
+            // try {
+            // console.time("cacheFunc")
             if (evalCache.has(sourceCode)) return evalCache.get(sourceCode)
             let out = Function(sourceCode)
             evalCache.set(sourceCode, out)
             return out
+            // }
+            // finally {
+            // console.timeEnd('cacheFunc')
+            // }
         }
         async function getSpecificFileHandle(src, localPathURL = baseURL) {
-            if (fileCache.has(src)) return fileCache.get(src)
             let url = new URL(src, localPathURL.toString())
+            let path = url.pathname.substring(1)
+            // try {
+            // console.time(path)
+            if (fileCache.has(path)) {
+                return fileCache.get(path)
+            }
             let route = getSegments(src, localPathURL)
             let fileName = route.pop()
             let folder = await getFolderFromPath(route)
             let out = await folder.getFileHandle(fileName)
-            fileCache.set(url.toString(), out)
+            fileCache.set(path, out)
             return out
+            /* }
+             finally {
+                 console.timeEnd(path)
+             }*/
         }
         const baseURL = new URL('file:///')
         async function getSpecificFile(src, localPathURL = baseURL) {
@@ -634,15 +664,28 @@
             return resolve(src, localPathURL.pathname.substring(1))
         }
         async function getFolderFromPath(path, folder = watchingRoot) {
-            for (let i = 0, l = path.length; i < l; ++i) {
-                folder = await folder.getDirectoryHandle(path[i])
+            try {
+                for (let i = 0, l = path.length; i < l; ++i) folder = await folder.getDirectoryHandle(path[i])
+                return folder
             }
-            return folder
+            catch (e) {
+                if (e.name === 'NotFoundError') throw new PathNotFoundError(`Directory not found: ${path.join('/')}`)
+            }
         }
         async function getFolderEntries(src, localPath) {
+            // console.time('folder')
+            // try {
             let segments = resolve(src, localPath)
-            dynamicFolders.getOrInsert(segments.join('/'), new Set).add(localPath)
-            return (await Array.fromAsync((await getFolderFromPath(segments)).keys())).sort()
+            let path = segments.join('/')
+            dynamicFolders.getOrInsert(path, new Set).add(localPath)
+            let out = directoryCache.get(path)
+            if (!out)
+                directoryCache.set(path, out = (await Array.fromAsync((await getFolderFromPath(segments)).keys())).sort())
+            return out
+            // }
+            /*finally {
+                console.timeEnd('folder')
+            }*/
         }
         function resolve(src, localPath) {
             return new URL(src, baseURL + localPath).toString().substring(7).split('/').filter(Boolean)
