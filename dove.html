@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dove 🕊️</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .loader {
+            position: relative;
+            top: 10px;
+            left: 10px;
+            width: 50px;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background:
+                radial-gradient(farthest-side, #ffa516 94%, #0000) top/8px 8px no-repeat,
+                conic-gradient(#0000 30%, #ffa516);
+            mask: radial-gradient(farthest-side, #0000 calc(100% - 8px), #000 0);
+            -webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 8px), #000 0);
+            animation: l13 1s infinite linear;
+        }
+
+        @media screen and (width <=520px) {
+            #blob {
+                top: auto !important;
+                bottom: 20px;
+                left: auto !important;
+                /* bottom: 10px; */
+                right: 20px;
+                /* margin: auto; */
+            }
+        }
+
+        @keyframes throb {
+            0% {
+                scale: 1 1
+            }
+
+            50% {
+                scale: .6.6
+            }
+
+            100% {
+                scale: 1 1
+            }
+        }
+
+
+
+        #blob {
+            width: 30px;
+            height: 30px;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            --blob-light: grey;
+            background-color: var(--blob-light);
+            border: 2px solid color-mix(in srgb, var(--blob-light), black 20%);
+            border-radius: 100%;
+        }
+
+        #blob.active {
+            animation: throb .7s ease infinite;
+        }
+
+        @keyframes l13 {
+            100% {
+                transform: rotate(1turn)
+            }
+        }
+
+        body {
+            font-family: "Segoe UI", "Gill Sans", sans-serif;
+            background: linear-gradient(135deg, #c8d0e0 0%, #b8c5d8 100%);
+            color: #4a5568;
+            line-height: 1.6;
+            min-height: 100vh;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #2d3748;
+            margin-bottom: 1rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .card {
+            background: ivory;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-block: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e0e7ff;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        button,
+        .btn {
+            appearance: none;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            letter-spacing: 0.3px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary,
+        button.primary {
+            background-color: #a8d8e8;
+            color: #2d3748;
+            border: 1px solid #7ec8d8;
+        }
+
+        .btn-primary:hover,
+        button.primary:hover {
+            background-color: #7ec8d8;
+            box-shadow: 0 4px 12px rgba(126, 200, 216, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary,
+        button.secondary {
+            background-color: #e8eef5;
+            color: #4a5568;
+            border: 1px solid #d0dce8;
+        }
+
+        .btn-secondary:hover,
+        button.secondary:hover {
+            background-color: #d0dce8;
+            color: #2d3748;
+        }
+
+        button {
+            background-color: #f0f4f8;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
+        }
+
+        button:hover {
+            background-color: #e2e8f0;
+            color: #2d3748;
+        }
+
+        a {
+            color: #7ec8d8;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        a:hover {
+            color: #5fa8b8;
+            text-decoration: underline;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            background-color: #fafbfc;
+            color: #2d3748;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #a8d8e8;
+            box-shadow: 0 0 0 3px rgba(168, 216, 232, 0.15);
+            background-color: white;
+        }
+
+        .accent {
+            color: #a8d8e8;
+            font-weight: 600;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #d0dce8, transparent);
+            margin: 2rem 0;
+        }
+
+        .dove-header {
+            text-align: center;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .dove-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background-color: #e8f0f7;
+            color: #5fa8b8;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .success {
+            color: #48bb78;
+        }
+
+        .info {
+            color: #4299e1;
+        }
+
+        samp {
+            font-family: monospace;
+        }
+
+        .edit {
+            color: #00e7fc;
+        }
+
+        .delete {
+            text-decoration-line: line-through;
+            text-decoration-color: red;
+        }
+
+        .warning {
+            color: rgb(213, 139, 0);
+        }
+
+        .error {
+            color: #e53e3e;
+        }
+
+        /* :is(.success, .info, .warning, .error, .delete, .default)::before {
+            content: "•";
+            margin-inline: 4px;
+        } */
+
+        #output:empty::after {
+            content: "Logs go here...";
+            place-self: center;
+            color: grey;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .file-pair-list {
+            margin-top: 1rem;
+            text-align: left;
+        }
+
+        .file-pair-item {
+            background: #f8f9fa;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-pair-item button {
+            padding: 4px 8px;
+            font-size: 0.85rem;
+        }
+
+        hr {
+            border: 1px solid blue;
+            width: 95%;
+            place-self: center;
+            margin-block: 5px
+        }
+
+        li {
+            width: 90%;
+            place-self: center;
+            word-break: auto-phrase;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="padding: 5px;">
+        <div style="margin-bottom: 1rem;">
+            <div class="button-group">
+                <button id="uploadDirectory" autofocus class="primary">Upload Directory</button>
+                <!-- <button id="uploadPairs" class="secondary">Upload File Pairs</button> -->
+                <!--
+                at first i was gonna add file pairs option because the old version of this was
+                super slow and would replace every single file on one change
+                but now i'm not sure if it's needed!
+                -->
+            </div>
+            <code id="dir"></code>
+            <div id="pairStatus" style="margin-top: 0.5rem; font-size: 0.9rem;"></div>
+        </div>
+        <div id="pairsContainer" class="file-pair-list"
+            style="display: none; width: 80%; margin-left: auto; margin-right: auto;"></div>
+        <ul class="card"
+            style="overflow-y:auto;max-height: 70vh;display: grid;padding:5px;word-break: break-word;width:80%;place-self: center; text-align: left;"
+            id="output"></ul>
+    </div>
+    <div id="blob"></div>
+    <script type="module">
+        import * as v from './v4.js'
+        const { $ } = v
+        function setStatus(state) {
+            let color = 'grey'
+            blob.classList.remove('active')
+            blob.ariaBusy = output.ariaBusy = false
+            switch (state) {
+                case 'inactive':
+                    color = 'grey'
+                    break
+                case 'finished':
+                    color = 'green'
+                    break
+                case 'warn':
+                    color = 'yellow'
+                    break
+                case 'error':
+                    color = 'red'
+                    break
+                case 'active':
+                    blob.classList.add('active')
+                    blob.ariaBusy = output.ariaBusy = true
+                    color = 'purple'
+                    break
+            }
+            blob.style.setProperty('--blob-light', color)
+        }
+        function log(path, type = 'info', message) {
+            // document.getElementById(path)?.remove()
+            output.firstNode = $`<li role="log" class="${type}" data-path="${path.join('/')}"><samp>${message}</samp></li>`
+            while (output.childElementCount > 30) {
+                output.lastElementChild.remove()
+            }
+        }
+        let jsComment = /\/\*:(?<code>.*?)\*\//gs
+        let htmlComment = /<\!--{{((?:(?!}}).)*?)}}--\>/gs
+        let defineComment = /<\!--{{@define((?:(?!}}).)*?)}}--\>/s
+        let scriptComment = /<\!--@script\(([^)]+)\)--\>/
+        let postProcess = /<\!--{{@postprocess((?:(?!}}).)*?)}}--\>/s
+        const prefix = /^(?:dove|bun)\.(?!(?:html|js)$)/
+        const { uploadDirectory, //uploadPairs, 
+            output, blob } = v.id
+        const AsyncFunction = async function () { }.constructor
+        let watchingRoot = null
+        let structure = new Map
+        let observer = new FileSystemObserver(async function (e) {
+            // fileCache.clear()
+            setStatus('active')
+            for (let record of e) {
+                let rel
+                    , path
+                if (record.relativePathComponents[0]?.[0] !== '.') try {
+                    rel = record.relativePathComponents
+                    path = rel.join('/')
+                    let { changedHandle: ch } = record
+                    fileCache.delete(path)
+                    switch (record.type) {
+                        case 'appeared': {
+                            let isTemplate = prefix.test(ch.name)
+                            log(rel, 'success', `Create ${path}`)
+                            if (ch.kind === 'file' && isTemplate) {
+                                await editFile(rel, ch)
+                            }
+                            let subs = dynamicFolders.get(rel.slice(0, -1).join('/'))
+                            if (subs) {
+                                let promises = []
+                                for (let sub of subs) {
+                                    let thisPath = sub.split('/')
+                                    promises.push(editFile(thisPath, await getSpecificFileHandle(sub)))
+                                }
+                                await Promise.all(promises)
+                            }
+                        }
+                            break
+                        case 'disappeared': {
+                            let dir = rel.slice(0, -1)
+                            let folderPath = dir.join('/')
+                            log(rel, 'delete', `Delete ${path}`)
+                            for (let [folderPath, need] of dynamicFolders) {
+                                need.delete(path)
+                            }
+                            if (dynamicFiles.has(path)) {
+                                console.error(`Deleted dependency: ${path}`)
+                            }
+                            else if (dynamicFolders.has(folderPath)) {
+                                // let folder = await getFolderFromPath(dir)
+                                let subs = dynamicFolders.get(folderPath)
+                                let promises = []
+                                for (let sub of subs) {
+                                    let thisPath = sub.split('/')
+                                    promises.push(editFile(thisPath, await getSpecificFileHandle(sub)))
+                                }
+                                await Promise.all(promises)
+                            }
+                        }
+                            break
+                        case 'modified': {
+                            if (ch.kind === 'directory') {
+                                // if (dynamicFolders.has(path)) {
+                                // let subscribers = dy
+                                debugger
+                                // }
+                            }
+                            else {
+                                if (prefix.test(ch.name)) {
+                                    await editFile(rel, ch)
+                                }
+                                else if (dynamicFiles.has(path)) {
+                                    let subscribers = dynamicFiles.get(path)
+                                    let promises = []
+                                    for (let path of subscribers) {
+                                        let subPath = path.split('/')
+                                        let file = await getSpecificFileHandle(path)
+                                        promises.push(editFile(subPath, file))
+                                    }
+                                    await Promise.all(promises)
+                                }
+                            }
+                        }
+                            break
+                        case 'moved':
+                            break
+                        default: console.error(record)
+                    }
+                } catch (e) {
+                    setStatus('error')
+                    log(rel, 'error', `${e} (${path})`)
+                    throw e
+                }
+            }
+            setStatus('finished')
+        })
+        uploadDirectory.on({
+            async click() {
+                let folder = watchingRoot = await showDirectoryPicker()
+                for await (let { folder, file } of traverseFiles(watchingRoot)) {
+                    if (file.name[0] !== '.') {
+                        let { name } = file
+                        if (isEditable.test(name)) {
+                            let path
+                            if (prefix.test(name)) {
+                                path = await watchingRoot.resolve(file)
+                                try {
+                                    await editFile(path, file, true)
+                                }
+                                catch (e) {
+                                    path = path.join('/')
+                                    log(path, 'error', `${e} (${path})`)
+                                    setStatus('error')
+                                    throw e
+                                }
+                            }
+                        }
+                    }
+                }
+                setStatus('finished')
+                observer.observe(folder, { recursive: true })
+                this.purge()
+                // console.log(fileCache)
+            }
+        })
+        let isEditable = /[^.]\.(?:js|html?|css|xml|json)$/
+        async function* traverseFiles(directory, depth = 0) {
+            depth === 0 && setStatus('active')
+            for await (let { 0: name, 1: handle } of directory.entries()) {
+                switch (handle.kind) {
+                    case 'directory':
+                        yield* traverseFiles(handle, depth + 1)
+                        // yield* traverseFiles(handle)
+                        break
+                    default: {
+                        let file = handle
+                        if (file.name[0] !== '.') yield { folder: directory, file }
+                    }
+                }
+            }
+        }
+        async function editFile(path, file, firstTime) {
+            let folder = await getFolderFromPath(path.slice(0, -1))
+            let pathString = path.join('/')
+            let fileName = file.name
+            let newFileName = fileName.replace(prefix, '')
+            let output = await folder.getFileHandle(newFileName, { create: true })
+            let outputFile = await output.getFile()
+            let inputFile = await file.getFile()
+            let text = await evaluate(await inputFile.text(), new URL(pathString, baseURL), path)
+            if (text == null) {
+                log(path, 'warning', `Template for ${pathString} returned ${text} `)
+            }
+            log(path, firstTime ? 'default' : 'info', `${firstTime ? 'Add' : 'Edit'} ${pathString} (${new Date(outputFile.lastModified).toLocaleTimeString()})`)
+            await using writer = await output.createWritable({ mode: 'exclusive' })
+            await writer.write(text)
+        }
+        let dynamicFolders = new Map
+        let dynamicFiles = new Map
+        async function evaluate(text, localPath, pathSegments) {
+            let define = text.match(defineComment)
+            let env = []
+            let context = {
+                __proto__: null,
+                esc: v.escapeTagged,
+                async dir(path) {
+                    let out = await getFolderEntries(path, pathSegments.join('/'))
+                    return out
+                },
+                async file(src) {
+                    let me = localPath.pathname.substring(1)
+                    dynamicFiles.getOrInsert(resolve(src, localPath.pathname).join('/'), new Set).add(me)
+                    return await getFileText(src, localPath)
+                },
+                async script(src) {
+                    return (await context.file(src)).replace(/<\/script>/g, '<\x2fscript>')
+                },
+                get currentPath() {
+                    return localPath.pathname.substring(1).split('/').slice(0, -1).join('/')
+                },
+                localPath
+            }
+            let post = text.match(postProcess)
+            if (post) {
+                text = text.replace(postProcess, '')
+            }
+            let replacements = []
+            if (define) {
+                text = text.replace(defineComment, '')
+                env.push(define[1])
+            }
+            let script = text.match(scriptComment)
+            if (script) {
+                let txt = await getFileText(script[1], localPath)
+                text = text.replace(script[0], '')
+                script = txt
+                // env.push(txt.trim())
+            }
+            replacements.push(...text.matchAll(jsComment), ...text.matchAll(htmlComment))
+            replacements = [...new Set(replacements)]
+            for (let i = replacements.length; i--;) {
+                let { 0: template, 1: code } = replacements[i]
+                if (text.includes(template)) {
+                    // don't bother making a new function if the source code is the same
+                    // since calling the function constructor is kinda expensive
+                    var func = cacheFunc(`with(arguments[0])return(async()=>{'use strict';${script ? script + ';' : ''}if(typeof arguments[1]=='string'){let text=arguments[1]${post ? `;${post[1].trimStart()}` : ''}}else{${env.concat(code).join(';')}\n}throw SyntaxError('Missing return value in template function')})()`)
+                    let out = await func(context, null)
+                    text = text.replaceAll(template, out)
+                }
+            }
+            if (post && func) if (typeof(text = await func(context, text)) !== 'string') throw TypeError(`Bad value passed from postprocessor: ${{}.toString.call(text).slice(8,-1)}`)
+            // So the file can process itself afterwards
+            return text
+        }
+        let fileCache = new Map
+        let dependencies = new Map
+        let evalCache = new Map
+        function cacheFunc(sourceCode) {
+            if (evalCache.has(sourceCode)) return evalCache.get(sourceCode)
+            let out = Function(sourceCode)
+            evalCache.set(sourceCode, out)
+            return out
+        }
+        async function getSpecificFileHandle(src, localPathURL = baseURL) {
+            if (fileCache.has(src)) return fileCache.get(src)
+            let url = new URL(src, localPathURL.toString())
+            let route = getSegments(src, localPathURL)
+            let fileName = route.pop()
+            let folder = await getFolderFromPath(route)
+            let out = await folder.getFileHandle(fileName)
+            fileCache.set(url.toString(), out)
+            return out
+        }
+        const baseURL = new URL('file:///')
+        async function getSpecificFile(src, localPathURL = baseURL) {
+            let thing = getSegments(src, localPathURL)
+            let key = localPathURL.pathname.substring(1)
+            dynamicFiles.getOrInsert(thing.join('/'), new Set).add(key)
+            return await (await getSpecificFileHandle(src, localPathURL)).getFile()
+        }
+        async function getFileText(src, localPathURL = baseURL) {
+            return await (await getSpecificFile(src, localPathURL)).text()
+        }
+        function getSegments(src, localPathURL) {
+            return resolve(src, localPathURL.pathname.substring(1))
+        }
+        async function getFolderFromPath(path, folder = watchingRoot) {
+            for (let i = 0, l = path.length; i < l; ++i) {
+                folder = await folder.getDirectoryHandle(path[i])
+            }
+            return folder
+        }
+        async function getFolderEntries(src, localPath) {
+            let segments = resolve(src, localPath)
+            dynamicFolders.getOrInsert(segments.join('/'), new Set).add(localPath)
+            return (await Array.fromAsync((await getFolderFromPath(segments)).keys())).sort()
+        }
+        function resolve(src, localPath) {
+            return new URL(src, baseURL + localPath).toString().substring(7).split('/').filter(Boolean)
+        }
+        // setStatus('active')
+    </script>
+</body>
+<script>
+    WritableStream.prototype[Symbol.asyncDispose] = function () { return this.close() }
+</script>
+
+</html>

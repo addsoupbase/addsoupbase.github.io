@@ -4,7 +4,9 @@
 video {
   max-width: 100%;
 }
-
+code {
+  font-family: monospace;
+}
 .avatar {
   width: 125px;
   max-height: fit-content ;
@@ -22,6 +24,7 @@ html {
   scrollbar-width: thin;
   --scrollbar-thumb-color: #5ACBCD;
   --scrollbar-color: rgb(244, 223, 226);
+  scroll-behavior: smooth;
   /* font-size: smaller; */
 }
 
