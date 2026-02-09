@@ -33,7 +33,7 @@
   width: 60px;
   height: 60px;
   image-rendering: auto;
-  background-size: contain;
+  background-size: 100% 100%;
 
   position: absolute;
   left: 20px;
@@ -280,11 +280,13 @@ a {
   scale: 1.2 1.2
 }
 
-.qwilfish,
-.bruxish {
+.qwilfish,.qwilfish_hisui
+ {
   scale: 1.5 1.5
 }
-
+.bruxish {
+  scale: 2 2
+}
 :is(.jellicent_f,
   .jellicent_m) .shiny {
   filter: hue-rotate(302deg);
