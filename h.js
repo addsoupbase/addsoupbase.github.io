@@ -488,8 +488,8 @@
     }
     function until(target, settings, _, $, t) {
         if (typeof settings === 'object') {
-            var events = settings.events,
-                failures = settings.failure,
+            var events = settings.events || settings.resolve,
+                failures = settings.failure || settings.reject,
                 filter = settings.filter,
                 timeout = settings.timeout
         }

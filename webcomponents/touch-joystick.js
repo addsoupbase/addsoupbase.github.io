@@ -83,10 +83,11 @@ class Joystick extends HTMLElement {
             this.dispatchEvent(new CustomEvent('hold'))
         }
     }
-
+    connectedcallback() {
+        this.setAttribute('role', [this.getAttribute('role') || '', 'application'].filter(Boolean).join(' '))
+    }
     constructor() {
         super()
-        this.setAttribute('role', [this.getAttribute('role') || '', 'application'].filter(Boolean).join(' '))
         let t = $(this)
         for (let i in Joystick.#events) this[`on${i}`] = Joystick.#events[i]
         t.on({ $contextmenu: no })
@@ -114,19 +115,19 @@ class Joystick extends HTMLElement {
         }
                 :host {
                 ${css.toCSS({
-                    width: '120px',
-                    height: '120px',
-                    'touch-action': 'none',
-                    'place-items': 'center',
-                    '--user-select': 'none',
-                    '--touch-callout': 'none',
-                    'place-content': 'center',
-                    opacity: 0.5,
-                    'background-color': '#6a7b80',
-                    display: 'flex',
-                    // position: 'fixed',
-                    'border-radius': '100%',
-                })}
+                width: '120px',
+                height: '120px',
+                'touch-action': 'none',
+                'place-items': 'center',
+                '--user-select': 'none',
+                '--touch-callout': 'none',
+                'place-content': 'center',
+                opacity: 0.5,
+                'background-color': '#6a7b80',
+                display: 'flex',
+                // position: 'fixed',
+                'border-radius': '100%',
+            })}
                 }`
         }).valueOf())
         shadow.appendChild(
