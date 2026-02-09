@@ -334,7 +334,7 @@
             }
         }
         o[W("input[type=date]")] = { cursor: 'text' }
-        o[W("button,a,input[type=button],input[type=checkbox],input[type=radio],input[type=submit],input[type=image],input[type=reset],input[type=file]")] = { cursor: 'pointer' }
+        o[W("button,a,[role=button],[role=tab],[role=combobox],[role=switch],input[type=button],input[type=checkbox],input[type=radio],input[type=submit],input[type=image],input[type=reset],input[type=file]")] = { cursor: 'pointer' }
         o[W('[aria-busy=true]')] = { cursor: 'progress' }
         o[W('[draggable=false]')] = { '--user-drag': 'none' }
         o[W('[draggable=true]')] = { '--user-drag': 'element' }

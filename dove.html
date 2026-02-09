@@ -12,6 +12,28 @@
             box-sizing: border-box;
         }
 
+        .retry {
+            width: 50px;
+            height: 50px;
+            top: 0px;
+            right: 0px;
+            transition: scale .2s ease;
+            position: fixed;
+            background-image: url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjMDAwMDAwIiB2aWV3Qm94PSItNy41IDAgMzIgMzIiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBpZD0iU1ZHUmVwb19iZ0NhcnJpZXIiIHN0cm9rZS13aWR0aD0iMCI+PC9nPjxnIGlkPSJTVkdSZXBvX3RyYWNlckNhcnJpZXIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PC9nPjxnIGlkPSJTVkdSZXBvX2ljb25DYXJyaWVyIj4gPHRpdGxlPnJlc3RhcnQ8L3RpdGxlPiA8cGF0aCBkPSJNMTUuODggMTMuODRjLTEuNjgtMy40OC01LjQ0LTUuMjQtOS4wNDAtNC42bDAuOTYtMS44YzAuMjQtMC40IDAuMDgwLTAuOTItMC4zMi0xLjEyLTAuNC0wLjI0LTAuOTItMC4wODAtMS4xMiAwLjMybC0xLjk2IDMuNjRjMCAwLTAuNDQgMC43MiAwLjI0IDEuMDQwbDMuNjQgMS45NmMwLjEyIDAuMDgwIDAuMjggMC4xMiAwLjQgMC4xMiAwLjI4IDAgMC42LTAuMTYgMC43Mi0wLjQ0IDAuMjQtMC40IDAuMDgwLTAuOTItMC4zMi0xLjEybC0xLjg4LTEuMDQwYzIuODQtMC40OCA1LjggMC45NiA3LjEyIDMuNjggMS42IDMuMzIgMC4yIDcuMzItMy4xMiA4Ljg4LTEuNiAwLjc2LTMuNCAwLjg4LTUuMDgwIDAuMjhzLTMuMDQwLTEuOC0zLjgtMy40Yy0wLjc2LTEuNi0wLjg4LTMuNC0wLjI4LTUuMDgwIDAuMTYtMC40NC0wLjA4MC0wLjkyLTAuNTItMS4wODAtMC40LTAuMDgwLTAuODggMC4xNi0xLjA0MCAwLjYtMC43MiAyLjEyLTAuNiA0LjM2IDAuMzYgNi4zNnMyLjY0IDMuNTIgNC43NiA0LjI4YzAuOTIgMC4zMiAxLjg0IDAuNDggMi43NiAwLjQ4IDEuMjQgMCAyLjQ4LTAuMjggMy42LTAuODQgNC4xNi0yIDUuOTItNyAzLjkyLTExLjEyeiI+PC9wYXRoPiA8L2c+PC9zdmc+)
+        }
+
+        .retry:active {
+            scale: .9 .9
+        }
+
+        @media screen and (width <=240px) {
+            .retry {
+                top: auto;
+                left: 20px;
+                bottom: 20px;
+            }
+        }
+
         .loader {
             position: relative;
             top: 10px;
@@ -55,8 +77,8 @@
 
 
         #blob {
-            width: 30px;
-            height: 30px;
+            width: 36px;
+            height: 36px;
             position: fixed;
             top: 20px;
             left: 20px;
@@ -261,7 +283,7 @@
 
         .delete {
             text-decoration-line: line-through;
-            text-decoration-color: red;
+            text-decoration-color: rgba(255, 0, 0, 0.325);
         }
 
         .warning {
@@ -321,8 +343,9 @@
         }
 
         li {
-            width: 90%;
-            place-self: center;
+            /* width: 90%; */
+            place-self: flex-start;
+            margin-left: 20px;
             word-break: auto-phrase;
         }
     </style>
@@ -348,6 +371,7 @@
             style="overflow-y:auto;max-height: 70vh;display: grid;padding:5px;word-break: break-word;width:80%;place-self: center; text-align: left;"
             id="output"></ul>
     </div>
+    <div id="retry" class="retry" title="Retry" role="button" class="retry" style="visibility: hidden;"></div>
     <div id="blob"></div>
     <script type="module">
         import * as v from './v4.js'
@@ -394,8 +418,14 @@
         const prefix = /^(?:dove|bun)\.(?!(?:js|html?|css|xml|json)$)/
         const { uploadDirectory, //uploadPairs, 
             currentDirectoryElement,
+            retry,
             output, blob } = v.id
         const AsyncFunction = async function () { }.constructor
+        retry.on({
+            click() {
+                begin(watchingRoot)
+            }
+        })
         let watchingRoot = null
         let observer = new FileSystemObserver(async function (e) {
             // fileCache.clear()
@@ -491,6 +521,7 @@
                     }
                 } catch (e) {
                     setStatus('error')
+                    retry.style.visibility = 'visible'
                     log(rel, 'error', `${e} (${path})`)
                     throw e
                 }
@@ -499,29 +530,9 @@
         })
         uploadDirectory.on({
             async click() {
-                [fileCache, dynamicFiles, dynamicFolders, directoryCache].forEach(o => o.clear())
                 let folder = watchingRoot = await showDirectoryPicker()
                 currentDirectoryElement.textContent = folder.name
-                for await (let { folder, file } of traverseFiles(watchingRoot)) {
-                    if (file.name[0] !== '.') {
-                        let { name } = file
-                        if (isEditable.test(name)) {
-                            let path
-                            if (prefix.test(name)) {
-                                path = await watchingRoot.resolve(file)
-                                try {
-                                    await editFile(path, file, true)
-                                }
-                                catch (e) {
-                                    log(path, 'error', `${e} (${path.join('/')})`)
-                                    setStatus('error')
-                                    throw e
-                                }
-                            }
-                        }
-                    }
-                }
-                setStatus('finished')
+                await begin(folder)
                 observer.observe(folder, { recursive: true })
                 this.style.visibility = 'hidden'
                 // console.log(fileCache)
@@ -543,14 +554,38 @@
                 }
             }
         }
+        async function begin(watchingRoot) {
+            [fileCache, dynamicFiles, dynamicFolders, directoryCache].forEach(o => o.clear())
+            retry.style.visibility = 'hidden'
+            for await (let { folder, file } of traverseFiles(watchingRoot)) {
+                let { name } = file
+                if (name[0] !== '.') {
+                    if (isEditable.test(name)) {
+                        let path
+                        if (prefix.test(name)) {
+                            path = await watchingRoot.resolve(file)
+                            try {
+                                await editFile(path, file, true)
+                            }
+                            catch (e) {
+                                log(path, 'error', `${e} (${path.join('/')})`)
+                                setStatus('error')
+                                retry.style.visibility = 'visible'
+                                throw e
+                            }
+                        }
+                    }
+                }
+            }
+            setStatus('finished')
+        }
         async function editFile(path, file, firstTime) {
             let folder = await getFolderFromPath(path.slice(0, -1))
                 , pathString = path.join('/')
                 , fileName = file.name
                 , newFileName = fileName.replace(prefix, '')
                 , output = await folder.getFileHandle(newFileName, { create: true })
-                , outputFile = await output.getFile()
-                , inputFile = await file.getFile()
+                , { 0: inputFile, 1: outputFile } = await Promise.all([file.getFile(), output.getFile()])
                 , text = await evaluate(await inputFile.text(), new URL(pathString, baseURL), path)
             if (text == null) {
                 log(path, 'warning', `Template for ${pathString} returned ${text} `)
@@ -564,7 +599,7 @@
         async function evaluate(text, localPath, pathSegments) {
             let define = text.match(defineComment)
             let env = []
-            let context = Object.freeze({
+            let context = {
                 __proto__: null,
                 TemplateProcessingError,
                 PathNotFoundError,
@@ -614,12 +649,11 @@
                     return localPath.pathname.substring(1).split('/').slice(0, -1).join('/')
                 },
                 localPath
-            })
+            }
             let post = text.match(postProcess)
             if (post) {
                 text = text.replace(postProcess, '')
             }
-            let replacements = []
             if (define) {
                 text = text.replace(defineComment, '')
                 env.push(define[1])
@@ -631,14 +665,13 @@
                 script = txt
                 // env.push(txt.trim())
             }
-            replacements.push(...text.matchAll(jsComment), ...text.matchAll(htmlComment))
-            replacements = [...new Set(replacements)]
+            let replacements = [...new Set([...text.matchAll(jsComment), ...text.matchAll(htmlComment)])]
             for (let i = replacements.length; i--;) {
                 let { 0: template, 1: code } = replacements[i]
                 if (text.includes(template)) {
                     // don't bother making a new function if the source code is the same
                     // since calling the function constructor is kinda expensive
-                    var func = cacheFunc(`with(arguments[0])return(async()=>{'use strict';${script ? script + ';' : ''}if(typeof arguments[1]=='string'){let text=arguments[1]${post ? `;${post[1].trimStart()}` : ''}}else{${env.concat(code).join(';')}\n}throw new TemplateProcessingError('Missing return value in template function')})()`)
+                    var func = cacheFunc(`with(this)return(async()=>{'use strict';${script ? script + ';' : ''}\nif(typeof arguments[0]==='string'){let text=arguments[0]${post ? `;${post[1].trim()}\n` : ''}}else{${env.concat(code).join(';')}\n}throw new TemplateProcessingError('Missing return value in template function',{cause:arguments.callee})})()`)
                     // so basically i can explain everything and why it's like this:
 
                     // - the `with` statement makes it convenient to use variables of choice,
@@ -656,11 +689,11 @@
 
                     // - and then it throws by default if no return statement is reached
 
-                    let out = await func(context, null)
+                    let out = await func.call(context, null)
                     text = text.replaceAll(template, out)
                 }
             }
-            if (post && func) if (typeof (text = await func(context, text)) !== 'string') throw new TemplateProcessingError(`Bad value passed from postprocessor: ${{}.toString.call(text).slice(8, -1)}`, { cause: func })
+            if (post && func) if (typeof (text = await func.call(context, text)) !== 'string') throw new TemplateProcessingError(`Bad value passed from postprocessor: ${{}.toString.call(text).slice(8, -1)}`, { cause: func })
             // ^ So the file can process itself afterwards
             return text
         }
