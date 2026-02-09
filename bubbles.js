@@ -5,7 +5,7 @@ import * as v from './v4.js'
 if (matchMedia('(prefers-reduced-motion:reduce)').matches) {
     throw Error('User turned on prefers reduced motion')
 }
-let mons = ["seadra-44","relicanth-40","mantine-68","wailmer-46","qwilfish_hisui-32","feebas-72","jellicent_m-46","luvdisc-96","qwilfish-32","sharpedo-68","huntail-32","jellicent_f-46","arrokuda-40","clawitzer-40","wishiwashi-32","tentacool-36","basculegion_f-68","mantyke-40","wishiwashischool-90","gorebyss-70","remoraid-32","inkay-36","basculegion_m-68","lumineon-40","basculin_blue-24","finneon-52","lanturn-32","kyogreprimal-80","arctovish-40","alomomola-96","eelektross-68","manaphy-40","kingdra-36","basculin_white-24","tentacruel-36","bruxish-96","seaking-36","corsola-36","wailord-90","overqwil-44","phione-40","nihilego-62","goldeen-80","dhelmise-64","tynamo-24","carvanha-24","corsolagalar-36","kyogre-80","basculin-24","horsea-40"]
+let mons = ["alomomola-96","arctovish-40","arrokuda-40","basculegion_f-68","basculegion_m-68","basculin-24","basculin_blue-24","basculin_white-24","bruxish-96","carvanha-24","clawitzer-40","corsola-36","corsolagalar-36","dhelmise-64","eelektross-68","feebas-72","finneon-52","goldeen-80","gorebyss-70","horsea-40","huntail-32","inkay-36","jellicent_f-46","jellicent_m-46","kingdra-36","kyogre-80","kyogreprimal-80","lanturn-32","lumineon-40","luvdisc-96","manaphy-40","mantine-68","mantyke-40","nihilego-62","overqwil-44","phione-40","qwilfish-32","qwilfish_hisui-32","relicanth-40","remoraid-32","seadra-44","seaking-36","sharpedo-68","tentacool-36","tentacruel-36","tynamo-24","wailmer-46","wailord-90","wishiwashi-32","wishiwashischool-90"]
 let pokemons = []
 console.log(mons)
 const h = window[Symbol.for('[[HModule]]')]
@@ -117,11 +117,11 @@ let fileFormat = await new Promise(resolve => {
         resolve(n.toDataURL('image/webp').indexOf('data:image/webp') == 0 ? '.webp' : '.jpg')
     }
 })
-let avatars  = ["xzzy","auquamantis","kannadra","kae","fourche7","glente","elipoopsrainbows","niya","mr_clownette","lorex","mochi","Dohaaa","armaan.n","zoozi","frannie4u","west","kyn","ilikebugs2","juaj","znsxxe","zee","ghostie","babby","kay_.stars","ka1ya1","river","lexi","gilly","na22","khaoticgood","indie","copy","nova","Leftover_Birthday-Cake","elenfnf1","caelix","mai","stuella","son_yukio","chlorineatt","oli","morrfie","gummicat","anarchy","rue","汝起亚","birdie","saintz","may","valerie","Professional_idiot","mila","Violet","Remi","zrake","novacans_","naz","rurikuu","caevsz","Lotus","Lagia","stav","aya","MRK","lunza","crazy","rainmint","mothmaddie","lazy","rikapika","kurispychips"]
+let avatars  = ["Dohaaa","Lagia","Leftover_Birthday-Cake","Lotus","MRK","Professional_idiot","Remi","Violet","anarchy","armaan.n","auquamantis","aya","babby","birdie","caelix","caevsz","chlorineatt","copy","crazy","elenfnf1","elipoopsrainbows","fourche7","frannie4u","ghostie","gilly","glente","gummicat","ilikebugs2","indie","juaj","ka1ya1","kae","kannadra","kay_.stars","khaoticgood","kurispychips","kyn","lazy","lexi","lorex","lunza","mai","may","mila","mochi","morrfie","mothmaddie","mr_clownette","na22","naz","niya","nova","novacans_","oli","rainmint","rikapika","river","rue","rurikuu","saintz","son_yukio","stav","stuella","valerie","west","xzzy","zee","znsxxe","zoozi","zrake","汝起亚"]
 for (let i = 0, { length } = avatars; i < length; ++i) {
     const pick = Math.floor(Math.random() * (i + 1))
     let p = avatars[i]
-    css.registerCSSRaw(`.user-${CSS.escape(p)} {background-image: url("./media/avatars/${p}${fileFormat}")}`)
+    css.write(`.user-${CSS.escape(p)} {background-image: url("./media/avatars/${p}${fileFormat}")}`)
         ; ({ 0: avatars[i], 1: avatars[pick] } = [avatars[pick], avatars[i]])
 }
 let i = 0

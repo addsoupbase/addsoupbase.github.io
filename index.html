@@ -336,12 +336,12 @@
             color: white;
             position: relative;
             word-break: keep-all;
-            width:max-content;
+            width: max-content;
             top: 35px;
         }
 
         .avatar {
-            background-size: contain;
+            background-size: 100% 100%;
             --touch-callout: none;
             border-radius: 100%;
             width: 100%;
@@ -1886,7 +1886,7 @@
             , firstlast = D.getElementById('firstlast')
         h.on(book, {
             load: function () {
-                this.contentWindow.addEventListener('unload', console.log, { once: true }) 
+                this.contentWindow.addEventListener('unload', console.log, { once: true })
                 // unload listeners block bfcache in some browsers so i wonder if it helps with the memory leak?
                 this.contentWindow.document.documentElement.scrollTop = 0
             }
@@ -1949,11 +1949,11 @@
                     var html = xhr.responseText.replace(/(\<\!DOCTYPE html\>)/i, '$1' + '<base href="' + src + '">')
                     var base = D.createElement('base')
                     book.dataset.src = base.href = src
-                    with (book.contentWindow) {
-                        location.reload()
-                        document.open().write(html)
-                        document.close()
-                    }
+                    var frame = book.contentWindow
+                    var d = frame.document
+                    frame.location.reload()
+                    d.open().write(html)
+                    d.close()
                     updateValues(date)
                     hideButtonsIfNeeded(index)
                 }
