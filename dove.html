@@ -608,7 +608,7 @@
                     let out = await getFolderEntries(path, pathSegments.join('/'))
                     return out
                 },
-                async getFileData(src) {
+                async metadata(src) {
                     let s = resolve(src, localPath.pathname)
                     let file = await getSpecificFile(src, localPath)
                     addToDynamicFiles(s, localPath)
@@ -690,6 +690,12 @@
                     // - and then it throws by default if no return statement is reached
 
                     let out = await func.call(context, null)
+                    let a = `${out}`.match(notWhatYouWant)
+                    if (a) {
+                        log(pathSegments, 'warning', `Unexpected string coercion: ${a}`)
+                        console.warn(`Unexpected string coercion: ${a} @${localPath}`)
+                    } 
+                    if (out instanceof Promise) log(pathSegments, 'warning', `Promise not unwrapped`)
                     text = text.replaceAll(template, out)
                 }
             }
@@ -697,6 +703,7 @@
             // ^ So the file can process itself afterwards
             return text
         }
+        let notWhatYouWant = /\[object \w+\]/
         let fileCache = new Map
         let directoryCache = new Map
         let evalCache = new Map
