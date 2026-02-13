@@ -158,7 +158,8 @@ class PaperCanvas extends HTMLElement {
         let canvas = this.canvas = v.esc`<canvas id="canvas" style="image-rendering:auto;width:${width}px;height:${height}px" width="${width}" height="${height}">`
         this.ctx = Object.assign(canvas.getContext('2d', { willReadFrequently: true }), PaperCanvas.#BASE_CONTEXT_ATTRIBUTES)
         this.ctx.fillRect(0, 0, width, height)
-        v.Proxify(shadow).pushNode(canvas, style.cloneNode(true))
+        shadow.adoptedStyleSheets = [style]
+        v.Proxify(shadow).pushNode(canvas)
         t.on({
             pointermove,
             pointerdown,
@@ -168,15 +169,16 @@ class PaperCanvas extends HTMLElement {
     }
 }
 function $contextmenu(){}
-let style = v.esc`<style>:host{
+let style = new CSSStyleSheet
+style.replaceSync(`:host{
         ${css.toCSS({
-    cursor: 'url(https://addsoupbase.github.io/media/Windows_7_MS_Paint_Pencil.png), crosshair',
+    cursor: 'crosshair',
     '--user-select': 'none',
     'touch-action': 'none',
     'background-color': 'white',
     display: 'inline-grid',
     border: '1px solid black',
-})}}</style>`
+})}}`)
 if (customElements.get('paper-canvas') !== PaperCanvas) {
     let d = customElements.whenDefined('paper-canvas')
     customElements.define('paper-canvas', PaperCanvas)
