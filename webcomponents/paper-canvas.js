@@ -138,7 +138,7 @@ class PaperCanvas extends HTMLElement {
         }
     }
     get brushsize() {
-        return this.ctx.strokeWidth
+        return this.ctx.lineWidth
     }
     set brushsize(val) {
         this.setAttribute('brushsize', val)
@@ -170,7 +170,7 @@ class PaperCanvas extends HTMLElement {
 function $contextmenu(){}
 let style = v.esc`<style>:host{
         ${css.toCSS({
-    cursor: 'url(http://www.rw-designer.com/cursor-extern.php?id=27347), crosshair',
+    cursor: 'url(https://addsoupbase.github.io/media/Windows_7_MS_Paint_Pencil.cur), crosshair',
     '--user-select': 'none',
     'touch-action': 'none',
     'background-color': 'white',

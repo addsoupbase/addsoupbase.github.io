@@ -508,7 +508,7 @@
                             let oldPathSegments = record.relativePathMovedFrom
                             let oldPath = oldPathSegments.join('/')
                             if (ch.kind === 'file' && prefix.test(ch.name)) {
-                                log(path, 'warning', `Moved a template file ${oldPath} to ${path}. Maybe not what you meant to do?`)
+                                log(rel, 'warning', `Moved a template file ${oldPath} to ${path}. Maybe not what you meant to do?`)
                             }
                             else {
                                 if (dynamicFolders.has(oldPath)) {
