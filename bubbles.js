@@ -7,7 +7,6 @@ if (matchMedia('(prefers-reduced-motion:reduce)').matches) {
 }
 let mons = ["alomomola-96","arctovish-40","arrokuda-40","basculegion_f-68","basculegion_m-68","basculin-24","basculin_blue-24","basculin_white-24","bruxish-96","carvanha-24","clawitzer-40","corsola-36","corsolagalar-36","dhelmise-64","eelektross-68","feebas-72","finneon-52","goldeen-80","gorebyss-70","horsea-40","huntail-32","inkay-36","jellicent_f-46","jellicent_m-46","kingdra-36","kyogre-80","kyogreprimal-80","lanturn-32","lumineon-40","luvdisc-96","manaphy-40","mantine-68","mantyke-40","nihilego-62","overqwil-44","phione-40","qwilfish-32","qwilfish_hisui-32","relicanth-40","remoraid-32","seadra-44","seaking-36","sharpedo-68","tentacool-36","tentacruel-36","tynamo-24","wailmer-46","wailord-90","wishiwashi-32","wishiwashischool-90"]
 let pokemons = []
-console.log(mons)
 const h = window[Symbol.for('[[HModule]]')]
 audio.load('./media/pop.mp3')
 const { css } = v
@@ -82,7 +81,8 @@ bg.delegate({
         parent.replaceChildren(pic.valueOf())
         pic.style.willChange = 'transform,filter'
         pic.animFrom('fade_in', { duration: 300, iterations: 1 })
-        pic.animFrom('dissolve', { duration: 700, iterations: 1, delay: 2000, composite: 'add' }).onfinish = kill
+        await pic.animFrom('dissolve', { duration: 700, iterations: 1, delay: 2000, composite: 'add' }).finished
+        pic.parent.purge(true)
     }
 }, o => o.closest('span')?.dataset.popped === 'false', false, new AbortController)
 bg.on({
