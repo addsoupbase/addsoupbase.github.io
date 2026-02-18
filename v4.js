@@ -10,7 +10,7 @@ export function ce(htmlOrTag) {
     if (Regex.frag.test(htmlOrTag)) {
         node = D.createDocumentFragment()
         let doc = parse(htmlOrTag.replace(Regex.frag, '$1'))
-        node.appendChild(doc.firstChild)
+        node.appendChild(doc)
     }
     else if (isHTMLSyntax(htmlOrTag)) {
         node = parse(htmlOrTag).firstElementChild
@@ -64,9 +64,10 @@ function handleSub(sub, replace) {
     return escapeHTML(String(sub))
 }
 export function $(strings, ...subs) {
-    const hasSubs = !!subs.length
-    if (!hasSubs) {
-        if (nodeCache.has(strings.raw)) return Proxify(nodeCache.get(strings.raw).cloneNode(true))
+    if (typeof strings === 'string') return ce(strings)
+    if (!subs.length) {
+        let { raw } = strings
+        if (nodeCache.has(raw)) return Proxify(nodeCache.get(raw).cloneNode(true))
         let out = ce(strings.join(''))
         let node = base(out)
         nodeCache.set(strings, node.cloneNode(true))
@@ -74,10 +75,8 @@ export function $(strings, ...subs) {
     }
     let result = []
         , replace = { map: new Map, toReplace: 0 }
-    for (let i = 0, n = strings.length, { length } = subs; i < n; ++i) {
-        let sub = subs[i]
-        result.push(`${strings[i]}${i < length ? handleSub(sub, replace) : ''}`)
-    }
+    for (let i = 0, n = strings.length, { length } = subs; i < n; ++i) 
+        result.push(`${strings[i]}${i < length ? handleSub(subs[i], replace) : ''}`)
     let out = ce(result.join(''))
     let node = base(out)
     // conclusion: TreeWalker > XPath & NodeIterator
@@ -130,7 +129,7 @@ export function sel(t) {
 }
 export function escapeTagged(strings, ...subs) {
     let out = ''
-     for (let i = 0, n = strings.length, { length } = subs; i < n; ++i) {
+    for (let i = 0, n = strings.length, { length } = subs; i < n; ++i) {
         let sub = subs[i]
         out += `${strings[i]}${i < length ? escapeHTML(sub) : ''}`
     }
