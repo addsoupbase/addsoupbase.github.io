@@ -6,20 +6,24 @@ const D = document
 function label(r) { return r[Symbol.toStringTag] }
 var parse = (parse = new Range).createContextualFragment.bind(parse)
 export function ce(htmlOrTag) {
-    let elt
-    if (isHTMLSyntax(htmlOrTag)) {
-        elt = parse(htmlOrTag).firstElementChild
+    let node
+    if (Regex.frag.test(htmlOrTag)) {
+        node = D.createDocumentFragment()
+        let doc = parse(htmlOrTag.replace(Regex.frag, '$1'))
+        node.appendChild(doc.firstChild)
+    }
+    else if (isHTMLSyntax(htmlOrTag)) {
+        node = parse(htmlOrTag).firstElementChild
     }
     else {
         let tag = htmlOrTag.match(Regex.tag)?.[0]
-        elt = D.createElement(tag)
-        elt.className = htmlOrTag.match(Regex.class)?.map(o => o.substring(1)).join(' ') || ''
+        node = D.createElement(tag)
+        node.className = htmlOrTag.match(Regex.class)?.map(o => o.substring(1)).join(' ') || ''
         let id = htmlOrTag.match(Regex.id)?.[0].substring(1) || ''
-        if (id) elt.id = id
-        //@dev console.assert(elt.matches(htmlOrTag))
+        if (id) node.id = id
+        //@dev console.assert(node.matches(htmlOrTag))
     }
-    //@dev console.assert(Element.prototype.isPrototypeOf(elt), `Output wasn't an element (${label(elt)})`)
-    return Proxify(elt)
+    return Proxify(node)
 }
 const Regex = {
     tag: /[\w-]+/i,
@@ -27,7 +31,10 @@ const Regex = {
     id: /#([\w-]+)/,
     evtAttr: /^\(([_$^%&!?@#<>|\w]+)\)$/,
     comment: /^@Replace #\d+$/,
-    html: /^\s*<.*>\s*$/s
+    html: /^\s*<.*>\s*$/s,
+    apos: /'/g,
+    q: /"/g,
+    frag: /^\s*<>(.*)<\/>$/s
 }
 const isHTMLSyntax = / /.test.bind(Regex.html)
 export let body = D.body && Proxify(D.body)
@@ -59,7 +66,7 @@ function handleSub(sub, replace) {
 export function $(strings, ...subs) {
     const hasSubs = !!subs.length
     if (!hasSubs) {
-        if (nodeCache.has(strings)) return Proxify(nodeCache.get(strings).cloneNode(true))
+        if (nodeCache.has(strings.raw)) return Proxify(nodeCache.get(strings.raw).cloneNode(true))
         let out = ce(strings.join(''))
         let node = base(out)
         nodeCache.set(strings, node.cloneNode(true))
@@ -80,7 +87,7 @@ export function $(strings, ...subs) {
         let o
         while (o = walker.nextNode()) o.replaceWith(map.get(o.textContent))
     }
-    if (node.hasAttributes()) {
+    if (node.nodeType === 1 && node.hasAttributes()) {
         let events = {}
         let attr = node.getAttributeNames()
         let config = { enumerable: true, writable: true, configurable: true }
@@ -121,6 +128,16 @@ export function sel(t) {
     if (Element.prototype.isPrototypeOf(t)) return Proxify(t)
     throw TypeError(`Target must be an element: ${label(t)}`)
 }
-function escapeHTML(s) { (a ??= D.createElement('p')).textContent = s; return a.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;') } let a
-
+export function escapeTagged(strings, ...subs) {
+    let out = ''
+     for (let i = 0, n = strings.length, { length } = subs; i < n; ++i) {
+        let sub = subs[i]
+        out += `${strings[i]}${i < length ? escapeHTML(sub) : ''}`
+    }
+    return out
+}
+export function escapeHTML(s) { (a ??= D.createElement('p')).textContent = s; return a.innerHTML.replace(Regex.q, '&quot;').replace(Regex.apos, '&#39;') } let a
 //@dev window.$ = esc
+//@dev 'body'in window || Object.defineProperty(window, 'body', {get() {return Proxify(document.querySelector('body'))}})
+//@dev window.escapeHTML = txt => escapeHTML(prompt(txt))
+//@dev window.esc = escapeTagged

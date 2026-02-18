@@ -118,6 +118,7 @@ export function ProxyFactory(myClass, Interface = globalThis[myClass.name.replac
     readonly(Generator, 'prototype', myClass.prototype) // We must make sure the new object has the right prototype
     readonly(myClass, Cache, cache)
     function Generator(Target) {
+        //@devif (SpecialProxy.isProxy(Target)) throw ReferenceError(`Cannot proxify an existing Proxy of interface #<${Interface.name}>`)
         //@dev console.assert(Interface.prototype.isPrototypeOf(Target), `Expected a #<${Interface.name}>, instead got a #<${label(Target)}>`, Target)
         if (cache.has(Target)) return cache.get(Target)
         if (new.target && new.target !== Generator) return Reflect.construct(myClass, [Target], new.target) // There is an upgrade available!
@@ -129,7 +130,7 @@ export function ProxyFactory(myClass, Interface = globalThis[myClass.name.replac
         targets.set(instance, Target)
         let proxy = new SpecialProxy(instance, handler, Target)
         cache.set(Target, proxy)
-        //@devif (proxify(Target) !== proxify(Target)) throw ReferenceError('Proxy identity check failed')
+        //@devif (proxy !== proxify(Target)) throw ReferenceError('Proxy identity check failed')
         return proxy
     }
     if (Interface !== Object) {
@@ -187,5 +188,9 @@ function classify(Interface, Generator) {
 export function base(obj) {
     return SpecialProxy.isProxy(obj) ? getTarget(SpecialProxy.getWrapper(obj))
         : obj
+}
+export function proxy(obj) {
+    return SpecialProxy.isProxy(obj) ? obj
+        : proxify(obj)
 }
 //@dev window.proxify = proxify

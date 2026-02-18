@@ -20,7 +20,7 @@ function toDash(prop) {
 function frag(nodes) {
     let n = document.createDocumentFragment()
     nodes = [].slice.call(nodes)
-    for(let i = 0, l = nodes.length; i < l; ++i) 
+    for (let i = 0, l = nodes.length; i < l; ++i)
         n.appendChild(nodes[i])
     return n
 }
@@ -30,6 +30,15 @@ class Node$ extends EventTargetProxy {
     *[Symbol.iterator]() {
         let n = this.childNodes
         for (let i = 0, l = n.length; i < l; ++i) yield Proxify(n[i])
+    }
+    adopt(frag) {
+        this.appendChild(base(frag))
+        return Proxify(this)
+    }
+    import(frag) {
+        frag = base(frag)
+        this.appendChild(frag.cloneNode(true))
+        return Proxify(frag)
     }
     delegate(events, filter, includeSelf, controller) {
         events = { ...events }
@@ -53,6 +62,9 @@ class Node$ extends EventTargetProxy {
         me.empty(deep)
         Proxify.Destroy(me)
         return null
+    }
+    kill() {
+        return this.purge()
     }
     set parent(node) {
         base(node).appendChild(this)
@@ -123,8 +135,8 @@ class Node$ extends EventTargetProxy {
         return n && Proxify(n)
     }
     set prevNode(val) {
-        if (!parent) throw TypeError(`Cannot set prevNode on orphan`)
         let parent = this.parentNode
+        if (!parent) throw TypeError(`Cannot set prevNode on orphan`)
         parent.insertBefore(base(val), this)
     }
     get nextNode() {

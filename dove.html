@@ -434,7 +434,7 @@
                 const record = e[i]
                 let rel = record.relativePathComponents
                     , path
-                if (rel[0]?.[0] !== '.') try {
+                if (rel[0]?.[0] !== '.' && !ignore(rel)) try {
                     path = rel.join('/')
                     let { changedHandle: ch } = record
                     fileCache.delete(path)
@@ -544,7 +544,7 @@
             for await (let { 0: name, 1: handle } of directory.entries()) {
                 switch (handle.kind) {
                     case 'directory':
-                        yield* traverseFiles(handle, depth + 1)
+                        if (handle.name[0] !== '.') yield* traverseFiles(handle, depth + 1)
                         // yield* traverseFiles(handle)
                         break
                     default: {
@@ -603,6 +603,7 @@
                 __proto__: null,
                 TemplateProcessingError,
                 PathNotFoundError,
+                imageSet,
                 esc: v.escapeTagged,
                 async dir(path) {
                     let out = await getFolderEntries(path, pathSegments.join('/'))
@@ -694,7 +695,7 @@
                     if (a) {
                         log(pathSegments, 'warning', `Unexpected string coercion: ${a}`)
                         console.warn(`Unexpected string coercion: ${a} @${localPath}`)
-                    } 
+                    }
                     if (out instanceof Promise) log(pathSegments, 'warning', `Promise not unwrapped`)
                     text = text.replaceAll(template, out)
                 }
@@ -828,6 +829,13 @@
             return new URL(src, baseURL + localPath).toString().substring(7).split('/').filter(Boolean)
         }
         // setStatus('active')
+        function imageSet(...formats) {
+            let def = `background-image:${formats.map(o=>`url(${o.at(-1)})`).join(',')};`
+            return def+['', '-webkit-'].map(o => `background-image:${formats.map(srces =>
+                `${o}image-set(${srces.map(src => `url(${src}) type("image/${src.split('.').at(-1)}")`)})`
+            )}`).join(';') + ';'
+        }
+        function ishidden(o) { return o.startsWith('.') } function ignore(s) { return s.some(ishidden) }
     </script>
 </body>
 <script>
