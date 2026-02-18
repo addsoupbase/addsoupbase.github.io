@@ -18,7 +18,8 @@ export function ce(htmlOrTag) {
     else {
         let tag = htmlOrTag.match(Regex.tag)?.[0]
         node = D.createElement(tag)
-        node.className = htmlOrTag.match(Regex.class)?.map(o => o.substring(1)).join(' ') || ''
+        let className = htmlOrTag.match(Regex.class)?.map(o => o.substring(1)).join(' ')
+        if (className) node.className = className
         let id = htmlOrTag.match(Regex.id)?.[0].substring(1) || ''
         if (id) node.id = id
         //@dev console.assert(node.matches(htmlOrTag))
@@ -129,10 +130,8 @@ export function sel(t) {
 }
 export function escapeTagged(strings, ...subs) {
     let out = ''
-    for (let i = 0, n = strings.length, { length } = subs; i < n; ++i) {
-        let sub = subs[i]
-        out += `${strings[i]}${i < length ? escapeHTML(sub) : ''}`
-    }
+    for (let i = 0, n = strings.length, { length } = subs; i < n; ++i) 
+        out += `${strings[i]}${i < length ? escapeHTML(subs[i]) : ''}`
     return out
 }
 export function escapeHTML(s) { (a ??= D.createElement('p')).textContent = s; return a.innerHTML.replace(Regex.q, '&quot;').replace(Regex.apos, '&#39;') } let a

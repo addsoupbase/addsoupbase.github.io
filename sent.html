@@ -22,14 +22,14 @@
     <meta property="og:image:type" content="image/*">
     <meta property="og:type" content="website">
     <meta property="og:image" content="YOUR IMAGE HERE">
-    <meta property="og:url" content="https://addsoupbase.github.oi">
+    <meta property="og:url" content="https://addsoupbase.github.io">
     <meta property="og:description" content="thank you for your submission! it means a lot!">
     <meta property="og:title" content="Thank you!">
     <meta property="og:site_name" content="Thank you!">
     <meta name="twitter:title" content="Thank you!">
     <meta name="application-name" content="Thank you!">
-    <meta name="application-url" content="https://addsoupbase.github.oi">
-    <meta name="twitter:url" content="https://addsoupbase.github.oi">
+    <meta name="application-url" content="https://addsoupbase.github.io">
+    <meta name="twitter:url" content="https://addsoupbase.github.io">
     <meta name="web_author" content="addsoupbase">
     <meta name="twitter:creator" content="@addsoupbase">
     <meta name="twitter:site" content="@addsoupbase">
@@ -47,8 +47,8 @@
     <meta name="msapplication-square70x70logo" content="./apple-touch-icon-72x72.png">
     <meta name="msapplication-wide310x150logo" content="./apple-touch-icon-180x180.png">
     <meta name="msapplication-TileImage" content="./apple-touch-icon-180x180.png">
-    <meta name="msapplication-starturl" content="https://addsoupbase.github.oi">
-    <meta name="origin" content="https://addsoupbase.github.oi">
+    <meta name="msapplication-starturl" content="https://addsoupbase.github.io">
+    <meta name="origin" content="https://addsoupbase.github.io">
     <meta name="msapplication-tooltip" content="Thank you!">
     <meta name="prism:alternateTitle" content="Thank you!">
     <meta name="twitter:card" content="summary_large_image">
@@ -61,9 +61,9 @@
     <meta name="theme-color" content="YOUR COLOR HERE">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="author" content="addsoupbase">
-    <link rel="canonical" href="https://addsoupbase.github.oi">
+    <link rel="canonical" href="https://addsoupbase.github.io">
     <script
-        type="application/ld+json">{"@context":"https://schema.org","@type": "WebSite","name":"addsoupbase","url":"https://addsoupbase.github.oi","description":"thank you for your submission! it means a lot!","author":{"@type": "Person","name":"addsoupbase","sameAs":["https://twitter.com/addsoupbase"]},"mainEntityOfPage":{"@type":"WebPage","@id":"https://addsoupbase.github.oi"},"image":{"@type":"ImageObject","url":"YOUR IMAGE HERE","width":IMAGE WIDTH HERE,"height":IMAGE HEIGHT HERE}}</script>
+        type="application/ld+json">{"@context":"https://schema.org","@type": "WebSite","name":"addsoupbase","url":"https://addsoupbase.github.io","description":"thank you for your submission! it means a lot!","author":{"@type": "Person","name":"addsoupbase","sameAs":["https://twitter.com/addsoupbase"]},"mainEntityOfPage":{"@type":"WebPage","@id":"https://addsoupbase.github.io"},"image":{"@type":"ImageObject","url":"YOUR IMAGE HERE","width":IMAGE WIDTH HERE,"height":IMAGE HEIGHT HERE}}</script>
     <link rel="apple-touch-icon" sizes="57x57" href="./apple-touch-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="60x60" href="./apple-touch-icon-60x60.png">
     <link rel="apple-touch-icon" sizes="72x72" href="./apple-touch-icon-72x72.png">
@@ -79,6 +79,794 @@
     <meta name="apple-mobile-web-app-title" content="Thank you!">
     <link rel="apple-touch-startup-image" href="favicon.ico">
     <title>Thank you!</title>
+    <style>@import url('./cute-green.css');
+@import url('./chococooky.css');
+
+
+@supports (resize: both) {
+  #diary {
+    border-bottom-right-radius: 0;
+  }
+}
+#background {
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  margin: 0;
+  position: relative;
+  --user-select: none;
+  padding: 0;
+  overflow: hidden;
+}
+
+.lanturn {
+  filter: drop-shadow(0 0 5px yellow);
+}
+
+@media screen and (width < 330px) {
+  #avatar {
+    display: none;
+  }
+}
+
+#avatar {
+  border-radius: 100%;
+  width: 60px;
+  height: 60px;
+  image-rendering: auto;
+  background-size: contain;
+
+  position: absolute;
+  left: 20px;
+  top: 20px;
+}
+
+.ava {
+  border-radius: 100%;
+  transform: scale(.75, .75);
+      width: 50px;
+    height: 50px;
+  opacity: 0.96;
+  transform-origin: center;
+  --user-drag: none;
+  pointer-events: none;
+
+}
+
+#drawcontrols>* {
+  margin: 5px;
+  margin-bottom: 0 !important;
+}
+
+
+#drawInstead {
+  width: 80px;
+}
+
+.displayName {
+  position: absolute;
+  top: 80%;
+  width: max-content;
+  text-align: center;
+}
+
+.tar {
+  background-repeat: no-repeat;
+  background-size: cover;
+  width: 50px;
+  pointer-events: none;
+  height: 50px;
+  position: absolute;
+  display: flex;
+  transform-origin: center;
+  justify-content: center;
+  image-rendering: optimizequality;
+  background-position: center;
+}
+
+@supports (-moz-box-direction: inherit) {
+  #background {
+    background-image: url("./media/bg.webp") !important;
+    background-size: cover;
+    background-repeat: no-repeat;
+
+  }
+
+  #frame {
+    filter: none !important;
+  }
+}
+
+#count::before {
+  content: '🫧';
+  margin: 5px;
+}
+
+.terrain {
+  background-position-x: -95px;
+  background-position-y: -416px;
+  width: 193px;
+  height: 64px;
+}
+
+.sea {
+  background-image: url(media/sea.png);
+  image-rendering: pixelated;
+  position: fixed;
+  bottom: 0;
+}
+
+.coral2 {
+  background-position-x: 366px;
+  background-position-y: -782px;
+  width: 30px;
+  height: 38px;
+}
+
+.plant {
+  background-position-x: 1071px;
+  background-position-y: -786px;
+  width: 30px;
+  height: 28px;
+}
+
+.sand {
+  background-position-x: 122px;
+  background-position-y: -628px;
+  width: 54px;
+  height: 24px;
+}
+
+.coral {
+  background-position-x: 430px;
+  background-position-y: -786px;
+  width: 28px;
+  height: 28px;
+}
+
+.seaweed {
+  background-position-x: 864px;
+  background-position-y: -1187px;
+  width: 32px;
+  height: 60px;
+}
+
+.rock {
+  background-position-x: 176px;
+  background-position-y: -373px;
+  width: 30px;
+  height: 23px;
+}
+
+.pop {
+  will-change: transform, opacity, filter;
+  cursor: pointer;
+}
+
+.sprite {
+  position: absolute;
+  z-index: 2;
+  --content-visibility: auto;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  scale: 1.5 1.5;
+  pointer-events: none;
+}
+
+.delibird {
+  scale: 1.6 1.6;
+  margin: 5px;
+  image-rendering: pixelated;
+}
+
+.lumineon.shiny {
+  filter: hue-rotate(198deg);
+}
+
+.nihilego.shiny {
+  filter: hue-rotate(229deg);
+}
+
+.kyogreprimal.shiny {
+  filter: hue-rotate(177deg) grayscale(0.5) brightness(1.1);
+}
+
+.corsola.shiny {
+  filter: hue-rotate(231deg) brightness(1.2);
+}
+
+a {
+  z-index: 30 !important;
+}
+
+:is(.manaphy,
+  .phione,
+  .mantyke).shiny {
+  filter: hue-rotate(318deg);
+}
+
+.skrelp {
+  scale: 1.5 1.2
+}
+
+:is(.skrelp, .alomomola).shiny {
+  filter: hue-rotate(306deg);
+}
+
+.luvdisc.shiny {
+  filter: hue-rotate(87deg) brightness(1.4);
+}
+
+:is(.wailord,
+  .kingdra,
+  .wailmer).shiny {
+  filter: hue-rotate(70deg);
+}
+
+.tentacool.shiny {
+  filter: hue-rotate(92deg)
+}
+
+.alomomola {
+  scale: 3 3
+}
+
+.mantine {
+  scale: 2 2
+}
+
+.wailord {
+  scale: 5.9 5.3
+}
+
+/* .dragalge {
+  scale: 3 3.2
+} */
+
+.carvanha,
+.seadra {
+  scale: 1.25 1.25
+}
+
+.kyogre {
+  scale: 3 3
+}
+
+.kyogreprimal {
+  scale: 5 5
+}
+
+.eelektross,
+.jellicent_f,
+.jellicent_m,
+.clawitzer,
+.seaking,
+.arctovish,
+.huntail,
+.gorebyss,
+.nihilego,
+.sharpedo,
+.lumineon,
+.lanturn,
+.wishiwashischool,
+.basculegion-m,
+.basculegion-f,
+.veluza {
+  scale: 2 2
+}
+
+.luvdisc,
+.corsola,
+.wishiwashi {
+  scale: 1.2 1.2
+}
+
+.qwilfish,.qwilfish_hisui
+ {
+  scale: 1.5 1.5
+}
+.bruxish {
+  scale: 2 2
+}
+:is(.jellicent_f,
+  .jellicent_m) .shiny {
+  filter: hue-rotate(302deg);
+}
+
+/* .name { */
+/* position: relative; */
+/* text-align: center; */
+/* align-self: center; */
+/* } */
+
+.bubble {
+  align-items: center;
+  width: 60px;
+  height: 60px;
+  display: grid;
+  /*--box-reflect: below -40% linear-gradient(transparent,transparent, white);*/
+  transform-origin: center;
+  position: absolute;
+  justify-content: center;
+  background-size: contain;
+  background-image: url('data:image/svg+xml,%3Csvg%20width%3D%22200%22%20height%3D%22200%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%3Ccircle%20r%3D%2295%22%20cx%3D%22100%22%20cy%3D%22100%22%20fill%3D%22rgba(15%2C%2020%2C%20210%2C%200.4)%22%20stroke%3D%22%231043E5%22%20stroke-width%3D%2210%22%20%2F%3E%0A%20%20%3Cpath%20d%3D%22M%20180%20100%20A%2080%2080%200%200%200%20100%2020%22%20fill%3D%22none%22%20stroke%3D%22white%22%20stroke-width%3D%229%22%20%2F%3E%0A%3C%2Fsvg%3E%0A');
+  background-repeat: no-repeat;
+  --content-visibility: auto;
+}
+
+.snowflake {
+  width: 30px;
+  height: 30px;
+  position: absolute;
+  background-size: cover;
+  top: -30px;
+  z-index: 1;
+  image-rendering: pixelated;
+  opacity: .81;
+  /* --box-reflect:  below 0 linear-gradient(transparent, white);; */
+  background-image: url(data:image/gif;base64,R0lGODlhFAAUAPIAAAAAAJa3/5bM/5bh/9P7/////wAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQJFAAAACwAAAAAFAAUAAADUwi6HPxwiRmrtHUArfEbIBYIm8KVpeBcJ9gC5HcChLl1TBwS/K3EHwWhQKyhIp1h0QbRaXi1EAwSStqkuRKnmmqQOq/UKoP1XI/mX/oxAa4BY0gCACH5BAkUAAAALAAAAAAUABQAAANeCLrc/i3ACYSY8rJR9bMAFw6c6FjlRi0kGyrm1nIEYXKC5AyE0r8DUMNUKAJsLU/lVSsWai/lhdSq/V4NFLZ3dQQkt1nsBMOWgqtYizJdX3I673tx+VICSoUk7l0BEgAh+QQJFAAAACwAAAAAFAAUAAADVgi63P4wBigiEHUoje1mmjeMADmG4udtJEC0T7YQxKKhwFTuROG7u0sugDnRfAXaCTPR3Vy02lO4kClotuDjxMJZQl6K6QaLVLKewORcEegg70Z8FUkAACH5BAUUAAAALAAAAAAUABQAAANeCLrc7uFJJsSUFYxm49tDqGzZtS1gyZwgejKB9Q4EoWkiJbSA3b8cHA1QKKIesh6hWKjdLI5XzRYSQSU2X+raEFWPAo9ix+Nxu0AgJAaAfs+wyNUSlkTEiwD+0tgDEgA7);
+}
+
+.zygarde {
+  margin-bottom: -50px !important;
+}
+
+.tinkaton {
+  margin: -40px !important;
+}
+
+#wrapper {
+  display: contents;
+  width: 100%;
+  background-color: rgb(0, 0, 255 50%);
+  justify-content: center;
+  height: 100vh;
+  /*--zoom: .8;*/
+  inset: 0;
+  margin: auto;
+  text-align: center;
+}
+
+.diarybutton {
+  filter: hue-rotate(239deg) drop-shadow(0px 0px 4px blue);
+  touch-action: none;
+}
+
+input[type=image] {
+  width: 55px;
+  /* filter: drop-shadow(5px 4px 0px rgb(0 0 0 / 80%)); */
+  --user-drag: none;
+  image-rendering: pixelated;
+  /*filter: drop-shadow(2px 4px 6px red) hue-rotate(211deg);*/
+  --tap-highlight-color: rgba(255, 0, 255, 0.268);
+  transition: scale 0.3s ease;
+  scale: 1 1
+}
+
+input[type=image]:active {
+  scale: 0.9 0.9
+}
+
+.party {
+  position: absolute;
+  top: -26px;
+  transform: scale(1.3, 1.3);
+  background-image: url('./media/party.png');
+  image-rendering: pixelated;
+  width: 18px;
+  height: 32px;
+  background-repeat: no-repeat;
+}
+
+.party1 {
+  background-position: -135px -160px;
+}
+
+.party2 {
+  background-position: -168px -160px;
+}
+
+.party3 {
+  background-position: -200px -160px;
+}
+
+.groudon {
+  scale: 3 3
+}
+
+#count {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  color: white;
+  font-size: 2em;
+  z-index: 2;
+  margin: 30px;
+}
+
+.garfield {
+  image-rendering: pixelated;
+  transform: scale(0.3, 0.3);
+  margin: -35px;
+}
+
+#main {
+  width: 100vw;
+  position: relative;
+  box-sizing: border-box;
+  height: 100vh;
+  opacity: 1;
+  display: block;
+  overflow: auto;
+  inset: 0;
+
+  image-rendering: pixelated;
+  background-image: url(./media/flowers.webp), url(./media/topdecor.webp), url(./media/roses.webp);
+  background-repeat: no-repeat, no-repeat, no-repeat;
+  background-size: contain, 130px, 13%;
+  background-position-y: bottom, top;
+  background-position-x: center, right, 80px;
+}
+
+/* #content { */
+/* text-align: center; */
+/* word-break: normal; */
+/* max-width: 50%; */
+/* } */
+
+/* svg { */
+/* background-color: rgb(49, 55, 231, 0.7); */
+/* border-color: rgba(37, 41, 169, 0.7); */
+/* border-style: solid; */
+/* border-radius: 100%; */
+/* } */
+#diary {
+  overflow: hidden !important;
+  resize: both;
+  opacity: 1;
+  /*backdrop-filter: blur(4px);*/
+  margin: auto;
+  /*transition: filter 1s ease;*/
+  anchor-name: --walk;
+  /* min-width:150px; */
+  /* max-width:560px; */
+  min-width: 40px;
+  display: inline-flex;
+  width: var(--stretch);
+  max-height: 62vh;
+  min-height: 180px;
+  max-width: 800px;
+  max-width: 70vw;
+  height: 55vh;
+  display: flow;
+  overflow-y: scroll;
+}
+
+.farther {
+  filter:sepia(100%) hue-rotate(90deg) saturate(500%) brightness(0.2) !important
+}
+
+@supports (bottom: anchor(top)) {
+  #walking {
+    /* transform: translate(100%); */
+    /* width: 30px; */
+    display: block;
+    /* right: 30000000000000000%; */
+    height: 30px;
+    /* border: 1px solid black; */
+    bottom: anchor(top);
+    position: absolute;
+    position-anchor: --walk;
+    left: anchor(left);
+    right: anchor(right);
+  }
+}
+
+#background {
+  z-index: 1;
+  position: fixed;
+  /*filter:drop-shadow(0px 0px 2px darkblue) ;*/
+  touch-action: none;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  top: 0;
+  left: 0;
+}
+
+#background::after {
+  content: '';
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgb(14, 132, 228, 0.1);
+  pointer-events: none;
+}
+
+img {
+  border: none;
+}
+
+body,
+html {
+
+  --tap-highlight-color: rgba(255, 0, 255, 0.268);
+  padding: 0;
+  margin: 0;
+  overflow: scroll;
+}
+
+#submit {
+  display: inline-block;
+}
+
+#formholder {
+  display: grid;
+}
+
+.lol {
+  justify-content: center;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  justify-items: center;
+}
+
+#send2 {
+  place-items: center;
+  backdrop-filter: blur(3px);
+}
+
+.username {
+  z-index: 40;
+}
+
+#frame {
+  /* padding: 30px; */
+  position: relative;
+  --user-select: none;
+  /* width: 120vw; */
+  /* transform: scale(.8, .8); */
+  width: 100vw;
+  max-width: 700px;
+  /*max-height:120vh;*/
+  /*height: 70%;*/
+  filter: drop-shadow(0px 0px 10px green);
+  /* min-width: 100vw; */
+  /* min-width: 65%; */
+  max-height: 90vh;
+  z-index: 4;
+  height: 570px;
+  border-radius: 15px;
+  border: none;
+  margin: auto;
+}
+
+@supports (zoom: 1) {
+  #frame {
+    transform: unset;
+    zoom: 0.8;
+    width: 120vw;
+    /* --zoom: 0.8; */
+  }
+}
+
+@supports (-webkit-touch-callout: inherit) {
+  #frame {
+    /* Safari is weird */
+    width: 97vw;
+    height: 86vh;
+
+    /* top:0px */
+  }
+
+  #diary {
+    height: 50vh
+  }
+}
+
+@supports (-ms-zoom: 1) {
+  #frame {
+    transform: unset;
+    -ms-zoom: 0.8;
+    width: 120vw;
+  }
+}
+
+.input {
+  margin: 10px
+}
+
+/* Add some interaction styles */
+
+#thingy {
+  transform: scale(4, 4);
+  top: -145%;
+  left: -40%;
+  position: relative;
+  image-rendering: pixelated;
+  -mso-shadow-color: black;
+  content: url(./cute-emojis/emojis/1224927639068741632.gif);
+  display: block;
+}
+
+h1,
+p,
+h3 {
+  font-family: 'Choco';
+}
+
+:root {
+  font-family: 'Choco';
+  font-size: large;
+}
+
+#mainform {
+  display: contents;
+}
+
+a {
+  font-size: 15px;
+}
+
+body {
+  /*scrollbar-width: none;*/
+  /* Firefox */
+  height: 90vh;
+  width: 100vw;
+  overflow-y: scroll !important;
+  display: flex;
+}
+
+.center {
+  position: relative !important;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+#maindesc {
+  justify-content: center;
+  display: flex;
+}
+
+.descrHolder {
+  margin: 10px;
+  margin-top: 30px;
+  display: flow-root;
+}
+
+.pkm {
+  transform: scale(1.5, 1.5);
+  margin: 10px;
+  image-rendering: pixelated;
+  transition: scale .1s ease
+}
+
+.pkm:hover {
+  scale: 1.02 1.02
+}
+
+#list {
+  display: inline-block;
+}
+
+.pok {
+  image-rendering: crisp-edges;
+}
+
+.small {
+  font-size: 12px;
+}
+
+
+.back {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+}
+
+main {
+  overflow-y: scroll;
+  width: 100%;
+
+}
+
+.hello {
+  justify-items: center;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+  text-align: center;
+  display: grid;
+}
+
+
+/* #abtbutton::after,
+#abtbutton::before {
+  content: '';
+  background-image: url('https://addsoupbase.github.io/cute-emojis/emojis/1225821658225577984.gif');
+  content: '';
+  display: inline-block;
+  vertical-align: middle;
+  width: 30px;
+  height: 30px;
+  background-size: contain;
+} */
+
+.scale {
+  animation: scaleIn 2s ease 0s normal forwards;
+}
+
+/*
+p:AnInvalidSelector(b){ 
+  color:red
+}
+.AnEmptyRule {
+
+}
+:not(*) {
+  invalid-property: inherit;
+  color: invalid-value
+}
+*/
+@keyframes scaleIn {
+  0% {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  100% {
+    opacity: 1;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+a {
+  font-family: 'Courier New', Courier, monospace;
+}</style>
+    <style>
+            main {
+            /* border-style: inset !important; */
+            scroll-behavior: smooth;
+            animation: intro .5s ease forwards;
+            height: 100%;
+            view-transition-name: content;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: block;
+            border-radius: inherit;
+            --scrollbar-width: 5px;
+            image-rendering: pixelated;
+            scrollbar-width: thin;
+            --scrollbar-thumb-color: hsl(350, 42%, 75%);
+            --scrollbar-color: #3a9d61;
+            background-image: url(./media/flowers.gif), url(./media/topdecor.gif), url(./media/roses.webp);
+            background-image:
+                image-set(url(./media/flowers.webp) type("image/webp"), url(./media/flowers.gif) type("image/gif")),
+                image-set(url(./media/topdecor.webp) type("image/webp"), url(./media/topdecor.gif) type("image/gif")),
+                image-set(url(./media/roses.avif) type("image/avif"), url(./media/roses.webp) type("image/webp"), url(./media/roses.gif) type("image/gif"));
+            background-image:
+                -webkit-image-set(url(./media/flowers.webp) type("image/webp"), url(./media/flowers.gif) type("image/gif")),
+                -webkit-image-set(url(./media/topdecor.webp) type("image/webp"), url(./media/topdecor.gif) type("image/gif")),
+                -webkit-image-set(url(./media/roses.avif) type("image/avif"), url(./media/roses.webp) type("image/webp"), url(./media/roses.gif) type("image/gif"));
+            background-repeat: no-repeat, no-repeat, no-repeat;
+            background-size: contain, 130px, 13%;
+            background-position-y: bottom, top;
+            background-position-x: center, right, 80px;
+            background-attachment: local;
+        }
+    </style>
     <link rel="stylesheet" href="cute-green.css">
     <!--https://wiki.whatwg.org/wiki/MetaExtensions-->
 </head>
@@ -95,7 +883,7 @@
                 I LOVE YOU I APPRECIATE YOU! REMEMBER TO DRINK SOME WATER AND UH EAT FOOD AND YEAH!!</p>
             <a href="https://addsoupbase.github.io/" style="font-size: 1.5em;font-family: inherit;">TAKE ME BACK</a>
             <div>
-                <img src="./cute-emojis/emojis/10241-milkandmochalove.gif" alt="love u bear">
+                <img src="./cute-emojis/emojis/10241-milkandmochalove.gif" style="image-rendering: auto;" alt="love u bear">
             </div>
         </section>
     </main>

@@ -378,6 +378,9 @@
         const { $ } = v
         class TemplateProcessingError extends Error { name = 'TemplateProcessingError' }
         class PathNotFoundError extends Error { name = 'PathNotFoundError' }
+        // i have absolutely no idea what i did
+        // but the code is running suspiciously faster than usual
+        // i'm not buying it 🧐...
         function setStatus(state) {
             let color = 'grey'
             blob.classList.remove('active')
@@ -672,7 +675,7 @@
                 if (text.includes(template)) {
                     // don't bother making a new function if the source code is the same
                     // since calling the function constructor is kinda expensive
-                    var func = cacheFunc(`with(this)return(async()=>{'use strict';${script ? script + ';' : ''}\nif(typeof arguments[0]==='string'){let text=arguments[0]${post ? `;${post[1].trim()}\n` : ''}}else{${env.concat(code).join(';')}\n}throw new TemplateProcessingError('Missing return value in template function',{cause:arguments.callee})})()`)
+                    var func = cacheFunc(`with(this)return(async()=>{'use strict';${script && `${script};`}\nif(typeof arguments[0]==='string'){let text=arguments[0]${post ? `;${post[1].trim()}\n` : ''}}else{${env.concat(code).join(';')}\n}throw new TemplateProcessingError('Missing return value in template function',{cause:arguments.callee})})()`)
                     // so basically i can explain everything and why it's like this:
 
                     // - the `with` statement makes it convenient to use variables of choice,
@@ -691,12 +694,13 @@
                     // - and then it throws by default if no return statement is reached
 
                     let out = await func.call(context, null)
-                    let a = `${out}`.match(notWhatYouWant)
-                    if (a) {
-                        log(pathSegments, 'warning', `Unexpected string coercion: ${a}`)
-                        console.warn(`Unexpected string coercion: ${a} @${localPath}`)
+                    if (typeof out !== 'string') throw TemplateProcessingError(`Return value must be string: ${out?.toString?.() ?? toString.call(out)}`, {cause: func})
+                    let bad = out.match(probablyNotWhatYouWant)
+                    if (bad) {
+                        log(pathSegments, 'warning', `Unexpected string coercion: ${bad}`)
+                        console.warn(`Unexpected string coercion: ${bad} @${localPath}`)
                     }
-                    if (out instanceof Promise) log(pathSegments, 'warning', `Promise not unwrapped`)
+                    // if (out instanceof Promise) log(pathSegments, 'warning', `Promise not unwrapped`)
                     text = text.replaceAll(template, out)
                 }
             }
@@ -704,7 +708,7 @@
             // ^ So the file can process itself afterwards
             return text
         }
-        let notWhatYouWant = /\[object \w+\]/
+        let probablyNotWhatYouWant = /\[object \w+\]/
         let fileCache = new Map
         let directoryCache = new Map
         let evalCache = new Map
@@ -807,7 +811,7 @@
                 return folder
             }
             catch (e) {
-                if (e.name === 'NotFoundError') throw new PathNotFoundError(`Directory not found: ${path.join('/')}`)
+                if (e.name === 'NotFoundError') throw new PathNotFoundError(`Directory not found: ${path.join('/')}`, {cause: e})
             }
         }
         async function getFolderEntries(src, localPath) {

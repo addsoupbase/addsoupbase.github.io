@@ -1,7 +1,7 @@
 //# allFunctionsCalledOnLoad
 //console.time('css.js');
 //@dev self.css = 
-(function CSSSetup(inModule, w, sym, defer, D, O, id, y, rAF) {
+(function CSSSetup(inModule, sym, defer, D, O, id, y, rAF) {
     //@dev'use strict'
     if (y.propertyIsEnumerable(sym) && D.getElementById(id) instanceof HTMLStyleElement) {
         var out = y[sym]
@@ -189,11 +189,7 @@
     }
     var added = false
     function write(text) {
-        if (violated) createSheet(text)
-        else {
-            added || (added = !!(sheet.onsecuritypolicyviolation = violation))
-            sheet.insertAdjacentText('beforeend', text)
-        }
+        violated ? createSheet(text) : (added || (added = !!(sheet.onsecuritypolicyviolation = violation)), sheet.insertAdjacentText('beforeend', text))
         // <style> blocked
     }
     function createSheet(text) {
@@ -260,7 +256,7 @@
     }
     function lowPriority() {
         //@dev console.time('low priority')
-        g("locale", "auto", true, "*")("line-grid", "auto", true, "*")("line-snap", "auto", true, "*")("nbsp-mode", "auto", true, "*")("text-zoom", "auto", false, "*")("line-align", "auto", true, "*")("text-decorations-in-effect", "auto", false, "*")("force-broken-image-icon", "0", false, "<integer>")("float-edge", "content-box", false, "*")("image-region", "auto", true, "*")("box-orient", "inline-axis", false, "*")("box-align", "stretch", false, "*")("box-direction", "normal", false, "*")("box-flex", "0", false, "*")("box-flex-group", "0", false, "*")("box-lines", "single", false, "*")("box-ordinal-group", "1", false, "*")("box-decoration-break", "slice", false, "*")("box-pack", "start", false, "*")("line-clamp", "none", false, "*")("font-smoothing", "auto", true, "*")("mask-position-x", "0%", false, "<length-percentage>")("mask-position-y", "0%", false, "<length-percentage>")("window-dragging", "auto", false, "*")("stack-sizing", "stretch-to-fit", true, "*")("mask-composite", "source-over", false, "*")("window-shadow", "auto", false, "*")("outline-radius", "0 0 0 0", false, "*")("binding", "none", false, "*")("text-blink", "none", false, "*")("image-rect", "auto", true, "*")("content-zoom-limit", "400% 100%", false, "*")("accelerator", "0", false, "*")("context-properties", "none", true, "*")("text-kashida-space", "0%", true, "<percentage>")("interpolation-mode", "none", false, "*")("progress-appearance", "bar", false, "*")("content-zooming", "auto", false, "*")("flow-from", "none", false, "*")("flow-into", "none", false, "*")("content-zoom-chaining", "none", false, "*")("high-contrast-adjust", "auto", true, "*")("touch-select", "grippers", true, "*")("ime-mode", "auto", false, "*")("wrap-through", "wrap", false, "*")("print-color-adjust", "economy", true, "*")("pay-button-style", "white", false, "*")("color-filter", "none", true, "*")("pay-button-type", "plain", false, "*")("visual-effect", "none", true, "*")("text-spacing-trim", "normal", true, "*")("text-group-align", "none", false, "*")("text-autospace", "normal", true, "*")("orient", "inline", false, "*")("ruby-overhang", "auto", true, "*")("max-lines", "none", false, "*")("line-fit-edge", "leading", true, "*")("overflow-scrolling", "auto", false, "*")("column-progression", "auto", false, "*")("dashboard-region", "none", false, "*")("column-axis", "auto", false, "*")("text-size-adjust", "auto", true, "*")("border-vertical-spacing", "auto", false, "*")("buffered-rendering", "auto", false, "*")
+        g("locale", "auto", true, "*")("line-grid", "auto", true, "*")("line-snap", "auto", true, "*")("nbsp-mode", "auto", true, "*")("text-zoom", "auto", false, "*")("line-align", "auto", true, "*")("text-decorations-in-effect", "auto", false, "*")("force-broken-image-icon", "0", false, "<integer>")("float-edge", "content-box", false, "*")("image-region", "auto", true, "*")("box-orient", "inline-axis", false, "*")("box-align", "stretch", false, "*")("box-direction", "normal", false, "*")("box-flex", "0", false, "*")("box-flex-group", "0", false, "*")("box-lines", "single", false, "*")("box-ordinal-group", "1", false, "*")("box-decoration-break", "slice", false, "*")("box-pack", "start", false, "*")("line-clamp", "none", false, "*")("font-smoothing", "auto", true, "*")("mask-position-x", "0%", false, "<length-percentage>")("mask-position-y", "0%", false, "<length-percentage>")("window-dragging", "auto", false, "*")("stack-sizing", "stretch-to-fit", true, "*")("mask-composite", "source-over", false, "*")("window-shadow", "auto", false, "*")("outline-radius", "0 0 0 0", false, "*")("binding", "none", false, "*")("text-blink", "none", false, "*")("image-rect", "auto", true, "*")("context-properties", "none", true, "*")("text-kashida-space", "0%", true, "<percentage>")("interpolation-mode", "none", false, "*")("progress-appearance", "bar", false, "*")("flow-from", "none", false, "*")("flow-into", "none", false, "*")("high-contrast-adjust", "auto", true, "*")("ime-mode", "auto", false, "*")("wrap-through", "wrap", false, "*")("print-color-adjust", "economy", true, "*")("pay-button-style", "white", false, "*")("color-filter", "none", true, "*")("pay-button-type", "plain", false, "*")("visual-effect", "none", true, "*")("text-spacing-trim", "normal", true, "*")("text-group-align", "none", false, "*")("text-autospace", "normal", true, "*")("orient", "inline", false, "*")("ruby-overhang", "auto", true, "*")("max-lines", "none", false, "*")("line-fit-edge", "leading", true, "*")("overflow-scrolling", "auto", false, "*")("column-progression", "auto", false, "*")("dashboard-region", "none", false, "*")("column-axis", "auto", false, "*")("text-size-adjust", "auto", true, "*")("border-vertical-spacing", "auto", false, "*")("buffered-rendering", "auto", false, "*")
         //@dev console.timeEnd('low priority')
     }
     function properties() {
@@ -374,15 +370,14 @@
             lowPriority()
             newName = bulkText
         }
-        else if (!CSS.registerProperty)
-            doRegister()
+        else if (!CSS.registerProperty) doRegister()
         for (var x in o) newName += x + "{" + toCSS(o[x]) + "}"
         newName = "@namespace svg url('http://www.w3.org/2000/svg');\nhtml{margin:auto}p{text-wrap:pretty}h1,h2,h3,h4,h5,h6,:where(p){text-wrap:balance;overflow-wrap:break-word}body{line-height:1.5;--font-smoothing:antialiased}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto !important}}@media(prefers-reduced-motion:no-preference){:root{interpolate-size: allow-keywords}}@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:-moz-loading{cursor:wait}:-moz-broken{border-radius:0}@supports not (content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not (scrollbar-width:thin){::-webkit-scrollbar{width:var(--scrollbar-width);height:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}" + newName
         //@dev console.debug(newName.replace(/:where\(([\S\s]*?)\)/g,'$1'))
     }
     var str = name
-    if (!str) // Selecting all pseudo elements has a massive performance hit
-        sn(str = id + '*' + "{" + toCSS(uv, true) + "}" + newName)
+    // Selecting all pseudo elements has a massive performance hit, as expected
+    str || sn(str = id + '*' + "{" + toCSS(uv, true) + "}" + newName)
     write(str)
     var css =  //@devObject.seal
         ({
@@ -410,5 +405,5 @@
         })
     y[sym] || O.defineProperty(y, sym, { value: css, enumerable: 1 })
     return css
-}(!this, self, Symbol.for('[[CSSModule]]'), (self.requestIdleCallback && function (c) { return requestIdleCallback(c, { timeout: 2000 }) }) || (self.scheduler && scheduler.postTask && function (c) { return scheduler.postTask(c, { priority: 'background' }) }) || self.queueMicrotask || self.setImmediate || setTimeout, document, Object, '/*stylesheet auto-generated by css.js*/', constructor.prototype, self.requestAnimationFrame || self.webkitRequestAnimationFrame || self.mozRequestAnimationFrame || self.msRequestAnimationFrame || self.oRequestAnimationFrame))
+}(!this, Symbol.for('[[CSSModule]]'), (self.requestIdleCallback && function (c) { return requestIdleCallback(c, { timeout: 2000 }) }) || (self.scheduler && scheduler.postTask && function (c) { return scheduler.postTask(c, { priority: 'background' }) }) || self.queueMicrotask || self.setImmediate || setTimeout, document, Object, '/*stylesheet auto-generated by css.js*/', constructor.prototype, self.requestAnimationFrame || self.webkitRequestAnimationFrame || self.mozRequestAnimationFrame || self.msRequestAnimationFrame || self.oRequestAnimationFrame))
 // ; console.timeEnd('css.js')
