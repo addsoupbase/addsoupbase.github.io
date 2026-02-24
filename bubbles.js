@@ -117,7 +117,7 @@ let fileFormat = await new Promise(resolve => {
         resolve(n.toDataURL('image/webp').indexOf('data:image/webp') == 0 ? '.webp' : '.jpg')
     }
 })
-let avatars  = ["Dohaaa","Lagia","Leftover_Birthday-Cake","Lotus","MRK","Professional_idiot","Remi","Violet","anarchy","armaan.n","auquamantis","aya","babby","birdie","caelix","caevsz","chlorineatt","copy","crazy","elenfnf1","elipoopsrainbows","fourche7","frannie4u","ghostie","gilly","glente","gummicat","ilikebugs2","indie","juaj","ka1ya1","kae","kannadra","kay_.stars","khaoticgood","kurispychips","kyn","lazy","lexi","lorex","lunza","mai","may","mila","mochi","morrfie","mothmaddie","mr_clownette","na22","naz","niya","nova","novacans_","oli","rainmint","rikapika","river","rue","rurikuu","saintz","son_yukio","stav","stuella","valerie","west","xzzy","zee","znsxxe","zoozi","zrake","汝起亚"]
+let avatars  = ["Dohaaa","Lagia","Lotus","MRK","Professional_idiot","Remi","Violet","anarchy","anya","armaan.n","auquamantis","aya","babby","birdie","caelix","caevsz","chlorineatt","copy","crazy","eggwafl","elenfnf1","elipoopsrainbows","fourche7","frannie4u","ghostie","gilly","glente","gummicat","ilikebugs2","indie","juaj","ka1ya1","kae","kannadra","kay_.stars","khaoticgood","kurispychips","kyn","lazy","lexi","lorex","lunza","mai","may","mila","mochi","morrfie","mothmaddie","mr_clownette","na22","naz","niya","nova","novacans_","oli","rainmint","rikapika","river","rue","rurikuu","saintz","son_yukio","stav","stuella","valerie","west","xzzy","zee","znsxxe","zoozi","zrake","汝起亚"]
 for (let i = 0, { length } = avatars; i < length; ++i) {
     const pick = Math.floor(Math.random() * (i + 1))
     let p = avatars[i]
