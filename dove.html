@@ -593,10 +593,27 @@
             if (text == null) {
                 log(path, 'warning', `Template for ${pathString} returned ${text} `)
             }
-            log(path, firstTime ? 'default' : 'info', `${firstTime ? 'Add' : 'Edit'} ${pathString} (${new Date(outputFile.lastModified).toLocaleTimeString()})`)
-            await using writer = await output.createWritable({ mode: 'exclusive' })
-            await writer.write(text)
+            let { resolve, promise: done } = Promise.withResolvers()
+            try {
+                if (pending.has(pathString)) {
+                    let { writer, done } = pending.get(pathString)
+                    await writer.abort('Too late')
+                    await done
+                }
+                else log(path, firstTime ? 'default' : 'info', `${firstTime ? 'Add' : 'Edit'} ${pathString} (${new Date(outputFile.lastModified).toLocaleTimeString()})`)
+                await using writer = await output.createWritable({ mode: 'exclusive' })
+                pending.set(pathString, { writer, done })
+                await writer.write(text)
+            }
+            catch (e) {
+                if (e.name !== "NoModificationAllowedError") throw e
+            }
+            finally {
+                pending.delete(pathString)
+                resolve()
+            }
         }
+        let pending = new Map
         let dynamicFolders = new Map
         let dynamicFiles = new Map
         async function evaluate(text, localPath, pathSegments) {
@@ -694,7 +711,7 @@
                     // - and then it throws by default if no return statement is reached
 
                     let out = await func.call(context, null)
-                    if (typeof out !== 'string') throw TemplateProcessingError(`Return value must be string: ${out?.toString?.() ?? toString.call(out)}`, {cause: func})
+                    if (typeof out !== 'string') throw TemplateProcessingError(`Return value must be string: ${out?.toString?.() ?? toString.call(out)}`, { cause: func })
                     let bad = out.match(probablyNotWhatYouWant)
                     if (bad) {
                         log(pathSegments, 'warning', `Unexpected string coercion: ${bad}`)
@@ -811,7 +828,7 @@
                 return folder
             }
             catch (e) {
-                if (e.name === 'NotFoundError') throw new PathNotFoundError(`Directory not found: ${path.join('/')}`, {cause: e})
+                if (e.name === 'NotFoundError') throw new PathNotFoundError(`Directory not found: ${path.join('/')}`, { cause: e })
             }
         }
         async function getFolderEntries(src, localPath) {
@@ -834,8 +851,8 @@
         }
         // setStatus('active')
         function imageSet(...formats) {
-            let def = `background-image:${formats.map(o=>`url(${o.at(-1)})`).join(',')};`
-            return def+['', '-webkit-'].map(o => `background-image:${formats.map(srces =>
+            let def = `background-image:${formats.map(o => `url(${o.at(-1)})`).join(',')};`
+            return def + ['', '-webkit-'].map(o => `background-image:${formats.map(srces =>
                 `${o}image-set(${srces.map(src => `url(${src}) type("image/${src.split('.').at(-1)}")`)})`
             )}`).join(';') + ';'
         }
@@ -843,7 +860,9 @@
     </script>
 </body>
 <script>
-    WritableStream.prototype[Symbol.asyncDispose] = function () { return this.close() }
+    WritableStream.prototype[Symbol.asyncDispose] = function () {
+        return Promise.allSettled([this.close()])
+    }
 </script>
 
 </html>
