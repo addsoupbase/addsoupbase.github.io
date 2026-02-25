@@ -692,7 +692,7 @@
                 if (text.includes(template)) {
                     // don't bother making a new function if the source code is the same
                     // since calling the function constructor is kinda expensive
-                    var func = cacheFunc(`with(this)return(async()=>{'use strict';${script && `${script};`}\nif(typeof arguments[0]==='string'){let text=arguments[0]${post ? `;${post[1].trim()}\n` : ''}}else{${env.concat(code).join(';')}\n}throw new TemplateProcessingError('Missing return value in template function',{cause:arguments.callee})})()`)
+                    var func = cacheFunc(`with(this)return(async()=>{'use strict';${script && `${script};`}\nif(typeof arguments[0]==='string'){let text=arguments[0]${post ? `;${post[1].trim()}\n` : ''}}else{${env.concat(code).join(';')}\n}throw new TemplateProcessingError('Missing return value in template function',{cause:${code})})()`)
                     // so basically i can explain everything and why it's like this:
 
                     // - the `with` statement makes it convenient to use variables of choice,
@@ -711,7 +711,7 @@
                     // - and then it throws by default if no return statement is reached
 
                     let out = await func.call(context, null)
-                    if (typeof out !== 'string') throw TemplateProcessingError(`Return value must be string: ${out?.toString?.() ?? toString.call(out)}`, { cause: func })
+                    if (typeof out !== 'string') throw TemplateProcessingError(`Return value must be string: ${out?.toString?.() ?? toString.call(out)}`, { cause: code })
                     let bad = out.match(probablyNotWhatYouWant)
                     if (bad) {
                         log(pathSegments, 'warning', `Unexpected string coercion: ${bad}`)
@@ -721,7 +721,7 @@
                     text = text.replaceAll(template, out)
                 }
             }
-            if (post && func) if (typeof (text = await func.call(context, text)) !== 'string') throw new TemplateProcessingError(`Bad value passed from postprocessor: ${{}.toString.call(text).slice(8, -1)}`, { cause: func })
+            if (post && func) if (typeof (text = await func.call(context, text)) !== 'string') throw new TemplateProcessingError(`Bad value passed from postprocessor: ${{}.toString.call(text).slice(8, -1)}`, { cause: code })
             // ^ So the file can process itself afterwards
             return text
         }
