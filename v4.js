@@ -42,6 +42,7 @@ export let body = D.body && Proxify(D.body)
 const nodeCache = new Map
 function handleSub(sub, replace) {
     if (sub === Object(sub)) {
+        if (sub instanceof String) return sub.toString()
         if (typeof sub === 'function') {
             let r = sub.toString()
             replace.map.set(r, sub)

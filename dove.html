@@ -348,6 +348,27 @@
             margin-left: 20px;
             word-break: auto-phrase;
         }
+
+        #map {
+            width: 70vw;
+            height: 80vh;
+            overflow-y: scroll;
+            text-align: left;
+        }
+
+        .folder {
+            margin-left: 16px
+        }
+
+        #mapholder {
+            position: fixed;
+            place-content: center;
+            place-items: center;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.039);
+        }
     </style>
 </head>
 
@@ -373,6 +394,12 @@
     </div>
     <div id="retry" class="retry" title="Retry" role="button" class="retry" style="visibility: hidden;"></div>
     <div id="blob"></div>
+    <button id="viewmap" style="position: fixed;left:10px;bottom:10px">View Map</button>
+    <div id="mapholder" style="display: none;">
+        <div id="map" class="card">
+            <p>hello</p>
+        </div>
+    </div>
     <script type="module">
         import * as v from './v4.js'
         const { $ } = v
@@ -409,9 +436,7 @@
         function log(path, type = 'info', message) {
             // document.getElementById(path)?.remove()
             output.firstNode = $`<li role="log" class="${type}" data-path="${path.join('/')}"><samp>${message}</samp></li>`
-            while (output.childElementCount > 30) {
-                output.lastElementChild.remove()
-            }
+            output.childElementCount > 30 && output.lastElementChild.remove()
         }
         let jsComment = /\/\*:(?<code>.*?)\*\//gs
         let htmlComment = /<\!--{{((?:(?!}}).)*?)}}--\>/gs
@@ -422,7 +447,16 @@
         const { uploadDirectory, //uploadPairs, 
             currentDirectoryElement,
             retry,
-            output, blob } = v.id
+            viewmap,
+            mapholder,
+            output,
+            map,
+            blob } = v.id
+        viewmap.on({
+            click() {
+                mapholder.show()
+            }
+        })
         const AsyncFunction = async function () { }.constructor
         retry.on({
             click() {
@@ -526,6 +560,7 @@
                     setStatus('error')
                     retry.style.visibility = 'visible'
                     log(rel, 'error', `${e} (${path})`)
+                    e.cause = path
                     throw e
                 }
             }
@@ -571,7 +606,7 @@
                                 await editFile(path, file, true)
                             }
                             catch (e) {
-                                log(path, 'error', `${e} (${path.join('/')})`)
+                                log(path, 'error', `${e} (${e.cause = path.join('/')})`)
                                 setStatus('error')
                                 retry.style.visibility = 'visible'
                                 throw e
@@ -613,6 +648,48 @@
                 resolve()
             }
         }
+        function list(o) { return `<li><samp>${o}</samp></li>` }
+        class DynamicMap extends Map {
+            static #updating = false
+            static #updateMap() {
+                let files = dynamicFiles
+                let folders = dynamicFolders
+                map.empty()
+                for (let folder of dynamicFolders) {
+                    map.pushNode(
+                        $
+                            `<details>
+                            <summary>📂 ${folder[0]}</summary>
+                            <ul class="folder">${new String([...folder[1]].map(list).join(''))
+                            }</ul>
+                        </details>`)
+                }
+                for (let file of files) {
+                    map.pushNode($
+                        `<details>
+                        <summary>📄 ${file[0]}</summary>
+                        <ul class="folder">${new String([...file[1]].map(list).join(''))
+                        }</ul>
+                    </details>`)
+                }
+            }
+            static #update() {
+                if (!DynamicMap.#updating) {
+                    DynamicMap.#updating = true
+                    setTimeout(() => {
+                        DynamicMap.#updateMap()
+                        DynamicMap.#updating = false
+                    }, 1000)
+                }
+            }
+            clear() {
+                return super.clear()
+            }
+            set(key, value) {
+                DynamicMap.#update()
+                return super.set(key, value)
+            }
+        }
         let pending = new Map
         let dynamicFolders = new Map
         let dynamicFiles = new Map
@@ -632,7 +709,8 @@
                 async metadata(src) {
                     let s = resolve(src, localPath.pathname)
                     let file = await getSpecificFile(src, localPath)
-                    addToDynamicFiles(s, localPath)
+                    let me = localPath.pathname
+                    addToDynamicFiles(resolve(src, me), me.substring(1))
                     let out
                     let type = file.type.split('/')[0]
                     switch (type) {
@@ -692,7 +770,7 @@
                 if (text.includes(template)) {
                     // don't bother making a new function if the source code is the same
                     // since calling the function constructor is kinda expensive
-                    var func = cacheFunc(`with(this)return(async()=>{'use strict';${script && `${script};`}\nif(typeof arguments[0]==='string'){let text=arguments[0]${post ? `;${post[1].trim()}\n` : ''}}else{${env.concat(code).join(';')}\n}throw new TemplateProcessingError('Missing return value in template function',{cause:${code})})()`)
+                    var func = cacheFunc(`with(this)return(async()=>{'use strict';${script && `${script};`}\nif(typeof arguments[0]==='string'){let text=arguments[0]${post ? `;${post[1].trim()}\n` : ''}}else{${env.concat(code).join(';')}\n}throw new TemplateProcessingError('Missing return value in template function',{cause:${JSON.stringify(code)}})})()`)
                     // so basically i can explain everything and why it's like this:
 
                     // - the `with` statement makes it convenient to use variables of choice,
@@ -742,6 +820,7 @@
             // }
         }
         function addToDynamicFiles(srcSegments, localPath) {
+            if (typeof localPath !== 'string') debugger
             dynamicFiles.getOrInsert(srcSegments.join('/'), new Set).add(localPath)
         }
         class Metadata {

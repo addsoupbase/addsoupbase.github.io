@@ -318,6 +318,7 @@
         center = '-moz-center -webkit-center -khtml-center'.split(' ').find(align) || 'initial'
         matchParent = 'match-parent -moz-match-parent -webkit-match-parent'.split(' ').find(align) || 'initial'
         var o = {
+            'summary::marker': {cursor:'pointer'},
             ':root': {
                 // 'transition-behavior': 'allow-discrete',
                 // 'interpolate-size': 'allow-keywords',
