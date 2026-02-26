@@ -13,7 +13,10 @@ export function ce(htmlOrTag) {
         node.appendChild(doc)
     }
     else if (isHTMLSyntax(htmlOrTag)) {
-        node = parse(htmlOrTag).firstElementChild
+        let n = parse(htmlOrTag)
+        node = n.childElementCount === 1 ? n.firstElementChild : n
+        // if you do multiple elements eg: $`<h1>Heading</h1> <p>text</p>`
+        // it will turn into a DocumentFragment
     }
     else {
         let tag = htmlOrTag.match(Regex.tag)?.[0]
@@ -42,14 +45,13 @@ export let body = D.body && Proxify(D.body)
 const nodeCache = new Map
 function handleSub(sub, replace) {
     if (sub === Object(sub)) {
-        if (sub instanceof String) return sub.toString()
+        if (sub instanceof String) return sub.toString() // Don't escape
         if (typeof sub === 'function') {
             let r = sub.toString()
             replace.map.set(r, sub)
             return escapeHTML(r)
         }
-        sub = base(sub)
-        if (Node.prototype.isPrototypeOf(sub)) {
+        if (Node.prototype.isPrototypeOf(sub = base(sub))) {
             let comment = `@Replace #${++replace.toReplace}`
             // this bit is really helpful:
             // $`<form>${$`<button (click)="${function(e){
@@ -136,6 +138,7 @@ export function escapeHTML(s) { (a ??= D.createElement('p')).textContent = s; re
 //@dev 'body'in window || Object.defineProperty(window, 'body', {get() {return Proxify(document.querySelector('body'))}})
 //@dev window.escapeHTML = txt => escapeHTML(prompt(txt))
 //@dev window.esc = escapeTagged
+//@dev window.cache = nodeCache
 function* treeWalker(root, whatToShow, filter) {
     let walker = D.createTreeWalker(root, whatToShow, filter)
     let o

@@ -193,11 +193,11 @@
         PASSIVE = h.PASSIVE = '^',
         CAPTURE = h.CAPTURE = '%',
         STOP_PROPAGATION = h.STOP_PROPAGATION = '&',
-        STOP_IMMEDIATE_PROPAGATION = h.STOP_IMMEDIATE_PROPAGATION = '!',
+        STOP_IMMEDIATE_PROPAGATION = h.STOP_IMMEDIATE_PROPAGATION = '!'
         // FireFox only:
-        WANTS_UNTRUSTED = h.WANTS_UNTRUSTED = '|', // not really sure what this even does
-        ONLY_ORIGINAL_TARGET = h.ONLY_ORIGINAL_TARGET = '>',
-        ONLY_EXPLICIT_ORIGINAL_TARGET = h.ONLY_EXPLICIT_ORIGINAL_TARGET = '<'
+        // ,WANTS_UNTRUSTED = h.WANTS_UNTRUSTED = '|', // not really sure what this even does
+        // ONLY_ORIGINAL_TARGET = h.ONLY_ORIGINAL_TARGET = '>',
+        // ONLY_EXPLICIT_ORIGINAL_TARGET = h.ONLY_EXPLICIT_ORIGINAL_TARGET = '<'
     /*export var {
         currentTarget: CURRENT_TARGET, autoAbort: AUTO_ABORT, trusted: TRUSTED, once: ONCE,
         preventDefault: PREVENT_DEFAULT, passive: PASSIVE,
@@ -247,8 +247,8 @@
         addEventListener(f, g, h)
         removeEventListener(f, g, h)
         return out
-    }()
-    var FLAG_ONCE = 1,
+    }(), 
+        FLAG_ONCE = 1,
         FLAG_PREVENTS = 2,
         FLAG_PASSIVE = 4,
         FLAG_CAPTURE = 8,
@@ -256,10 +256,10 @@
         FLAG_STOP_IMMEDIATE_PROPAGATION = 32,
         FLAG_ONLY_TRUSTED = 64,
         FLAG_ONLY_CURRENT_TARGET = 128,
-        FLAG_AUTO_ABORT = 256,
-        FLAG_WANTS_UNTRUSTED = 512,
-        FLAG_ONLY_ORIGINAL_TARGET = 1024,
-        FLAG_ONLY_EXPLICIT_ORIGINAL_TARGET = 2048
+        FLAG_AUTO_ABORT = 256
+        // ,FLAG_WANTS_UNTRUSTED = 512,
+        // FLAG_ONLY_ORIGINAL_TARGET = 1024,
+        // FLAG_ONLY_EXPLICIT_ORIGINAL_TARGET = 2048
     function on(target, events, controller, _) {
         if (typeof _ !== 'undefined' && getLabel(controller) !== 'AbortController') {
             debugger
@@ -293,15 +293,16 @@
                 onlyTrusted = +includes(TRUSTED) && FLAG_ONLY_TRUSTED,
                 onlyCurrentTarget = +includes(CURRENT_TARGET) && FLAG_ONLY_CURRENT_TARGET,
                 autoabort = +includes(AUTO_ABORT) && FLAG_AUTO_ABORT,
-                wantsUntrusted = +includes(WANTS_UNTRUSTED) && FLAG_WANTS_UNTRUSTED,
-                onlyOriginalTarget = +includes(ONLY_ORIGINAL_TARGET) && FLAG_ONLY_ORIGINAL_TARGET,
-                onlyExplicitOriginalTarget = +includes(ONLY_EXPLICIT_ORIGINAL_TARGET) && FLAG_ONLY_EXPLICIT_ORIGINAL_TARGET,
+                // wantsUntrusted = +includes(WANTS_UNTRUSTED) && FLAG_WANTS_UNTRUSTED,
+                // onlyOriginalTarget = +includes(ONLY_ORIGINAL_TARGET) && FLAG_ONLY_ORIGINAL_TARGET,
+                // onlyExplicitOriginalTarget = +includes(ONLY_EXPLICIT_ORIGINAL_TARGET) && FLAG_ONLY_EXPLICIT_ORIGINAL_TARGET,
                 options = {
                     capture: !!capture,
                     //once
                     passive: !!passive
                 },
-                flags = once | prevents | passive | capture | stopProp | stopImmediateProp | onlyTrusted | onlyCurrentTarget | autoabort | wantsUntrusted | onlyOriginalTarget | onlyExplicitOriginalTarget,
+                flags = once | prevents | passive | capture | stopProp | stopImmediateProp | onlyTrusted | onlyCurrentTarget | autoabort //| wantsUntrusted | onlyOriginalTarget | onlyExplicitOriginalTarget
+                ,
                 newTarget = target
             if (flags & FLAG_PASSIVE && flags & FLAG_PREVENTS) {
                 // let {caller} = on, a = []
@@ -326,7 +327,7 @@
                 var iterator = func.call(target, args[0])
                     , started = false
                 func = function (e) {
-                    started || (started = iterator.next())
+                    started || (started = !!iterator.next())
                     return iterator.next(e)
                 }
                 // func = iterator.next.bind(iterator)
@@ -372,13 +373,13 @@
     }
     h.compatOn = compatOn
     var customEventHandler = typeof Proxy === 'function' && {
-        has: function (t, p) {
+        has: function CustomEventHas(t, p) {
             return p in t || p in Object(t.detail)
         },
-        set: function (t, p, v) {
+        set: function CustomEventSet(t, p, v) {
             return (p in t ? t : t.detail)[p] = v, true
         },
-        get: function (t, p) {
+        get: function CustomEventGet(t, p) {
             if (p in t) return t[p]
             var detail = t.detail
             if (p in Object(detail)) {
@@ -396,10 +397,12 @@
             sip = flags & FLAG_STOP_IMMEDIATE_PROPAGATION,
             aa = flags & FLAG_AUTO_ABORT,
             once = flags & FLAG_ONCE,
-            originalTarget = flags & FLAG_ONLY_ORIGINAL_TARGET,
-            explicitOriginalTarget = flags & FLAG_ONLY_EXPLICIT_ORIGINAL_TARGET, 
+            // originalTarget = flags & FLAG_ONLY_ORIGINAL_TARGET,
+            // explicitOriginalTarget = flags & FLAG_ONLY_EXPLICIT_ORIGINAL_TARGET, 
             event = args[0]
-        if (t && event.isTrusted || !t && (!originalTarget || !('originalTarget' in event) || event.originalTarget === currentTarget) && (!explicitOriginalTarget || !('explicitOriginalTarget' in event) || event.explicitOriginalTarget === currentTarget) && (!oct || (event.target || event.srcElement) === currentTarget)) {
+        if (t && event.isTrusted || !t 
+            // && (!originalTarget || !('originalTarget' in event) || event.originalTarget === currentTarget) && (!explicitOriginalTarget || !('explicitOriginalTarget' in event) || event.explicitOriginalTarget === currentTarget) 
+            && (!oct || (event.target || event.srcElement) === currentTarget)) {
                 var label = getLabel(event),
                 name = event.type,
                 currentTarget = event.currentTarget,

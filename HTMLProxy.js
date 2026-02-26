@@ -26,9 +26,6 @@ function frag(nodes) {
 }
 let dash = /-./g,
     azregex = /[A-Z]/g
-function Mutation() {
-
-}
 class Node$ extends EventTargetProxy {
     *[Symbol.iterator]() {
         let n = this.childNodes
@@ -65,16 +62,14 @@ class Node$ extends EventTargetProxy {
         Proxify(this).off(`v4:${type}`)
     }
     static #observerCallback(type) {
+        type = `v4:${type}`
         return Callback
         function Callback(changes) {
-            for (let i = changes.length; i--;) {
-                let record = changes[i]
-                let event = new CustomEvent(`v4:${type}`, {
+            for (let i = changes.length; i--;)
+                changes[i].target.dispatchEvent(new CustomEvent(type, {
                     detail: Proxify(record),
                     bubbles: true
-                })
-                record.target.dispatchEvent(event)
-            }
+                }))
         }
     }
     /**
@@ -82,9 +77,8 @@ class Node$ extends EventTargetProxy {
      * The event bubbles too.
      */
     observe(type, settings, flags) {
-        if (!settings.callback) throw Error(`"callback" property required`)
+        if (!settings.callback) throw Error(`'callback' property required`)
         let ob = Node$.#observers
-        let me = Proxify(this)
         switch (type.toLowerCase()) {
             default: throw Error(`Invalid observer type "${type}"`)
             case 'mutation':
@@ -192,6 +186,9 @@ class Node$ extends EventTargetProxy {
     get nodes() {
         return [].map.call(this.childNodes, Proxify)
     }
+    destroyChildren() {
+        return Proxify(this).empty(true)
+    }
     empty(kill) {
         if (kill) {
             let l
@@ -219,7 +216,7 @@ class Node$ extends EventTargetProxy {
     }
     set prevNode(val) {
         let parent = this.parentNode
-        if (!parent) throw TypeError(`Cannot set prevNode on orphan`)
+        if (!parent) throw TypeError('Cannot set prevNode on orphan')
         parent.insertBefore(base(val), this)
     }
     get nextNode() {
@@ -228,7 +225,7 @@ class Node$ extends EventTargetProxy {
     }
     set nextNode(val) {
         let parent = this.parentNode
-        if (!parent) throw TypeError(`Cannot set nextNode on orphan`)
+        if (!parent) throw TypeError('Cannot set nextNode on orphan')
         let next = this.nextSibling
         val = base(val)
         next ? parent.insertBefore(val, next) : parent.appendChild(val)
@@ -299,11 +296,22 @@ class ReflowCache extends Cacher {
     }
 }
 {
-    let all = 'offsetLeft offsetTop offsetWidth offsetHeight offsetParent clientLeft clientTop clientWidth clientHeight scrollWidth scrollHeight scrollTop scrollLeft'.split(' ')
-    for (let i = all.length; i--;) {
-        let key = all[i]
-        Cacher.define(ReflowCache, key)
-    }
+    let all = [
+        "offsetLeft",
+        "offsetTop",
+        "offsetWidth",
+        "offsetHeight",
+        "offsetParent",
+        "clientLeft",
+        "clientTop",
+        "clientWidth",
+        "clientHeight",
+        "scrollWidth",
+        "scrollHeight",
+        "scrollTop",
+        "scrollLeft"
+    ]
+    for (let i = all.length; i--;) Cacher.define(ReflowCache, all[i])
 }
 class StyleCache extends Cacher {
     static ran = false
@@ -374,7 +382,7 @@ class Element$ extends NodeProxy {
         let frames = Element$.AnimationCache.get(animationName)
         if (!frames) {
             let thing
-            _: {
+            dance: {
                 let rules = D.styleSheets
                 for (let i = rules.length; i--;) {
                     let b = rules[i].cssRules
@@ -382,7 +390,7 @@ class Element$ extends NodeProxy {
                         let a = b[ii]
                         if (a.type === 7 && a.name === animationName) {
                             thing = a
-                            break _
+                            break dance
                         }
                     }
                 }
@@ -517,5 +525,5 @@ new ProxyFactory(class MutationRecord$ extends RecordOrEntry {
         return Proxify.GetWrapper(this).#previousSibling ??= this.previousSibling && Proxify(this.previousSibling)
     }
 })
-new ProxyFactory(class ResizeObserverEntry$ extends RecordOrEntry {})
-new ProxyFactory(class IntersectionObserverEntry$ extends RecordOrEntry {} )
+new ProxyFactory(class ResizeObserverEntry$ extends RecordOrEntry { })
+new ProxyFactory(class IntersectionObserverEntry$ extends RecordOrEntry { })
