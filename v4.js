@@ -35,7 +35,7 @@ const Regex = {
     html: /^\s*<.*>\s*$/s,
     apos: /'/g,
     q: /"/g,
-    frag: /^\s*<>(.*)<\/>$/s
+    frag: /^\s*<>(.*)<\/>\s*$/s
 }
 const isHTMLSyntax = / /.test.bind(Regex.html)
 export let body = D.body && Proxify(D.body)
@@ -77,17 +77,13 @@ export function $(strings, ...subs) {
     }
     let result = []
         , replace = { map: new Map, toReplace: 0 }
-    for (let i = 0, n = strings.length, { length } = subs; i < n; ++i) 
+    for (let i = 0, n = strings.length, { length } = subs; i < n; ++i)
         result.push(`${strings[i]}${i < length ? handleSub(subs[i], replace) : ''}`)
     let out = ce(result.join(''))
     let node = base(out)
     // conclusion: TreeWalker > XPath & NodeIterator
     let { map } = replace
-    if (replace.toReplace) {
-        let walker = D.createTreeWalker(base(out), 128, commentFilter)
-        let o
-        while (o = walker.nextNode()) o.replaceWith(map.get(o.textContent))
-    }
+    if (replace.toReplace) for(let o of treeWalker(base(out), 128, commentFilter)) o.replaceWith(map.get(o.textContent))
     if (node.nodeType === 1 && node.hasAttributes()) {
         let events = {}
         let attr = node.getAttributeNames()
@@ -131,7 +127,7 @@ export function sel(t) {
 }
 export function escapeTagged(strings, ...subs) {
     let out = ''
-    for (let i = 0, n = strings.length, { length } = subs; i < n; ++i) 
+    for (let i = 0, n = strings.length, { length } = subs; i < n; ++i)
         out += `${strings[i]}${i < length ? escapeHTML(subs[i]) : ''}`
     return out
 }
@@ -140,3 +136,8 @@ export function escapeHTML(s) { (a ??= D.createElement('p')).textContent = s; re
 //@dev 'body'in window || Object.defineProperty(window, 'body', {get() {return Proxify(document.querySelector('body'))}})
 //@dev window.escapeHTML = txt => escapeHTML(prompt(txt))
 //@dev window.esc = escapeTagged
+function* treeWalker(root, whatToShow, filter) {
+    let walker = D.createTreeWalker(root, whatToShow, filter)
+    let o
+    while (o = walker.nextNode()) yield o
+}

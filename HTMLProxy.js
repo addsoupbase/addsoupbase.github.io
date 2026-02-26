@@ -26,10 +26,93 @@ function frag(nodes) {
 }
 let dash = /-./g,
     azregex = /[A-Z]/g
+function Mutation() {
+
+}
 class Node$ extends EventTargetProxy {
     *[Symbol.iterator]() {
         let n = this.childNodes
         for (let i = 0, l = n.length; i < l; ++i) yield Proxify(n[i])
+    }
+    static #observers = {
+        r: null,
+        // p: null,
+        i: null,
+        m: null,
+    }
+    unobserve(type) {
+        let observers = Node$.#observers
+        switch (type.toLowerCase()) {
+            case 'resize':
+            case 'resizeobserver':
+            case 'r':
+                type = 'resize'
+                observers.r.unobserve(me)
+                break
+            case 'intersection':
+            case 'intersectionobserver':
+            case 'i':
+                type = 'intersection'
+                observers.i.unobserve(me)
+                break
+            case 'mutation':
+            case 'mutationobserver':
+            case 'm':
+                type = 'mutation'
+                break
+            default: throw Error(`Invalid observer type "${type}"`)
+        }
+        Proxify(this).off(`v4:${type}`)
+    }
+    static #observerCallback(type) {
+        return Callback
+        function Callback(changes) {
+            for (let i = changes.length; i--;) {
+                let record = changes[i]
+                let event = new CustomEvent(`v4:${type}`, {
+                    detail: Proxify(record),
+                    bubbles: true
+                })
+                record.target.dispatchEvent(event)
+            }
+        }
+    }
+    /**
+     * ### `event.targetNode` is the node that had something changed (won't always be the same as `this`).
+     * The event bubbles too.
+     */
+    observe(type, settings, flags) {
+        if (!settings.callback) throw Error(`"callback" property required`)
+        let ob = Node$.#observers
+        let me = Proxify(this)
+        switch (type.toLowerCase()) {
+            default: throw Error(`Invalid observer type "${type}"`)
+            case 'mutation':
+            case 'mutationobserver':
+            case 'm': {
+                type = 'mutation'
+                ob.m ??= new MutationObserver(Node$.#observerCallback(type))
+                ob.m.observe(this, settings)
+            }
+                break
+            case 'intersection':
+            case 'intersectionobserver':
+            case 'i': {
+                type = 'intersection'
+                ob.i ??= new IntersectionObserver(Node$.#observerCallback(type))
+                ob.i.observe(this, settings)
+            }
+                break
+            case 'resize':
+            case 'resizeobserver':
+            case 'r': {
+                type = 'resize'
+                ob.i ??= new ResizeObserver(Node$.#observerCallback(type))
+                ob.i.observe(this, settings)
+            }
+                break
+        }
+        Proxify(this).on({ [`${flags || ''}v4:${type}`]: settings.callback })
     }
     adopt(frag) {
         this.appendChild(base(frag))
@@ -407,3 +490,32 @@ class MouseEvent$ {
     get offsetX() { return Proxify.GetWrapper(this).#offsetX ??= this.offsetX }
     get offsetY() { return Proxify.GetWrapper(this).#offsetY ??= this.offsetY }
 } new ProxyFactory(MouseEvent$)
+class RecordOrEntry {
+    #targetNode = null
+    get targetNode() {
+        return Proxify.GetWrapper(this).#targetNode ??= this.target && Proxify(this.target)
+    }
+    get entryType() {
+        return this.type
+    }
+}
+new ProxyFactory(class MutationRecord$ extends RecordOrEntry {
+    #removedNodes = null
+    get removedNodes() {
+        return Proxify.GetWrapper(this).#removedNodes ??= this.removedNodes && [].slice.call(this.removedNodes)
+    }
+    #addedNodes = null
+    get addedNodes() {
+        return Proxify.GetWrapper(this).#addedNodes ??= this.addedNodes && [].slice.call(this.addedNodes)
+    }
+    #nextSibling = null
+    get nextSibling() {
+        return Proxify.GetWrapper(this).#nextSibling ??= this.nextSibling && Proxify(this.nextSibling)
+    }
+    #previousSibling = null
+    get previousSibling() {
+        return Proxify.GetWrapper(this).#previousSibling ??= this.previousSibling && Proxify(this.previousSibling)
+    }
+})
+new ProxyFactory(class ResizeObserverEntry$ extends RecordOrEntry {})
+new ProxyFactory(class IntersectionObserverEntry$ extends RecordOrEntry {} )
