@@ -403,6 +403,7 @@
     <script type="module">
         import * as v from './v4.js'
         const { $ } = v
+        // let channel = new BroadcastChannel('tabreload')
         class TemplateProcessingError extends Error { name = 'TemplateProcessingError' }
         class PathNotFoundError extends Error { name = 'PathNotFoundError' }
         // i have absolutely no idea what i did
@@ -525,8 +526,10 @@
                                 // }
                             }
                             else if (ch.kind === 'file') {
-                                if (prefix.test(ch.name))
-                                    await editFile(rel, ch)
+                                // queueMicrotask(()=>{
+                                //     // channel.postMessage(path)
+                                // })
+                                if (prefix.test(ch.name)) await editFile(rel, ch)
                                 else if (dynamicFiles.has(path)) {
                                     let subscribers = dynamicFiles.get(path)
                                     let promises = []

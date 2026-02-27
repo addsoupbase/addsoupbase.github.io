@@ -25,7 +25,6 @@ export function ce(htmlOrTag) {
         if (className) node.className = className
         let id = htmlOrTag.match(Regex.id)?.[0].substring(1) || ''
         if (id) node.id = id
-        //@dev console.assert(node.matches(htmlOrTag))
     }
     return Proxify(node)
 }

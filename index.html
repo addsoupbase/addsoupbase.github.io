@@ -474,6 +474,7 @@
             animation: intro .5s ease forwards;
             height: 100%;
             view-transition-name: content;
+            /* contain: view-transition; */
             overflow-y: auto;
             overflow-x: hidden;
             display: block;
@@ -560,11 +561,11 @@
 
 
         ::view-transition-old(content) {
-            animation: mainSlideOut 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            animation: mainSlideOut 0.72s cubic-bezier(0.34, 1.26, 0.64, 1) forwards;
         }
 
         ::view-transition-new(content) {
-            animation: mainSlideIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            animation: mainSlideIn 0.72s cubic-bezier(0.34, 1.26, 0.64, 1) forwards;
         }
 
 
@@ -800,8 +801,7 @@
             }
 
             [data-transitions],
-            #viewbackground,
-            .divider {
+            #viewbackground {
                 display: none
             }
 
@@ -851,19 +851,9 @@
                 </div>
                 <h1 style="display: inline;" id="myusername">addsoupbase</h1>
                 <h2 style="font-size: 1em;">thank you so much for looking at this i love you everyone</h2>
+                <button style="display: none;" id="viewfullscreen">Focus</button>
                 <div style="place-content: center;place-items: center;" id="buttons">
-                    <button class="cute-green-button" id="viewbackground">Hide</button><img decoding="async"
-                        src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><button
-                        style="display: none;" class="cute-green-button" id="viewfullscreen">Focus</button><img
-                        style="display: none;" decoding="async" src="./cute-emojis/emojis/02665925378628511.gif"
-                        class="divider" alt><button class="cute-green-button"
-                        data-transitions="about">About</button><img decoding="async"
-                        src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><button
-                        class="cute-green-button" data-transitions="friends">Friends</button><img decoding="async"
-                        src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><button
-                        class="cute-green-button" data-transitions="log">Log</button><img decoding="async"
-                        src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><button
-                        class="cute-green-button" data-transitions="stuff">Stuff</button>
+                    <button class="cute-green-button" id="viewbackground">Hide</button><img decoding="async" src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><button class="cute-green-button" data-transitions="about">About</button><img decoding="async" src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><button class="cute-green-button" data-transitions="friends">Friends</button><img decoding="async" src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><button class="cute-green-button" data-transitions="log">Log</button><img decoding="async" src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><button class="cute-green-button" data-transitions="stuff">Stuff</button>
                 </div>
                 <p>Send me something, or press the paper below to draw something instead!</p>
                 <input type="image" class="buttonimage" src="./cute-emojis/emojis/1216660228641263687.gif"
@@ -1721,7 +1711,7 @@
                 <nav class="lholder">
                     <a href="https://addsoupbase.github.io/intro" target="_blank"
                         title="The very first version of this site">Take 1 🎬</a>
-                    <a href="./old.html" target="_blank" title="The same site ~2 years later">Take 2 🎬</a>
+                    <!-- <a href="./old.html" target="_blank" title="The same site ~2 years later">Take 2 🎬</a> -->
                     <a href="https://addsoupbase.github.io/favourites" target="_blank"
                         title="A list of my favourite things!">Favourites</a>
                     <a href="https://addsoupbase.github.io/twehg" target="_blank" style="font-size: .8em;"
@@ -1734,12 +1724,7 @@
         </main>
     </div>
     <nav id="bad_browser" style="display: none;">
-        <a href="#about" class="cute-green-button">About</a> <img decoding="async"
-            src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><a href="#friends"
-            class="cute-green-button">Friends</a> <img decoding="async" src="./cute-emojis/emojis/02665925378628511.gif"
-            class="divider" alt><a href="#log" class="cute-green-button">Log</a> <img decoding="async"
-            src="./cute-emojis/emojis/02665925378628511.gif" class="divider" alt><a href="#stuff"
-            class="cute-green-button">Stuff</a>
+        <a href="#about" class="cute-green-button">About</a><img decoding="async" src="./cute-emojis/emojis/02665925378628511.gif"class="divider" alt><a href="#friends" class="cute-green-button">Friends</a><img decoding="async" src="./cute-emojis/emojis/02665925378628511.gif"class="divider" alt><a href="#log" class="cute-green-button">Log</a><img decoding="async" src="./cute-emojis/emojis/02665925378628511.gif"class="divider" alt><a href="#stuff" class="cute-green-button">Stuff</a>
     </nav>
     <output id="count" aria-live="polite" aria-hidden="true"
         style="font-size: 2em;position: fixed;bottom:10px;left:10px;color:white">0</output>
