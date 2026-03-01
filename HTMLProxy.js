@@ -157,6 +157,14 @@ class Node$ extends EventTargetProxy {
         let n = [].at.call(this.childNodes, index)
         return n ? Proxify(n) : null
     }
+    unshiftNode(...nodes) {
+        for(let i = 0, l = nodes.length; i < l; ++i) {
+            let n = base(nodes[i])
+            let c = this.firstChild
+            c ? this.insertBefore(n, this.firstChild) : this.appendChild(n)
+        }
+        return Proxify(this)
+    }
     pushNode(...nodes) {
         let a = frag(nodes.map(base))
         this.appendChild(a)

@@ -313,7 +313,7 @@
     if (!atProperty && CSS.registerProperty) doRegister()
     if (!newName) {
         var align = sup.bind(1, 'text-align')
-        crisp = '-webkit-optimize-contrast -moz-crisp-edges'.split(' ').find(sup.bind(1, 'image-rendering')) || 'initial'
+        crisp = 'pixelated -moz-crisp-edges -webkit-optimize-contrast '.split(' ').find(sup.bind(1, 'image-rendering')) || 'initial'
         stretch = '-webkit-fill-available stretch -moz-available'.split(' ').find(sup.bind(1, 'max-width')) || 'initial'
         center = '-moz-center -webkit-center -khtml-center'.split(' ').find(align) || 'initial'
         matchParent = 'match-parent -moz-match-parent -webkit-match-parent'.split(' ').find(align) || 'initial'

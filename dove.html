@@ -77,6 +77,7 @@
 
 
         #blob {
+            corner-top-left-shape: squircle;
             width: 36px;
             height: 36px;
             position: fixed;
@@ -440,6 +441,7 @@
             output.childElementCount > 30 && output.lastElementChild.remove()
         }
         let jsComment = /\/\*:(?<code>.*?)\*\//gs
+        let jsDefineComment = /\/\*::(.*?)\*\//s
         let htmlComment = /<\!--{{((?:(?!}}).)*?)}}--\>/gs
         let defineComment = /<\!--{{@define((?:(?!}}).)*?)}}--\>/s
         let scriptComment = /<\!--@script\(([^)]+)\)--\>/
@@ -482,6 +484,16 @@
                             log(rel, 'success', `Create ${path}${ch.kind === 'directory' ? '/' : ''}`)
                             if (ch.kind === 'file' && isTemplate)
                                 await editFile(rel, ch)
+                            else if (dynamicFiles.has(path)) {
+                                let subscribers = dynamicFiles.get(path)
+                                let promises = []
+                                for (let path of subscribers) {
+                                    let subPath = path.split('/')
+                                    let file = await getSpecificFileHandle(path)
+                                    promises.push(editFile(subPath, file))
+                                }
+                                await Promise.all(promises)
+                            }
                             let myFolder = rel.slice(0, -1).join('/')
                             let subs = dynamicFolders.get(myFolder)
                             if (subs) {
@@ -698,6 +710,7 @@
         let dynamicFiles = new Map
         async function evaluate(text, localPath, pathSegments) {
             let define = text.match(defineComment)
+            let define2 = text.match(jsDefineComment)
             let env = []
             let context = {
                 __proto__: null,
@@ -736,6 +749,8 @@
                     }
                     return new Metadata(file)
                 },
+                range,
+                concat,
                 async file(src) {
                     let me = localPath.pathname
                     addToDynamicFiles(resolve(src, me), me.substring(1))
@@ -759,6 +774,10 @@
             if (define) {
                 text = text.replace(defineComment, '')
                 env.push(define[1])
+            }
+            if (define2) {
+                text = text.replace(jsDefineComment, '')
+                env.push(define2[1])
             }
             let script = text.match(scriptComment)
             if (script) {
@@ -792,7 +811,7 @@
                     // - and then it throws by default if no return statement is reached
 
                     let out = await func.call(context, null)
-                    if (typeof out !== 'string') throw TemplateProcessingError(`Return value must be string: ${out?.toString?.() ?? toString.call(out)}`, { cause: code })
+                    if (typeof out !== 'string') throw new TemplateProcessingError(`Return value must be string: ${out?.toString?.() ?? toString.call(out)}`, { cause: code })
                     let bad = out.match(probablyNotWhatYouWant)
                     if (bad) {
                         log(pathSegments, 'warning', `Unexpected string coercion: ${bad}`)
@@ -932,6 +951,16 @@
             return new URL(src, baseURL + localPath).toString().substring(7).split('/').filter(Boolean)
         }
         // setStatus('active')
+        function* range(min, max) {
+            if (max == null) {
+                max = min
+                min = 0
+            }
+            while (min < max) {
+                yield min++
+            }
+        }
+        function concat(a, b) { return a + b }
         function imageSet(...formats) {
             let def = `background-image:${formats.map(o => `url(${o.at(-1)})`).join(',')};`
             return def + ['', '-webkit-'].map(o => `background-image:${formats.map(srces =>
