@@ -32,7 +32,7 @@ class EventTarget$  {
             case 1: return h.off(this, names[0])
             case 2: return h.off(this, names[0], names[1])
             case 3: return h.off(this, names[0], names[1], names[2])
-            default: return h.off.apply(void 0, this, names)
+            default: return h.off(this, ...names)
         }
     }
 }
