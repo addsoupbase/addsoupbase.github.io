@@ -64,10 +64,17 @@ function spawnPokemon() {
     let pathString = `M ${path[0]} L ${path[1]}`
     let scaleStr = `${scaleX} ${scaleY}`
     switch (nameNoMega) {
+        // idk why but some of them look slower than usual
         case 'aerodactyl':
         case 'articuno':
         case 'murkrow':
+        case 'skarmory':
+        case 'hooh':
         case 'honchkrow':
+        case 'wingull':
+        case 'altaria':
+        case 'pelliper':
+        case 'flygon':
         case 'moltres': dura *= .7
             break
         case 'lugia':
@@ -86,7 +93,7 @@ function spawnPokemon() {
             break
         }
     }
-    $`<div class="layer_${layer} mon mon_${choice.name} is_${nameNoMega}" style='z-index: ${layer};offset-anchor: -${(choice.width / 2)}px -${(choice.height / 2)}px;offset-path: path("${pathString}");'>
+    $`<div class="layer_${layer} mon mon_${choice.name} is_${nameNoMega}" style='--noise: ${0.85 + Math.random() * 0.3};z-index: ${layer};offset-anchor: -${(choice.width / 2)}px -${(choice.height / 2)}px;offset-path: path("${pathString}");'>
         <cel-runner index="${+(Math.random() * 4000 > 3999)}" style="scale: ${scaleStr}" dura="${dura}ms" src="./media/sprite/${choice.file}" frames-x="${choice.framesX}" frames-y="2"></cel-runner>
         </div>`
         .setParent(bg)
