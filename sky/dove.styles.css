@@ -73,7 +73,6 @@ background-position-x: -${9999 * (o+1)}px;
     --scale: 200%;
     offset-rotate: 0deg;
     --x: 0;
-    will-change: offset-distance;
     --y: 0;
     --___x: calc(var(--x) * 1px);
     --___y: calc(var(--y) * 1px);
@@ -94,6 +93,11 @@ background-position-x: -${9999 * (o+1)}px;
 .mon_latios,
 .mon_latias {
     --speed: 5s;
+}
+
+:where(.is_latios,
+.is_latias, .is_mantine).layer7 {
+    will-change: offset-distance;
 }
 
 .is_latios,
@@ -129,6 +133,7 @@ background-position-x: -${9999 * (o+1)}px;
 .mon_golbat {
     --scale: 221%
 }
+
 /*:
 return[6,5,4,3,2,1].map(o=>
 `.layer_${o} {
@@ -136,7 +141,8 @@ return[6,5,4,3,2,1].map(o=>
 filter: contrast(${1/o}) brightness(${(1/o)*100}%);
 }`).join('\n')
 */
-.mon_misdreavus, .mon_celebi {
+.mon_misdreavus,
+.mon_celebi {
     --scale: 150%
 }
 
