@@ -1,0 +1,330 @@
+
+[data-tod="morning"] body {background-color: #a6b1ef}
+
+[data-tod="morning"] #layer4 {
+background-image: url(media/morning/4.png);
+}
+[data-tod="morning"] #layer3 {
+background-image: url(media/morning/3.png);
+}
+[data-tod="morning"] #layer2 {
+background-image: url(media/morning/2.png);
+}
+[data-tod="morning"] #layer1 {
+background-image: url(media/morning/1.png);
+}[data-tod="dawn"] body {background-color: #8a8687}
+
+[data-tod="dawn"] #layer6 {
+background-image: url(media/dawn/6.png);
+}
+[data-tod="dawn"] #layer5 {
+background-image: url(media/dawn/5.png);
+}
+[data-tod="dawn"] #layer4 {
+background-image: url(media/dawn/4.png);
+}
+[data-tod="dawn"] #layer3 {
+background-image: url(media/dawn/3.png);
+}
+[data-tod="dawn"] #layer2 {
+background-image: url(media/dawn/2.png);
+}
+[data-tod="dawn"] #layer1 {
+background-image: url(media/dawn/1.png);
+}[data-tod="day"] body {background-color: #229df2}
+
+[data-tod="day"] #layer4 {
+background-image: url(media/day/4.png);
+}
+[data-tod="day"] #layer3 {
+background-image: url(media/day/3.png);
+}
+[data-tod="day"] #layer2 {
+background-image: url(media/day/2.png);
+}
+[data-tod="day"] #layer1 {
+background-image: url(media/day/1.png);
+}[data-tod="dusk"] body {background-color: #6dadc8}
+
+[data-tod="dusk"] #layer4 {
+background-image: url(media/dusk/4.png);
+}
+[data-tod="dusk"] #layer3 {
+background-image: url(media/dusk/3.png);
+}
+[data-tod="dusk"] #layer2 {
+background-image: url(media/dusk/2.png);
+}
+[data-tod="dusk"] #layer1 {
+background-image: url(media/dusk/1.png);
+}[data-tod="night"] body {background-color: #171628}
+
+[data-tod="night"] #layer4 {
+background-image: url(media/night/4.png);
+}
+[data-tod="night"] #layer3 {
+background-image: url(media/night/3.png);
+}
+[data-tod="night"] #layer2 {
+background-image: url(media/night/2.png);
+}
+[data-tod="night"] #layer1 {
+background-image: url(media/night/1.png);
+}[data-tod="evening"] body {background-color: #ab7ea7}
+
+[data-tod="evening"] #layer4 {
+background-image: url(media/evening/4.png);
+}
+[data-tod="evening"] #layer3 {
+background-image: url(media/evening/3.png);
+}
+[data-tod="evening"] #layer2 {
+background-image: url(media/evening/2.png);
+}
+[data-tod="evening"] #layer1 {
+background-image: url(media/evening/1.png);
+}
+
+@keyframes clouds1 {
+100% {
+background-position-x: -19998px;
+}
+}
+ #layer1 {
+    z-index: 3;
+    animation: clouds1 3600s linear infinite;
+ }
+
+
+@keyframes clouds2 {
+100% {
+background-position-x: -29997px;
+}
+}
+ #layer2 {
+    z-index: 4;
+    animation: clouds2 3600s linear infinite;
+ }
+
+
+@keyframes clouds3 {
+100% {
+background-position-x: -39996px;
+}
+}
+ #layer3 {
+    z-index: 5;
+    animation: clouds3 3600s linear infinite;
+ }
+
+
+@keyframes clouds4 {
+100% {
+background-position-x: -49995px;
+}
+}
+ #layer4 {
+    z-index: 6;
+    animation: clouds4 3600s linear infinite;
+ }
+
+
+@keyframes clouds5 {
+100% {
+background-position-x: -59994px;
+}
+}
+ #layer5 {
+    z-index: 7;
+    animation: clouds5 3600s linear infinite;
+ }
+
+
+@keyframes clouds6 {
+100% {
+background-position-x: -69993px;
+}
+}
+ #layer6 {
+    z-index: 8;
+    animation: clouds6 3600s linear infinite;
+ }
+
+
+#bg {
+    --user-select: none;
+    will-change: background-position-x;
+}
+
+:is([data-tod="dawn"], [data-tod="dusk"], [data-tod="evening"]) #layer1 {
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position-x: 0;
+    animation: none !important;
+}
+
+[data-tod="night"] #layer2 {
+    animation: none;
+    background-position: -200px -100px;
+    /* filter:brightness(150%); */
+    background-repeat: no-repeat
+}
+
+@keyframes clouds {
+
+    100% {
+        --bgpos-5: -14998.5px;--bgpos-4: -29997px;--bgpos-3: -44995.5px;--bgpos-2: -59994px;--bgpos-1: -74992.5px
+    }
+}
+
+.background {
+    width: 100vw;
+    position: fixed;
+    height: 100vh;
+    image-rendering: var(--crisp-edges);
+    background-size: auto 100%;
+    background-position-y: 0;
+    z-index: 0;
+    background-repeat: repeat-x;
+}
+
+.mon {
+    z-index: 7;
+    --scale: 200%;
+    offset-rotate: 0deg;
+    --x: 0;
+    will-change: offset-distance;
+    --y: 0;
+    --___x: calc(var(--x) * 1px);
+    --___y: calc(var(--y) * 1px);
+    --angle: 0deg;
+    transform: rotate(var(--angle)) translate(var(--___x), var(--___y)) scale(calc(var(--scale) * var(--mult, 1)));
+    animation: fly calc(var(--speed, 14s) / var(--mult, 1)) linear;
+}
+
+.is_mantine {
+    animation: fly calc(var(--speed, 12s) / var(--mult, 1)) ease-out;
+}
+
+.is_lugia,
+.is_hooh {
+    --scale: 250%
+}
+
+.mon_latios,
+.mon_latias {
+    --speed: 5s;
+}
+
+.is_latios,
+.is_latias,
+.is_mantine {
+    offset-rotate: auto;
+}
+
+
+.is_mismagius {
+    --scale: 226%
+}
+
+.is_zapdos,
+.is_articuno,
+.is_moltres {
+    --scale: 220%
+}
+
+.mon_zapdos {
+    --speed: 10s;
+}
+
+.mon_gastly,
+.mon_murkrow {
+    --scale: 150%
+}
+
+.mon_honchkrow {
+    --scale: 250%
+}
+
+.mon_golbat {
+    --scale: 221%
+}
+.layer_6 {
+--mult: 0.16666666666666666;
+filter: contrast(0.16666666666666666) brightness(16.666666666666664%);
+}
+.layer_5 {
+--mult: 0.2;
+filter: contrast(0.2) brightness(20%);
+}
+.layer_4 {
+--mult: 0.25;
+filter: contrast(0.25) brightness(25%);
+}
+.layer_3 {
+--mult: 0.3333333333333333;
+filter: contrast(0.3333333333333333) brightness(33.33333333333333%);
+}
+.layer_2 {
+--mult: 0.5;
+filter: contrast(0.5) brightness(50%);
+}
+.layer_1 {
+--mult: 1;
+filter: contrast(1) brightness(100%);
+}
+.mon_misdreavus, .mon_celebi {
+    --scale: 150%
+}
+
+.mon_crobat {
+    --speed: 5s;
+    --scale: 230%
+}
+
+.mon_latiosmega,
+.mon_latiasmega {
+    --speed: 4.3s;
+}
+
+.mon_fearow {
+    --scale: 270%
+}
+
+@property --angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+}
+
+@keyframes fly {
+    0% {
+        offset-distance: 0%;
+    }
+
+    100% {
+        offset-distance: 100%;
+    }
+}
+
+.tile {
+    width: var(--tile-size);
+    height: var(--tile-size);
+    top: calc(var(--top) * 1px);
+    --top: 0;
+    transform: scale(4) translate(50%, 50%);
+    z-index: var(--top);
+    position: absolute;
+}
+
+
+
+#bg> :not(.background) {
+    position: absolute;
+}
+
+body,
+html {
+    margin: 0;
+    padding: 0;
+}

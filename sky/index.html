@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" data-tod="day">
+
+<head>
+    <meta name="theme-color" content="#229df2">
+    <noscript>
+        <link fetchpriority="high" blocking="render" rel="preload" as="image" href="./media/day/1.png"><link fetchpriority="high" blocking="render" rel="preload" as="image" href="./media/day/2.png"><link fetchpriority="high" blocking="render" rel="preload" as="image" href="./media/day/3.png"><link fetchpriority="high" blocking="render" rel="preload" as="image" href="./media/day/4.png">
+    </noscript>
+    <script blocking="render">
+        !function (hour, d) {
+            'use strict'
+            var time
+                , hash = location.hash.substring(1)
+                , valid = new Set(['night', 'dawn', 'morning', 'day', 'dusk', 'evening'])
+                , data = d.documentElement.dataset
+            addEventListener('hashchange', function () {
+                hash = location.hash.substring(1)
+                var t = hash
+                if (!valid.has(hash)) t = time
+                time = data.tod = t
+            })
+            if (valid.has(hash)) { time = location.hash.slice(1) }
+            else if (hour >= 0 && hour < 5) time = 'night'
+            else if (hour >= 5 && hour < 6) time = 'dawn'
+            else if (hour >= 6 && hour < 12) time = 'morning'
+            else if (hour >= 12 && hour < 17) time = 'day' // or afternoon
+            else if (hour >= 17 && hour < 19) time = 'dusk'
+            else if (hour >= 19 && hour < 21) time = 'evening'
+            else time = 'night'
+            data.tod = time
+            for (var i = 4; i--;) {
+                var n = d.createElement('link')
+                n.rel = 'preload'
+                n.blocking = 'render'
+                n.fetchPriority = 'high'
+                n.href = 'media/' + time + '/' + (i + 1) + '.png'
+                n.as = 'image'
+                d.head.appendChild(n)
+            }
+            if (typeof CSSPropertyRule === 'undefined' && window.CSS && CSS.registerProperty)
+                // @property is newer than CSS.registerProperty
+                for (var i = 5; i--;)
+                    CSS.registerProperty({
+                        name: "--bgpos-" + (i + 1),
+                        syntax: "<length-percentage>",
+                        initialValue: "0px",
+                        inherits: false
+                    })
+        }(new Date().getHours(), document)
+        addEventListener('load', function () { console.log('%cBackground Credits: https://free-game-assets.itch.io/free-sky-with-clouds-background-pixel-art-set', 'font-size:2em') }, { once: true })
+    </script>
+    <meta charset="UTF-8">
+    <script src='../legacy.js' nomodule></script>
+    <script src="../css.js" blocking="render"></script>
+    <script src="../css_bad.js" nomodule></script>
+    <noscript>
+        <link rel="stylesheet" href="../noscript.css">
+    </noscript>
+    <meta http-equiv="content-language" content="en">
+    <meta property="og:locale" content="en_US">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, user-scalable=yes, viewport-fit=cover, interactive-widget=resizes-visual">
+    <meta name="description" content="Sky themed page!!">
+    <meta property="og:image:width" content="IMAGE WIDTH HERE">
+    <meta property="og:image:height" content="IMAGE HEIGHT HERE">
+    <meta property="og:image:type" content="image/*">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="YOUR IMAGE HERE">
+    <meta property="og:url" content="ABSOLUTE URL HERE">
+    <meta property="og:description" content="Sky themed page!!">
+    <meta property="og:title" content="Sky">
+    <meta property="og:site_name" content="Sky">
+    <meta name="twitter:title" content="Sky">
+    <meta name="application-name" content="Sky">
+    <meta name="application-url" content="ABSOLUTE URL HERE">
+    <meta name="twitter:url" content="ABSOLUTE URL HERE">
+    <meta name="web_author" content="addsoupbase">
+    <meta name="twitter:creator" content="@addsoupbase">
+    <meta name="twitter:site" content="@addsoupbase">
+    <meta name="twitter:creator:id" content="1799269566834454528">
+    <meta name="twitter:site:id" content="1799269566834454528">
+    <meta name="creator" content="addsoupbase">
+    <meta name="designer" content="addsoupbase">
+    <meta name="twitter:image" content="YOUR IMAGE HERE">
+    <meta name="twitter:image:width" content="IMAGE WIDTH HERE">
+    <meta name="twitter:image:height" content="IMAGE HEIGHT HERE">
+    <meta name="msapplication-navbutton-color" content="#229df2">
+    <meta name="msapplication-TileColor" content="#229df2">
+    <meta name="msapplication-square150x150logo" content="./apple-touch-icon-152x152.png">
+    <meta name="msapplication-square310x310logo" content="./apple-touch-icon-180x180.png">
+    <meta name="msapplication-square70x70logo" content="./apple-touch-icon-72x72.png">
+    <meta name="msapplication-wide310x150logo" content="./apple-touch-icon-180x180.png">
+    <meta name="msapplication-TileImage" content="./apple-touch-icon-180x180.png">
+    <meta name="msapplication-starturl" content="ABSOLUTE URL HERE">
+    <meta name="origin" content="ABSOLUTE URL HERE">
+    <meta name="msapplication-tooltip" content="Sky">
+    <meta name="prism:alternateTitle" content="Sky">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="thumbnail" content="YOUR IMAGE HERE">
+    <meta property="profile:username" content="addsoupbase">
+    <!--summary_large_image,summary,app,or player -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="shortcut icon" href="favicon.ico">
+    <meta name="robots" content="index">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="author" content="addsoupbase">
+    <link rel="canonical" href="ABSOLUTE URL HERE">
+    <script
+        type="application/ld+json">{"@context":"https://schema.org","@type": "WebSite","name":"addsoupbase","url":"ABSOLUTE URL HERE","description":"Sky themed page!!","author":{"@type": "Person","name":"addsoupbase","sameAs":["https://twitter.com/addsoupbase"]},"mainEntityOfPage":{"@type":"WebPage","@id":"ABSOLUTE URL HERE"},"image":{"@type":"ImageObject","url":"YOUR IMAGE HERE","width":IMAGE WIDTH HERE,"height":IMAGE HEIGHT HERE}}</script>
+    <link rel="apple-touch-icon" sizes="57x57" href="./apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="./apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="./apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="./apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="./apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="./apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="./apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="./apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon-180x180.png">
+    <meta name="mobile-web-app-capable" content="no">
+    <meta name="apple-mobile-web-app-capable" content="no">
+    <!--^ yes if the site has stuff like back buttons-->
+    <meta name="apple-mobile-web-app-title" content="Sky">
+    <link rel="apple-touch-startup-image" href="favicon.ico">
+    <title>Sky</title>
+    <script type="module" async src="script.js"></script>
+    <!--https://wiki.whatwg.org/wiki/MetaExtensions-->
+    <style blocking="render">
+        [data-tod="morning"] body {background-color: #a6b1ef}[data-tod="morning"] #layer4 {background-image: url(media/morning/4.png);}[data-tod="morning"] #layer3 {background-image: url(media/morning/3.png);}[data-tod="morning"] #layer2 {background-image: url(media/morning/2.png);}[data-tod="morning"] #layer1 {background-image: url(media/morning/1.png);}[data-tod="dawn"] body {background-color: #8a8687}[data-tod="dawn"] #layer6 {background-image: url(media/dawn/6.png);}[data-tod="dawn"] #layer5 {background-image: url(media/dawn/5.png);}[data-tod="dawn"] #layer4 {background-image: url(media/dawn/4.png);}[data-tod="dawn"] #layer3 {background-image: url(media/dawn/3.png);}[data-tod="dawn"] #layer2 {background-image: url(media/dawn/2.png);}[data-tod="dawn"] #layer1 {background-image: url(media/dawn/1.png);}[data-tod="day"] body {background-color: #229df2}[data-tod="day"] #layer4 {background-image: url(media/day/4.png);}[data-tod="day"] #layer3 {background-image: url(media/day/3.png);}[data-tod="day"] #layer2 {background-image: url(media/day/2.png);}[data-tod="day"] #layer1 {background-image: url(media/day/1.png);}[data-tod="dusk"] body {background-color: #6dadc8}[data-tod="dusk"] #layer4 {background-image: url(media/dusk/4.png);}[data-tod="dusk"] #layer3 {background-image: url(media/dusk/3.png);}[data-tod="dusk"] #layer2 {background-image: url(media/dusk/2.png);}[data-tod="dusk"] #layer1 {background-image: url(media/dusk/1.png);}[data-tod="night"] body {background-color: #171628}[data-tod="night"] #layer4 {background-image: url(media/night/4.png);}[data-tod="night"] #layer3 {background-image: url(media/night/3.png);}[data-tod="night"] #layer2 {background-image: url(media/night/2.png);}[data-tod="night"] #layer1 {background-image: url(media/night/1.png);}[data-tod="evening"] body {background-color: #ab7ea7}[data-tod="evening"] #layer4 {background-image: url(media/evening/4.png);}[data-tod="evening"] #layer3 {background-image: url(media/evening/3.png);}[data-tod="evening"] #layer2 {background-image: url(media/evening/2.png);}[data-tod="evening"] #layer1 {background-image: url(media/evening/1.png);}@keyframes clouds1 {100% {background-position-x: -19998px;}} #layer1 {    z-index: 3;    animation: clouds1 3600s linear infinite; }@keyframes clouds2 {100% {background-position-x: -29997px;}} #layer2 {    z-index: 4;    animation: clouds2 3600s linear infinite; }@keyframes clouds3 {100% {background-position-x: -39996px;}} #layer3 {    z-index: 5;    animation: clouds3 3600s linear infinite; }@keyframes clouds4 {100% {background-position-x: -49995px;}} #layer4 {    z-index: 6;    animation: clouds4 3600s linear infinite; }@keyframes clouds5 {100% {background-position-x: -59994px;}} #layer5 {    z-index: 7;    animation: clouds5 3600s linear infinite; }@keyframes clouds6 {100% {background-position-x: -69993px;}} #layer6 {    z-index: 8;    animation: clouds6 3600s linear infinite; }#bg {    --user-select: none;    will-change: background-position-x;}:is([data-tod="dawn"], [data-tod="dusk"], [data-tod="evening"]) #layer1 {    background-repeat: no-repeat;    background-size: cover;    background-position-x: 0;    animation: none !important;}[data-tod="night"] #layer2 {    animation: none;    background-position: -200px -100px;    /* filter:brightness(150%); */    background-repeat: no-repeat}@keyframes clouds {    100% {        --bgpos-5: -14998.5px;--bgpos-4: -29997px;--bgpos-3: -44995.5px;--bgpos-2: -59994px;--bgpos-1: -74992.5px    }}.background {    width: 100vw;    position: fixed;    height: 100vh;    image-rendering: var(--crisp-edges);    background-size: auto 100%;    background-position-y: 0;    z-index: 0;    background-repeat: repeat-x;}.mon {    z-index: 7;    --scale: 200%;    offset-rotate: 0deg;    --x: 0;    will-change: offset-distance;    --y: 0;    --___x: calc(var(--x) * 1px);    --___y: calc(var(--y) * 1px);    --angle: 0deg;    transform: rotate(var(--angle)) translate(var(--___x), var(--___y)) scale(calc(var(--scale) * var(--mult, 1)));    animation: fly calc(var(--speed, 14s) / var(--mult, 1)) linear;}.is_mantine {    animation: fly calc(var(--speed, 12s) / var(--mult, 1)) ease-out;}.is_lugia,.is_hooh {    --scale: 250%}.mon_latios,.mon_latias {    --speed: 5s;}.is_latios,.is_latias,.is_mantine {    offset-rotate: auto;}.is_mismagius {    --scale: 226%}.is_zapdos,.is_articuno,.is_moltres {    --scale: 220%}.mon_zapdos {    --speed: 10s;}.mon_gastly,.mon_murkrow {    --scale: 150%}.mon_honchkrow {    --scale: 250%}.mon_golbat {    --scale: 221%}.layer_6 {--mult: 0.16666666666666666;filter: contrast(0.16666666666666666) brightness(16.666666666666664%);}.layer_5 {--mult: 0.2;filter: contrast(0.2) brightness(20%);}.layer_4 {--mult: 0.25;filter: contrast(0.25) brightness(25%);}.layer_3 {--mult: 0.3333333333333333;filter: contrast(0.3333333333333333) brightness(33.33333333333333%);}.layer_2 {--mult: 0.5;filter: contrast(0.5) brightness(50%);}.layer_1 {--mult: 1;filter: contrast(1) brightness(100%);}.mon_misdreavus, .mon_celebi {    --scale: 150%}.mon_crobat {    --speed: 5s;    --scale: 230%}.mon_latiosmega,.mon_latiasmega {    --speed: 4.3s;}.mon_fearow {    --scale: 270%}@property --angle {    syntax: "<angle>";    initial-value: 0deg;    inherits: false;}@keyframes fly {    0% {        offset-distance: 0%;    }    100% {        offset-distance: 100%;    }}.tile {    width: var(--tile-size);    height: var(--tile-size);    top: calc(var(--top) * 1px);    --top: 0;    transform: scale(4) translate(50%, 50%);    z-index: var(--top);    position: absolute;}#bg> :not(.background) {    position: absolute;}body,html {    margin: 0;    padding: 0;}
+    </style>
+</head>
+
+<body>
+    <div id="bg" class="background"><div class="background" id="layer1"></div><div class="background" id="layer2"></div><div class="background" id="layer3"></div><div class="background" id="layer4"></div><div class="background" id="layer5"></div><div class="background" id="layer6"></div></div>
+</body>
+
+</html>

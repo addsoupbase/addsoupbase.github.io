@@ -1,0 +1,193 @@
+/*::
+let colors = {morning: '#a6b1ef',dawn: '#8a8687',day:'#229df2',dusk:'#6dadc8',night:'#171628',evening:'#ab7ea7'}
+let dirs = {}
+let keys = Object.keys(colors)
+for(let key of keys) {
+dirs[key] = (await dir(`./media/${key}`)).toReversed()
+} 
+*/
+/*:
+return keys
+.map(tod => `[data-tod="${tod}"] body {background-color: ${colors[tod] ?? 'transparent'}}
+${dirs[tod].map(i=>`
+[data-tod="${tod}"] #layer${i.split('.png')[0]} {
+background-image: url(media/${tod}/${i});
+}`).join('')}`).join('')
+*/
+/*:
+return [1,2,3,4,5,6]
+.map(o=>`
+@keyframes clouds${o} {
+100% {
+background-position-x: -${9999 * (o+1)}px;
+}
+}
+ #layer${o} {
+    z-index: ${o+2};
+    animation: clouds${o} 3600s linear infinite;
+ }
+
+`).join('')
+*/
+#bg {
+    --user-select: none;
+    will-change: background-position-x;
+}
+
+:is([data-tod="dawn"], [data-tod="dusk"], [data-tod="evening"]) #layer1 {
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position-x: 0;
+    animation: none !important;
+}
+
+[data-tod="night"] #layer2 {
+    animation: none;
+    background-position: -200px -100px;
+    /* filter:brightness(150%); */
+    background-repeat: no-repeat
+}
+
+@keyframes clouds {
+
+    100% {
+        /*:
+        return [5,4,3,2,1].map((o,i)=>`--bgpos-${o}: -${9999 * (i+1) * 1.5}px`).join(';')
+        */
+    }
+}
+
+.background {
+    width: 100vw;
+    position: fixed;
+    height: 100vh;
+    image-rendering: var(--crisp-edges);
+    background-size: auto 100%;
+    background-position-y: 0;
+    z-index: 0;
+    background-repeat: repeat-x;
+}
+
+.mon {
+    z-index: 7;
+    --scale: 200%;
+    offset-rotate: 0deg;
+    --x: 0;
+    will-change: offset-distance;
+    --y: 0;
+    --___x: calc(var(--x) * 1px);
+    --___y: calc(var(--y) * 1px);
+    --angle: 0deg;
+    transform: rotate(var(--angle)) translate(var(--___x), var(--___y)) scale(calc(var(--scale) * var(--mult, 1)));
+    animation: fly calc(var(--speed, 14s) / var(--mult, 1)) linear;
+}
+
+.is_mantine {
+    animation: fly calc(var(--speed, 12s) / var(--mult, 1)) ease-out;
+}
+
+.is_lugia,
+.is_hooh {
+    --scale: 250%
+}
+
+.mon_latios,
+.mon_latias {
+    --speed: 5s;
+}
+
+.is_latios,
+.is_latias,
+.is_mantine {
+    offset-rotate: auto;
+}
+
+
+.is_mismagius {
+    --scale: 226%
+}
+
+.is_zapdos,
+.is_articuno,
+.is_moltres {
+    --scale: 220%
+}
+
+.mon_zapdos {
+    --speed: 10s;
+}
+
+.mon_gastly,
+.mon_murkrow {
+    --scale: 150%
+}
+
+.mon_honchkrow {
+    --scale: 250%
+}
+
+.mon_golbat {
+    --scale: 221%
+}
+/*:
+return[6,5,4,3,2,1].map(o=>
+`.layer_${o} {
+--mult: ${1 / o};
+filter: contrast(${1/o}) brightness(${(1/o)*100}%);
+}`).join('\n')
+*/
+.mon_misdreavus, .mon_celebi {
+    --scale: 150%
+}
+
+.mon_crobat {
+    --speed: 5s;
+    --scale: 230%
+}
+
+.mon_latiosmega,
+.mon_latiasmega {
+    --speed: 4.3s;
+}
+
+.mon_fearow {
+    --scale: 270%
+}
+
+@property --angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+}
+
+@keyframes fly {
+    0% {
+        offset-distance: 0%;
+    }
+
+    100% {
+        offset-distance: 100%;
+    }
+}
+
+.tile {
+    width: var(--tile-size);
+    height: var(--tile-size);
+    top: calc(var(--top) * 1px);
+    --top: 0;
+    transform: scale(4) translate(50%, 50%);
+    z-index: var(--top);
+    position: absolute;
+}
+
+
+
+#bg> :not(.background) {
+    position: absolute;
+}
+
+body,
+html {
+    margin: 0;
+    padding: 0;
+}
