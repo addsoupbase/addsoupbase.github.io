@@ -132,6 +132,9 @@ class Node$ extends EventTargetProxy {
         }
         return Proxify(h.delegate(this, events, filter, includeSelf, controller))
     }
+    destroy() {
+        return Proxify(this).purge(true)
+    }
     purge(deep = true) {
         let me = Proxify(this)
         me.off(true)
@@ -158,11 +161,8 @@ class Node$ extends EventTargetProxy {
         return n ? Proxify(n) : null
     }
     unshiftNode(...nodes) {
-        for(let i = 0, l = nodes.length; i < l; ++i) {
-            let n = base(nodes[i])
-            let c = this.firstChild
-            c ? this.insertBefore(n, this.firstChild) : this.appendChild(n)
-        }
+        let a = frag(nodes.map(base))
+        this.insertBefore(a, this.firstChild)
         return Proxify(this)
     }
     pushNode(...nodes) {
