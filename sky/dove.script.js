@@ -29,6 +29,7 @@ function canSpawn(pkm) {
     switch (pkm) {
         case 'noctowl':
         case 'misdreavus':
+        case 'fluttermane':
         case 'mismagius':
         case 'murkrow':
         case 'honchkrow':
@@ -115,7 +116,7 @@ function spawnPokemon() {
         }
     }
     if (choice.name === 'landoroustherian') dura *= .7
-    $`<div class="layer_${layer} mon mon_${choice.name} is_${nameNoMega}" style='--noise: ${0.85 + Math.random() * 0.3};z-index: ${layer};offset-anchor: -${(choice.width / 2)}px -${(choice.height / 2)}px;offset-path: path("${pathString}");'>
+    $`<div class="layer_${layer} mon mon_${choice.name} is_${nameNoMega}" style='--noise: ${0.95 + Math.random() * 0.1};z-index: ${layer};offset-anchor: -${(choice.width / 2)}px -${(choice.height / 2)}px;offset-path: path("${pathString}");'>
         <cel-runner index="${+(Math.random() * 4000 > 3999)}" style="scale: ${scaleStr}" dura="${dura}ms" src="./media/sprite/${choice.file}" frames-x="${choice.framesX}" frames-y="2"></cel-runner>
         </div>`
         .setParent(bg)

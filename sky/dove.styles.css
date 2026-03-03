@@ -163,6 +163,11 @@ filter: contrast(${1/o}) brightness(${(1/o)*100}%);
     --speed: 15s;
     animation: fly calc((var(--speed, 14s) / var(--mult, 1)) * var(--noise, 1)) ease-in;
 }
+.mon_chimeco,
+.mon_chingling {
+    --speed: 20s;
+    animation: fly calc((var(--speed, 14s) / var(--mult, 1)) * var(--noise, 1)) ease-in-out;
+}
 
 .mon_crobat,
 .mon_aerodactyl {
@@ -172,7 +177,8 @@ filter: contrast(${1/o}) brightness(${(1/o)*100}%);
 
 .is_landorous,
 .is_tornadus,
-.is_thundurus {
+.is_thundurus,
+.is_enamorus {
     --scale: 290%
 }
 
