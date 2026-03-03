@@ -44,7 +44,7 @@ background-position-x: -${9999 * (o+1)}px;
 
 [data-tod="night"] #layer2 {
     animation: none;
-    background-position: -200px -100px;
+    background-position: 40% -100px;
     /* filter:brightness(150%); */
     background-repeat: no-repeat
 }
@@ -184,7 +184,8 @@ filter: contrast(${1/o}) brightness(${(1/o)*100}%);
 .mon_fearow,
 .mon_honchkrow,
 .mon_altaria,
-.mon_togekiss {
+.mon_togekiss,
+.mon_mandibuzz {
     --scale: 230%
 }
 

@@ -25,6 +25,7 @@ bg.delegate({
     }
 })
 function canSpawn(pkm) {
+    let t = timeOfDay()
     switch (pkm) {
         case 'noctowl':
         case 'misdreavus':
@@ -32,7 +33,7 @@ function canSpawn(pkm) {
         case 'murkrow':
         case 'honchkrow':
             // case 'hoothoot':
-            return /^(?:night|dawn|dusk)$/.test(timeOfDay())
+            return /^(?:night|dawn|dusk)$/.test(t)
         case 'zubat':
         case 'swoobat':
         case 'woobat':
@@ -42,11 +43,12 @@ function canSpawn(pkm) {
         case 'haunter':
         case 'duskull':
         case 'shuppet':
-            return timeOfDay() === 'night'
+        case 'darkrai': return t === 'night'
+        case 'cresselia': return t !== 'night'
     }
     return true
 }
-let legendary = new Set(`zapdos moltres articuno latios latias lugia celebi hooh thundurus tornadus landorous`.split(' '))
+let legendary = new Set(`zapdos cresselia darkrai moltres articuno latios latias lugia celebi hooh thundurus tornadus landorous`.split(' '))
 function spawnPokemon() {
     setTimeout(spawnPokemon, 753 + (Math.random() * 753)
     )
