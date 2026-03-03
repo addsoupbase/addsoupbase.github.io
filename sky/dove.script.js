@@ -1,7 +1,6 @@
 import * as v from '../v4.js'
 import preload from '../webcomponents/cel-runner.js'
 let timeOfDay = Reflect.get.bind(1, document.documentElement.dataset, 'tod')
-console.log(timeOfDay())
 let mons /*:return`= ${JSON.stringify(await Array.fromAsync((await dir('./media/sprite')).map(async o=>{
     let thing = o.split('_')
     let framesX = +thing[1].split('.')[0]
@@ -35,15 +34,19 @@ function canSpawn(pkm) {
             // case 'hoothoot':
             return /^(?:night|dawn|dusk)$/.test(timeOfDay())
         case 'zubat':
+        case 'swoobat':
+        case 'woobat':
         case 'golbat':
         case 'crobat':
         case 'gastly':
         case 'haunter':
+        case 'duskull':
+        case 'shuppet':
             return timeOfDay() === 'night'
     }
     return true
 }
-let legendary = new Set(`zapdos moltres articuno latios latias lugia`.split(' '))
+let legendary = new Set(`zapdos moltres articuno latios latias lugia celebi hooh thundurus tornadus landorous`.split(' '))
 function spawnPokemon() {
     setTimeout(spawnPokemon, 753 + (Math.random() * 753)
     )
@@ -52,7 +55,7 @@ function spawnPokemon() {
     let layer = Math.random() > .4 ? Math.floor(Math.random() * 7) + 1 : 7
     do {
         var choice = mons[Math.floor(Math.random() * mons.length)]
-        var nameNoMega = choice.name.replace(/(?:mega|galar|alola|paldea|hisui)$/, '')
+        var nameNoMega = choice.name.replace(/(?:mega|galar|alola|paldea|hisui|therian|shadow)$/, '')
     }
     while (limit-- && ((legendary.has(nameNoMega) && document.querySelector(`.is_${nameNoMega}.layer_${layer}`)) || !canSpawn(nameNoMega)))
     let y = (Math.random() * (innerHeight + choice.height))
@@ -65,20 +68,36 @@ function spawnPokemon() {
     let scaleStr = `${scaleX} ${scaleY}`
     switch (nameNoMega) {
         // idk why but some of them look slower than usual
+        case 'drifloon':
+        case 'drifblm': {
+            let [startX, startY] = path[0].split(' ').map(Number);
+            let [endX, endY] = path[1].split(' ').map(Number);
+            let upOffset = 600 + Math.random() * 400;
+            endY = startY - upOffset
+            let ctrlX = startX + (endX - startX) * (0.3 + Math.random() * 0.4);
+            let ctrlY = startY - upOffset * (0.3 + Math.random() * 0.5)
+            pathString = `M ${startX} ${startY} Q ${ctrlX} ${ctrlY} ${endX} ${endY}`;
+        }
         case 'aerodactyl':
         case 'articuno':
         case 'murkrow':
+        case 'duskull':
         case 'skarmory':
+        case 'archeops':
         case 'hooh':
         case 'honchkrow':
         case 'wingull':
         case 'altaria':
         case 'pelliper':
         case 'flygon':
+        case 'braviary':
         case 'moltres': dura *= .7
             break
         case 'lugia':
             dura *= 2.5
+            break
+        case 'chatot':
+            dura *= 1.6
             break
         case 'latios':
         case 'latias':
@@ -93,6 +112,7 @@ function spawnPokemon() {
             break
         }
     }
+    if (choice.name === 'landoroustherian') dura *= .7
     $`<div class="layer_${layer} mon mon_${choice.name} is_${nameNoMega}" style='--noise: ${0.85 + Math.random() * 0.3};z-index: ${layer};offset-anchor: -${(choice.width / 2)}px -${(choice.height / 2)}px;offset-path: path("${pathString}");'>
         <cel-runner index="${+(Math.random() * 4000 > 3999)}" style="scale: ${scaleStr}" dura="${dura}ms" src="./media/sprite/${choice.file}" frames-x="${choice.framesX}" frames-y="2"></cel-runner>
         </div>`

@@ -4,6 +4,7 @@
 let title = 'Sky'
 let desc = 'Sky themed page!!'
 }}-->
+
 <head>
     <meta name="theme-color" content="#229df2">
     <noscript>
@@ -24,7 +25,7 @@ let desc = 'Sky themed page!!'
                 if (!valid.has(hash)) t = time
                 time = data.tod = t
             })
-            if (valid.has(hash)) { time = location.hash.slice(1) }
+            if (valid.has(hash)) time = hash
             else if (hour >= 0 && hour < 5) time = 'night'
             else if (hour >= 5 && hour < 6) time = 'dawn'
             else if (hour >= 6 && hour < 12) time = 'morning'
@@ -33,16 +34,23 @@ let desc = 'Sky themed page!!'
             else if (hour >= 19 && hour < 21) time = 'evening'
             else time = 'night'
             data.tod = time
-            for (var i = 4; i--;) {
+            var i = 4
+            switch (time) {
+                case 'dawn': i = 6
+                    break
+                case 'afternoon': i = 5
+                    break
+            }
+            while (i) {
                 var n = d.createElement('link')
                 n.rel = 'preload'
                 n.blocking = 'render'
                 n.fetchPriority = 'high'
-                n.href = 'media/' + time + '/' + (i + 1) + '.png'
+                n.href = 'media/' + time + '/' + (i--) + '.png'
                 n.as = 'image'
                 d.head.appendChild(n)
             }
-            if (typeof CSSPropertyRule === 'undefined' && window.CSS && CSS.registerProperty)
+            /*if (typeof CSSPropertyRule === 'undefined' && window.CSS && CSS.registerProperty)
                 // @property is newer than CSS.registerProperty
                 for (var i = 5; i--;)
                     CSS.registerProperty({
@@ -50,7 +58,7 @@ let desc = 'Sky themed page!!'
                         syntax: "<length-percentage>",
                         initialValue: "0px",
                         inherits: false
-                    })
+                    })*/
         }(new Date().getHours(), document)
         addEventListener('load', function () { console.log('%cBackground Credits: https://free-game-assets.itch.io/free-sky-with-clouds-background-pixel-art-set', 'font-size:2em') }, { once: true })
     </script>
@@ -73,14 +81,14 @@ let desc = 'Sky themed page!!'
     <meta property="og:image:type" content="image/*">
     <meta property="og:type" content="website">
     <meta property="og:image" content="YOUR IMAGE HERE">
-    <meta property="og:url" content="ABSOLUTE URL HERE">
+    <meta property="og:url" content="https://addsoupbase.github.io/">
     <meta property="og:description" content="<!--{{return desc}}-->">
     <meta property="og:title" content="<!--{{return title}}-->">
     <meta property="og:site_name" content="<!--{{return title}}-->">
     <meta name="twitter:title" content="<!--{{return title}}-->">
     <meta name="application-name" content="<!--{{return title}}-->">
-    <meta name="application-url" content="ABSOLUTE URL HERE">
-    <meta name="twitter:url" content="ABSOLUTE URL HERE">
+    <meta name="application-url" content="https://addsoupbase.github.io/">
+    <meta name="twitter:url" content="https://addsoupbase.github.io/">
     <meta name="web_author" content="addsoupbase">
     <meta name="twitter:creator" content="@addsoupbase">
     <meta name="twitter:site" content="@addsoupbase">
@@ -98,8 +106,8 @@ let desc = 'Sky themed page!!'
     <meta name="msapplication-square70x70logo" content="./apple-touch-icon-72x72.png">
     <meta name="msapplication-wide310x150logo" content="./apple-touch-icon-180x180.png">
     <meta name="msapplication-TileImage" content="./apple-touch-icon-180x180.png">
-    <meta name="msapplication-starturl" content="ABSOLUTE URL HERE">
-    <meta name="origin" content="ABSOLUTE URL HERE">
+    <meta name="msapplication-starturl" content="https://addsoupbase.github.io/">
+    <meta name="origin" content="https://addsoupbase.github.io/">
     <meta name="msapplication-tooltip" content="<!--{{return title}}-->">
     <meta name="prism:alternateTitle" content="<!--{{return title}}-->">
     <meta name="twitter:card" content="summary_large_image">
@@ -111,9 +119,9 @@ let desc = 'Sky themed page!!'
     <meta name="robots" content="index">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="author" content="addsoupbase">
-    <link rel="canonical" href="ABSOLUTE URL HERE">
+    <link rel="canonical" href="https://addsoupbase.github.io/">
     <script
-        type="application/ld+json">{"@context":"https://schema.org","@type": "WebSite","name":"addsoupbase","url":"ABSOLUTE URL HERE","description":"<!--{{return desc}}-->","author":{"@type": "Person","name":"addsoupbase","sameAs":["https://twitter.com/addsoupbase"]},"mainEntityOfPage":{"@type":"WebPage","@id":"ABSOLUTE URL HERE"},"image":{"@type":"ImageObject","url":"YOUR IMAGE HERE","width":IMAGE WIDTH HERE,"height":IMAGE HEIGHT HERE}}</script>
+        type="application/ld+json">{"@context":"https://schema.org","@type": "WebSite","name":"addsoupbase","url":"https://addsoupbase.github.io/","description":"<!--{{return desc}}-->","author":{"@type": "Person","name":"addsoupbase","sameAs":["https://twitter.com/addsoupbase"]},"mainEntityOfPage":{"@type":"WebPage","@id":"https://addsoupbase.github.io/"},"image":{"@type":"ImageObject","url":"YOUR IMAGE HERE","width":IMAGE WIDTH HERE,"height":IMAGE HEIGHT HERE}}</script>
     <link rel="apple-touch-icon" sizes="57x57" href="./apple-touch-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="60x60" href="./apple-touch-icon-60x60.png">
     <link rel="apple-touch-icon" sizes="72x72" href="./apple-touch-icon-72x72.png">
@@ -132,8 +140,7 @@ let desc = 'Sky themed page!!'
     <script type="module" async src="script.js"></script>
     <!--https://wiki.whatwg.org/wiki/MetaExtensions-->
     <style blocking="render">
-        /*:return(await file('styles.css')).replaceAll('\n','')
-        */
+        /*:return(await file('styles.css')).replaceAll('\n','')*/
     </style>
 </head>
 

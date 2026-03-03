@@ -49,14 +49,6 @@ background-position-x: -${9999 * (o+1)}px;
     background-repeat: no-repeat
 }
 
-@keyframes clouds {
-
-    100% {
-        /*:
-        return [5,4,3,2,1].map((o,i)=>`--bgpos-${o}: -${9999 * (i+1) * 1.5}px`).join(';')
-        */
-    }
-}
 
 .background {
     width: 100vw;
@@ -91,16 +83,29 @@ background-position-x: -${9999 * (o+1)}px;
     --scale: 250%
 }
 
+cel-runner[index="1"] {
+    /*
+    shiny
+    */
+    filter: drop-shadow(0px 4px 6px #ffee00d3) !important;
+}
+
+.mon_chatot {
+    --scale: 180%
+}
+
 .mon_latios,
 .mon_latias {
     --speed: 5s;
 }
+
 .mon_flygon {
     --speed: 9.5s;
     --scale: 250%
 }
+
 :where(.is_latios,
-.is_latias, .is_mantine).layer7 {
+    .is_latias, .is_mantine).layer7 {
     will-change: offset-distance;
 }
 
@@ -130,9 +135,7 @@ background-position-x: -${9999 * (o+1)}px;
     --scale: 150%
 }
 
-.mon_honchkrow {
-    --scale: 250%
-}
+
 
 .mon_golbat {
     --scale: 221%
@@ -148,13 +151,29 @@ filter: contrast(${1/o}) brightness(${(1/o)*100}%);
 .mon_misdreavus,
 .mon_wingull,
 .mon_swablu,
+.mon_shuppet,
+.mon_castform,
+.mon_woobat,
 .mon_celebi {
     --scale: 150%
 }
 
-.mon_crobat {
+.mon_drifloon,
+.mon_drifblm {
+    --speed: 15s;
+    animation: fly calc((var(--speed, 14s) / var(--mult, 1)) * var(--noise, 1)) ease-in;
+}
+
+.mon_crobat,
+.mon_aerodactyl {
     --speed: 5s;
     --scale: 230%
+}
+
+.is_landorous,
+.is_tornadus,
+.is_thundurus {
+    --scale: 290%
 }
 
 .mon_latiosmega,
@@ -162,8 +181,11 @@ filter: contrast(${1/o}) brightness(${(1/o)*100}%);
     --speed: 4.3s;
 }
 
-.mon_fearow {
-    --scale: 270%
+.mon_fearow,
+.mon_honchkrow,
+.mon_altaria,
+.mon_togekiss {
+    --scale: 230%
 }
 
 @property --angle {
