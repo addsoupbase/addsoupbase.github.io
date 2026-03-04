@@ -75,9 +75,11 @@ background-position-x: -${9999 * (o+1)}px;
 }
 
 .is_mantine {
-    animation: fly calc((var(--speed, 12s) / var(--mult, 1)) * var(--noise, 1)) ease-out;
+    animation: fly calc((var(--speed, 13.32s) / var(--mult, 1)) * var(--noise, 1)) ease-out;
 }
-
+.is_mantyke {
+    animation: fly calc((var(--speed, 16s) / var(--mult, 1)) * var(--noise, 1)) ease-out;
+}
 .is_lugia,
 .is_hooh {
     --scale: 250%
@@ -105,13 +107,14 @@ cel-runner[index="1"] {
 }
 
 :where(.is_latios,
-    .is_latias, .is_mantine).layer7 {
+    .is_latias, .is_mantine, .is_mantyke).layer7 {
     will-change: offset-distance;
 }
 
 .is_latios,
 .is_latias,
-.is_mantine {
+.is_mantine,
+.is_mantyke {
     offset-rotate: auto;
 }
 
@@ -179,9 +182,11 @@ filter: contrast(${1/o}) brightness(${(1/o)*100}%);
 .is_tornadus,
 .is_thundurus,
 .is_enamorus {
-    --scale: 290%
+    --scale: 275%
 }
-
+.mon_yveltal {
+    --scale: 250%
+}
 .mon_latiosmega,
 .mon_latiasmega {
     --speed: 4.3s;

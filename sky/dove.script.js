@@ -44,6 +44,8 @@ function canSpawn(pkm) {
         case 'haunter':
         case 'duskull':
         case 'shuppet':
+        case 'noibat':
+        case 'noivern':
         case 'darkrai': return t === 'night'
         case 'cresselia': return t !== 'night'
     }
@@ -73,13 +75,13 @@ function spawnPokemon() {
         // idk why but some of them look slower than usual
         case 'drifloon':
         case 'drifblm': {
-            let [startX, startY] = path[0].split(' ').map(Number);
-            let [endX, endY] = path[1].split(' ').map(Number);
-            let upOffset = 600 + Math.random() * 400;
+            let { 0: startX, 1: startY } = path[0].split(' ').map(Number)
+            let { 0: endX, 1: endY } = path[1].split(' ').map(Number)
+            let upOffset = 600 + Math.random() * 400
             endY = startY - upOffset
-            let ctrlX = startX + (endX - startX) * (0.3 + Math.random() * 0.4);
+            let ctrlX = startX + (endX - startX) * (0.3 + Math.random() * 0.4)
             let ctrlY = startY - upOffset * (0.3 + Math.random() * 0.5)
-            pathString = `M ${startX} ${startY} Q ${ctrlX} ${ctrlY} ${endX} ${endY}`;
+            pathString = `M ${startX} ${startY} Q ${ctrlX} ${ctrlY} ${endX} ${endY}`
         }
         case 'aerodactyl':
         case 'articuno':
@@ -105,6 +107,7 @@ function spawnPokemon() {
         case 'latios':
         case 'latias':
         // layer = 6
+        case 'mantyke':
         case 'mantine': {
             scaleStr = `${1} ${scaleX}`
             let cp1x = innerWidth * (0.1 + Math.random() * 0.3)
