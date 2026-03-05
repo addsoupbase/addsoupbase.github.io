@@ -63,12 +63,8 @@ export class Handler {
     get(Wrapper, prop) {
         let target = targets.get(Wrapper)
         let toGet = target, out
-        let receiver = toGet
-        if (prop in Wrapper) {
-            toGet = receiver = Wrapper
-            if (prop in target) receiver = target
-        }
-        out = Reflect.get(toGet, prop, target, receiver)
+        if (prop in Wrapper) toGet = Wrapper
+        out = Reflect.get(toGet, prop, target)
         return typeof out === 'function' ? cacheFunction(out) : out
     }
     set(Wrapper, prop, value) {
