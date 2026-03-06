@@ -44,13 +44,13 @@ class Node$ extends EventTargetProxy {
             case 'resizeobserver':
             case 'r':
                 type = 'resize'
-                observers.r.unobserve(me)
+                observers.r.unobserve(this)
                 break
             case 'intersection':
             case 'intersectionobserver':
             case 'i':
                 type = 'intersection'
-                observers.i.unobserve(me)
+                observers.i.unobserve(this)
                 break
             case 'mutation':
             case 'mutationobserver':
@@ -108,7 +108,7 @@ class Node$ extends EventTargetProxy {
         }
         Proxify(this).on({ [`${flags || ''}v4:${type}`]: settings.callback })
     }
-    adopt(frag) {
+    /*adopt(frag) {
         this.appendChild(base(frag))
         return Proxify(this)
     }
@@ -116,7 +116,7 @@ class Node$ extends EventTargetProxy {
         frag = base(frag)
         this.appendChild(frag.cloneNode(true))
         return Proxify(frag)
-    }
+    }*/
     delegate(events, filter, includeSelf, controller) {
         events = { ...events }
         for (let i in events) {
