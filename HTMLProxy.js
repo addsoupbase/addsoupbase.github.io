@@ -101,8 +101,8 @@ class Node$ extends EventTargetProxy {
             case 'resizeobserver':
             case 'r': {
                 type = 'resize'
-                ob.i ??= new ResizeObserver(Node$.#observerCallback(type))
-                ob.i.observe(this, settings)
+                ob.r ??= new ResizeObserver(Node$.#observerCallback(type))
+                ob.r.observe(this, settings)
             }
                 break
         }
