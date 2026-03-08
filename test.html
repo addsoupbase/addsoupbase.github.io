@@ -7,14 +7,17 @@
     <title>Canvas bg thingy thing 123</title>
     <meta name="color-scheme" content="dark">
 </head>
+
 <body>
     <style>
         body {
-            font-family:'Courier New', Courier, monospace;
+            font-family: 'Courier New', Courier, monospace;
         }
+
         div {
             border: 1px solid white;
             margin-block: 5px;
+            place-content: center;
             /* background-size: contain; */
         }
     </style>
@@ -23,20 +26,26 @@
     <script>
         document.getElementById('status').textContent = !!(document.getCSSCanvasContext || document.mozSetImageElement)
     </script>
-    <section style="display: grid;">
-        <div style="width: 300px; height:100px;" data-canvas="test"></div>
-        <div style="width: 100px; height:300px;" data-canvas="test"></div>
-        <div style="width: 100px; height:100px;" data-canvas="test"></div>
+    <section style="display: grid;" id="n">
+        <div style="width: 300px; height:100px;"><marquee>Wide</marquee></div>
+        <div style="width: 100px; height:300px;"><marquee>Tall</marquee></div>
+        <div style="width: 100px; height:100px;"><marquee>Even</marquee></div>
     </section>
     <script type="module">
         import * as v from './v4.js?a=3'
         let n = v.getContext('2d', 'test', 300, 300)
-        n.fillStyle = 'red'
-        !function a(f = 0) {
-            setTimeout(a, 100, f + 10)
-            n.clearRect(0, 0, 300, 300)
-            n.fillRect(0, 0, f % 310, 300)
-        }()
+        for(let c of v.id.n) {
+            c.setCanvasBg('test')
+        }
+        if (n) {
+            n.fillStyle = 'red'
+            !function a(f = 0) {
+                setTimeout(a, 100, f + 10)
+                n.clearRect(0, 0, 300, 300)
+                n.fillRect(0, 0, f % 310, 300)
+            }()
+        }
     </script>
 </body>
+
 </html>

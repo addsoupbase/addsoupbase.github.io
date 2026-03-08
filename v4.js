@@ -84,7 +84,7 @@ export function $(strings, ...subs) {
     let node = base(out)
     // conclusion: TreeWalker > XPath & NodeIterator
     let { map } = replace
-    if (replace.toReplace) for(let o of treeWalker(base(out), 128, commentFilter)) o.replaceWith(map.get(o.textContent))
+    if (replace.toReplace) for (let o of treeWalker(base(out), 128, commentFilter)) o.replaceWith(map.get(o.textContent))
     if (node.nodeType === 1 && node.hasAttributes()) {
         let events = {}
         let attr = node.getAttributeNames()
@@ -145,28 +145,25 @@ function* treeWalker(root, whatToShow, filter) {
 }
 
 let isApple = !!D.getCSSCanvasContext
-export function getContext(type, id, width, height, settings) {
+let isFirefox = !!D.mozSetImageElement
+export function getContext(type, id, width, height, settings, fallbackURL) {
     // so this only works on safari and firefox
     let s = CSS.escape(id)
     css.write(
-`[data-canvas="${s}"] {
-    /*Do something with paint() here?*/        
-}
-@supports (background: -moz-element(#a)) {
-    [data-canvas="${s}"] {
-        background-image: -moz-element(#${s})
-    }
-}
-@supports (background: -webkit-canvas(a)) {
-    [data-canvas="${s}"] {
-        background-image: -webkit-canvas(${s})
-    }
+`[data-v4-unreliable-canvas-background="${s}"] {
+        background-image: paint(${id});
+        background-image: -webkit-canvas(${s});
+        background-image: -moz-element(#${s});
 }`
-)
+    )
     if (isApple) return D.getCSSCanvasContext(type, id, width, height)
-    let o = D.createElement('canvas')
-    o.width = width
-    o.height = height
-    D.mozSetImageElement(s, o)
-    return o.getContext(type, settings)
+    if (isFirefox) {
+        let o = D.createElement('canvas')
+        o.width = width
+        o.height = height
+        D.mozSetImageElement(s, o)
+        return o.getContext(type, settings)
+    }
+    fallbackURL && CSS.paintWorklet.addModule(fallbackURL)
+    return null
 }

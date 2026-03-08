@@ -37,6 +37,9 @@ class Node$ extends EventTargetProxy {
         i: null,
         m: null,
     }
+    setCanvasBg(id) {
+        this.dataset.v4UnreliableCanvasBackground = id
+    }
     unobserve(type) {
         let observers = Node$.#observers
         switch (type.toLowerCase()) {
