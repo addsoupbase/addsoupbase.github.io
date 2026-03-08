@@ -169,7 +169,7 @@ export function getContext(type, id, width, height, settings, fallbackURL) {
         let o = D.createElement('canvas')
         o.width = width
         o.height = height
-        D.mozSetImageElement(s, o)
+        D.mozSetImageElement(id, o)
         return o.getContext(type, settings)
     }
     fallbackURL && CSS.paintWorklet.addModule(fallbackURL)
