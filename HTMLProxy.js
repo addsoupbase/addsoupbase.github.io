@@ -38,6 +38,10 @@ class Node$ extends EventTargetProxy {
         m: null,
     }
     setCanvasBg(id) {
+        if (D.getCSSCanvasContext)
+            // safari needs this to work
+            // By the way this took HOURS to solve
+            this.style.backgroundImage = `-webkit-canvas(${id})`
         this.dataset.v4UnreliableCanvasBackground = id
     }
     unobserve(type) {

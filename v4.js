@@ -146,24 +146,33 @@ function* treeWalker(root, whatToShow, filter) {
 
 let isApple = !!D.getCSSCanvasContext
 let isFirefox = !!D.mozSetImageElement
+let contexts = new Map
 export function getContext(type, id, width, height, settings, fallbackURL) {
-    // so this only works on safari and firefox
+    // -moz-element() only works on Firefox
+    // -paint() only works on chrome, as well as very limited in what you can do
+    // -webkit-canvas() only works on safari, and needed a workaround to do so!
+    if (contexts.has(id)) return contexts.get(id)
     let s = CSS.escape(id)
     css.write(
 `[data-v4-unreliable-canvas-background="${s}"] {
-        background-image: paint(${id});
+        background-image: paint(${s});
         background-image: -webkit-canvas(${s});
-        background-image: -moz-element(#${s});
+        background-image: -moz-element(#${s})
 }`
     )
-    if (isApple) return D.getCSSCanvasContext(type, id, width, height)
+    if (isApple) {
+        let o = D.getCSSCanvasContext(type, id, width, height)
+        contexts.set(id, o)
+        return o
+    }
     if (isFirefox) {
         let o = D.createElement('canvas')
         o.width = width
         o.height = height
-        D.mozSetImageElement(id, o)
+        D.mozSetImageElement(s, o)
         return o.getContext(type, settings)
     }
     fallbackURL && CSS.paintWorklet.addModule(fallbackURL)
+    contexts.set(id, null)
     return null
 }
