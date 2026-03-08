@@ -143,3 +143,30 @@ function* treeWalker(root, whatToShow, filter) {
     let o
     while (o = walker.nextNode()) yield o
 }
+
+let isApple = !!D.getCSSCanvasContext
+export function getContext(type, id, width, height, settings) {
+    // so this only works on safari and firefox
+    let s = CSS.escape(id)
+    css.write(
+`[data-canvas="${s}"] {
+    /*Do something with paint() here?*/        
+}
+@supports (background: -moz-element(#a)) {
+    [data-canvas="${s}"] {
+        background-image: -moz-element(#${s})
+    }
+}
+@supports (background: -webkit-canvas(a)) {
+    [data-canvas="${s}"] {
+        background-image: -webkit-canvas(${s})
+    }
+}`
+)
+    if (isApple) return D.getCSSCanvasContext(type, id, width, height)
+    let o = D.createElement('canvas')
+    o.width = width
+    o.height = height
+    D.mozSetImageElement(s, o)
+    return o.getContext(type, settings)
+}
