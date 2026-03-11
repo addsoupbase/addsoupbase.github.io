@@ -460,6 +460,73 @@
                 mapholder.show()
             }
         })
+        // let all = new Map(Reflect.ownKeys(globalThis).filter(o => o && typeof (o === 'object' || typeof o === 'function')).map((key) => [globalThis[key], key]))
+        function uneval(o) {
+            // if (all.has(o)) return '(' + all.get(o) + ')'
+            if (Array.isArray(o))
+                return '[' + o.map(uneval).join(',') + ']'
+            if (o === null) return 'null'
+            if (typeof document !== 'undefined' && o === document.all) return 'document.all'
+            if (o instanceof WeakMap || o instanceof WeakSet) return `(new ${o.constructor.name})`
+            if (o instanceof RegExp)
+                return `/${o.source}/${o.flags}`
+            if (o instanceof Map) {
+                if (!o.size) return `(new Map)`
+                return `(new Map([${Array.from(o, uneval)}]))`
+            }
+            if (o instanceof Set) {
+                if (!o.size) return `(new Set)`
+                return `(new Set(${Array.from(o, uneval)}))`
+            }
+            switch (typeof o) {
+                case 'number': {
+                    if (o !== o) return '(0/0)'
+                    if (o === 1 / 0) return '(1/0)'
+                    if (o === -1 / 0) return '(-1/0)'
+                    if (Object.is(o, -0)) return '(-0)'
+                }
+                default: return String(o)
+                case 'bigint': return o + 'n'
+                case 'function':
+                    if (o.toString().startsWith('class')) return '(' + o + ')'
+                    return '(' + (/^(?:async\s*)?function|=>.*(?:\{.*\})?$/.test(o) ? o : 'function ' + o) + ')'
+                case 'object': {
+                    return '({' + (Object.getPrototypeOf(o) === null ? '__proto__:null,' : '') + Reflect.ownKeys(Object(o)).map(key => {
+                        let out = ''
+                        let descriptor = Object.getOwnPropertyDescriptor(o, key)
+                        if (descriptor.set || descriptor.get) {
+                            let s = []
+                            let k = uneval(key)
+                            descriptor.set && s.push(`${descriptor.set}`.replace(/^function /, `set ${k}`).replace(descriptor.set.name, ''))
+                            descriptor.get && s.push(`${descriptor.get}`.replace(/^function /, `get ${k}`).replace(descriptor.get.name, ''))
+                            return s.join(',')
+                        }
+                        let val = o[key]
+                        if (val === o) return ''
+                        if (typeof val === 'function') {
+                            let v = val.toString()
+                            if ((!/=>.*(?:\{.*\})?$/s.test(v) && !val.hasOwnProperty('prototype') && !v.endsWith('{ [native code] }')) || /^(?:Async)?GeneratorFunction$/.test(val.constructor.name)) {
+                                // method syntax
+                                return v
+                            }
+                        }
+                        if (typeof key === 'symbol') out = `[${uneval(key)}]`
+                        else out = `${uneval(key)}`
+                        return out + `:${uneval(val)}`
+                    }).filter(o => o !== '').join(',') + '})'
+                }
+                case 'string': return /^\w+$/.test(o) ? o : `"${o.replace(/"/g, '\\"')}"`
+                case 'undefined': return '(void 0)'
+                case 'symbol': {
+                    const syms = Object.getOwnPropertyNames(Symbol).filter(o => typeof Symbol[o] === 'symbol').map(o => Symbol[o])
+                    let desc = o.description
+                    if (syms.includes(o)) return desc
+                    let key = Symbol.keyFor(o)
+                    if (typeof key === 'string') return `Symbol.for(${uneval(key)})`
+                    return `Symbol(${uneval(`${desc}`)})`
+                }
+            }
+        }
         const AsyncFunction = async function () { }.constructor
         retry.on({
             click() {
@@ -705,68 +772,129 @@
                 return super.set(key, value)
             }
         }
-        let pending = new Map
+        /*let regexes = {
+            imgset: /(?<!-webkit-)image-set(?=\()/g
+        }
+        function enhance(style, selector) {
+            let obj = []
+            for (let i = 0, l = style.length; i < l; ++i) {
+                let prop = style[i],
+                    val = style[prop],
+                    newVal = val + style.getPropertyPriority(prop)
+                obj.push([prop, newVal])
+                let newKey = ''
+                if (/^offset-(?:distance|path|rotate)/.test(prop)) newKey = prop.replace('offset', 'motion')
+                else if (regexes.imgset.test(val)) {
+                    newKey = prop
+                    newVal = newVal.replaceAll(regexes.imgset, '-webkit-image-set')
+                }
+                if (newKey) obj.push([newKey, newVal])
+            }
+            let rules = obj.map((style) => `${style[0]}:${style[1]}`).join(';')
+            let out = `${selector}{${rules}}`
+            if (selector.includes('::marker')) {
+                out += `${selector.replaceAll('::marker', '::-moz-list-bullet')}{${rules}}`
+            }
+            return out
+        }
+        */let pending = new Map
         let dynamicFolders = new Map
         let dynamicFiles = new Map
+        class Context extends Object.assign(function () { }, { prototype: null }) {
+            #path
+            #pathSegments
+            constructor(localPath, pathSegments) {
+                super()
+                this.localPath = localPath
+                this.#pathSegments = pathSegments
+            }
+            /*async sheet(src) {
+                // i didnt finish this but im going to do it eventually
+                let text = await this.file(src)
+                let mySheet = new CSSStyleSheet
+                mySheet.replaceSync(text)
+                let final = ''
+                function fixSheet(sheet) {
+                    let { cssRules } = sheet
+                    for (let i = 0, l = cssRules.length; i < l; ++i) {
+                        let rule = cssRules[i]
+                        switch (rule[Symbol.toStringTag]) {
+                            case 'CSSStyleRule': {
+                                let { style } = rule
+                                // for (let i = 0, l = style.length; i < l; ++i) {
+                                // let a = style[i]
+                                final += enhance(style, rule.selectorText)
+                                // }
+                            }
+                        }
+                    }
+                }
+                fixSheet(mySheet)
+                return final
+            }*/
+            async dir(path) {
+                let out = await getFolderEntries(path, this.#pathSegments.join('/'))
+                return out
+            }
+            async file(src) {
+                let { localPath } = this
+                let me = localPath.pathname
+                addToDynamicFiles(resolve(src, me), me.substring(1))
+                return await getFileText(src, localPath)
+            }
+            async metadata(src) {
+                let { localPath } = this
+                let s = resolve(src, localPath.pathname)
+                let file = await getSpecificFile(src, localPath)
+                let me = localPath.pathname
+                addToDynamicFiles(resolve(src, me), me.substring(1))
+                let out
+                let type = file.type.split('/')[0]
+                switch (type) {
+                    case 'video':
+                    case 'image': {
+                        let src = URL.createObjectURL(file)
+                        let isImage = type === 'image'
+                        let o = isImage ? $`<img src="${src}" fetchpriority="high">` : $`<video src="${src}" preload="metadata"></video>`
+                            ; (isImage ? o.complete : o.readyState === 1) || await o.until({ resolve: isImage ? 'load' : 'loadedmetadata', reject: 'error' })
+                        URL.revokeObjectURL(src)
+                        return new ImageOrVideoMetadata(file, [o.naturalWidth ?? o.videoWidth, o.naturalHeight ?? o.videoHeight])
+                    }
+                    case 'audio': {
+                        let src = URL.createObjectURL(file)
+                        let o = $`<audio src="${src}" preload="metadata"></audio>`
+                        o.readyState === 1 || await o.until({ resolve: 'loadedmetadata', reject: 'error' })
+                        URL.revokeObjectURL(src)
+                        return new AudioMetadata(file, [o.duration])
+                    }
+                }
+                return new Metadata(file)
+            }
+            async script(src) {
+                let { localPath } = this
+                // specifically for inline scripts in html
+                let me = localPath.pathname
+                // addToDynamicFiles(resolve(src, me), me.substring(1))
+                return (await this.file(src)).replace(/<\/script>/g, '<\x2fscript>')
+            }
+            get currentPath() {
+                return this.localPath.pathname.substring(1).split('/').slice(0, -1).join('/')
+            }
+            static {
+                let proto = this.prototype;
+                [imageSet, range,uneval, TemplateProcessingError, PathNotFoundError,
+                    concat,
+                ].forEach(o => Object.defineProperty(proto, o.name, {
+                    value: o
+                }))
+                proto.esc = v.escapeTagged
+            }
+        }
         async function evaluate(text, localPath, pathSegments) {
             let define = text.match(defineComment)
             let define2 = text.match(jsDefineComment)
             let env = []
-            let context = {
-                __proto__: null,
-                TemplateProcessingError,
-                PathNotFoundError,
-                imageSet,
-                esc: v.escapeTagged,
-                async dir(path) {
-                    let out = await getFolderEntries(path, pathSegments.join('/'))
-                    return out
-                },
-                async metadata(src) {
-                    let s = resolve(src, localPath.pathname)
-                    let file = await getSpecificFile(src, localPath)
-                    let me = localPath.pathname
-                    addToDynamicFiles(resolve(src, me), me.substring(1))
-                    let out
-                    let type = file.type.split('/')[0]
-                    switch (type) {
-                        case 'video':
-                        case 'image': {
-                            let src = URL.createObjectURL(file)
-                            let isImage = type === 'image'
-                            let o = isImage ? $`<img src="${src}" fetchpriority="high">` : $`<video src="${src}" preload="metadata"></video>`
-                                ; (isImage ? o.complete : o.readyState === 1) || await o.until({ resolve: isImage ? 'load' : 'loadedmetadata', reject: 'error' })
-                            URL.revokeObjectURL(src)
-                            return new ImageOrVideoMetadata(file, [o.naturalWidth ?? o.videoWidth, o.naturalHeight ?? o.videoHeight])
-                        }
-                        case 'audio': {
-                            let src = URL.createObjectURL(file)
-                            let o = $`<audio src="${src}" preload="metadata"></audio>`
-                            o.readyState === 1 || await o.until({ resolve: 'loadedmetadata', reject: 'error' })
-                            URL.revokeObjectURL(src)
-                            return new AudioMetadata(file, [o.duration])
-                        }
-                    }
-                    return new Metadata(file)
-                },
-                range,
-                concat,
-                async file(src) {
-                    let me = localPath.pathname
-                    addToDynamicFiles(resolve(src, me), me.substring(1))
-                    return await getFileText(src, localPath)
-                },
-                async script(src) {
-                    // specifically for inline scripts in html
-                    let me = localPath.pathname
-                    addToDynamicFiles(resolve(src, me), me.substring(1))
-                    return (await context.file(src)).replace(/<\/script>/g, '<\x2fscript>')
-                },
-                get currentPath() {
-                    return localPath.pathname.substring(1).split('/').slice(0, -1).join('/')
-                },
-                localPath
-            }
+            let context = new Context(localPath, pathSegments)
             let post = text.match(postProcess)
             if (post) {
                 text = text.replace(postProcess, '')
