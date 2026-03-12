@@ -467,23 +467,23 @@
                 return '[' + o.map(uneval).join(',') + ']'
             if (o === null) return 'null'
             if (typeof document !== 'undefined' && o === document.all) return 'document.all'
-            if (o instanceof WeakMap || o instanceof WeakSet) return `(new ${o.constructor.name})`
+            if (o instanceof WeakMap || o instanceof WeakSet) return `new ${o.constructor.name}`
             if (o instanceof RegExp)
                 return `/${o.source}/${o.flags}`
             if (o instanceof Map) {
-                if (!o.size) return `(new Map)`
-                return `(new Map([${Array.from(o, uneval)}]))`
+                if (!o.size) return `new Map`
+                return `new Map([${Array.from(o, uneval)}])`
             }
             if (o instanceof Set) {
-                if (!o.size) return `(new Set)`
-                return `(new Set(${Array.from(o, uneval)}))`
+                if (!o.size) return `new Set`
+                return `new Set(${Array.from(o, uneval)})`
             }
             switch (typeof o) {
                 case 'number': {
-                    if (o !== o) return '(0/0)'
-                    if (o === 1 / 0) return '(1/0)'
-                    if (o === -1 / 0) return '(-1/0)'
-                    if (Object.is(o, -0)) return '(-0)'
+                    if (o !== o) return '0/0'
+                    if (o === 1 / 0) return '1/0'
+                    if (o === -1 / 0) return '-1/0'
+                    if (Object.is(o, -0)) return '-0'
                 }
                 default: return String(o)
                 case 'bigint': return o + 'n'
@@ -516,7 +516,7 @@
                     }).filter(o => o !== '').join(',') + '})'
                 }
                 case 'string': return /^[\p{ID_Continue}$]+$/u.test(o) ? o : `"${o.replace(/"/g, '\\"')}"`
-                case 'undefined': return '(void 0)'
+                case 'undefined': return 'void 0'
                 case 'symbol': {
                     const syms = Object.getOwnPropertyNames(Symbol).filter(o => typeof Symbol[o] === 'symbol').map(o => Symbol[o])
                     let desc = o.description

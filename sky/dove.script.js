@@ -1,7 +1,7 @@
 import * as v from '../v4.js'
 import preload from '../webcomponents/cel-runner.js'
 let timeOfDay = Reflect.get.bind(1, document.documentElement.dataset, 'tod')
-let mons /*:return`= ${JSON.stringify(await Array.fromAsync((await dir('./media/sprite')).map(async o=>{
+let mons /*:return`= ${uneval(await Array.fromAsync((await dir('./media/sprite')).map(async o=>{
     let thing = o.split('_')
     let framesX = +thing[1].split('.')[0]
     let meta = await metadata(`./media/sprite/${o}`)
