@@ -252,19 +252,23 @@
         'font-family': 'inherit',
         'overflow-wrap': 'var(--word-wrap)',
         'scrollbar-color': 'var(--scrollbar-thumb-color) var(--scrollbar-color)',
-        'scrollbar-width': 'var(--scrollbar-width)'
+        'scrollbar-width': 'var(--scrollbar-width)',
+        'motion-distance': 'var(--offset-distance)',
+        'motion-rotate': 'var(--offset-rotate)',
+        'motion-path': 'var(--offset-path)'
     }
     function lowPriority() {
         //@dev console.time('low priority')
-        g("locale", "auto", true, "*")("line-grid", "auto", true, "*")("line-snap", "auto", true, "*")("nbsp-mode", "auto", true, "*")("text-zoom", "auto", false, "*")("line-align", "auto", true, "*")("text-decorations-in-effect", "auto", false, "*")("force-broken-image-icon", "0", false, "<integer>")("float-edge", "content-box", false, "*")("image-region", "auto", true, "*")("box-orient", "inline-axis", false, "*")("box-align", "stretch", false, "*")("box-direction", "normal", false, "*")("box-flex", "0", false, "*")("box-flex-group", "0", false, "*")("box-lines", "single", false, "*")("box-ordinal-group", "1", false, "*")("box-decoration-break", "slice", false, "*")("box-pack", "start", false, "*")("line-clamp", "none", false, "*")("font-smoothing", "auto", true, "*")("mask-position-x", "0%", false, "<length-percentage>")("mask-position-y", "0%", false, "<length-percentage>")("window-dragging", "auto", false, "*")("stack-sizing", "stretch-to-fit", true, "*")("mask-composite", "source-over", false, "*")("window-shadow", "auto", false, "*")("outline-radius", "0 0 0 0", false, "*")("binding", "none", false, "*")("text-blink", "none", false, "*")("image-rect", "auto", true, "*")("context-properties", "none", true, "*")("text-kashida-space", "0%", true, "<percentage>")("interpolation-mode", "none", false, "*")("progress-appearance", "bar", false, "*")("flow-from", "none", false, "*")("flow-into", "none", false, "*")("high-contrast-adjust", "auto", true, "*")("ime-mode", "auto", false, "*")("wrap-through", "wrap", false, "*")("print-color-adjust", "economy", true, "*")("pay-button-style", "white", false, "*")("color-filter", "none", true, "*")("pay-button-type", "plain", false, "*")("visual-effect", "none", true, "*")("text-spacing-trim", "normal", true, "*")("text-group-align", "none", false, "*")("text-autospace", "normal", true, "*")("orient", "inline", false, "*")("ruby-overhang", "auto", true, "*")("max-lines", "none", false, "*")("line-fit-edge", "leading", true, "*")("overflow-scrolling", "auto", false, "*")("column-progression", "auto", false, "*")("dashboard-region", "none", false, "*")("column-axis", "auto", false, "*")("text-size-adjust", "auto", true, "*")("border-vertical-spacing", "auto", false, "*")("buffered-rendering", "auto", false, "*")
-        //@dev console.timeEnd('low priority')
+        g("locale","auto",false,"*")("user-modify","auto",true,"*")("line-grid","auto",false,"*")("line-snap","auto",false,"*")("nbsp-mode","auto",false,"*")("text-zoom","auto",true,"*")("line-align","auto",false,"*")("text-decorations-in-effect","auto",true,"*")("force-broken-image-icon","0",true,"<integer>")("float-edge","content-box",true,"*")("image-region","auto",false,"*")("box-orient","inline-axis",true,"*")("box-align","stretch",true,"*")("box-direction","normal",true,"*")("box-flex","0",true,"*")("box-flex-group","0",true,"*")("box-lines","single",true,"*")("box-ordinal-group","1",true,"*")("box-decoration-break","slice",true,"*")("box-pack","start",true,"*")("line-clamp","none",true,"*")("font-smoothing","auto",false,"*")("mask-position-x","0%",true,"<length-percentage>")("mask-position-y","0%",true,"<length-percentage>")("window-dragging","auto",true,"*")("stack-sizing","stretch-to-fit",false,"*")("mask-composite","source-over",true,"*")("window-shadow","auto",true,"*")("outline-radius","0 0 0 0",true,"*")("binding","none",true,"*")("text-blink","none",true,"*")("image-rect","auto",false,"*")("context-properties","none",false,"*")("text-kashida-space","0%",false,"<percentage>")("interpolation-mode","none",true,"*")("progress-appearance","bar",true,"*")("flow-from","none",true,"*")("flow-into","none",true,"*")("high-contrast-adjust","auto",false,"*")("ime-mode","auto",true,"*")("wrap-through","wrap",true,"*")("print-color-adjust","economy",false,"*")("pay-button-style","white",true,"*")("color-filter","none",false,"*")("pay-button-type","plain",true,"*")("visual-effect","none",false,"*")("text-spacing-trim","normal",false,"*")("text-group-align","none",true,"*")("text-autospace","normal",false,"*")("orient","inline",true,"*")("ruby-overhang","auto",false,"*")("max-lines","none",true,"*")("line-fit-edge","leading",false,"*")("overflow-scrolling","auto",true,"*")("column-progression","auto",true,"*")("dashboard-region","none",true,"*")("column-axis","auto",true,"*")("text-size-adjust","auto",false,"*")("border-vertical-spacing","auto",true,"*")("buffered-rendering","auto",true,"*");        //@dev console.timeEnd('low priority')
     }
     function properties() {
         //@dev console.time('properties')
-        g("user-select", "auto", false, '*') // Most important one
-            ("user-modify", "auto", false, '*')
+            g("user-select", "auto", false, '*') // Most important one
             ("zoom", "auto", false, '*')
             ('user-drag', "auto", true, '*')
+            ('offset-path', "none", false, '*')
+            ('offset-distance', '0', false, '<length-percentage>')
+            ('offset-rotate','auto',false,"auto | <angle> | reverse")
             // ("user-input", "auto", true, '*')
             ("box-reflect", "none", false, '*') // Kewl
             ("text-stroke-color", "currentcolor", true, "<color>")
@@ -290,6 +294,31 @@
             ('color-rendering', 'auto', false, '*')
             ('word-wrap', 'normal', false, '*')
         //@dev console.timeEnd('properties')
+    }
+    var diffName =
+        [
+            [/^offset(-(?:distance|rotate|path))?$/, 'motion$1'],
+            [/^-webkit-((?:max|min)-)?logical-width$/, '$1inline-size'],
+            [/^-webkit-((?:max|min)-)?logical-height$/, '$1block-size'],
+            [/^-webkit-mask-box-image(-\w+)?$/, 'mask-border$1'],
+            [/^grid-((?:row|column)-)?gap$/,'$1-gap'],
+            // [/^float$/, 'cssFloat'],
+            [/^overflow-wrap$/, 'word-wrap'],
+            [/^word-wrap$/, 'overflow-wrap'],
+            [/^(text-combine-)upright$/, '-webkit-$1'],
+            [/^print-(color-adjust)$/,'$1']
+        ]
+    function correctProp(prop, value) {
+        var out = []
+        prop = prop.toLowerCase()
+        if (sup((prop = dv(prop, value)) + ':' + value)) out.push(prop)
+        for (var i = diffName.length; i--;) {
+            var set = diffName[i]
+            , r = set[0]
+            , str = set[1]
+            r.test(prop) && out.push(prop.replace(r, str))
+        }
+        return out
     }
     function doRegister() {
         re = function (name, iv, inh, sx) {
@@ -402,7 +431,8 @@
             vendor: vendor,
             toCSS: toCSS,
             formatSelector: fSelector,
-            onerror: onerror
+            onerror: onerror,
+            correctProp: correctProp
         })
     y[sym] || O.defineProperty(y, sym, { value: css, enumerable: 1 })
     return css

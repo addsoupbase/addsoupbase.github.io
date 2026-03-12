@@ -489,7 +489,7 @@
                 case 'bigint': return o + 'n'
                 case 'function':
                     if (o.toString().startsWith('class')) return '(' + o + ')'
-                    return '(' + (/^(?:async\s*)?function|=>.*(?:\{.*\})?$/.test(o) ? o : 'function ' + o) + ')'
+                    return '(' + (/^(?:async\s+)?function|=>.*(?:\{.*\})?$/s.test(o) ? o : 'function ' + o) + ')'
                 case 'object': {
                     return '({' + (Object.getPrototypeOf(o) === null ? '__proto__:null,' : '') + Reflect.ownKeys(Object(o)).map(key => {
                         let out = ''
@@ -515,7 +515,7 @@
                         return out + `:${uneval(val)}`
                     }).filter(o => o !== '').join(',') + '})'
                 }
-                case 'string': return /^\w+$/.test(o) ? o : `"${o.replace(/"/g, '\\"')}"`
+                case 'string': return /^[\p{ID_Continue}$]+$/u.test(o) ? o : `"${o.replace(/"/g, '\\"')}"`
                 case 'undefined': return '(void 0)'
                 case 'symbol': {
                     const syms = Object.getOwnPropertyNames(Symbol).filter(o => typeof Symbol[o] === 'symbol').map(o => Symbol[o])
