@@ -5,8 +5,11 @@ import { base } from './BaseProxy.js'
 const D = document
 function label(r) { return r[Symbol.toStringTag] }
 var parse = (parse = new Range).createContextualFragment.bind(parse)
+let rawCache = new Map
+let frequent = new Set()
 export function ce(htmlOrTag) {
-    let node
+    let node = rawCache.get(htmlOrTag)
+    if (node) return Proxify(node.cloneNode(true))
     if (Regex.frag.test(htmlOrTag)) {
         node = D.createDocumentFragment()
         let doc = parse(htmlOrTag.replace(Regex.frag, '$1'))
@@ -26,6 +29,12 @@ export function ce(htmlOrTag) {
         let id = htmlOrTag.match(Regex.id)?.[0].substring(1) || ''
         if (id) node.id = id
     }
+    if (frequent.has(htmlOrTag)) 
+        rawCache.set(htmlOrTag, node.cloneNode(true))
+    else {
+        if (frequent.size > 512) frequent.clear()
+        frequent.add(htmlOrTag)
+    } 
     return Proxify(node)
 }
 const Regex = {
@@ -67,14 +76,17 @@ function handleSub(sub, replace) {
     return escapeHTML(String(sub))
 }
 export function $(strings, ...subs) {
-    if (typeof strings === 'string') return ce(strings)
+    if (typeof strings === 'string') return ce(strings) // $(`<p>Example</p>`)
+    if (Array.isArray(strings) && !('raw' in strings))
+        return ce(`<>${strings.join('')}</>`) // $([`<h1>Heading</h1>`, `<p>Example</p>`])
+    // ^ returns a DocumentFragment
     if (!subs.length) {
         let { raw } = strings
         if (nodeCache.has(raw)) return Proxify(nodeCache.get(raw).cloneNode(true))
         let out = ce(strings.join(''))
         let node = base(out)
         nodeCache.set(strings, node.cloneNode(true))
-        return out
+        return out // $`<p>Example</p>`
     }
     let result = []
         , replace = { map: new Map, toReplace: 0 }
@@ -102,6 +114,9 @@ export function $(strings, ...subs) {
         out.on(events)
     }
     return out
+    // $`<p (click)="${ event => { ... } }">${example}</p>`
+    // ^ the subs are escaped safely but others are handled
+    // specially (is that a word?) like functions
 }
 export const esc = $
 export default $
@@ -109,9 +124,6 @@ function commentFilter(e) {
     return Regex.comment.test(e.textContent) ? 1 : 3
 }
 export const id = new Proxy({ __proto__: null }, {
-    // ownKeys() {
-    //     return[].map.call(D.querySelectorAll('[id]'), Proxify)
-    // },
     get(_, id) {
         let o = D.getElementById(id)
         if (o) return Proxify(o)
@@ -120,7 +132,7 @@ export const id = new Proxy({ __proto__: null }, {
     deleteProperty(_, id) {
         D.getElementById(id)?.remove()
         return true
-    },
+    }
 })
 export function sel(t) {
     if (Element.prototype.isPrototypeOf(t)) return Proxify(t)
@@ -137,7 +149,7 @@ export function escapeHTML(s) { (a ??= D.createElement('p')).textContent = s; re
 //@dev 'body'in window || Object.defineProperty(window, 'body', {get() {return Proxify(document.querySelector('body'))}})
 //@dev window.escapeHTML = txt => escapeHTML(prompt(txt))
 //@dev window.esc = escapeTagged
-//@dev window.cache = nodeCache
+//@dev window.cache = rawCache
 function* treeWalker(root, whatToShow, filter) {
     let walker = D.createTreeWalker(root, whatToShow, filter)
     let o
@@ -154,7 +166,7 @@ export function getContext(type, id, width, height, settings, fallbackURL) {
     if (contexts.has(id)) return contexts.get(id)
     let s = CSS.escape(id)
     css.write(
-`[data-v4-unreliable-canvas-background="${s}"] {
+        `[data-v4-unreliable-canvas-background="${s}"] {
         background-image: paint(${s});
         background-image: -webkit-canvas(${s});
         background-image: -moz-element(#${s})
