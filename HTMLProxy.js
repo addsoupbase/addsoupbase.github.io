@@ -31,7 +31,7 @@ class Node$ extends EventTargetProxy {
         i: null,
         m: null,
     }
-    is(other) {return this.isEqualNode(other && base(other))}
+    is(other) { return this.isEqualNode(other && base(other)) }
     setCanvasBg(id) {
         if (D.getCSSCanvasContext)
             // safari needs this to work
@@ -41,22 +41,17 @@ class Node$ extends EventTargetProxy {
     }
     unobserve(type) {
         let observers = Node$.#observers
-        switch (type.toLowerCase()) {
-            case 'resize':
-            case 'resizeobserver':
-            case 'r':
+        type = type.toLowerCase()
+        switch (true) {
+            case /^r(?:esize(?:observer)?)?$/.test(type):
                 type = 'resize'
                 observers.r.unobserve(this)
                 break
-            case 'intersection':
-            case 'intersectionobserver':
-            case 'i':
+            case /^i(?:ntersection(?:observer)?)?$/.test(type):
                 type = 'intersection'
                 observers.i.unobserve(this)
                 break
-            case 'mutation':
-            case 'mutationobserver':
-            case 'm':
+            case /^m(?:utation(?:observer)?)?$/.test(type):
                 type = 'mutation'
                 break
             default: throw Error(`Invalid observer type "${type}"`)
@@ -81,31 +76,22 @@ class Node$ extends EventTargetProxy {
     observe(type, settings, flags) {
         if (!settings.callback) throw Error(`'callback' property required`)
         let ob = Node$.#observers
-        switch (type.toLowerCase()) {
+        type = type.toLowerCase()
+        switch (true) {
             default: throw Error(`Invalid observer type "${type}"`)
-            case 'mutation':
-            case 'mutationobserver':
-            case 'm': {
+            case /^m(?:utation(?:observer)?)?$/.test(type):
                 type = 'mutation'
-                ob.m ??= new MutationObserver(Node$.#observerCallback(type))
-                ob.m.observe(this, settings)
-            }
+                    ; (ob.m ??= new MutationObserver(Node$.#observerCallback(type)))
+                        .observe(this, settings)
                 break
-            case 'intersection':
-            case 'intersectionobserver':
-            case 'i': {
+            case /^i(?:ntersection(?:observer)?)?$/.test(type):
                 type = 'intersection'
-                ob.i ??= new IntersectionObserver(Node$.#observerCallback(type))
-                ob.i.observe(this, settings)
-            }
+                    ; (ob.i ??= new IntersectionObserver(Node$.#observerCallback(type)))
+                        .observe(this, settings)
                 break
-            case 'resize':
-            case 'resizeobserver':
-            case 'r': {
-                type = 'resize'
-                ob.r ??= new ResizeObserver(Node$.#observerCallback(type))
-                ob.r.observe(this, settings)
-            }
+            case /^r(?:esize(?:observer)?)?$/.test(type):
+                type = 'resize';
+                (ob.r ??= new ResizeObserver(Node$.#observerCallback(type))).observe(this, settings)
                 break
         }
         Proxify(this).on({ [`${flags || ''}v4:${type}`]: settings.callback })
@@ -247,6 +233,7 @@ class Cacher {
         }
     }
     $getPropertyCache(key) {
+        this.#queueReset()
         let cache = this.$cache
         if (key in cache) return cache[key]
         let value = this[Cacher.Target][key]
@@ -306,7 +293,7 @@ class ReflowCache extends Cacher {
     for (let i = all.length; i--;) Cacher.define(ReflowCache, all[i])
 }
 class StyleCache extends Cacher {
-    static ran = false
+    static #ran = false
     /*$setPropertyCache(key, value) {
         try {value = CSSStyleValue.parse(key, value)}
         catch{}
@@ -323,8 +310,8 @@ class StyleCache extends Cacher {
     }*/
     constructor(t) {
         super(t)
-        if (!StyleCache.ran) {
-            StyleCache.ran = true
+        if (!StyleCache.#ran) {
+            StyleCache.#ran = true
             let keys = Object.keys(this[Cacher.Target])
             for (let i = keys.length; i--;)
                 Cacher.define(StyleCache, keys[i])
@@ -357,8 +344,7 @@ class Element$ extends NodeProxy {
     //     return P(nodes[0])
     // }
     get last() {
-        let o = this.lastElementChild
-        return o && Proxify(o)
+        return proxifySafe(this.lastElementChild)
     }
     set last(n) {
         this.appendChild(base(n))
@@ -366,7 +352,7 @@ class Element$ extends NodeProxy {
     at(index) {
         return proxifySafe([].at.call(this.children, index))
     }
-    eltAt(o){return Proxify(this).at(o)}
+    eltAt(o) { return Proxify(this).at(o) }
     animFrom(animationName, { duration = 1000, delay = 0, direction = duration > 0 ? 'normal' : 'reverse',
         iterations = 1 / 0, fill = 'forwards',
         composite = 'accumulate',
@@ -389,10 +375,10 @@ class Element$ extends NodeProxy {
                 throw TypeError(`Animation not found: ${animationName}`)
             }
             let fr = []
-            , t = thing.cssRules
+                , t = thing.cssRules
             for (let i = t.length; i--;) {
                 let { style } = t[i]
-                , a = {}
+                    , a = {}
                 for (let ii = style.length; ii--;) {
                     let prop = style[ii]
                     a[prop] = style[prop]
@@ -440,25 +426,18 @@ class Element$ extends NodeProxy {
     }
 }
 const ElementProxy = new ProxyFactory(Element$)
-{
-    let p = 'innerHTML outerHTML innerText outerText textContent'.split(' ')
-    for (let i = p.length; i--;) {
-        let key = p[i]
-        Object.defineProperty(Element$.prototype, key, {
-            get() {
-                return this[key]
-            },
-            set(val) {
-                if (this.childElementCount) throw TypeError(`Cannot set ${key} since ${this.tagName} has child elements. Use insertAdjacentText/insertAdjacentHTML instead`)
-                this[key] = val
-            }
-        })
-    }
-}
-class HTMLElement$ extends ElementProxy {
+class AbstractElement extends ElementProxy {
     #style = null
     #calc = null
     #savedDisplay = ''
+    // it needs to exist because idk why but these properties aren't on Element()
+    // SVGElement() and HTMLElement() do a separate implementation of the same properties
+    // so something like Reflect.get(SVGElement.prototype, 'style', document.body) throws
+    // why? i have no idea!
+    constructor(n) {
+        if (new.target === AbstractElement) throw TypeError(`Abstract class can't be constructed`)
+        super(n)
+    }
     hide() {
         let { style } = this
         let display = style.display
@@ -479,7 +458,32 @@ class HTMLElement$ extends ElementProxy {
         return Object.assign(Proxify(this).styles, o)
     }
 }
+class SVGElement$ extends AbstractElement {
+    get ownerSVG() {
+        return proxifySafe(this.ownerSVGElement)
+    }
+    get viewportSVG() {
+        return proxifySafe(this.viewportElement)
+    }
+}
+class HTMLElement$ extends AbstractElement { }
 const HTMLElementProxy = new ProxyFactory(HTMLElement$)
+{
+    let p = 'innerHTML outerHTML innerText outerText textContent'.split(' ')
+    for (let i = p.length; i--;) {
+        let key = p[i]
+        Object.defineProperty(HTMLElement$.prototype, key, {
+            get() {
+                return this[key]
+            },
+            set(val) {
+                if (this.childElementCount) throw TypeError(`Cannot set ${key} since ${this.tagName} element has child elements. Use insertAdjacentText/insertAdjacentHTML instead`)
+                this[key] = val
+            }
+        })
+    }
+}
+new ProxyFactory(SVGElement$)
 class MouseEvent$ {
     #layerX = null
     #layerY = null
