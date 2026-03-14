@@ -1,12 +1,12 @@
 // most recent attempt (and hopefully the best!)
-import Proxify, { css } from './HTMLProxy.js'
+import Proxify, { css, } from './HTMLProxy.js'
 export { css, Proxify }
 import { base } from './BaseProxy.js'
 const D = document
 function label(r) { return r[Symbol.toStringTag] }
 var parse = (parse = new Range).createContextualFragment.bind(parse)
 let rawCache = new Map
-let frequent = new Set()
+let frequent = new Set
 export function ce(htmlOrTag) {
     let node = rawCache.get(htmlOrTag)
     if (node) return Proxify(node.cloneNode(true))
@@ -15,12 +15,10 @@ export function ce(htmlOrTag) {
         let doc = parse(htmlOrTag.replace(Regex.frag, '$1'))
         node.appendChild(doc)
     }
-    else if (isHTMLSyntax(htmlOrTag)) {
-        let n = parse(htmlOrTag)
-        node = n.childElementCount === 1 ? n.firstElementChild : n
-        // if you do multiple elements eg: $`<h1>Heading</h1> <p>text</p>`
-        // it will turn into a DocumentFragment
-    }
+    else if (isHTMLSyntax(htmlOrTag))
+        // let n = parse(htmlOrTag)
+        // if (n.childElementCount !== 1) console.warn(`Multiple elements returned: ${htmlOrTag}, pass an array instead`) // $(['<div></div>']) is a DocumentFragment
+        node = parse(htmlOrTag).firstElementChild//n.childElementCount === 1 ? n.firstElementChild : n
     else {
         let tag = htmlOrTag.match(Regex.tag)?.[0]
         node = D.createElement(tag)
@@ -29,12 +27,13 @@ export function ce(htmlOrTag) {
         let id = htmlOrTag.match(Regex.id)?.[0].substring(1) || ''
         if (id) node.id = id
     }
-    if (frequent.has(htmlOrTag)) 
+    if (!node) throw SyntaxError(`Malformed HTML`, {cause:htmlOrTag})
+    if (frequent.has(htmlOrTag))
         rawCache.set(htmlOrTag, node.cloneNode(true))
     else {
         if (frequent.size > 512) frequent.clear()
         frequent.add(htmlOrTag)
-    } 
+    }
     return Proxify(node)
 }
 const Regex = {
@@ -65,7 +64,6 @@ function handleSub(sub, replace) {
             // $`<form>${$`<button (click)="${function(e){
             // if (someCondition) e.preventDefault()
             // }}"></button>`}</form>`
-
             // the parenthesis around the event name are required!!
             // i can add flags to them as well:
             // $`<div (%_$click)=${...}></div>`
@@ -85,7 +83,7 @@ export function $(strings, ...subs) {
         if (nodeCache.has(raw)) return Proxify(nodeCache.get(raw).cloneNode(true))
         let out = ce(strings.join(''))
         let node = base(out)
-        nodeCache.set(strings, node.cloneNode(true))
+        nodeCache.set(raw, node.cloneNode(true))
         return out // $`<p>Example</p>`
     }
     let result = []
@@ -93,30 +91,48 @@ export function $(strings, ...subs) {
     for (let i = 0, n = strings.length, { length } = subs; i < n; ++i)
         result.push(`${strings[i]}${i < length ? handleSub(subs[i], replace) : ''}`)
     let out = ce(result.join(''))
-    let node = base(out)
-    // conclusion: TreeWalker > XPath & NodeIterator
+    let node = base(out) // <-- Either a DocumentFragment or an Element depending on if you did $`<><p>hello</p></>` or not
+    //@dev console.assert(node instanceof DocumentFragment || node instanceof Element, node.constructor)
     let { map } = replace
-    if (replace.toReplace) for (let o of treeWalker(base(out), 128, commentFilter)) o.replaceWith(map.get(o.textContent))
-    if (node.nodeType === 1 && node.hasAttributes()) {
-        let events = {}
-        let attr = node.getAttributeNames()
-        let config = { enumerable: true, writable: true, configurable: true }
-        for (let i = attr.length; i--;) {
-            let a = attr[i]
-            let match = a.match(Regex.evtAttr)
-            if (match) {
-                let func = config.value = map.get(node.getAttribute(a))
-                node.removeAttribute(a)
-                if (typeof func !== 'function') throw TypeError(`Invalid event handler for ${match[1]}`)
-                Object.defineProperty(events, match[1], config)
-            }
-        }
-        out.on(events)
-    }
+    if (replace.toReplace) 
+        for (let o of treeWalker(base(out), 128, commentFilter)) o.replaceWith(map.get(o.textContent))
+    // conclusion: TreeWalker > XPath & NodeIterator
+    let type = node.nodeType
+    // switch (type) {
+    // case 1: // element
+    // case 9: // document
+    // case 11: // document fragment
+    doEvents(out, map, type)
+    // }
     return out
     // $`<p (click)="${ event => { ... } }">${example}</p>`
     // ^ the subs are escaped safely but others are handled
     // specially (is that a word?) like functions
+}
+function doEvents(n, map, type) {
+    let node = base(n)
+        , config = { enumerable: true, writable: true, configurable: true }
+        , all = [].slice.call(node.querySelectorAll('*'))
+    type === 1 && all.push(node)
+    for (let i = all.length; i--;) {
+        let node = all[i]
+        if (node.hasAttributes()) {
+            let events = {}
+                , attr = node.getAttributeNames()
+            for (let i = attr.length; i--;) {
+                let a = attr[i]
+                    , match = a.match(Regex.evtAttr)
+                if (match) {
+                    let func = config.value = map.get(node.getAttribute(a)),
+                        m = match[1]
+                    node.removeAttribute(a)
+                    if (typeof func !== 'function' && typeof func?.handleEvent !== 'function') throw TypeError(`Invalid event handler for ${m}`)
+                    Object.defineProperty(events, m, config)
+                }
+            }
+            Proxify(node).on(events)
+        }
+    }
 }
 export const esc = $
 export default $

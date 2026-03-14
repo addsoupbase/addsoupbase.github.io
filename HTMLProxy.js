@@ -1,17 +1,11 @@
-import Proxify, { ProxyFactory, base } from './BaseProxy.js'
+import Proxify, { ProxyFactory, base, proxifySafe } from './BaseProxy.js'
 import { EventTargetProxy, h } from './EventTargetProxy.js'
 import './css.js'
 export default Proxify
 export const css = window[Symbol.for('[[CSSModule]]')]
 const D = document
 function tlc(o) {
-    return '-' + o.toLowerCase()
-}
-function tuc(c) {
-    return c[1].toUpperCase()
-}
-function toCaps(prop) {
-    return prop.includes('-') && prop.startsWith('--') ? prop : (prop[0] === '-' ? prop.substring(1) : prop).replace(dash, tuc)
+    return `-${o.toLowerCase()}`
 }
 function toDash(prop) {
     return prop.startsWith('--') ? prop :
@@ -37,6 +31,7 @@ class Node$ extends EventTargetProxy {
         i: null,
         m: null,
     }
+    is(other) {return this.isEqualNode(other && base(other))}
     setCanvasBg(id) {
         if (D.getCSSCanvasContext)
             // safari needs this to work
@@ -115,15 +110,6 @@ class Node$ extends EventTargetProxy {
         }
         Proxify(this).on({ [`${flags || ''}v4:${type}`]: settings.callback })
     }
-    /*adopt(frag) {
-        this.appendChild(base(frag))
-        return Proxify(this)
-    }
-    import(frag) {
-        frag = base(frag)
-        this.appendChild(frag.cloneNode(true))
-        return Proxify(frag)
-    }*/
     delegate(events, filter, includeSelf, controller) {
         events = { ...events }
         for (let i in events) {
@@ -157,15 +143,13 @@ class Node$ extends EventTargetProxy {
         base(node).appendChild(this)
     }
     get parent() {
-        let a = this.parentNode
-        return a && Proxify(a)
+        return proxifySafe(this.parentNode)
     }
     get clone() {
         return Proxify(this.cloneNode(true))
     }
-    nodeAt(index) {
-        let n = [].at.call(this.childNodes, index)
-        return n ? Proxify(n) : null
+    nat(index) {
+        return proxifySafe([].at.call(this.childNodes, index))
     }
     unshiftNode(...nodes) {
         let a = frag(nodes.map(base))
@@ -184,15 +168,13 @@ class Node$ extends EventTargetProxy {
         return [].indexOf.call(this.childNodes, base(node))
     }
     get lastNode() {
-        let c = this.lastChild
-        return c && Proxify(c)
+        return proxifySafe(this.lastChild)
     }
     set lastNode(val) {
         this.appendChild(base(val))
     }
     get firstNode() {
-        let c = this.firstChild
-        return c && Proxify(c)
+        return proxifySafe(this.firstChild)
     }
     set firstNode(node) {
         let l = this.firstChild
@@ -209,10 +191,7 @@ class Node$ extends EventTargetProxy {
             let l
             while (l = this.lastElementChild) Proxify(l).purge(true)
         }
-        else {
-            let n = frag(this.childNodes)
-            return n
-        }
+        else return frag(this.childNodes)
         return Proxify(this)
     }
     /*set nodes(childs) {
@@ -226,8 +205,7 @@ class Node$ extends EventTargetProxy {
             me.appendChild(base(childs[i]))
     }*/
     get prevNode() {
-        let n = this.previousSibling
-        return n && Proxify(n)
+        return proxifySafe(this.previousSibling)
     }
     set prevNode(val) {
         let parent = this.parentNode
@@ -235,8 +213,7 @@ class Node$ extends EventTargetProxy {
         parent.insertBefore(base(val), this)
     }
     get nextNode() {
-        let n = this.nextSibling
-        return n && Proxify(n)
+        return proxifySafe(this.nextSibling)
     }
     set nextNode(val) {
         let parent = this.parentNode
@@ -386,9 +363,8 @@ class Element$ extends NodeProxy {
     set last(n) {
         this.appendChild(base(n))
     }
-    eltAt(index) {
-        let n = [].at.call(this.children, index)
-        return n ? Proxify(n) : null
+    at(index) {
+        return proxifySafe([].at.call(this.children, index))
     }
     animFrom(animationName, { duration = 1000, delay = 0, direction = duration > 0 ? 'normal' : 'reverse',
         iterations = 1 / 0, fill = 'forwards',
@@ -412,10 +388,10 @@ class Element$ extends NodeProxy {
                 throw TypeError(`Animation not found: ${animationName}`)
             }
             let fr = []
-            let t = thing.cssRules
+            , t = thing.cssRules
             for (let i = t.length; i--;) {
                 let { style } = t[i]
-                let a = {}
+                , a = {}
                 for (let ii = style.length; ii--;) {
                     let prop = style[ii]
                     a[prop] = style[prop]
@@ -472,7 +448,7 @@ const ElementProxy = new ProxyFactory(Element$)
                 return this[key]
             },
             set(val) {
-                if (this.childElementCount) throw TypeError(`Cannot set ${key} since <${this.tagName.toLowerCase()}> has child elements. Use insertAdjacentText/insertAdjacentHTML instead`)
+                if (this.childElementCount) throw TypeError(`Cannot set ${key} since ${this.tagName} has child elements. Use insertAdjacentText/insertAdjacentHTML instead`)
                 this[key] = val
             }
         })
@@ -516,7 +492,7 @@ class MouseEvent$ {
 class RecordOrEntry {
     #targetNode = null
     get targetNode() {
-        return Proxify.GetWrapper(this).#targetNode ??= this.target && Proxify(this.target)
+        return Proxify.GetWrapper(this).#targetNode ??= proxifySafe(this.target)
     }
     get entryType() {
         return this.type
@@ -533,11 +509,11 @@ new ProxyFactory(class MutationRecord$ extends RecordOrEntry {
     }
     #nextSibling = null
     get nextSibling() {
-        return Proxify.GetWrapper(this).#nextSibling ??= this.nextSibling && Proxify(this.nextSibling)
+        return Proxify.GetWrapper(this).#nextSibling ??= proxifySafe(this.nextSibling)
     }
     #previousSibling = null
     get previousSibling() {
-        return Proxify.GetWrapper(this).#previousSibling ??= this.previousSibling && Proxify(this.previousSibling)
+        return Proxify.GetWrapper(this).#previousSibling ??= proxifySafe(this.previousSibling)
     }
 })
 new ProxyFactory(class ResizeObserverEntry$ extends RecordOrEntry { })

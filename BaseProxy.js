@@ -143,6 +143,9 @@ export function proxify(any) {
     return Generator ? Generator(any) : any
     // throw TypeError(`Cannot proxy a #<${getLabel(target)}>`)
 }
+export function proxifySafe(any) {
+    return any === Object(any) ? proxify(any) : any
+}
 Object.defineProperties(proxify, {
     Base: {
         value: base

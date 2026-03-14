@@ -305,7 +305,7 @@
             // [/^float$/, 'cssFloat'],
             [/^overflow-wrap$/, 'word-wrap'],
             [/^word-wrap$/, 'overflow-wrap'],
-            [/^(text-combine-)upright$/, '-webkit-$1'],
+            [/^(text-combine)-upright$/, '-webkit-$1'],
             [/^print-(color-adjust)$/,'$1']
         ]
     function correctProp(prop, value) {
