@@ -366,6 +366,7 @@ class Element$ extends NodeProxy {
     at(index) {
         return proxifySafe([].at.call(this.children, index))
     }
+    eltAt(o){return Proxify(this).at(o)}
     animFrom(animationName, { duration = 1000, delay = 0, direction = duration > 0 ? 'normal' : 'reverse',
         iterations = 1 / 0, fill = 'forwards',
         composite = 'accumulate',
