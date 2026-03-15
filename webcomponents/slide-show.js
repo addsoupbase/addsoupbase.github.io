@@ -72,7 +72,5 @@ class SlideShow extends HTMLElement {
     }
 }
 customElements.define('slide-show', SlideShow)
-SlideShow.preload({ framesX: 32, framesY: 2, src: './sky/media/sprite/aerodactyl_32.png' })
-SlideShow.preload({ framesX: 68, framesY: 2, src: './sky/media/sprite/altariamega_68.png' })
 try{await(customElements.whenDefined('slide-show'))} // fix for no top level await
 catch(e){console.debug(e)}
