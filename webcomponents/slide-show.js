@@ -45,12 +45,13 @@ class SlideShow extends HTMLElement {
                 while (!bitmaps.has(val)) await new Promise(requestAnimationFrame)
                 let bitmap = bitmaps.get(val)
                 let canvas = this.#sprite
-                let fe = canvas.parentNode
+                let fe = this.#fe
                 fe.setAttribute('width', canvas.width = bitmap.width)
                 fe.setAttribute('height', canvas.height = bitmap.height)
                 this.#ctx.drawImage(bitmap, 0, 0)
                 this.#anim.setAttribute('values', bitmap.duras)
             }
+            break
             default:
                 this.#sprite.setAttribute(attr, val)
                 break
@@ -62,15 +63,31 @@ class SlideShow extends HTMLElement {
     #sprite
     #anim
     #ctx
+    #fe
+    #svg
     constructor() {
         super()
-        let shadow = this.attachShadow({ mode: 'open' })
+        let shadow = this.attachShadow({ mode: 'closed' })
         shadow.appendChild(svg.cloneNode(true))
-        this.#anim = shadow.querySelector('animate')
+        this.#svg = shadow.firstChild
+            ; (this.#anim = shadow.querySelector('animate')).addEventListener('repeatEvent', repeat)
         this.#ctx = (this.#sprite = shadow.querySelector('canvas')).getContext('2d')
+        this.#fe = shadow.querySelector('foreignObject')
         shadow.adoptedStyleSheets = [sheet]
     }
+    pause() {
+        this.dispatchEvent(new Event('pauseEvent', {bubbles:true, cancelable:true})) && this.#svg.pauseAnimations()
+    }
+    resume() {
+        this.dispatchEvent(new Event('resumeEvent', {bubbles:true, cancelable:true})) && this.#svg.unpauseAnimations()
+    }
+}
+function repeat(e) {
+    e.target.getRootNode().host.dispatchEvent(new Event('repeatEvent', { bubbles: true }))
 }
 customElements.define('slide-show', SlideShow)
-try{await(customElements.whenDefined('slide-show'))} // fix for no top level await
-catch(e){console.debug(e)}
+export default SlideShow.preload
+// SlideShow.preload({ framesX: 32, framesY: 2, src: './sky/media/sprite/aerodactyl_32.png' })
+// SlideShow.preload({ framesX: 68, framesY: 2, src: './sky/media/sprite/altariamega_68.png' })
+try { await(customElements.whenDefined('slide-show')) } // fix for no top level await
+catch (e) { console.debug(e) }
