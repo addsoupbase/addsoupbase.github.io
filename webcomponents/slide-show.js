@@ -8,14 +8,15 @@ and also it now:
  • doesn't interfere with external transforms
  • can use offset-path correctly now!
 */
-let svg = document.createRange().createContextualFragment('<svg><animate href="#fe" calcMode="discrete" attributeName="x" repeatCount="indefinite" /><foreignObject width=100 height=100 id="fe"><canvas></foreignObject></svg>')
+let svg = document.createRange().createContextualFragment('<svg><animate begin="0s" href="#fe" calcMode=discrete attributeName=x repeatCount="indefinite"/><foreignObject width=100 height=100 id="fe"><canvas></canvas></foreignObject></svg>')
 let bitmaps = new Map
 let sheet = new CSSStyleSheet
-sheet.replaceSync('foreignObject{will-change:x}canvas{contain:paint;}svg{cursor:pointer;pointer-events:all;transform:translate(-50%,-50%)}:host{pointer-events:none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}')
+sheet.replaceSync('foreignObject{y:calc(rem(calc(var(--index, 0)*(var(--height)/var(--frames-y))),var(--height))*-1px + 1px)}svg{cursor:pointer;pointer-events:all;left:-50%;top:-50%;position:relative}:host{pointer-events:none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}')
 let dimensions = new Map
 class SlideShow extends HTMLElement {
-    static observedAttributes = 'values href dur'.split(' ')
+    static observedAttributes = 'values href dur index'.split(' ')
     static preload(...sources) {
+        let out = []
         for (let { framesX = 1, framesY = 1, src, duras } of sources) {
             let n = new Image
             n.src = src
@@ -28,30 +29,49 @@ class SlideShow extends HTMLElement {
                 let url = new URL(src, document.baseURI).toString()
                 dimensions.set(url, [framesX, framesY, width, height])
                 sheet.insertRule(`:host([href="${url}"]){width:${width}px;height:${height}px;}`)
-                createImageBitmap(n).then(o => {
+                out.push(createImageBitmap(n).then(o => {
                     o.framesX = framesX
                     o.framesY = framesY
                     o.duras = duras.map((o, i) => `${-i * width}`.repeat(o || 1)).join(';')
                     bitmaps.set(url, o)
-                })
+                }))
             }
         }
+        return out
+    }
+    get index() {
+        return +this.getAttribute('index') || 0
+    }
+    set index(index) {
+        this.dispatchEvent(new Event('indexEvent', { bubbles: true, cancelable: true })) && this.setAttribute('index', +index || 0)
+    }
+    connectedCallback() {
+        this.time = 0
+        this.#anim.replaceWith(this.#anim = this.#anim.cloneNode(true))
+        this.time = 0
     }
     async attributeChangedCallback(attr, oldVal, val) {
         switch (attr) {
+            case 'index':
+                this.#fe.style.setProperty('--index', +val)
+                break
             case 'href': {
                 let u = new URL(val, this.baseURI).toString()
                 if (u !== val) return this.setAttribute('href', u)
+                let canvas = this.#sprite
+                let ctx = this.#ctx
                 while (!bitmaps.has(val)) await new Promise(requestAnimationFrame)
                 let bitmap = bitmaps.get(val)
-                let canvas = this.#sprite
                 let fe = this.#fe
                 fe.setAttribute('width', canvas.width = bitmap.width)
                 fe.setAttribute('height', canvas.height = bitmap.height)
-                this.#ctx.drawImage(bitmap, 0, 0)
+                ctx.imageSmoothingEnabled = false
+                ctx.drawImage(bitmap, 0, 0)
+                this.#fe.style.setProperty('--height', bitmap.height)
+                this.#fe.style.setProperty('--frames-y', bitmap.framesY)
                 this.#anim.setAttribute('values', bitmap.duras)
             }
-            break
+                break
             default:
                 this.#sprite.setAttribute(attr, val)
                 break
@@ -65,9 +85,19 @@ class SlideShow extends HTMLElement {
     #ctx
     #fe
     #svg
+    disconnectedCallback() {
+        this.pause()
+    }
+    // there is a 1px offset and idk how to fix it
+    connectedCallback() {
+        let anim = this.#anim
+        anim.removeAttribute('href')
+        // needed because for some reason when adding the node to the DOM the animation stops
+        requestAnimationFrame(() => { anim.setAttribute('href', '#fe'); this.time = 0; this.resume() })
+    }
     constructor() {
         super()
-        let shadow = this.attachShadow({ mode: 'closed' })
+        let shadow = this.attachShadow({ mode: 'open' })
         shadow.appendChild(svg.cloneNode(true))
         this.#svg = shadow.firstChild
             ; (this.#anim = shadow.querySelector('animate')).addEventListener('repeatEvent', repeat)
@@ -76,10 +106,17 @@ class SlideShow extends HTMLElement {
         shadow.adoptedStyleSheets = [sheet]
     }
     pause() {
-        this.dispatchEvent(new Event('pauseEvent', {bubbles:true, cancelable:true})) && this.#svg.pauseAnimations()
+        this.dispatchEvent(new Event('pauseEvent', { bubbles: true, cancelable: true })) && this.#svg.pauseAnimations()
+    }
+    set time(t) {
+        this.#svg.setCurrentTime(+t || 0)
+        this.dispatchEvent(new Event('seekEvent'))
+    }
+    get time() {
+        return this.#svg.getCurrentTime()
     }
     resume() {
-        this.dispatchEvent(new Event('resumeEvent', {bubbles:true, cancelable:true})) && this.#svg.unpauseAnimations()
+        this.dispatchEvent(new Event('resumeEvent', { bubbles: true, cancelable: true })) && this.#svg.unpauseAnimations()
     }
 }
 function repeat(e) {
@@ -87,7 +124,5 @@ function repeat(e) {
 }
 customElements.define('slide-show', SlideShow)
 export default SlideShow.preload
-// SlideShow.preload({ framesX: 32, framesY: 2, src: './sky/media/sprite/aerodactyl_32.png' })
-// SlideShow.preload({ framesX: 68, framesY: 2, src: './sky/media/sprite/altariamega_68.png' })
-try { await(customElements.whenDefined('slide-show')) } // fix for no top level await
+try { await (customElements.whenDefined('slide-show')) } // fix for no top level await
 catch (e) { console.debug(e) }

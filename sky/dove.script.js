@@ -1,5 +1,5 @@
 import * as v from '../v4.js'
-import preload from '../webcomponents/cel-runner.js'
+import preload from '../webcomponents/slide-show.js'
 let timeOfDay = Reflect.get.bind(1, document.documentElement.dataset, 'tod')
 let mons /*:return`= ${uneval(await Array.fromAsync((await dir('./media/sprite')).map(async o=>{
     let thing = o.split('_')
@@ -14,7 +14,7 @@ let mons /*:return`= ${uneval(await Array.fromAsync((await dir('./media/sprite')
     }
 })))}`*/
 mons.forEach(o => {
-    preload({ src: `./media/sprite/${o.file}`, x: o.framesX, y: 2 })
+    preload({ src: `./media/sprite/${o.file}`, framesX: o.framesX, framesY: 2 })
 })
 const { $ } = v
 let { bg } = v.id
@@ -120,7 +120,7 @@ function spawnPokemon() {
     }
     if (choice.name === 'landoroustherian') dura *= .7
     $`<div class="layer_${layer} mon mon_${choice.name} is_${nameNoMega}" style='--noise: ${0.95 + Math.random() * 0.1};z-index: ${layer};offset-anchor: -${(choice.width / 2)}px -${(choice.height / 2)}px;offset-path: path("${pathString}");'>
-        <cel-runner index="${+(Math.random() * 4000 > 3999)}" style="scale: ${scaleStr}" dura="${dura}ms" src="./media/sprite/${choice.file}" frames-x="${choice.framesX}" frames-y="2"></cel-runner>
+        <slide-show index="${+(Math.random() * 4000 > 3999)}" style="scale: ${scaleStr}" dur="${dura * choice.framesX}ms" href="./media/sprite/${choice.file}"></slide-show>
         </div>`
         .setParent(bg)
 }
