@@ -8,10 +8,10 @@ and also it now:
  • doesn't interfere with external transforms
  • can use offset-path correctly now!
 */
-let svg = document.createRange().createContextualFragment('<svg><animate begin="0s" href="#fe" calcMode=discrete attributeName=x repeatCount="indefinite"/><foreignObject width=100 height=100 id="fe"><canvas></canvas></foreignObject></svg>')
+let svg = document.createRange().createContextualFragment('<svg><animate begin="0s" href="#fe" calcMode=discrete attributeName=x repeatCount="indefinite"/><foreignObject x=-1 width=100 height=100 id="fe"><canvas></canvas></foreignObject></svg>')
 let bitmaps = new Map
 let sheet = new CSSStyleSheet
-sheet.replaceSync('foreignObject{y:calc(rem(calc(var(--index, 0)*(var(--height)/var(--frames-y))),var(--height))*-1px + 1px)}svg{cursor:pointer;pointer-events:all;left:-50%;top:-50%;position:relative}:host{pointer-events:none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}')
+sheet.replaceSync('foreignObject{y:calc(rem(calc(var(--index,0)*(var(--height)/var(--frames-y))),var(--height))*-1px)}svg{contain:paint layout;cursor:pointer;pointer-events:all;transform:translate(-50%,-50%);position:relative}:host{pointer-events:none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}')
 let dimensions = new Map
 class SlideShow extends HTMLElement {
     static observedAttributes = 'values href dur index'.split(' ')
@@ -28,11 +28,11 @@ class SlideShow extends HTMLElement {
                 duras ??= Array(framesX).fill(1)
                 let url = new URL(src, document.baseURI).toString()
                 dimensions.set(url, [framesX, framesY, width, height])
-                sheet.insertRule(`:host([href="${url}"]){width:${width}px;height:${height}px;}`)
+                sheet.insertRule(`:host([href="${url}"]){width:${width - 1}px;height:${height - 1}px;}`)
                 out.push(createImageBitmap(n).then(o => {
                     o.framesX = framesX
                     o.framesY = framesY
-                    o.duras = duras.map((o, i) => `${-i * width}`.repeat(o || 1)).join(';')
+                    o.duras = duras.map((o, i) => `${(-i * width) - 1}`.repeat(o || 1)).join(';')
                     bitmaps.set(url, o)
                 }))
             }
@@ -46,7 +46,6 @@ class SlideShow extends HTMLElement {
         this.dispatchEvent(new Event('indexEvent', { bubbles: true, cancelable: true })) && this.setAttribute('index', +index || 0)
     }
     connectedCallback() {
-        this.time = 0
         this.#anim.replaceWith(this.#anim = this.#anim.cloneNode(true))
         this.time = 0
     }
@@ -65,7 +64,8 @@ class SlideShow extends HTMLElement {
                 let fe = this.#fe
                 fe.setAttribute('width', canvas.width = bitmap.width)
                 fe.setAttribute('height', canvas.height = bitmap.height)
-                ctx.imageSmoothingEnabled = false
+                ctx.imageSmoothingEnabled = true
+                ctx.imageSmoothingQuality = 'high'
                 ctx.drawImage(bitmap, 0, 0)
                 this.#fe.style.setProperty('--height', bitmap.height)
                 this.#fe.style.setProperty('--frames-y', bitmap.framesY)
