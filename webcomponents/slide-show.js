@@ -1,8 +1,13 @@
-let svg = document.createRange().createContextualFragment('<svg><animate from="0" begin="0s" href="#fe" calcMode=discrete attributeName=x repeatCount="indefinite"/><foreignObject width=100 height=100 id="fe" x=0><canvas></canvas></foreignObject></svg>')
+// VERY IMPORTANT:
+// do NOT use the `zoom` or `scale` css property
+// it behaves strangley
+let svg = document.createRange().createContextualFragment('<div><svg><animate from="0" begin="0s" href="#fe" calcMode=discrete attributeName=x repeatCount="indefinite"/><foreignObject width=100 height=100 id="fe" x=0><canvas></canvas></foreignObject></svg></div>')
 let bitmaps = new Map
 let sheet = new CSSStyleSheet
+let isSafari = 'onwebkitmouseforceup'in window
+console.log(isSafari)
 /*:host(:state(broken)){width:30px;height:30px;background-color:red;transform:translate(-50%,-50%)}*/
-sheet.replaceSync('foreignObject{y:calc((rem(calc(var(--index,0)*var(--frame-h,0)),var(--height,0))*-1px) - 1px)}svg{contain:paint layout;cursor:pointer;pointer-events:all;transform:translate(-50%,-50%);position:relative}:host{pointer-events:none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}')
+sheet.replaceSync('div{overflow:hidden;transform:translate(-50%,-50%);}foreignObject{y:calc((rem(calc(var(--index,0)*var(--frame-h,0)),var(--height,0))*-1px) - 1px)}svg{contain:paint layout;cursor:pointer;pointer-events:all;position:relative}:host{pointer-events:none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}')
 let dimensions = new Map
 class SlideShow extends HTMLElement {
     static observedAttributes = 'values src dur index'.split(' ')
@@ -23,7 +28,9 @@ class SlideShow extends HTMLElement {
                     duras ??= Array(framesX | 0).fill(1)
                     let url = new URL(src, document.baseURI).toString()
                     dimensions.set(url, [framesX, framesY, width, height])
-                    sheet.insertRule(`:host:has(canvas[src="${url}"]){width:${width}px;height:${height}px}`)
+                    sheet.insertRule(`:host([src="${url}"]){width:${width}px;height:${height}px}`, 1)
+                    console.log(width,height)
+                    isSafari && sheet.insertRule(`:host([src="${url}"]) div{width:${width}px;height:${height}px}`, 1)
                     let padded = document.createElement('canvas')
                     padded.width = framesX * paddedWidth
                     padded.height = framesY * paddedHeight
@@ -67,6 +74,7 @@ class SlideShow extends HTMLElement {
                 break
             case 'src': {
                 let u = new URL(val, this.baseURI).toString()
+                if (u !== val) return this.setAttribute('src', u)
                 let canvas = this.#sprite
                 canvas.setAttribute('src', u)
                 let ctx = this.#ctx
@@ -80,8 +88,10 @@ class SlideShow extends HTMLElement {
                 this.#internals.states.delete('broken')
                 let { bitmap, framesX, framesY, paddedHeight, paddedWidth, duras } = bitmaps.get(u)
                 let fe = this.#fe
-                fe.setAttribute('width', canvas.width = framesX * paddedWidth)
-                fe.setAttribute('height', canvas.height = framesY * paddedHeight)
+                let width = canvas.width = framesX * paddedWidth
+                let height = canvas.height = framesY * paddedHeight
+                fe.setAttribute('width', width)
+                fe.setAttribute('height', height)
                 ctx.imageSmoothingEnabled = false
                 ctx.drawImage(bitmap, 0, 0)
                 fe.style.setProperty('--height', framesY * paddedHeight)
@@ -102,6 +112,7 @@ class SlideShow extends HTMLElement {
     #ctx
     #fe
     #svg
+    #container
     disconnectedCallback() {
         this.pause()
     }
@@ -123,12 +134,13 @@ class SlideShow extends HTMLElement {
         this.#internals.states.add('broken')
         let shadow = this.attachShadow({ mode: 'open' })
         shadow.appendChild(svg.cloneNode(true))
-        this.#svg = shadow.firstChild
+        this.#svg = shadow.querySelector('svg')
         this.#anim = shadow.querySelector('animate')
         this.#anim.addEventListener('repeatEvent', repeat)
         this.#ctx = (this.#sprite = shadow.querySelector('canvas')).getContext('2d')
         this.#fe = shadow.querySelector('foreignObject')
         shadow.adoptedStyleSheets = [sheet]
+        this.#container = shadow.firstChild
     }
     pause() {
         this.dispatchEvent(new Event('pauseEvent', { bubbles: true, cancelable: true })) && this.#svg.pauseAnimations()
