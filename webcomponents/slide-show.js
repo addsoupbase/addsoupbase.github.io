@@ -135,7 +135,7 @@ class SlideShow extends HTMLElement {
         // needed bc it's broken
         let anim = this.#anim
         anim.removeAttribute('href')
-        requestAnimationFrame(() => { anim.setAttribute('href', '#fe'); this.time = 0; this.resume() })
+        requestAnimationFrame(() => { this.time = 0; anim.setAttribute('href', '#fe'); this.resume() })
     }
 
     constructor() {

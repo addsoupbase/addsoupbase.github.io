@@ -120,7 +120,7 @@ function spawnPokemon() {
     }
     if (choice.name === 'landoroustherian') dura *= .7
     $`<div class="layer_${layer} mon mon_${choice.name} is_${nameNoMega}" style='--noise: ${0.95 + Math.random() * 0.1};z-index: ${layer};offset-anchor: -${(choice.width / 2)}px -${(choice.height / 2)}px;offset-path: path("${pathString}");'>
-        <slide-show index="${+(Math.random() * 4000 > 3999)}" style="scale: ${scaleStr}" dur=".018" src="./media/sprite/${choice.file}"></slide-show>
+        <slide-show index="${+(Math.random() * 4000 > 3999)}" style="scale: ${scaleStr}" dur="${nameNoMega === 'lugia' ? .08 : .018}" src="./media/sprite/${choice.file}"></slide-show>
         </div>`
         .setParent(bg)
 }
