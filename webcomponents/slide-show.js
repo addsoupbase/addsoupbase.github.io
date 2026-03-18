@@ -5,7 +5,6 @@ let svg = document.createRange().createContextualFragment('<div><svg><animate fr
 let bitmaps = new Map
 let sheet = new CSSStyleSheet
 let isSafari = 'onwebkitmouseforceup' in window
-console.log(isSafari)
 /*:host(:state(broken)){width:30px;height:30px;background-color:red;transform:translate(-50%,-50%)}*/
 sheet.replaceSync('div{overflow:hidden;transform:translate(-50%,-50%);}foreignObject{y:calc((rem(calc(var(--index,0)*var(--frame-h,0)),var(--height,0))*-1px) - 1px)}svg{contain:paint layout;cursor:pointer;pointer-events:all;position:relative}:host{pointer-events:none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}')
 let dimensions = new Map
@@ -28,7 +27,6 @@ class SlideShow extends HTMLElement {
                     let url = new URL(src, document.baseURI).toString()
                     dimensions.set(url, [framesX, framesY, width, height])
                     sheet.insertRule(`:host([src="${url}"]){width:${width}px;height:${height}px}`, 1)
-                    console.log(width, height)
                     isSafari && sheet.insertRule(`:host([src="${url}"]) div{width:${width}px;height:${height}px}`, 1)
                     let padded = document.createElement('canvas')
                     padded.width = framesX * paddedWidth
@@ -178,5 +176,5 @@ function repeat(e) {
 function add(a, b) { return a + b }
 customElements.define('slide-show', SlideShow)
 export default SlideShow.preload
-try { await customElements.whenDefined('slide-show') }
-catch (e) { console.debug(e) }
+try { await(customElements.whenDefined('slide-show')) }
+catch (e) { if (e.name !== 'ReferenceError')throw e }
