@@ -1,136 +1,183 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
-        html {
-            font-family: monospace;
-        }
-        figure {
-            padding-block: 10px;
-            height: fit-content
-        }
-
-        @keyframes slideshow {
-            0% {
-                background-position-x: 0%;
-            }
-
-            100% {
-                background-position-x: calc(var(--width) * -1 * var(--frames))
-            }
-        }
-
-        a {
-            display: block;
-            width: 100px;
-        }
-
-        .slideshow {
-            background-repeat: no-repeat;
-            width: calc(var(--width));
-            animation: slideshow 1200ms steps(var(--frames), end) infinite;
-        }
-
-        figure {
-            border: 1px solid black;
-            text-align: center;
-            place-items: center;
-            image-rendering: pixelated;
-            place-self: anchor-center;
-        }
-        figcaption {
-            font-size: large;
-        }
+        html { font-family: monospace; }
+        figure { padding-block: 10px; height: fit-content; }
+        a { display: block; width: 100px; }
+        figure { border: 1px solid black; text-align: center; place-items: center; image-rendering: pixelated; place-self: anchor-center; }
+        figcaption { width: 100px; font-size: large; cursor: pointer; margin-block: 8px; }
+        slide-show { position: relative; left: 25%; transform: scale(1.5); }
+        label {width: 100%;display: flex;place-self: flex-start;cursor: pointer;}
     </style>
+    <script blocking="render" src="./css.js"></script>
 </head>
-
 <body>
-    <input type="file" id="u" webkitdirectory>
-    <div id="holder" style="display: flex;flex-wrap: wrap;"></div>
+    <input type="file" id="u" webkitdirectory multiple>
+    <div id="holder" style="display: flex; flex-wrap: wrap;"></div>
     <script type="module">
         import * as v from './v4.js'
+        import JSZip from 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm'
+        import preload from './webcomponents/slide-show.js'
+
         let $ = v.esc
         let { u, holder } = v.id
+        let blobs = new Map
         u.on({
             async change(e) {
-                let name = this.files[0].webkitRelativePath.split('/')[0]
-                let xml = new DOMParser().parseFromString(await [].find.call(this.files, o => o.name === 'AnimData.xml').text(), 'application/xml')
-                for (let o of this.files) if (!/-(?:Offsets|Shadow)\.png$/.test(o.name) && o.name !== "AnimData.xml")
-                    handleSpriteSheet(o, xml, name)
+                let files = Array.from(this.files)
+                let rootName = files[0].webkitRelativePath.split('/')[0]
+                let xmlFile = files.find(f => f.name === 'AnimData.xml')
+                if (!xmlFile) return
+                let xmlText = await xmlFile.text()
+                let xml = new DOMParser().parseFromString(xmlText, 'application/xml')
+                let normalMap = new Map
+                let shinyMap = new Map
+                for (let f of files) {
+                    if (f.name === 'AnimData.xml' || /-(?:Offsets|Shadow)\.png$/.test(f.name)) continue
+                    let path = f.webkitRelativePath
+                    let isShiny = path.includes('/shiny/')
+                    let key = f.name
+                    if (isShiny) shinyMap.set(key, f)
+                    else normalMap.set(key, f)
+                }
+                for (let [key, normalFile] of normalMap) {
+                    let shinyFile = shinyMap.get(key)
+                    await processPokemon(normalFile, shinyFile, xml, rootName)
+                }
+                let btn = $`<button style="margin-block:20px" (_click)="${async e => {
+                    let checked = [...holder.querySelectorAll('input:checked')]
+                    if (!checked.length) return
+
+                    let anims = {}
+                    let zip = JSZip()
+                    let pokemon = checked[0].closest('figure').dataset.pkmname
+
+                    for (let inp of checked) {
+                        let { dir, axis } = inp.dataset
+                        let fig = inp.closest('figure')
+                        let ds = fig.dataset
+                        let a = anims[axis] ??= Object.assign([], {
+                            duras: ds.duras,
+                            name: ds.anim,
+                            width: +ds.framewidth * +ds.framesx,
+                            frameWidth: +ds.framewidth,
+                            frameHeight: +ds.frameheight,
+                            framesX: +ds.framesx
+                        })
+                        a.push(dir)
+                    }
+
+                    for (let anim in anims) {
+                        let dirs = anims[anim]
+                        let fig = holder.querySelector(`figure[data-anim="${anim}"]`)
+                        let hasShiny = fig?.dataset.shiny === 'true'
+                        let totalRows = dirs.length * (hasShiny ? 2 : 1)
+                        let canvas = new OffscreenCanvas(dirs.width, dirs.frameHeight * totalRows)
+                        let ctx = canvas.getContext('2d')
+                        ctx.imageSmoothingEnabled = false
+                        await Promise.all(dirs.map(async (dir, i) => {
+                            let key = `${anim}-${dir}`
+                            let blob = blobs.get(key)
+                            if (!blob) return
+                            let img = await createImageBitmap(blob)
+                            ctx.drawImage(img, 0, i * (hasShiny ? 2 : 1) * dirs.frameHeight)
+                        }))
+                        zip.file(`${rootName}-${anim}.png`, await canvas.convertToBlob())
+                    }
+                    let json = {}
+                    for (let anim in anims) {
+                        let dirs = anims[anim]
+                        let fig = holder.querySelector(`figure[data-anim="${anim}"]`)
+                        let hasShiny = fig?.dataset.shiny === 'true'
+                        json[anim] = {
+                            framesY: dirs.length * (hasShiny ? 2 : 1),
+                            values: dirs.duras.split(';').map(Number).join(';'),
+                            frameWidth: dirs.frameWidth,
+                            frameHeight: dirs.frameHeight
+                        }
+                    }
+                    zip.file(`${pokemon}.json`, JSON.stringify(json))
+                    let blob = await zip.generateAsync({ type: 'blob' })
+                    let url = URL.createObjectURL(blob)
+                    let a = $(`<a href="${url}" download="${pokemon}.zip"></a>`).setParent(document.body)
+                    a.click()
+                    a.remove()
+                    URL.revokeObjectURL(url)
+                }}">Download</button>`
+                this.parentNode.insertBefore(btn.valueOf(), holder.valueOf())
             }
         })
-        async function handleSpriteSheet(sprite, doc, title) {
-            let name = sprite.name.replace('-Anim.png', '')
-            let xpath = doc.evaluate(`//Name[text()="${name}"]/..`, doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)
+        async function processPokemon(normalFile, shinyFile, xml, rootName) {
+            let name = normalFile.name.replace('-Anim.png', '')
+            let xpath = xml.evaluate(`//Name[text()="${name}"]/..`, xml, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)
             let res = xpath.singleNodeValue
-            let url = URL.createObjectURL(sprite)
-            let durations = [...res.querySelectorAll('Duration')]
-            let frames = durations.length
-            let height = +res.querySelector('FrameHeight').textContent
-            let width = +res.querySelector('FrameWidth').textContent
-            let m = $`<figure><div style="height: ${height}px;--frames: ${frames};background-image: url(${url}); --width: ${width}px;"class="slideshow"></div><figcaption>${name}</figcaption></figure>`
-            holder.pushNode(m)
-            let n = $`<img src="${url}">`
-            await n.until('load')
-            generateCanvas(frames, m, n, doc, durations, height, width, title, name, n.height / height)
-        }
-        async function generateCanvas(frames, holder, img, doc, durations, height, width, title, name, vertical) {
-            let totalFrames = durations.reduce((a, b) => +a + +b.textContent, 0)
-            let w = width * totalFrames
-            let h = height * vertical
-            let all = new OffscreenCanvas(w, h)
-            let allCtx = all.getContext('2d')
-            for (let y = 0; y < vertical; ++y) {
-                let n = document.createElement('canvas')
-                n.width = w
-                n.height = height
-                let ctx = n.getContext('2d')
-                let bitmaps = []
-                for (let i = 0; i < frames; ++i) {
-                    let b = await createImageBitmap(img.valueOf(), i * width, y * height, width, height)
-                    let timing = +durations[i].textContent
-                    while (timing--) bitmaps.push(b)
-                }
-                for (let i = 0; i < totalFrames; ++i) {
-                    let x = i * width
-                    ctx.drawImage(bitmaps[i], x, 0)
-                }
-                allCtx.drawImage(n, 0, y * height)
-                switch (y) {
-                    case 0: var dir = 'Down'
-                        break
-                    case 1: dir = 'Down Right'
-                        break
-                    case 2: dir = 'Right'
-                        break
-                    case 3: dir = 'Up Right'
-                        break
-                    case 4: dir = 'Up'
-                        break
-                    case 5: dir = 'Up Left'
-                        break
-                    case 6: dir = 'Left'
-                        break
-                    case 7: dir = 'Down Left'
-                        break
-                }
-                let isShiny = title.includes('.shiny') ? '.shiny' : ''
-                title = title.replace('.shiny', '')
-                holder.pushNode($`<a download="${title}${name === 'Walk' ? '' : '_' + name.toLowerCase()}${isShiny}-${totalFrames}.png" href="${URL.createObjectURL(await new Promise(r => n.toBlob(r, 'image/png', 1)))}">${dir}</a>`)
-                /*holder.pushNode($`<button (click)="${function () {
-                    let dataURL = n.toDataURL('image/png', 1)
-                    console.log(dataURL)
-                    navigator.clipboard.writeText(`'${title}_${name.toLowerCase()}:${totalWidth}':'${dataURL.slice(22)}',`).catch(alert)
-                }}">${dir}</button>`)*/
-                bitmaps.forEach(o => o.close())
+            if (!res) return
+
+            let durations = [...res.querySelectorAll('Duration')].map(d => +d.textContent)
+            let framesX = durations.length
+            let frameHeight = +res.querySelector('FrameHeight').textContent
+            let frameWidth = +res.querySelector('FrameWidth').textContent
+
+            let normalUrl = URL.createObjectURL(normalFile)
+            let normalImg = await loadImage(normalUrl)
+            let normalWidth = normalImg.naturalWidth
+            let normalHeight = normalImg.naturalHeight
+            let framesY = normalHeight / frameHeight
+            let shinyImg = null
+            if (shinyFile) {
+                let shinyUrl = URL.createObjectURL(shinyFile)
+                shinyImg = await loadImage(shinyUrl)
             }
-            holder.unshiftNode($`<a download="${title}_${name.toLowerCase()}-${totalFrames}x${vertical}" href="${URL.createObjectURL(await all.convertToBlob())}">All</a>`)
+            scheduler.postTask(()=>preload({ src: normalUrl, framesX, framesY, duras: durations }), {priority:'user-visible'})
+            let sect = $(`<figure data-pkmname="${rootName}" data-anim="${name}" data-duras="${durations.join(';')}" data-framewidth="${frameWidth}" data-width="${normalWidth}" data-height="${normalHeight}" data-frameheight="${frameHeight}" data-framesx="${framesX}" data-framesy="${framesY}"` +
+                (shinyFile ? ` data-shiny="true"` : '') +
+                `><slide-show src="${normalUrl}"></slide-show><figcaption (click)="${click}">${name.split(/(?=[A-Z])/).join(' ')}</figcaption></figure>`).setParent(holder)
+            for (let d = 0; d < framesY; d++) {
+                let axisName = getAxisName(d)
+                let canvasHeight = frameHeight * (shinyFile ? 2 : 1)
+                let canvas = new OffscreenCanvas(frameWidth * framesX, canvasHeight)
+                let ctx = canvas.getContext('2d')
+                ctx.imageSmoothingEnabled = false
+                ctx.drawImage(normalImg, 0, d * frameHeight, frameWidth * framesX, frameHeight, 0, 0, frameWidth * framesX, frameHeight)
+                if (shinyFile) 
+                    ctx.drawImage(shinyImg, 0, d * frameHeight, frameWidth * framesX, frameHeight, 0, frameHeight, frameWidth * framesX, frameHeight)
+
+                let blob = await canvas.convertToBlob()
+                blobs.set(`${name}-${axisName}`, blob)
+                sect.pushNode($(`<label><input type="checkbox" data-dir="${axisName}" data-axis="${name}">${axisName}</label>`))
+            }
+        }
+
+        function loadImage(url) {
+            return new Promise((resolve, reject) => {
+                let img = new Image
+                img.onload = () => resolve(img)
+                img.onerror = reject
+                img.src = url
+            })
+        }
+
+        function click() {
+            this.parent.querySelectorAll('input').forEach(o => o.checked = true)
+        }
+
+        function getAxisName(y) {
+            switch (y) {
+                case 0: return 'Down'
+                case 1: return 'Down Right'
+                case 2: return 'Right'
+                case 3: return 'Up Right'
+                case 4: return 'Up'
+                case 5: return 'Up Left'
+                case 6: return 'Left'
+                case 7: return 'Down Left'
+                default: return ''
+            }
         }
     </script>
 </body>
-
 </html>

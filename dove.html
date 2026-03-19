@@ -436,9 +436,11 @@
             blob.style.setProperty('--blob-light', color)
         }
         function log(path, type = 'info', message) {
+            scheduler.postTask(() => {
+                output.firstNode = $`<li role="log" class="${type}" data-path="${path.join('/')}"><samp>${message}</samp></li>`
+                output.childElementCount > 30 && output.lastElementChild.remove()
+            }, { priority: 'user-visible' })
             // document.getElementById(path)?.remove()
-            output.firstNode = $`<li role="log" class="${type}" data-path="${path.join('/')}"><samp>${message}</samp></li>`
-            output.childElementCount > 30 && output.lastElementChild.remove()
         }
         let jsComment = /\/\*:(?<code>.*?)\*\//gs
         let jsDefineComment = /\/\*::(.*?)\*\//s
@@ -839,8 +841,30 @@
             async file(src) {
                 let { localPath } = this
                 let me = localPath.pathname
+                let out = await getFileText(src, localPath)
                 addToDynamicFiles(resolve(src, me), me.substring(1))
-                return await getFileText(src, localPath)
+                return out
+            }
+            async exists(src) {
+                try {
+                    await getSpecificFileHandle(src, this.localPath)
+                    return true
+                }
+                catch (e) {
+                    if (e.name === 'PathNotFoundError') return false
+                    throw e
+                }
+            }
+            async write(src, data, create) {
+                let { localPath } = this
+                let me = localPath.pathname
+                // let target = resolve(src, me)
+                let handle = await getSpecificFileHandle(src, localPath, create)
+                await using str = await handle.createWritable({ mode: 'exclusive' })
+                await str.write(data)
+                let segments = resolve(src, me)
+                log(segments, 'info', `Wrote to ${segments.join('/')}`)
+                return ''
             }
             async metadata(src) {
                 let { localPath } = this
@@ -882,7 +906,7 @@
             }
             static {
                 let proto = this.prototype;
-                [imageSet, range,uneval, TemplateProcessingError, PathNotFoundError,
+                [imageSet, range, uneval, TemplateProcessingError, PathNotFoundError,
                     concat,
                 ].forEach(o => Object.defineProperty(proto, o.name, {
                     value: o
@@ -1019,7 +1043,7 @@
                 this.#height = data[1]
             }
         }
-        async function getSpecificFileHandle(src, localPathURL = baseURL) {
+        async function getSpecificFileHandle(src, localPathURL = baseURL, create = false) {
             let url = new URL(src, localPathURL.toString())
             let path = url.pathname.substring(1)
             // try {
@@ -1029,10 +1053,16 @@
             }
             let route = getSegments(src, localPathURL)
             let fileName = route.pop()
-            let folder = await getFolderFromPath(route)
-            let out = await folder.getFileHandle(fileName)
-            fileCache.set(path, out)
-            return out
+            try {
+                let folder = await getFolderFromPath(route)
+                let out = await folder.getFileHandle(fileName, { create })
+                fileCache.set(path, out)
+                return out
+            }
+            catch (e) {
+                if (e.name === 'NotFoundError') throw new PathNotFoundError(`Path not found: ${path}`)
+                else throw e
+            }
             /* }
              finally {
                  console.timeEnd(path)
@@ -1042,8 +1072,9 @@
         async function getSpecificFile(src, localPathURL = baseURL) {
             let thing = getSegments(src, localPathURL)
             let key = localPathURL.pathname.substring(1)
+            let out = await (await getSpecificFileHandle(src, localPathURL)).getFile()
             dynamicFiles.getOrInsert(thing.join('/'), new Set).add(key)
-            return await (await getSpecificFileHandle(src, localPathURL)).getFile()
+            return out
         }
         async function getFileText(src, localPathURL = baseURL) {
             return await (await getSpecificFile(src, localPathURL)).text()
