@@ -26,15 +26,13 @@ class SlideShow extends HTMLElement {
                     dimensions.set(url, [framesX, framesY, width, height])
                     sheet.insertRule(`:host([src="${url}"]){width:${width}px;height:${height}px}`, 1)
                     isSafari && sheet.insertRule(`:host([src="${url}"]) div{width:${width}px;height:${height}px}`, 1)
-                    let padded = document.createElement('canvas')
-                    padded.width = framesX * width
-                    padded.height = framesY * height
-                    let ctx = padded.getContext('2d')
+                    let canvas = document.createElement('canvas')
+                    canvas.width = framesX * width
+                    canvas.height = framesY * height
+                    let ctx = canvas.getContext('2d')
                     ctx.imageSmoothingEnabled = false
-                    for (let row = 0; row < framesY; row++)
-                        for (let col = 0; col < framesX; col++)
-                            ctx.drawImage(n, col * width, row * height, width, height, col * width, row * height, width, height)
-                    createImageBitmap(padded).then(o => {
+                    ctx.drawImage(n, 0, 0)
+                    createImageBitmap(canvas).then(o => {
                         let repeats = duras && duras.length === framesX ? duras : Array(framesX).fill(1)
                         let vals = []
                         for (let i = 0; i < framesX; i++) {
@@ -95,7 +93,6 @@ class SlideShow extends HTMLElement {
                         ctx.clearRect(0, 0, canvas.width, canvas.height)
                         b = true
                         console.warn(`Sprite not loaded: ${u}`)
-                        debugger
                     }
                     await new Promise(requestAnimationFrame)
                 }
