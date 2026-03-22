@@ -5,8 +5,8 @@ let svg = document.createRange().createContextualFragment('<div part="sprite"><s
 let bitmaps = new Map
 let sheet = new CSSStyleSheet
 let isSafari = 'onwebkitmouseforceup' in window
-/*:host(:state(broken)){width:30px;height:30px;background-color:red;transform:translate(-50%,-50%)}*/
-sheet.replaceSync(':host(:state(broken))::after{transform:translate(-50%, -50%);position:absolute;left:-15px;top:-15px;image-rendering:pixelated;content:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAJ9JREFUeNq01ssOwyAMRFG46v//Mt1ESmgh+DFmE2GPOBARKb2NVjo+17PXLD8a1+pl5+A+wSgFygymWYHBb0FtsKhJDdZlncG2IzJ4ayoMDv20wTmSMzClEgbWYNTAkQ0Z+OJ+A/eWnAaR9+oxCF4Os0H8htsMUp+pwcgBBiMNnAwF8GqIgL2hAzaGFFgZauDPKABmowZ4GL369/0rwACp2yA/ttmvsQAAAABJRU5ErkJggg==);width:30px;height:30px}div{pointer-events:all;overflow:hidden;transform:translate(-50%,-50%);}foreignObject{y:calc((rem(calc(var(--index,0)*var(--frame-h,0)),var(--height,0))*-1px))}svg{contain:paint layout;position:relative}:host{user-select:none;-webkit-user-select:none;-moz-user-select:none;touch-action:pinch-zoom;pointer-events: none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}')
+let after = 'transform:translate(-50%, -50%);position:absolute;left:-15px;top:-15px;image-rendering:pixelated;content:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAJ9JREFUeNq01ssOwyAMRFG46v//Mt1ESmgh+DFmE2GPOBARKb2NVjo+17PXLD8a1+pl5+A+wSgFygymWYHBb0FtsKhJDdZlncG2IzJ4ayoMDv20wTmSMzClEgbWYNTAkQ0Z+OJ+A/eWnAaR9+oxCF4Os0H8htsMUp+pwcgBBiMNnAwF8GqIgL2hAzaGFFgZauDPKABmowZ4GL369/0rwACp2yA/ttmvsQAAAABJRU5ErkJggg==);width:30px;height:30px'
+sheet.replaceSync(`:host(:--broken)::after{${after}}:host(:state(--broken))::after{${after}}div{pointer-events:all;overflow:hidden;transform:translate(-50%,-50%);}foreignObject{y:calc((rem(calc(var(--index,0)*var(--frame-h,0)),var(--height,0))*-1px))}svg{contain:paint layout;position:relative}:host{user-select:none;-webkit-user-select:none;-moz-user-select:none;touch-action:pinch-zoom;pointer-events: none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}`)
 let dimensions = new Map
 class SlideShow extends HTMLElement {
     static observedAttributes = 'values src dur index repeat'.split(' ')
@@ -89,14 +89,14 @@ class SlideShow extends HTMLElement {
                 let b = false
                 while (!bitmaps.has(u)) {
                     if (!b) {
-                        this.#internals?.states.add('broken')
+                        this.#internals?.states.add('--broken')
                         ctx.clearRect(0, 0, canvas.width, canvas.height)
                         b = true
                         console.warn(`Sprite not loaded: ${u}`)
                     }
                     await new Promise(requestAnimationFrame)
                 }
-                this.#internals?.states.delete('broken')
+                this.#internals?.states.delete('--broken')
                 let { bitmap, framesX, framesY, paddedHeight, paddedWidth, values, displayedFrames } = bitmaps.get(u)
                 this.#displayedFrames = displayedFrames
                 let fe = this.#fe
@@ -136,6 +136,7 @@ class SlideShow extends HTMLElement {
         this.pause()
     }
     connectedCallback() {
+        this.hasAttribute('role') || (this.role = 'img')
         this.hasAttribute('autoplay') && this.play()
     }
     play() {
@@ -146,7 +147,7 @@ class SlideShow extends HTMLElement {
     }
     constructor() {
         super()
-        this.#internals?.states.add('broken')
+        this.#internals?.states.add('--broken')
         let shadow = this.attachShadow({ mode: 'open' })
         shadow.appendChild(svg.cloneNode(true))
         this.#svg = shadow.querySelector('svg')
