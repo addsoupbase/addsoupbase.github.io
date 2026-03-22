@@ -112,5 +112,6 @@ function spawnPokemon() {
         <slide-show index="${+(Math.random() * 4000 > 3999)}" style="scale: ${scaleStr}" dur="${nameNoMega === 'lugia' ? .08 : .018}" src="./media/sprite/${choice.file}"></slide-show>
         </div>`
         .setParent(bg)
+        .at().play()
 }
 spawnPokemon()

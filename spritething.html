@@ -133,9 +133,7 @@
                 shinyImg = await loadImage(shinyUrl)
             }
             scheduler.postTask(()=>preload({ src: normalUrl, framesX, framesY, duras: durations }), {priority:'user-visible'})
-            let sect = $(`<figure data-pkmname="${rootName}" data-anim="${name}" data-duras="${durations.join(';')}" data-framewidth="${frameWidth}" data-width="${normalWidth}" data-height="${normalHeight}" data-frameheight="${frameHeight}" data-framesx="${framesX}" data-framesy="${framesY}"` +
-                (shinyFile ? ` data-shiny="true"` : '') +
-                `><slide-show src="${normalUrl}"></slide-show><figcaption (click)="${click}">${name.split(/(?=[A-Z])/).join(' ')}</figcaption></figure>`).setParent(holder)
+            let sect = $`<figure data-pkmname="${rootName}" data-anim="${name}" data-duras="${durations.join(';')}" data-framewidth="${frameWidth}" data-width="${normalWidth}" data-height="${normalHeight}" data-frameheight="${frameHeight}" ${shinyFile ? ` data-shiny="true"` : ''} data-framesx="${framesX}" data-framesy="${framesY}"><slide-show src="${normalUrl}"></slide-show><figcaption (click)="${click}">${name.split(/(?=[A-Z])/).join(' ')}</figcaption></figure>`.setParent(holder)
             for (let d = 0; d < framesY; d++) {
                 let axisName = getAxisName(d)
                 let canvasHeight = frameHeight * (shinyFile ? 2 : 1)

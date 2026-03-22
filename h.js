@@ -98,7 +98,7 @@
     // var vendors = /^(?:webkit|ms|moz)(?!$)/
     function verifyEventName(target, name) {
         var original = name
-        name = name.toLowerCase()
+        // name = name.toLowerCase()
         var valid = (name.includes(':') || customEvents.has(name) || 'on' + name in target ||
             ((original === 'DOMContentLoaded' && target.nodeType === 9)
                 || (isAnimation(original) && 'onremove' in target)
