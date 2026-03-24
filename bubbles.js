@@ -1,4 +1,3 @@
-
 import './sound.js'
 import preload from '../webcomponents/cel-runner.js'
 import * as v from './v4.js'
@@ -161,12 +160,12 @@ const avatar = (name, size = 60) => {
     const scale = size / 200
     let out = v.esc`<span data-popped="false" class="holder" name="ava" aria-hidden="true" style="--size: ${size}px;transform-origin:center center;z-index:0;top: ${range(0, innerHeight)}px;">
         <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">
-        <circle cursor="pointer" pointer-events="painted" r="${95 * scale}" cx="${100 * scale}" cy="${100 * scale}" fill="rgba(15, 20, 210, 0.4)" stroke="#1043E5" stroke-width="${10 * scale}">
+        <circle cursor="url('media/Link%20Select.cur'), pointer" pointer-events="painted" r="${95 * scale}" cx="${100 * scale}" cy="${100 * scale}" fill="rgba(15, 20, 210, 0.4)" stroke="#1043E5" stroke-width="${10 * scale}">
         </circle>
-        <foreignObject x="${30 * scale}" y="${30 * scale}" width="${140 * scale}" pointer-events="painted"  height="${140 * scale}" cursor="pointer">
+        <foreignObject cursor="url('media/Link%20Select.cur'), pointer" x="${30 * scale}" y="${30 * scale}" width="${140 * scale}" pointer-events="painted"  height="${140 * scale}">
         <div class="avatar user-${name}" title="${name}"></div>    
         </foreignObject>
-        <path cursor="pointer" d="M ${180 * scale} ${100 * scale} A ${80 * scale} ${80 * scale} 0 0 0 ${100 * scale} ${20 * scale}" fill="none" stroke="white" stroke-width="${9 * scale}" pointer-events="painted">
+        <path cursor="url('media/Link%20Select.cur'), pointer" d="M ${180 * scale} ${100 * scale} A ${80 * scale} ${80 * scale} 0 0 0 ${100 * scale} ${20 * scale}" fill="none" stroke="white" stroke-width="${9 * scale}" pointer-events="painted">
         </path>
     </svg></span>`
     out.animFrom('yAxis', { duration: range(3000, 3500), easing: 'ease-in-out', direction: 'alternate' })
