@@ -1133,6 +1133,10 @@
     WritableStream.prototype[Symbol.asyncDispose] = function () {
         return Promise.allSettled([this.close()])
     }
+    Map.prototype.getOrInsert ??= function (key, defaultValue) {
+        if (!this.has(key)) return this.set(key, typeof defaultValue === 'function' ? defaultValue() : defaultValue), defaultValue
+        return this.get(key)
+    }
 </script>
 
 </html>
