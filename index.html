@@ -346,6 +346,7 @@
             border-radius: 100%;
             width: 100%;
             height: 100%;
+            cursor: url('media/Link\ Select.cur'), pointer
         }
 
         .popped {
@@ -487,11 +488,11 @@
             background-image:
                 image-set(url(./media/flowers.webp) type("image/webp"), url(./media/flowers.gif) type("image/gif")),
                 image-set(url(./media/topdecor.webp) type("image/webp"), url(./media/topdecor.gif) type("image/gif")),
-                image-set(url(./media/roses.avif) type("image/avif"), url(./media/roses.webp) type("image/webp"), url(./media/roses.gif) type("image/gif"));
+                image-set(url(./media/roses.webp) type("image/webp"), url(./media/roses.gif) type("image/gif"));
             background-image:
                 -webkit-image-set(url(./media/flowers.webp) type("image/webp"), url(./media/flowers.gif) type("image/gif")),
                 -webkit-image-set(url(./media/topdecor.webp) type("image/webp"), url(./media/topdecor.gif) type("image/gif")),
-                -webkit-image-set(url(./media/roses.avif) type("image/avif"), url(./media/roses.webp) type("image/webp"), url(./media/roses.gif) type("image/gif"));
+                -webkit-image-set(url(./media/roses.webp) type("image/webp"), url(./media/roses.gif) type("image/gif"));
             background-repeat: no-repeat, no-repeat, no-repeat;
             background-size: contain, 130px, 13%;
             background-position-y: bottom, top;
@@ -780,6 +781,38 @@
         hr {
             display: none;
             border: 1px solid #ff1fff
+        }
+
+        body {
+            cursor: url(media/Default.cur), default
+        }
+
+        :active-view-transition {
+            cursor: url(media/Default.cur), default
+        }
+
+        h1,
+        p,
+        cite,
+        h2,
+        li,
+        time,
+        span,
+        strong,
+        output,
+        figcaption,
+        input:not([type="button"], [type="submit"], [type="reset"]) {
+            cursor: url("media/Text\ Select.cur"), text
+        }
+
+        button,
+        input:where([type="button"], [type="image"], [type="color"], [type="range"]),
+        [role="button"] a {
+            cursor: url("media/Link\ Select.cur"), pointer !important
+        }
+
+        paper-canvas {
+            cursor: url("media/Handwriting.cur"), crosshair
         }
     </style>
     <link rel="modulepreload" href="./bubbles.js">

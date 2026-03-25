@@ -7,7 +7,6 @@ let sheet = new CSSStyleSheet
 let isSafari = 'onwebkitmouseforceup' in window
 let after = 'transform:translate(-50%, -50%);position:absolute;left:-15px;top:-15px;image-rendering:pixelated;content:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAJ9JREFUeNq01ssOwyAMRFG46v//Mt1ESmgh+DFmE2GPOBARKb2NVjo+17PXLD8a1+pl5+A+wSgFygymWYHBb0FtsKhJDdZlncG2IzJ4ayoMDv20wTmSMzClEgbWYNTAkQ0Z+OJ+A/eWnAaR9+oxCF4Os0H8htsMUp+pwcgBBiMNnAwF8GqIgL2hAzaGFFgZauDPKABmowZ4GL369/0rwACp2yA/ttmvsQAAAABJRU5ErkJggg==);width:30px;height:30px'
 sheet.replaceSync(`:host(:--broken)::after{${after}}:host(:state(--broken))::after{${after}}div{pointer-events:all;overflow:hidden;transform:translate(-50%,-50%);}foreignObject{y:calc((rem(calc(var(--index,0)*var(--frame-h,0)),var(--height,0))*-1px))}svg{contain:paint layout;position:relative}:host{user-select:none;-webkit-user-select:none;-moz-user-select:none;touch-action:pinch-zoom;pointer-events: none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}`)
-let dimensions = new Map
 class SlideShow extends HTMLElement {
     static observedAttributes = 'values src dur index repeat'.split(' ')
     static preload(...sources) {
@@ -23,7 +22,6 @@ class SlideShow extends HTMLElement {
                     let width = n.naturalWidth / framesX
                     let height = n.naturalHeight / framesY
                     let url = new URL(src, document.baseURI).toString()
-                    dimensions.set(url, [framesX, framesY, width, height])
                     sheet.insertRule(`:host([src="${url}"]){width:${width}px;height:${height}px}`, 1)
                     isSafari && sheet.insertRule(`:host([src="${url}"]) div{width:${width}px;height:${height}px}`, 1)
                     let canvas = document.createElement('canvas')
@@ -44,8 +42,8 @@ class SlideShow extends HTMLElement {
                             bitmap: o,
                             framesX,
                             framesY,
-                            paddedWidth: width,
-                            paddedHeight: height,
+                            frameWidth: width,
+                            frameHeight: height,
                             values: vals.join(';'),
                             displayedFrames: vals.length
                         }
@@ -97,17 +95,17 @@ class SlideShow extends HTMLElement {
                     await new Promise(requestAnimationFrame)
                 }
                 this.#internals?.states.delete('--broken')
-                let { bitmap, framesX, framesY, paddedHeight, paddedWidth, values, displayedFrames } = bitmaps.get(u)
+                let { bitmap, framesX, framesY, frameHeight, frameWidth, values, displayedFrames } = bitmaps.get(u)
                 this.#displayedFrames = displayedFrames
                 let fe = this.#fe
-                let width = canvas.width = framesX * paddedWidth
-                let height = canvas.height = framesY * paddedHeight
+                let width = canvas.width = framesX * frameWidth
+                let height = canvas.height = framesY * frameHeight
                 fe.setAttribute('width', width)
                 fe.setAttribute('height', height)
                 ctx.imageSmoothingEnabled = false
                 ctx.drawImage(bitmap, 0, 0)
-                fe.style.setProperty('--height', framesY * paddedHeight)
-                fe.style.setProperty('--frame-h', paddedHeight)
+                fe.style.setProperty('--height', framesY * frameHeight)
+                fe.style.setProperty('--frame-h', frameHeight)
                 this.#anim.setAttribute('values', values)
                 this.#anim.setAttribute('to', values.at(-1))
                 this.#updateTotalDuration()
