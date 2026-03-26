@@ -158,7 +158,7 @@ function kill() {
 }
 const avatar = (name, size = 60) => {
     const scale = size / 200
-    let out = v.esc`<span data-popped="false" class="holder" name="ava" aria-hidden="true" style="--size: ${size}px;transform-origin:center center;z-index:0;top: ${range(0, innerHeight)}px;">
+    let out = v.esc`<span style="cursor: url('media/Link%20Select.cur'), pointer" data-popped="false" class="holder" name="ava" aria-hidden="true" style="--size: ${size}px;transform-origin:center center;z-index:0;top: ${range(0, innerHeight)}px;">
         <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">
         <circle cursor="url('media/Link%20Select.cur'), pointer" pointer-events="painted" r="${95 * scale}" cx="${100 * scale}" cy="${100 * scale}" fill="rgba(15, 20, 210, 0.4)" stroke="#1043E5" stroke-width="${10 * scale}">
         </circle>
