@@ -31,6 +31,10 @@ class Node$ extends EventTargetProxy {
         i: null,
         m: null,
     }
+    to(other) {
+        base(other).appendChild(this)
+        return Proxify(this)
+    }
     is(other) { return this.isEqualNode(other && base(other)) }
     setCanvasBg(id) {
         if (D.getCSSCanvasContext)
@@ -327,7 +331,7 @@ class StyleCache extends Cacher {
         this[Cacher.Target].cssText += str
     }
 }
-class Element$ extends NodeProxy {
+export class Element$ extends NodeProxy {
     static AnimationCache = new Map;
     *[Symbol.iterator]() {
         let k = this.children

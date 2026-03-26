@@ -1,5 +1,5 @@
 // most recent attempt (and hopefully the best!)
-import Proxify, { css, } from './HTMLProxy.js'
+import Proxify, { css, Element$} from './HTMLProxy.js'
 export { css, Proxify }
 import { base } from './BaseProxy.js'
 const D = document
@@ -7,14 +7,17 @@ function label(r) { return r[Symbol.toStringTag] }
 var parse = (parse = new Range).createContextualFragment.bind(parse)
 let rawCache = new Map
 let frequent = new Set
+Element$.prototype.$||Object.defineProperty(Element$.prototype, '$', {
+    value(...args) {
+        let out = $(...args).to(this)
+        return out
+    }
+})
 export function ce(htmlOrTag) {
     let node = rawCache.get(htmlOrTag)
     if (node) return Proxify(node.cloneNode(true))
-    if (Regex.frag.test(htmlOrTag)) {
-        node = D.createDocumentFragment()
-        let doc = parse(htmlOrTag.replace(Regex.frag, '$1'))
-        node.appendChild(doc)
-    }
+    if (Regex.frag.test(htmlOrTag)) 
+        node = parse(htmlOrTag.replace(Regex.frag, '$1'))
     else if (isHTMLSyntax(htmlOrTag))
         // let n = parse(htmlOrTag)
         // if (n.childElementCount !== 1) console.warn(`Multiple elements returned: ${htmlOrTag}, pass an array instead`) // $(['<div></div>']) is a DocumentFragment
