@@ -1,9 +1,9 @@
 //# allFunctionsCalledOnLoad
 //console.time('css.js');
 //@dev self.css = 
-(function CSSSetup(inModule, sym, defer, D, O, id, y, rAF) {
+(function CSSSetup(inModule, sym, defer, D, O, id, y, rAF, newish) {
     //@dev'use strict'
-    if (y.propertyIsEnumerable(sym) && D.getElementById(id) instanceof HTMLStyleElement) {
+    if (y.propertyIsEnumerable(sym) && (D.getElementById(id) instanceof HTMLStyleElement || (newish && D.adoptedStyleSheets.find(function(o){return o.isMySheet})))) {
         var out = y[sym]
         inModule && (inModule = out.onerror) && (removeEventListener('error', inModule), out.onerror = null)
         return out
@@ -29,7 +29,7 @@
         }
     dance: {
         try {
-            if (typeof scrollMaxX !== 'number' || !S) {
+             if (!typeof scrollMaxX !== 'number' || !S) {
                 // sessionStorage seems to be faster on FireFox 
                 var o = top.name
                     , starts = o.startsWith(id)
@@ -41,12 +41,12 @@
             }
         }
         catch (e) {
-            // cross origin frame so we can't use window.top
-            console.warn(e)
-            if (!S) {
-                sn = String // we can't cache
-                break dance
-            }
+                // cross origin frame so we can't use window.top
+                console.warn(e)
+                if (!S) {
+                    sn = String // we can't cache
+                    break dance
+                }
         }
         if (S) {
             sn = S.setItem.bind(S, '_')
@@ -56,7 +56,9 @@
     }
     var fro = O.fromEntries,
         is = Array.isArray,
-        sheet = Sheet(),
+        lastText = '',
+        adoptedSheet = null,
+        writeSheet = Sheet(),
         alr = new Set,
         vendr = /^(?:-(?:webkit|moz(?:-osx)?|apple|khtml|konq|r?o|ms|xv|atsc|wap|ah|hp|rim|tc|fso|icab|epub)|prince|mso)-(?!$)/,
         dr = new Map,
@@ -172,7 +174,7 @@
         var str = '', i = (selector = selector.split(',')).length
         while (i--) str = fSelector(selector[i]) + str
         queueWrite(str + "{" + toCSS(rule, _) + "}")
-        return sheet
+        return writeSheet
     }
     function l() {
         write(batch)
@@ -189,11 +191,12 @@
     }
     var added = false
     function write(text) {
-        violated ? createSheet(text) : (added || (added = !!(sheet.onsecuritypolicyviolation = violation)), sheet.insertAdjacentText('beforeend', text))
+        violated ? createSheet(text) : (added || (added = !!(writeSheet.onsecuritypolicyviolation = violation)), writeSheet(text))
         // <style> blocked
     }
     function createSheet(text) {
         var m = new CSSStyleSheet
+        Object.defineProperty(m, 'isMySheet', { value: true })
         text && m.replaceSync(text)
         D.adoptedStyleSheets = [].concat.call(D.adoptedStyleSheets, m)
         return m
@@ -207,9 +210,16 @@
             return put(n).sheet
         }
         queueWrite(rules)
-        return sheet
+        return writeSheet
     }
     function Sheet() {
+        if (newish) {
+            if (D.adoptedStyleSheets.includes(adoptedSheet)) return writeSheet
+            adoptedSheet = o = createSheet()
+            return function (text) {
+                o.replaceSync(lastText += text)
+            }
+        }
         var o = D.getElementById(id)
         if (o) return o
         // if (canWrite) return D.write('<style id="'+id+'" blocking="render">'+str+'</style>'), Sheet()
@@ -218,7 +228,10 @@
         o.id = id
         o.blocking = 'render'
         o.insertAdjacentText || (o.insertAdjacentText = function (_, txt) { o.appendChild(D.createTextNode(txt)) })
-        return put(o)
+        put(o)
+        return function (text) {
+            o.insertAdjacentText('beforeend', text)
+        }
     }
     function put(e) {
         var p = D.head || D.body || D.documentElement || ((p = D.currentScript) && (p.parentNode || p)) || D.querySelector('*') || D.firstElementChild || D
@@ -243,7 +256,7 @@
         uv[key] = o
         bulkText += re('--' + name, iv, inh, sx)
         return g
-      }
+    }
     function W(s) {
         return ':where(' + s + ')'
     }
@@ -259,16 +272,16 @@
     }
     function lowPriority() {
         //@dev console.time('low priority')
-        g("locale","auto",false,"*")("user-modify","auto",true,"*")("line-grid","auto",false,"*")("line-snap","auto",false,"*")("nbsp-mode","auto",false,"*")("text-zoom","auto",true,"*")("line-align","auto",false,"*")("text-decorations-in-effect","auto",true,"*")("force-broken-image-icon","0",true,"<integer>")("float-edge","content-box",true,"*")("image-region","auto",false,"*")("box-orient","inline-axis",true,"*")("box-align","stretch",true,"*")("box-direction","normal",true,"*")("box-flex","0",true,"*")("box-flex-group","0",true,"*")("box-lines","single",true,"*")("box-ordinal-group","1",true,"*")("box-decoration-break","slice",true,"*")("box-pack","start",true,"*")("line-clamp","none",true,"*")("font-smoothing","auto",false,"*")("mask-position-x","0%",true,"<length-percentage>")("mask-position-y","0%",true,"<length-percentage>")("window-dragging","auto",true,"*")("stack-sizing","stretch-to-fit",false,"*")("mask-composite","source-over",true,"*")("window-shadow","auto",true,"*")("outline-radius","0 0 0 0",true,"*")("binding","none",true,"*")("text-blink","none",true,"*")("image-rect","auto",false,"*")("context-properties","none",false,"*")("text-kashida-space","0%",false,"<percentage>")("interpolation-mode","none",true,"*")("progress-appearance","bar",true,"*")("flow-from","none",true,"*")("flow-into","none",true,"*")("high-contrast-adjust","auto",false,"*")("ime-mode","auto",true,"*")("wrap-through","wrap",true,"*")("print-color-adjust","economy",false,"*")("pay-button-style","white",true,"*")("color-filter","none",false,"*")("pay-button-type","plain",true,"*")("visual-effect","none",false,"*")("text-spacing-trim","normal",false,"*")("text-group-align","none",true,"*")("text-autospace","normal",false,"*")("orient","inline",true,"*")("ruby-overhang","auto",false,"*")("max-lines","none",true,"*")("line-fit-edge","leading",false,"*")("overflow-scrolling","auto",true,"*")("column-progression","auto",true,"*")("dashboard-region","none",true,"*")("column-axis","auto",true,"*")("text-size-adjust","auto",false,"*")("border-vertical-spacing","auto",true,"*")("buffered-rendering","auto",true,"*");        //@dev console.timeEnd('low priority')
+        g("locale", "auto", false, "*")("user-modify", "auto", true, "*")("line-grid", "auto", false, "*")("line-snap", "auto", false, "*")("nbsp-mode", "auto", false, "*")("text-zoom", "auto", true, "*")("line-align", "auto", false, "*")("text-decorations-in-effect", "auto", true, "*")("force-broken-image-icon", "0", true, "<integer>")("float-edge", "content-box", true, "*")("image-region", "auto", false, "*")("box-orient", "inline-axis", true, "*")("box-align", "stretch", true, "*")("box-direction", "normal", true, "*")("box-flex", "0", true, "*")("box-flex-group", "0", true, "*")("box-lines", "single", true, "*")("box-ordinal-group", "1", true, "*")("box-decoration-break", "slice", true, "*")("box-pack", "start", true, "*")("line-clamp", "none", true, "*")("font-smoothing", "auto", false, "*")("mask-position-x", "0%", true, "<length-percentage>")("mask-position-y", "0%", true, "<length-percentage>")("window-dragging", "auto", true, "*")("stack-sizing", "stretch-to-fit", false, "*")("mask-composite", "source-over", true, "*")("window-shadow", "auto", true, "*")("outline-radius", "0 0 0 0", true, "*")("binding", "none", true, "*")("text-blink", "none", true, "*")("image-rect", "auto", false, "*")("context-properties", "none", false, "*")("text-kashida-space", "0%", false, "<percentage>")("interpolation-mode", "none", true, "*")("progress-appearance", "bar", true, "*")("flow-from", "none", true, "*")("flow-into", "none", true, "*")("high-contrast-adjust", "auto", false, "*")("ime-mode", "auto", true, "*")("wrap-through", "wrap", true, "*")("print-color-adjust", "economy", false, "*")("pay-button-style", "white", true, "*")("color-filter", "none", false, "*")("pay-button-type", "plain", true, "*")("visual-effect", "none", false, "*")("text-spacing-trim", "normal", false, "*")("text-group-align", "none", true, "*")("text-autospace", "normal", false, "*")("orient", "inline", true, "*")("ruby-overhang", "auto", false, "*")("max-lines", "none", true, "*")("line-fit-edge", "leading", false, "*")("overflow-scrolling", "auto", true, "*")("column-progression", "auto", true, "*")("dashboard-region", "none", true, "*")("column-axis", "auto", true, "*")("text-size-adjust", "auto", false, "*")("border-vertical-spacing", "auto", true, "*")("buffered-rendering", "auto", true, "*");        //@dev console.timeEnd('low priority')
     }
     function properties() {
         //@dev console.time('properties')
-            g("user-select", "auto", false, '*') // Most important one
+        g("user-select", "auto", false, '*') // Most important one
             ("zoom", "auto", false, '*')
             ('user-drag', "auto", true, '*')
             ('offset-path', "none", false, '*')
             ('offset-distance', '0', false, '<length-percentage>')
-            ('offset-rotate','auto',false,"auto | <angle> | reverse")
+            ('offset-rotate', 'auto', false, "auto | <angle> | reverse")
             // ("user-input", "auto", true, '*')
             ("box-reflect", "none", false, '*') // Kewl
             ("text-stroke-color", "currentcolor", true, "<color>")
@@ -301,12 +314,12 @@
             [/^-webkit-((?:max|min)-)?logical-width$/, '$1inline-size'],
             [/^-webkit-((?:max|min)-)?logical-height$/, '$1block-size'],
             [/^-webkit-mask-box-image(-\w+)?$/, 'mask-border$1'],
-            [/^grid-((?:row|column)-)?gap$/,'$1-gap'],
+            [/^grid-((?:row|column)-)?gap$/, '$1-gap'],
             // [/^float$/, 'cssFloat'],
             [/^overflow-wrap$/, 'word-wrap'],
             [/^word-wrap$/, 'overflow-wrap'],
             [/^(text-combine)-upright$/, '-webkit-$1'],
-            [/^print-(color-adjust)$/,'$1']
+            [/^print-(color-adjust)$/, '$1']
         ]
     function correctProp(prop, value) {
         var out = []
@@ -314,8 +327,8 @@
         if (sup((prop = dv(prop, value)) + ':' + value)) out.push(prop)
         for (var i = diffName.length; i--;) {
             var set = diffName[i]
-            , r = set[0]
-            , str = set[1]
+                , r = set[0]
+                , str = set[1]
             r.test(prop) && out.push(prop.replace(r, str))
         }
         return out
@@ -338,16 +351,16 @@
         properties()
     }
     var crisp, stretch, center, matchParent
-    , newName = name
+        , newName = name
     if (!atProperty && CSS.registerProperty) doRegister()
     if (!newName) {
         var align = sup.bind(1, 'text-align')
-        crisp = 'pixelated -moz-crisp-edges -webkit-optimize-contrast '.split(' ').find(sup.bind(1, 'image-rendering')) || 'initial'
+        crisp = 'pixelated -moz-crisp-edges -webkit-optimize-contrast'.split(' ').find(sup.bind(1, 'image-rendering')) || 'initial'
         stretch = '-webkit-fill-available stretch -moz-available'.split(' ').find(sup.bind(1, 'max-width')) || 'initial'
         center = '-moz-center -webkit-center -khtml-center'.split(' ').find(align) || 'initial'
         matchParent = 'match-parent -moz-match-parent -webkit-match-parent'.split(' ').find(align) || 'initial'
         var o = {
-            'summary::marker': {cursor:'pointer'},
+            'summary::marker': { cursor: 'pointer' },
             ':root': {
                 // 'transition-behavior': 'allow-discrete',
                 // 'interpolate-size': 'allow-keywords',
@@ -402,7 +415,7 @@
         }
         else if (!CSS.registerProperty) doRegister()
         for (var x in o) newName += x + "{" + toCSS(o[x]) + "}"
-        newName = "@namespace svg url('http://www.w3.org/2000/svg');\nhtml{margin:auto}p{text-wrap:pretty}h1,h2,h3,h4,h5,h6,:where(p){text-wrap:balance;overflow-wrap:break-word}body{line-height:1.5;--font-smoothing:antialiased}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto !important}}@media(prefers-reduced-motion:no-preference){:root{interpolate-size: allow-keywords}}@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:-moz-loading{cursor:wait}:-moz-broken{border-radius:0}@supports not (content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not (scrollbar-width:thin){::-webkit-scrollbar{width:var(--scrollbar-width);height:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}" + newName
+        newName = "html{margin:auto}p{text-wrap:pretty}h1,h2,h3,h4,h5,h6,:where(p){text-wrap:balance;overflow-wrap:break-word}body{line-height:1.5;--font-smoothing:antialiased}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto !important}}@media(prefers-reduced-motion:no-preference){:root{interpolate-size: allow-keywords}}@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:-moz-loading{cursor:wait}:-moz-broken{border-radius:0}@supports not (content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not (scrollbar-width:thin){::-webkit-scrollbar{width:var(--scrollbar-width);height:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}" + newName
         //@dev console.debug(newName.replace(/:where\(([\S\s]*?)\)/g,'$1'))
     }
     var str = name
@@ -436,5 +449,5 @@
         })
     y[sym] || O.defineProperty(y, sym, { value: css, enumerable: 1 })
     return css
-}(!this, Symbol.for('[[CSSModule]]'), (self.requestIdleCallback && function (c) { return requestIdleCallback(c, { timeout: 2000 }) }) || (self.scheduler && scheduler.postTask && function (c) { return scheduler.postTask(c, { priority: 'background' }) }) || self.queueMicrotask || self.setImmediate || setTimeout, document, Object, '/*stylesheet auto-generated by css.js*/', constructor.prototype, self.requestAnimationFrame || self.webkitRequestAnimationFrame || self.mozRequestAnimationFrame || self.msRequestAnimationFrame || self.oRequestAnimationFrame))
+}(!this, Symbol.for('[[CSSModule]]'), (self.requestIdleCallback && function (c) { return requestIdleCallback(c, { timeout: 2000 }) }) || (self.scheduler && scheduler.postTask && function (c) { return scheduler.postTask(c, { priority: 'background' }) }) || self.queueMicrotask || self.setImmediate || setTimeout, document, Object, '/*stylesheet auto-generated by css.js*/', constructor.prototype, self.requestAnimationFrame || self.webkitRequestAnimationFrame || self.mozRequestAnimationFrame || self.msRequestAnimationFrame || self.oRequestAnimationFrame, !!document.adoptedStyleSheets))
 // ; console.timeEnd('css.js')
