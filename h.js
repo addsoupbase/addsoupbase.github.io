@@ -402,7 +402,7 @@
             event = args[0]
         if (t && event.isTrusted || !t 
             // && (!originalTarget || !('originalTarget' in event) || event.originalTarget === currentTarget) && (!explicitOriginalTarget || !('explicitOriginalTarget' in event) || event.explicitOriginalTarget === currentTarget) 
-            && (!oct || (event.target || event.srcElement) === currentTarget)) {
+            && (!oct || event.eventPhase === 2)) {
                 var label = getLabel(event),
                 name = event.type,
                 currentTarget = event.currentTarget,
@@ -435,7 +435,7 @@
             if (p)
                 if (event.cancelable)
                     if (event.defaultPrevented) console.warn("'" + name + "' event has already been cancelled")
-                    else event.returnValue = !event.preventDefault()
+                    else event.returnValue = !!(event.preventDefault && event.preventDefault())
                 else console.warn("🔊 '" + name + "' events are not cancelable")
             if (sp) event.cancelBubble = !event.stopPropagation()
             sip && event.stopImmediatePropagation()
