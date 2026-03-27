@@ -66,11 +66,13 @@ class Node$ extends EventTargetProxy {
         type = `v4:${type}`
         return Callback
         function Callback(changes) {
-            for (let i = changes.length; i--;)
-                changes[i].target.dispatchEvent(new CustomEvent(type, {
+            for (let i = changes.length; i--;) {
+                let record = changes[i]
+                record.target.dispatchEvent(new CustomEvent(type, {
                     detail: Proxify(record),
                     bubbles: true
                 }))
+            }
         }
     }
     /**
