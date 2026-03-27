@@ -60,6 +60,18 @@
             html {
                 scroll-behavior: smooth;
             }
+
+            #prefers-reduced-motion {
+                display: block
+            }
+
+            #prefers-reduced-motion::after {
+                content: "no-preference"
+            }
+        }
+
+        .mq {
+            display: none;
         }
 
         button[aria-pressed="false"] {
@@ -177,6 +189,10 @@
             }
         }
 
+        .prop::after {
+            font-family: monospace;
+        }
+
         [title] {
             text-decoration: underline dotted;
             text-underline-offset: 3px;
@@ -189,15 +205,16 @@
             <p>Jump to sections:</p>
             <a href="#triggers">Triggers</a>
             <a href="#mouse">Mouse Events</a>
+            <a href="#mediaqueries">Media Queries</a>
             <a href="#unavailable">Unvailable</a>
         </nav>
-        <h1 id="available">Available:</h1>
+        <h2 id="available">Available:</h2>
         <div class="sect" id="y">
             <noscript>
                 <div class="prop"><b>JavaScript: </b><samp>false</samp></div>
             </noscript>
         </div>
-        <h1 id="triggers">Triggers:</h1>
+        <h2 id="triggers">Triggers:</h2>
         <div>
             <div style="display: flex;flex-direction: column;align-items: flex-start;gap:20px">
                 <button id="vibrate">Click to Vibrate Device</button>
@@ -210,7 +227,730 @@
                 <!-- <button id="blurbtn" title="print to stdout">Dump</button> -->
             </div>
         </div>
-        <h1 id="unavailable">Unavailable:</h1>
+        <h2 id="mediaqueries">Media Queries:</h2>
+        <div class="sect">
+            <style>
+                @media (any-hover: none) {
+                    #any-hover {
+                        display: block
+                    }
+
+                    #any-hover::after {
+                        content: "none"
+                    }
+                }
+
+                @media (any-hover: hover) {
+                    #any-hover {
+                        display: block
+                    }
+
+                    #any-hover::after {
+                        content: "hover"
+                    }
+                }
+
+                @media (any-pointer: none) {
+                    #any-pointer {
+                        display: block
+                    }
+
+                    #any-pointer::after {
+                        content: "none"
+                    }
+                }
+
+                @media (any-pointer: coarse) {
+                    #any-pointer {
+                        display: block
+                    }
+
+                    #any-pointer::after {
+                        content: "coarse"
+                    }
+                }
+
+                @media (any-pointer: fine) {
+                    #any-pointer {
+                        display: block
+                    }
+
+                    #any-pointer::after {
+                        content: "fine"
+                    }
+                }
+
+                @media (color-gamut: srgb) {
+                    #color-gamut {
+                        display: block
+                    }
+
+                    #color-gamut::after {
+                        content: "srgb"
+                    }
+                }
+
+                @media (color-gamut: p3) {
+                    #color-gamut {
+                        display: block
+                    }
+
+                    #color-gamut::after {
+                        content: "p3"
+                    }
+                }
+
+                @media (color-gamut: rec2020) {
+                    #color-gamut {
+                        display: block
+                    }
+
+                    #color-gamut::after {
+                        content: "rec2020"
+                    }
+                }
+
+                @media (device-posture: continuous) {
+                    #device-posture {
+                        display: block
+                    }
+
+                    #device-posture::after {
+                        content: "continuous"
+                    }
+                }
+
+                @media (device-posture: folded) {
+                    #device-posture {
+                        display: block
+                    }
+
+                    #device-posture::after {
+                        content: "folded"
+                    }
+                }
+
+                @media (display-mode: browser) {
+                    #display-mode {
+                        display: block
+                    }
+
+                    #display-mode::after {
+                        content: "browser"
+                    }
+                }
+
+                @media (display-mode: fullscreen) {
+                    #display-mode {
+                        display: block
+                    }
+
+                    #display-mode::after {
+                        content: "fullscreen"
+                    }
+                }
+
+                @media (display-mode: minimal-ui) {
+                    #display-mode {
+                        display: block
+                    }
+
+                    #display-mode::after {
+                        content: "minimal-ui"
+                    }
+                }
+
+                @media (display-mode: picture-in-picture) {
+                    #display-mode {
+                        display: block
+                    }
+
+                    #display-mode::after {
+                        content: "picture-in-picture"
+                    }
+                }
+
+                @media (display-mode: standalone) {
+                    #display-mode {
+                        display: block
+                    }
+
+                    #display-mode::after {
+                        content: "standalone"
+                    }
+                }
+
+                @media (display-mode: window-controls-overlay) {
+                    #display-mode {
+                        display: block
+                    }
+
+                    #display-mode::after {
+                        content: "window-controls-overlay"
+                    }
+                }
+
+                @media (dynamic-range: standard) {
+                    #dynamic-range {
+                        display: block
+                    }
+
+                    #dynamic-range::after {
+                        content: "standard"
+                    }
+                }
+
+                @media (dynamic-range: high) {
+                    #dynamic-range {
+                        display: block
+                    }
+
+                    #dynamic-range::after {
+                        content: "high"
+                    }
+                }
+
+                @media (forced-colors: none) {
+                    #forced-colors {
+                        display: block
+                    }
+
+                    #forced-colors::after {
+                        content: "none"
+                    }
+                }
+
+                @media (forced-colors: active) {
+                    #forced-colors {
+                        display: block
+                    }
+
+                    #forced-colors::after {
+                        content: "active"
+                    }
+                }
+
+                @media (grid: 0) {
+                    #grid {
+                        display: block
+                    }
+
+                    #grid::after {
+                        content: "bitmap based (0)"
+                    }
+                }
+
+                @media (grid: 1) {
+                    #grid {
+                        display: block
+                    }
+
+                    #grid::after {
+                        content: "grid based (1)"
+                    }
+                }
+
+                @media (hover: none) {
+                    #hover {
+                        display: block
+                    }
+
+                    #hover::after {
+                        content: "none"
+                    }
+                }
+
+                @media (hover: hover) {
+                    #hover {
+                        display: block
+                    }
+
+                    #hover::after {
+                        content: "hover"
+                    }
+                }
+
+                @media (inverted-colors: none) {
+                    #inverted-colors {
+                        display: block
+                    }
+
+                    #inverted-colors::after {
+                        content: "none"
+                    }
+                }
+
+                @media (inverted-colors: inverted) {
+                    #inverted-colors {
+                        display: block
+                    }
+
+                    #inverted-colors::after {
+                        content: "inverted"
+                    }
+                }
+
+                @media (monochrome) {
+                    #monochrome {
+                        display: block
+                    }
+
+                    #monochrome::after {
+                        content: "true"
+                    }
+                }
+
+                @media (monochrome: 0) {
+                    #monochrome {
+                        display: block
+                    }
+
+                    #monochrome::after {
+                        content: "false"
+                    }
+                }
+
+                @media (orientation: landscape) {
+                    #orientationMQ {
+                        display: block
+                    }
+
+                    #orientationMQ::after {
+                        content: "landscape"
+                    }
+                }
+
+                @media (orientation: portrait) {
+                    #orientationMQ {
+                        display: block
+                    }
+
+                    #orientationMQ::after {
+                        content: "portrait"
+                    }
+                }
+
+                @media (overflow-block: none) {
+                    #overflow-block {
+                        display: block
+                    }
+
+                    #overflow-block::after {
+                        content: "none"
+                    }
+                }
+
+                @media (overflow-block: scroll) {
+                    #overflow-block {
+                        display: block
+                    }
+
+                    #overflow-block::after {
+                        content: "scroll"
+                    }
+                }
+
+                @media (overflow-block: optional-paged) {
+                    #overflow-block {
+                        display: block
+                    }
+
+                    #overflow-block::after {
+                        content: "optional-paged"
+                    }
+                }
+
+                @media (overflow-block: paged) {
+                    #overflow-block {
+                        display: block
+                    }
+
+                    #overflow-block::after {
+                        content: "paged"
+                    }
+                }
+
+                @media (overflow-inline: none) {
+                    #overflow-inline {
+                        display: block
+                    }
+
+                    #overflow-inline::after {
+                        content: "none"
+                    }
+                }
+
+                @media (overflow-inline: scroll) {
+                    #overflow-block {
+                        display: block
+                    }
+
+                    #overflow-block::after {
+                        content: "scroll"
+                    }
+                }
+
+                @media (pointer: none) {
+                    #pointer {
+                        display: block
+                    }
+
+                    #pointer::after {
+                        content: "none"
+                    }
+                }
+
+                @media (pointer: coarse) {
+                    #pointer {
+                        display: block
+                    }
+
+                    #pointer::after {
+                        content: "coarse"
+                    }
+                }
+
+                @media (pointer: fine) {
+                    #pointer {
+                        display: block
+                    }
+
+                    #pointer::after {
+                        content: "fine"
+                    }
+                }
+
+                @media (prefers-color-scheme: light) {
+                    #prefers-color-scheme {
+                        display: block
+                    }
+
+                    #prefers-color-scheme::after {
+                        content: "light"
+                    }
+                }
+
+                @media (prefers-color-scheme: dark) {
+                    #prefers-color-scheme {
+                        display: block
+                    }
+
+                    #prefers-color-scheme::after {
+                        content: "dark"
+                    }
+                }
+
+                @media (prefers-contrast: no-preference) {
+                    #prefers-contrast {
+                        display: block
+                    }
+
+                    #prefers-contrast::after {
+                        content: "no-preference"
+                    }
+                }
+
+                @media (prefers-contrast: more) {
+                    #prefers-contrast {
+                        display: block
+                    }
+
+                    #prefers-contrast::after {
+                        content: "more"
+                    }
+                }
+
+                @media (prefers-contrast: less) {
+                    #prefers-contrast {
+                        display: block
+                    }
+
+                    #prefers-contrast::after {
+                        content: "less"
+                    }
+                }
+
+                @media (prefers-contrast: custom) {
+                    #prefers-contrast {
+                        display: block
+                    }
+
+                    #prefers-contrast::after {
+                        content: "custom"
+                    }
+                }
+
+                @media (prefers-contrast: forced) {
+                    #prefers-contrast {
+                        display: block
+                    }
+
+                    #prefers-contrast::after {
+                        content: "forced"
+                    }
+                }
+
+                @media (prefers-reduced-transparency: no-preference) {
+                    #prefers-reduced-transparency {
+                        display: block
+                    }
+
+                    #prefers-reduced-transparency::after {
+                        content: "no-preference"
+                    }
+                }
+
+                @media (prefers-reduced-transparency: reduce) {
+                    #prefers-reduced-transparency {
+                        display: block
+                    }
+
+                    #prefers-reduced-transparency::after {
+                        content: "reduce"
+                    }
+                }
+
+                @media (prefers-reduced-motion: reduce) {
+                    #prefers-reduced-motion {
+                        display: block
+                    }
+
+                    #prefers-reduced-motion::after {
+                        content: "reduce"
+                    }
+                }
+
+                @media (scripting: none) {
+                    #scripting {
+                        display: block
+                    }
+
+                    #scripting::after {
+                        content: "none"
+                    }
+                }
+
+                @media (scripting: initial-only) {
+                    #scripting {
+                        display: block
+                    }
+
+                    #scripting::after {
+                        content: "initial-only"
+                    }
+                }
+
+                @media (scripting: enabled) {
+                    #scripting {
+                        display: block
+                    }
+
+                    #scripting::after {
+                        content: "enabled"
+                    }
+                }
+
+                @media (video-dynamic-range: standard) {
+                    #video-dynamic-range {
+                        display: block
+                    }
+
+                    #video-dynamic-range::after {
+                        content: "standard"
+                    }
+                }
+
+                @media (video-dynamic-range: high) {
+                    #scripting {
+                        display: block
+                    }
+
+                    #video-dynamic-range::after {
+                        content: "high"
+                    }
+                }
+
+                @media (scan: interlace) {
+                    #scan {
+                        display: block
+                    }
+
+                    #scan::after {
+                        content: "interlace"
+                    }
+                }
+
+                @media (scan: progressive) {
+                    #scan {
+                        display: block
+                    }
+
+                    #scan::after {
+                        content: "progressive"
+                    }
+                }
+
+                @media (shape: rect) {
+                    #shape {
+                        display: block
+                    }
+
+                    #shape::after {
+                        content: "rect"
+                    }
+                }
+
+                @media (shape: round) {
+                    #shape {
+                        display: block
+                    }
+
+                    #shape::after {
+                        content: "round"
+                    }
+                }
+
+                @media (update: none) {
+                    #update {
+                        display: block;
+                    }
+
+                    #update::after {
+                        content: "none"
+                    }
+                }
+
+                @media (update: slow) {
+                    #update {
+                        display: block;
+                    }
+
+                    #update::after {
+                        content: "slow"
+                    }
+                }
+
+                @media (update: fast) {
+                    #update {
+                        display: block;
+                    }
+
+                    #update::after {
+                        content: "fast"
+                    }
+                }
+
+                @media (-webkit-animation: true) {
+                    #-webkit-animation {
+                        display: block;
+                    }
+
+                    #-webkit-animation::after {
+                        content: "true"
+                    }
+                }
+
+                @media (-webkit-animation: false) {
+                    #-webkit-animation {
+                        display: block;
+                    }
+
+                    #-webkit-animation::after {
+                        content: "false"
+                    }
+                }
+
+                @media (-webkit-transform-2d: false) {
+                    #-webkit-transform-2d {
+                        display: block;
+                    }
+
+                    #-webkit-transform-2d::after {
+                        content: "false"
+                    }
+                }
+
+                @media (-webkit-transform-2d: true) {
+                    #-webkit-transform-2d {
+                        display: block;
+                    }
+
+                    #-webkit-transform-2d::after {
+                        content: "true"
+                    }
+                }
+
+                @media (-webkit-transform-3d: false) {
+                    #-webkit-transform-3d {
+                        display: block;
+                    }
+
+                    #-webkit-transform-3d::after {
+                        content: "false"
+                    }
+                }
+
+                @media (-webkit-transform-3d: true) {
+                    #-webkit-transform-3d {
+                        display: block;
+                    }
+
+                    #-webkit-transform-3d::after {
+                        content: "true"
+                    }
+                }
+
+                @media (-webkit-transition: true) {
+                    #-webkit-animation {
+                        display: block;
+                    }
+
+                    #-webkit-transition::after {
+                        content: "true"
+                    }
+                }
+
+                @media (-webkit-transition: false) {
+                    #-webkit-animation {
+                        display: block;
+                    }
+
+                    #-webkit-transition::after {
+                        content: "false"
+                    }
+                }
+            </style>
+            <div class="prop mq" id="any-hover"><b>any-hover: </b></div>
+            <div class="prop mq" id="any-pointer"><b>any-pointer: </b></div>
+            <div class="prop mq" id="color-gamut"><b>color-gamut: </b></div>
+            <div class="prop mq" id="device-posture"><b>device-posture: </b></div>
+            <div class="prop mq" id="display-mode"><b>display-mode: </b></div>
+            <div class="prop mq" id="dynamic-range"><b>dynamic-range: </b></div>
+            <div class="prop mq" id="forced-colors"><b>forced-colors: </b></div>
+            <div class="prop mq" id="grid"><b>grid: </b></div>
+            <div class="prop mq" id="hover"><b>hover: </b></div>
+            <div class="prop mq" id="inverted-colors"><b>inverted-colors: </b></div>
+            <div class="prop mq" id="monochrome"><b>monochrome: </b></div>
+            <div class="prop mq" id="orientationMQ"><b>orientation: </b></div>
+            <div class="prop mq" id="overflow-block"><b>overflow-block: </b></div>
+            <div class="prop mq" id="overflow-inline"><b>overflow-inline: </b></div>
+            <div class="prop mq" id="pointer"><b>pointer: </b></div>
+            <div class="prop mq" id="prefers-color-scheme"><b>prefers-color-scheme: </b></div>
+            <div class="prop mq" id="prefers-contrast"><b>prefers-contrast: </b></div>
+            <div class="prop mq" id="prefers-reduced-transparency"><b>prefers-reduced-transparency: </b></div>
+            <div class="prop mq" id="prefers-reduced-motion"><b>prefers-reduced-motion: </b></div>
+            <div class="prop mq" id="scripting"><b>scripting: </b></div>
+            <div class="prop mq" id="video-dynamic-range"><b>video-dynamic-range: </b></div>
+            <div class="prop mq" id="scan"><b>scan: </b></div>
+            <div class="prop mq" id="shape"><b>shape: </b></div>
+            <div class="prop mq" id="update"><b>update: </b></div>
+            <div class="prop mq" id="-webkit-animation"><b>-webkit-animation: </b></div>
+            <div class="prop mq" id="-webkit-transform-2d"><b>-webkit-transform-2d: </b></div>
+            <div class="prop mq" id="-webkit-transform-3d"><b>-webkit-transform-3d: </b></div>
+            <div class="prop mq" id="-webkit-transition"><b>-webkit-transition: </b></div>
+
+        </div>
+        <h2 id="unavailable">Unavailable:</h2>
         <div class="sect" id="n">
             <noscript>
                 <b>Anything JavaScript related</b>
@@ -222,16 +962,26 @@
             'use strict'
             var number = 1
             D.getElementById('ann').onclick = function () {
-                D.ariaNotify('Example announcement number ' + number++, {priority: 'high'})
+                D.ariaNotify('Example announcement number ' + number++, { priority: 'high' })
             }
             D.getElementById('vibrate').onclick = function () {
                 navigator.vibrate(100)
             }
             D.getElementById('triggerprint').onclick = function () {
-                print()
+                try {
+                    print()
+                }
+                catch (e) {
+                    prompt(e.name, e.message)
+                }
             }
-            D.getElementById('selectall').onclick = function() {
-                D.execCommand('selectAll', false)
+            D.getElementById('selectall').onclick = function () {
+                try {
+                    D.execCommand('selectAll', false)
+                }
+                catch (e) {
+                    alert(e)
+                }
             }
             D.getElementById('togglewakelock').onclick = function (e) {
                 var m = e.target
@@ -244,7 +994,7 @@
                 })
             }
             D.getElementById('togglefullscreen').onclick = function () {
-                if (!resolveVendor(D, 'fullscreenElement') && !resolveVendor(D, 'fullScreenElement') &&  !resolveVendor(D, 'currentFullScreenElement')) (resolveVendor(D.documentElement, 'requestFullscreen') || resolveVendor(D.documentElement, 'requestFullScreen')).call(D.documentElement)
+                if (!resolveVendor(D, 'fullscreenElement') && !resolveVendor(D, 'fullScreenElement') && !resolveVendor(D, 'currentFullScreenElement')) (resolveVendor(D.documentElement, 'requestFullscreen') || resolveVendor(D.documentElement, 'requestFullScreen')).call(D.documentElement)
                 else (resolveVendor(D, 'exitFullscreen') || resolveVendor(D, 'cancelFullScreen')).call(D)
             }
             var redo = D.getElementById('redo')
@@ -268,12 +1018,14 @@
                 for (var i = prefixes.length; i--;) {
                     var newProp = prop
                     var p = prefixes[i]
-                    if (p) newProp = p + prop.charAt(0).toUpperCase() + prop.substring(1)
+                    if (p)
+                        newProp = p + prop.charAt(0).toUpperCase() + prop.substring(1)
+
                     if (newProp in target) return target[newProp]
                 }
                 return target[prop]
             }
-            function getLabel(t) { try {return toString.call(t).slice(8, -1)}catch(e){return ''} }
+            function getLabel(t) { try { return toString.call(t).slice(8, -1) } catch (e) { return '' } }
             function go() {
                 if (D.readyState === 'complete') {
                     D.documentElement.style.opacity = 0
@@ -411,8 +1163,8 @@
                     'locationbar', 'menubar', 'personalbar', 'statusbar', 'toolbar', 'scrollbars',
                     'originAgentCluster'].sort()
                 windowProps.forEach(function (prop) {
-                    if (prop in window) {
-                        var val = window[prop]
+                    var val = resolveVendor(window, prop)
+                    if (val !== void 0) {
                         var hint
                         if (getLabel(val) === 'BarProp') {
                             val = val.visible
@@ -438,7 +1190,7 @@
                     }
                     else reject('window.' + prop)
                 })
-                addProp(windowSect, 'ES6 Modules', 'noModule'in HTMLScriptElement.prototype)
+                addProp(windowSect, 'ES6 Modules', 'noModule' in HTMLScriptElement.prototype)
                     ;['afterprint', 'appinstalled', 'beforeinstallprompt', 'beforeprint', 'beforeunload', 'blur', 'devicemotion', 'deviceorientation', 'deviceorientationabsolute',
                         'focus', 'gamepadconnected', 'gamepaddisconnected',
                         'hashchange',
@@ -671,9 +1423,9 @@
                 else reject('location.ancestorOrigins')
 
                 var docSect = addSect('document')
-                    ;['fullscreenEnabled', 'cookie', 'hidden', 'isFullScreen', 'fullscreen','wasDiscarded','prerendering','title',
-                        'referrer', 'pictureInPictureEnabled', 'lastModified','defaultCharset','fileCreatedDate','fileModifiedDate','fileUpdatedDate','mimeType',
-                    'protocol','security','capsLockWarning','nameProp'].sort().forEach(defaultProp.bind(D, docSect, 'document.'))
+                    ;['fullscreenEnabled', 'cookie', 'hidden', 'isFullScreen', 'fullscreen', 'wasDiscarded', 'prerendering', 'title',
+                        'referrer', 'pictureInPictureEnabled', 'lastModified', 'defaultCharset', 'fileCreatedDate', 'fileModifiedDate', 'fileUpdatedDate', 'mimeType',
+                        'protocol', 'security', 'capsLockWarning', 'nameProp'].sort().forEach(defaultProp.bind(D, docSect, 'document.'))
                 if (D.hasStorageAccess || D.hasUnpartitionedCookieAccess) {
                     (D.hasStorageAccess || D.hasUnpartitionedCookieAccess).call(D).then(function (e) {
                         addProp(docSect, 'hasStorageAccess', e)
@@ -776,7 +1528,7 @@
                     catch (e) {
                         reject('battery', e.toString())
                     }
-                else reject('battery','Unsupported or insecure context')
+                else reject('battery', 'Unsupported or insecure context')
                 if (navigator.virtualKeyboard) {
                     var virtualKeyboardSect = addSect('virtualKeyboard')
                     addProp(virtualKeyboardSect, 'overlaysContent', navigator.virtualKeyboard.overlaysContent)
@@ -871,6 +1623,7 @@
             <p>Jump to sections:</p>
             <a href="#triggers">Triggers</a>
             <a href="#mouse">Mouse Events</a>
+            <a href="#mediaqueries">Media Queries</a>
             <a href="#available">Available</a>
         </nav>
         <p style="font-size: 2em;text-align: center;">I'll add more stuff later!</p>
