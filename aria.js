@@ -2,6 +2,7 @@
     'use strict'
     h.on(d, {
         keydown: function (e) {
+            if (e.constructor.name !== 'KeyboardEvent') return console.warn('keydown listener fired was not KeyboardEvent. This is a bug I think! (happens when user clicks the autocomplete thingy, just ignore it)', e)
             var key = e.key.toLowerCase(), target = e.target, parent = target.parentElement
             var pressable = parent.role === 'tablist' || target.role === 'button'
             switch (key) {

@@ -106,21 +106,14 @@ bg.delegate({
         // v.sel(this.parentElement).purge()
     }
 })
-let fileFormat = await new Promise(resolve => {
-    let n = new Image
-    n.src = `data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADybWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAeaWxvYwAAAABEAAABAAEAAAABAAABGgAAAB0AAAAoaWluZgAAAAAAAQAAABppbmZlAgAAAAABAABhdjAxQ29sb3IAAAAAamlwcnAAAABLaXBjbwAAABRpc3BlAAAAAAAAAAIAAAACAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQ0MAAAAABNjb2xybmNseAACAAIAAYAAAAAXaXBtYQAAAAAAAAABAAEEAQKDBAAAACVtZGF0EgAKCBgANogQEAwgMg8f8D///8WfhwB8+ErK42A=`
-    n.onload = () => resolve('.avif')
-    n.onerror = () => {
-        let n = document.createElement('canvas')
-        n.width = n.height = 0
-        resolve(n.toDataURL('image/webp').indexOf('data:image/webp') == 0 ? '.webp' : '.jpg')
-    }
-})
+
 let avatars  = ["Dohaaa","Lagia","Lotus","MRK","Professional_idiot","Remi","Violet","anarchy","anya","armaan.n","auquamantis","aya","babby","birdie","caelix","caevsz","chlorineatt","copy","crazy","eggwafl","elenfnf1","elipoopsrainbows","fourche7","frannie4u","ghostie","gilly","glente","gummicat","ilikebugs2","indie","juaj","ka1ya1","kae","kannadra","kay_.stars","khaoticgood","kurispychips","kyn","lazy","lexi","lorex","lunza","mai","may","mila","mochi","morrfie","mothmaddie","mr_clownette","na22","naz","niya","nova","novacans_","oli","rainmint","rikapika","river","rue","rurikuu","saintz","son_yukio","stav","stuella","valerie","west","xzzy","zee","znsxxe","zoozi","zrake","汝起亚"]
 for (let i = 0, { length } = avatars; i < length; ++i) {
     const pick = Math.floor(Math.random() * (i + 1))
     let p = avatars[i]
-    css.write(`.user-${CSS.escape(p)} {background-image: url("./media/avatars/${p}${fileFormat}")}`)
+    let src = `./media/avatars/${p}`
+    let rule = `background-image:-webkit-image-set(url("${src}.avif") type("image/avif"), url("${src}.webp") type("image/webp"), url("${src}.jpg") type("image/jpg"))`
+    css.write(`.user-${CSS.escape(p)}{background-image: url("${src}.webp");${rule};${rule.replace('-webkit-', '')}}`)
         ; ({ 0: avatars[i], 1: avatars[pick] } = [avatars[pick], avatars[i]])
 }
 let i = 0

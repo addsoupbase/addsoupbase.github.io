@@ -3,13 +3,14 @@
 //@dev self.css = 
 (function CSSSetup(inModule, sym, defer, D, O, id, y, rAF, newish) {
     //@dev'use strict'
-    if (y.propertyIsEnumerable(sym) && (D.getElementById(id) instanceof HTMLStyleElement || (newish && D.adoptedStyleSheets.find(function(o){return o.isMySheet})))) {
+    if (y.propertyIsEnumerable(sym) && newish ? D.adoptedStyleSheets.find(function (o) { return o.isMySheet }) : D.getElementById(id) instanceof HTMLStyleElement) {
         var out = y[sym]
         inModule && (inModule = out.onerror) && (removeEventListener('error', inModule), out.onerror = null)
         return out
     }
     try { var S = sessionStorage } // it just throws on read if storage is denied
-    catch (e) { console.warn(e) }
+    catch (e) { //@devconsole.warn(e) 
+    }
     if (!inModule) {
         var onerror = function (e) { if (e.filename.endsWith('.js')) { [].forEach.call(D.querySelectorAll('script[nomodule]'), function (s) { D.head.appendChild(D.createElement('script')).src = s.src }); removeEventListener('error', onerror) } }
         addEventListener('error', onerror)
@@ -29,7 +30,7 @@
         }
     dance: {
         try {
-             if (!typeof scrollMaxX !== 'number' || !S) {
+            if (!typeof scrollMaxX !== 'number' || !S) {
                 // sessionStorage seems to be faster on FireFox 
                 var o = top.name
                     , starts = o.startsWith(id)
@@ -41,12 +42,12 @@
             }
         }
         catch (e) {
-                // cross origin frame so we can't use window.top
-                console.warn(e)
-                if (!S) {
-                    sn = String // we can't cache
-                    break dance
-                }
+            // cross origin frame so we can't use window.top
+            //@devconsole.warn(e)
+            if (!S) {
+                sn = String // we can't cache
+                break dance
+            }
         }
         if (S) {
             sn = S.setItem.bind(S, '_')
@@ -58,9 +59,9 @@
         is = Array.isArray,
         lastText = '',
         adoptedSheet = null,
-        writeSheet = Sheet(),
+        write = Sheet(),
         alr = new Set,
-        vendr = /^(?:-(?:webkit|moz(?:-osx)?|apple|khtml|konq|r?o|ms|xv|atsc|wap|ah|hp|rim|tc|fso|icab|epub)|prince|mso)-(?!$)/,
+        vendr = /^(?:-(?:webkit|moz(?:-osx)?|apple|khtml|konq|r?o|ms|xv|atsc|wap|ah|hp|rim|tc|fso|icab|epub)|prince|mso)-(?!$)/i,
         dr = new Map,
         pseudoClass = /(?:[^:]|^):([\w-]+)/g,  // (?<=(?:^|[^:]):)[\w-]+/g
         pseudoElement = /::([\w-]+)/g,  // (?<=::)[\w-]+
@@ -77,7 +78,7 @@
     function cv(prop, val) { return toCaps(dv(prop, val)) }
     function badCSS(data, _) {
         if (alr.has(data) || _) return
-        console.warn(data)
+        //@devconsole.warn(data)
         alr.add(data)
     }
     function vs(selector, type) {
@@ -174,7 +175,7 @@
         var str = '', i = (selector = selector.split(',')).length
         while (i--) str = fSelector(selector[i]) + str
         queueWrite(str + "{" + toCSS(rule, _) + "}")
-        return writeSheet
+        return write
     }
     function l() {
         write(batch)
@@ -184,16 +185,6 @@
     function queueWrite(text) {
         text && (batch || rAF(l), batch += text)
     }
-    var violated = false
-    function violation() {
-        violated = true
-        write(this.textContent)
-    }
-    var added = false
-    function write(text) {
-        violated ? createSheet(text) : (added || (added = !!(writeSheet.onsecuritypolicyviolation = violation)), writeSheet(text))
-        // <style> blocked
-    }
     function createSheet(text) {
         var m = new CSSStyleSheet
         Object.defineProperty(m, 'isMySheet', { value: true })
@@ -202,23 +193,15 @@
         return m
     }
     function registerCSSRaw(rules, newStyleSheet) {
-        if (newStyleSheet) {
-            if (violated) return createSheet(rules)
-            var n = D.createElement('style')
-            n.blocking = 'render'
-            n.textContent = rules
-            return put(n).sheet
-        }
+        if (newStyleSheet) return createSheet(rules)
         queueWrite(rules)
-        return writeSheet
+        return write
     }
     function Sheet() {
         if (newish) {
-            if (D.adoptedStyleSheets.includes(adoptedSheet)) return writeSheet
+            if (D.adoptedStyleSheets.includes(adoptedSheet)) return write
             adoptedSheet = o = createSheet()
-            return function (text) {
-                o.replaceSync(lastText += text)
-            }
+            return function (text) {o.replaceSync(lastText += text)}
         }
         var o = D.getElementById(id)
         if (o) return o
@@ -227,15 +210,9 @@
         o = D.createElement('style')
         o.id = id
         o.blocking = 'render'
-        o.insertAdjacentText || (o.insertAdjacentText = function (_, txt) { o.appendChild(D.createTextNode(txt)) })
-        put(o)
-        return function (text) {
-            o.insertAdjacentText('beforeend', text)
-        }
-    }
-    function put(e) {
         var p = D.head || D.body || D.documentElement || ((p = D.currentScript) && (p.parentNode || p)) || D.querySelector('*') || D.firstElementChild || D
-        return p.appendChild(e)
+        p.appendChild(o)
+        return o.insertAdjacentText ? function(t){o.insertAdjacentText('beforeend',t)}:function(t){o.textContent+=t}
     }
     function registerCSSAll(rules) {
         for (var i in rules)
@@ -272,7 +249,8 @@
     }
     function lowPriority() {
         //@dev console.time('low priority')
-        g("locale", "auto", false, "*")("user-modify", "auto", true, "*")("line-grid", "auto", false, "*")("line-snap", "auto", false, "*")("nbsp-mode", "auto", false, "*")("text-zoom", "auto", true, "*")("line-align", "auto", false, "*")("text-decorations-in-effect", "auto", true, "*")("force-broken-image-icon", "0", true, "<integer>")("float-edge", "content-box", true, "*")("image-region", "auto", false, "*")("box-orient", "inline-axis", true, "*")("box-align", "stretch", true, "*")("box-direction", "normal", true, "*")("box-flex", "0", true, "*")("box-flex-group", "0", true, "*")("box-lines", "single", true, "*")("box-ordinal-group", "1", true, "*")("box-decoration-break", "slice", true, "*")("box-pack", "start", true, "*")("line-clamp", "none", true, "*")("font-smoothing", "auto", false, "*")("mask-position-x", "0%", true, "<length-percentage>")("mask-position-y", "0%", true, "<length-percentage>")("window-dragging", "auto", true, "*")("stack-sizing", "stretch-to-fit", false, "*")("mask-composite", "source-over", true, "*")("window-shadow", "auto", true, "*")("outline-radius", "0 0 0 0", true, "*")("binding", "none", true, "*")("text-blink", "none", true, "*")("image-rect", "auto", false, "*")("context-properties", "none", false, "*")("text-kashida-space", "0%", false, "<percentage>")("interpolation-mode", "none", true, "*")("progress-appearance", "bar", true, "*")("flow-from", "none", true, "*")("flow-into", "none", true, "*")("high-contrast-adjust", "auto", false, "*")("ime-mode", "auto", true, "*")("wrap-through", "wrap", true, "*")("print-color-adjust", "economy", false, "*")("pay-button-style", "white", true, "*")("color-filter", "none", false, "*")("pay-button-type", "plain", true, "*")("visual-effect", "none", false, "*")("text-spacing-trim", "normal", false, "*")("text-group-align", "none", true, "*")("text-autospace", "normal", false, "*")("orient", "inline", true, "*")("ruby-overhang", "auto", false, "*")("max-lines", "none", true, "*")("line-fit-edge", "leading", false, "*")("overflow-scrolling", "auto", true, "*")("column-progression", "auto", true, "*")("dashboard-region", "none", true, "*")("column-axis", "auto", true, "*")("text-size-adjust", "auto", false, "*")("border-vertical-spacing", "auto", true, "*")("buffered-rendering", "auto", true, "*");        //@dev console.timeEnd('low priority')
+        g("locale", "auto", false, "*")("user-modify", "auto", true, "*")("line-grid", "auto", false, "*")("line-snap", "auto", false, "*")("nbsp-mode", "auto", false, "*")("text-zoom", "auto", true, "*")("line-align", "auto", false, "*")("text-decorations-in-effect", "auto", true, "*")("force-broken-image-icon", "0", true, "<integer>")("float-edge", "content-box", true, "*")("image-region", "auto", false, "*")("box-orient", "inline-axis", true, "*")("box-align", "stretch", true, "*")("box-direction", "normal", true, "*")("box-flex", "0", true, "*")("box-flex-group", "0", true, "*")("box-lines", "single", true, "*")("box-ordinal-group", "1", true, "*")("box-decoration-break", "slice", true, "*")("box-pack", "start", true, "*")("line-clamp", "none", true, "*")("font-smoothing", "auto", false, "*")("mask-position-x", "0%", true, "<length-percentage>")("mask-position-y", "0%", true, "<length-percentage>")("window-dragging", "auto", true, "*")("stack-sizing", "stretch-to-fit", false, "*")("mask-composite", "source-over", true, "*")("window-shadow", "auto", true, "*")("outline-radius", "0 0 0 0", true, "*")("binding", "none", true, "*")("text-blink", "none", true, "*")("image-rect", "auto", false, "*")("context-properties", "none", false, "*")("text-kashida-space", "0%", false, "<percentage>")("interpolation-mode", "none", true, "*")("progress-appearance", "bar", true, "*")("flow-from", "none", true, "*")("flow-into", "none", true, "*")("high-contrast-adjust", "auto", false, "*")("ime-mode", "auto", true, "*")("wrap-through", "wrap", true, "*")("print-color-adjust", "economy", false, "*")("pay-button-style", "white", true, "*")("color-filter", "none", false, "*")("pay-button-type", "plain", true, "*")("visual-effect", "none", false, "*")("text-spacing-trim", "normal", false, "*")("text-group-align", "none", true, "*")("text-autospace", "normal", false, "*")("orient", "inline", true, "*")("ruby-overhang", "auto", false, "*")("max-lines", "none", true, "*")("line-fit-edge", "leading", false, "*")("overflow-scrolling", "auto", true, "*")("column-progression", "auto", true, "*")("dashboard-region", "none", true, "*")("column-axis", "auto", true, "*")("text-size-adjust", "auto", false, "*")("border-vertical-spacing", "auto", true, "*")("buffered-rendering", "auto", true, "*")
+        //@dev console.timeEnd('low priority')
     }
     function properties() {
         //@dev console.time('properties')
@@ -310,16 +288,16 @@
     }
     var diffName =
         [
-            [/^offset(-(?:distance|rotate|path))?$/, 'motion$1'],
-            [/^-webkit-((?:max|min)-)?logical-width$/, '$1inline-size'],
-            [/^-webkit-((?:max|min)-)?logical-height$/, '$1block-size'],
-            [/^-webkit-mask-box-image(-\w+)?$/, 'mask-border$1'],
-            [/^grid-((?:row|column)-)?gap$/, '$1-gap'],
+            [/^offset(-(?:distance|rotate|path))?$/i, 'motion$1'],
+            [/^-webkit-((?:max|min)-)?logical-width$/i, '$1inline-size'],
+            [/^-webkit-((?:max|min)-)?logical-height$/i, '$1block-size'],
+            [/^-webkit-mask-box-image(-\w+)?$/i, 'mask-border$1'],
+            [/^grid-((?:row|column)-)?gap$/i, '$1gap'],
             // [/^float$/, 'cssFloat'],
-            [/^overflow-wrap$/, 'word-wrap'],
-            [/^word-wrap$/, 'overflow-wrap'],
-            [/^(text-combine)-upright$/, '-webkit-$1'],
-            [/^print-(color-adjust)$/, '$1']
+            [/^overflow-wrap$/i, 'word-wrap'],
+            [/^word-wrap$/i, 'overflow-wrap'],
+            [/^(text-combine)-upright$/i, '-webkit-$1'],
+            [/^print-(color-adjust)$/i, '$1']
         ]
     function correctProp(prop, value) {
         var out = []
@@ -386,7 +364,6 @@
         o[W(':disabled,[aria-disabled=true]')] = { cursor: 'not-allowed' }
         /**@deprecated*/o[W('.centerx,.center')] = { 'justify-self': 'center', margin: 'auto', 'text-align': 'center' }
         /**@deprecated*/o[W('.centery,.center')] = { 'align-self': 'center', inset: 0, position: 'fixed' }
-        o[W('.center_text')] = { 'text-align': 'center' }
         o[W('.center_block')] = { display: 'block', 'margin-left': 'auto', 'margin-right': 'auto' }
         o[W('.center_inline')] = { display: 'inline-block', 'text-align': 'center' }
         o[W('.center_absolute,.center_screen')] = { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }
@@ -435,9 +412,7 @@
             supportsRule: sel,
             registerCSS: registerCSS,
             dashVendor: dv,
-            // importFont: importFont,
             capVendor: cv,
-            // importCSS: importCSS,
             badCSS: badCSS,
             toCaps: toCaps,
             toDash: toDash,

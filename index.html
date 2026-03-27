@@ -330,9 +330,11 @@
             border-radius: 100%;
             width: 55px;
             height: 55px;
-            pointer-events: none;
+            pointer-events: none !important;
         }
-
+        .avatarpopped > * {
+            pointer-events: none !important;
+        }
         .avatarpopped::after {
             content: "@" attr(title);
             text-transform: capitalize;
