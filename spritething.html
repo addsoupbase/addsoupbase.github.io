@@ -1,20 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
-        html { font-family: monospace; }
-        figure { padding-block: 10px; height: fit-content; }
-        a { display: block; width: 100px; }
-        figure { border: 1px solid black; text-align: center; place-items: center; image-rendering: pixelated; place-self: anchor-center; }
-        figcaption { width: 100px; font-size: large; cursor: pointer; margin-block: 8px; }
-        slide-show { position: relative; left: 25%; transform: scale(1.5); }
-        label {width: 100%;display: flex;place-self: flex-start;cursor: pointer;}
+        html {
+            font-family: monospace;
+        }
+
+        figure {
+            padding-block: 10px;
+            height: fit-content;
+        }
+
+        a {
+            display: block;
+            width: 100px;
+        }
+
+        figure {
+            border: 1px solid black;
+            text-align: center;
+            place-items: center;
+            /* image-rendering: pixelated; */
+            place-self: anchor-center;
+            display: grid;
+            place-content: center;
+            place-self: auto;
+        }
+
+        figcaption {
+            width: 100px;
+            font-size: large;
+            cursor: pointer;
+            margin-block: 8px;
+            --user-select: none
+        }
+
+        slide-show {
+            position: relative;
+            left: 50%;
+            top: 50%;
+            place-self: baseline;
+            transform: scale(1.5);
+        }
+
+        slide-show,
+        slide-show::part(sprite) {
+            pointer-events: none;
+        }
+
+        label {
+            width: 100%;
+            display: flex;
+            place-self: flex-start;
+            cursor: pointer;
+        }
     </style>
     <script blocking="render" src="./css.js"></script>
 </head>
+
 <body>
     <input type="file" id="u" webkitdirectory multiple>
     <div id="holder" style="display: flex; flex-wrap: wrap;"></div>
@@ -22,160 +69,149 @@
         import * as v from './v4.js'
         import JSZip from 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm'
         import preload from './webcomponents/slide-show.js'
-
         let $ = v.esc
         let { u, holder } = v.id
         let blobs = new Map
+        let accept = /Offsets|Shadow/
+        let directions = {}
+        holder.delegate({
+            click() {
+                let toggle = [].slice.call(this.parent.querySelectorAll('input'))
+                let bool = toggle.every(o => !o.checked)
+                toggle.forEach(o => o.checked = bool)
+            }
+        }, o => o.matches('figcaption'))
         u.on({
-            async change(e) {
-                let files = Array.from(this.files)
-                let rootName = files[0].webkitRelativePath.split('/')[0]
-                let xmlFile = files.find(f => f.name === 'AnimData.xml')
-                if (!xmlFile) return
-                let xmlText = await xmlFile.text()
-                let xml = new DOMParser().parseFromString(xmlText, 'application/xml')
-                let normalMap = new Map
-                let shinyMap = new Map
-                for (let f of files) {
-                    if (f.name === 'AnimData.xml' || /-(?:Offsets|Shadow)\.png$/.test(f.name)) continue
-                    let path = f.webkitRelativePath
-                    let isShiny = path.includes('/shiny/')
-                    let key = f.name
-                    if (isShiny) shinyMap.set(key, f)
-                    else normalMap.set(key, f)
-                }
-                for (let [key, normalFile] of normalMap) {
-                    let shinyFile = shinyMap.get(key)
-                    await processPokemon(normalFile, shinyFile, xml, rootName)
-                }
-                let btn = $`<button style="margin-block:20px" (_click)="${async e => {
-                    let checked = [...holder.querySelectorAll('input:checked')]
-                    if (!checked.length) return
-
-                    let anims = {}
-                    let zip = JSZip()
-                    let pokemon = checked[0].closest('figure').dataset.pkmname
-
-                    for (let inp of checked) {
-                        let { dir, axis } = inp.dataset
-                        let fig = inp.closest('figure')
-                        let ds = fig.dataset
-                        let a = anims[axis] ??= Object.assign([], {
-                            duras: ds.duras,
-                            name: ds.anim,
-                            width: +ds.framewidth * +ds.framesx,
-                            frameWidth: +ds.framewidth,
-                            frameHeight: +ds.frameheight,
-                            framesX: +ds.framesx
-                        })
-                        a.push(dir)
-                    }
-
-                    for (let anim in anims) {
-                        let dirs = anims[anim]
-                        let fig = holder.querySelector(`figure[data-anim="${anim}"]`)
-                        let hasShiny = fig?.dataset.shiny === 'true'
-                        let totalRows = dirs.length * (hasShiny ? 2 : 1)
-                        let canvas = new OffscreenCanvas(dirs.width, dirs.frameHeight * totalRows)
-                        let ctx = canvas.getContext('2d')
-                        ctx.imageSmoothingEnabled = false
-                        await Promise.all(dirs.map(async (dir, i) => {
-                            let key = `${anim}-${dir}`
-                            let blob = blobs.get(key)
-                            if (!blob) return
-                            let img = await createImageBitmap(blob)
-                            ctx.drawImage(img, 0, i * (hasShiny ? 2 : 1) * dirs.frameHeight)
-                        }))
-                        zip.file(`${rootName}-${anim}.png`, await canvas.convertToBlob())
-                    }
+            async change() {
+                this.replaceWith($`<button (click)="${async function () {
+                    // the first time i've EVER used Object.groupBy!
+                    // i LOVE using new stuff and figuring out use cases for it! :D
+                    let checked = Object.groupBy([].filter.call(holder.querySelectorAll("input"), o => o.checked), o => o.parentNode.parentNode.querySelector('figcaption').textContent)
+                    let frames = {}
                     let json = {}
-                    for (let anim in anims) {
-                        let dirs = anims[anim]
-                        let fig = holder.querySelector(`figure[data-anim="${anim}"]`)
-                        let hasShiny = fig?.dataset.shiny === 'true'
+                    let zip = JSZip()
+                    for (let anim in checked)
+                        frames[anim] = checked[anim].map(o => +o.dataset.dir)
+                    for (let anim in frames) {
+                        let dirs = frames[anim]
+                        let sprites = directions[anim]
+                        let { width, height, y, yTotal, durations } = sprites
+                        let yThing = (yTotal / y) * dirs.length
+                        let canvas = new OffscreenCanvas(width * durations.length, height * yThing)
+                        let ctx = canvas.getContext('2d')
+                        let a = 0
+                        let die = directions[anim]
+                        let totalDirections = dirs.length
+                        for (let i = 0; i < yTotal / y; ++i) 
+                            for (let ii = 0; ii < totalDirections; ++ii) {
+                                let sect = die[dirs[ii]][i]
+                                ctx.drawImage(sect, 0, 0)
+                                ctx.translate(0, height)
+                            }
                         json[anim] = {
-                            framesY: dirs.length * (hasShiny ? 2 : 1),
-                            values: dirs.duras.split(';').map(Number).join(';'),
-                            frameWidth: dirs.frameWidth,
-                            frameHeight: dirs.frameHeight
+                            framesY: yThing,
+                            values: durations.join(';'),
+                            frameWidth: width,
+                            frameHeight: height
                         }
+                        zip.file(`${pkm}-${anim}.png`, await canvas.convertToBlob())
                     }
-                    zip.file(`${pokemon}.json`, JSON.stringify(json))
-                    let blob = await zip.generateAsync({ type: 'blob' })
-                    let url = URL.createObjectURL(blob)
-                    let a = $(`<a href="${url}" download="${pokemon}.zip"></a>`).setParent(document.body)
-                    a.click()
-                    a.remove()
-                    URL.revokeObjectURL(url)
-                }}">Download</button>`
-                this.parentNode.insertBefore(btn.valueOf(), holder.valueOf())
+                    zip.file(`${pkm}.json`, JSON.stringify(json))
+                    let anchor = $`<a href="${URL.createObjectURL(await zip.generateAsync({ type: 'blob' }))}" download="${pkm}.zip"></a>`.to(document.body)
+                    anchor.click()
+                    anchor.remove()
+                }}">Download</button>`.valueOf())
+                let anims = {}
+                let xml = null
+                for (let file of this.files) if (!accept.test(file.name)) {
+                    if (file.name === 'AnimData.xml') {
+                        xml ??= new DOMParser().parseFromString(await file.text(), 'text/xml')
+                        continue
+                    }
+                    let path = file.webkitRelativePath.split('/')
+                    var pkm = pkm ?? path[0]
+                    let files = anims[file.name.replace('-Anim.png', '')] ??= { normal: [], shiny: [] }
+                    files[path[1] === 'shiny' ? 'shiny' : "normal"].push(file)
+                    // await process(file, pkm)
+                }
+                for (let anim in anims) {
+                    let a = anims[anim]
+                    a.normal.sort(sortFilesByName)
+                    a.shiny.sort(sortFilesByName)
+                }
+                process(anims, pkm, await xmlToObj(xml, anims))
             }
         })
-        async function processPokemon(normalFile, shinyFile, xml, rootName) {
-            let name = normalFile.name.replace('-Anim.png', '')
-            let xpath = xml.evaluate(`//Name[text()="${name}"]/..`, xml, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)
-            let res = xpath.singleNodeValue
-            if (!res) return
+        function sortFilesByName(a, b) {
+            return a.webkitRelativePath.split('/').slice(1).join('/').localeCompare(b.webkitRelativePath.split('/').slice(1).join('/'))
+        }
+        let completeFrames = {}
+        async function process(anims, pokemon, data) {
 
-            let durations = [...res.querySelectorAll('Duration')].map(d => +d.textContent)
-            let framesX = durations.length
-            let frameHeight = +res.querySelector('FrameHeight').textContent
-            let frameWidth = +res.querySelector('FrameWidth').textContent
-
-            let normalUrl = URL.createObjectURL(normalFile)
-            let normalImg = await loadImage(normalUrl)
-            let normalWidth = normalImg.naturalWidth
-            let normalHeight = normalImg.naturalHeight
-            let framesY = normalHeight / frameHeight
-            let shinyImg = null
-            if (shinyFile) {
-                let shinyUrl = URL.createObjectURL(shinyFile)
-                shinyImg = await loadImage(shinyUrl)
+        }
+        async function xmlToObj(xml, anims) {
+            let out = {}
+            for (let anim of xml.querySelectorAll('Anim')) {
+                let animName = anim.querySelector('Name').textContent
+                if (anim.querySelector('CopyOf')) continue// out[animName] = out[isCopy]
+                let animFiles = anims[animName]
+                let { normal = [], shiny = [] } = animFiles
+                let allFrames = normal.concat(shiny)
+                let spritesheets = []
+                let width = +anim.querySelector('FrameWidth').textContent,
+                    height = +anim.querySelector('FrameHeight').textContent
+                let durations = [].map.call(anim.querySelectorAll('Duration'), mapDura)
+                let y
+                let myDirections
+                for (let i = 0, l = allFrames.length; i < l; ++i) {
+                    let animFile = allFrames[i]
+                    let src = URL.createObjectURL(animFile)
+                    let img = $`<img src="${src}">`
+                    await img.until('load', 'error')
+                    img = img.valueOf()
+                    spritesheets.push(img.valueOf())
+                    y ??= img.naturalHeight / height
+                    myDirections ??= directions[animName] = Array.from({ length: y }, () => [])
+                    URL.revokeObjectURL(src)
+                    for (let ii = 0; ii < y; ++ii) {
+                        let canvas = new OffscreenCanvas(img.naturalWidth, height)
+                        let ctx = canvas.getContext('2d')
+                        ctx.drawImage(img, 0, height * -ii)
+                        myDirections[ii].push(canvas)
+                        canvas.nameThing = animFile.webkitRelativePath
+                    }
+                    out[animName] = { width, height, durations, y, yTotal: allFrames.length * y }
+                }
+                myDirections.height = height
+                myDirections.width = width
+                myDirections.y = y
+                myDirections.durations = durations
+                Object.defineProperty(myDirections, 'yTotal', {
+                    get() {
+                        return y * this[0].length
+                    }
+                })
+                myDirections[0][0].convertToBlob().then(src => {
+                    src = URL.createObjectURL(src)
+                    preload({ src, framesX: durations.length, duras: durations, framesY: 1, frameWidth: width, frameHeight: height })
+                    [0].then(URL.revokeObjectURL.bind(URL, src))
+                    container.unshiftNode($`<slide-show dur=".03" src="${src}" autoplay></slide-show>`)
+                })
+                let container = holder.$`<figure><figcaption title="Click to check/uncheck all">${animName}</figcaption>${$(Array.from({ length: y }, (_, i) => `<label><input data-dir="${i}" type="checkbox">${getAxisName(i)}</label>`))}</figure>`
             }
-            scheduler.postTask(()=>preload({ src: normalUrl, framesX, framesY, duras: durations }), {priority:'user-visible'})
-            let sect = $`<figure data-pkmname="${rootName}" data-anim="${name}" data-duras="${durations.join(';')}" data-framewidth="${frameWidth}" data-width="${normalWidth}" data-height="${normalHeight}" data-frameheight="${frameHeight}" ${shinyFile ? ` data-shiny="true"` : ''} data-framesx="${framesX}" data-framesy="${framesY}"><slide-show autoplay src="${normalUrl}"></slide-show><figcaption (click)="${click}">${name.split(/(?=[A-Z])/).join(' ')}</figcaption></figure>`.setParent(holder)
-            for (let d = 0; d < framesY; d++) {
-                let axisName = getAxisName(d)
-                let canvasHeight = frameHeight * (shinyFile ? 2 : 1)
-                let canvas = new OffscreenCanvas(frameWidth * framesX, canvasHeight)
-                let ctx = canvas.getContext('2d')
-                ctx.imageSmoothingEnabled = false
-                ctx.drawImage(normalImg, 0, d * frameHeight, frameWidth * framesX, frameHeight, 0, 0, frameWidth * framesX, frameHeight)
-                if (shinyFile) 
-                    ctx.drawImage(shinyImg, 0, d * frameHeight, frameWidth * framesX, frameHeight, 0, frameHeight, frameWidth * framesX, frameHeight)
-
-                let blob = await canvas.convertToBlob()
-                blobs.set(`${name}-${axisName}`, blob)
-                sect.pushNode($(`<label><input type="checkbox" data-dir="${axisName}" data-axis="${name}">${axisName}</label>`))
+            return out
+        }
+        holder.delegate({
+            repeatEvent() {
+                this.index++
             }
-        }
-
-        function loadImage(url) {
-            return new Promise((resolve, reject) => {
-                let img = new Image
-                img.onload = () => resolve(img)
-                img.onerror = reject
-                img.src = url
-            })
-        }
-
-        function click() {
-            this.parent.querySelectorAll('input').forEach(o => o.checked = true)
-        }
-
+        })
+        function mapDura(o) { return +o.textContent }
+        let axe = `Down,Down Right,Right,Up Right,Up,Up Left,Left,Down Left`.split(',')
         function getAxisName(y) {
-            switch (y) {
-                case 0: return 'Down'
-                case 1: return 'Down Right'
-                case 2: return 'Right'
-                case 3: return 'Up Right'
-                case 4: return 'Up'
-                case 5: return 'Up Left'
-                case 6: return 'Left'
-                case 7: return 'Down Left'
-                default: return ''
-            }
+            return axe[y] || ''
         }
     </script>
 </body>
+
 </html>

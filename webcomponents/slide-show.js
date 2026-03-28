@@ -5,6 +5,7 @@ let svg = document.createRange().createContextualFragment('<div part="sprite"><s
 let bitmaps = new Map
 let sheet = new CSSStyleSheet
 let isSafari = 'onwebkitmouseforceup' in window
+// let before = `content: attr(alt);left:-30px;font-size:smaller;position:relative;font-family:monospace`
 let after = 'transform:translate(-50%, -50%);position:absolute;left:-15px;top:-15px;image-rendering:pixelated;content:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAJ9JREFUeNq01ssOwyAMRFG46v//Mt1ESmgh+DFmE2GPOBARKb2NVjo+17PXLD8a1+pl5+A+wSgFygymWYHBb0FtsKhJDdZlncG2IzJ4ayoMDv20wTmSMzClEgbWYNTAkQ0Z+OJ+A/eWnAaR9+oxCF4Os0H8htsMUp+pwcgBBiMNnAwF8GqIgL2hAzaGFFgZauDPKABmowZ4GL369/0rwACp2yA/ttmvsQAAAABJRU5ErkJggg==);width:30px;height:30px'
 sheet.replaceSync(`:host(:--broken)::after{${after}}:host(:state(--broken))::after{${after}}div{pointer-events:all;overflow:hidden;transform:translate(-50%,-50%);}foreignObject{y:calc((rem(calc(var(--index,0)*var(--frame-h,0)),var(--height,0))*-1px))}svg{contain:paint layout;position:relative}:host{user-select:none;-webkit-user-select:none;-moz-user-select:none;touch-action:pinch-zoom;pointer-events: none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}`)
 class SlideShow extends HTMLElement {
@@ -60,6 +61,14 @@ class SlideShow extends HTMLElement {
         this.setAttribute('src', t)
         this.play()
     }
+    #framesY = 0
+    #framesX = 0
+    get framesY() {
+        return this.#framesY
+    }
+    get framesX() {
+        return this.#framesX
+    }
     get index() {
         return +this.getAttribute('index') || 0
     }
@@ -87,6 +96,7 @@ class SlideShow extends HTMLElement {
                 let b = false
                 while (!bitmaps.has(u)) {
                     if (!b) {
+                        this.#framesX = this.#framesY = 0
                         this.#internals?.states.add('--broken')
                         ctx.clearRect(0, 0, canvas.width, canvas.height)
                         b = true
@@ -96,6 +106,8 @@ class SlideShow extends HTMLElement {
                 }
                 this.#internals?.states.delete('--broken')
                 let { bitmap, framesX, framesY, frameHeight, frameWidth, values, displayedFrames } = bitmaps.get(u)
+                this.#framesX = framesX
+                this.#framesY = framesY
                 this.#displayedFrames = displayedFrames
                 let fe = this.#fe
                 let width = canvas.width = framesX * frameWidth
@@ -103,12 +115,16 @@ class SlideShow extends HTMLElement {
                 fe.setAttribute('width', width)
                 fe.setAttribute('height', height)
                 ctx.imageSmoothingEnabled = false
+                // ctx.imageSmoothingQuality='high'
                 ctx.drawImage(bitmap, 0, 0)
                 fe.style.setProperty('--height', framesY * frameHeight)
                 fe.style.setProperty('--frame-h', frameHeight)
                 this.#anim.setAttribute('values', values)
                 this.#anim.setAttribute('to', values.at(-1))
                 this.#updateTotalDuration()
+                if (this.hasAttribute('autoplay')) {
+                    this.play()
+                }
                 break
             }
             case 'dur':
@@ -135,7 +151,9 @@ class SlideShow extends HTMLElement {
     }
     connectedCallback() {
         this.hasAttribute('role') || (this.role = 'img')
-        this.hasAttribute('autoplay') && this.play()
+        if (this.hasAttribute('autoplay')) {
+            this.play()
+        }
     }
     play() {
         let anim = this.#anim
