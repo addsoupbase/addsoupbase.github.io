@@ -143,7 +143,8 @@
             }
         })
         function sortFilesByName(a, b) {
-            return a.webkitRelativePath.split('/').slice(1).join('/').localeCompare(b.webkitRelativePath.split('/').slice(1).join('/'))
+
+            return a.lastModified - b.lastModified
         }
         let completeFrames = {}
         async function process(anims, pokemon, data) {
