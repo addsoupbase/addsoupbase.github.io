@@ -560,7 +560,7 @@
                                 for (let path of subscribers) {
                                     let subPath = path.split('/')
                                     let file = await getSpecificFileHandle(path)
-                                    promises.push(editFile(subPath, file))
+                                    promises.push(editFile(subPath, file, watchingRoot.name))
                                 }
                                 await Promise.all(promises)
                             }
@@ -571,7 +571,7 @@
                                 let promises = []
                                 for (let sub of subs) {
                                     let thisPath = sub.split('/')
-                                    promises.push(editFile(thisPath, await getSpecificFileHandle(sub)))
+                                    promises.push(editFile(thisPath, await getSpecificFileHandle(sub), watchingRoot.name))
                                 }
                                 await Promise.all(promises)
                             }
@@ -594,7 +594,7 @@
                                 let promises = []
                                 for (let sub of subs) {
                                     let thisPath = sub.split('/')
-                                    promises.push(editFile(thisPath, await getSpecificFileHandle(sub)))
+                                    promises.push(editFile(thisPath, await getSpecificFileHandle(sub), watchingRoot.name))
                                 }
                                 await Promise.all(promises)
                             }
@@ -705,6 +705,7 @@
             setStatus('finished')
         }
         async function editFile(path, file, firstTime, folderName) {
+            folderName = watchingRoot.name
             let folder = await getFolderFromPath(path.slice(0, -1))
                 , pathString = path.join('/')
                 , fileName = file.name
@@ -813,10 +814,10 @@
             let newValue = value
             let added = []
             switch (prop) {
-                case 'display':
+                /*case 'display':
                     if (reg.grid.test(value))
                         newValue = newValue.replace(reg.grid, '-ms-$1')
-                    break
+                    break*/
                 // broken
                 /*case 'inset':
                     let n = document.createElement('div')
