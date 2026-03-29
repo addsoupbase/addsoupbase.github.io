@@ -1,13 +1,13 @@
 // most recent attempt (and hopefully the best!)
-import Proxify, { css, Element$} from './HTMLProxy.js'
+import Proxify, { css, Element$ } from './HTMLProxy.js'
 export { css, Proxify }
-import { base } from './BaseProxy.js'
+import { base, Handler } from './BaseProxy.js'
 const D = document
 function label(r) { return r[Symbol.toStringTag] }
 var parse = (parse = new Range).createContextualFragment.bind(parse)
 let rawCache = new Map
 let frequent = new Set
-Element$.prototype.$||Object.defineProperty(Element$.prototype, '$', {
+Element$.prototype.$ || Object.defineProperty(Element$.prototype, '$', {
     value(...args) {
         let out = $(...args).to(this)
         return out
@@ -16,7 +16,7 @@ Element$.prototype.$||Object.defineProperty(Element$.prototype, '$', {
 export function ce(htmlOrTag) {
     let node = rawCache.get(htmlOrTag)
     if (node) return Proxify(node.cloneNode(true))
-    if (Regex.frag.test(htmlOrTag)) 
+    if (Regex.frag.test(htmlOrTag))
         node = parse(htmlOrTag.replace(Regex.frag, '$1'))
     else if (isHTMLSyntax(htmlOrTag))
         // let n = parse(htmlOrTag)
@@ -30,7 +30,7 @@ export function ce(htmlOrTag) {
         let id = htmlOrTag.match(Regex.id)?.[0].substring(1) || ''
         if (id) node.id = id
     }
-    if (!node) throw SyntaxError(`Malformed HTML`, {cause:htmlOrTag})
+    if (!node) throw SyntaxError(`Malformed HTML`, { cause: htmlOrTag })
     if (frequent.has(htmlOrTag))
         rawCache.set(htmlOrTag, node.cloneNode(true))
     else {
@@ -97,7 +97,7 @@ export function $(strings, ...subs) {
     let node = base(out) // <-- Either a DocumentFragment or an Element depending on if you did $`<><p>hello</p></>` or not
     //@dev console.assert(node instanceof DocumentFragment || node instanceof Element, node.constructor)
     let { map } = replace
-    if (replace.toReplace) 
+    if (replace.toReplace)
         for (let o of treeWalker(base(out), 128, commentFilter)) o.replaceWith(map.get(o.textContent))
     // conclusion: TreeWalker > XPath & NodeIterator
     let type = node.nodeType
@@ -207,3 +207,122 @@ export function getContext(type, id, width, height, settings, fallbackURL) {
     contexts.set(id, null)
     return null
 }
+const watchHandler = {
+    has(t, p) {
+        return p in Watcher.getTarget(t)
+    },
+    get(t, p) {
+        // Remember: the functions can't be bound so that 
+        // array generic methods work as expected (they target the proxy)
+        return Watcher.getTarget(t)[p]
+    },
+    set(t, p, v, r) {
+        Watcher.queue(t, p)
+        return Reflect.set(Watcher.getTarget(t), p, v)
+    }
+}
+class Volatile {
+    static #handle(sub, target) {
+        let type = typeof sub
+        if (type === 'function') return sub(target)
+        if (type === 'string' || type === 'number' || type === 'symbol') return target[sub]
+        throw TypeError(`Wrong type: ${type}`)
+    }
+    #sets = new Map
+    save(p, prop, setNow) {
+        this.#sets.set(p, prop)
+        if (setNow) p[prop] = this.toString()
+    }
+    delete(p) {
+        this.#sets.delete(p)
+    }
+    emit() {
+        let myVal
+        for (let [set, prop] of this.#sets)
+            set[prop] = myVal ??= this.toString()
+    }
+    toString() {
+        let strings = this.#strings, subs = this.#subs, target = this.#target
+        let result = ''
+        for (let i = 0, n = strings.length, { length } = subs; i < n; ++i)
+            result += `${strings[i]}${i < length ? Volatile.#handle(subs[i], target) : ''}`
+        return result
+    }
+    #strings
+    #subs
+    #target
+    constructor(targetObj, strings, subs) {
+        this.#target = targetObj
+        this.compile(strings, ...subs)
+    }
+    compile(strings, ...subs) {
+        this.#strings = strings
+        this.#subs = subs
+    }
+}
+function LookerFunction(strings, ...subs) {
+    let out = new Volatile(Watcher.getTarget(this), strings, subs)
+    Watcher.addToVolatile(this, out)
+    return out
+}
+class Watcher extends function () {
+    return callee
+    function callee(...args) {
+        return LookerFunction.apply(callee, args)
+    }
+} {
+    #volatiles = new Set
+    static addToVolatile(t, vol) {
+        t.#volatiles.add(vol)
+    }
+    static getVolatiles(t) { return t.#volatiles }
+    static getTarget(t) {
+        return t.#target
+    }
+    static getProps(t) { return t.#watchingProps }
+    static emitVolatiles(t, prop) {
+        let volatiles = t.#volatiles
+        volatiles.forEach(vol => vol.emit(prop))
+    }
+    static queue(callee, prop) {
+        let q = callee.#queued
+        if (!q.size) callee.#method.call(window, () => {
+                try {
+                    let watchingProps = Watcher.getProps(callee)
+                    let thing
+                    if (watchingProps.size) thing = watchingProps.intersection(q)
+                        else thing = q
+                    thing.forEach(prop => {
+                        Watcher.emitVolatiles(callee, prop)
+                    })
+                }
+                finally {
+                    q.clear()
+                }
+            })
+        q.add(prop)
+    }
+    #queued = new Set
+    #target
+    #watchingProps
+    #method
+    constructor(obj, props, method) {
+        super()
+        this.#method = method
+        this.#target = obj
+        this.#watchingProps = new Set(props)
+    }
+}
+function Observer(obj, props, method = queueMicrotask) {
+    return new Proxy(new Watcher(obj, props, method), watchHandler)
+}
+// this was kinda fun to make :D
+// (at 5:14am as of writing)
+/*
+let arr = new Observer([], ['length'])
+let volatile = arr`This array has this many elements: ${'length'}`
+volatile.save(document.body, 'textContent', true)
+setInterval(() => {
+    arr.push(1)
+},200)
+*/
