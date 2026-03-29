@@ -309,7 +309,7 @@
                 , str = set[1]
             r.test(prop) && out.push(prop.replace(r, str))
         }
-        return out
+        return out.length ? out : [prop]
     }
     function doRegister() {
         re = function (name, iv, inh, sx) {
@@ -351,7 +351,7 @@
             }
         }
         o[W("input[type=date]")] = { cursor: 'text' }
-        o[W("button,a,[role=radio],[role=button],[role=tab],[role=combobox],[role=switch],input[type=button],input[type=checkbox],input[type=radio],input[type=submit],input[type=image],input[type=reset],input[type=file]")] = { cursor: 'pointer' }
+        o[W("button,a,[role=radio],[role=button],[role=tab],[role=combobox],[role=switch],input[type=button],input[type=checkbox],input[type=radio],input[type=submit],input[type=image],input[type=reset],input[type=file],[tabindex=1]")] = { cursor: 'pointer' }
         o[W('[aria-busy=true]')] = { cursor: 'progress' }
         o[W('[draggable=false]')] = { '--user-drag': 'none' }
         o[W('[draggable=true]')] = { '--user-drag': 'element' }

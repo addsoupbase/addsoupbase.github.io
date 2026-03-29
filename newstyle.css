@@ -1,0 +1,710 @@
+  section[data-name=sect] {
+      display: none;
+  }
+
+  .tinybubble {
+      pointer-events: none;
+  }
+
+  #book {
+      opacity: 1;
+      --user-select: none;
+      padding: 3px;
+      resize: both;
+      max-width: min(90%, 500px);
+      max-height: 75%;
+      height: 75%;
+      width: 90%;
+      min-width: 200px;
+      min-height: 200px;
+  }
+
+  section.active {
+      display: block;
+  }
+
+  @keyframes slideshow {
+      0% {
+          background-position-x: 0%;
+      }
+
+      100% {
+          background-position-x: calc(var(--width) * -1);
+      }
+  }
+
+  .lumineon.shiny {
+      filter: hue-rotate(198deg);
+  }
+
+  .nihilego.shiny {
+      filter: hue-rotate(229deg);
+  }
+
+  .kyogreprimal.shiny {
+      filter: hue-rotate(177deg) grayscale(0.5) brightness(1.1);
+  }
+
+  .corsola.shiny {
+      filter: hue-rotate(231deg) brightness(1.2);
+  }
+
+  :is(.manaphy,
+      .phione,
+      .mantyke).shiny {
+      filter: hue-rotate(318deg);
+  }
+
+  :is(.skrelp, .alomomola).shiny {
+      filter: hue-rotate(306deg);
+  }
+
+  .luvdisc.shiny {
+      filter: hue-rotate(87deg) brightness(1.4);
+  }
+
+  :is(.wailord,
+      .kingdra,
+      .wailmer).shiny {
+      filter: hue-rotate(70deg);
+  }
+
+  .tentacool.shiny {
+      filter: hue-rotate(92deg)
+  }
+
+  :is(.jellicent_f,
+      .jellicent_m) .shiny {
+      filter: hue-rotate(302deg);
+  }
+
+  .pkm {
+      /* --box-reflect: below -50px linear-gradient(transparent, white); */
+      background-repeat: no-repeat;
+      image-rendering: pixelated;
+      position: absolute;
+      /* pointer-events: none; */
+  }
+
+  :root {
+      font-family: Choco;
+  }
+
+  body,
+  html {
+      padding: 0;
+      margin: 0;
+      overflow: hidden;
+  }
+
+  /* .pkm,
+        .holder {
+            content-visibility: auto;
+        } */
+
+
+
+
+
+  body,
+  html {
+      view-transition-name: none;
+  }
+
+  #background {
+      view-transition-name: none;
+      position: fixed;
+      width: 100vw;
+      z-index: -2;
+      height: 100vh;
+      touch-action: none;
+      touch-action: pinch-zoom;
+      background: linear-gradient(52deg, rgba(2, 101, 226, 1) 0%, rgba(0, 212, 255, 1) 100%);
+      overflow: hidden;
+      animation: bg 1s ease infinite
+  }
+
+  .holder {
+      display: block;
+      position: absolute;
+
+      /* will-change: transform; */
+  }
+
+  svg,
+  svg *,
+  .holder {
+      --tap-highlight-color: transparent
+  }
+
+  svg {
+      /* --zoom: 0.3; */
+      max-width: unset;
+      user-select: none;
+      pointer-events: auto;
+      transform-origin: center;
+      touch-action: none;
+      --user-select: none;
+  }
+
+  @keyframes dissolve {
+      100% {
+          filter: opacity(0%) grayscale(100%) blur(20px) brightness(0%);
+          transform: scale(0, 0)
+      }
+  }
+
+  @keyframes yAxis {
+      0% {
+          transform: translate(0, -100px);
+      }
+
+      100% {
+          transform: translate(0, 100px);
+      }
+  }
+
+  @keyframes xAxis {
+      0% {
+          translate: calc(0vw - 400%) 0;
+      }
+
+      100% {
+          translate: calc(100vw + 400%) 0;
+      }
+  }
+
+  @keyframes yAxis2 {
+      0% {
+          transform: translateY(100px);
+      }
+
+      100% {
+          transform: translateY(-100px);
+      }
+  }
+
+  @keyframes wiggle {
+      0% {
+          translate: -14px 0
+      }
+
+      100% {
+          transform: 14px 0
+      }
+  }
+
+  .papercontrol {
+      display: inline-grid;
+  }
+
+  @keyframes up {
+      0% {
+          transform: translateY(calc(var(--size) * -2))
+      }
+
+      100% {
+          transform: translateY(-110vh)
+      }
+  }
+
+  .avatarpopped {
+      border-radius: 100%;
+      width: 55px;
+      height: 55px;
+      pointer-events: none !important;
+  }
+
+  .avatarpopped>* {
+      pointer-events: none !important;
+  }
+
+  .avatarpopped::after {
+      content: "@" attr(title);
+      text-transform: capitalize;
+      color: white;
+      position: relative;
+      word-break: keep-all;
+      width: max-content;
+      top: 35px;
+  }
+
+  .avatar {
+      background-size: 100% 100%;
+      --touch-callout: none;
+      border-radius: 100%;
+      width: 100%;
+      height: 100%;
+      cursor: inherit
+  }
+
+  .popped {
+      width: 50px;
+      height: 50px;
+      position: absolute;
+  }
+
+  figure {
+      text-align: center;
+  }
+
+  .preview {
+      display: grid;
+      place-items: center;
+      place-content: center;
+  }
+
+  .caption::before {
+      content: "@"
+  }
+
+  .caption {
+      text-transform: capitalize;
+      color: white;
+  }
+
+  @keyframes pop {
+      0% {
+          filter: opacity(100%)
+      }
+
+      100% {
+          transform: scale(2, 2);
+          /*safari is messed up idk just deal with it*/
+          filter: opacity(0%)
+      }
+  }
+
+  @keyframes fade_in {
+      0% {
+          filter: opacity(0%)
+      }
+
+      100% {
+          filter: opacity(100%)
+      }
+  }
+
+  .lanturn {
+      filter: drop-shadow(0 0 5px yellow);
+  }
+
+  #controls {
+      display: flex;
+      width: max-content;
+      place-items: end;
+      justify-content: center;
+      margin: auto;
+  }
+
+  #count {
+      opacity: 0;
+      visibility: hidden;
+      --user-select: none;
+      transition: opacity .3s ease-out;
+      pointer-events: none;
+  }
+
+  #count::before {
+      content: "🫧";
+      margin: 5px
+  }
+
+  *,
+  ::before,
+  ::after {
+      box-sizing: border-box;
+  }
+
+  img {
+      image-rendering: auto;
+  }
+
+  .clamped {
+      width: 100%;
+      max-width: 600px;
+      max-width: min(700px, 100vw);
+      height: 100%;
+      max-height: 500px;
+      max-height: min(520px, 85vh);
+      border-radius: 15px;
+  }
+
+  #holder:not(.clamped) {
+      font-size: 1.5em;
+  }
+
+  #holder:not(.clamped) main {
+      border-radius: 0;
+  }
+
+  #holder {
+      /* filter: drop-shadow(0px 0px 5px green); */
+      padding: 1px;
+      width: 100vw;
+      height: 100vh;
+      opacity: 1;
+      contain: layout style paint;
+      /* transform-origin: center center; */
+      image-rendering: pixelated;
+      transition: opacity .3s ease-in-out, background-color 0.3s ease, border-color 0.3s ease;
+      /* resize: both; */
+      overflow: hidden;
+  }
+
+  input[type="date"] {
+      display: block;
+      place-self: center;
+      font-size: 1.3em;
+  }
+
+  main {
+      /* border-style: inset !important; */
+      scroll-behavior: smooth;
+      animation: intro .5s ease forwards;
+      height: 100%;
+      view-transition-name: content;
+      /* contain: view-transition; */
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: block;
+      border-radius: inherit;
+      --scrollbar-width: 5px;
+      scrollbar-width: thin;
+      --scrollbar-thumb-color: hsl(350, 42%, 75%);
+      --scrollbar-color: #3a9d61;
+      background-image: url(./media/flowers.gif), url(./media/topdecor.gif), url(./media/roses.webp);
+      background-image:
+          image-set(url(./media/flowers.webp) type("image/webp"), url(./media/flowers.gif) type("image/gif")),
+          image-set(url(./media/topdecor.webp) type("image/webp"), url(./media/topdecor.gif) type("image/gif")),
+          image-set(url(./media/roses.webp) type("image/webp"), url(./media/roses.gif) type("image/gif"));
+      background-image:
+          -webkit-image-set(url(./media/flowers.webp) type("image/webp"), url(./media/flowers.gif) type("image/gif")),
+          -webkit-image-set(url(./media/topdecor.webp) type("image/webp"), url(./media/topdecor.gif) type("image/gif")),
+          -webkit-image-set(url(./media/roses.webp) type("image/webp"), url(./media/roses.gif) type("image/gif"));
+      background-repeat: no-repeat, no-repeat, no-repeat;
+      background-size: contain, 130px, 13%;
+      background-position-y: bottom, top;
+      background-position-x: center, right, 80px;
+      background-attachment: local;
+  }
+
+  button {
+      --user-select: none
+  }
+
+  .hellokitty,
+  .divider {
+      --user-drag: none;
+      --user-select: none;
+      width: 30px;
+      height: 30px;
+      image-rendering: pixelated;
+  }
+
+  .divider {
+      width: 20px;
+      height: 20px;
+      vertical-align: middle;
+      place-content: center;
+      place-items: center;
+      place-self: center;
+  }
+
+  a,
+  button {
+      font-size: .8rem;
+      line-height: normal;
+  }
+
+
+  @keyframes intro {
+      0% {
+          filter: opacity(0%)
+      }
+
+      100% {}
+  }
+
+
+  .buttonimage {
+      transition: scale 0.1s ease-in-out;
+      scale: 1 1;
+  }
+
+  .days {
+      filter: hue-rotate(239deg) drop-shadow(0px 0px 4px blue);
+      width: 55px;
+      height: 55px;
+      --user-drag: none;
+      --user-select: none;
+
+  }
+
+  #prev {
+      transform: scaleX(-1)
+  }
+
+  .buttonimage:active {
+      scale: 0.9 0.9;
+  }
+
+
+  ::view-transition-old(content) {
+      animation: mainSlideOut 0.72s cubic-bezier(0.34, 1.26, 0.64, 1) forwards;
+  }
+
+  ::view-transition-new(content) {
+      animation: mainSlideIn 0.72s cubic-bezier(0.34, 1.26, 0.64, 1) forwards;
+  }
+
+
+  @keyframes mainSlideOut {
+      0% {
+          opacity: 1;
+          translate: 0 0;
+          scale: 1 1;
+          filter:
+              /*drop-shadow(0px 0px 5px green) */
+              brightness(1);
+      }
+
+      100% {
+          opacity: 0;
+          translate: calc(80px * var(--transition-direction, 1)) 0;
+          scale: .9 .9;
+          filter:
+              /*drop-shadow(0px 0px 5px green) */
+              brightness(.9);
+      }
+  }
+
+  @keyframes mainSlideIn {
+      0% {
+          opacity: 0;
+          translate: calc(-80px * var(--transition-direction, 1)) 0;
+          scale: .9 .9;
+          filter:
+              /*drop-shadow(0px 0px 5px green) */
+              brightness(.9);
+      }
+
+      100% {
+          opacity: 1;
+          translate: 0 0;
+          scale: 1 1;
+          filter:
+              /*drop-shadow(0px 0px 5px green) */
+              brightness(1);
+      }
+  }
+
+  .zygarde {
+      margin-top: 25px !important;
+      margin-bottom: -50px !important
+  }
+
+  .tinkaton {
+      margin: -20px !important
+  }
+
+  @supports (-webkit-touch-callout: none) {
+
+      /*
+            Safari has some bullshit bug affecting positioning with drop-shadow(), because of course it does! 😁
+            It's Safari! Everyone has an iPhone!
+            I love it when completely unrelated properties affect each other in completely random ways...
+            But that's CSS in a nutshell
+            */
+      main {
+          border: none !important
+      }
+
+      #holder {
+          filter: none !important
+      }
+
+      @keyframes mainSlideOut {
+          0% {
+              opacity: 1;
+              translate: 0 0;
+              scale: 1 1;
+              filter: brightness(1);
+          }
+
+          100% {
+              opacity: 0;
+              translate: calc(80px * var(--transition-direction, 1)) 0;
+              scale: .9 .9;
+              filter: brightness(.9);
+          }
+      }
+
+      @keyframes mainSlideIn {
+          0% {
+              opacity: 0;
+              translate: calc(-80px * var(--transition-direction, 1)) 0;
+              scale: .9 .9;
+              filter: brightness(.9);
+          }
+
+          100% {
+              opacity: 1;
+              translate: 0 0;
+              scale: 1 1;
+              filter: brightness(1);
+          }
+      }
+  }
+
+  .friend {
+      border-radius: 100%;
+      width: 70px;
+      height: 70px
+  }
+
+  .person {
+      display: inline-block;
+      --user-select: none;
+  }
+
+  .backbutton {
+      position: fixed;
+      top: 5px;
+      left: 5px;
+  }
+
+  .pokemon {
+      image-rendering: pixelated;
+      transform: scale(1.5, 1.5)
+  }
+
+  #pokemonholder {
+      --user-select: none;
+      padding: 0;
+  }
+
+  #pokemonholder img {
+      margin: 10px
+  }
+
+  #play {
+      border: 3px solid #75ff75;
+  }
+
+  .tiny {
+      font-size: 13px;
+  }
+
+  .lholder>a {
+      font-size: 1.1em;
+  }
+
+  .friend:hover {
+      border-radius: 0 !important;
+      box-shadow: 0px 0px 15px 5px var(--color)
+  }
+
+  .friend {
+      --color: #00000070;
+      background-color: #fafafa30;
+      transition: border-radius .1s ease-out, box-shadow .1s ease-out
+  }
+
+  .username {
+      text-decoration: underline dotted;
+      text-decoration-color: var(--color) !important;
+      text-underline-offset: 5px;
+      text-transform: capitalize;
+  }
+
+  .ava-xzzy {
+      --color: pink;
+  }
+
+  .ava-valerie {
+      --color: rgb(231, 138, 0);
+  }
+
+  .ava-fourche7 {
+      --color: #a01919;
+  }
+
+  .ava-lorex {
+      --color: #0039ff;
+  }
+
+  .ava-mochi {
+      --color: cyan;
+  }
+
+  :is(.ava-rikapika, .ava-elipoopsrainbows, .ava-mothmaddie, .ava-汝起亚) {
+      --color: magenta;
+  }
+
+  :is(.ava-kae, .ava-frannie4u, .ava-zoozi, .ava-copy) {
+      --color: #0b80ff
+  }
+
+  [data-name="sect"] {
+      padding-bottom: 20px
+  }
+
+  .lholder>a::before,
+  .lholder>a::after {
+      background-image: url(./media/ribbon.gif);
+      background-image: image-set(url(./media/ribbon.webp) type("image/webp"), url(./media/ribbon.gif) type("image/gif"));
+      content: '';
+      alt: '';
+      display: inline-block;
+      vertical-align: middle;
+      width: 30px;
+      height: 30px;
+      background-size: contain;
+  }
+
+  .lholder {
+      display: inline-grid;
+      margin: 20px
+  }
+
+  hr {
+      display: none;
+      border: 1px solid #ff1fff
+  }
+
+  body {
+      cursor: url(media/Default.cur), default
+  }
+
+  :active-view-transition {
+      cursor: url(media/Default.cur), default
+  }
+
+  h1,
+  p,
+  cite,
+  h2,
+  li,
+  time,
+  span,
+  strong,
+  output,
+  figcaption,
+  input:not([type="button"], [type="submit"], [type="reset"]) {
+      cursor: url("media/Text\ Select.cur"), text
+  }
+
+  button,
+  input:where([type="button"], [type="image"], [type="color"], [type="range"]),
+  [role="button"] a {
+      cursor: url("media/Link\ Select.cur"), pointer !important
+  }
+
+  paper-canvas {
+      cursor: url("media/Handwriting.cur"), crosshair
+  }
+
+  .list {
+      display: inline
+  }

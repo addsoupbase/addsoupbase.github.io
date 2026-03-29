@@ -403,7 +403,8 @@
     </div>
     <script type="module">
         import * as v from './v4.js'
-        const { $ } = v
+        import *as reworkCSS from './reworkcss.js'
+        const { $, css } = v
         // let channel = new BroadcastChannel('tabreload')
         class TemplateProcessingError extends Error { name = 'TemplateProcessingError' }
         class PathNotFoundError extends Error { name = 'PathNotFoundError' }
@@ -774,9 +775,7 @@
                 return super.set(key, value)
             }
         }
-        /*let regexes = {
-            imgset: /(?<!-webkit-)image-set(?=\()/g
-        }
+
         function enhance(style, selector) {
             let obj = []
             for (let i = 0, l = style.length; i < l; ++i) {
@@ -786,9 +785,9 @@
                 obj.push([prop, newVal])
                 let newKey = ''
                 if (/^offset-(?:distance|path|rotate)/.test(prop)) newKey = prop.replace('offset', 'motion')
-                else if (regexes.imgset.test(val)) {
+                else if (reg.imgset.test(val)) {
                     newKey = prop
-                    newVal = newVal.replaceAll(regexes.imgset, '-webkit-image-set')
+                    newVal = newVal.replaceAll(reg.imgset, '-webkit-image-set')
                 }
                 if (newKey) obj.push([newKey, newVal])
             }
@@ -799,9 +798,131 @@
             }
             return out
         }
-        */let pending = new Map
         let dynamicFolders = new Map
         let dynamicFiles = new Map
+        function insert(array, index, ...items) {
+            return array.splice(index, 0, ...items)
+        }
+        function fixPropValuePair(declaration, i, rules) {
+            let prop = declaration.property
+            let newProp = css.correctProp(prop, declaration.value)
+            let { value } = declaration
+            let newValue = value
+            let added = []
+            switch (prop) {
+                case 'image-rendering':
+                    if (value === 'pixelated') {
+                        newValue = ['-moz-crisp-edges', '-webkit-optimize-contrast']
+                        added.push(['-ms-interpolation-mode', 'nearest-neighbor'])
+                    }
+                    break
+                case 'background':
+                case 'background-image':
+                    newValue = newValue.replace(reg.imgset, '-webkit-image-set')
+                    break
+                case 'zoom':
+                    newProp[0] = '-ms-zoom'
+                    break
+                case '--scrollbar-color':
+                    newProp[0] = '-ms-scrollbar-base-color'
+                    break
+                case '--scrollbar-thumb-color':
+                    newProp[0] = '-ms-scrollbar-face-color'
+                    break
+                case 'scrollbar-width': if (value === 'thin') {
+                    newValue = '7px'
+                    newProp[0] = '--scrollbar-width'
+                }
+                    break
+                case '--user-select':
+                    newProp[0] = '-ms-user-select'
+                    break
+                default: if (prop.startsWith('place-')) {
+                    newProp.push(prop.replace('place', 'align'), prop.replace('place', 'justify'))
+                }
+            }
+            function addClone(prop, value) {
+                let clone = structuredClone(declaration)
+                clone.property = prop
+                clone.value = value
+                insert(rules, i, clone)
+            }
+            for (let p of newProp) {
+                if (p !== prop || newValue !== value) {
+                    if (typeof newValue === 'string') newValue = [newValue]
+                    for (let v of newValue)
+                        addClone(p, v)
+                    for (let [prop, val] of added) {
+                        addClone(prop, val)
+                    }
+                }
+            }
+        }
+        let reg = {
+            marker: /::marker/g,
+            imgset: /(?<!-webkit-)image-set(?=\()/g,
+            is: /:is(?=\()/g,
+            beforeAfter: /:(:(?:before|after))/g,
+            state: /:state\((?:--)?([\w-]+)\)/g,
+            headingAll: /:heading(?!\()/g,
+            // heading: /:heading\(([\d,]+)\))/g
+        }
+        function fixSelector(rule, index, rules) {
+            let { selectors } = rule
+            let ns = []
+            let s = selectors.join('▊')
+            if (reg.headingAll.test(s)) {
+                let h = '(h1,h2,h3,h4,h5,h6)'
+                ns.push(
+                    s.replace(reg.headingAll, `:is${h}`),
+                    s.replace(reg.headingAll, `:-webkit-any${h}`),
+                    s.replace(reg.headingAll, `:-moz-any${h}`)
+                )
+            }
+            /*if (reg.heading.test(s)) {
+                function heading(type, ...args) {
+                    debugger
+                }
+                let headingWebkit = heading.bind(this, '-webkit-any')
+                let headingMoz = heading.bind(this, '-moz-any')
+                let headingDefault = heading.bind(this, 'is')
+                ns.push(
+                    s.replace(reg.heading, headingDefault),
+                    s.replace(reg.heading, headingWebkit),
+                    s.replace(reg.heading, headingMoz)
+                )
+            }*/
+            if (reg.is.test(s)) {
+                ns
+                    .push(
+                        s.replace(reg.is, ':matches'),
+                        s.replace(reg.is, ':-webkit-any'),
+                        s.replace(reg.is, ':-moz-any')
+                    )
+            }
+            if (reg.beforeAfter.test(s)) {
+                ns.push(s.replace(reg.beforeAfter, '$1'))
+            }
+            if (reg.marker.test(s)) {
+                ns
+                    .push(s.replace(reg.marker, '::-moz-list-bullet'))
+            }
+            if (reg.state.test(s)) {
+                ns
+                    .push(s.replace(reg.state, ':--$1'))
+            }
+            for (let selector of ns) {
+                let clone = structuredClone(rule)
+                clone.selectors = selector.split('▊')
+                insert(rules, index, clone)
+            }
+        } let pending = new Map
+        function fixDeclarations(declarations) {
+            for (let i = declarations.length; i--;) {
+                let dec = declarations[i]
+                if (dec.type === 'declaration') fixPropValuePair(dec, i, declarations)
+            }
+        }
         class Context extends Object.assign(function () { }, { prototype: null }) {
             #path
             #pathSegments
@@ -810,30 +931,32 @@
                 this.localPath = localPath
                 this.#pathSegments = pathSegments
             }
-            /*async sheet(src) {
-                // i didnt finish this but im going to do it eventually
+            async sheet(src) {
                 let text = await this.file(src)
-                let mySheet = new CSSStyleSheet
-                mySheet.replaceSync(text)
-                let final = ''
-                function fixSheet(sheet) {
-                    let { cssRules } = sheet
-                    for (let i = 0, l = cssRules.length; i < l; ++i) {
-                        let rule = cssRules[i]
-                        switch (rule[Symbol.toStringTag]) {
-                            case 'CSSStyleRule': {
-                                let { style } = rule
-                                // for (let i = 0, l = style.length; i < l; ++i) {
-                                // let a = style[i]
-                                final += enhance(style, rule.selectorText)
-                                // }
-                            }
-                        }
+                let sheet = reworkCSS.parse(text)
+                let parsed = sheet.stylesheet.rules
+                function parseRule(rule, index) {
+                    switch (rule.type) {
+                        case 'rule':
+                            if (rule.selectors?.join("")[0]==='@') return
+                            fixDeclarations(rule.declarations)
+                            fixSelector(rule, index, parsed)
+                            break
+                        case 'keyframes':
+                            rule.keyframes.forEach(o => fixDeclarations(o.declarations))
+                            break
+                        case 'media':
+                        case 'supports':
+                            rule.rules.forEach(o => parseRule(o, index))
+                            break
                     }
                 }
-                fixSheet(mySheet)
-                return final
-            }*/
+                for (let i = parsed.length; i--;) { // don't cache length cus we want to insert some rules
+                    let rule = parsed[i]
+                    parseRule(rule, i, parsed)
+                }
+                return reworkCSS.stringify(sheet, { compress: true })
+            }
             async dir(path) {
                 let out = await getFolderEntries(path, this.#pathSegments.join('/'))
                 return out
