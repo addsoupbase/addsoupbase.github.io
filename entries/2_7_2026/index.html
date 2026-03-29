@@ -1,8 +1,4 @@
-
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
+<!DOCTYPE html><html lang="en"><head>
     <meta charset="UTF-8">
 <meta http-equiv="content-language" content="en">
 <meta property="og:locale" content="en_US">
@@ -53,48 +49,24 @@
             <meta property="og:image:alt" content="First version of this site!"><meta name="twitter:image" content="https://addsoupbase.github.io/entries/2_7_2026/before.avif">
                 <meta name="twitter:card" content="summary_large_image">
                 <meta name="twitter:image:alt" content="First version of this site!">
-    <style>
-        .rainbow-underline {
-            /* Remove default underline if the element is a link */
-            text-decoration: none;
-            /* Define the rainbow gradient */
-            background-image: linear-gradient(to right,
+    <style>.rainbow-underline{text-decoration:none;background-image:linear-gradient(to right,
                     #ff0000,
-                    /* Red */
+                    
                     #ff9a00,
-                    /* Orange */
+                    
                     #d0de21,
-                    /* Yellow */
+                    
                     #4fec4a,
-                    /* Green */
+                    
                     #47c9e2,
-                    /* Blue */
+                    
                     #2c7feb,
-                    /* Indigo */
+                    
                     #5f15f2,
-                    /* Violet */
+                    
                     #ff0000
-                    /* Red (optional, for smooth animation looping) */
-                );
-            /* Set background size: 100% width, 3px height (the underline thickness) */
-            background-size: 100% 3px;
-            /* Position the background at the bottom of the text and prevent repetition */
-            background-repeat: no-repeat;
-            background-position: 0 100%;
-            /* Positions at the bottom left */
-        }
-
-        code {
-            display: block;
-            /* background-color: black; */
-            /* color: white; */
-            border: 1px solid black;
-            padding: 5px;
-            max-width: 400px;
-            place-self: center;
-            margin-block: 10px;
-        }
-    </style>
+                    
+                );background-size:100% 3px;background-repeat:no-repeat;background-position:0 100%;}code{display:block;border:1px solid black;padding:5px;max-width:400px;justify-self:center;align-self:center;place-self:center;margin-block:10px;}</style>
 </head>
 
 <body data-color="">
@@ -114,30 +86,29 @@
                 so i don't have to keep updating it myself
             </p>
             <h2>Demo</h2>
-            <aside>Task: <samp style="font-family: monospace;">Generate <q>i love {<span
-                            class="rainbow-underline">color</span>}</q></samp></aside>
+            <aside>Task: <samp style="font-family:monospace;">Generate <q>i love {<span class="rainbow-underline">color</span>}</q></samp></aside>
             <code>&lt;!--{{
-            return &#39;red orange yellow green blue indigo violet black white&#39;.split(&#39; &#39;).map(o=&gt;`&lt;span style=&quot;color: ${o}&quot;&gt;I love ${o}&lt;/span&gt;`).join(&#39;&lt;br&gt;&#39;)
+            return 'red orange yellow green blue indigo violet black white'.split(' ').map(o=&gt;`&lt;span style="color: ${o}"&gt;I love ${o}&lt;/span&gt;`).join('&lt;br&gt;')
             }}--&gt;</code>
             <h2>Result:</h2>
-            <span style="color: red">I love red</span><br><span style="color: orange">I love orange</span><br><span style="color: yellow">I love yellow</span><br><span style="color: green">I love green</span><br><span style="color: blue">I love blue</span><br><span style="color: indigo">I love indigo</span><br><span style="color: violet">I love violet</span><br><span style="color: black">I love black</span><br><span style="color: white">I love white</span>
+            <span style="color:red;">I love red</span><br><span style="color:orange;">I love orange</span><br><span style="color:yellow;">I love yellow</span><br><span style="color:green;">I love green</span><br><span style="color:blue;">I love blue</span><br><span style="color:indigo;">I love indigo</span><br><span style="color:violet;">I love violet</span><br><span style="color:black;">I love black</span><br><span style="color:white;">I love white</span>
             <p>You might be thinking, <q>Why not just run the code and then paste the result?</q> Well for one, i would
                 have to keep the code with me at all times which is REAL annoying.
                 When it's like this i can just edit it and save and there's no copying/pasting needed.
                 And obviously, the only other option is to manually type that out which is <em>even worse:</em>
             </p>
-            <code>&lt;span style=&quot;color: red&quot;&gt;I love red&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;color: orange&quot;&gt;I love orange&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;color: yellow&quot;&gt;I love yellow&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;color: green&quot;&gt;I love green&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;color: blue&quot;&gt;I love blue&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;color: indigo&quot;&gt;I love indigo&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;color: violet&quot;&gt;I love violet&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;color: black&quot;&gt;I love black&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;color: white&quot;&gt;I love white&lt;/span&gt;</code>
+            <code>&lt;span style="color: red"&gt;I love red&lt;/span&gt;&lt;br&gt;&lt;span style="color: orange"&gt;I love orange&lt;/span&gt;&lt;br&gt;&lt;span style="color: yellow"&gt;I love yellow&lt;/span&gt;&lt;br&gt;&lt;span style="color: green"&gt;I love green&lt;/span&gt;&lt;br&gt;&lt;span style="color: blue"&gt;I love blue&lt;/span&gt;&lt;br&gt;&lt;span style="color: indigo"&gt;I love indigo&lt;/span&gt;&lt;br&gt;&lt;span style="color: violet"&gt;I love violet&lt;/span&gt;&lt;br&gt;&lt;span style="color: black"&gt;I love black&lt;/span&gt;&lt;br&gt;&lt;span style="color: white"&gt;I love white&lt;/span&gt;</code>
             <p>It's kinda like client side PHP i guess!!</p>
             <h2>This might just be the best thing i've ever made</h2>
             <p>When i look back on where i was like simply 1 year ago it's kinda insane how
-                much i've learned and how much better i am now. I'm <strong>REALLYYY</strong> proud of myself <img style="width:45px !important; height:45px !important;min-width: auto;min-height: auto;float:right" class="emoji" src="https://addsoupbase.github.io/cute-emojis/emojis/1004540121770627213.gif" alt>
+                much i've learned and how much better i am now. I'm <strong>REALLYYY</strong> proud of myself <img style="width:45px !important;height:45px !important;min-width:auto;min-height:auto;float:right;" class="emoji" src="https://addsoupbase.github.io/cute-emojis/emojis/1004540121770627213.gif" alt="" width="20" height="20">
             </p>
             <h2><time datetime="2024-05-18">May 18th, 2024</time></h2>
             <figure>
-                <a style="display: contents;" href="https://addsoupbase.github.io/intro" target="_blank">
+                <a style="display:contents;" href="https://addsoupbase.github.io/intro" target="_blank">
                     <picture>
                         <source srcset="before.avif" type="image/avif"><source srcset="before.webp" type="image/webp">
-                        <img src="before.jpg" alt="Screenshot of old site">
+                        <img src="before.jpg" alt="Screenshot of old site" width="1920" height="1080">
                     </picture>
                 </a>
                 <figcaption>The very first version of this site</figcaption>
@@ -145,6 +116,6 @@
             </figure>
         </article>
     </main>
-</body>
 
-</html>
+
+</body></html>

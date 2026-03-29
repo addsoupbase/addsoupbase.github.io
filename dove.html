@@ -553,7 +553,7 @@
                             let isTemplate = prefix.test(ch.name)
                             log(rel, 'success', `Create ${path}${ch.kind === 'directory' ? '/' : ''}`)
                             if (ch.kind === 'file' && isTemplate)
-                                await editFile(rel, ch)
+                                await editFile(rel, ch, watchingRoot.name)
                             else if (dynamicFiles.has(path)) {
                                 let subscribers = dynamicFiles.get(path)
                                 let promises = []
@@ -611,14 +611,16 @@
                                 // queueMicrotask(()=>{
                                 //     // channel.postMessage(path)
                                 // })
-                                if (prefix.test(ch.name)) await editFile(rel, ch)
+                                if (prefix.test(ch.name)) {
+                                    await editFile(rel, ch, watchingRoot.name)
+                                }
                                 else if (dynamicFiles.has(path)) {
                                     let subscribers = dynamicFiles.get(path)
                                     let promises = []
                                     for (let path of subscribers) {
                                         let subPath = path.split('/')
                                         let file = await getSpecificFileHandle(path)
-                                        promises.push(editFile(subPath, file))
+                                        promises.push(editFile(subPath, file, watchingRoot.name))
                                     }
                                     await Promise.all(promises)
                                 }
@@ -688,7 +690,7 @@
                         if (prefix.test(name)) {
                             path = await watchingRoot.resolve(file)
                             try {
-                                await editFile(path, file, true)
+                                await editFile(path, file, true, watchingRoot.name)
                             }
                             catch (e) {
                                 log(path, 'error', `${e} (${e.cause = path.join('/')})`)
@@ -702,14 +704,14 @@
             }
             setStatus('finished')
         }
-        async function editFile(path, file, firstTime) {
+        async function editFile(path, file, firstTime, folderName) {
             let folder = await getFolderFromPath(path.slice(0, -1))
                 , pathString = path.join('/')
                 , fileName = file.name
                 , newFileName = fileName.replace(prefix, '')
                 , output = await folder.getFileHandle(newFileName, { create: true })
                 , { 0: inputFile, 1: outputFile } = await Promise.all([file.getFile(), output.getFile()])
-                , text = await evaluate(await inputFile.text(), new URL(pathString, baseURL), path)
+            let text = await evaluate(await inputFile.text(), new URL(pathString, baseURL), path, outputFile.type, folderName)
             if (text == null) {
                 log(path, 'warning', `Template for ${pathString} returned ${text} `)
             }
@@ -775,7 +777,8 @@
                 return super.set(key, value)
             }
         }
-
+        var parseHTML = (parseHTML = new Range).createContextualFragment.bind(parseHTML)
+        var parseHTMLDocument = (parseHTMLDocument = new DOMParser).parseFromString.bind(parseHTMLDocument)
         function enhance(style, selector) {
             let obj = []
             for (let i = 0, l = style.length; i < l; ++i) {
@@ -810,6 +813,20 @@
             let newValue = value
             let added = []
             switch (prop) {
+                case 'display':
+                    if (reg.grid.test(value))
+                        newValue = newValue.replace(reg.grid, '-ms-$1')
+                    break
+                // broken
+                /*case 'inset':
+                    let n = document.createElement('div')
+                    document.body.appendChild(n)
+                    n.style.inset = value
+                    let { left, right, top, bottom } = getComputedStyle(n)
+                    n.remove()
+                    added.push([['left', left], ['right', right], ['top', top], ['bottom', bottom]]) 
+                    newProp.pop()
+                    break*/
                 case 'image-rendering':
                     if (value === 'pixelated') {
                         newValue = ['-moz-crisp-edges', '-webkit-optimize-contrast']
@@ -840,6 +857,7 @@
                 default: if (prop.startsWith('place-')) {
                     newProp.push(prop.replace('place', 'align'), prop.replace('place', 'justify'))
                 }
+                else if (reg.size.test(prop)) if (value === 'stretch' || value === 'var(--stretch)') newValue = '-webkit-fill-available'
             }
             function addClone(prop, value) {
                 let clone = structuredClone(declaration)
@@ -852,13 +870,14 @@
                     if (typeof newValue === 'string') newValue = [newValue]
                     for (let v of newValue)
                         addClone(p, v)
-                    for (let [prop, val] of added) {
+                    for (let [prop, val] of added)
                         addClone(prop, val)
-                    }
                 }
             }
         }
         let reg = {
+            size: /^(?:(?:max|min)-)?(?:width|height)$/g,
+            grid: /((?:inline-)?grid)/,
             marker: /::marker/g,
             imgset: /(?<!-webkit-)image-set(?=\()/g,
             is: /:is(?=\()/g,
@@ -923,6 +942,31 @@
                 if (dec.type === 'declaration') fixPropValuePair(dec, i, declarations)
             }
         }
+        function fixCSSSheet(text) {
+            let sheet = reworkCSS.parse(text)
+            let parsed = sheet.stylesheet.rules
+            function parseRule(rule, index) {
+                switch (rule.type) {
+                    case 'rule':
+                        if (rule.selectors?.join("")[0] === '@') return
+                        fixDeclarations(rule.declarations)
+                        fixSelector(rule, index, parsed)
+                        break
+                    case 'keyframes':
+                        rule.keyframes.forEach(o => fixDeclarations(o.declarations))
+                        break
+                    case 'media':
+                    case 'supports':
+                        rule.rules.forEach(o => parseRule(o, index))
+                        break
+                }
+            }
+            for (let i = parsed.length; i--;) { // don't cache length cus we want to insert some rules
+                let rule = parsed[i]
+                parseRule(rule, i, parsed)
+            }
+            return reworkCSS.stringify(sheet, { compress: true })
+        }
         class Context extends Object.assign(function () { }, { prototype: null }) {
             #path
             #pathSegments
@@ -933,29 +977,7 @@
             }
             async sheet(src) {
                 let text = await this.file(src)
-                let sheet = reworkCSS.parse(text)
-                let parsed = sheet.stylesheet.rules
-                function parseRule(rule, index) {
-                    switch (rule.type) {
-                        case 'rule':
-                            if (rule.selectors?.join("")[0]==='@') return
-                            fixDeclarations(rule.declarations)
-                            fixSelector(rule, index, parsed)
-                            break
-                        case 'keyframes':
-                            rule.keyframes.forEach(o => fixDeclarations(o.declarations))
-                            break
-                        case 'media':
-                        case 'supports':
-                            rule.rules.forEach(o => parseRule(o, index))
-                            break
-                    }
-                }
-                for (let i = parsed.length; i--;) { // don't cache length cus we want to insert some rules
-                    let rule = parsed[i]
-                    parseRule(rule, i, parsed)
-                }
-                return reworkCSS.stringify(sheet, { compress: true })
+                return fixCSSSheet(text)
             }
             async dir(path) {
                 let out = await getFolderEntries(path, this.#pathSegments.join('/'))
@@ -1037,7 +1059,7 @@
                 proto.esc = v.escapeTagged
             }
         }
-        async function evaluate(text, localPath, pathSegments) {
+        async function evaluate(text, localPath, pathSegments, mimeType, folderName) {
             let define = text.match(defineComment)
             let define2 = text.match(jsDefineComment)
             let env = []
@@ -1098,6 +1120,39 @@
             }
             if (post && func) if (typeof (text = await func.call(context, text)) !== 'string') throw new TemplateProcessingError(`Bad value passed from postprocessor: ${{}.toString.call(text).slice(8, -1)}`, { cause: code })
             // ^ So the file can process itself afterwards
+            if (mimeType === 'text/html') {
+                let doc = parseHTMLDocument(text, 'text/html')
+                    ;[].forEach.call(doc.querySelectorAll('[style]'), o => {
+                        let n = fixCSSSheet(`*{${o.getAttribute('style')}}`)
+                        o.setAttribute('style', n.slice(2, -1))
+                    })
+                    ;[].forEach.call(doc.querySelectorAll('style'), o => {
+                        o.textContent = fixCSSSheet(o.textContent)
+                    })
+                await Promise.allSettled([].map.call(doc.querySelectorAll('img[src]'), async (img) => {
+                    if (!img.hasAttribute('width') || !img.hasAttribute('height')) {
+                        if (folderName === 'addsoupbase.github.io') folderName = ''
+                        let n = $`<img>`
+                        let promise = n.until({ resolve: 'load', reject: 'error' })
+                        let src = img.getAttribute('src')
+                        let pat = `${folderName}${localPath.pathname}`
+                        n.src = new URL(src, `http://localhost:3000/${pat}`)
+                        if (n.complete) debugger
+                        try {
+                            await promise
+                            console.debug(`Fix: ${img.outerHTML}`)
+                            img.setAttribute('width', n.naturalWidth)
+                            img.setAttribute('height', n.naturalHeight)
+                        }
+                        catch {
+                            let o = new PathNotFoundError(`Image not found: ${src}`, {cause: pat})
+                            console.error(o)
+                            throw o
+                        }
+                    }
+                }))
+                text = `${doc.doctype ? '<!DOCTYPE html>' : ''}${doc.documentElement.outerHTML}`
+            }
             return text
         }
         let probablyNotWhatYouWant = /\[object \w+\]/

@@ -97,16 +97,6 @@
       overflow: hidden;
   }
 
-  /* .pkm,
-        .holder {
-            content-visibility: auto;
-        } */
-
-
-
-
-
-  body,
   html {
       view-transition-name: none;
   }
@@ -378,10 +368,6 @@
           image-set(url(./media/flowers.webp) type("image/webp"), url(./media/flowers.gif) type("image/gif")),
           image-set(url(./media/topdecor.webp) type("image/webp"), url(./media/topdecor.gif) type("image/gif")),
           image-set(url(./media/roses.webp) type("image/webp"), url(./media/roses.gif) type("image/gif"));
-      background-image:
-          -webkit-image-set(url(./media/flowers.webp) type("image/webp"), url(./media/flowers.gif) type("image/gif")),
-          -webkit-image-set(url(./media/topdecor.webp) type("image/webp"), url(./media/topdecor.gif) type("image/gif")),
-          -webkit-image-set(url(./media/roses.webp) type("image/webp"), url(./media/roses.gif) type("image/gif"));
       background-repeat: no-repeat, no-repeat, no-repeat;
       background-size: contain, 130px, 13%;
       background-position-y: bottom, top;
@@ -655,7 +641,6 @@
       background-image: url(./media/ribbon.gif);
       background-image: image-set(url(./media/ribbon.webp) type("image/webp"), url(./media/ribbon.gif) type("image/gif"));
       content: '';
-      alt: '';
       display: inline-block;
       vertical-align: middle;
       width: 30px;
