@@ -976,9 +976,10 @@
                 this.localPath = localPath
                 this.#pathSegments = pathSegments
             }
-            async sheet(src) {
-                let text = await this.file(src)
-                return fixCSSSheet(text)
+            sheet(src) {
+                return this.file(src)
+                // let text = await this.file(src)
+                // return fixCSSSheet(text)
             }
             async dir(path) {
                 let out = await getFolderEntries(path, this.#pathSegments.join('/'))
@@ -1153,6 +1154,9 @@
                     }
                 }))
                 text = `${doc.doctype ? '<!DOCTYPE html>' : ''}${doc.documentElement.outerHTML}`
+            }
+            else if (mimeType === 'text/css') {
+                text = fixCSSSheet(text)
             }
             return text
         }
