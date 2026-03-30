@@ -193,33 +193,31 @@ export function proxy(obj) {
         : proxify(obj)
 }
 //@dev window.proxify = proxify
+function g(t) {return Watcher.get(t)}
 const watchHandler = {
     deleteProperty(t, p) {
-        return Reflect.deleteProperty(Watcher.getTarget(t), p)
+        return Reflect.deleteProperty(g(t), p)
     },
     defineProperty(t, p, v) {
-        return Reflect.defineProperty(Watcher.getTarget(t), p, v)
+        return Reflect.defineProperty(g(t), p, v)
     },
     has(t, p) {
-        return p in Watcher.getTarget(t)
+        return p in g(t)
     },
     get(t, p) {
         // Remember: the functions can't be bound so that 
         // array generic methods work as expected (they target the proxy)
-        return Watcher.getTarget(t)[p]
+        return g(t)[p]
     },
-    set(t, p, v, r) {
+    set(t, p, v) {
         Watcher.queue(t, p)
-        return Reflect.set(Watcher.getTarget(t), p, v)
+        return Reflect.set(g(t), p, v)
     },
-    ownKeys(t) { return Reflect.ownKeys(Watcher.getTarget(t)) }
+    ownKeys(t) { return Reflect.ownKeys(g(t)) }
 }
 class Volatile {
-    static #handle(sub, target, vol) {
-        let type = typeof sub
-        if (type === 'function') return vol.process(sub(target))
-        if (type === 'string' || type === 'number' || type === 'symbol') return vol.process(target[sub])
-        throw TypeError(`Wrong type: ${type}`)
+    static #handle(sub, target, vol, i) {
+        return typeof sub === 'function' ? vol.process(sub(target, i)) : vol.process(target[sub])
     }
     #sets = new Map
     process(value) {
@@ -240,11 +238,10 @@ class Volatile {
     }
     valueOf() {
         let strings = this.#strings, subs = this.#subs, target = this.#target
-        if (typeof strings === 'function')
-            return strings(target)
+        if (typeof strings === 'function') return strings(target)
         let result = ''
         for (let i = 0, n = strings.length, { length } = subs; i < n; ++i)
-            result += `${strings[i]}${i < length ? Volatile.#handle(subs[i], target, this) : ''}`
+            result += `${strings[i]}${i < length ? Volatile.#handle(subs[i], target, this, i) : ''}`
         return result
     }
     updateOnCompile = false
@@ -262,7 +259,7 @@ class Volatile {
     }
 }
 function LookerFunction(strings, ...subs) {
-    let out = new Volatile(Watcher.getTarget(this), strings, subs)
+    let out = new Volatile(g(this), strings, subs)
     Watcher.addToVolatile(this, out)
     return out
 }
@@ -277,7 +274,7 @@ class Watcher extends function () {
         t.#volatiles.add(vol)
     }
     static getVolatiles(t) { return t.#volatiles }
-    static getTarget(t) {
+    static get(t) {
         return t.#target
     }
     static getProps(t) { return t.#watchingProps }
@@ -287,20 +284,21 @@ class Watcher extends function () {
     }
     static queue(callee, prop) {
         let q = callee.#queued
-        if (!q.size) callee.#method.call(window, () => {
-            try {
-                let watchingProps = Watcher.getProps(callee)
-                let thing
-                if (watchingProps.size) thing = watchingProps.intersection(q)
-                else thing = q
-                thing.forEach(prop => {
-                    Watcher.emitVolatiles(callee, prop)
-                })
-            }
-            finally {
-                q.clear()
-            }
-        })
+        if (!q.size) {
+            let method = callee.#method
+            method().then(() => {
+                try {
+                    let watchingProps = Watcher.getProps(callee)
+                    , thing = watchingProps.size ? watchingProps.intersection(q) :  q
+                    thing.forEach(prop => {
+                        Watcher.emitVolatiles(callee, prop)
+                    })
+                }
+                finally {
+                    q.clear()
+                }
+            })
+        }
         q.add(prop)
     }
     #queued = new Set
@@ -314,8 +312,9 @@ class Watcher extends function () {
         this.#watchingProps = new Set(props)
     }
 }
-export function Observer(obj, { props, inherits = Watcher, method = queueMicrotask } = {}) {
-    return new Proxy(new inherits(obj, props, method), watchHandler)
+let resolve = Promise.resolve.bind(Promise)
+export function Observer(obj, { props, inherits, method } = {}) {
+    return new Proxy(new (inherits || Watcher)(obj, props, method || resolve), watchHandler)
 }
 /*
 let first = document.createElement('output')
