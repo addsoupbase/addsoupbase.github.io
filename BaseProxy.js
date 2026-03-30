@@ -193,3 +193,147 @@ export function proxy(obj) {
         : proxify(obj)
 }
 //@dev window.proxify = proxify
+const watchHandler = {
+    deleteProperty(t, p) {
+        return Reflect.deleteProperty(Watcher.getTarget(t), p)
+    },
+    defineProperty(t, p, v) {
+        return Reflect.defineProperty(Watcher.getTarget(t), p, v)
+    },
+    has(t, p) {
+        return p in Watcher.getTarget(t)
+    },
+    get(t, p) {
+        // Remember: the functions can't be bound so that 
+        // array generic methods work as expected (they target the proxy)
+        return Watcher.getTarget(t)[p]
+    },
+    set(t, p, v, r) {
+        Watcher.queue(t, p)
+        return Reflect.set(Watcher.getTarget(t), p, v)
+    },
+    ownKeys(t) { return Reflect.ownKeys(Watcher.getTarget(t)) }
+}
+class Volatile {
+    static #handle(sub, target, vol) {
+        let type = typeof sub
+        if (type === 'function') return vol.process(sub(target))
+        if (type === 'string' || type === 'number' || type === 'symbol') return vol.process(target[sub])
+        throw TypeError(`Wrong type: ${type}`)
+    }
+    #sets = new Map
+    process(value) {
+        return value // meant to be overridden by subclasses
+        // So for like if you want it to auto escape html!!
+    }
+    subscribe(p, prop, setNow) {
+        this.#sets.set(p, prop)
+        if (setNow) p[prop] = this.valueOf()
+    }
+    unsubscribe(p) {
+        this.#sets.delete(p)
+    }
+    emit() {
+        let myVal
+        for (let [set, prop] of this.#sets)
+            set[prop] = myVal ??= this.valueOf()
+    }
+    valueOf() {
+        let strings = this.#strings, subs = this.#subs, target = this.#target
+        if (typeof strings === 'function')
+            return strings(target)
+        let result = ''
+        for (let i = 0, n = strings.length, { length } = subs; i < n; ++i)
+            result += `${strings[i]}${i < length ? Volatile.#handle(subs[i], target, this) : ''}`
+        return result
+    }
+    updateOnCompile = false
+    #strings
+    #subs
+    #target
+    constructor(targetObj, strings, subs) {
+        this.#target = targetObj
+        this.compile(strings, ...subs)
+    }
+    compile(strings, ...subs) {
+        this.#strings = strings
+        this.#subs = subs
+        this.updateOnCompile && this.emit()
+    }
+}
+function LookerFunction(strings, ...subs) {
+    let out = new Volatile(Watcher.getTarget(this), strings, subs)
+    Watcher.addToVolatile(this, out)
+    return out
+}
+class Watcher extends function () {
+    return callee
+    function callee(...args) {
+        return LookerFunction.apply(callee, args)
+    }
+} {
+    #volatiles = new Set
+    static addToVolatile(t, vol) {
+        t.#volatiles.add(vol)
+    }
+    static getVolatiles(t) { return t.#volatiles }
+    static getTarget(t) {
+        return t.#target
+    }
+    static getProps(t) { return t.#watchingProps }
+    static emitVolatiles(t, prop) {
+        let volatiles = t.#volatiles
+        volatiles.forEach(vol => vol.emit(prop))
+    }
+    static queue(callee, prop) {
+        let q = callee.#queued
+        if (!q.size) callee.#method.call(window, () => {
+            try {
+                let watchingProps = Watcher.getProps(callee)
+                let thing
+                if (watchingProps.size) thing = watchingProps.intersection(q)
+                else thing = q
+                thing.forEach(prop => {
+                    Watcher.emitVolatiles(callee, prop)
+                })
+            }
+            finally {
+                q.clear()
+            }
+        })
+        q.add(prop)
+    }
+    #queued = new Set
+    #target
+    #watchingProps
+    #method
+    constructor(obj, props, method) {
+        super()
+        this.#method = method
+        this.#target = obj
+        this.#watchingProps = new Set(props)
+    }
+}
+export function Observer(obj, { props, inherits = Watcher, method = queueMicrotask } = {}) {
+    return new Proxy(new inherits(obj, props, method), watchHandler)
+}
+/*
+let first = document.createElement('output')
+let second = document.createElement('output')
+first.style.display = second.style.display = 'block'
+document.body.append(first, second)
+let yards = new Observer({ yard: 1 })
+let yardsToMeters = yards`${'yard'
+    } yard${({ yard }) => yard === 1 ? '' : 's'
+    } is ${({ yard }) => (yard / 1.094).toFixed(2)
+    } meters!`
+yardsToMeters.subscribe(first, 'textContent', true)
+let yardsToInches = yards`It's also ${({ yard }) => yard * 36} inches.`
+yardsToInches.subscribe(second, 'textContent', true)
+yardsToInches.updateOnCompile = true
+setInterval(() => {
+    if (++yards.yard === 12) {
+        yardsToInches.compile`Or ${({ yard }) => (yard / 1760).toFixed(4)} miles!`
+    }
+}, 300)
+*/
