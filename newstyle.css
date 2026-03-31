@@ -33,49 +33,28 @@
       }
   }
 
-  .lumineon.shiny {
-      filter: hue-rotate(198deg);
+  slide-show {
+      animation: move calc(var(--anim-dura, 15s) * var(--noise, 1)) linear;
+      animation-direction: var(--anim-direction, normal);
+      position: absolute;
+      --scale: 1.6;
+      offset-rotate: 0deg;
+      transform: scale(calc(var(--scale) * var(--xdir, 1)), var(--scale))
   }
 
-  .nihilego.shiny {
-      filter: hue-rotate(229deg);
+  @keyframes move {
+      0% {
+          offset-distance: 0%
+      }
+
+      100% {
+          offset-distance: 100%
+      }
   }
 
-  .kyogreprimal.shiny {
-      filter: hue-rotate(177deg) grayscale(0.5) brightness(1.1);
-  }
+  #background>slide-show {
+      offset-path: var(--ltr);
 
-  .corsola.shiny {
-      filter: hue-rotate(231deg) brightness(1.2);
-  }
-
-  :is(.manaphy,
-      .phione,
-      .mantyke).shiny {
-      filter: hue-rotate(318deg);
-  }
-
-  :is(.skrelp, .alomomola).shiny {
-      filter: hue-rotate(306deg);
-  }
-
-  .luvdisc.shiny {
-      filter: hue-rotate(87deg) brightness(1.4);
-  }
-
-  :is(.wailord,
-      .kingdra,
-      .wailmer).shiny {
-      filter: hue-rotate(70deg);
-  }
-
-  .tentacool.shiny {
-      filter: hue-rotate(92deg)
-  }
-
-  :is(.jellicent_f,
-      .jellicent_m) .shiny {
-      filter: hue-rotate(302deg);
   }
 
   .pkm {
@@ -275,8 +254,84 @@
       }
   }
 
+  .wailord {
+      --scale: 8;
+      --anim-dura: 51s;
+      offset-path: var(--ltr-big) !important
+  }
+
+  .wishiwashi-school {
+      --scale: 2.4;
+      --anim-dura: 45s
+  }
+
+  .kyogre,
+  .kyogre_primal {
+      --scale: 4.3;
+      --anim-dura: 31s;
+      offset-path: var(--ltr-big) !important
+  }
+
+  .jellicent_m,
+  .jellicent_f {
+      --scale: 2.1;
+      --anim-dura: 23s
+  }
+
+  .wailmer {
+      --scale: 3.3;
+      --anim-dura: 29s
+  }
+
+  .luvdisc {
+      --scale: .9;
+      --anim-dura: 11s
+  }
+
+  .corsola,
+  .corsola-galar {
+      --anim-dura: 25s
+  }
+
+  .tentacruel {
+      --scale: 2.2
+  }
+
+  .basculegion {
+      --scale: 2.5
+  }
+
+  .sharpedo {
+      --scale: 2;
+      --anim-dura: 20s;
+  }
+
+  .basculin {
+      --scale: 1.6
+  }
+
+  .wishiwashi {
+      --scale: .97;
+      --anim-dura: 44s
+  }
+
   .lanturn {
       filter: drop-shadow(0 0 5px yellow);
+  }
+
+  .clawitzer,
+  .arctovish {
+      --scale: 2;
+      --anim-dura: 27s
+  }
+
+  .overqwil,
+  .seaking {
+      --scale: 2
+  }
+
+  .feebas {
+      --anim-dura: 27s
   }
 
   #controls {
@@ -285,6 +340,24 @@
       place-items: end;
       justify-content: center;
       margin: auto;
+  }
+
+  .lumineon {
+      --scale: 2.4
+  }
+
+  .gorebyss,
+  .huntail,
+  .mantine,
+  .alomomola,
+  .lanturn,
+  .eelektross {
+      --scale: 2.32;
+      --anim-dura: 22s
+  }
+
+  .remoraid {
+      --anim-dura: 30s
   }
 
   #count {

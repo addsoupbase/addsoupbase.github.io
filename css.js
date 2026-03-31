@@ -420,7 +420,10 @@
             toCSS: toCSS,
             formatSelector: fSelector,
             onerror: onerror,
-            correctProp: correctProp
+            correctProp: correctProp,
+            insertRule: function (txt, i) {
+                adoptedSheet.insertRule(txt, i)
+            }
         })
     y[sym] || O.defineProperty(y, sym, { value: css, enumerable: 1 })
     return css

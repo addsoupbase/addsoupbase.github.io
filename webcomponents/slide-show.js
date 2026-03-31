@@ -22,9 +22,10 @@ class SlideShow extends HTMLElement {
                 n.onload = () => {
                     let width = n.naturalWidth / framesX
                     let height = n.naturalHeight / framesY
-                    let url = new URL(src, document.baseURI).toString()
-                    sheet.insertRule(`:host([src="${url}"]){width:${width}px;height:${height}px}`, 1)
-                    isSafari && sheet.insertRule(`:host([src="${url}"]) div{width:${width}px;height:${height}px}`, 1)
+                    let url = new URL(src, document.baseURI)
+                    let s = url.toString()
+                    sheet.insertRule(`:host([src="${s}"]){width:${width}px;height:${height}px}`, 1)
+                    isSafari && sheet.insertRule(`:host([src="${s}"]) div{width:${width}px;height:${height}px}`, 1)
                     let canvas = document.createElement('canvas')
                     canvas.width = framesX * width
                     canvas.height = framesY * height
@@ -40,6 +41,7 @@ class SlideShow extends HTMLElement {
                                 vals.push(`${-i * width}`)
                         }
                         let out = {
+                            src:url,
                             bitmap: o,
                             framesX,
                             framesY,
@@ -48,7 +50,7 @@ class SlideShow extends HTMLElement {
                             values: vals.join(';'),
                             displayedFrames: vals.length
                         }
-                        bitmaps.set(url, out)
+                        bitmaps.set(s, out)
                         resolve(out)
                     })
                 }

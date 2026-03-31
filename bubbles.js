@@ -1,24 +1,36 @@
 import './sound.js'
-import preload from '../webcomponents/cel-runner.js'
+import preload from '../webcomponents/slide-show.js'
 import * as v from './v4.js'
 if (matchMedia('(prefers-reduced-motion:reduce)').matches) {
     throw Error('User turned on prefers reduced motion')
 }
-let mons = ["alomomola-96","arctovish-40","arrokuda-40","basculegion_f-68","basculegion_m-68","basculin-24","basculin_blue-24","basculin_white-24","bruxish-96","carvanha-24","clawitzer-40","corsola-36","corsolagalar-36","dhelmise-64","eelektross-68","feebas-72","finneon-52","goldeen-80","gorebyss-70","horsea-40","huntail-32","inkay-36","jellicent_f-46","jellicent_m-46","kingdra-36","kyogre-80","kyogreprimal-80","lanturn-32","lumineon-40","luvdisc-96","manaphy-40","mantine-68","mantyke-40","nihilego-62","overqwil-44","phione-40","qwilfish-32","qwilfish_hisui-32","relicanth-40","remoraid-32","seadra-44","seaking-36","sharpedo-68","tentacool-36","tentacruel-36","tynamo-24","wailmer-46","wailord-90","wishiwashi-32","wishiwashischool-90"]
+let mons =({alomomola:({Walk:({framesY:2,values:"8;8;8;8;8;8;8;8;8;8;8;8",frameWidth:24,frameHeight:48})}),arctovish:({Walk:({framesY:2,values:"10;10;10;10",frameWidth:40,frameHeight:48})}),arrokuda:({Walk:({framesY:2,values:"8;6;6;8;6;6",frameWidth:32,frameHeight:32})}),basculegion:({Walk:({framesY:4,values:"10;8;8;8;10;8;8;8",frameWidth:56,frameHeight:72})}),basculin:({Walk:({framesY:3,values:"6;6;6;6",frameWidth:32,frameHeight:40})}),bruxish:({Walk:({framesY:2,values:"8;8;8;8;8;8;8;8;8;8;8;8",frameWidth:40,frameHeight:56})}),carvanha:({Walk:({framesY:2,values:"6;6;6;6",frameWidth:32,frameHeight:48})}),clawitzer:({Walk:({framesY:2,values:"8;12;8;12",frameWidth:40,frameHeight:56})}),corsola:({Walk:({framesY:2,values:"8;10;8;10",frameWidth:24,frameHeight:32})}),"corsola-galar":({Walk:({framesY:1,values:"8;10;8;10",frameWidth:24,frameHeight:32})}),dhelmise:({Walk:({framesY:2,values:"10;10;6;6;10;10;6;6",frameWidth:48,frameHeight:96})}),eelektross:({Walk:({framesY:2,values:"10;8;8;8;10;8;8;8",frameWidth:48,frameHeight:56})}),feebas:({Walk:({framesY:2,values:"8;10;8;10;8;10;8;10",frameWidth:32,frameHeight:48})}),finneon:({Walk:({framesY:2,values:"6;6;8;6;6;6;8;6",frameWidth:32,frameHeight:40})}),goldeen:({Walk:({framesY:2,values:"10;10;10;10;10;10;10;10",frameWidth:32,frameHeight:40})}),gorebyss:({Walk:({framesY:2,values:"14;6;8;8;8;8;6;6;6",frameWidth:48,frameHeight:64})}),horsea:({Walk:({framesY:2,values:"8;12;8;12",frameWidth:24,frameHeight:48})}),huntail:({Walk:({framesY:2,values:"8;8;8;8",frameWidth:40,frameHeight:56})}),inkay:({Walk:({framesY:2,values:"8;10;8;10",frameWidth:24,frameHeight:40})}),jellicent_f:({Walk:({framesY:2,values:"8;6;6;8;6;6;6",frameWidth:32,frameHeight:56})}),jellicent_m:({Walk:({framesY:2,values:"8;6;6;8;6;6;6",frameWidth:24,frameHeight:56})}),kingdra:({Walk:({framesY:2,values:"8;10;8;10",frameWidth:40,frameHeight:64})}),kyogre:({Walk:({framesY:2,values:"8;8;8;8;8;8;8;8;8;8",frameWidth:64,frameHeight:72})}),kyogre_primal:({Walk:({framesY:2,values:"8;8;8;8;8;8;8;8;8;8",frameWidth:64,frameHeight:72})}),lanturn:({Walk:({framesY:2,values:"8;8;8;8",frameWidth:32,frameHeight:48})}),lumineon:({Walk:({framesY:2,values:"10;10;10;10",frameWidth:32,frameHeight:40})}),luvdisc:({Walk:({framesY:2,values:"8;8;8;8;8;8;8;8;8;8;8;8",frameWidth:24,frameHeight:40})}),manaphy:({Walk:({framesY:1,values:"6;6;6;2;6;6;6;2",frameWidth:40,frameHeight:48})}),mantine:({Walk:({framesY:2,values:"6;6;8;8;6;6;6;8;8;6",frameWidth:64,frameHeight:72})}),mantyke:({Walk:({framesY:2,values:"4;4;4;4;4;4;4;4;4;4",frameWidth:32,frameHeight:56})}),overqwil:({Walk:({framesY:2,values:"10;12;10;12",frameWidth:40,frameHeight:64})}),phione:({Walk:({framesY:1,values:"6;2;2;2;4;6;6;4;4;4",frameWidth:32,frameHeight:48})}),qwilfish:({Walk:({framesY:4,values:"8;8;8;8",frameWidth:32,frameHeight:32})}),relicanth:({Walk:({framesY:2,values:"10;10;10;10",frameWidth:32,frameHeight:48})}),remoraid:({Walk:({framesY:2,values:"8;8;8;8",frameWidth:24,frameHeight:40})}),seadra:({Walk:({framesY:2,values:"8;8;10;8;10",frameWidth:40,frameHeight:56})}),seaking:({Walk:({framesY:2,values:"10;8;10;8",frameWidth:32,frameHeight:48})}),sharpedo:({Walk:({framesY:2,values:"10;8;8;8;10;8;8;8",frameWidth:32,frameHeight:56})}),tentacool:({Walk:({framesY:2,values:"8;10;8;10",frameWidth:24,frameHeight:40})}),tentacruel:({Walk:({framesY:2,values:"8;10;8;10",frameWidth:32,frameHeight:40})}),tynamo:({Walk:({framesY:1,values:"6;6;6;6",frameWidth:32,frameHeight:40})}),wailmer:({Walk:({framesY:2,values:"8;6;6;8;6;6;6",frameWidth:32,frameHeight:40})}),wailord:({Walk:({framesY:2,values:"10;8;6;6;8;8;10;8;6;6;6;8",frameWidth:72,frameHeight:104})}),wishiwashi:({Walk:({framesY:2,values:"8;8;8;8",frameWidth:24,frameHeight:40})}),"wishiwashi-school":({Walk:({framesY:2,values:"10;8;6;6;8;8;10;8;6;6;6;8",frameWidth:112,frameHeight:128})})})
 let pokemons = []
 const h = window[Symbol.for('[[HModule]]')]
 audio.load('./media/pop.mp3')
 const { css } = v
 const { Proxify } = v
-preload(...mons.map(o => {
-    let x = +o.match(/-(\d+)$/)[1]
-    pokemonthing(o.match(/\w+/), o)
+preload(...Object.entries(mons).map(({ 0: mon, 1: data }) => {
+    data = data.Walk
+    let duras = data.values.split(';').map(Number)
     return {
-        x,
-        y: 1,
-        src: `./seasprites/${o}.png`
+        src: `./new/${mon}/${mon}-Walk.png`,
+        framesX: duras.length,
+        framesY: data.framesY,
+        frameWidth: data.frameWidth,
+        frameHeight: data.frameHeight,
+        duras
     }
 }))
+    .forEach(o => o.then((b) => {
+        let a = {
+            name: b.src.pathname.split('/').at(-1).split('-Walk')[0],
+            src: b.src.toString()
+        }
+        // spawnPkm(a)
+        pokemons.push(a)
+    }))
+
 onload = null
 // css.registerProperty('--size', '0px', false, '<length>',)
 // css.registerProperty('--width', '0px', false, '<length>',)
@@ -26,6 +38,17 @@ onload = null
 const {
     brushsize, undo, color,
     background: bg, count, holder, senddrawing, sendmessage, papericon, senddrawingform, paper } = v.id
+let setOffset = function (s) {
+    document.adoptedStyleSheets = [].concat.call(document.adoptedStyleSheets, s)
+    return s.replaceSync.bind(s)
+}(new CSSStyleSheet)
+bg.observe('resize', {
+    callback(e) {
+        let w = innerWidth / 2
+        let { width, height } = e.contentRect
+        setOffset(`.pkm {--ltr: path("M -${w / 2.1} 0 L ${width + (w / 2.1)} 0"); --ltr-big:  path("M -${innerWidth} 0 L ${width + innerWidth} 0")}`)
+    }
+})
 papericon.on({
     _click() {
         sendmessage.hide()
@@ -102,8 +125,8 @@ bg.debounce({
     }
 }, 60)
 bg.delegate({
-    animationend() {
-        // v.sel(this.parentElement).purge()
+    animationend(e) {
+        this.destroy()
     }
 })
 
@@ -113,7 +136,7 @@ for (let i = 0, { length } = avatars; i < length; ++i) {
     let p = avatars[i]
     let src = `./media/avatars/${p}`
     let rule = `background-image:-webkit-image-set(url("${src}.avif") type("image/avif"), url("${src}.webp") type("image/webp"), url("${src}.jpg") type("image/jpg"))`
-    css.write(`.user-${CSS.escape(p)}{background-image: url("${src}.webp");${rule};${rule.replace('-webkit-', '')}}`)
+    css.insertRule(`.user-${CSS.escape(p)}{background-image: url("${src}.webp");${rule};${rule.replace('-webkit-', '')}}`)
         ; ({ 0: avatars[i], 1: avatars[pick] } = [avatars[pick], avatars[i]])
 }
 let i = 0
@@ -169,142 +192,30 @@ const avatar = (name, size = 60) => {
 avabubble()
 setInterval(avabubble, 2000)
 tinybubble()
-function pokemonthing(i, name) {
-    let pkm = i[0]
-    let scale = .5
-    let duration = 38.0
-    switch (pkm) {
-        case 'kingdra':
-            scale *= 1.3
-            break
-        case 'corsola':
-            scale *= .87
-            duration *= 1.5
-            break
-        case 'wishiwashischool':
-            scale *= 2
-            duration *= 4
-            break
-        case 'wishiwashi':
-            duration *= 2
-            scale *= .8
-            break
-        case 'jellicent_m':
-        case 'jellicent_f':
-            scale *= 1.5
-            duration *= 1.6
-            break
-        case 'gorebyss':
-        case 'huntail':
-        case 'sharpedo':
-            scale *= 1.6
-            duration *= 1.2
-            break
-        case 'kyogre':
-            scale *= 3
-            duration *= 2
-            break
-        case 'kyogreprimal':
-            scale *= 4
-            duration *= 2.5
-            break
-        case 'wailord':
-            scale *= 5.3
-            duration *= 8
-            break
-        case 'arctovish':
-            scale *= 2
-            break
-        case 'relicanth':
-            scale *= 1.6
-            break
-        case 'groudon':
-            scale *= 3
-            duration *= 1.2
-            break
-        case 'manaphy':
-            scale *= 1.3
-            break
-        case 'eelektross':
-            scale *= 1.5
-            break
-        case 'alomomola':
-            scale *= 2
-            break
-        case 'qwilfish':
-        case 'qwilfish_hisui':
-            scale *= 1.3
-            break
-        case 'bruxish':
-            scale *= 1.6
-            break
-        case 'wailmer':
-            scale *= 2.3
-            duration *= 2
-            break
-        case 'mantine':
-            scale *= 1.7
-            duration *= .9
-            break
-        case 'palafin':
-            scale *= 1.4
-            break
-        case 'seaking':
-            scale *= 1.4
-            break
-        case 'skrelp':
-        case 'luvdisc':
-            scale *= .8
-            break
-        case 'basculegion_f':
-        case 'basculegion_m':
-            scale *= 1.4
-            break
-        case 'overqwil':
-            scale *= 1.5
-            break
-        case 'lanturn':
-        case 'lumineon':
-            scale *= 1.5
-            break
-        case 'basculin':
-        case 'basculin_white':
-        case 'basculin_blue':
-            scale *= 1.2
-            break
-        case 'tentacruel':
-            scale *= 2
-            break
-        case 'clawitzer':
-        case 'nihilego':
-            scale *= 1.75
-            break
-        // scale *= range(.90, 1.1)
-        // duration *= range(.90, 1.1)
-    }
-    pokemons.push({ name, scale: scale * 2.5, duration: duration * 1000 * .7, pkm: i })
-}
+
 function spawnPkm(choice = pokemons[Math.floor(Math.random() * pokemons.length)]) {
     setTimeout(spawnPkm, range(500, 2500))
     if (!pokemons.length || isHidden()) return
     let scale = Math.random() > .5 ? -1 : 1
-    let dura = 17
-    let n = choice.name.match(/\w+/)[0]
+
+    let isShiny = range(0, 4000) > 3999 ? ' shiny' : ''
+    let index = isShiny ? 1 :0
+    let n = choice.name
     switch (n) {
-        case 'phione':
-        case 'manaphy':
-        case 'wailmer':
-        case 'mantyke':
-            dura += 6
+        case 'basculegion':
+        case 'qwilfish':
+            index += Math.random() > .5 ? 0 : 1
+            break
+        case 'basculin':
+            index = Math.floor(Math.random() * 3)
             break
         case 'kyogre':
         case 'kyogreprimal':
         case 'wailord':
             if (document.querySelector(`.${n}`)) return
     }
-    let thing = v.esc`<cel-runner aria-hidden="true" dura="${dura}ms" src="./seasprites/${choice.name}.png" class="${choice.pkm} pkm${range(0, 1000) > 999 ? ' shiny' : ''}" style="top: ${Math.random() * innerHeight}px;scale:${scale * choice.scale} ${choice.scale}"></cel-runner>`
+    let thing = v.esc`<slide-show aria-hidden="true" dur="0.018" src="${choice.src}" class="${choice.name} pkm${isShiny}" index="${index}" style="${scale > 0 ? '--xdir: -1;animation-direction:reverse;' : ''}top: ${Math.random() * 100}%;"></slide-show>`
         .setParent(bg)
-        .animFrom('xAxis', { composite: 'add', iterations: 1, duration: choice.duration * scale, easing: 'linear' })
-        .onfinish = kill
+    thing.play()
 }
 spawnPkm()
