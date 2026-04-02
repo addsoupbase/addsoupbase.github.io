@@ -1129,6 +1129,7 @@
                         o.setAttribute('style', n.slice(2, -1))
                     })
                     ;[].forEach.call(doc.querySelectorAll('style'), o => {
+                        if (!o.textContent.startsWith('/*reworkCSS*/'))
                         o.textContent = fixCSSSheet(o.textContent)
                     })
                 await Promise.allSettled([].map.call(doc.querySelectorAll(':where(img, input[type="image"])[src]'), async (img) => {
@@ -1155,7 +1156,7 @@
                 text = `${doc.doctype ? '<!DOCTYPE html>' : ''}${doc.documentElement.outerHTML}`
             }
             else if (mimeType === 'text/css') {
-                text = fixCSSSheet(text)
+                text = `/*reworkCSS*/${fixCSSSheet(text)}`
             }
             return text
         }

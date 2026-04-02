@@ -6,58 +6,6 @@
     window.Set = window.Set || _
 @*/
 var globalThis = globalThis || window
-var require = function () {
-    var _import = null
-    function require(src, options) {
-        options = options || {}
-        var type = options.type || 'text'
-        var sync = options.sync || false
-        switch (type) {
-            case 'script':
-                if (sync) {
-                    var xhr = new XMLHttpRequest
-                    xhr.open('GET', src, false)
-                    xhr.send()
-                    return (eval)(xhr.responseText)
-                }
-                if (document.readyState !== 'complete') document.write('<script src="' + src + '" type="text/javascript"></script>')
-                else {
-                    var s = document.createElement('script')
-                    s.src = src
-                    s.type = 'text/javascript'
-                    document.head.appendChild(s)
-                }
-                return {
-                    then: function (resolve) {
-                        document.querySelector('script[src="' + src + '"]').onload = resolve
-                    },
-                    catch: function (reject) {
-                        document.querySelector('script[src="' + src + '"]').onerror = reject
-                    }
-                }
-            case 'module':
-                if (!_import) _import = Function('s', '"use strict";return import(s).then(d)')
-                return _import(src)
-            case 'json':
-                if (typeof fetch === 'function') return fetch(src).then(function (o) { return o.json() })
-                var xhr = new XMLHttpRequest
-                xhr.open('GET', src, !sync)
-                xhr.send()
-                if (sync) return (window.JSON ? JSON.parse : eval)(xhr.responseText)
-                return typeof Promise === 'function' ? new Promise(function (resolve) { xhr.onload = function () { resolve(JSON.parse(xhr.responseText)) } }) : {
-                    then: function (resolve) {
-                        xhr.onload = function () {
-                            resolve((window.JSON ? JSON.parse : eval)(xhr.responseText))
-                        }
-                    },
-                    catch: function (reject) {
-                        xhr.onerror = reject
-                    }
-                }
-        }
-    }
-    return require
-}()
 var reportError = reportError || function reportError(t) {
     try {
         try {
