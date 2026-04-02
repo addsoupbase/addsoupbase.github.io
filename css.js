@@ -348,7 +348,7 @@
                 '--center': center,
                 // this is different from just 'center' and idk why!!!
                 '--match-parent': matchParent,
-            },
+            }
         }
         o[W("input[type=date]")] = { cursor: 'text' }
         o[W("button,a,[role=radio],[role=button],[role=tab],[role=combobox],[role=switch],input[type=button],input[type=checkbox],input[type=radio],input[type=submit],input[type=image],input[type=reset],input[type=file],[tabindex=1]")] = { cursor: 'pointer' }
