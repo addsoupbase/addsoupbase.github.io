@@ -807,10 +807,11 @@
         function insert(array, index, ...items) {
             return array.splice(index, 0, ...items)
         }
-        function fixPropValuePair(declaration, i, rules) {
+        function fixPropValuePair(declaration, i, rules, globalVars) {
             let prop = declaration.property
             let newProp = css.correctProp(prop, declaration.value)
             let { value } = declaration
+            let originalValue = value
             let newValue = value
             let added = []
             switch (prop) {
@@ -840,12 +841,15 @@
                     break
                 case 'zoom':
                     newProp[0] = '-ms-zoom'
+                    newValue = value.replace(reg.globals, function (_, prop) {return globalVars.get(prop) })
                     break
                 case '--scrollbar-color':
                     newProp[0] = '-ms-scrollbar-base-color'
+                    newValue = value.replace(reg.globals, function (_, prop) {return globalVars.get(prop) })
                     break
                 case '--scrollbar-thumb-color':
                     newProp[0] = '-ms-scrollbar-face-color'
+                    newValue = value.replace(reg.globals, function (_, prop) {return globalVars.get(prop) })
                     break
                 case 'scrollbar-width': if (value === 'thin') {
                     newValue = '7px'
@@ -854,12 +858,14 @@
                     break
                 case '--user-select':
                     newProp[0] = '-ms-user-select'
+                    newValue = value.replace(reg.globals, function (_, prop) {return globalVars.get(prop) })
                     break
                 default: if (prop.startsWith('place-')) {
                     newProp.push(prop.replace('place', 'align'), prop.replace('place', 'justify'))
                 }
                 else if (reg.size.test(prop)) if (value === 'stretch' || value === 'var(--stretch)') newValue = '-webkit-fill-available'
             }
+            if (value !== (value = value.replace(reg.globals, function (_, prop) {return globalVars.get(prop) }))) added.push([prop, value])
             function addClone(prop, value) {
                 let clone = structuredClone(declaration)
                 clone.property = prop
@@ -869,14 +875,15 @@
             for (let p of newProp) {
                 if (p !== prop || newValue !== value) {
                     if (typeof newValue === 'string') newValue = [newValue]
-                    for (let v of newValue)
+                    for (let v of newValue) if (v !== originalValue || p !== prop)
                         addClone(p, v)
-                    for (let [prop, val] of added)
+                    for (let [prop, val] of added) 
                         addClone(prop, val)
                 }
             }
         }
         let reg = {
+            globals: /var\s*\((--_[\w-]+)\)/g,
             size: /^(?:(?:max|min)-)?(?:width|height)$/g,
             grid: /((?:inline-)?grid)/,
             marker: /::marker/g,
@@ -937,10 +944,10 @@
                 insert(rules, index, clone)
             }
         } let pending = new Map
-        function fixDeclarations(declarations) {
+        function fixDeclarations(declarations, globalVars) {
             for (let i = declarations.length; i--;) {
                 let dec = declarations[i]
-                if (dec.type === 'declaration') fixPropValuePair(dec, i, declarations)
+                if (dec.type === 'declaration') fixPropValuePair(dec, i, declarations, globalVars)
             }
         }
         function fixCSSSheet(text) {
@@ -950,11 +957,11 @@
                 switch (rule.type) {
                     case 'rule':
                         if (rule.selectors?.join("")[0] === '@') return
-                        fixDeclarations(rule.declarations)
+                        fixDeclarations(rule.declarations, globalVars)
                         fixSelector(rule, index, parsed)
                         break
                     case 'keyframes':
-                        rule.keyframes.forEach(o => fixDeclarations(o.declarations))
+                        rule.keyframes.forEach(o => fixDeclarations(o.declarations, globalVars))
                         break
                     case 'media':
                     case 'supports':
@@ -962,6 +969,12 @@
                         break
                 }
             }
+            let root = parsed.find(o => o.type === 'rule' && o.selectors.join('') === ':root')
+            let globalVars = new Map
+            if (root)
+                for (let { property, value } of root.declarations)
+                    if (property.startsWith('--_'))
+                        globalVars.set(property, value)
             for (let i = parsed.length; i--;) { // don't cache length cus we want to insert some rules
                 let rule = parsed[i]
                 parseRule(rule, i, parsed)
@@ -1130,7 +1143,7 @@
                     })
                     ;[].forEach.call(doc.querySelectorAll('style'), o => {
                         if (!o.textContent.startsWith('/*reworkCSS*/'))
-                        o.textContent = fixCSSSheet(o.textContent)
+                            o.textContent = `/*reworkCSS*/${fixCSSSheet(o.textContent)}`
                     })
                 await Promise.allSettled([].map.call(doc.querySelectorAll(':where(img, input[type="image"])[src]'), async (img) => {
                     if (!img.hasAttribute('width') || !img.hasAttribute('height')) {
@@ -1147,15 +1160,15 @@
                             img.setAttribute('height', n.naturalHeight)
                         }
                         catch {
-                            let o = new PathNotFoundError(`Image not found: ${src}`, {cause: pat})
+                            let o = new PathNotFoundError(`Image not found: ${src}`, { cause: pat })
                             console.error(o)
                             throw o
                         }
                     }
                 }))
-                text = `${doc.doctype ? '<!DOCTYPE html>' : ''}${doc.documentElement.outerHTML}`
+                text = `${doc.doctype ? '<!DOCTYPE html>\n' : ''}${doc.documentElement.outerHTML}`
             }
-            else if (mimeType === 'text/css') {
+            else if (mimeType === 'text/css' && !text.startsWith('/*reworkCSS*/')) {
                 text = `/*reworkCSS*/${fixCSSSheet(text)}`
             }
             return text
