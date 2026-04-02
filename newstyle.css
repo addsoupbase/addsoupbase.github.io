@@ -188,15 +188,15 @@
       pointer-events: none !important;
   }
 
-  .avatarpopped::after {
-      content: "@" attr(title);
+  /* .avatarpopped::after {
+       content: "@" attr(title); 
       text-transform: capitalize;
       color: white;
       position: relative;
       word-break: keep-all;
       width: max-content;
       top: 35px;
-  }
+  } */
 
   .avatar {
       background-size: 100% 100%;

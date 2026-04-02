@@ -1131,7 +1131,7 @@
                     ;[].forEach.call(doc.querySelectorAll('style'), o => {
                         o.textContent = fixCSSSheet(o.textContent)
                     })
-                await Promise.allSettled([].map.call(doc.querySelectorAll('img[src]'), async (img) => {
+                await Promise.allSettled([].map.call(doc.querySelectorAll(':where(img, input[type="image"])[src]'), async (img) => {
                     if (!img.hasAttribute('width') || !img.hasAttribute('height')) {
                         if (folderName === 'addsoupbase.github.io') folderName = ''
                         let n = $`<img>`
@@ -1139,7 +1139,6 @@
                         let src = img.getAttribute('src')
                         let pat = `${folderName}${localPath.pathname}`
                         n.src = new URL(src, `http://localhost:3000/${pat}`)
-                        if (n.complete) debugger
                         try {
                             await promise
                             console.debug(`Fix: ${img.outerHTML}`)

@@ -91,7 +91,7 @@ bg.delegate({
         parent.dataset.popped = 'true'
         count.ariaHidden = 'false'
         let me = parent.eltAt()
-        let pic = Proxify(me.querySelector('div'))
+        let pic = Proxify(me.querySelector('picture'))
         // pic.parent = bg
         let { x, y } = parent.getBoundingClientRect()
         parent.getAnimations({ subtree: true }).forEach(o => o.cancel())
@@ -103,6 +103,7 @@ bg.delegate({
         parent.replaceChildren(pic.valueOf())
         pic.style.willChange = 'transform,filter'
         pic.animFrom('fade_in', { duration: 300, iterations: 1 })
+        debugger
         await pic.animFrom('dissolve', { duration: 700, iterations: 1, delay: 2000, composite: 'add' }).finished
         pic.parent.purge(true)
     }
@@ -131,14 +132,14 @@ bg.delegate({
 })
 
 let avatars  = ["Dohaaa","Lagia","Lotus","MRK","Professional_idiot","Remi","Violet","anarchy","anya","armaan.n","auquamantis","aya","babby","birdie","caelix","caevsz","chlorineatt","copy","crazy","eggwafl","elenfnf1","elipoopsrainbows","fourche7","frannie4u","ghostie","gilly","glente","gummicat","ilikebugs2","indie","juaj","ka1ya1","kae","kannadra","kay_.stars","khaoticgood","kurispychips","kyn","lazy","lexi","lorex","lunza","mai","may","mila","mochi","morrfie","mothmaddie","mr_clownette","na22","naz","niya","nova","novacans_","oli","rainmint","rikapika","river","rue","rurikuu","saintz","son_yukio","stav","stuella","valerie","west","xzzy","zee","znsxxe","zoozi","zrake","汝起亚"]
-for (let i = 0, { length } = avatars; i < length; ++i) {
-    const pick = Math.floor(Math.random() * (i + 1))
-    let p = avatars[i]
-    let src = `./media/avatars/${p}`
-    let rule = `background-image:-webkit-image-set(url("${src}.avif") type("image/avif"), url("${src}.webp") type("image/webp"), url("${src}.jpg") type("image/jpg"))`
-    css.insertRule(`.user-${CSS.escape(p)}{background-image: url("${src}.webp");${rule};${rule.replace('-webkit-', '')}}`)
-        ; ({ 0: avatars[i], 1: avatars[pick] } = [avatars[pick], avatars[i]])
-}
+// for (let i = 0, { length } = avatars; i < length; ++i) {
+//     const pick = Math.floor(Math.random() * (i + 1))
+//     let p = avatars[i]
+//     let src = `./media/avatars/${p}`
+//     let rule = `background-image:-webkit-image-set(url("${src}.avif") type("image/avif"), url("${src}.webp") type("image/webp"), url("${src}.jpg") type("image/jpg"))`
+//     css.insertRule(`.user-${CSS.escape(p)}{background-image: url("${src}.webp");${rule};${rule.replace('-webkit-', '')}}`)
+//         ; ({ 0: avatars[i], 1: avatars[pick] } = [avatars[pick], avatars[i]])
+// }
 let i = 0
 function isHidden() {
     return document.hidden || !holder.classList.contains('clamped') && !holder.classList.contains('hidden')
@@ -174,12 +175,20 @@ function kill() {
 }
 const avatar = (name, size = 60) => {
     const scale = size / 200
-    let out = v.esc`<span style="cursor: url('media/Link%20Select.cur'), pointer" data-popped="false" class="holder" name="ava" aria-hidden="true" style="--size: ${size}px;transform-origin:center center;z-index:0;top: ${range(0, innerHeight)}px;">
+    let src=  `./media/avatars/${name}`
+    let out = v.esc`<span style="position:absolute;cursor: url('media/Link%20Select.cur'), pointer;top: ${range(0, innerHeight)}px;" data-popped="false" class="holder"aria-hidden="true">
         <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">
         <circle cursor="url('media/Link%20Select.cur'), pointer" pointer-events="painted" r="${95 * scale}" cx="${100 * scale}" cy="${100 * scale}" fill="rgba(15, 20, 210, 0.4)" stroke="#1043E5" stroke-width="${10 * scale}">
         </circle>
         <foreignObject cursor="url('media/Link%20Select.cur'), pointer" x="${30 * scale}" y="${30 * scale}" width="${140 * scale}" pointer-events="painted"  height="${140 * scale}">
-        <div class="avatar user-${name}" title="${name}"></div>    
+        <picture title="${name}" style="display:inline;text-align:center">
+        <source srcset="${src}.avif" type="image/avif">
+        <source srcset="${src}.webp" type="image=webp">
+        <img src="${src}.jpg" class="avatar user-${name}"  draggable="false">
+        <div style="display:flex;place-content:center">
+        <span style="--user-select:none;color:white;display:block;text-transform: capitalize;">@${name}</span>
+        </div>
+        </picture>
         </foreignObject>
         <path cursor="url('media/Link%20Select.cur'), pointer" d="M ${180 * scale} ${100 * scale} A ${80 * scale} ${80 * scale} 0 0 0 ${100 * scale} ${20 * scale}" fill="none" stroke="white" stroke-width="${9 * scale}" pointer-events="painted">
         </path>
