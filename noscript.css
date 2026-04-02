@@ -10,7 +10,10 @@
 p {
     text-wrap: pretty
 }
-
+img {
+    align-content: center;
+    text-align: center;
+}
 h1,
 h2,
 h3,

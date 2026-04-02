@@ -9,7 +9,7 @@ let isSafari = 'onwebkitmouseforceup' in window
 let after = 'transform:translate(-50%, -50%);position:absolute;left:-15px;top:-15px;image-rendering:pixelated;content:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAJ9JREFUeNq01ssOwyAMRFG46v//Mt1ESmgh+DFmE2GPOBARKb2NVjo+17PXLD8a1+pl5+A+wSgFygymWYHBb0FtsKhJDdZlncG2IzJ4ayoMDv20wTmSMzClEgbWYNTAkQ0Z+OJ+A/eWnAaR9+oxCF4Os0H8htsMUp+pwcgBBiMNnAwF8GqIgL2hAzaGFFgZauDPKABmowZ4GL369/0rwACp2yA/ttmvsQAAAABJRU5ErkJggg==);width:30px;height:30px'
 sheet.replaceSync(`:host(:--broken)::after{${after}}:host(:state(--broken))::after{${after}}div{pointer-events:all;overflow:hidden;transform:translate(-50%,-50%);}foreignObject{y:calc((rem(calc(var(--index,0)*var(--frame-h,0)),var(--height,0))*-1px))}svg{contain:paint layout;position:relative}:host{user-select:none;-webkit-user-select:none;-moz-user-select:none;touch-action:pinch-zoom;pointer-events: none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}`)
 class SlideShow extends HTMLElement {
-    static observedAttributes = 'values src dur index repeat'.split(' ')
+    static observedAttributes = 'values src dur index repeat imagesmoothing'.split(' ')
     static preload(...sources) {
         let out = []
         for (let { framesX = 1, framesY = 1, src, duras } of sources) {
@@ -135,6 +135,15 @@ class SlideShow extends HTMLElement {
             case 'repeat':
                 this.#anim.setAttribute('repeatCount', val)
                 break
+                case 'imagesmoothing':
+                    if (val === 'none' || !val) {
+                        this.#ctx.imageSmoothingEnabled = false
+                    }
+                    else {
+                        this.#ctx.imageSmoothingEnabled = true
+                        this.#ctx.imageSmoothingQuality = val
+                    }
+                    break
             default:
                 this.#sprite.setAttribute(attr, val)
                 break

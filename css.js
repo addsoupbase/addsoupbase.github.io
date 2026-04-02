@@ -348,7 +348,7 @@
                 '--center': center,
                 // this is different from just 'center' and idk why!!!
                 '--match-parent': matchParent,
-            }
+            },
         }
         o[W("input[type=date]")] = { cursor: 'text' }
         o[W("button,a,[role=radio],[role=button],[role=tab],[role=combobox],[role=switch],input[type=button],input[type=checkbox],input[type=radio],input[type=submit],input[type=image],input[type=reset],input[type=file],[tabindex=1]")] = { cursor: 'pointer' }
@@ -376,6 +376,8 @@
         o[W('.center_absolute_x')] = { left: '50%', transform: 'translateX(-50%)' }
         o[W('.center_absolute_y')] = { top: '50%', transform: 'translateY(-50%)' }
         o[W('img')] = {
+            'align-content':'center',
+            'text-align':'center',
             '--force-broken-image-icon': 1,
             'max-inline-size': '100%', 'block-size': 'auto',
             //'object-fit': 'contain'

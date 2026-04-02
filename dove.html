@@ -841,15 +841,15 @@
                     break
                 case 'zoom':
                     newProp[0] = '-ms-zoom'
-                    newValue = value.replace(reg.globals, function (_, prop) {return globalVars.get(prop) })
+                    newValue = value.replace(reg.globals, function (_, prop) { return globalVars.get(prop) })
                     break
                 case '--scrollbar-color':
                     newProp[0] = '-ms-scrollbar-base-color'
-                    newValue = value.replace(reg.globals, function (_, prop) {return globalVars.get(prop) })
+                    newValue = value.replace(reg.globals, function (_, prop) { return globalVars.get(prop) })
                     break
                 case '--scrollbar-thumb-color':
                     newProp[0] = '-ms-scrollbar-face-color'
-                    newValue = value.replace(reg.globals, function (_, prop) {return globalVars.get(prop) })
+                    newValue = value.replace(reg.globals, function (_, prop) { return globalVars.get(prop) })
                     break
                 case 'scrollbar-width': if (value === 'thin') {
                     newValue = '7px'
@@ -858,14 +858,17 @@
                     break
                 case '--user-select':
                     newProp[0] = '-ms-user-select'
-                    newValue = value.replace(reg.globals, function (_, prop) {return globalVars.get(prop) })
+                    newValue = value.replace(reg.globals, function (_, prop) { return globalVars.get(prop) })
                     break
                 default: if (prop.startsWith('place-')) {
                     newProp.push(prop.replace('place', 'align'), prop.replace('place', 'justify'))
                 }
                 else if (reg.size.test(prop)) if (value === 'stretch' || value === 'var(--stretch)') newValue = '-webkit-fill-available'
             }
-            if (value !== (value = value.replace(reg.globals, function (_, prop) {return globalVars.get(prop) }))) added.push([prop, value])
+            if (value !== (value = value.replace(reg.globals, function (_, prop) {
+                if (!globalVars.has(prop)) debugger
+                return globalVars.get(prop)
+            }))) added.push([prop, value])
             function addClone(prop, value) {
                 let clone = structuredClone(declaration)
                 clone.property = prop
@@ -877,13 +880,14 @@
                     if (typeof newValue === 'string') newValue = [newValue]
                     for (let v of newValue) if (v !== originalValue || p !== prop)
                         addClone(p, v)
-                    for (let [prop, val] of added) 
+                    for (let [prop, val] of added)
                         addClone(prop, val)
                 }
             }
         }
         let reg = {
-            globals: /var\s*\((--_[\w-]+)\)/g,
+            globals: /var\s*\((--_(?:[a-z\d-])+)\)/gi,
+            global: /^--_(?:[a-z\d-])+$/i,
             size: /^(?:(?:max|min)-)?(?:width|height)$/g,
             grid: /((?:inline-)?grid)/,
             marker: /::marker/g,
@@ -950,8 +954,11 @@
                 if (dec.type === 'declaration') fixPropValuePair(dec, i, declarations, globalVars)
             }
         }
-        function fixCSSSheet(text) {
-            let sheet = reworkCSS.parse(text)
+        function getRootSelector(rules) {
+            return rules.find(o => o.type === 'rule' && o.selectors.join('') === ':root')
+        }
+        function fixCSSSheet(text, root) {
+            let sheet = typeof text === 'object' ? text : reworkCSS.parse(text)
             let parsed = sheet.stylesheet.rules
             function parseRule(rule, index) {
                 switch (rule.type) {
@@ -969,11 +976,11 @@
                         break
                 }
             }
-            let root = parsed.find(o => o.type === 'rule' && o.selectors.join('') === ':root')
+            root ??= getRootSelector(parsed)
             let globalVars = new Map
             if (root)
                 for (let { property, value } of root.declarations)
-                    if (property.startsWith('--_'))
+                    if (reg.global.test(property))
                         globalVars.set(property, value)
             for (let i = parsed.length; i--;) { // don't cache length cus we want to insert some rules
                 let rule = parsed[i]
@@ -1135,15 +1142,20 @@
             }
             if (post && func) if (typeof (text = await func.call(context, text)) !== 'string') throw new TemplateProcessingError(`Bad value passed from postprocessor: ${{}.toString.call(text).slice(8, -1)}`, { cause: code })
             // ^ So the file can process itself afterwards
+            let rootSelector
             if (mimeType === 'text/html') {
                 let doc = parseHTMLDocument(text, 'text/html')
-                    ;[].forEach.call(doc.querySelectorAll('[style]'), o => {
-                        let n = fixCSSSheet(`*{${o.getAttribute('style')}}`)
-                        o.setAttribute('style', n.slice(2, -1))
-                    })
                     ;[].forEach.call(doc.querySelectorAll('style'), o => {
-                        if (!o.textContent.startsWith('/*reworkCSS*/'))
-                            o.textContent = `/*reworkCSS*/${fixCSSSheet(o.textContent)}`
+                        let style = o.textContent
+                        if (style.trim() && !style.startsWith('/*reworkCSS*/')) {
+                            let s = reworkCSS.parse(style)
+                             rootSelector ??= getRootSelector(s.stylesheet.rules)
+                            o.textContent = `/*reworkCSS*/${fixCSSSheet(s)}`
+                        }
+                    })
+                    ;[].forEach.call(doc.querySelectorAll('[style]'), o => {
+                        let n = fixCSSSheet(`*{${o.getAttribute('style')}}`, rootSelector)
+                        o.setAttribute('style', n.slice(2, -1))
                     })
                 await Promise.allSettled([].map.call(doc.querySelectorAll(':where(img, input[type="image"])[src]'), async (img) => {
                     if (!img.hasAttribute('width') || !img.hasAttribute('height')) {
