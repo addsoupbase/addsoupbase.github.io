@@ -300,6 +300,7 @@
             [/^print-(color-adjust)$/i, '$1']
         ]
     function correctProp(prop, value) {
+        if (prop.startsWith('--')) return [prop]
         var out = []
         prop = prop.toLowerCase()
         if (sup((prop = dv(prop, value)) + ':' + value)) out.push(prop)

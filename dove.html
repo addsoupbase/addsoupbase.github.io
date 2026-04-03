@@ -830,7 +830,7 @@
                     newProp.pop()
                     break*/
                 case 'image-rendering':
-                    if (value === 'pixelated') {
+                    if (value === 'pixelated' || value === 'var(--crisp-edges)') {
                         newValue = ['-moz-crisp-edges', '-webkit-optimize-contrast']
                         added.push(['-ms-interpolation-mode', 'nearest-neighbor'])
                     }
@@ -906,6 +906,7 @@
                 let h = '(h1,h2,h3,h4,h5,h6)'
                 ns.push(
                     s.replace(reg.headingAll, `:is${h}`),
+                    s.replace(reg.headingAll, `:matches${h}`),
                     s.replace(reg.headingAll, `:-webkit-any${h}`),
                     s.replace(reg.headingAll, `:-moz-any${h}`)
                 )
