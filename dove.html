@@ -960,6 +960,10 @@
         }
         function fixCSSSheet(text, root) {
             let sheet = typeof text === 'object' ? text : reworkCSS.parse(text)
+            sheet.stylesheet.rules = sheet.stylesheet.rules.filter(o => {
+                if (o.declarations) o.declarations = o.declarations.filter(o => o.type !== 'comment')
+                return o.type !== 'comment'
+            })
             let parsed = sheet.stylesheet.rules
             function parseRule(rule, index) {
                 switch (rule.type) {
@@ -1150,7 +1154,7 @@
                         let style = o.textContent
                         if (style.trim() && !style.startsWith('/*reworkCSS*/')) {
                             let s = reworkCSS.parse(style)
-                             rootSelector ??= getRootSelector(s.stylesheet.rules)
+                            rootSelector ??= getRootSelector(s.stylesheet.rules)
                             o.textContent = `/*reworkCSS*/${fixCSSSheet(s)}`
                         }
                     })

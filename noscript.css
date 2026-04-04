@@ -1,5 +1,7 @@
 @namespace svg url('http://www.w3.org/2000/svg');
-
+._webcomponent {
+    display:none !important
+}
 * {
     font-family: inherit;
     overflow-wrap: var(--word-wrap);
