@@ -807,6 +807,10 @@
         function insert(array, index, ...items) {
             return array.splice(index, 0, ...items)
         }
+        function thing(_, prop) {
+            if (!this.has(prop)) debugger
+            return this.get(prop)
+        }
         function fixPropValuePair(declaration, i, rules, globalVars) {
             let prop = declaration.property
             let newProp = css.correctProp(prop, declaration.value)
@@ -814,6 +818,7 @@
             let originalValue = value
             let newValue = value
             let added = []
+            let t = thing.bind(globalVars)
             switch (prop) {
                 /*case 'display':
                     if (reg.grid.test(value))
@@ -841,15 +846,15 @@
                     break
                 case 'zoom':
                     newProp[0] = '-ms-zoom'
-                    newValue = value.replace(reg.globals, function (_, prop) { return globalVars.get(prop) })
+                    newValue = value.replace(reg.globals, t)
                     break
                 case '--scrollbar-color':
                     newProp[0] = '-ms-scrollbar-base-color'
-                    newValue = value.replace(reg.globals, function (_, prop) { return globalVars.get(prop) })
+                    newValue = value.replace(reg.globals, t)
                     break
                 case '--scrollbar-thumb-color':
                     newProp[0] = '-ms-scrollbar-face-color'
-                    newValue = value.replace(reg.globals, function (_, prop) { return globalVars.get(prop) })
+                    newValue = value.replace(reg.globals, t)
                     break
                 case 'scrollbar-width': if (value === 'thin') {
                     newValue = '7px'
@@ -858,17 +863,14 @@
                     break
                 case '--user-select':
                     newProp[0] = '-ms-user-select'
-                    newValue = value.replace(reg.globals, function (_, prop) { return globalVars.get(prop) })
+                    newValue = value.replace(reg.globals, t)
                     break
                 default: if (prop.startsWith('place-')) {
                     newProp.push(prop.replace('place', 'align'), prop.replace('place', 'justify'))
                 }
                 else if (reg.size.test(prop)) if (value === 'stretch' || value === 'var(--stretch)') newValue = '-webkit-fill-available'
             }
-            if (value !== (value = value.replace(reg.globals, function (_, prop) {
-                if (!globalVars.has(prop)) debugger
-                return globalVars.get(prop)
-            }))) added.push([prop, value])
+            if (value !== (value = value.replace(reg.globals, t))) added.push([prop, value])
             function addClone(prop, value) {
                 let clone = structuredClone(declaration)
                 clone.property = prop
@@ -886,8 +888,8 @@
             }
         }
         let reg = {
-            globals: /var\s*\((--_(?:[a-z\d-])+)\)/gi,
-            global: /^--_(?:[a-z\d-])+$/i,
+            globals: /var\s*\((--_(?:[a-z\d-_])+)\)/gi,
+            global: /^--_(?:[a-z\d-_])+$/i,
             size: /^(?:(?:max|min)-)?(?:width|height)$/g,
             grid: /((?:inline-)?grid)/,
             marker: /::marker/g,
@@ -896,12 +898,22 @@
             beforeAfter: /:(:(?:before|after))/g,
             state: /:state\((?:--)?([\w-]+)\)/g,
             headingAll: /:heading(?!\()/g,
+            textSelectable: /:_text-selectable/g,
+            clickable: /:_clickable/g
             // heading: /:heading\(([\d,]+)\))/g
         }
         function fixSelector(rule, index, rules) {
             let { selectors } = rule
             let ns = []
             let s = selectors.join('▊')
+            if (reg.textSelectable.test(s)) {
+                rule.selectors = s.replace(reg.textSelectable, ':is([contenteditable],h1,h2,h3,h4,h5,h6,p,span,aside,abbr,b,bdi,bdo,big,blockquote,caption,center,cite,code,data,del,ins,figcaption,i,input:where(:not([type]),[type="color"],[type="range"],[type="email"],[type="password"],[type="number"],[type="search"],[type="tel"],[type="text"],[type="url"]),kbd,legend,li,marquee,pre,q,s,small,sub,sup,strong,textarea,time,u,mark)')
+                    .split('▊')
+            }
+            if (reg.clickable.test(s)) {
+                rule.selectors = s.replace(reg.clickable, ':is([role="button"],[role="link"],[role="tab"],[role="checkbox"],[role="radio"],select,summary,[tabindex],label:where(:has(input,select,textarea,button),[for]),area,a,button,input:where([type="button"],[type="checkbox"],[type="date"],[type="datetime-local"],[type="file"],[type="image"],[type="month"],[type="radio"],[type="submit"],[type="time"],[type="week"]))')
+                    .split('▊')
+            }
             if (reg.headingAll.test(s)) {
                 let h = '(h1,h2,h3,h4,h5,h6)'
                 ns.push(
@@ -932,9 +944,9 @@
                         s.replace(reg.is, ':-moz-any')
                     )
             }
-            if (reg.beforeAfter.test(s)) {
-                ns.push(s.replace(reg.beforeAfter, '$1'))
-            }
+            // if (reg.beforeAfter.test(s)) {
+            //     ns.push(s.replace(reg.beforeAfter, '$1'))
+            // }
             if (reg.marker.test(s)) {
                 ns
                     .push(s.replace(reg.marker, '::-moz-list-bullet'))
@@ -948,7 +960,8 @@
                 clone.selectors = selector.split('▊')
                 insert(rules, index, clone)
             }
-        } let pending = new Map
+        }
+        let pending = new Map
         function fixDeclarations(declarations, globalVars) {
             for (let i = declarations.length; i--;) {
                 let dec = declarations[i]
@@ -958,6 +971,7 @@
         function getRootSelector(rules) {
             return rules.find(o => o.type === 'rule' && o.selectors.join('') === ':root')
         }
+        const de = '/*reworkCSS*/'
         function fixCSSSheet(text, root) {
             let sheet = typeof text === 'object' ? text : reworkCSS.parse(text)
             sheet.stylesheet.rules = sheet.stylesheet.rules.filter(o => {
@@ -996,15 +1010,20 @@
         class Context extends Object.assign(function () { }, { prototype: null }) {
             #path
             #pathSegments
+            #rootSelector
+            get rootSelector() {
+                return this.#rootSelector
+            }
             constructor(localPath, pathSegments) {
                 super()
                 this.localPath = localPath
                 this.#pathSegments = pathSegments
             }
-            sheet(src) {
-                return this.file(src)
-                // let text = await this.file(src)
-                // return fixCSSSheet(text)
+            async sheet(src) {
+                let text = await this.file(src)
+                if (text.startsWith(de) || !text.trim()) return text
+                let sheet = reworkCSS.parse(text)
+                return `${de}${fixCSSSheet(sheet, this.#rootSelector ??= getRootSelector(sheet.stylesheet.rules))}`
             }
             async dir(path) {
                 let out = await getFolderEntries(path, this.#pathSegments.join('/'))
@@ -1147,15 +1166,15 @@
             }
             if (post && func) if (typeof (text = await func.call(context, text)) !== 'string') throw new TemplateProcessingError(`Bad value passed from postprocessor: ${{}.toString.call(text).slice(8, -1)}`, { cause: code })
             // ^ So the file can process itself afterwards
-            let rootSelector
+            let rootSelector = context.rootSelector
             if (mimeType === 'text/html') {
                 let doc = parseHTMLDocument(text, 'text/html')
                     ;[].forEach.call(doc.querySelectorAll('style'), o => {
                         let style = o.textContent
-                        if (style.trim() && !style.startsWith('/*reworkCSS*/')) {
+                        if (style.trim() && !style.startsWith(de)) {
                             let s = reworkCSS.parse(style)
                             rootSelector ??= getRootSelector(s.stylesheet.rules)
-                            o.textContent = `/*reworkCSS*/${fixCSSSheet(s)}`
+                            o.textContent = `${de}${fixCSSSheet(s, rootSelector)}`
                         }
                     })
                     ;[].forEach.call(doc.querySelectorAll('[style]'), o => {
@@ -1185,8 +1204,8 @@
                 }))
                 text = `${doc.doctype ? '<!DOCTYPE html>\n' : ''}${doc.documentElement.outerHTML}`
             }
-            else if (mimeType === 'text/css' && !text.startsWith('/*reworkCSS*/')) {
-                text = `/*reworkCSS*/${fixCSSSheet(text)}`
+            else if (mimeType === 'text/css' && !text.startsWith(de)) {
+                text = `${de}${fixCSSSheet(text)}`
             }
             return text
         }
