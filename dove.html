@@ -469,7 +469,7 @@
             if (Array.isArray(o))
                 return '[' + o.map(uneval).join(',') + ']'
             if (o === null) return 'null'
-            if (typeof document !== 'undefined' && o === document.all) return 'document.all'
+            if (typeof document !== 'undefined' && o instanceof HTMLAllCollection) return 'document.all'
             if (o instanceof WeakMap || o instanceof WeakSet) return `new ${o.constructor.name}`
             if (o instanceof RegExp)
                 return `/${o.source}/${o.flags}`
@@ -491,10 +491,10 @@
                 default: return String(o)
                 case 'bigint': return o + 'n'
                 case 'function':
-                    if (o.toString().startsWith('class')) return '(' + o + ')'
-                    return '(' + (/^(?:async\s+)?function|=>.*(?:\{.*\})?$/s.test(o) ? o : 'function ' + o) + ')'
+                    if (o.toString().startsWith('class')) return o
+                    return (/^(?:async\s+)?function|=>.*(?:\{.*\})?$/s.test(o) ? o : 'function ' + o)
                 case 'object': {
-                    return '({' + (Object.getPrototypeOf(o) === null ? '__proto__:null,' : '') + Reflect.ownKeys(Object(o)).map(key => {
+                    return '{' + (Object.getPrototypeOf(o) === null ? '__proto__:null,' : '') + Reflect.ownKeys(Object(o)).map(key => {
                         let out = ''
                         let descriptor = Object.getOwnPropertyDescriptor(o, key)
                         if (descriptor.set || descriptor.get) {
@@ -516,7 +516,7 @@
                         if (typeof key === 'symbol') out = `[${uneval(key)}]`
                         else out = `${/^[\p{ID_Continue}$]+$/u.test(key) ? key : uneval(key)}`
                         return out + `:${uneval(val)}`
-                    }).filter(o => o !== '').join(',') + '})'
+                    }).filter(o => o !== '').join(',') + '}'
                 }
                 case 'string': return `"${o.replace(/"/g, '\\"')}"`
                 case 'undefined': return 'void 0'

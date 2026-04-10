@@ -201,7 +201,7 @@
         if (newish) {
             if (D.adoptedStyleSheets.includes(adoptedSheet)) return write
             adoptedSheet = o = createSheet()
-            return function (text) {o.replaceSync(lastText += text)}
+            return function (text) { o.replaceSync(lastText += text) }
         }
         var o = D.getElementById(id)
         if (o) return o
@@ -212,7 +212,7 @@
         o.blocking = 'render'
         var p = D.head || D.body || D.documentElement || ((p = D.currentScript) && (p.parentNode || p)) || D.querySelector('*') || D.firstElementChild || D
         p.appendChild(o)
-        return o.insertAdjacentText ? function(t){o.insertAdjacentText('beforeend',t)}:function(t){o.textContent+=t}
+        return o.insertAdjacentText ? function (t) { o.insertAdjacentText('beforeend', t) } : function (t) { o.textContent += t }
     }
     function registerCSSAll(rules) {
         for (var i in rules)
@@ -345,10 +345,7 @@
                 // 'interpolate-size': 'allow-keywords',
                 '--crisp-edges': crisp,
                 '--system-font': "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif",
-                '--stretch': stretch,
-                '--center': center,
-                // this is different from just 'center' and idk why!!!
-                '--match-parent': matchParent,
+                '--stretch': stretch
             }
         }
         o[W("input[type=date]")] = { cursor: 'text' }
@@ -368,7 +365,7 @@
         o[W('.center_block')] = { display: 'block', 'margin-left': 'auto', 'margin-right': 'auto' }
         o[W('.center_inline')] = { display: 'inline-block', 'text-align': 'center' }
         o[W('.center_absolute,.center_screen')] = { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }
-        o[W('.center_screen')] = { position: 'fixed', 'z-index': '9999' }
+        o[W('.center_screen')] = { position: 'fixed', 'z-index': 9999 }
         o[W('.center_absolute,.center_absolute_x,.center_absolute_y')] = { position: 'absolute' }
         o[W('.center_flex_x,.center_flex')] = { display: 'flex', 'justify-content': 'center' }
         o[W('.center_flex_y,.center_flex')] = { display: 'flex', 'align-items': 'center' }
@@ -377,15 +374,15 @@
         o[W('.center_absolute_x')] = { left: '50%', transform: 'translateX(-50%)' }
         o[W('.center_absolute_y')] = { top: '50%', transform: 'translateY(-50%)' }
         o[W('img')] = {
-            'align-content':'center',
-            'text-align':'center',
+            'align-content': 'center',
+            'text-align': 'center',
             '--force-broken-image-icon': 1,
-            'max-inline-size': '100%', 'block-size': 'auto',
+            'max-inline-size': '100%', 'block-size': 'auto'
             //'object-fit': 'contain'
         } // https://web.dev/learn/design/responsive-images
-        /*o[W('img,video,canvas,svg,picture')] = { //display: 'block', 
-             'max-width': '100%'
-         }*/
+        o[W('img,video,canvas,svg,picture')] = {
+            'box-sizing': 'content-box'
+        }
         o[W('h1')] = { 'margin-block': '.67em', 'font-size': '2em' }
         var root = o[':root']
         if (atProperty) {
