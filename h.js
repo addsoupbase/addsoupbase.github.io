@@ -1,7 +1,6 @@
 //@dev var h = 
 (function handle(globalThis) {
     'use strict'
-    //@dev var queueMicrotask = globalThis.queueMicrotask || globalThis.setImmediate || setTimeout
     var MODULE = Symbol.for("[[HModule]]")
     if (globalThis[MODULE]) return globalThis[MODULE]
     var h = {},
@@ -9,37 +8,10 @@
         //  Don't collide, and make sure its usable across realms!!
         apply = Reflect.apply,
         dp = Reflect.defineProperty,
-        ownKeys = Reflect.ownKeys
-    /*@dev
-    , logger = { __proto__: null }
-     !function(){
-     var aa = '%c@handle.js +color:pink;'.split('+')
-     ,c = aa[0], cc = aa[1]
-     function DelayedLog() {
-     var args = [].slice.call(arguments)
-     args.unshift(1, c, cc)
-     queueMicrotask(this.bind.apply(this, args))
-     }
-     function LogOutOfGroup() {
-     var args = [].slice.call(arguments)
-     args.unshift(1, c, cc)
-     setTimeout(this.bind.apply(this, args))
-     }
-     for (var i in console) {
-    // Because the groupCollapsed() method was suppressing errors, delay them instead
-     var old = console[i]
-     if (typeof old === 'function')
-     old=old.bind(console),
-     logger[i] = DelayedLog.bind(old),
-     logger[i+"Late"] = LogOutOfGroup.bind(old)
-     }
-     }()
-    var source = Function.toString.call.bind(Function.prototype.toString)
-     , warn=logger.warn, groupCollapsed=logger.groupCollapsed, groupEnd= logger.groupEnd
-    */
-    var isArray = Array.isArray
-        , allEvents = h.allEvents = new WeakMap
-    //@dev globalThis.allEvents = allEvents
+        ownKeys = Reflect.ownKeys,
+        isArray = Array.isArray, 
+        allEvents = h.allEvents = new WeakMap
+        //@devvar queueMicrotask=globalThis.queueMicrotask||globalThis.setImmediate||setTimeout,logger={__proto__:null};!function(){var _='%c@handle.js +color:pink;'.split('+'),c=_[0],z=_[1];function r(){var v=[].slice.call(arguments);v.unshift(1,c,z);queueMicrotask(this.bind.apply(this,v))}function m(){var v=[].slice.call(arguments);v.unshift(1,c,z);setTimeout(this.bind.apply(this,v))}for(var i in console){var o=console[i];typeof o === 'function'&&(o=o.bind(console),logger[i]=r.bind(o),logger[i+"Late"]=m.bind(o))}}();var source=Function.toString.call.bind(Function.prototype.toString),warn=logger.warn,groupCollapsed=logger.groupCollapsed,groupEnd=logger.groupEnd;globalThis.allEvents=allEvents
     function isValidET(target) {
         return target === Object(target) && 'addEventListener' in target && 'removeEventListener' in target && 'dispatchEvent' in target
     }
@@ -269,9 +241,7 @@
         var names = ownKeys(events)
         if (!names.length) return target
         var label = getLabel(target)
-        //@dev try {
-        //@dev groupCollapsed("on("+label+")")
-        //@dev logger.dirxml(target)
+        /*@devtry{groupCollapsed("on("+label+")");logger.dirxml(target)*/
         var myEvents = getEventNames(target)
         if (typeof events === 'function') !function () {
             var a = {}
@@ -353,10 +323,7 @@
                 //@dev logger.info("🔔 '"+eventName+"' event added")
             }
         }
-        //@dev }
-        //@dev finally {
-        //@dev groupEnd()
-        //@dev }
+        /*@dev}finally{groupEnd()}*/
         return target
     }
     h.on = on
@@ -451,9 +418,7 @@
         if (!isValidET(target)) throw invalid()
         if (!eventNames.length || !allEvents.has(target)) return null
         var label = getLabel(target)
-        //@dev try {
-        //@dev groupCollapsed("off("+label+")")
-        //@dev logger.dirxml(target)
+        /*@devtry{groupCollapsed("off("+label+")");logger.dirxml(target)*/
         var map = allEvents.get(target),
             mySet = target[sym]
         for (var i = eventNames.length; i--;) {
@@ -477,10 +442,7 @@
             mySet.delete(name)
             map.size || allEvents.delete(newTarget)
         }
-        //@dev }
-        //@dev finally {
-        //@dev groupEnd()
-        //@dev }
+        /*@dev}finally{groupEnd()}*/
     }
     h.off = off
     function filterResult(event, filter) {
@@ -619,4 +581,4 @@
     h.debounce = debounce
     return constructor.prototype[MODULE] = h
 }(typeof globalThis === 'undefined' ? window : globalThis //@dev,!this
-))
+))//@dev;h

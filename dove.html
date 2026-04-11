@@ -900,6 +900,7 @@
             state: /:state\((?:--)?([\w-]+)\)/g,
             headingAll: /:heading(?!\()/g,
             textSelectable: /:_text-selectable/g,
+            unclickable: /:_unclickable/g,
             clickable: /:_clickable/g
             // heading: /:heading\(([\d,]+)\))/g
         }
@@ -910,6 +911,10 @@
             if (reg.textSelectable.test(s)) {
                 rule.selectors = s.replace(reg.textSelectable, ':is([contenteditable],h1,h2,h3,h4,h5,h6,p,span,aside,abbr,b,bdi,bdo,big,blockquote,caption,center,cite,code,data,del,ins,figcaption,i,input:where(:not([type]),[type="color"],[type="range"],[type="email"],[type="password"],[type="number"],[type="search"],[type="tel"],[type="text"],[type="url"]),kbd,legend,li,marquee,pre,q,s,small,sub,sup,strong,textarea,time,u,mark)')
                     .split('▊')
+            }
+            if (reg.unclickable.test(s)) {
+                rule.selectors = s.replace(reg.unclickable, ':is([disabled],[readonly],[aria-disabled="true"])')
+                .split('▊')
             }
             if (reg.clickable.test(s)) {
                 rule.selectors = s.replace(reg.clickable, ':is([role="button"],[role="link"],[role="tab"],[role="checkbox"],[role="radio"],select,summary,[tabindex],label:where(:has(input,select,textarea,button),[for]),area,a,button,input:where([type="button"],[type="checkbox"],[type="date"],[type="datetime-local"],[type="file"],[type="image"],[type="month"],[type="radio"],[type="submit"],[type="time"],[type="week"]))')
