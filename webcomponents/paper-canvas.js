@@ -210,9 +210,8 @@ function $contextmenu() { }
 let style = new CSSStyleSheet
 style.replaceSync(`
     :host([resizing]){resize:both !important;cursor:revert;outline-style:dashed;outline-width:2px;}
-    :host([resizing]){content:"Shift held. Resize at bottom right.";}
     :host{
-        ${css.toCSS({
+    ${css.toCSS({
     cursor: 'crosshair',
     width: 'max-content',
     height: 'max-content',
