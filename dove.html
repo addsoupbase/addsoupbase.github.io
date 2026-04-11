@@ -808,7 +808,8 @@
             return array.splice(index, 0, ...items)
         }
         function thing(_, prop) {
-            if (!this.has(prop)) debugger
+            // if (!this.has(prop) || prop === '--_WHITE-7') 
+
             return this.get(prop)
         }
         function fixPropValuePair(declaration, i, rules, globalVars) {
@@ -895,7 +896,7 @@
             marker: /::marker/g,
             imgset: /(?<!-webkit-)image-set(?=\()/g,
             is: /:is(?=\()/g,
-            beforeAfter: /:(:(?:before|after))/g,
+            legacyPelt: /:(:(?:before|after|first-(?:line|letter)))/g,
             state: /:state\((?:--)?([\w-]+)\)/g,
             headingAll: /:heading(?!\()/g,
             textSelectable: /:_text-selectable/g,
@@ -944,9 +945,9 @@
                         s.replace(reg.is, ':-moz-any')
                     )
             }
-            // if (reg.beforeAfter.test(s)) {
-            //     ns.push(s.replace(reg.beforeAfter, '$1'))
-            // }
+            if (reg.legacyPelt.test(s)) {
+                ns.push(s.replace(reg.legacyPelt, '$1'))
+            }
             if (reg.marker.test(s)) {
                 ns
                     .push(s.replace(reg.marker, '::-moz-list-bullet'))
@@ -1171,11 +1172,9 @@
                 let doc = parseHTMLDocument(text, 'text/html')
                     ;[].forEach.call(doc.querySelectorAll('style'), o => {
                         let style = o.textContent
-                        if (style.trim() && !style.startsWith(de)) {
-                            let s = reworkCSS.parse(style)
-                            rootSelector ??= getRootSelector(s.stylesheet.rules)
-                            o.textContent = `${de}${fixCSSSheet(s, rootSelector)}`
-                        }
+                        let s = reworkCSS.parse(style)
+                        rootSelector ??= getRootSelector(s.stylesheet.rules)
+                        if (style.trim() && !style.startsWith(de)) o.textContent = `${de}${fixCSSSheet(s, rootSelector)}`
                     })
                     ;[].forEach.call(doc.querySelectorAll('[style]'), o => {
                         let n = fixCSSSheet(`*{${o.getAttribute('style')}}`, rootSelector)

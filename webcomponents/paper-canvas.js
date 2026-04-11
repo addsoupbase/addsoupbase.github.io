@@ -1,19 +1,27 @@
 import * as v from '../v4.js'
-import { vect } from "../num.js"
+// import { vect } from "../num.js"
 import '../css.js'
 const css = window[Symbol.for('[[CSSModule]]')]
 // import * as h from '../handle.js'
 // let internals = Symbol()
 function pointerup(p) {
-    if (p.button === 2) return
+    if (p.button === 2 || this.resizing) return
     this.releasePointerCapture(p.pointerId)
     this.holding = false
     this.internals?.setFormValue(this.value)
     this.internals?.setValidity({ valueMissing: false }, 'Draw something')
 }
+function keydown(e) {
+    let { shiftKey } = e
+    if (shiftKey) {
+        this.resizing = !this.resizing
+        this.holding = false
+        e.preventDefault()
+    }
+}
 
 function pointermove(p) {
-    if (p.button === 2) return
+    if (p.button === 2 || this.resizing) return
     let { offsetX: x, offsetY: y } = p
     let zoom = this.canvas.currentCSSZoom || 1
     if (this.holding) {
@@ -25,25 +33,28 @@ function pointermove(p) {
         }
         ctx.beginPath()
         // let {currentCSSZoom: zoom} = this
-        ctx.moveTo(lastLoc.x / zoom, lastLoc.y / zoom)
+        ctx.moveTo(lastLoc[0] / zoom, lastLoc[1] / zoom)
         ctx.lineTo(x / zoom, y / zoom)
         ctx.stroke()
-        lastLoc.set(x, y)
+        lastLoc[0] = x
+        lastLoc[1] = y
     }
 }
 function pointerdown(p) {
+    if (this.resizing) return
     if (p.button === 2) return this.undo()
-        this.setPointerCapture(p.pointerId)
-    let { undoBuffer, ctx } = this
-    undoBuffer.push(ctx.getImageData(0, 0, 250, 250))
+    this.setPointerCapture(p.pointerId)
+    let { undoBuffer, ctx, canvas } = this
+    undoBuffer.push(ctx.getImageData(0, 0, canvas.width, canvas.height))
     while (this.undoBuffer.length > this.maxBufferSize) undoBuffer.shift()
     this.holding = true
     let { lastLoc } = this
     let zoom = this.canvas.currentCSSZoom || 1
-    lastLoc.set(p.offsetX, p.offsetY)
+    lastLoc[0] = p.offsetX
+    lastLoc[1] = p.offsetY
     ctx.beginPath()
     // let {currentCSSZoom: zoom} = this
-    ctx.arc(lastLoc.x / zoom, lastLoc.y / zoom, 0, 0, 6)
+    ctx.arc(lastLoc[0] / zoom, lastLoc[1] / zoom, 0, 0, 6)
     ctx.stroke()
     ctx.fill()
     // ctx.strokeRect(p.offsetX/zoom, p.offsetY/zoom, .5,.5)
@@ -53,6 +64,11 @@ class PaperCanvas extends HTMLElement {
     static observedAttributes = 'maxbuffersize color brushsize width height'.split(' ')
     undoBuffer = []
     maxBufferSize = 10
+    #resizing
+    get resizing() { return this.#resizing }
+    set resizing(b) {
+        this.toggleAttribute('resizing', this.#resizing = !!b)
+    }
     // syncWithForm() {
     // let i = this[internals]
     // return this.toFile().then(i.setFormValue.bind(i))
@@ -61,7 +77,7 @@ class PaperCanvas extends HTMLElement {
     undo() {
         let { undoBuffer, ctx } = this
         if (!undoBuffer.length) return
-        ctx.clearRect(0, 0, 250, 250)
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
         ctx.putImageData(undoBuffer.pop(), 0, 0)
         if (!undoBuffer.length) {
             this.internals?.setValidity({ valueMissing: true }, 'Draw something')
@@ -73,7 +89,7 @@ class PaperCanvas extends HTMLElement {
     }
     internals = this.closest('form')?.contains(this) ? this.attachInternals() : null
     holding = false
-    lastLoc = vect(0 / 0, 0 / 0)
+    lastLoc = Float64Array.of(0, 0)
     canvas = null
     ctx = null
     get value() {
@@ -105,9 +121,10 @@ class PaperCanvas extends HTMLElement {
     get alpha() {
         return !this.hasAttribute('moz-opaque') && this.ctx.getContextAttributes().alpha
     }
-    static #BASE_CONTEXT_ATTRIBUTES = {
+    static BASE_CONTEXT_ATTRIBUTES = {
         lineJoin: 'round',
         lineCap: 'round',
+        strokeStyle: 'black',
         fillStyle: 'white'
     }
     formResetCallback() {
@@ -156,28 +173,55 @@ class PaperCanvas extends HTMLElement {
         let width = +t.getAttribute('width') || 250
         let height = +t.getAttribute('height') || 250
         let canvas = this.canvas = v.esc`<canvas id="canvas" style="image-rendering:auto;width:${width}px;height:${height}px" width="${width}" height="${height}">`
-        this.ctx = Object.assign(canvas.getContext('2d', { willReadFrequently: true }), PaperCanvas.#BASE_CONTEXT_ATTRIBUTES)
+        this.ctx = Object.assign(canvas.getContext('2d', { willReadFrequently: true }), PaperCanvas.BASE_CONTEXT_ATTRIBUTES)
         this.ctx.fillRect(0, 0, width, height)
+        this.color = 'black'
         shadow.adoptedStyleSheets = [style]
         v.Proxify(shadow).pushNode(canvas)
         t.on({
             pointermove,
             pointerdown,
             pointerup,
+            // keydown,
             $contextmenu
         }, new AbortController)
+        // t.observe('resize', {
+        //     callback: resizeCanvas
+        // })
     }
 }
-function $contextmenu(){}
+function resizeCanvas(n) {
+    let t = n.targetNode
+    let { canvas, ctx } = t
+    let { inlineSize: width, blockSize: height } = n.contentBoxSize?.[0] ?? n.contentRect
+    if (t.resizing && width && height && width !== canvas.width && height !== canvas.height) {
+        let c = t.color
+        let data = ctx.getImageData(0, 0, canvas.width, canvas.height)
+        canvas.style.width = `${canvas.width = width}px`
+        canvas.style.height = `${canvas.height = height}px`
+        ctx.fillStyle = 'white'
+        ctx.fillRect(0, 0, width, height)
+        ctx.putImageData(data, 0, 0)
+        Object.assign(ctx, PaperCanvas.BASE_CONTEXT_ATTRIBUTES)
+        t.color = c
+    }
+}
+function $contextmenu() { }
 let style = new CSSStyleSheet
-style.replaceSync(`:host{
+style.replaceSync(`
+    :host([resizing]){resize:both !important;cursor:revert;outline-style:dashed;outline-width:2px;}
+    :host([resizing]){content:"Shift held. Resize at bottom right.";}
+    :host{
         ${css.toCSS({
     cursor: 'crosshair',
-    '--user-select': 'none',
+    width: 'max-content',
+    height: 'max-content',
+    'user-select': 'none',
     'touch-action': 'none',
+    overflow: 'hidden',
     'background-color': 'white',
     display: 'inline-grid',
-    border: '1px solid black',
+    outline: '1px solid black',
 })}}`)
 if (customElements.get('paper-canvas') !== PaperCanvas) {
     let d = customElements.whenDefined('paper-canvas')
