@@ -7,9 +7,11 @@ let sheet = new CSSStyleSheet
 let isSafari = 'onwebkitmouseforceup' in window
 // let before = `content: attr(alt);left:-30px;font-size:smaller;position:relative;font-family:monospace`
 let broken = 'background-size:cover;background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAJ9JREFUeNq01ssOwyAMRFG46v//Mt1ESmgh+DFmE2GPOBARKb2NVjo+17PXLD8a1+pl5+A+wSgFygymWYHBb0FtsKhJDdZlncG2IzJ4ayoMDv20wTmSMzClEgbWYNTAkQ0Z+OJ+A/eWnAaR9+oxCF4Os0H8htsMUp+pwcgBBiMNnAwF8GqIgL2hAzaGFFgZauDPKABmowZ4GL369/0rwACp2yA/ttmvsQAAAABJRU5ErkJggg==);width:32px;height:32px;image-rendering:auto;'
-sheet.replaceSync(`:host(:--broken){${broken}}:host(:state(--broken)){${broken}}div{pointer-events:all;overflow:hidden;transform:translate(-50%,-50%);}foreignObject{y:calc((rem(calc(var(--index,0)*var(--frame-h,0)),var(--height,0))*-1px))}svg{contain:paint layout;position:relative}:host{user-select:none;-webkit-user-select:none;-moz-user-select:none;touch-action:pinch-zoom;pointer-events: none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}`)
+sheet.replaceSync(`div{contain:paint;pointer-events:all;overflow:hidden;transform:translate(-50%,-50%);}foreignObject{y:calc((rem(calc(var(--index,0)*var(--frame-h,0)),var(--height,0))*-1px))}svg{contain:paint layout;position:relative}:host{user-select:none;-webkit-user-select:none;-moz-user-select:none;touch-action:pinch-zoom;pointer-events: none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}:host(:--broken){width:32px;height:32px;}:host(:state(--broken)){width:32px;height:32px}:host(:--broken) div{${broken}}:host(:state(--broken)) div{${broken}}`)
 class SlideShow extends HTMLElement {
     static observedAttributes = 'values src dur index repeat imagesmoothing'.split(' ')
+    get imageSmoothing() {return this.getAttribute('imagesmoothing')}
+    set imageSmoothing(v) { this.setAttribute('imagesmoothing',v)}
     static preload(...sources) {
         let out = []
         for (let { framesX = 1, framesY = 1, src, duras } of sources) {
@@ -26,13 +28,7 @@ class SlideShow extends HTMLElement {
                     let s = url.toString()
                     sheet.insertRule(`:host([src="${s}"]){width:${width}px;height:${height}px}`, 1)
                     isSafari && sheet.insertRule(`:host([src="${s}"]) div{width:${width}px;height:${height}px}`, 1)
-                    let canvas = document.createElement('canvas')
-                    canvas.width = framesX * width
-                    canvas.height = framesY * height
-                    let ctx = canvas.getContext('2d')
-                    ctx.imageSmoothingEnabled = false
-                    ctx.drawImage(n, 0, 0)
-                    createImageBitmap(canvas).then(o => {
+                    createImageBitmap(n, {resizeQuality:'pixelated'}).then(o => {
                         let repeats = duras && duras.length === framesX ? duras : Array(framesX).fill(1)
                         let vals = []
                         for (let i = 0; i < framesX; i++) {
@@ -41,7 +37,7 @@ class SlideShow extends HTMLElement {
                                 vals.push(`${-i * width}`)
                         }
                         let out = {
-                            src:url,
+                            src: url,
                             bitmap: o,
                             framesX,
                             framesY,
@@ -60,6 +56,7 @@ class SlideShow extends HTMLElement {
     }
     get src() { return this.getAttribute('src') }
     set src(t) {
+        if (this.#once && this.hasAttribute('src')) throw TypeError(`Can't change src of static sprite`)
         this.setAttribute('src', t)
         this.play()
     }
@@ -97,7 +94,7 @@ class SlideShow extends HTMLElement {
                 let ctx = this.#ctx
                 let b = false
                 while (!bitmaps.has(u)) {
-                    if (!b) {
+                    if (!b && !this.#once) {
                         this.#framesX = this.#framesY = 0
                         this.#internals?.states.add('--broken')
                         ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -116,17 +113,18 @@ class SlideShow extends HTMLElement {
                 let height = canvas.height = framesY * frameHeight
                 fe.setAttribute('width', width)
                 fe.setAttribute('height', height)
-                ctx.imageSmoothingEnabled = false
-                // ctx.imageSmoothingQuality='high'
-                ctx.drawImage(bitmap, 0, 0)
+                if (this.#once) {
+                    (ctx.transferFromImageBitmap || ctx.transferImageBitmap).call(ctx, bitmap)
+                    bitmaps.delete(this.src)
+                }
+                else ctx.drawImage(bitmap, 0, 0)
                 fe.style.setProperty('--height', framesY * frameHeight)
                 fe.style.setProperty('--frame-h', frameHeight)
                 this.#anim.setAttribute('values', values)
                 this.#anim.setAttribute('to', values.at(-1))
                 this.#updateTotalDuration()
-                if (this.hasAttribute('autoplay')) {
+                if (this.hasAttribute('autoplay'))
                     this.play()
-                }
                 break
             }
             case 'dur':
@@ -135,15 +133,15 @@ class SlideShow extends HTMLElement {
             case 'repeat':
                 this.#anim.setAttribute('repeatCount', val)
                 break
-                case 'imagesmoothing':
-                    if (val === 'none' || !val) {
-                        this.#ctx.imageSmoothingEnabled = false
-                    }
-                    else {
-                        this.#ctx.imageSmoothingEnabled = true
-                        this.#ctx.imageSmoothingQuality = val
-                    }
-                    break
+            case 'imagesmoothing': if(!this.#once)
+                if (val === 'none' || !val) {
+                    this.#ctx.imageSmoothingEnabled = false
+                }
+                else {
+                    this.#ctx.imageSmoothingEnabled = true
+                    this.#ctx.imageSmoothingQuality = val
+                }
+                break
             default:
                 this.#sprite.setAttribute(attr, val)
                 break
@@ -172,8 +170,10 @@ class SlideShow extends HTMLElement {
         requestAnimationFrame(() => { this.time = 0; anim.beginElement() })
         // needed bc it's broken
     }
+    #once
     constructor() {
         super()
+        this.#once = this.hasAttribute('singleton')
         this.#internals?.states.add('--broken')
         let shadow = this.attachShadow({ mode: 'open' })
         shadow.appendChild(svg.cloneNode(true))
@@ -182,7 +182,7 @@ class SlideShow extends HTMLElement {
         this.#anim.addEventListener('repeatEvent', repeat)
         this.#anim.addEventListener('endEvent', end)
         this.#anim.remove()
-        this.#ctx = (this.#sprite = shadow.querySelector('canvas')).getContext('2d')
+        this.#ctx = (this.#sprite = shadow.querySelector('canvas')).getContext(this.#once ? 'bitmaprenderer' : '2d')
         this.#fe = shadow.querySelector('foreignObject')
         shadow.adoptedStyleSheets = [sheet]
         this.#container = shadow.firstChild

@@ -4,7 +4,7 @@
 (function CSSSetup(inModule, sym, defer, D, O, id, y, /*rAF,*/ ads) {
     //@dev'use strict'
     var newish = !!ads
-    if (y.propertyIsEnumerable(sym) && newish ? ads.find(function (o) { return o.isMySheet }) : D.getElementById(id) instanceof HTMLStyleElement) {
+    if (y.propertyIsEnumerable(sym) && newish ? ads.find(function (o) { return o[id] }) : D.getElementById(id) instanceof HTMLStyleElement) {
         var out = y[sym]
         inModule && (inModule = out.onerror) && (removeEventListener('error', inModule), out.onerror = null)
         return out
@@ -58,9 +58,8 @@
     }
     var fro = O.fromEntries,
         is = Array.isArray,
-        lastText = '',
-        adoptedSheet = null,
-        write = Sheet(),
+        // lastText = '',
+        as = null,
         alr = new Set,
         vendr = /^(?:-(?:webkit|moz(?:-osx)?|apple|khtml|konq|r?o|ms|xv|atsc|wap|ah|hp|rim|tc|fso|icab|epub)|prince|mso)-(?!$)/i,
         dr = new Map,
@@ -73,6 +72,7 @@
         , fClass = fgeneric.bind(1, ':', pseudoClass),
         fElement = fgeneric.bind(1, '::', pseudoElement)
         //, batch = ''
+        , t = Sheet()
     function dv(prop, val) {
         return vendor(toDash(prop), val)
     }
@@ -176,47 +176,30 @@
         var str = '', i = (selector = selector.split(',')).length
         while (i--) str = fSelector(selector[i]) + str
         insertRule(str + "{" + toCSS(rule, _) + "}")
-        return write
+        return insertRule
     }
-    /*function l() {
-        write(batch)
-        //@dev console.debug("textContent queue emptied! Text length accumulated:", batch.length)
-        batch = ''
-    }
-    function queueWrite(text) {
-        text && (batch || rAF(l), batch += text)
-    }*/
     function createSheet(text) {
         var m = new CSSStyleSheet
-        Object.defineProperty(m, 'isMySheet', { value: true })
+        Object.defineProperty(m, id, { value: true })
         text && m.replaceSync(text)
         D.adoptedStyleSheets = [].concat.call(ads, m)
         return m
     }
-    /*function registerCSSRaw(rules, newStyleSheet) {
-        debugger 
-        // bad bc like it has to reparse the ENTIRE sheet, which can cause refetching of fonts
-        // and images etc.
-        if (newStyleSheet) return createSheet(rules)
-        queueWrite(rules)
-        return write
-    }*/
     function Sheet() {
-        if (newish) {
-            if (ads.includes(adoptedSheet)) return write
-            adoptedSheet = o = createSheet()
-            return function (text) { o.replaceSync(lastText += text) }
+        if (newish) 
+            return as = o = as || createSheet()
+        else {
+            var o = D.getElementById(id)
+            if (o) return o
+            // if (canWrite) return D.write('<style id="'+id+'" blocking="render">'+str+'</style>'), Sheet()
+            // ^ this branch is slower
+            o = D.createElement('style')
+            o.id = id
+            o.blocking = 'render'
+            var p = D.head || D.body || D.documentElement || ((p = D.currentScript) && (p.parentNode || p)) || D.querySelector('*') || D.firstElementChild || D
+            p.appendChild(o)
+            return o
         }
-        var o = D.getElementById(id)
-        if (o) return o
-        // if (canWrite) return D.write('<style id="'+id+'" blocking="render">'+str+'</style>'), Sheet()
-        // ^ this branch is slower
-        o = D.createElement('style')
-        o.id = id
-        o.blocking = 'render'
-        var p = D.head || D.body || D.documentElement || ((p = D.currentScript) && (p.parentNode || p)) || D.querySelector('*') || D.firstElementChild || D
-        p.appendChild(o)
-        return o.insertAdjacentText ? function (t) { o.insertAdjacentText('beforeend', t) } : function (t) { o.textContent += t }
     }
     function registerCSSAll(rules) {
         for (var i in rules)
@@ -242,7 +225,7 @@
         return ':where(' + s + ')'
     }
     where || (W = String)
-    var uv = { //'box-sizing': 'border-box', it causes too many problems
+    var uv = {
         'font-family': 'inherit',
         'overflow-wrap': 'var(--word-wrap)',
         'scrollbar-color': 'var(--scrollbar-thumb-color) var(--scrollbar-color)',
@@ -402,7 +385,7 @@
     var str = name
     // Selecting all pseudo elements has a massive performance hit, as expected
     str || sn(str = id + '*' + "{" + toCSS(uv, true) + "}" + newName)
-    write(str)
+    newish ? as.replaceSync(str) : (t.textContent = str, insertRule = function(n,i) {t.sheet.insertRule(n,i)})
     var css =  //@devObject.seal
         ({
             getDefaultStyleSheet: Sheet,
@@ -431,7 +414,7 @@
     y[sym] || O.defineProperty(y, sym, { value: css, enumerable: 1 })
     return css
     function insertRule(txt, i) {
-            adoptedSheet.insertRule(txt, i)
+            o.insertRule(txt, i)
     }
 }(!this, Symbol.for('[[CSSModule]]'), (self.requestIdleCallback && function (c) { return requestIdleCallback(c, { timeout: 2000 }) }) || (self.scheduler && scheduler.postTask && function (c) { return scheduler.postTask(c, { priority: 'background' }) }) || self.queueMicrotask || self.setImmediate || setTimeout, document, Object, '/*stylesheet auto-generated by css.js*/', constructor.prototype,/*rAF omitted,*/document.adoptedStyleSheets))
 // ; console.timeEnd('css.js')
