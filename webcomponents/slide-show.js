@@ -173,7 +173,7 @@ class SlideShow extends HTMLElement {
     #once
     constructor() {
         super()
-        this.#once = this.hasAttribute('singleton')
+        this.#once = this.hasAttribute('unique')
         this.#internals?.states.add('--broken')
         let shadow = this.attachShadow({ mode: 'open' })
         shadow.appendChild(svg.cloneNode(true))
