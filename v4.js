@@ -184,13 +184,12 @@ export function getContext(type, id, width, height, settings, fallbackURL) {
     // -webkit-canvas() only works on safari, and needed a workaround to do so!
     if (contexts.has(id)) return contexts.get(id)
     let s = CSS.escape(id)
-    css.write(
+    css.insertRule(
         `[data-v4-unreliable-canvas-background="${s}"] {
         background-image: paint(${s});
         background-image: -webkit-canvas(${s});
         background-image: -moz-element(#${s})
-}`
-    )
+}`)
     if (isApple) {
         let o = D.getCSSCanvasContext(type, id, width, height)
         contexts.set(id, o)
