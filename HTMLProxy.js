@@ -527,5 +527,12 @@ new ProxyFactory(class MutationRecord$ extends RecordOrEntry {
         return Proxify.GetWrapper(this).#previousSibling ??= proxifySafe(this.previousSibling)
     }
 })
-new ProxyFactory(class ResizeObserverEntry$ extends RecordOrEntry { })
+new ProxyFactory(class ResizeObserverEntry$ extends RecordOrEntry {
+    get width() {
+        return this.contentRect?.width ?? this.contentBoxSize[0].inlineSize
+    }
+    get height() {
+        return this.contentRect?.height ?? this.contentBoxSize[0].blockSize
+    }
+})
 new ProxyFactory(class IntersectionObserverEntry$ extends RecordOrEntry { })
