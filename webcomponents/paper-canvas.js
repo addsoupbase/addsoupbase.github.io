@@ -86,6 +86,26 @@ class PaperCanvas extends HTMLElement {
     constructor() {
         super()
         this.internals?.setValidity({ valueMissing: true }, 'Draw something')
+        let t = v.Proxify(this)
+        let shadow = this.attachShadow({ mode: 'open' })
+        let width = +t.getAttribute('width') || 250
+        let height = +t.getAttribute('height') || 250
+        let canvas = this.canvas = v.esc`<canvas id="canvas" style="image-rendering:auto;width:${width}px;height:${height}px" width="${width}" height="${height}">`
+        this.ctx = Object.assign(canvas.getContext('2d', { willReadFrequently: true }), PaperCanvas.BASE_CONTEXT_ATTRIBUTES)
+        this.ctx.fillRect(0, 0, width, height)
+        this.color = 'black'
+        shadow.adoptedStyleSheets = [style]
+        v.Proxify(shadow).pushNode(canvas)
+        t.on({
+            pointermove,
+            pointerdown,
+            pointerup,
+            // keydown,
+            $contextmenu
+        }, new AbortController)
+        // t.observe('resize', {
+        //     callback: resizeCanvas
+        // })
     }
     internals = this.closest('form')?.contains(this) ? this.attachInternals() : null
     holding = false
@@ -167,27 +187,7 @@ class PaperCanvas extends HTMLElement {
         return this.ctx.fillStyle
     }
     connectedCallback() {
-        let t = v.Proxify(this)
         this.hasAttribute('tabindex') || this.setAttribute('tabindex', 0)
-        let shadow = this.attachShadow({ mode: 'open' })
-        let width = +t.getAttribute('width') || 250
-        let height = +t.getAttribute('height') || 250
-        let canvas = this.canvas = v.esc`<canvas id="canvas" style="image-rendering:auto;width:${width}px;height:${height}px" width="${width}" height="${height}">`
-        this.ctx = Object.assign(canvas.getContext('2d', { willReadFrequently: true }), PaperCanvas.BASE_CONTEXT_ATTRIBUTES)
-        this.ctx.fillRect(0, 0, width, height)
-        this.color = 'black'
-        shadow.adoptedStyleSheets = [style]
-        v.Proxify(shadow).pushNode(canvas)
-        t.on({
-            pointermove,
-            pointerdown,
-            pointerup,
-            // keydown,
-            $contextmenu
-        }, new AbortController)
-        // t.observe('resize', {
-        //     callback: resizeCanvas
-        // })
     }
 }
 function resizeCanvas(n) {
