@@ -189,7 +189,7 @@ class SlideShow extends HTMLElement {
         this.#anim.remove()
         let {opaque} = this
         this.#ctx = (this.#sprite = shadow.querySelector('canvas')).getContext(this.#once ? 'bitmaprenderer' : '2d', {alpha: !opaque})
-        this.#sprite.toggleAttribute('moz-opaque', !opaque)
+        this.#sprite.toggleAttribute('moz-opaque', opaque)
         this.#fe = shadow.querySelector('foreignObject')
         shadow.adoptedStyleSheets = [sheet]
         this.#container = shadow.firstChild
