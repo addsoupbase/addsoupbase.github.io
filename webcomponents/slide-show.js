@@ -7,7 +7,9 @@ let sheet = new CSSStyleSheet
 let isSafari = 'onwebkitmouseforceup' in window
 // let before = `content: attr(alt);left:-30px;font-size:smaller;position:relative;font-family:monospace`
 let broken = 'background-size:cover;background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAJ9JREFUeNq01ssOwyAMRFG46v//Mt1ESmgh+DFmE2GPOBARKb2NVjo+17PXLD8a1+pl5+A+wSgFygymWYHBb0FtsKhJDdZlncG2IzJ4ayoMDv20wTmSMzClEgbWYNTAkQ0Z+OJ+A/eWnAaR9+oxCF4Os0H8htsMUp+pwcgBBiMNnAwF8GqIgL2hAzaGFFgZauDPKABmowZ4GL369/0rwACp2yA/ttmvsQAAAABJRU5ErkJggg==);width:32px;height:32px;image-rendering:auto;'
-sheet.replaceSync(`div{border:.1vh solid transparent;contain:paint;pointer-events:all;overflow:hidden;transform:translate(-50%,-50%);}foreignObject{y:calc((rem(calc(var(--index,0)*var(--frame-h,0)),var(--height,0))*-1px))}svg{contain:paint layout;position:relative}:host{user-select:none;-webkit-user-select:none;-moz-user-select:none;touch-action:pinch-zoom;pointer-events: none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}:host(:--broken){width:32px;height:32px;}:host(:state(--broken)){width:32px;height:32px}:host(:--broken) div{${broken}}:host(:state(--broken)) div{${broken}}`)
+sheet.replaceSync(`div{border:.02vmax solid transparent;contain:paint;pointer-events:all;overflow:hidden;transform:translate(-50%,-50%);}foreignObject{y:calc((rem(calc(var(--index,0)*var(--frame-h,0)),var(--height,0))*-1px))}:host{user-select:none;-webkit-user-select:none;-moz-user-select:none;touch-action:pinch-zoom;pointer-events:none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}:host(:--broken){width:32px;height:32px}:host(:state(--broken)){width:32px;height:32px}:host(:--broken) div{${broken}}:host(:state(--broken)) div{${broken}}`)
+                                        // ^ forgot to comment this when i added it but:
+                                        // the (transparent) border seems to fix the 1px overlap issue, but the sprite is ever so slightly offset when the zoom is really low, but there's no other FCKING WAY TO FIX IT SO IT WILL HAVE TO DO
 class SlideShow extends HTMLElement {
     static observedAttributes = 'values src dur index repeat imagesmoothing'.split(' ')
     get imageSmoothing() {return this.getAttribute('imagesmoothing')}
@@ -16,9 +18,9 @@ class SlideShow extends HTMLElement {
         let out = []
         for (let { framesX = 1, framesY = 1, src, duras } of sources) {
             let n = new Image
-            n.src = src
             n.fetchPriority = 'high'
             n.decoding = 'sync'
+            n.src = src
             out.push(new Promise((resolve, reject) => {
                 n.onerror = reject
                 n.onload = () => {
@@ -28,7 +30,7 @@ class SlideShow extends HTMLElement {
                     let s = url.toString()
                     sheet.insertRule(`:host([src="${s}"]){width:${width}px;height:${height}px}`, 1)
                     isSafari && sheet.insertRule(`:host([src="${s}"]) div{width:${width}px;height:${height}px}`, 1)
-                    createImageBitmap(n, {resizeQuality:'pixelated'}).then(o => {
+                    createImageBitmap(n).then(o => {
                         let repeats = duras && duras.length === framesX ? duras : Array(framesX).fill(1)
                         let vals = []
                         for (let i = 0; i < framesX; i++) {
