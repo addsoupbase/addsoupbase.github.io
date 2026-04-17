@@ -1,19 +1,22 @@
 // VERY IMPORTANT:
 // do NOT use the `zoom` or `scale` css property
 // it behaves strangely
-let svg = document.createRange().createContextualFragment('<div part="sprite"><svg><foreignObject width=100 height=100 id="fe" x=0><canvas></canvas></foreignObject><animate fill="freeze" from="0" begin="0s" href="#fe" calcMode=discrete attributeName=x repeatCount="indefinite"/></svg></div>')
+let svg = document.createRange().createContextualFragment('<div part="sprite" id="sprite"><svg><foreignObject width=100 height=100 id="fe" x=0><canvas></canvas></foreignObject><animate fill="freeze" from="0" begin="0s" href="#fe" calcMode=discrete attributeName=x repeatCount="indefinite"/></svg></div>')
 let bitmaps = new Map
 let sheet = new CSSStyleSheet
 let isSafari = 'onwebkitmouseforceup' in window
 // let before = `content: attr(alt);left:-30px;font-size:smaller;position:relative;font-family:monospace`
 let broken = 'background-size:cover;background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAJ9JREFUeNq01ssOwyAMRFG46v//Mt1ESmgh+DFmE2GPOBARKb2NVjo+17PXLD8a1+pl5+A+wSgFygymWYHBb0FtsKhJDdZlncG2IzJ4ayoMDv20wTmSMzClEgbWYNTAkQ0Z+OJ+A/eWnAaR9+oxCF4Os0H8htsMUp+pwcgBBiMNnAwF8GqIgL2hAzaGFFgZauDPKABmowZ4GL369/0rwACp2yA/ttmvsQAAAABJRU5ErkJggg==);width:32px;height:32px;image-rendering:auto;'
-sheet.replaceSync(`svg,div{width:100%;height:100%}div{border:.02vmax solid transparent;contain:paint;pointer-events:all;overflow:hidden;transform:translate(-50%,-50%);}foreignObject{y:calc((rem(calc(var(--index,0)*var(--frame-h,0)),var(--height,0))*-1px))}:host{user-select:none;-webkit-user-select:none;-moz-user-select:none;touch-action:pinch-zoom;pointer-events:none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}:host(:--broken){width:32px;height:32px}:host(:state(--broken)){width:32px;height:32px}:host(:--broken) div{${broken}}:host(:state(--broken)) div{${broken}}`)
+sheet.replaceSync(`#sprite{display:flex}svg,div{width:100%}div{border:.02vmax solid transparent;contain:paint;pointer-events:all;overflow:clip;transform:translate(-50%,-50%);}foreignObject{y:calc((rem(calc(var(--index,0)*var(--frame-h,0)),var(--height,0))*-1px))}:host{user-select:none;-webkit-user-select:none;-moz-user-select:none;touch-action:pinch-zoom;pointer-events:none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}:host(:--broken){width:32px;height:32px}:host(:state(--broken)){width:32px;height:32px}:host(:--broken) div{${broken}}:host(:state(--broken)) div{${broken}}`)
                                         // ^ forgot to comment this when i added it but:
                                         // the (transparent) border seems to fix the 1px overlap issue, but the sprite is ever so slightly offset when the zoom is really low, but there's no other FCKING WAY TO FIX IT SO IT WILL HAVE TO DO
 class SlideShow extends HTMLElement {
     static observedAttributes = 'values src dur index repeat imagesmoothing'.split(' ')
     get imageSmoothing() {return this.getAttribute('imagesmoothing')}
     set imageSmoothing(v) { this.setAttribute('imagesmoothing',v)}
+    get opaque() {
+        return this.hasAttribute('opaque')
+    }
     static preload(...sources) {
         let out = []
         for (let { framesX = 1, framesY = 1, src, duras } of sources) {
@@ -184,7 +187,9 @@ class SlideShow extends HTMLElement {
         this.#anim.addEventListener('repeatEvent', repeat)
         this.#anim.addEventListener('endEvent', end)
         this.#anim.remove()
-        this.#ctx = (this.#sprite = shadow.querySelector('canvas')).getContext(this.#once ? 'bitmaprenderer' : '2d')
+        let {opaque} = this
+        this.#ctx = (this.#sprite = shadow.querySelector('canvas')).getContext(this.#once ? 'bitmaprenderer' : '2d', {alpha: !opaque})
+        this.#sprite.toggleAttribute('moz-opaque', !opaque)
         this.#fe = shadow.querySelector('foreignObject')
         shadow.adoptedStyleSheets = [sheet]
         this.#container = shadow.firstChild
