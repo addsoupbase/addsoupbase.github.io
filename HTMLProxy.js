@@ -339,6 +339,9 @@ export class Element$ extends NodeProxy {
         let k = this.children
         for (let i = 0, l = k.length; i < l; ++i) yield Proxify(k[i])
     }
+    eltIndexOf(elt) {
+        return [].indexOf.call(this.children, base(elt))
+    }
     getComputedStyle() { return getComputedStyle(this) }
     setParent(node) {
         let n = Proxify(this)

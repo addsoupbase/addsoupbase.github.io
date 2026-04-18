@@ -5,6 +5,7 @@ let svg = document.createRange().createContextualFragment('<div part="sprite" id
 let bitmaps = new Map
 let sheet = new CSSStyleSheet
 let isSafari = 'onwebkitmouseforceup' in window
+//:host([loading="lazy"]) #sprite{content-visibility:auto}
 // let before = `content: attr(alt);left:-30px;font-size:smaller;position:relative;font-family:monospace`
 let broken = 'background-size:cover;background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAJ9JREFUeNq01ssOwyAMRFG46v//Mt1ESmgh+DFmE2GPOBARKb2NVjo+17PXLD8a1+pl5+A+wSgFygymWYHBb0FtsKhJDdZlncG2IzJ4ayoMDv20wTmSMzClEgbWYNTAkQ0Z+OJ+A/eWnAaR9+oxCF4Os0H8htsMUp+pwcgBBiMNnAwF8GqIgL2hAzaGFFgZauDPKABmowZ4GL369/0rwACp2yA/ttmvsQAAAABJRU5ErkJggg==);width:32px;height:32px;image-rendering:auto;'
 sheet.replaceSync(`#sprite{display:flex}svg,div{width:100%}div{border:.02vmax solid transparent;contain:paint;pointer-events:all;overflow:clip;transform:translate(-50%,-50%);}foreignObject{y:calc((rem(calc(var(--index,0)*var(--frame-h,0)),var(--height,0))*-1px))}:host{user-select:none;-webkit-user-select:none;-moz-user-select:none;touch-action:pinch-zoom;pointer-events:none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}:host(:--broken){width:32px;height:32px}:host(:state(--broken)){width:32px;height:32px}:host(:--broken) div{${broken}}:host(:state(--broken)) div{${broken}}`)
@@ -61,7 +62,7 @@ class SlideShow extends HTMLElement {
     }
     get src() { return this.getAttribute('src') }
     set src(t) {
-        if (this.#once && this.hasAttribute('src')) throw TypeError(`Can't change src of static sprite`)
+        if (this.#once && this.hasAttribute('src'))  throw TypeError(`Can't change src of static sprite`)
         this.setAttribute('src', t)
         this.play()
     }
@@ -94,12 +95,22 @@ class SlideShow extends HTMLElement {
             case 'src': {
                 let u = new URL(val, this.baseURI).toString()
                 if (u !== val) return this.setAttribute('src', u)
+                // if (this.getAttribute('loading') === 'lazy') return
                 let canvas = this.#sprite
                 canvas.setAttribute('src', u)
                 let ctx = this.#ctx
                 let b = false
                 while (!bitmaps.has(u)) {
                     if (!b && !this.#once) {
+                        if ((this.hasAttribute('framesx') || this.hasAttribute('framesy'))) {
+                            await SlideShow.preload({
+                                framesX: this.getAttribute('framesx') | 0,
+                                framesY: this.getAttribute('framesy') | 0,
+                                src: this.src,
+                                values: this.getAttribute('values')?.split(';').map(Number)
+                            })[0]
+                            break
+                        }
                         this.#framesX = this.#framesY = 0
                         this.#internals?.states.add('--broken')
                         ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -126,7 +137,7 @@ class SlideShow extends HTMLElement {
                 fe.style.setProperty('--height', framesY * frameHeight)
                 fe.style.setProperty('--frame-h', frameHeight)
                 this.#anim.setAttribute('values', values)
-                this.#anim.setAttribute('to', values.at(-1))
+                // this.#anim.setAttribute('to', values.at(-1))
                 this.#updateTotalDuration()
                 if (this.hasAttribute('autoplay'))
                     this.play()
@@ -193,6 +204,7 @@ class SlideShow extends HTMLElement {
         this.#fe = shadow.querySelector('foreignObject')
         shadow.adoptedStyleSheets = [sheet]
         this.#container = shadow.firstChild
+        // this.#container.addEventListener('contentvisibilityautostatechange', visible)
     }
     get repeatCount() {
         return this.#anim.getAttribute('repeatCount')
@@ -227,6 +239,12 @@ function end(e) {
     let t = e.target.getRootNode().host
     t.dispatchEvent(new Event('endEvent', { bubbles: true }))
 }
+// function visible(n) {
+//     let t = n.target
+//     let host = t.getRootNode().host
+//     host.removeAttribute('loading')
+//     host.src = host.src
+// }
 function add(a, b) { return a + b }
 customElements.define('slide-show', SlideShow)
 export default SlideShow.preload
