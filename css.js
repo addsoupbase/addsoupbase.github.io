@@ -1,8 +1,8 @@
 //# allFunctionsCalledOnLoad
 //console.time('css.js');
-//@dev self.css = 
+//$dev self.css = 
 (function CSSSetup(inModule, sym, defer, D, O, id, y, /*rAF,*/ ads) {
-    //@dev'use strict'
+    //$dev'use strict'
     var newish = !!ads
     if (y.propertyIsEnumerable(sym) && newish ? ads.find(function (o) { return o[id] }) : D.getElementById(id) instanceof HTMLStyleElement) {
         var out = y[sym]
@@ -10,7 +10,7 @@
         return out
     }
     try { var S = sessionStorage } // it just throws on read if storage is denied
-    catch (e) { //@devconsole.warn(e) 
+    catch (e) { //$devconsole.warn(e) 
     }
     if (!inModule) {
         var onerror = function (e) { if (e.filename.endsWith('.js')) { [].forEach.call(D.querySelectorAll('script[nomodule]'), function (s) { D.head.appendChild(D.createElement('script')).src = s.src }); removeEventListener('error', onerror) } }
@@ -44,7 +44,7 @@
         }
         catch (e) {
             // cross origin frame so we can't use window.top
-            //@devconsole.warn(e)
+            //$devconsole.warn(e)
             if (!S) {
                 sn = String // we can't cache
                 break dance
@@ -79,7 +79,7 @@
     function cv(prop, val) { return toCaps(dv(prop, val)) }
     function badCSS(data, _) {
         if (alr.has(data) || _) return
-        //@devconsole.warn(data)
+        //$devconsole.warn(data)
         alr.add(data)
     }
     function vs(selector, type) {
@@ -235,12 +235,12 @@
         'motion-path': 'var(--offset-path)'
     }
     function lowPriority() {
-        //@dev console.time('low priority')
+        //$dev console.time('low priority')
         g("locale", "auto", false, "*")("user-modify", "auto", true, "*")("line-grid", "auto", false, "*")("line-snap", "auto", false, "*")("nbsp-mode", "auto", false, "*")("text-zoom", "auto", true, "*")("line-align", "auto", false, "*")("text-decorations-in-effect", "auto", true, "*")("force-broken-image-icon", "0", true, "<integer>")("float-edge", "content-box", true, "*")("image-region", "auto", false, "*")("box-orient", "inline-axis", true, "*")("box-align", "stretch", true, "*")("box-direction", "normal", true, "*")("box-flex", "0", true, "*")("box-flex-group", "0", true, "*")("box-lines", "single", true, "*")("box-ordinal-group", "1", true, "*")("box-decoration-break", "slice", true, "*")("box-pack", "start", true, "*")("line-clamp", "none", true, "*")("font-smoothing", "auto", false, "*")("mask-position-x", "0%", true, "<length-percentage>")("mask-position-y", "0%", true, "<length-percentage>")("window-dragging", "auto", true, "*")("stack-sizing", "stretch-to-fit", false, "*")("mask-composite", "source-over", true, "*")("window-shadow", "auto", true, "*")("outline-radius", "0 0 0 0", true, "*")("binding", "none", true, "*")("text-blink", "none", true, "*")("image-rect", "auto", false, "*")("context-properties", "none", false, "*")("text-kashida-space", "0%", false, "<percentage>")("flow-from", "none", true, "*")("flow-into", "none", true, "*")("high-contrast-adjust", "auto", false, "*")("ime-mode", "auto", true, "*")("wrap-through", "wrap", true, "*")("print-color-adjust", "economy", false, "*")("pay-button-style", "white", true, "*")("color-filter", "none", false, "*")("pay-button-type", "plain", true, "*")("visual-effect", "none", false, "*")("text-spacing-trim", "normal", false, "*")("text-group-align", "none", true, "*")("text-autospace", "normal", false, "*")("orient", "inline", true, "*")("ruby-overhang", "auto", false, "*")("max-lines", "none", true, "*")("line-fit-edge", "leading", false, "*")("overflow-scrolling", "auto", true, "*")("column-progression", "auto", true, "*")("dashboard-region", "none", true, "*")("column-axis", "auto", true, "*")("text-size-adjust", "auto", false, "*")("border-vertical-spacing", "auto", true, "*")("buffered-rendering", "auto", true, "*")
-        //@dev console.timeEnd('low priority')
+        //$dev console.timeEnd('low priority')
     }
     function properties() {
-        //@dev console.time('properties')
+        //$dev console.time('properties')
         g("user-select", "auto", false, '*') // Most important one
             ("zoom", "auto", false, '*')
             ('user-drag', "auto", true, '*')
@@ -271,7 +271,7 @@
             ('min-logical-width', 'none', false, '*')
             ('color-rendering', 'auto', false, '*')
             ('word-wrap', 'normal', false, '*')
-        //@dev console.timeEnd('properties')
+        //$dev console.timeEnd('properties')
     }
     var diffName =
         [
@@ -380,13 +380,13 @@
         else if (!CSS.registerProperty) doRegister()
         for (var x in o) newName += x + "{" + toCSS(o[x]) + "}"
         newName = "._needsjs{display:none !important}._webcomponent{display:none}@supports selector (:defined){._webcomponent{display:revert}}html{margin:auto}p{text-wrap:pretty}h1,h2,h3,h4,h5,h6,:where(p){text-wrap:balance;overflow-wrap:break-word}body{line-height:1.5;--font-smoothing:antialiased}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto !important}}@media(prefers-reduced-motion:no-preference){:root{interpolate-size: allow-keywords}}@media(prefers-reduced-transparency:reduce){*{opacity:1 !important;}}:-moz-loading{cursor:wait}:-moz-broken{border-radius:0}@supports not (content-visibility:auto){*{visibility:var(--content-visibility)}}@supports not (scrollbar-width:thin){::-webkit-scrollbar{width:var(--scrollbar-width);height:var(--scrollbar-width);background-color:var(--scrollbar-color)}::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-color)}}" + newName
-        //@dev console.debug(newName.replace(/:where\(([\S\s]*?)\)/g,'$1'))
+        //$dev console.debug(newName.replace(/:where\(([\S\s]*?)\)/g,'$1'))
     }
     var str = name
     // Selecting all pseudo elements has a massive performance hit, as expected
     str || sn(str = id + '*' + "{" + toCSS(uv, true) + "}" + newName)
     newish ? as.replaceSync(str) : (t.textContent = str, insertRule = function(n,i) {t.sheet.insertRule(n,i)})
-    var css =  //@devObject.seal
+    var css =  //$devObject.seal
         ({
             getDefaultStyleSheet: Sheet,
             // registerCSSRaw: registerCSSRaw,

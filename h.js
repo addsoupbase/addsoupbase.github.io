@@ -1,4 +1,4 @@
-//@dev var h = 
+//$dev var h = 
 (function handle(globalThis) {
     'use strict'
     var MODULE = Symbol.for("[[HModule]]")
@@ -11,7 +11,7 @@
         ownKeys = Reflect.ownKeys,
         isArray = Array.isArray, 
         allEvents = h.allEvents = new WeakMap
-        //@devvar queueMicrotask=globalThis.queueMicrotask||globalThis.setImmediate||setTimeout,logger={__proto__:null};!function(){var _='%c@handle.js +color:pink;'.split('+'),c=_[0],z=_[1];function r(){var v=[].slice.call(arguments);v.unshift(1,c,z);queueMicrotask(this.bind.apply(this,v))}function m(){var v=[].slice.call(arguments);v.unshift(1,c,z);setTimeout(this.bind.apply(this,v))}for(var i in console){var o=console[i];typeof o === 'function'&&(o=o.bind(console),logger[i]=r.bind(o),logger[i+"Late"]=m.bind(o))}}();var source=Function.toString.call.bind(Function.prototype.toString),warn=logger.warn,groupCollapsed=logger.groupCollapsed,groupEnd=logger.groupEnd;globalThis.allEvents=allEvents
+        //$devvar queueMicrotask=globalThis.queueMicrotask||globalThis.setImmediate||setTimeout,logger={__proto__:null};!function(){var _='%c@handle.js +color:pink;'.split('+'),c=_[0],z=_[1];function r(){var v=[].slice.call(arguments);v.unshift(1,c,z);queueMicrotask(this.bind.apply(this,v))}function m(){var v=[].slice.call(arguments);v.unshift(1,c,z);setTimeout(this.bind.apply(this,v))}for(var i in console){var o=console[i];typeof o === 'function'&&(o=o.bind(console),logger[i]=r.bind(o),logger[i+"Late"]=m.bind(o))}}();var source=Function.toString.call.bind(Function.prototype.toString),warn=logger.warn,groupCollapsed=logger.groupCollapsed,groupEnd=logger.groupEnd;globalThis.allEvents=allEvents
     function isValidET(target) {
         return target === Object(target) && 'addEventListener' in target && 'removeEventListener' in target && 'dispatchEvent' in target
     }
@@ -95,7 +95,7 @@
             }
             if (IE && v === 'gesture') return getIEGestureEvent(name)
             if (name === 'inertiastart') return 'MSInertiaStart'
-            //@dev logger.warnLate("'"+original+"' events might not be available on the following EventTarget:", target)
+            //$dev logger.warnLate("'"+original+"' events might not be available on the following EventTarget:", target)
         }
         return original
     }
@@ -206,7 +206,7 @@
                     if (hi) out.name = 'orientationchange'
                 }
             }
-            //@dev logger.warn("'"+eventName+"' was changed to '"+out.name+"' on "+getLabel(out.target))
+            //$dev logger.warn("'"+eventName+"' was changed to '"+out.name+"' on "+getLabel(out.target))
             return out
         }
     }
@@ -241,7 +241,7 @@
         var names = ownKeys(events)
         if (!names.length) return target
         var label = getLabel(target)
-        /*@devtry{groupCollapsed("on("+label+")");logger.dirxml(target)*/
+        /*$devtry{groupCollapsed("on("+label+")");logger.dirxml(target)*/
         var myEvents = getEventNames(target)
         if (typeof events === 'function') !function () {
             var a = {}
@@ -308,7 +308,7 @@
             if (autoabort && getLabel(controller) !== 'AbortController') throw TypeError("AbortController required if #autoabort flag is present")
             newTarget.addEventListener(eventName, listener, SUPPORTS_OPTIONS_PARAM ? options : options.capture/*, typeof scrollMaxX === 'number' && wantsUntrusted*/)
             if (controller) {
-                //@dev logger.info("📡 '"+eventName+"' event added", controller)
+                //$dev logger.info("📡 '"+eventName+"' event added", controller)
             }
             else {
                 allEvents.has(newTarget) || allEvents.set(newTarget, new Map)
@@ -320,10 +320,10 @@
                     listener: listener,
                 })
                 myEvents.add(eventName)
-                //@dev logger.info("🔔 '"+eventName+"' event added")
+                //$dev logger.info("🔔 '"+eventName+"' event added")
             }
         }
-        /*@dev}finally{groupEnd()}*/
+        /*$dev}finally{groupEnd()}*/
         return target
     }
     h.on = on
@@ -418,7 +418,7 @@
         if (!isValidET(target)) throw invalid()
         if (!eventNames.length || !allEvents.has(target)) return null
         var label = getLabel(target)
-        /*@devtry{groupCollapsed("off("+label+")");logger.dirxml(target)*/
+        /*$devtry{groupCollapsed("off("+label+")");logger.dirxml(target)*/
         var map = allEvents.get(target),
             mySet = target[sym]
         for (var i = eventNames.length; i--;) {
@@ -438,11 +438,11 @@
             var capture = !!(settings.flags & FLAG_CAPTURE)
             newTarget.removeEventListener(name, listener, SUPPORTS_OPTIONS_PARAM ? { capture: capture } : capture)
             map.delete(name)
-            //@dev && logger.info("🔕 '"+name+"' event removed")
+            //$dev && logger.info("🔕 '"+name+"' event removed")
             mySet.delete(name)
             map.size || allEvents.delete(newTarget)
         }
-        /*@dev}finally{groupEnd()}*/
+        /*$dev}finally{groupEnd()}*/
     }
     h.off = off
     function filterResult(event, filter) {
@@ -580,5 +580,5 @@
     }
     h.debounce = debounce
     return constructor.prototype[MODULE] = h
-}(typeof globalThis === 'undefined' ? window : globalThis //@dev,!this
-))//@dev;h
+}(typeof globalThis === 'undefined' ? window : globalThis //$dev,!this
+))//$dev;h
