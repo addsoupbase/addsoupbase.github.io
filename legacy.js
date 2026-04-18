@@ -1,5 +1,5 @@
 'use strict'
-/*@cc_on function _(){var e=new ActiveXObject("Scripting.Dictionary");return{set:function(n,t){e.Add(n,t)},get:function(n){return e.Item(n)},add:function(n){e.Add(n,"")},has:function(n){return e.Exists(n)},delete:function(n){e.Remove(n)}}}window.Map=window.Map||_;window.WeakMap=window.WeakMap||_;window.Set=window.Set|| _;@*/var globalThis=globalThis||window,reportError=reportError||function reportError(t){try{try{var e=new ErrorEvent('error',{message:t.message,error:t})}catch(_){e=document.createEvent('ErrorEvent')
+/*@cc_on function _(){var e=new ActiveXObject("Scripting.Dictionary");return{set:function(n,t){e.Add(n,t)},get:function(n){return e.Item(n)},add:function(n){e.Add(n,"")},has:function(n){return e.Exists(n)},delete:function(n){e.Exists(n)&&e.Remove(n)}}}window.Map=window.Map||_;window.WeakMap=window.WeakMap||_;window.Set=window.Set|| _;@*/var globalThis=globalThis||window,reportError=reportError||function reportError(t){try{try{var e=new ErrorEvent('error',{message:t.message,error:t})}catch(_){e=document.createEvent('ErrorEvent')
 e.initEvent('error',!0,!0)}window.dispatchEvent(e)
 e.defaultPrevented||console.error('[reportError]',String(t))}catch(o){console.warn(String(o))}}
 Object.hasOwn=Object.hasOwn||hasOwnProperty.call.bind(hasOwnProperty)
