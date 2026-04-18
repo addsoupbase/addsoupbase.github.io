@@ -229,7 +229,7 @@
         'font-family': 'inherit',
         'overflow-wrap': 'var(--word-wrap)',
         'scrollbar-color': 'var(--scrollbar-thumb-color) var(--scrollbar-color)',
-        'scrollbar-width': 'var(--scrollbar-width)',
+        // 'scrollbar-width': 'var(--scrollbar-width)',
         'motion-distance': 'var(--offset-distance)',
         'motion-rotate': 'var(--offset-rotate)',
         'motion-path': 'var(--offset-path)'
