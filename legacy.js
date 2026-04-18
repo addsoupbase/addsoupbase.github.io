@@ -1,5 +1,5 @@
 'use strict'
-/*@cc_onfunction _(){var e=new ActiveXObject("Scripting.Dictionary");return{set:function(n,t){e.Add(n,t)},get:function(n){return e.Item(n)},add:function(n){e.Add(n,"")},has:function(n){return e.Exists(n)},delete:function(n){e.Remove(n)}}}window.Map=window.Map||_;window.WeakMap=window.WeakMap||_;window.Set=window.Set|| _@*/var globalThis=globalThis||window,reportError=reportError||function reportError(t){try{try{var e=new ErrorEvent('error',{message:t.message,error:t})}catch(_){e=document.createEvent('ErrorEvent')
+/*@cc_on function _(){var e=new ActiveXObject("Scripting.Dictionary");return{set:function(n,t){e.Add(n,t)},get:function(n){return e.Item(n)},add:function(n){e.Add(n,"")},has:function(n){return e.Exists(n)},delete:function(n){e.Remove(n)}}}window.Map=window.Map||_;window.WeakMap=window.WeakMap||_;window.Set=window.Set|| _@*/var globalThis=globalThis||window,reportError=reportError||function reportError(t){try{try{var e=new ErrorEvent('error',{message:t.message,error:t})}catch(_){e=document.createEvent('ErrorEvent')
 e.initEvent('error',!0,!0)}window.dispatchEvent(e)
 e.defaultPrevented||console.error('[reportError]',String(t))}catch(o){console.warn(String(o))}}
 Object.hasOwn=Object.hasOwn||hasOwnProperty.call.bind(hasOwnProperty)
@@ -12,8 +12,7 @@ return(d.rules||d.cssRules).length===1}return p in computed}}()
 ''.startsWith||Object.defineProperty(String.prototype,'startsWith',{value:function(s,p){return this.slice(p=p|0,(s+='').length+p)===s}});[].find||Object.defineProperty(Array.prototype,'find',{value:function(c,t,m,z){for(var i=0,l=(m=this).length;i<l;++i){z=m[i]
 if(c.call(t,z))return z}}})
 ''.includes||(String.prototype.includes=function(a,b){return!!~this.indexOf(a,b)})
-''.endsWith||Object.defineProperty(String.prototype,'endsWith',{
-value:function(s,p){s+=''
+''.endsWith||Object.defineProperty(String.prototype,'endsWith',{value:function(s,p){s+=''
 var len=p===void 0?this.length:p|0
 return this.slice(len-s.length,len)===s}});[].findIndex||(Object.defineProperty(Array.prototype,'findIndex',{value:function findIndex(f,t){for(var i=0,m=this,l=m.length;i<l;++i)if(f.call(t,m[i],i,m))return i
 return-1}}))
