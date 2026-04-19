@@ -10,7 +10,7 @@ if(k&&v==null){s.textContent=p.slice(9,-1)+'{width:auto}'
 var d=s.sheet
 return(d.rules||d.cssRules).length===1}return p in computed}}()
 ''.startsWith||Object.defineProperty(String.prototype,'startsWith',{value:function(s,p){return this.slice(p=p|0,(s+='').length+p)===s}});[].find||Object.defineProperty(Array.prototype,'find',{value:function(c,t,m,z){for(var i=0,l=(m=this).length;i<l;++i){z=m[i]
-if(c.call(t,z))return z}}})
+if(c.call(t,z))return z}}});[].includes||Object.defineProperty(Array.prototype,'includes',{value:function(n){for(var i = this.length; i--;)if(this[i]===n)return true;return false}})
 ''.includes||(String.prototype.includes=function(a,b){return!!~this.indexOf(a,b)})
 ''.endsWith||Object.defineProperty(String.prototype,'endsWith',{value:function(s,p){s+=''
 var len=p===void 0?this.length:p|0
