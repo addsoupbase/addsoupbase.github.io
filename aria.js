@@ -4,8 +4,7 @@
     d.addEventListener('submit', function (e) {
         // just to prevent form spam
         var t = e.target
-        if (n.has(t)) e.preventDefault()
-        else n.add(t)
+        n.has(t)?(e.returnValue=!!(e.preventDefault && e.preventDefault())):n.add(t)
     }, true)
     var ignore = [
         "text",
@@ -19,7 +18,7 @@
     d.addEventListener('keydown', function (e) {
         if (e.constructor.name !== 'KeyboardEvent') return console.warn('keydown listener fired was not KeyboardEvent. This is a bug I think! (happens when user clicks the autocomplete thingy, just ignore it)', e)
         var key = e.key.toLowerCase(), target = e.target, parent = target.parentElement
-        if ((target.tagName === 'input' && !target.hasAttribute('type')) || [].includes.call(d.querySelectorAll(ignore), target)) return
+        if ((target.tagName === 'input' && !target.hasAttribute('type')) || target.matches(ignore)) return
         var pressable = parent.role === 'tablist' || target.role === 'button'
             , repeat = e.repeat
         switch (key) {

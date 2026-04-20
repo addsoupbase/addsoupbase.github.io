@@ -9,6 +9,8 @@
         inModule && (inModule = out.onerror) && (removeEventListener('error', inModule), out.onerror = null)
         return out
     }
+    var u = Element.prototype
+    u.matches || Object.defineProperty(u,'matches',{value:u.webkitMatchesSelector||u.msMatchesSelector||u.mozMatchesSelector||u.oMatchesSelector})
     try { var S = sessionStorage } // it just throws on read if storage is denied
     catch (e) { //$devconsole.warn(e) 
     }
