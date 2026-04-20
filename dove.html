@@ -997,12 +997,12 @@
                         break
                     case 'keyframes':
                         rule.keyframes.forEach(o => fixDeclarations(o.declarations, globalVars))
-                        // let p = rule.parent.rules || rule.parent.stylesheet.rules
-                        // for(let prefix of ['webkit','o','moz']) {
-                        //     let clone = structuredClone(rule)
-                        //     clone.type = `@-${prefix}-keyframes`
-                        //     insert(p, p.indexOf(rule), clone)
-                        // }
+                        let p = rule.parent ? rule.parent.rules || rule.parent.stylesheet.rules : sheet.stylesheet.rules
+                        for (let prefix of ['webkit','o','moz']) {
+                            let clone = structuredClone(rule)
+                            clone.vendor = `-${prefix}-`
+                            insert(p, p.indexOf(rule), clone)
+                        }
                         break
                     case 'media':
                     case 'supports':
