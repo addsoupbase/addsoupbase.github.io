@@ -1,7 +1,7 @@
 // VERY IMPORTANT:
 // do NOT use the `zoom` or `scale` css property
 // it behaves strangely
-let svg = document.createRange().createContextualFragment('<div part="sprite" id="sprite"><svg><foreignObject width=100 height=100 id="fe" x=0><canvas></canvas></foreignObject><animate fill="freeze" from="0" begin="0s" href="#fe" calcMode=discrete attributeName=x repeatCount="indefinite"/></svg></div>')
+let svg = document.createRange().createContextualFragment('<div aria-hidden="true" part="sprite" id="sprite"><svg><foreignObject width=100 height=100 id="fe" x=0><canvas></canvas></foreignObject><animate fill="freeze" from="0" begin="0s" href="#fe" calcMode=discrete attributeName=x repeatCount="indefinite"/></svg></div>')
 let bitmaps = new Map
 let sheet = new CSSStyleSheet
 let isSafari = 'onwebkitmouseforceup' in window
