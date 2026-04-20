@@ -405,6 +405,7 @@
         import * as v from './v4.js'
         import *as reworkCSS from './reworkcss.js'
         const { $, css } = v
+        localStorage.setItem('watching', localStorage.getItem('watching') ?? '')
         // let channel = new BroadcastChannel('tabreload')
         class TemplateProcessingError extends Error { name = 'TemplateProcessingError' }
         class PathNotFoundError extends Error { name = 'PathNotFoundError' }
@@ -653,11 +654,30 @@
             }
             setStatus('finished')
         })
+        function getWatching() {
+            return localStorage.getItem('watching').split(',').filter(Boolean)
+        }
         uploadDirectory.on({
             async click() {
                 let folder = watchingRoot = await showDirectoryPicker()
-                currentDirectoryElement.textContent = folder.name
+                let n = folder.name
+                let watching = getWatching()
+                for (let o of watching) {
+                    let u = new URL(o, 'http://localhost:3000')
+                    if (u.pathname.split('/').some(o => o === n)) {
+                        alert("Already watching this folder!")
+                        throw Error('Already watching this folder')
+                    }
+                }
                 await begin(folder)
+                currentDirectoryElement.textContent = n
+                localStorage.setItem('watching', watching.concat(n).join(','))
+                window.onstorage = () => {
+                    watching = getWatching()
+                }
+                window.onbeforeunload = () => {
+                    localStorage.setItem('watching', watching.join(','))
+                }
                 observer.observe(folder, { recursive: true })
                 this.style.visibility = 'hidden'
                 // console.log(fileCache)
@@ -998,7 +1018,7 @@
                     case 'keyframes':
                         rule.keyframes.forEach(o => fixDeclarations(o.declarations, globalVars))
                         let p = rule.parent ? rule.parent.rules || rule.parent.stylesheet.rules : sheet.stylesheet.rules
-                        for (let prefix of ['webkit','o','moz']) {
+                        for (let prefix of ['webkit', 'o', 'moz']) {
                             let clone = structuredClone(rule)
                             clone.vendor = `-${prefix}-`
                             insert(p, p.indexOf(rule), clone)
