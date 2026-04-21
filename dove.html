@@ -405,6 +405,7 @@
         import * as v from './v4.js'
         import *as reworkCSS from './reworkcss.js'
         const { $, css } = v
+        localStorage.setItem('watching', localStorage.getItem('watching') ?? '')
         // let channel = new BroadcastChannel('tabreload')
         class TemplateProcessingError extends Error { name = 'TemplateProcessingError' }
         class PathNotFoundError extends Error { name = 'PathNotFoundError' }
@@ -653,11 +654,30 @@
             }
             setStatus('finished')
         })
+        function getWatching() {
+            return localStorage.getItem('watching').split(',').filter(Boolean)
+        }
         uploadDirectory.on({
             async click() {
                 let folder = watchingRoot = await showDirectoryPicker()
-                currentDirectoryElement.textContent = folder.name
+                let n = folder.name
+                let watching = getWatching()
+                for (let o of watching) {
+                    let u = new URL(o, 'http://localhost:3000')
+                    if (u.pathname.split('/').some(o => o === n)) {
+                        alert("Already watching this folder!")
+                        throw Error('Already watching this folder')
+                    }
+                }
                 await begin(folder)
+                currentDirectoryElement.textContent = n
+                localStorage.setItem('watching', watching.concat(n).join(','))
+                window.onstorage = () => {
+                    watching = getWatching()
+                }
+                window.onbeforeunload = () => {
+                    localStorage.setItem('watching', watching.join(','))
+                }
                 observer.observe(folder, { recursive: true })
                 this.style.visibility = 'hidden'
                 // console.log(fileCache)
@@ -869,6 +889,8 @@
                 default: if (prop.startsWith('place-')) {
                     newProp.push(prop.replace('place', 'align'), prop.replace('place', 'justify'))
                 }
+                else if (reg.anim.test(prop))
+                    newProp.push(`-moz-${prop}`, `-webkit-${prop}`, `-o-${prop}`)
                 else if (reg.size.test(prop)) if (value === 'stretch' || value === 'var(--stretch)') newValue = '-webkit-fill-available'
             }
             if (value !== (value = value.replace(reg.globals, t))) added.push([prop, value])
@@ -892,6 +914,7 @@
             globals: /var\s*\((--_(?:[a-z\d-_])+)\)/gi,
             global: /^--_(?:[a-z\d-_])+$/i,
             size: /^(?:(?:max|min)-)?(?:width|height)$/g,
+            anim: /^animation(?:-(?!composition|timeline|range(?:-(?:end-start))?)[\w-]*\w)?$/g,
             grid: /((?:inline-)?grid)/,
             marker: /::marker/g,
             imgset: /(?<!-webkit-)image-set(?=\()/g,
@@ -914,7 +937,7 @@
             }
             if (reg.unclickable.test(s)) {
                 rule.selectors = s.replace(reg.unclickable, ':is([disabled],[readonly],[aria-disabled="true"])')
-                .split('▊')
+                    .split('▊')
             }
             if (reg.clickable.test(s)) {
                 rule.selectors = s.replace(reg.clickable, ':is([role="button"],[role="link"],[role="tab"],[role="checkbox"],[role="radio"],select,summary,[tabindex],label:where(:has(input,select,textarea,button),[for]),area,a,button,input:where([type="button"],[type="checkbox"],[type="date"],[type="datetime-local"],[type="file"],[type="image"],[type="month"],[type="radio"],[type="submit"],[type="time"],[type="week"]))')
@@ -994,6 +1017,12 @@
                         break
                     case 'keyframes':
                         rule.keyframes.forEach(o => fixDeclarations(o.declarations, globalVars))
+                        let p = rule.parent ? rule.parent.rules || rule.parent.stylesheet.rules : sheet.stylesheet.rules
+                        for (let prefix of ['webkit', 'o', 'moz']) {
+                            let clone = structuredClone(rule)
+                            clone.vendor = `-${prefix}-`
+                            insert(p, p.indexOf(rule), clone)
+                        }
                         break
                     case 'media':
                     case 'supports':

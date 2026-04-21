@@ -9,6 +9,8 @@
         inModule && (inModule = out.onerror) && (removeEventListener('error', inModule), out.onerror = null)
         return out
     }
+    var u = Element.prototype
+    u.matches || Object.defineProperty(u,'matches',{value:u.webkitMatchesSelector||u.msMatchesSelector||u.mozMatchesSelector||u.oMatchesSelector})
     try { var S = sessionStorage } // it just throws on read if storage is denied
     catch (e) { //$devconsole.warn(e) 
     }
@@ -229,7 +231,7 @@
         'font-family': 'inherit',
         'overflow-wrap': 'var(--word-wrap)',
         'scrollbar-color': 'var(--scrollbar-thumb-color) var(--scrollbar-color)',
-        'scrollbar-width': 'var(--scrollbar-width)',
+        // 'scrollbar-width': 'var(--scrollbar-width)',
         'motion-distance': 'var(--offset-distance)',
         'motion-rotate': 'var(--offset-rotate)',
         'motion-path': 'var(--offset-path)'
