@@ -1049,6 +1049,11 @@
             get rootSelector() {
                 return this.#rootSelector
             }
+            async dataURI(src, mimeType) {
+                let o = await getSpecificFile(src, this.localPath)
+                let text = await o.text()
+                return `data:${mimeType||o.type},${encodeURIComponent(text)}`
+            } 
             constructor(localPath, pathSegments) {
                 super()
                 this.localPath = localPath
@@ -1213,6 +1218,11 @@
                     ;[].forEach.call(doc.querySelectorAll('[style]'), o => {
                         let n = fixCSSSheet(`*{${o.getAttribute('style')}}`, rootSelector)
                         o.setAttribute('style', n.slice(2, -1))
+                    })
+                    ;[].forEach.call(doc.querySelectorAll('[href],[src]'), o => {
+                        let n
+                        if (o.hasAttribute('href')) if ((n=o.getAttribute('href'))[0] !== '#' && !n.startsWith('data:')) o.setAttribute('href', encodeURI(n))
+                        if (o.hasAttribute('src') && !(n=o.getAttribute('src')).startsWith('data:')) o.setAttribute('src', encodeURI(o.getAttribute('src')))
                     })
                 await Promise.allSettled([].map.call(doc.querySelectorAll(':where(img, input[type="image"])[src]'), async (img) => {
                     if (!img.hasAttribute('width') || !img.hasAttribute('height')) {

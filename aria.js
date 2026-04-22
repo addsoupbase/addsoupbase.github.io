@@ -25,8 +25,8 @@
             case 'arrowleft':
             case 'arrowright': {
                 var children = [].slice.call(parent.children)
-                var index = children.indexOf(d.activeElement)
-                var sibling
+                , index = children.indexOf(d.activeElement)
+                , sibling
                 if (key === 'arrowright') sibling = children[(index + 1) % children.length]
                 else sibling = children[(index - 1 + children.length) % children.length]
                 if (pressable) sibling.focus()
@@ -49,9 +49,8 @@
                 var all = parent.children.length
                 do {
                     var toggle = key === 'home' ? (toggle ? toggle.nextElementSibling : parent.firstElementChild) : (toggle ? toggle.previousElementSibling : parent.lastElementChild)
-                    if (pressable && !repeat) {
+                    if (pressable && !repeat) 
                         toggle.focus()
-                    }
                 }
                 while (d.activeElement !== toggle && all--)
                 toggle && toggle.click()
