@@ -198,7 +198,6 @@ ffmpeg -f concat -safe 0 -i list.txt \\
                 fe.style.setProperty('--height', framesY * frameHeight)
                 fe.style.setProperty('--frame-h', frameHeight)
                 this.#anim.setAttribute('values', values)
-                if (this.src.includes('Lunala-Hop')) debugger
                 // this.#anim.setAttribute('to', values.at(-1))
                 this.#updateTotalDuration()
                 if (this.hasAttribute('autoplay'))
