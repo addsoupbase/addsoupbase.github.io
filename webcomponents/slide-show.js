@@ -250,7 +250,7 @@ ffmpeg -f concat -safe 0 -i list.txt \\
     #once
     constructor() {
         super()
-        this.#once = this.hasAttribute('unique')
+        this.#once = false//this.hasAttribute('unique')
         this.#internals?.states.add('--broken')
         let shadow = this.attachShadow({ mode: 'open' })
         shadow.appendChild(svg.cloneNode(true))
