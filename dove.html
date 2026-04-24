@@ -1137,7 +1137,7 @@
             }
             static {
                 let proto = this.prototype;
-                [imageSet, range, uneval, TemplateProcessingError, PathNotFoundError,
+                [imageSet, range,$, uneval, TemplateProcessingError, PathNotFoundError,
                     concat,
                 ].forEach(o => Object.defineProperty(proto, o.name, {
                     value: o

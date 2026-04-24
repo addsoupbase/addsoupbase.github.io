@@ -123,7 +123,7 @@ class Node$ extends EventTargetProxy {
     purge(deep = true) {
         let me = Proxify(this)
         me.off(true)
-        me.remove()
+        me.isConnected && me.remove()
         me.empty(deep)
         Proxify.Destroy(me)
         return null
@@ -180,8 +180,8 @@ class Node$ extends EventTargetProxy {
     }
     empty(kill) {
         if (kill) {
-            let l
-            while (l = this.lastElementChild) Proxify(l).purge(true)
+            let l = this.children
+            for(let i = l.length; i--;) Proxify(l[i]).purge(true)
         }
         else return frag(this.childNodes)
         return Proxify(this)

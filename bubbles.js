@@ -103,7 +103,6 @@ bg.delegate({
         parent.replaceChildren(pic.valueOf())
         pic.style.willChange = 'transform,filter'
         pic.animFrom('fade_in', { duration: 300, iterations: 1 })
-        debugger
         await pic.animFrom('dissolve', { duration: 700, iterations: 1, delay: 2000, composite: 'add' }).finished
         pic.parent.purge(true)
     }
@@ -171,7 +170,8 @@ const bubble = (size, x = range(0, innerWidth), y = innerHeight) => {
     return out
 }
 function kill() {
-    Proxify(this.effect.target).purge()
+    let t = this.effect.target
+    Proxify(t).purge()
 }
 const avatar = (name, size = 60) => {
     const scale = size / 200
@@ -183,7 +183,7 @@ const avatar = (name, size = 60) => {
         <foreignObject cursor="url('media/Link%20Select.cur'), pointer" x="${30 * scale}" y="${30 * scale}" width="${140 * scale}" pointer-events="painted"  height="${140 * scale}">
         <picture title="${name}" style="display:inline;text-align:center">
         <source srcset="${src}.avif" type="image/avif">
-        <source srcset="${src}.webp" type="image=webp">
+        <source srcset="${src}.webp" type="image/webp">
         <img src="${src}.jpg" class="avatar user-${name}"  draggable="false">
         <div style="display:flex;place-content:center">
         <span style="--user-select:none;color:white;display:block;text-transform: capitalize;">@${name}</span>

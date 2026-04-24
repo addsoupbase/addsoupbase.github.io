@@ -91,16 +91,16 @@ class SlideShow extends HTMLElement {
     }
     async extract(speed = .048, indexes = [this.index], selector) {
         let module = await import('https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm')
-        let JSZip = module.default
-        let zip = JSZip()
-        let offsets = this.values
-        let { width, height, canvasElement } = this
-        let frameGroups = compressAll(offsets)
-        let H = height * indexes.length
-        let c = new OffscreenCanvas(width, H)
-        let ctx = c.getContext('2d')
-        let listContent = []
-        let x = 0
+        , JSZip = module.default
+        , zip = JSZip()
+        , offsets = this.values
+        , { width, height, canvasElement } = this
+        , frameGroups = compressAll(offsets)
+        , H = height * indexes.length
+        , c = new OffscreenCanvas(width, H)
+        , ctx = c.getContext('2d')
+        , listContent = []
+        , x = 0
         for (const { n, count } of frameGroups) {
             for (let i of indexes)
                 ctx.drawImage(canvasElement, -n, 0)
@@ -119,6 +119,8 @@ ffmpeg -f concat -safe 0 -i list.txt \\
         zip.file('make_gif.sh', shellScript)
         zip.file('style.css',`width:${width}px;height:${height}px;object-position: 0 calc(-${height}px * var(--SPRITE_INDEX, 0))`)
         return await zip.generateAsync({ type: 'blob' })
+        // dont forget to include object-fit: none
+        // or as an alternative, you can use background-image instead
     }
     #framesY = 0
     #framesX = 0
