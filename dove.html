@@ -838,7 +838,19 @@
             textSelectable: /:_text-selectable/g,
             unclickable: /:_unclickable/g,
             clickable: /:_clickable/g,
-            calc: /(?<!-(?:webkit|moz)-)calc(?=\s*\()/
+            calc: /(?<!-(?:webkit|moz)-)calc(?=\s*\()/,
+            placeholder: /::(placeholder)/g,
+            selection: /::(selection)/g,
+            fileSelectorButton: /::file-selector-button/g,
+            backdrop: /::(backdrop)/g,
+            anyLink: /:(any-link)/g,
+            autofill: /:(autofill)/g,
+            focusVisible: /:focus-visible/g,
+            fullscreen: /:fullscreen/g,
+            mozAndWebkit: /:(fullscreen)/g,
+            placeholderShown: /:placeholder-shown/g,
+            moz: /:(read-(?:only|write))/g,
+            userXvalid: /:user-(in)?valid/g
             // heading: /:heading\(([\d,]+)\))/g
         }
         function fixPropValuePair(declaration, i, rules, globalVars) {
@@ -931,14 +943,69 @@
                 }
             }
         }
-
         function fixSelector(rule, index, rules) {
             let { selectors } = rule
             let ns = []
             let s = selectors.join('▊')
+            if (reg.userXvalid.test(s)) {
+                ns.push(
+                    s.replace(reg.userXvalid, ':-moz-ui-$1valid')
+                )
+            }
+            if (reg.moz.test(s)) {
+                ns.push(
+                    s.replace(reg.moz, ':-moz-$1')
+                )
+            }
+            if (reg.placeholderShown.test(s)) {
+                ns.push(
+                    s.replace(reg.placeholderShown, ':-moz-placeholder')
+                )
+            }
+            if (reg.fullscreen.test(s)) {
+                ns.push(
+                    s.replace(reg.mozAndWebkit, ':-moz-full-screen'),
+                    s.replace(reg.mozAndWebkit, ':-webkit-full-screen')
+                )
+            }
+            if (reg.anyLink.test(s)) {
+                ns.push(
+                    s.replace(reg.anyLink, ':-webkit-$1'),
+                    s.replace(reg.anyLink, ':-moz-$1'),
+                    s.replace(reg.anyLink, ':-khtml-$1'),
+                )
+            }
+            if (reg.focusVisible.test(s)) {
+                ns.push(s.replace(reg.focusVisible, ':-moz-focusring'))
+            }
+            if (reg.autofill.test(s)) {
+                ns.push(
+                    s.replace(reg.autofill, ':webkit-$1')
+                )
+            }
             if (reg.textSelectable.test(s)) {
                 rule.selectors = s.replace(reg.textSelectable, ':is([contenteditable],h1,h2,h3,h4,h5,h6,p,span,aside,abbr,b,bdi,bdo,big,blockquote,caption,center,cite,code,data,del,ins,figcaption,i,input:where(:not([type]),[type="color"],[type="range"],[type="email"],[type="password"],[type="number"],[type="search"],[type="tel"],[type="text"],[type="url"]),kbd,legend,li,marquee,pre,q,s,small,sub,sup,strong,textarea,time,u,mark)')
                     .split('▊')
+            }
+            if (reg.backdrop.test(s)) {
+                ns.push(
+                    s.replace(reg.backdrop, '::-webkit-$1'),
+                    s.replace(reg.backdrop, '::-ms-$1')
+                )
+            }
+            if (reg.fileSelectorButton.test(s)) {
+                ns.push(s.replace(reg.fileSelectorButton, '::-webkit-file-upload-button'),
+                    s.replace(reg.fileSelectorButton, '::-ms-browse'))
+            }
+            if (reg.selection.test(s)) {
+                ns.push(s.replace(reg.selection, '::-moz-$1'))
+            }
+            if (reg.placeholder.test(s)) {
+                ns.push(
+                    s.replace(reg.placeholder, '::-webkit-input-$1'),
+                    s.replace(reg.placeholder, '::-ms-input-$1'),
+                    s.replace(reg.placeholder, '::-moz-$1')
+                )
             }
             if (reg.unclickable.test(s)) {
                 rule.selectors = s.replace(reg.unclickable, ':is([disabled],[readonly],[aria-disabled="true"])')
