@@ -8,8 +8,15 @@ function pointerup(p) {
     if (p.button === 2 || this.resizing) return
     this.releasePointerCapture(p.pointerId)
     this.holding = false
-    this.internals?.setFormValue(this.value)
-    this.internals?.setValidity({ valueMissing: false }, 'Draw something')
+    let v = this.value
+    if (v instanceof Promise) v.then(file => {
+        this.internals?.setFormValue(file)
+        this.internals?.setValidity({ valueMissing: false }, 'Draw something')
+    })
+    else {
+        this.internals?.setFormValue(v)
+        this.internals?.setValidity({ valueMissing: false }, 'Draw something')
+    }
 }
 function keydown(e) {
     let { shiftKey } = e
@@ -113,9 +120,10 @@ class PaperCanvas extends HTMLElement {
     canvas = null
     ctx = null
     get value() {
+        let { width, height } = this.canvas
         switch (this.getAttribute('type')) {
             default: return this.dataURL(1)
-            case 'file': return new File([this.ctx.getImageData(0, 0, 255, 255)], `${this.getAttribute('name') || 'untitled'}.png`, { type: 'image/png' })
+            case 'file': return new Promise(resolve => this.canvas.toBlob(resolve,{ type: 'image/png', quality: 1 })).then(blob => new File([blob], `${this.getAttribute('name') || 'untitled'}.png`, { type: 'image/png' }))
         }
     }
     dataURL(quality = 1) {

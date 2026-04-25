@@ -95,7 +95,7 @@
             }
             if (IE && v === 'gesture') return getIEGestureEvent(name)
             if (name === 'inertiastart') return 'MSInertiaStart'
-            //$dev logger.warnLate("'"+original+"' events might not be available on the following EventTarget:", target)
+            //logger.warnLate("'"+original+"' events might not be available on the following EventTarget:", target)
         }
         return original
     }

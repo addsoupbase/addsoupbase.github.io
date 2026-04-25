@@ -395,7 +395,13 @@
     </div>
     <div id="retry" class="retry" title="Retry" role="button" class="retry" style="visibility: hidden;"></div>
     <div id="blob"></div>
-    <button id="viewmap" style="position: fixed;left:10px;bottom:10px">View Map</button>
+    <div style="position: fixed;left:10px;bottom:10px;display:flex" id="logs">
+        <label><input type="checkbox">Default</label>
+        <label><input type="checkbox" checked>Error</label>
+        <label><input type="checkbox" checked>Warn</label>
+        <label><input type="checkbox" checked>Info</label>
+    </div>
+    <button id="viewmap" style="position: fixed;left:10px;bottom:10px;display:none">View Map</button>
     <div id="mapholder" style="display: none;">
         <div id="map" class="card">
             <p>hello</p>
@@ -405,6 +411,7 @@
         import * as v from './v4.js'
         import *as reworkCSS from './reworkcss.js'
         const { $, css } = v
+        let sh = css.createSheet()
         localStorage.setItem('watching', localStorage.getItem('watching') ?? '')
         // let channel = new BroadcastChannel('tabreload')
         class TemplateProcessingError extends Error { name = 'TemplateProcessingError' }
@@ -438,12 +445,28 @@
             blob.style.setProperty('--blob-light', color)
         }
         function log(path, type = 'info', message) {
-            scheduler.postTask(() => {
-                output.firstNode = $`<li role="log" class="${type}" data-path="${path.join('/')}"><samp>${message}</samp></li>`
-                output.childElementCount > 30 && output.lastElementChild.remove()
-            }, { priority: 'user-visible' })
+            if (logLevels[type])
+                scheduler.postTask(() => {
+                    output.firstNode = $`<li role="log" class="${type}" data-path="${path.join('/')}"><samp>${message}</samp></li>`
+                    output.childElementCount > 30 && output.lastElementChild.remove()
+                }, { priority: 'user-visible' })
             // document.getElementById(path)?.remove()
         }
+        let logLevels = {
+            error: true,
+            warning: true,
+            default: false,
+            info: true
+        }
+        v.id.logs.on({
+            change() {
+                let ch = this.children
+                logLevels.default = ch[0].children[0].checked
+                logLevels.error = ch[1].children[0].checked
+                logLevels.warning = ch[2].children[0].checked
+                logLevels.info = ch[3].children[0].checked
+            }
+        })
         let jsComment = /\/\*:(?<code>.*?)\*\//gs
         let jsDefineComment = /\/\*::(.*?)\*\//s
         let htmlComment = /<\!--{{((?:(?!}}).)*?)}}--\>/gs
@@ -679,7 +702,7 @@
                     localStorage.setItem('watching', watching.join(','))
                 }
                 observer.observe(folder, { recursive: true })
-                this.style.visibility = 'hidden'
+                this.style.display = 'none'
                 // console.log(fileCache)
             }
         })
@@ -724,6 +747,9 @@
             }
             setStatus('finished')
         }
+        function notify(path, firstTime, pathString, outputFile) {
+            log(path, firstTime ? 'default' : 'info', `${firstTime ? 'Add' : 'Edit'} ${pathString} (${new Date(outputFile.lastModified).toLocaleTimeString()})`)
+        }
         async function editFile(path, file, firstTime, folderName) {
             folderName = watchingRoot.name
             let folder = await getFolderFromPath(path.slice(0, -1))
@@ -732,7 +758,13 @@
                 , newFileName = fileName.replace(prefix, '')
                 , output = await folder.getFileHandle(newFileName, { create: true })
                 , { 0: inputFile, 1: outputFile } = await Promise.all([file.getFile(), output.getFile()])
-            let text = await evaluate(await inputFile.text(), new URL(pathString, baseURL), path, outputFile.type, folderName)
+            let { 0: beforeText, 1: inputText } = await Promise.all([outputFile.text(), inputFile.text()])
+            // if (inputFile.lastModified < outputFile.lastModified) return notify(path,firstTime,pathString,outputFile)
+            let text = await evaluate(inputText, new URL(pathString, baseURL), path, outputFile.type, folderName)
+            if (beforeText === text) {
+                console.log(`Skip ${path}`)
+                return notify(path, firstTime, pathString, outputFile)
+            }
             if (text == null) {
                 log(path, 'warning', `Template for ${pathString} returned ${text} `)
             }
@@ -743,7 +775,7 @@
                     await writer.abort('Too late')
                     await done
                 }
-                else log(path, firstTime ? 'default' : 'info', `${firstTime ? 'Add' : 'Edit'} ${pathString} (${new Date(outputFile.lastModified).toLocaleTimeString()})`)
+                else notify(path, firstTime, pathString, outputFile)
                 await using writer = await output.createWritable({ mode: 'exclusive' })
                 pending.set(pathString, { writer, done })
                 await writer.write(text)
@@ -754,48 +786,6 @@
             finally {
                 pending.delete(pathString)
                 resolve()
-            }
-        }
-        function list(o) { return `<li><samp>${o}</samp></li>` }
-        class DynamicMap extends Map {
-            static #updating = false
-            static #updateMap() {
-                let files = dynamicFiles
-                let folders = dynamicFolders
-                map.empty()
-                for (let folder of dynamicFolders) {
-                    map.pushNode(
-                        $
-                            `<details>
-                            <summary>📂 ${folder[0]}</summary>
-                            <ul class="folder">${new String([...folder[1]].map(list).join(''))
-                            }</ul>
-                        </details>`)
-                }
-                for (let file of files) {
-                    map.pushNode($
-                        `<details>
-                        <summary>📄 ${file[0]}</summary>
-                        <ul class="folder">${new String([...file[1]].map(list).join(''))
-                        }</ul>
-                    </details>`)
-                }
-            }
-            static #update() {
-                if (!DynamicMap.#updating) {
-                    DynamicMap.#updating = true
-                    setTimeout(() => {
-                        DynamicMap.#updateMap()
-                        DynamicMap.#updating = false
-                    }, 1000)
-                }
-            }
-            clear() {
-                return super.clear()
-            }
-            set(key, value) {
-                DynamicMap.#update()
-                return super.set(key, value)
             }
         }
         var parseHTML = (parseHTML = new Range).createContextualFragment.bind(parseHTML)
@@ -832,6 +822,25 @@
 
             return this.get(prop)
         }
+        let reg = {
+            var: /var\s*\([^,)]+,([^)]+)\)/g,
+            globals: /var\s*\((--_(?:[a-z\d-_])+)\)/gi,
+            global: /^--_(?:[a-z\d-_])+$/i,
+            size: /^(?:(?:max|min)-)?(?:width|height)$/g,
+            anim: /^animation(?:-(?!composition|timeline|range(?:-(?:end-start))?)[\w-]*\w)?$/g,
+            grid: /((?:inline-)?grid)/,
+            marker: /::marker/g,
+            imgset: /(?<!-webkit-)image-set(?=\()/g,
+            is: /:is(?=\()/g,
+            legacyPelt: /:(:(?:before|after|first-(?:line|letter)))/g,
+            state: /:state\((?:--)?([\w-]+)\)/g,
+            headingAll: /:heading(?!\()/g,
+            textSelectable: /:_text-selectable/g,
+            unclickable: /:_unclickable/g,
+            clickable: /:_clickable/g,
+            calc: /(?<!-(?:webkit|moz)-)calc(?=\s*\()/
+            // heading: /:heading\(([\d,]+)\))/g
+        }
         function fixPropValuePair(declaration, i, rules, globalVars) {
             let prop = declaration.property
             let newProp = css.correctProp(prop, declaration.value)
@@ -841,6 +850,10 @@
             let added = []
             let t = thing.bind(globalVars)
             switch (prop) {
+                case 'display':
+                    if (value === 'sticky') {
+                        newValue = '-webkit-sticky'
+                    }
                 /*case 'display':
                     if (reg.grid.test(value))
                         newValue = newValue.replace(reg.grid, '-ms-$1')
@@ -893,6 +906,14 @@
                     newProp.push(`-moz-${prop}`, `-webkit-${prop}`, `-o-${prop}`)
                 else if (reg.size.test(prop)) if (value === 'stretch' || value === 'var(--stretch)') newValue = '-webkit-fill-available'
             }
+            // if (reg.calc.test(value)) {
+            //     let a = [value.replace(reg.calc, '-moz-calc'), value.replace(reg.calc, '-webkit-calc')]
+            //     newValue = Array.isArray(newValue) ? newValue.concat(a) : a
+            // }
+            if (reg.var.test(value)) {
+                let v = value.replace(reg.var, '$1')
+                Array.isArray(newValue) ? newValue.push(v) : (newValue = [v])
+            }
             if (value !== (value = value.replace(reg.globals, t))) added.push([prop, value])
             function addClone(prop, value) {
                 let clone = structuredClone(declaration)
@@ -910,23 +931,7 @@
                 }
             }
         }
-        let reg = {
-            globals: /var\s*\((--_(?:[a-z\d-_])+)\)/gi,
-            global: /^--_(?:[a-z\d-_])+$/i,
-            size: /^(?:(?:max|min)-)?(?:width|height)$/g,
-            anim: /^animation(?:-(?!composition|timeline|range(?:-(?:end-start))?)[\w-]*\w)?$/g,
-            grid: /((?:inline-)?grid)/,
-            marker: /::marker/g,
-            imgset: /(?<!-webkit-)image-set(?=\()/g,
-            is: /:is(?=\()/g,
-            legacyPelt: /:(:(?:before|after|first-(?:line|letter)))/g,
-            state: /:state\((?:--)?([\w-]+)\)/g,
-            headingAll: /:heading(?!\()/g,
-            textSelectable: /:_text-selectable/g,
-            unclickable: /:_unclickable/g,
-            clickable: /:_clickable/g
-            // heading: /:heading\(([\d,]+)\))/g
-        }
+
         function fixSelector(rule, index, rules) {
             let { selectors } = rule
             let ns = []
@@ -1032,10 +1037,10 @@
             }
             root ??= getRootSelector(parsed)
             let globalVars = new Map
-            if (root)
-                for (let { property, value } of root.declarations)
-                    if (reg.global.test(property))
-                        globalVars.set(property, value)
+            if (root) for (let { property, value } of root.declarations)
+                if (reg.global.test(property))
+                    globalVars.set(property, value)
+
             for (let i = parsed.length; i--;) { // don't cache length cus we want to insert some rules
                 let rule = parsed[i]
                 parseRule(rule, i, parsed)
@@ -1052,8 +1057,8 @@
             async dataURI(src, mimeType) {
                 let o = await getSpecificFile(src, this.localPath)
                 let text = await o.text()
-                return `data:${mimeType||o.type},${encodeURIComponent(text)}`
-            } 
+                return `data:${mimeType || o.type},${encodeURIComponent(text)}`
+            }
             constructor(localPath, pathSegments) {
                 super()
                 this.localPath = localPath
@@ -1137,7 +1142,7 @@
             }
             static {
                 let proto = this.prototype;
-                [imageSet, range,$, uneval, TemplateProcessingError, PathNotFoundError,
+                [imageSet, range, $, uneval, TemplateProcessingError, PathNotFoundError,
                     concat,
                 ].forEach(o => Object.defineProperty(proto, o.name, {
                     value: o
@@ -1221,8 +1226,8 @@
                     })
                     ;[].forEach.call(doc.querySelectorAll('[href],[src]'), o => {
                         let n
-                        if (o.hasAttribute('href')) if ((n=o.getAttribute('href'))[0] !== '#' && !n.startsWith('data:')) o.setAttribute('href', encodeURI(n))
-                        if (o.hasAttribute('src') && !(n=o.getAttribute('src')).startsWith('data:')) o.setAttribute('src', encodeURI(o.getAttribute('src')))
+                        if (o.hasAttribute('href')) if ((n = o.getAttribute('href'))[0] !== '#' && !n.startsWith('data:')) o.setAttribute('href', encodeURI(n))
+                        if (o.hasAttribute('src') && !(n = o.getAttribute('src')).startsWith('data:')) o.setAttribute('src', encodeURI(o.getAttribute('src')))
                     })
                 await Promise.allSettled([].map.call(doc.querySelectorAll(':where(img, input[type="image"])[src]'), async (img) => {
                     if (!img.hasAttribute('width') || !img.hasAttribute('height')) {
@@ -1231,7 +1236,9 @@
                         let promise = n.until({ resolve: 'load', reject: 'error' })
                         let src = img.getAttribute('src')
                         let pat = `${folderName}${localPath.pathname}`
-                        n.src = new URL(src, `http://localhost:3000/${pat}`)
+                        let url = new URL(src, `http://localhost:3000/${pat}`)
+                        n.src = url.toString().replace('https://addsoupbase.github.io', origin)
+                        // if (url.origin !== origin) debugger
                         try {
                             await promise
                             console.debug(`Fix: ${img.outerHTML}`)
@@ -1240,6 +1247,7 @@
                         }
                         catch {
                             let o = new PathNotFoundError(`Image not found: ${src}`, { cause: pat })
+                            log(pathSegments, 'error', `Failed to load image: ${src} (${localPath.pathname})`)
                             console.error(o)
                             throw o
                         }

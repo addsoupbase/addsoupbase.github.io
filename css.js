@@ -363,7 +363,7 @@
         o[W('.center_absolute_x')] = { left: '50%', transform: 'translateX(-50%)' }
         o[W('.center_absolute_y')] = { top: '50%', transform: 'translateY(-50%)' }
         o[W('img')] = {
-            'align-content': 'center',
+            'align-content': 'end',
             'text-align': 'center',
             '--force-broken-image-icon': 1,
             'max-inline-size': '100%', 'block-size': 'auto'
