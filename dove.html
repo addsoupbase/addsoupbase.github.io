@@ -410,7 +410,7 @@
     <script type="module">
         import * as v from './v4.js'
         import *as reworkCSS from './reworkcss.js'
-        const { $, css } = v
+        const { $, css, Proxify } = v
         let sh = css.createSheet()
         localStorage.setItem('watching', localStorage.getItem('watching') ?? '')
         // let channel = new BroadcastChannel('tabreload')
@@ -828,7 +828,7 @@
             global: /^--_(?:[a-z\d-_])+$/i,
             size: /^(?:(?:max|min)-)?(?:width|height)$/g,
             anim: /^animation(?:-(?!composition|timeline|range(?:-(?:end-start))?)[\w-]*\w)?$/g,
-            grid: /((?:inline-)?grid)/,
+            grid: /^((?:inline-)?grid)$/,
             marker: /::marker/g,
             imgset: /(?<!-webkit-)image-set(?=\()/g,
             is: /:is(?=\()/g,
@@ -850,7 +850,11 @@
             mozAndWebkit: /:(fullscreen)/g,
             placeholderShown: /:placeholder-shown/g,
             moz: /:(read-(?:only|write))/g,
-            userXvalid: /:user-(in)?valid/g
+            userXvalid: /:user-(in)?valid/g,
+            mask: /^filter|mask(?:-(?:clip|composite|image|origin|position|repeat|size))?$/g,
+            maskOther: /^mask-border(?:-(?:outset|repeat|slice|source|width))?$/g,
+            mozWebkitOFunc: /(?<!-(?:webkit|moz|o)-)((?:repeating-)?(?:linear|radial)-gradient)(?=\s*\()/g,
+            env: /(?<![\w-])env(?=\s*\()/g
             // heading: /:heading\(([\d,]+)\))/g
         }
         function fixPropValuePair(declaration, i, rules, globalVars) {
@@ -861,6 +865,9 @@
             let newValue = value
             let added = []
             let t = thing.bind(globalVars)
+            function pushNV(...v) {
+                Array.isArray(newValue) ? newValue.push(...v) : (newValue = v)
+            }
             switch (prop) {
                 case 'display':
                     if (value === 'sticky') {
@@ -914,17 +921,28 @@
                 default: if (prop.startsWith('place-')) {
                     newProp.push(prop.replace('place', 'align'), prop.replace('place', 'justify'))
                 }
-                else if (reg.anim.test(prop))
-                    newProp.push(`-moz-${prop}`, `-webkit-${prop}`, `-o-${prop}`)
+                else if (reg.anim.test(prop)) newProp.push(`-moz-${prop}`, `-webkit-${prop}`, `-o-${prop}`)
                 else if (reg.size.test(prop)) if (value === 'stretch' || value === 'var(--stretch)') newValue = '-webkit-fill-available'
+                else if (reg.mask.test(prop)) newProp.push(`-webkit-${prop}`)
+                else if (reg.maskOther.test(prop)) newProp.push(`-webkit-${prop.replace('border', 'box-image')}`)
             }
             // if (reg.calc.test(value)) {
             //     let a = [value.replace(reg.calc, '-moz-calc'), value.replace(reg.calc, '-webkit-calc')]
             //     newValue = Array.isArray(newValue) ? newValue.concat(a) : a
             // }
+            if (reg.env.test(value)) {
+                pushNV(value.replace(reg.env, 'constant'))
+            }
+            if (reg.mozWebkitOFunc.test(value)) {
+                pushNV(
+                    value.replace(reg.mozWebkitOFunc, '-webkit-$1'),
+                    value.replace(reg.mozWebkitOFunc, '-moz-$1'),
+                    value.replace(reg.mozWebkitOFunc, '-o-$1')
+
+                )
+            }
             if (reg.var.test(value)) {
-                let v = value.replace(reg.var, '$1')
-                Array.isArray(newValue) ? newValue.push(v) : (newValue = [v])
+                pushNV(value.replace(reg.var, '$1'))
             }
             if (value !== (value = value.replace(reg.globals, t))) added.push([prop, value])
             function addClone(prop, value) {
@@ -1296,6 +1314,7 @@
                         if (o.hasAttribute('href')) if ((n = o.getAttribute('href'))[0] !== '#' && !n.startsWith('data:')) o.setAttribute('href', encodeURI(n))
                         if (o.hasAttribute('src') && !(n = o.getAttribute('src')).startsWith('data:')) o.setAttribute('src', encodeURI(o.getAttribute('src')))
                     })
+                Proxify(doc).xpathSelector('//comment()[. = "local"]')?.replace($`<script src="${origin}/_local.js"><\/script>`)
                 await Promise.allSettled([].map.call(doc.querySelectorAll(':where(img, input[type="image"])[src]'), async (img) => {
                     if (!img.hasAttribute('width') || !img.hasAttribute('height')) {
                         if (folderName === 'addsoupbase.github.io') folderName = ''

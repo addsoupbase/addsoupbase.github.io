@@ -95,7 +95,7 @@ export function $(strings, ...subs) {
         result.push(`${strings[i]}${i < length ? handleSub(subs[i], replace) : ''}`)
     let out = ce(result.join(''))
     let node = base(out) // <-- Either a DocumentFragment or an Element depending on if you did $`<><p>hello</p></>` or not
-    //@dev console.assert(node instanceof DocumentFragment || node instanceof Element, node.constructor)
+    //$dev console.assert(node instanceof DocumentFragment || node instanceof Element, node.constructor)
     let { map } = replace
     if (replace.toReplace)
         for (let o of treeWalker(base(out), 128, commentFilter)) o.replaceWith(map.get(o.textContent))
@@ -164,11 +164,11 @@ export function escapeTagged(strings, ...subs) {
     return out
 }
 export function escapeHTML(s) { (a ??= D.createElement('p')).textContent = s; return a.innerHTML.replace(Regex.q, '&quot;').replace(Regex.apos, '&#39;') } let a
-//@dev window.$ = esc
-//@dev 'body'in window || Object.defineProperty(window, 'body', {get() {return Proxify(document.querySelector('body'))}})
-//@dev window.escapeHTML = txt => escapeHTML(prompt(txt))
-//@dev window.esc = escapeTagged
-//@dev window.cache = rawCache
+//$dev window.$ = esc
+//$dev 'body'in window || Object.defineProperty(window, 'body', {get() {return Proxify(document.querySelector('body'))}})
+//$dev window.escapeHTML = txt => escapeHTML(prompt(txt))
+//$dev window.esc = escapeTagged
+//$dev window.cache = rawCache
 function* treeWalker(root, whatToShow, filter) {
     let walker = D.createTreeWalker(root, whatToShow, filter)
     let o

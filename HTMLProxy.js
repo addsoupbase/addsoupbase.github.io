@@ -12,7 +12,7 @@ function toDash(prop) {
         prop.replace(azregex, tlc)
 }
 function frag(nodes) {
-    let n = document.createDocumentFragment()
+    let n = D.createDocumentFragment()
     nodes = [].slice.call(nodes)
     for (let i = 0, l = nodes.length; i < l; ++i)
         n.appendChild(nodes[i])
@@ -24,6 +24,24 @@ class Node$ extends EventTargetProxy {
     *[Symbol.iterator]() {
         let n = this.childNodes
         for (let i = 0, l = n.length; i < l; ++i) yield Proxify(n[i])
+    }
+    replace(n) {
+        this.parentNode.replaceChild(base(n), this)
+    }
+    *twSelectorAll(whatToShow = 2 ** 32 + 1, filter) {
+        let t = D.createTreeWalker(this.valueOf(), whatToShow, filter),
+            a
+        while (a = t.nextNode()) yield a
+    }
+    xpath(xpath, resultType, nsResolver) {
+        return D.evaluate(xpath, this, nsResolver, resultType)
+    }
+    xpathSelector(xpath, nsResolver) {
+        return proxifySafe(Proxify(this).xpath(xpath, 9, nsResolver).singleNodeValue)
+    }
+    *xpathSelectorAll(xpath, nsResolver) {
+        let n = this.xpath(xpath, 7, nsResolver), a
+        for (let i = 0, x = n.snapshotLength; i < x; ++i) yield Proxify(n.snapshotItem(i))
     }
     static #observers = {
         r: null,
@@ -181,7 +199,7 @@ class Node$ extends EventTargetProxy {
     empty(kill) {
         if (kill) {
             let l = this.children
-            for(let i = l.length; i--;) Proxify(l[i]).purge(true)
+            for (let i = l.length; i--;) Proxify(l[i]).purge(true)
         }
         else return frag(this.childNodes)
         return Proxify(this)

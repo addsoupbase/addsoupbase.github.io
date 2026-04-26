@@ -1,8 +1,11 @@
 // For now [[Target]] = the object which you want to wrap
 const TargetInterface = Symbol('[[TargetInterface]]') // the interface that [[Target]] implements (doesn't HAVE to be an interface)
-//@devconst InterfaceWrapping = Symbol('[[CurrentInterface]]')
+//$devconst InterfaceWrapping = Symbol('[[CurrentInterface]]')
 const Cache = Symbol('[[Cache]]')
 let { apply } = Reflect
+// Generator methods have weird `this` binding (it's the proxy)
+// so you must do this.valueOf() to retrieve the base object
+// or use the `Base` function
 const Revokes = new WeakMap
 class SpecialProxy extends function (target, handler) {
     let { proxy, revoke } = Proxy.revocable(target, handler)
@@ -12,7 +15,7 @@ class SpecialProxy extends function (target, handler) {
     #wrapper
     #handler
     #cstr
-    //@dev#target
+    //$dev#target
     #destroy() {
         let wrapper = this.#wrapper
         if (wrapper) {
@@ -20,7 +23,7 @@ class SpecialProxy extends function (target, handler) {
             this.#cstr[Cache].delete(getTarget(wrapper))
             Revokes.get(this)()
             Revokes.delete(this)
-            //@devthis.#target =
+            //$devthis.#target =
             this.#wrapper = this.#handler = null
         }
         else throw ReferenceError('Proxy revoked twice')
@@ -41,7 +44,7 @@ class SpecialProxy extends function (target, handler) {
         super(a, b)
         this.#wrapper = a
         this.#handler = b
-        //@devthis.#target = arguments[2]
+        //$devthis.#target = arguments[2]
         this.#cstr = a.constructor
     }
 }
@@ -107,30 +110,30 @@ export function cacheFunction(f) {
     FunctionCache.set(f, o)
     return o
 }
-//@devfunction label(t) { return {}.toString.call(t).slice(8,-1)}
+//$devfunction label(t) { return {}.toString.call(t).slice(8,-1)}
 const defaultHandler = new Handler
 export function ProxyFactory(myClass, Interface = globalThis[myClass.name.replace(/\$$/, '')] ?? Object, handler = defaultHandler) {
     let cache = new WeakMap // Memoize
     readonly(Generator, 'prototype', myClass.prototype) // We must make sure the new object has the right prototype
     readonly(myClass, Cache, cache)
     function Generator(Target) {
-        //@devif (SpecialProxy.isProxy(Target)) throw ReferenceError(`Cannot proxify an existing Proxy of interface #<${Interface.name}>`)
-        //@dev console.assert(Interface.prototype.isPrototypeOf(Target), `Expected a #<${Interface.name}>, instead got a #<${label(Target)}>`, Target)
+        //$devif (SpecialProxy.isProxy(Target)) throw ReferenceError(`Cannot proxify an existing Proxy of interface #<${Interface.name}>`)
+        //$dev console.assert(Interface.prototype.isPrototypeOf(Target), `Expected a #<${Interface.name}>, instead got a #<${label(Target)}>`, Target)
         if (cache.has(Target)) return cache.get(Target)
         if (new.target && new.target !== Generator) return Reflect.construct(myClass, [Target], new.target) // There is an upgrade available!
         // initial call is executed (once)
         // ONLY put the proxy if this is the end of the inheritance chain,
         // to prevent a proxy of a proxy
-        //@devfor(let key of Reflect.ownKeys(myClass.prototype))key !== 'constructor'&&key in Interface.prototype&&!Object.getOwnPropertyDescriptor(myClass.prototype,key).get&&console.warn(`Overwrite ${String(key)} on ${myClass.name}`) 
+        //$devfor(let key of Reflect.ownKeys(myClass.prototype))key !== 'constructor'&&key in Interface.prototype&&!Object.getOwnPropertyDescriptor(myClass.prototype,key).get&&console.warn(`Overwrite ${String(key)} on ${myClass.name}`) 
         let instance = new myClass(Target)
         targets.set(instance, Target)
         let proxy = new SpecialProxy(instance, handler, Target)
         cache.set(Target, proxy)
-        //@devif (proxy !== proxify(Target)) throw ReferenceError('Proxy identity check failed')
+        //$devif (proxy !== proxify(Target)) throw ReferenceError('Proxy identity check failed')
         return proxy
     }
     if (Interface !== Object) {
-        //@devreadonly(myClass, InterfaceWrapping, Interface)
+        //$devreadonly(myClass, InterfaceWrapping, Interface)
         classify(Interface, Generator)
     }
     return Generator
@@ -192,7 +195,7 @@ export function proxy(obj) {
     return SpecialProxy.isProxy(obj) ? obj
         : proxify(obj)
 }
-//@dev window.proxify = proxify
+//$dev window.proxify = proxify
 function g(t) {return Watcher.get(t)}
 const watchHandler = {
     deleteProperty(t, p) {
