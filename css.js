@@ -181,18 +181,23 @@
         return insertRule
     }
     function createSheet(text) {
-        var m = new CSSStyleSheet
-        Object.defineProperty(m, id, { value: true })
-        text && m.replaceSync(text)
-        D.adoptedStyleSheets = [].concat.call(ads, m)
-        return m
+        if (newish) {
+            var m = new CSSStyleSheet
+            Object.defineProperty(m, id, { value: true })
+            text && m.replaceSync(text)
+            D.adoptedStyleSheets = [].concat.call(ads, m)
+            return m
+        }
+        return Sheet(true).sheet
     }
-    function Sheet() {
+    function Sheet(n) {
         if (newish) 
             return as = o = as || createSheet()
         else {
-            var o = D.getElementById(id)
-            if (o) return o
+            if (!n) {
+                var o = D.getElementById(id)
+                if (o) return o
+            }
             // if (canWrite) return D.write('<style id="'+id+'" blocking="render">'+str+'</style>'), Sheet()
             // ^ this branch is slower
             o = D.createElement('style')

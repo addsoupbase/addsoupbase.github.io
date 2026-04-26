@@ -1314,7 +1314,7 @@
                         if (o.hasAttribute('href')) if ((n = o.getAttribute('href'))[0] !== '#' && !n.startsWith('data:')) o.setAttribute('href', encodeURI(n))
                         if (o.hasAttribute('src') && !(n = o.getAttribute('src')).startsWith('data:')) o.setAttribute('src', encodeURI(o.getAttribute('src')))
                     })
-                Proxify(doc).xpathSelector('//comment()[. = "local"]')?.replace($`<script src="${origin}/_local.js"><\/script>`)
+                Proxify(doc).xpathSelector('//comment()[. = "local"]')?.replace($(`<script>${local}<\/script>`))
                 await Promise.allSettled([].map.call(doc.querySelectorAll(':where(img, input[type="image"])[src]'), async (img) => {
                     if (!img.hasAttribute('width') || !img.hasAttribute('height')) {
                         if (folderName === 'addsoupbase.github.io') folderName = ''
@@ -1346,6 +1346,8 @@
             }
             return text
         }
+        let local = `origin==='${origin}'&&navigator.serviceWorker.register('${origin}/local.js')`
+        // fetch(`http://localhost:3000/_local.js`).then(o=>o.text()).then(o=>local=o)
         let probablyNotWhatYouWant = /\[object \w+\]/
         let fileCache = new Map
         let directoryCache = new Map
