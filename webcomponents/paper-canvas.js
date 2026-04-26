@@ -220,8 +220,9 @@ style.replaceSync(`
     :host([resizing]){resize:both !important;cursor:revert;outline-style:dashed;outline-width:2px;}
     :host{
     ${css.toCSS({
-    cursor: 'crosshair',
+    cursor: 'pointer',
     width: 'max-content',
+    '-webkit-tap-highlight-color': 'transparent !important',
     height: 'max-content',
     'user-select': 'none',
     'touch-action': 'none',

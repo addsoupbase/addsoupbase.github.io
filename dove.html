@@ -1002,7 +1002,7 @@
                 )
             }
             if (reg.textSelectable.test(s)) {
-                rule.selectors = s.replace(reg.textSelectable, ':is([contenteditable],h1,h2,h3,h4,h5,h6,p,span,aside,abbr,b,bdi,bdo,big,blockquote,caption,center,cite,code,data,del,ins,figcaption,i,input:where(:not([type]),[type="color"],[type="range"],[type="email"],[type="password"],[type="number"],[type="search"],[type="tel"],[type="text"],[type="url"]),kbd,legend,li,marquee,pre,q,s,small,sub,sup,strong,textarea,time,u,mark)')
+                rule.selectors = s.replace(reg.textSelectable, ':is([contenteditable],h1,h2,h3,h4,h5,h6,p,span,aside,abbr,b,bdi,bdo,big,blockquote,caption,center,cite,code,data,del,ins,figcaption,i,input:where(:not([type]),[type="color"],[type="email"],[type="password"],[type="number"],[type="search"],[type="tel"],[type="text"],[type="url"]),kbd,legend,li,marquee,pre,q,s,small,sub,sup,strong,textarea,time,u,mark)')
                     .split('▊')
             }
             if (reg.backdrop.test(s)) {

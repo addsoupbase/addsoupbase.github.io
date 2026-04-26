@@ -2,8 +2,8 @@
     'use strict'
     var n = new Set
     d.addEventListener('submit', function (e) {
-        // just to prevent form spam
         var t = e.target
+        // just to prevent form spam
         n.has(t)?(e.returnValue=!!(e.preventDefault && e.preventDefault())):n.add(t)
     }, true)
     var ignore = [
