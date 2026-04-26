@@ -288,7 +288,7 @@
         }
 
         .warning {
-            color: rgb(213, 139, 0);
+            color: hsl(60 100% 40% / 1);
         }
 
         .error {
@@ -407,6 +407,12 @@
             <p>hello</p>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/html-minifier-terser@7.2.0/dist/htmlminifier.umd.bundle.min.js"
+        crossorigin="anonymous" async
+        integrity="sha384-B5qT0VgTL685vWrtyMkPswITn4u6ap/tfHwzwzD5Xk9VFeza1bhYl2QLkyYKxGWh"></script>
+    <script src="https://cdn.jsdelivr.net/npm/terser/dist/bundle.min.js" async
+        integrity="sha384-9cG/1iwbD/H89nnibn5kRYTSkQJkWIjVKzfiYw/S1ipx0s+gLdU7s9tKMxa7bxzL"
+        crossorigin="anonymous"></script>
     <script type="module">
         import * as v from './v4.js'
         import *as reworkCSS from './reworkcss.js'
@@ -445,11 +451,14 @@
             blob.style.setProperty('--blob-light', color)
         }
         function log(path, type = 'info', message) {
-            if (logLevels[type])
+            if (logLevels[type]) {
+                path = path.join('/')
                 scheduler.postTask(() => {
-                    output.firstNode = $`<li role="log" class="${type}" data-path="${path.join('/')}"><samp>${message}</samp></li>`
+                    output.firstNode = $`<li role="log" class="${type}" data-path="${path}"><samp>${message}</samp></li>`
                     output.childElementCount > 30 && output.lastElementChild.remove()
                 }, { priority: 'user-visible' })
+                console[type.replace(/ing$/,'')]?.(`${path}: ${message}`)
+            }
             // document.getElementById(path)?.remove()
         }
         let logLevels = {
@@ -762,7 +771,7 @@
             // if (inputFile.lastModified < outputFile.lastModified) return notify(path,firstTime,pathString,outputFile)
             let text = await evaluate(inputText, new URL(pathString, baseURL), path, outputFile.type, folderName)
             if (beforeText === text) {
-                console.log(`Skip ${path}`)
+                console.log(`Skip ${path.join('/')}`)
                 return notify(path, firstTime, pathString, outputFile)
             }
             if (text == null) {
@@ -1163,6 +1172,8 @@
                 let { localPath } = this
                 let me = localPath.pathname
                 let out = await getFileText(src, localPath)
+                // if (src.endsWith('.js'))
+                // out = (await Terser.minify(out)).code
                 addToDynamicFiles(resolve(src, me), me.substring(1))
                 return out
             }
@@ -1240,6 +1251,7 @@
             let define2 = text.match(jsDefineComment)
             let env = []
             let context = new Context(localPath, pathSegments)
+            let PATH = pathSegments.join('/')
             let post = text.match(postProcess)
             if (post) {
                 text = text.replace(postProcess, '')
@@ -1299,7 +1311,14 @@
             let rootSelector = context.rootSelector
             if (mimeType === 'text/html') {
                 let doc = parseHTMLDocument(text, 'text/html')
-                    ;[].forEach.call(doc.querySelectorAll('style'), o => {
+                let scripts = Promise.all([].filter.call(doc.scripts, o => o.textContent.trim() && !o.src && (!o.type || o.type === 'module')).map(o => {
+                    return Terser.minify(o.textContent)
+                        .then(n => o.textContent = n.code)
+                        .catch(e => {
+                            log(pathSegments, 'warning',`${e} (${PATH})`)
+                        })
+                }))
+                    ;[].forEach.call(doc.getElementsByTagName('style'), o => {
                         let style = o.textContent
                         let s = reworkCSS.parse(style)
                         rootSelector ??= getRootSelector(s.stylesheet.rules)
@@ -1314,6 +1333,7 @@
                         if (o.hasAttribute('href')) if ((n = o.getAttribute('href'))[0] !== '#' && !n.startsWith('data:')) o.setAttribute('href', encodeURI(n))
                         if (o.hasAttribute('src') && !(n = o.getAttribute('src')).startsWith('data:')) o.setAttribute('src', encodeURI(o.getAttribute('src')))
                     })
+                await scripts
                 Proxify(doc).xpathSelector('//comment()[. = "local"]')?.replace($(`<script>${local}<\/script>`))
                 await Promise.allSettled([].map.call(doc.querySelectorAll(':where(img, input[type="image"])[src]'), async (img) => {
                     if (!img.hasAttribute('width') || !img.hasAttribute('height')) {
@@ -1327,7 +1347,7 @@
                         // if (url.origin !== origin) debugger
                         try {
                             await promise
-                            console.debug(`Fix: ${img.outerHTML}`)
+                            console.debug(`Adding width/height attributes: ${img.outerHTML} (${localPath.pathname})`)
                             img.setAttribute('width', n.naturalWidth)
                             img.setAttribute('height', n.naturalHeight)
                         }
@@ -1339,12 +1359,27 @@
                         }
                     }
                 }))
-                text = `${doc.doctype ? '<!DOCTYPE html>\n' : ''}${doc.documentElement.outerHTML}`
+                for(let n of [doc.head, doc.body, doc.documentElement]) n.replaceChildren(...n.children) // remove useless spaces (text nodes)
+                text = await HTMLMinifier.minify(`${doc.doctype ? '<!DOCTYPE html>\n' : ''}${doc.documentElement.outerHTML}`,
+                    minifySettings.html
+                )
             }
             else if (mimeType === 'text/css' && !text.startsWith(de)) {
                 text = `${de}${fixCSSSheet(text)}`
             }
+            else if (mimeType === 'text/javascript')
+                text = (await Terser.minify(text)).code
             return text
+        }
+        const minifySettings = {
+            html: {
+                collapseBooleanAttributes: true,
+                keepClosingSlash: false,
+                removeAttributeQuotes: true,
+                removeComments: true,
+                removeScriptTypeAttributes: true,
+                removeStyleLinkTypeAttributes: true,
+            }
         }
         let local = `origin==='${origin}'&&navigator.serviceWorker.register('${origin}/local.js')`
         // fetch(`http://localhost:3000/_local.js`).then(o=>o.text()).then(o=>local=o)
