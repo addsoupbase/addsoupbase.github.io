@@ -413,6 +413,8 @@
     <script src="https://cdn.jsdelivr.net/npm/terser/dist/bundle.min.js" async
         integrity="sha384-9cG/1iwbD/H89nnibn5kRYTSkQJkWIjVKzfiYw/S1ipx0s+gLdU7s9tKMxa7bxzL"
         crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/acorn@8.16.0/dist/acorn.min.js" crossorigin="anonymous" async
+        integrity="sha384-rHF7gzpmyjdfYYruO3v9qwdeYCCfZcZlwpB3vzf7K5DUYdkLj4t8MaKutVFtI4LA"></script>
     <script type="module">
         import * as v from './v4.js'
         import *as reworkCSS from './reworkcss.js'
@@ -457,7 +459,7 @@
                     output.firstNode = $`<li role="log" class="${type}" data-path="${path}"><samp>${message}</samp></li>`
                     output.childElementCount > 30 && output.lastElementChild.remove()
                 }, { priority: 'user-visible' })
-                console[type.replace(/ing$/,'')]?.(`${path}: ${message}`)
+                console[type.replace(/ing$/, '')]?.(`${path}: ${message}`)
             }
             // document.getElementById(path)?.remove()
         }
@@ -1247,6 +1249,7 @@
             }
         }
         async function evaluate(text, localPath, pathSegments, mimeType, folderName) {
+            if (folderName === 'addsoupbase.github.io') folderName = ''
             let define = text.match(defineComment)
             let define2 = text.match(jsDefineComment)
             let env = []
@@ -1311,11 +1314,48 @@
             let rootSelector = context.rootSelector
             if (mimeType === 'text/html') {
                 let doc = parseHTMLDocument(text, 'text/html')
+                await Promise.all([].map.call(doc.scripts, async o => {
+                    if (o.type === 'module' && o.src) switch (o.dataset.loading) {
+                        case 'lazy':
+                            o.removeAttribute('type')
+                            let s = o.getAttribute('src')
+                            let preloading = [s]
+                            let co = o.getAttribute('crossorigin')
+                            let fullPath = new URL(s, `${location.origin}/${folderName}${localPath.pathname}`)
+                            if (locals.has(fullPath.hostname)) {
+                                let corn = acorn.parse(await (await fetch(fullPath)).text(), { sourceType: 'module', ecmaVersion: 'latest' })
+                                for (let stm of corn.body) if (stm.type === 'ImportDeclaration') {
+                                    preloading.push(new URL(stm.source.value, fullPath))
+                                }
+                                preloading.forEach(o => {
+                                    doc.head.querySelector(`link[rel="modulepreload"][href="${o}"]`) ||
+                                        doc.head.appendChild($`<link rel="modulepreload" href="${o}" ${co ? `crossorigin="${co}"` : ''}>`.valueOf())
+                                })
+                                o.textContent =
+                                    `!function(d, t, m){
+    'use strict'
+    function load() {
+    function go() {import(location.href + "${s}")}
+    if (typeof requestIdleCallback === 'function') 
+        requestIdleCallback(go, { timeout: m(5000 - (performance.now() - t), 0)})
+    else if (typeof Scheduler === 'function' && scheduler.postTask)
+        scheduler.postTask(go, {priority: 'background', delay: m(performance.now() - t, 0)})
+    else setTimeout(go,  m(5000 - (performance.now() - t), 0))
+    }
+    if (d.readyState === 'complete') load()
+    else addEventListener('load', load, {once:true})
+}(document,performance.now(),Math.max)`
+                                o.removeAttribute('src')
+                            }
+                            break
+                    }
+                    o.removeAttribute('data-loading')
+                }))
                 let scripts = Promise.all([].filter.call(doc.scripts, o => o.textContent.trim() && !o.src && (!o.type || o.type === 'module')).map(o => {
                     return Terser.minify(o.textContent)
                         .then(n => o.textContent = n.code)
                         .catch(e => {
-                            log(pathSegments, 'warning',`${e} (${PATH})`)
+                            log(pathSegments, 'warning', `${e} (${PATH})`)
                         })
                 }))
                     ;[].forEach.call(doc.getElementsByTagName('style'), o => {
@@ -1337,7 +1377,6 @@
                 Proxify(doc).xpathSelector('//comment()[. = "local"]')?.replace($(`<script>${local}<\/script>`))
                 await Promise.allSettled([].map.call(doc.querySelectorAll(':where(img, input[type="image"])[src]'), async (img) => {
                     if (!img.hasAttribute('width') || !img.hasAttribute('height')) {
-                        if (folderName === 'addsoupbase.github.io') folderName = ''
                         let n = $`<img>`
                         let promise = n.until({ resolve: 'load', reject: 'error' })
                         let src = img.getAttribute('src')
@@ -1359,7 +1398,7 @@
                         }
                     }
                 }))
-                for(let n of [doc.head, doc.body, doc.documentElement]) n.replaceChildren(...n.children) // remove useless spaces (text nodes)
+                for (let n of [doc.head, doc.body, doc.documentElement]) n.replaceChildren(...n.children) // remove useless spaces (text nodes)
                 text = await HTMLMinifier.minify(`${doc.doctype ? '<!DOCTYPE html>\n' : ''}${doc.documentElement.outerHTML}`,
                     minifySettings.html
                 )
@@ -1371,6 +1410,7 @@
                 text = (await Terser.minify(text)).code
             return text
         }
+        let locals = new Set(`localhost addsoupbase.github.io violetxzzz.github.io rikaaqt.github.io dohaaa0268.github.io`.split(' '))
         const minifySettings = {
             html: {
                 collapseBooleanAttributes: true,
