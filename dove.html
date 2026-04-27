@@ -1248,6 +1248,15 @@
                 proto.esc = v.escapeTagged
             }
         }
+        function fetchRaw(src, headers) {
+            return fetch(src, {
+                method: "GET",
+                headers: {
+                    ...headers,
+                    'X-Ignore-Tampering': 'all'
+                }
+            })
+        }
         async function evaluate(text, localPath, pathSegments, mimeType, folderName) {
             if (folderName === 'addsoupbase.github.io') folderName = ''
             let define = text.match(defineComment)
@@ -1327,7 +1336,7 @@
                             let co = o.getAttribute('crossorigin')
                             let fullPath = new URL(s, `${location.origin}/${folderName}${localPath.pathname}`)
                             if (locals.has(fullPath.hostname)) {
-                                let corn = acorn.parse(await (await fetch(fullPath)).text(), { sourceType: 'module', ecmaVersion: 'latest' })
+                                let corn = acorn.parse(await (await fetchRaw(fullPath)).text(), { sourceType: 'module', ecmaVersion: 'latest' })
                                 for (let stm of corn.body) if (stm.type === 'ImportDeclaration') {
                                     preloading.push(new URL(stm.source.value, fullPath))
                                 }
@@ -1404,7 +1413,7 @@
                         }
                     }
                 }))
-                ;[].forEach.call(doc.querySelectorAll('link[rel="modulepreload"]'), o=>o.setAttribute('nonce', nonce))
+                    ;[].forEach.call(doc.querySelectorAll('link[rel="modulepreload"]'), o => o.setAttribute('nonce', nonce))
                 for (let n of [doc.head, doc.body, doc.documentElement]) n.replaceChildren(...n.children) // remove useless spaces (text nodes)
                 text = await HTMLMinifier.minify(`${doc.doctype ? '<!DOCTYPE html>\n' : ''}${doc.documentElement.outerHTML}`,
                     minifySettings.html
@@ -1428,8 +1437,8 @@
                 removeStyleLinkTypeAttributes: true,
             }
         }
-        let local = `origin==='${origin}'&&navigator.serviceWorker.register('${origin}/local.js')`
-        // fetch(`http://localhost:3000/_local.js`).then(o=>o.text()).then(o=>local=o)
+        let local
+        fetchRaw(`http://localhost:3000/_local.js`).then(o => o.text()).then(o => local = o)
         let probablyNotWhatYouWant = /\[object \w+\]/
         let fileCache = new Map
         let directoryCache = new Map
