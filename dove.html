@@ -1314,6 +1314,10 @@
             let rootSelector = context.rootSelector
             if (mimeType === 'text/html') {
                 let doc = parseHTMLDocument(text, 'text/html')
+                let nonce = btoa(text.length)
+                doc.head.prepend($`<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'nonce-${nonce}'; object-src 'none'; base-uri 'self'">`.valueOf())
+                // this is bascially just to block inline event handlers!
+                Proxify(doc).xpathSelector('//comment()[. = "local"]')?.replace($(`<script>${local}<\/script>`))
                 await Promise.all([].map.call(doc.scripts, async o => {
                     if (o.type === 'module' && o.src) switch (o.dataset.loading) {
                         case 'lazy':
@@ -1335,7 +1339,7 @@
                                     `!function(d, t, m){
     'use strict'
     function load() {
-    function go() {import(location.href + "${s}")}
+    function go() {import(location.origin + location.pathname + "${s}")}
     if (typeof requestIdleCallback === 'function') 
         requestIdleCallback(go, { timeout: m(5000 - (performance.now() - t), 0)})
     else if (typeof Scheduler === 'function' && scheduler.postTask)
@@ -1351,7 +1355,10 @@
                     }
                     o.removeAttribute('data-loading')
                 }))
-                let scripts = Promise.all([].filter.call(doc.scripts, o => o.textContent.trim() && !o.src && (!o.type || o.type === 'module')).map(o => {
+                let scripts = Promise.all([].filter.call(doc.scripts, o => {
+                    o.setAttribute('nonce', o.nonce = nonce)
+                    return o.textContent.trim() && !o.src && (!o.type || o.type === 'module')
+                }).map(o => {
                     return Terser.minify(o.textContent)
                         .then(n => o.textContent = n.code)
                         .catch(e => {
@@ -1374,7 +1381,6 @@
                         if (o.hasAttribute('src') && !(n = o.getAttribute('src')).startsWith('data:')) o.setAttribute('src', encodeURI(o.getAttribute('src')))
                     })
                 await scripts
-                Proxify(doc).xpathSelector('//comment()[. = "local"]')?.replace($(`<script>${local}<\/script>`))
                 await Promise.allSettled([].map.call(doc.querySelectorAll(':where(img, input[type="image"])[src]'), async (img) => {
                     if (!img.hasAttribute('width') || !img.hasAttribute('height')) {
                         let n = $`<img>`
@@ -1398,6 +1404,7 @@
                         }
                     }
                 }))
+                ;[].forEach.call(doc.querySelectorAll('link[rel="modulepreload"]'), o=>o.setAttribute('nonce', nonce))
                 for (let n of [doc.head, doc.body, doc.documentElement]) n.replaceChildren(...n.children) // remove useless spaces (text nodes)
                 text = await HTMLMinifier.minify(`${doc.doctype ? '<!DOCTYPE html>\n' : ''}${doc.documentElement.outerHTML}`,
                     minifySettings.html
