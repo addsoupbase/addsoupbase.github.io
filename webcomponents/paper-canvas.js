@@ -1,42 +1,45 @@
-import * as v from '../v4.js'
 // import { vect } from "../num.js"
 import '../css.js'
+let structure = document.createRange().createContextualFragment('<div><div id="holder" part="holder"><slot name="before"></slot><canvas part="paper"></canvas><slot name="after"></slot></div><div part="controls" id="controls"><slot name="controls"></slot></div></div></>')
 const css = window[Symbol.for('[[CSSModule]]')]
 // import * as h from '../handle.js'
 // let internals = Symbol()
 function pointerup(p) {
-    if (p.button === 2 || this.resizing) return
+    let paper = this.getRootNode().host
+    if (p.button === 2 || paper.resizing) return
     this.releasePointerCapture(p.pointerId)
-    this.holding = false
-    let v = this.value
+    paper.holding = false
+    let v = paper.value
     if (v instanceof Promise) v.then(file => {
-        this.internals?.setFormValue(file)
-        this.internals?.setValidity({ valueMissing: false }, 'Draw something')
+        paper.internals?.setFormValue(file)
+        paper.internals?.setValidity({ valueMissing: false }, 'Draw something')
     })
     else {
-        this.internals?.setFormValue(v)
-        this.internals?.setValidity({ valueMissing: false }, 'Draw something')
+        paper.internals?.setFormValue(v)
+        paper.internals?.setValidity({ valueMissing: false }, 'Draw something')
     }
 }
 function keydown(e) {
     let { shiftKey } = e
+    let paper = this.getRootNode().host
     if (shiftKey) {
-        this.resizing = !this.resizing
+        this.resizing = !paper.resizing
         this.holding = false
         e.preventDefault()
     }
 }
 
 function pointermove(p) {
-    if (p.button === 2 || this.resizing) return
+    let paper = this.getRootNode().host
+    if (p.button === 2 || paper.resizing) return
     let { offsetX: x, offsetY: y } = p
-    let zoom = this.canvas.currentCSSZoom || 1
-    if (this.holding) {
-        let { lastLoc, ctx } = this
+    let zoom = paper.canvas.currentCSSZoom || 1
+    if (paper.holding) {
+        let { lastLoc, ctx } = paper
         if (p.touches) {
             let touches = p.touches[0]
-            x = touches.clientX - this.offsetLeft - touches.radiusX
-            y = touches.clientY - this.offsetTop - touches.radiusY
+            x = touches.clientX - touches.radiusX
+            y = touches.clientY - touches.radiusY
         }
         ctx.beginPath()
         // let {currentCSSZoom: zoom} = this
@@ -48,15 +51,16 @@ function pointermove(p) {
     }
 }
 function pointerdown(p) {
-    if (this.resizing) return
-    if (p.button === 2) return this.undo()
+    let paper = this.getRootNode().host
+    if (paper.resizing) return
+    if (p.button === 2) return paper.undo()
     this.setPointerCapture(p.pointerId)
-    let { undoBuffer, ctx, canvas } = this
+    let { undoBuffer, ctx, canvas } = paper
     undoBuffer.push(ctx.getImageData(0, 0, canvas.width, canvas.height))
-    while (this.undoBuffer.length > this.maxBufferSize) undoBuffer.shift()
-    this.holding = true
-    let { lastLoc } = this
-    let zoom = this.canvas.currentCSSZoom || 1
+    while (paper.undoBuffer.length > paper.maxBufferSize) undoBuffer.shift()
+    paper.holding = true
+    let { lastLoc } = paper
+    let zoom = paper.canvas.currentCSSZoom || 1
     lastLoc[0] = p.offsetX
     lastLoc[1] = p.offsetY
     ctx.beginPath()
@@ -90,26 +94,35 @@ class PaperCanvas extends HTMLElement {
             this.internals?.setValidity({ valueMissing: true }, 'Draw something')
         }
     }
+    get colorElement() {
+        return this.#colorElement
+    }
+    get brushElement() { return this.#brushElement }
+    #colorElement = null
+    #brushElement = null
     constructor() {
         super()
+        this.#colorElement = this.querySelector('[data-is="color"]')
+        this.#brushElement = this.querySelector('[data-is="brushsize"]')
         this.internals?.setValidity({ valueMissing: true }, 'Draw something')
-        let t = v.Proxify(this)
         let shadow = this.attachShadow({ mode: 'open' })
-        let width = +t.getAttribute('width') || 250
-        let height = +t.getAttribute('height') || 250
-        let canvas = this.canvas = v.esc`<canvas id="canvas" style="image-rendering:auto;width:${width}px;height:${height}px" width="${width}" height="${height}">`
+        let width = +this.getAttribute('width') || 250
+        let height = +this.getAttribute('height') || 250
+        // v.esc`<canvas id="canvas" style="width:${width}px;height:${height}px" width="${width}" height="${height}">`
+        shadow.appendChild(structure.cloneNode(true))
+        let canvas = this.canvas = shadow.querySelector('canvas')
+        if (this.#colorElement)
+            canvas.addEventListener('wheel', scroll, { passive: false })
+        canvas.style.width = `${canvas.width = width}px`
+        canvas.style.height = `${canvas.height = height}px`
         this.ctx = Object.assign(canvas.getContext('2d', { willReadFrequently: true }), PaperCanvas.BASE_CONTEXT_ATTRIBUTES)
         this.ctx.fillRect(0, 0, width, height)
         this.color = 'black'
         shadow.adoptedStyleSheets = [style]
-        v.Proxify(shadow).pushNode(canvas)
-        t.on({
-            pointermove,
-            pointerdown,
-            pointerup,
-            // keydown,
-            $contextmenu
-        }, new AbortController)
+            ;[pointermove, pointerdown, pointerup].forEach(addListeners, canvas)
+        canvas.addEventListener('contextmenu', norightclick)
+        this.addEventListener('input', input)
+        this.addEventListener('click', click)
         // t.observe('resize', {
         //     callback: resizeCanvas
         // })
@@ -123,7 +136,7 @@ class PaperCanvas extends HTMLElement {
         let { width, height } = this.canvas
         switch (this.getAttribute('type')) {
             default: return this.dataURL(1)
-            case 'file': return new Promise(resolve => this.canvas.toBlob(resolve,{ type: 'image/png', quality: 1 })).then(blob => new File([blob], `${this.getAttribute('name') || 'untitled'}.png`, { type: 'image/png' }))
+            case 'file': return new Promise(resolve => this.canvas.toBlob(resolve, { type: 'image/png', quality: 1 })).then(blob => new File([blob], `${this.getAttribute('name') || 'untitled'}.png`, { type: 'image/png' }))
         }
     }
     dataURL(quality = 1) {
@@ -161,17 +174,32 @@ class PaperCanvas extends HTMLElement {
         this.ctx.clearRect(0, 0, width, height)
         this.internals?.setValidity({ valueMissing: true })
     }
+    #saved = PaperCanvas.BASE_CONTEXT_ATTRIBUTES
+    #save() {
+        let s = this.#saved
+        s.strokeStyle = this.color
+        s.fillStyle = 'black'
+        s.lineCap =
+            s.lineJoin = 'round'
+    }
+    #restore() {
+        Object.assign(this.ctx, this.#saved)
+    }
     attributeChangedCallback(name, _, newValue) {
         if (this.canvas) switch (name) {
             case 'width':
                 var val = parseFloat(newValue) || 1
+                this.#save()
                 this.canvas.width = val
-                this.canvas.styles.width = `${val}px`
+                this.canvas.style.width = `${val}px`
+                this.#restore()
                 break
             case 'height':
                 var val = parseFloat(newValue) || 1
+                this.#save()
                 this.canvas.height = val
-                this.canvas.styles.height = `${val}px`
+                this.canvas.style.height = `${val}px`
+                this.#restore()
                 break
             case 'brushsize':
                 this.ctx.lineWidth = parseFloat(newValue) || 1
@@ -185,17 +213,24 @@ class PaperCanvas extends HTMLElement {
     get brushsize() {
         return this.ctx.lineWidth
     }
-    set brushsize(val) {
-        this.setAttribute('brushsize', val)
+    set brushsize(size) {
+        this.setAttribute('brushsize', size)
+        this.style.setProperty('--brush-size', `${Math.max(parseFloat(size), 1)}px`)
     }
     set color(color) {
         this.ctx.fillStyle = this.ctx.strokeStyle = color
+        let colorPicker = this.#colorElement
+        this.style.setProperty('--brush-color', color)
     }
     get color() {
         return this.ctx.fillStyle
     }
     connectedCallback() {
-        this.hasAttribute('tabindex') || this.setAttribute('tabindex', 0)
+        this.role = this.role || 'application'
+        let color = this.#colorElement
+        if (color) this.color = color.value ?? color.textContent.trim()
+        let brushsize = this.#brushElement
+        if (brushsize) this.brushsize = brushsize.value ?? brushsize.textContent
     }
 }
 function resizeCanvas(n) {
@@ -210,29 +245,79 @@ function resizeCanvas(n) {
         ctx.fillStyle = 'white'
         ctx.fillRect(0, 0, width, height)
         ctx.putImageData(data, 0, 0)
-        Object.assign(ctx, PaperCanvas.BASE_CONTEXT_ATTRIBUTES)
+        // Object.assign(ctx, this.#saved)
         t.color = c
     }
 }
-function $contextmenu() { }
+function norightclick(e) { e.preventDefault() }
 let style = new CSSStyleSheet
 style.replaceSync(`
+    @property --brush-color {
+        syntax: "<color>";
+        inherits: true;
+        initial-value: black;
+    }
+    @property --brush-size {
+        syntax: "<length>";
+        inherits: true;
+        initial-value: 1px;
+    }
+    :where(#controls) {
+        width: max-content;
+        margin: auto;
+    }
+    #holder {
+        ${css.toCSS({ 'user-select': 'none' })}
+    }
+        canvas {
+        -webkit-tap-highlight-color: transparent !important;
+        touch-action: none;
+        image-rendering: auto;
+        outline: 1px solid black;
+        background-color: white;
+        cursor: pointer;
+        -webkit-touch-callout: none;
+    }
     :host([resizing]){resize:both !important;cursor:revert;outline-style:dashed;outline-width:2px;}
     :host{
-    ${css.toCSS({
-    cursor: 'pointer',
-    width: 'max-content',
-    '-webkit-tap-highlight-color': 'transparent !important',
-    height: 'max-content',
-    'user-select': 'none',
-    'touch-action': 'none',
-    overflow: 'hidden',
-    'background-color': 'white',
-    display: 'inline-grid',
-    outline: '1px solid black',
-})}}`)
+    width: max-content;
+    height: max-content;
+    overflow: visible;
+    display: inline-grid;
+}`)
 if (customElements.get('paper-canvas') !== PaperCanvas) {
-    let d = customElements.whenDefined('paper-canvas')
+    // let d = customElements.whenDefined('paper-canvas')
     customElements.define('paper-canvas', PaperCanvas)
-    await d
+    // await d
+}
+function input(t) {
+    let changed = t.target,
+        is = changed.dataset.is
+    switch (is) {
+        case 'color':
+            this.color = changed.value ?? changed.textContent.trim()
+            break
+        case 'brushsize':
+            this.brushsize = changed.value ?? changed.textContent
+            break
+    }
+}
+function addListeners(o) {
+    this[`on${o.name}`] = o
+}
+function scroll(e) {
+    let paper = e.target.getRootNode().host
+    let brush = paper.brushElement
+    if ('value' in brush) {
+        brush.value = paper.brushsize -= ((brush.min || 1) / (brush.max || 10)) * (Math.sign(e.deltaY) / (((brush.step || .01)) / 6))
+        brush.dispatchEvent(new Event('change', { cancelable: true, bubbles: true }))
+        e.preventDefault()
+    }
+}
+function click(e) {
+    let t = e.target
+    if (t.dataset.is === 'undo') {
+        e.preventDefault()
+        t.closest('paper-canvas').undo()
+    }
 }
