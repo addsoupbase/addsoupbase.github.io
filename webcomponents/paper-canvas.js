@@ -100,9 +100,21 @@ class PaperCanvas extends HTMLElement {
     get brushElement() { return this.#brushElement }
     #colorElement = null
     #brushElement = null
+    static #dataList
+    static get #colorList() {
+        return this.#dataList ||= document.createRange().createContextualFragment(`<datalist style="display:none" id="fallback">${''.split('black white lightpink pink lightred red darkered orange yellow lightgreen green darkgreen cyan teal blue indigo violet grey').map(o => `<option value="${o}"></option>`).join('')}</datalist>`)
+    }
     constructor() {
         super()
-        this.#colorElement = this.querySelector('[data-is="color"]')
+        let c = this.#colorElement = this.querySelector('[data-is="color"]')
+        if (typeof scrollMaxX === 'number') {
+            c.type = 'text'
+            c.style.maxWidth = '50%'
+            c.style.width = 'fit-content'
+            c.after(PaperCanvas.#colorList.cloneNode(true))
+            c.setAttribute('list', 'fallback')
+            c.addEventListener('input', setValidity)
+        }
         this.#brushElement = this.querySelector('[data-is="brushsize"]')
         this.internals?.setValidity({ valueMissing: true }, 'Draw something')
         let shadow = this.attachShadow({ mode: 'open' })
@@ -320,4 +332,8 @@ function click(e) {
         e.preventDefault()
         t.closest('paper-canvas').undo()
     }
+}
+function setValidity() {
+    if (CSS.supports('color', this.value)) this.setCustomValidity('')
+    else this.setCustomValidity('Invalid Color')
 }
