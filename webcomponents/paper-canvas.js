@@ -94,7 +94,7 @@ class PaperCanvas extends HTMLElement {
     snapshot() {
         let { undoBuffer, ctx, canvas } = this
         undoBuffer.push(ctx.getImageData(0, 0, canvas.width, canvas.height))
-        while (paper.undoBuffer.length > paper.maxBufferSize) undoBuffer.shift()
+        while (this.undoBuffer.length > this.maxBufferSize) undoBuffer.shift()
     }
     get colorElement() {
         return this.#colorElement
