@@ -55,9 +55,8 @@ function pointerdown(p) {
     if (paper.resizing) return
     if (p.button === 2) return paper.undo()
     this.setPointerCapture(p.pointerId)
-    let { undoBuffer, ctx, canvas } = paper
-    undoBuffer.push(ctx.getImageData(0, 0, canvas.width, canvas.height))
-    while (paper.undoBuffer.length > paper.maxBufferSize) undoBuffer.shift()
+    let { ctx, canvas } = paper
+    paper.snapshot()
     paper.holding = true
     let { lastLoc } = paper
     let zoom = paper.canvas.currentCSSZoom || 1
@@ -74,7 +73,7 @@ class PaperCanvas extends HTMLElement {
     static formAssociated = true
     static observedAttributes = 'maxbuffersize color brushsize width height'.split(' ')
     undoBuffer = []
-    maxBufferSize = 10
+    maxBufferSize = 25
     #resizing
     get resizing() { return this.#resizing }
     set resizing(b) {
@@ -90,9 +89,12 @@ class PaperCanvas extends HTMLElement {
         if (!undoBuffer.length) return
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
         ctx.putImageData(undoBuffer.pop(), 0, 0)
-        if (!undoBuffer.length) {
-            this.internals?.setValidity({ valueMissing: true }, 'Draw something')
-        }
+        this.internals?.setValidity({ valueMissing: !undoBuffer.length }, 'Draw something')
+    }
+    snapshot() {
+        let { undoBuffer, ctx, canvas } = this
+        undoBuffer.push(ctx.getImageData(0, 0, canvas.width, canvas.height))
+        while (paper.undoBuffer.length > paper.maxBufferSize) undoBuffer.shift()
     }
     get colorElement() {
         return this.#colorElement
@@ -181,10 +183,12 @@ class PaperCanvas extends HTMLElement {
         fillStyle: 'white'
     }
     formResetCallback() {
-        this.undoBuffer.length = 0
+        this.snapshot()
+        this.undoBuffer.splice(0, this.undoBuffer.length - 1)
+        this.brushsize = 1
         let { width, height } = this.canvas
         this.ctx.clearRect(0, 0, width, height)
-        this.internals?.setValidity({ valueMissing: true })
+        this.internals?.setValidity({ valueMissing: true }, 'Draw something')
     }
     #saved = PaperCanvas.BASE_CONTEXT_ATTRIBUTES
     #save() {
@@ -282,6 +286,7 @@ style.replaceSync(`
         ${css.toCSS({ 'user-select': 'none' })}
     }
         canvas {
+        justify-self:center;
         -webkit-tap-highlight-color: transparent !important;
         touch-action: none;
         image-rendering: auto;
