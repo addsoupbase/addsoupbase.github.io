@@ -109,7 +109,7 @@ class PaperCanvas extends HTMLElement {
     constructor() {
         super()
         let c = this.#colorElement = this.querySelector('[data-is="color"]')
-        if (typeof scrollMaxX === 'number') {
+        if (typeof scrollMaxX === 'number' && c) {
             c.type = 'text'
             c.style.maxWidth = '50%'
             c.style.width = 'fit-content'
