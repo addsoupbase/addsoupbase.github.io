@@ -13,6 +13,23 @@ Element$.prototype.$ || Object.defineProperty(Element$.prototype, '$', {
         return out
     }
 })
+Element$.prototype.attr || Object.defineProperty(Element$.prototype, 'attr', {
+    value(strings, ...subs) {
+        if (Array.isArray(strings)) {
+            let raw = strings.raw
+            strings = strings.slice()
+            Object.defineProperty(strings, 'raw', {value: raw})
+            strings[0] = '<div ' + strings[0]
+            strings[strings.length-1] = strings.at(-1) + '></div>'
+            Object.freeze(strings)
+            let e = $(strings, ...subs).valueOf(),
+            attr = e.attributes
+            while(attr.length) 
+                this.setAttributeNode(e.removeAttributeNode([].at.call(attr, -1)))
+        }
+        else for(let attr in strings) this.setAttribute(attr, strings[attr])
+    }
+})
 export function ce(htmlOrTag) {
     let node = rawCache.get(htmlOrTag)
     if (node) return Proxify(node.cloneNode(true))

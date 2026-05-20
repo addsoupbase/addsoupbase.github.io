@@ -34,7 +34,7 @@
         figcaption {
             width: 100px;
             font-size: large;
-            cursor: pointer;
+            cursor: text;
             margin-block: 8px;
             --user-select: none
         }
@@ -75,18 +75,18 @@
         let accept = /Offsets|Shadow/
         let directions = {}
         holder.delegate({
-            click() {
+            $contextmenu() {
                 let toggle = [].slice.call(this.parent.querySelectorAll('input'))
                 let bool = toggle.every(o => !o.checked)
                 toggle.forEach(o => o.checked = bool)
-            }
+            },
         }, o => o.matches('figcaption'))
         u.on({
             async change() {
                 this.replaceWith($`<button (click)="${async function () {
                     // the first time i've EVER used Object.groupBy!
                     // i LOVE using new stuff and figuring out use cases for it! :D
-                    let checked = Object.groupBy([].filter.call(holder.querySelectorAll("input"), o => o.checked), o => o.parentNode.parentNode.querySelector('figcaption').textContent)
+                    let checked = Object.groupBy([].filter.call(holder.querySelectorAll("input"), o => o.checked), o => o.parentNode.parentNode.querySelector('figcaption').dataset.anim)
                     let frames = {}
                     let json = {}
                     let zip = JSZip()
@@ -102,19 +102,20 @@
                         let a = 0
                         let die = directions[anim]
                         let totalDirections = dirs.length
-                        for (let i = 0; i < yTotal / y; ++i) 
+                        for (let i = 0; i < yTotal / y; ++i)
                             for (let ii = 0; ii < totalDirections; ++ii) {
                                 let sect = die[dirs[ii]][i]
                                 ctx.drawImage(sect, 0, 0)
                                 ctx.translate(0, height)
                             }
-                        json[anim] = {
+                        let n = checked[anim][0].parentNode.parentNode.querySelector('figcaption').textContent
+                        json[n] = {
                             framesY: yThing,
                             values: durations.join(';'),
                             frameWidth: width,
                             frameHeight: height
                         }
-                        zip.file(`${pkm}-${anim}.png`, await canvas.convertToBlob())
+                        zip.file(`${pkm}-${n}.png`, await canvas.convertToBlob())
                     }
                     zip.file(`${pkm}.json`, JSON.stringify(json))
                     let anchor = $`<a href="${URL.createObjectURL(await zip.generateAsync({ type: 'blob' }))}" download="${pkm}.zip"></a>`.to(document.body)
@@ -198,7 +199,7 @@
                     [0].then(URL.revokeObjectURL.bind(URL, src))
                     container.unshiftNode($`<slide-show dur=".03" src="${src}" autoplay></slide-show>`)
                 })
-                let container = holder.$`<figure><figcaption title="Click to check/uncheck all">${animName}</figcaption>${$(Array.from({ length: y }, (_, i) => `<label><input data-dir="${i}" type="checkbox">${getAxisName(i)}</label>`))}</figure>`
+                let container = holder.$`<figure><figcaption data-anim="${animName}" contenteditable title="Click to check/uncheck all">${animName}</figcaption>${$(Array.from({ length: y }, (_, i) => `<label><input data-dir="${i}" type="checkbox">${getAxisName(i)}</label>`))}</figure>`
             }
             return out
         }

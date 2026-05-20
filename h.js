@@ -9,9 +9,9 @@
         apply = Reflect.apply,
         dp = Reflect.defineProperty,
         ownKeys = Reflect.ownKeys,
-        isArray = Array.isArray, 
+        isArray = Array.isArray,
         allEvents = h.allEvents = new WeakMap
-        //$devvar queueMicrotask=globalThis.queueMicrotask||globalThis.setImmediate||setTimeout,logger={__proto__:null};!function(){var _='%c@handle.js +color:pink;'.split('+'),c=_[0],z=_[1];function r(){var v=[].slice.call(arguments);v.unshift(1,c,z);queueMicrotask(this.bind.apply(this,v))}function m(){var v=[].slice.call(arguments);v.unshift(1,c,z);setTimeout(this.bind.apply(this,v))}for(var i in console){var o=console[i];typeof o === 'function'&&(o=o.bind(console),logger[i]=r.bind(o),logger[i+"Late"]=m.bind(o))}}();var source=Function.toString.call.bind(Function.prototype.toString),warn=logger.warn,groupCollapsed=logger.groupCollapsed,groupEnd=logger.groupEnd;globalThis.allEvents=allEvents
+    //$devvar queueMicrotask=globalThis.queueMicrotask||globalThis.setImmediate||setTimeout,logger={__proto__:null};!function(){var _='%c@handle.js +color:pink;'.split('+'),c=_[0],z=_[1];function r(){var v=[].slice.call(arguments);v.unshift(1,c,z);queueMicrotask(this.bind.apply(this,v))}function m(){var v=[].slice.call(arguments);v.unshift(1,c,z);setTimeout(this.bind.apply(this,v))}for(var i in console){var o=console[i];typeof o === 'function'&&(o=o.bind(console),logger[i]=r.bind(o),logger[i+"Late"]=m.bind(o))}}();var source=Function.toString.call.bind(Function.prototype.toString),warn=logger.warn,groupCollapsed=logger.groupCollapsed,groupEnd=logger.groupEnd;globalThis.allEvents=allEvents
     function isValidET(target) {
         return target === Object(target) && 'addEventListener' in target && 'removeEventListener' in target && 'dispatchEvent' in target
     }
@@ -166,10 +166,10 @@
         CAPTURE = h.CAPTURE = '%',
         STOP_PROPAGATION = h.STOP_PROPAGATION = '&',
         STOP_IMMEDIATE_PROPAGATION = h.STOP_IMMEDIATE_PROPAGATION = '!'
-        // FireFox only:
-        // ,WANTS_UNTRUSTED = h.WANTS_UNTRUSTED = '|', // not really sure what this even does
-        // ONLY_ORIGINAL_TARGET = h.ONLY_ORIGINAL_TARGET = '>',
-        // ONLY_EXPLICIT_ORIGINAL_TARGET = h.ONLY_EXPLICIT_ORIGINAL_TARGET = '<'
+    // FireFox only:
+    // ,WANTS_UNTRUSTED = h.WANTS_UNTRUSTED = '|', // not really sure what this even does
+    // ONLY_ORIGINAL_TARGET = h.ONLY_ORIGINAL_TARGET = '>',
+    // ONLY_EXPLICIT_ORIGINAL_TARGET = h.ONLY_EXPLICIT_ORIGINAL_TARGET = '<'
     /*export var {
         currentTarget: CURRENT_TARGET, autoAbort: AUTO_ABORT, trusted: TRUSTED, once: ONCE,
         preventDefault: PREVENT_DEFAULT, passive: PASSIVE,
@@ -219,7 +219,7 @@
         addEventListener(f, g, h)
         removeEventListener(f, g, h)
         return out
-    }(), 
+    }(),
         FLAG_ONCE = 1,
         FLAG_PREVENTS = 2,
         FLAG_PASSIVE = 4,
@@ -229,9 +229,9 @@
         FLAG_ONLY_TRUSTED = 64,
         FLAG_ONLY_CURRENT_TARGET = 128,
         FLAG_AUTO_ABORT = 256
-        // ,FLAG_WANTS_UNTRUSTED = 512,
-        // FLAG_ONLY_ORIGINAL_TARGET = 1024,
-        // FLAG_ONLY_EXPLICIT_ORIGINAL_TARGET = 2048
+    // ,FLAG_WANTS_UNTRUSTED = 512,
+    // FLAG_ONLY_ORIGINAL_TARGET = 1024,
+    // FLAG_ONLY_EXPLICIT_ORIGINAL_TARGET = 2048
     function on(target, events, controller, _) {
         if (typeof _ !== 'undefined' && getLabel(controller) !== 'AbortController') {
             debugger
@@ -339,19 +339,30 @@
         return (data = data || variants.otherwise) && on.apply(null, data)
     }
     h.compatOn = compatOn
-    var customEventHandler = typeof Proxy === 'function' && {
-        has: function CustomEventHas(t, p) {
-            return p in t || p in Object(t.detail)
-        },
-        set: function CustomEventSet(t, p, v) {
-            return (p in t ? t : t.detail)[p] = v, true
-        },
-        get: function CustomEventGet(t, p) {
-            if (p in t) return t[p]
-            var detail = t.detail
-            if (p in Object(detail)) {
-                var out = detail[p]
-                return typeof out === 'function' ? out.bind(detail) : out
+    if (typeof Proxy === 'function') {
+        var rebind = Object.fromEntries(['preventDefault', 'composedPath', 'initEvent', 'stopPropagation', 'stopImmediatePropagation']
+            .map(function (name) {
+                var n = Object.getOwnPropertyDescriptor(this, name).value
+                function bind() {
+                    // event = window.event
+                    return n.apply(event, arguments)
+                }
+                return [name, bind]
+            }, Event.prototype))
+        var customEventHandler = {
+            has: function CustomEventHas(t, p) {
+                return p in t || p in Object(t.detail)
+            },
+            set: function CustomEventSet(t, p, v) {
+                return (p in t ? t : t.detail)[p] = v, true
+            },
+            get: function CustomEventGet(t, p) {
+                if (p in t) return rebind.hasOwnProperty(p) ? rebind[p] : t[p]
+                var detail = t.detail
+                if (p in Object(detail)) {
+                    var out = detail[p]
+                    return typeof out === 'function' ? out.bind(detail) : out
+                }
             }
         }
     }
@@ -367,10 +378,10 @@
             // originalTarget = flags & FLAG_ONLY_ORIGINAL_TARGET,
             // explicitOriginalTarget = flags & FLAG_ONLY_EXPLICIT_ORIGINAL_TARGET, 
             event = args[0]
-        if (t && event.isTrusted || !t 
+        if (t && event.isTrusted || !t
             // && (!originalTarget || !('originalTarget' in event) || event.originalTarget === currentTarget) && (!explicitOriginalTarget || !('explicitOriginalTarget' in event) || event.explicitOriginalTarget === currentTarget) 
             && (!oct || event.eventPhase === 2)) {
-                var label = getLabel(event),
+            var label = getLabel(event),
                 name = event.type,
                 currentTarget = event.currentTarget,
                 detail = event.detail
