@@ -750,15 +750,16 @@
   output,
   figcaption,
   input:not([type="button"], [type="submit"], [type="reset"]) {
-      cursor: url("media/Text\ Select.cur"), text
+      cursor: url("media/text.cur"), text
   }
 
   button,
+  .catchable,
   input:where([type="button"], [type="image"], [type="color"], [type="range"]),
   [role="button"] a {
-      cursor: url("media/Link\ Select.cur"), pointer !important
+      cursor: url("media/link.cur"), pointer !important
   }
-
+ 
   paper-canvas {
       cursor: url("media/Handwriting.cur"), crosshair
   }
