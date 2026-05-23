@@ -190,7 +190,6 @@ export function loadPokemon(...data) {
         }))
 }
 let entries = new Map
-window.a = entries
 let l = localStorage
 export async function loadDexes(dex, ...sources) {
     let frame = d.createElement('iframe')
@@ -222,7 +221,6 @@ export async function loadDexes(dex, ...sources) {
         }
         let response
         function responseFunc(e) {
-            console.warn(e)
             response = e.data
         }
         addEventListener('message', responseFunc)
@@ -235,7 +233,7 @@ export async function loadDexes(dex, ...sources) {
                         if (!Array.isArray(response)) throw TypeError(`Data invalid or missing`)
                         let [storage, otherDex] = response
                         let [normal, shiny] = storage.split(' ').map(BigInt)
-                        key
+                        l[`${src.origin}~0`] = `${normal} ${shiny}`
                         let i = 0n
                         for (let name in otherDex) {
                             let mon = otherDex[name]
@@ -664,6 +662,8 @@ div[role="status"] {
     width: 100%;
     height: 100%;
     contain: strict;
+    content-visibility: auto;
+    contain-intrinsic-size: 160px 120px ;
     place-content:center;
     /*scroll-snap-align:start;
     scroll-snap-stop:always;*/
