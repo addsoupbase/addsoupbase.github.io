@@ -229,7 +229,7 @@ export async function loadDexes(dex, ...sources) {
                 frame.addEventListener('load', async () => {
                     try {
                         // try {frame.contentWindow.document&&resolve()}catch{} // same origin don't need to sync localStorage
-                        await new Promise(setTimeout)
+                        await new Promise(r=>setTimeout(r, 500))
                         if (!Array.isArray(response)) throw TypeError(`Data invalid or missing`)
                         let [storage, otherDex] = response
                         let [normal, shiny] = storage.split(' ').map(BigInt)
@@ -913,6 +913,7 @@ export function setField(bg) {
             let { width, height, x, y } = rect
             let pokeball = d.createElement('slide-show')
             pokeball.style.setProperty('pointer-events', 'none', 'important')
+            t.style.setProperty('pointer-events', 'none','important')
             pokeball.src = '$throw'
             pokeball.style.position = 'absolute'
             pokeball.toggleAttribute('autoplay', true)
