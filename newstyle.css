@@ -64,7 +64,9 @@
       position: absolute;
       /* pointer-events: none; */
   }
-
+.pkm:not(.catchable) {
+    pointer-events: none;
+}
   :root {
       font-family: Choco;
   }
@@ -266,14 +268,14 @@
   }
 
   .kyogre,
-  .kyogre_primal {
+  .kyogre-primal {
       --scale: 4.3;
       --anim-dura: 31s;
       offset-path: var(--ltr-big) !important
   }
 
-  .jellicent_m,
-  .jellicent_f {
+  .jellicent-m,
+  .jellicent-f {
       --scale: 2.1;
       --anim-dura: 23s
   }
@@ -297,7 +299,7 @@
       --scale: 2.2
   }
 
-  .basculegion {
+  .basculegion-f,.basculegion-m {
       --scale: 2.5
   }
 
@@ -306,7 +308,7 @@
       --anim-dura: 20s;
   }
 
-  .basculin {
+  .basculin,.basculin-blue,.basculin-white {
       --scale: 1.6
   }
 
@@ -637,8 +639,7 @@
       image-rendering: pixelated;
       transform: scale(1.5, 1.5)
   }
-
-  #pokemonholder {
+monholder {
       --user-select: none;
       padding: 0;
   }
@@ -646,7 +647,9 @@
   #pokemonholder img {
       margin: 10px
   }
-
+body:has(#holder:not(.hidden)) poke-dex {
+    visibility: hidden;
+}
   #play {
       border: 3px solid #75ff75;
   }

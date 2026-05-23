@@ -343,9 +343,10 @@
         var rebind = Object.fromEntries(['preventDefault', 'composedPath', 'initEvent', 'stopPropagation', 'stopImmediatePropagation']
             .map(function (name) {
                 var n = Object.getOwnPropertyDescriptor(this, name).value
-                function bind() {
-                    // event = window.event
-                    return n.apply(event, arguments)
+                function bind(a) {
+                    //$dev console.assert(event)
+                    // `event` is window.event
+                    return n.call(event, a)
                 }
                 return [name, bind]
             }, Event.prototype))
