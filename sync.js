@@ -3,6 +3,7 @@
     let [hash, data, otherLoc] = JSON.parse(decodeURIComponent(location.hash.slice(1)))
     while (hash.endsWith('/')) hash = hash.slice(0, -1)
     while (otherLoc.endsWith('/')) otherLoc = otherLoc.slice(0, -1)
+    debugger
     let key = `${hash}~0`
     l[`${otherLoc}~0`] = data
     l[key] ||= `0 0`

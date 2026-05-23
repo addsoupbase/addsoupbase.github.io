@@ -5,7 +5,7 @@ import preload, { SlideShow } from './webcomponents/slide-show.js'
 export { preload as loadSprite, SlideShow }
 const h = window[Symbol.for('[[HModule]]')]
 let loaded = null
-addEventListener('messageerror',console.log)
+addEventListener('messageerror', console.log)
 let lastIndex = sessionStorage.lastIndex = sessionStorage.lastIndex || 0
 const national = {
     tentacool: 72,
@@ -192,20 +192,22 @@ export function loadPokemon(...data) {
 let entries = new Map
 let l = localStorage
 export async function loadDexes(dex, ...sources) {
-    let frame = d.createElement('iframe')
-    let src
     let href = `${location.origin}${location.pathname}`
     while (href.endsWith('/')) href = href.slice(0, -1)
     let key = `${href}~0`
     l[key] ||= `0 0`
     let [nor, shi] = l[key].split(' ').map(o => BigInt(o))
     let i = 0n
-    d.src = new URL(d.src, href)
     for (let name in dex) {
         let thing = dex[name]
         let d = thing.Idle2 || thing.Idle
         entries.set(name, [href, i, globalPokedex[d] = [nor & (1n << i), shi & (1n << i++)].map(Boolean), d])
     }
+    return
+    let frame = d.createElement('iframe')
+    let src
+    d.src = new URL(d.src, href)
+
     frame.ariaHidden =
         frame.inert = true
     for (let i = sources.length; i--;) {
