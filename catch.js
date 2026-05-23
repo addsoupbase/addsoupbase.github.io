@@ -5,6 +5,7 @@ import preload, { SlideShow } from './webcomponents/slide-show.js'
 export { preload as loadSprite, SlideShow }
 const h = window[Symbol.for('[[HModule]]')]
 let loaded = null
+addEventListener('messageerror',console.log)
 let lastIndex = sessionStorage.lastIndex = sessionStorage.lastIndex || 0
 const national = {
     tentacool: 72,
@@ -156,7 +157,7 @@ async function addDexEntry(data, name, lazy) {
     observer.observe(sprite)
     if (exists) {
         name === normal ? exists.prepend(n.firstChild.firstChild) :
-        exists.appendChild(n.firstChild.firstChild)
+            exists.appendChild(n.firstChild.firstChild)
     }
     else {
         if (!dex.screen.childElementCount) {
@@ -221,6 +222,7 @@ export async function loadDexes(dex, ...sources) {
         }
         let response
         function responseFunc(e) {
+            console.warn(e)
             response = e.data
         }
         addEventListener('message', responseFunc)
@@ -229,7 +231,7 @@ export async function loadDexes(dex, ...sources) {
                 frame.addEventListener('load', async () => {
                     try {
                         // try {frame.contentWindow.document&&resolve()}catch{} // same origin don't need to sync localStorage
-                        await new Promise(r=>setTimeout(r, 500))
+                        await h.wait(100)
                         if (!Array.isArray(response)) throw TypeError(`Data invalid or missing`)
                         let [storage, otherDex] = response
                         let [normal, shiny] = storage.split(' ').map(BigInt)
@@ -884,18 +886,19 @@ function keydown(e) {
 }
 customElements.define('poke-dex', PokeDex)
 export function catchAnimation(n, delay = 640, duration = 400) {
-    let out = n.animate([{
+    let anim = new Animation(new KeyframeEffect(n.valueOf(), [{
         transform: 'scale(1,1)', filter: 'brightness(0%) invert(1) opacity(90%)'
     }, { filter: 'opacity(60%) brightness(0%) invert(1)' }, {
         transform: 'scale(0.25,0.25)', filter: 'opacity(0%) brightness(0%) invert(1)'
     }], {
         duration,
         iterations: 1,
-        delay,
+        // delay,
         composite: 'add',
         easing: 'ease-in'
-    })
-    return out
+    }))
+    h.wait(delay).then(anim.play.bind(anim))
+    return anim
 }
 export function stopAnims(n) {
     for (let x = n.getAnimations({ subtree: true }), i = x.length; i--;) x[i].commitStyles()
@@ -913,7 +916,7 @@ export function setField(bg) {
             let { width, height, x, y } = rect
             let pokeball = d.createElement('slide-show')
             pokeball.style.setProperty('pointer-events', 'none', 'important')
-            t.style.setProperty('pointer-events', 'none','important')
+            t.style.setProperty('pointer-events', 'none', 'important')
             pokeball.src = '$throw'
             pokeball.style.position = 'absolute'
             pokeball.toggleAttribute('autoplay', true)
@@ -958,7 +961,7 @@ async function processQueue() {
     while (updateQueue.length) {
         const detail = updateQueue.shift()
         handlePokedexUpdate(detail)
-        await new Promise(r => setTimeout(r, 2300))
+        await h.wait(2300)
     }
     isScrolling = queueing = false
 }
@@ -993,7 +996,7 @@ function handlePokedexUpdate({ name, index, src, no, capture, dex }) {
         if (dexElement.classList.contains('active')) {
             pokemon.parentNode.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'center' })
             pokemon.index = nth
-            setTimeout(()=>{setActive(pokemon);isAutoScrolling=false}, 1500)
+            setTimeout(() => { setActive(pokemon); isAutoScrolling = false }, 1500)
         }
     }
 }
