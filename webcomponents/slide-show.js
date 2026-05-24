@@ -1,6 +1,7 @@
 // VERY IMPORTANT:
 // do NOT use the `zoom` or `scale` css property
 // it behaves strangely
+const supportsMod = CSS.supports('width','mod(1px,1px)') 
 export const SlideShow = function (_) {
     if (_) return _
     class SlideShow extends HTMLElement {
@@ -67,7 +68,7 @@ export const SlideShow = function (_) {
                         let width = n.naturalWidth / framesX
                         let height = n.naturalHeight / framesY
                         createImageBitmap(n).then(o => load(o, width, height)).then(resolve)
-                    }, {signal})
+                    }, { signal })
                 }))
             }
             return out
@@ -150,8 +151,10 @@ ffmpeg -f concat -safe 0 -i list.txt \\
         get canvasElement() { return this.#sprite }
         async attributeChangedCallback(attr, oldVal, val) {
             switch (attr) {
-                case 'index':
-                    this.dispatchEvent(new Event('indexEvent', { bubbles: true, cancelable: true })) && this.#fe.style.setProperty('--index', +val)
+                case 'index': {
+                    let mod = val == 0 ? val : val % this.framesY
+                    this.dispatchEvent(new Event('indexEvent', { bubbles: true, cancelable: true })) && this.#fe.style.setProperty('--index', isNaN(mod) ? val : mod)
+                }
                     break
                 case 'src': {
                     let u = new URL(val, this.baseURI).toString()
@@ -206,6 +209,7 @@ ffmpeg -f concat -safe 0 -i list.txt \\
                     this.#updateTotalDuration()
                     if (this.hasAttribute('autoplay'))
                         this.play()
+                    if (!supportsMod) this.index = this.index
                     break
                 }
                 case 'dur':
@@ -306,7 +310,7 @@ ffmpeg -f concat -safe 0 -i list.txt \\
     //:host([loading="lazy"]) #sprite{content-visibility:auto}
     // let before = `content: attr(alt);left:-30px;font-size:smaller;position:relative;font-family:monospace`
     let broken = 'background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAJ9JREFUeNq01ssOwyAMRFG46v//Mt1ESmgh+DFmE2GPOBARKb2NVjo+17PXLD8a1+pl5+A+wSgFygymWYHBb0FtsKhJDdZlncG2IzJ4ayoMDv20wTmSMzClEgbWYNTAkQ0Z+OJ+A/eWnAaR9+oxCF4Os0H8htsMUp+pwcgBBiMNnAwF8GqIgL2hAzaGFFgZauDPKABmowZ4GL369/0rwACp2yA/ttmvsQAAAABJRU5ErkJggg==);width:32px;height:32px;image-rendering:auto;'
-    sheet.replaceSync(`#sprite{display:flex}svg,div{width:100%}div{outline:1px solid transparent;contain:paint;pointer-events:all;overflow:clip;transform:translate(-50%,-50%);}foreignObject{y:calc((mod(calc(var(--index,0)*var(--frame-h,0)),var(--height,0))*-1px))}:host{isolation:isolate;user-select:none;-webkit-user-select:none;-moz-user-select:none;touch-action:pinch-zoom;pointer-events:none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}:host(:--broken){width:32px;height:32px;content:attr(aria-label);background-size:cover;}:host(:state(--broken)){width:32px;height:32px;content:attr(aria-label);background-size:cover;}:host(:--broken) div{${broken}}:host(:state(--broken)) div{${broken}}`)
+    sheet.replaceSync(`#sprite{display:flex}svg,div{width:100%}div{outline:1px solid transparent;contain:paint;pointer-events:all;overflow:clip;transform:translate(-50%,-50%);}foreignObject{y:${supportsMod ? 'calc((mod(calc(var(--index,0)*var(--frame-h,0)),var(--height,0))*-1px))' : 'calc(var(--index, 0) * var(--frame-h, 0) * -1px)'}}:host{isolation:isolate;user-select:none;-webkit-user-select:none;-moz-user-select:none;touch-action:pinch-zoom;pointer-events:none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}:host(:--broken){width:32px;height:32px;content:attr(aria-label);background-size:cover;}:host(:state(--broken)){width:32px;height:32px;content:attr(aria-label);background-size:cover;}:host(:--broken) div{${broken}}:host(:state(--broken)) div{${broken}}`)
     // ^ forgot to comment this when i added it but:
     // the (transparent) border seems to fix the 1px overlap issue, but the sprite is ever so slightly offset when the zoom is really low, but there's no other FCKING WAY TO FIX IT SO IT WILL HAVE TO DO
     let sep = /[^-\d\s]/g
