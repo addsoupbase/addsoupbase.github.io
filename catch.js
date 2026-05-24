@@ -682,6 +682,9 @@ div[role="status"] {
 [data-is="celesteela"], [data-is="eternatus"], [data-is="rayquaza"],[data-is="palkia"], [data-is="wailord"] {
     top: 72%;
 }
+[data-is="unown"].shiny {
+    filter: hue-rotate(20deg) saturate(5)
+}
 [data-is="wishiwashi-school"] {
     top: 80%
 }
@@ -974,7 +977,6 @@ function getShinyIndex(name) {
     switch (name) {
         case 'minior': shiny = 7; break
         case 'mewtwo': shiny = 2; break
-        case 'unown': shiny = -1; break
     }
     return shiny
 }
@@ -982,7 +984,8 @@ let isAutoScrolling = false
 function handlePokedexUpdate({ name, index, src, no, capture, dex }) {
     let nth = 0
     let shiny = getShinyIndex(name)
-    if (index === shiny) nth = 1
+    const isShiny = index === shiny
+    if (isShiny) nth = 1
     capture[nth] = true
     let caught = l[`${dex}~0`].split(' ').map(BigInt)
     let oldCaught = caught.slice()
@@ -999,6 +1002,7 @@ function handlePokedexUpdate({ name, index, src, no, capture, dex }) {
         if (isActive) {
             pokemon.parentNode.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'center' })
             pokemon.index = index
+            if (isShiny) pokemon.classList.add('shiny')
         }
         setTimeout(() => { isActive && setActive(pokemon); isAutoScrolling = false }, 1500)
     }
