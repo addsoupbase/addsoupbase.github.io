@@ -664,8 +664,7 @@ div[role="status"] {
     width: 100%;
     height: 100%;
     contain: strict;
-    content-visibility: auto;
-    contain-intrinsic-size: 160px 120px ;
+
     place-content:center;
     /*scroll-snap-align:start;
     scroll-snap-stop:always;*/
@@ -698,6 +697,8 @@ slide-show.discovered {
 }
 .entry {
     display: grid;
+        content-visibility: auto;
+    contain-intrinsic-size: 160px 120px ;
     grid-auto-rows: 100%;      
     width: 100%;
     flex: 0 0 100%;        
@@ -750,7 +751,7 @@ let DOM = d.createRange().createContextualFragment(/*html*/`
       <span part="status">...</span>
     </div>
   </div>
-      <div id="number" ><span style="font-size: 80%;font-weight:bold" aria-label="Number">No</span> <span part="dexno">???</span></div>
+      <div id="number" ><span style="font-size: 80%;font-weight:bold" aria-label="Number">No.</span> <span part="dexno">???</span></div>
 </div>`)
 class PokeDex extends HTMLElement {
     static observedAttributes = []
@@ -983,23 +984,23 @@ function handlePokedexUpdate({ name, index, src, no, capture, dex }) {
     let shiny = getShinyIndex(name)
     if (index === shiny) nth = 1
     capture[nth] = true
-
     let caught = l[`${dex}~0`].split(' ').map(BigInt)
     let oldCaught = caught.slice()
     caught[nth] |= 1n << no
     l.setItem(`${dex}~0`, caught.join(' '))
     const pokemon = dexElement.screen.querySelector(`[data-is="${name}"]`)
     if (!pokemon) return
-    if (!pokemon.classList.contains('discovered') || (oldCaught[0] & 1n << no) && !(oldCaught[1] & 1n << no)) {
+    if (!pokemon.classList.contains('discovered') || (caught[0] !== oldCaught[0]) || (caught[1] !== oldCaught[1])) {
         isAutoScrolling = true
         pokemon.classList.add('discovered')
         pokemon.play()
         let entry = pokemon.closest('.entry')
-        if (dexElement.classList.contains('active')) {
+        let isActive = dexElement.classList.contains('active')
+        if (isActive) {
             pokemon.parentNode.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'center' })
-            pokemon.index = nth
-            setTimeout(() => { setActive(pokemon); isAutoScrolling = false }, 1500)
+            pokemon.index = index
         }
+        setTimeout(() => { isActive && setActive(pokemon); isAutoScrolling = false }, 1500)
     }
 }
 let scrollIndexX = 0
