@@ -18,16 +18,16 @@ Element$.prototype.attr || Object.defineProperty(Element$.prototype, 'attr', {
         if (Array.isArray(strings)) {
             let raw = strings.raw
             strings = strings.slice()
-            Object.defineProperty(strings, 'raw', {value: raw})
+            Object.defineProperty(strings, 'raw', { value: raw })
             strings[0] = '<div ' + strings[0]
-            strings[strings.length-1] = strings.at(-1) + '></div>'
+            strings[strings.length - 1] = strings.at(-1) + '></div>'
             Object.freeze(strings)
             let e = $(strings, ...subs).valueOf(),
-            attr = e.attributes
-            while(attr.length) 
+                attr = e.attributes
+            while (attr.length)
                 this.setAttributeNode(e.removeAttributeNode([].at.call(attr, -1)))
         }
-        else for(let attr in strings) this.setAttribute(attr, strings[attr])
+        else for (let attr in strings) this.setAttribute(attr, strings[attr])
     }
 })
 export function ce(htmlOrTag) {
@@ -51,9 +51,9 @@ export function ce(htmlOrTag) {
     if (frequent.has(htmlOrTag))
         rawCache.set(htmlOrTag, node.cloneNode(true))
     else {
-        if (frequent.size > 512) frequent.clear()
         frequent.add(htmlOrTag)
     }
+    frequent.size > 30 && frequent.clear()
     return Proxify(node)
 }
 const Regex = {
@@ -114,8 +114,10 @@ export function $(strings, ...subs) {
     let node = base(out) // <-- Either a DocumentFragment or an Element depending on if you did $`<><p>hello</p></>` or not
     //$dev console.assert(node instanceof DocumentFragment || node instanceof Element, node.constructor)
     let { map } = replace
-    if (replace.toReplace)
+    if (replace.toReplace) {
+        _register(o, `Template Comment`)
         for (let o of treeWalker(base(out), 128, commentFilter)) o.replaceWith(map.get(o.textContent))
+    }
     // conclusion: TreeWalker > XPath & NodeIterator
     let type = node.nodeType
     // switch (type) {

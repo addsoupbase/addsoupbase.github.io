@@ -485,11 +485,11 @@
             if (timeout > 0) {
                 if (AbortSignal.timeout) {
                     var n = AbortSignal.timeout(timeout)
-                    n.onabort = function () {
+                    n.addEventListener('abort', function () {
                         var reason = n.reason
                         reject(reason)
                         controller.abort(reason)
-                    }
+                    }, {once: true})
                 }
                 else {
                     var id = setTimeout(function () {

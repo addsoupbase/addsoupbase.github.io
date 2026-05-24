@@ -53,12 +53,18 @@ export const SlideShow = function (_) {
                     return out
                 }
                 out.push(new Promise((resolve, reject) => {
-                    n.onerror = reject
-                    n.onload = () => {
+                    let controller = new AbortController,
+                        { signal } = controller
+                    n.addEventListener('error', e => {
+                        controller.abort(e)
+                        reject(e)
+                    }, reject, { signal })
+                    n.addEventListener('load', () => {
+                        controller.abort()
                         let width = n.naturalWidth / framesX
                         let height = n.naturalHeight / framesY
                         createImageBitmap(n).then(o => load(o, width, height)).then(resolve)
-                    }
+                    }, {signal})
                 }))
             }
             return out

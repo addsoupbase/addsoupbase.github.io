@@ -141,7 +141,10 @@ class Node$ extends EventTargetProxy {
     purge(deep = true) {
         let me = Proxify(this)
         me.off(true)
-        me.isConnected && me.remove()
+        if (me.isConnected) {
+            this.getAnimations({subtree:true}).forEach(removeAnim)
+            me.remove()
+        }
         me.empty(deep)
         Proxify.Destroy(me)
         return null
@@ -232,6 +235,9 @@ class Node$ extends EventTargetProxy {
         val = base(val)
         next ? parent.insertBefore(val, next) : parent.appendChild(val)
     }
+}
+function removeAnim(n) {
+    n.cancel()
 }
 const NodeProxy = new ProxyFactory(Node$)
 class Cacher {

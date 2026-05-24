@@ -5,7 +5,6 @@ import preload, { SlideShow } from './webcomponents/slide-show.js'
 export { preload as loadSprite, SlideShow }
 const h = window[Symbol.for('[[HModule]]')]
 let loaded = null
-addEventListener('messageerror', console.log)
 let lastIndex = sessionStorage.lastIndex = sessionStorage.lastIndex || 0
 const national = {
     tentacool: 72,
@@ -325,14 +324,17 @@ dex.replaceSync(/*css*/`
     border-bottom-left-radius: 23px
 }
 }
-[part="container"] slide-show:state(--broken) {
+slide-show:state(--broken) {
     visibility: hidden;
 }
-[part="container"] slide-show:--broken {
+slide-show:--broken {
     visibility: hidden;
 }
-[part="container"] slide-show:not(.discovered) {
-    filter: brightness(0%)
+slide-show:not(.discovered) {
+    filter: drop-shadow(0 0 0 transparent) brightness(0%)
+}
+slide-show.discovered {
+    filter:drop-shadow(2px 2px 0px #0000004d) brightness(100%)
 }
 .decor {
 width:12px;
@@ -348,9 +350,7 @@ background: radial-gradient(circle at 35% 35%, #ffdd77, #c47a00);
 .decor:nth-of-type(3) {
 background: radial-gradient(circle at 35% 35%, #77ff77, #2a7a00);
 }
-[part="container"] slide-show:not(.discovered) {
-    filter:brightness(0%)
-} 
+
 :host {
     contain:strict;
     padding: 10px;
@@ -713,10 +713,10 @@ div[role="status"] {
     top:83%
 }
 
-slide-show.discovered {
+slide-show {
     transition: filter 1.1s linear 1s;
-filter:drop-shadow(2px 2px 0px #0000004d)
 }
+
 .entry {
     display: grid;
         content-visibility: auto;
@@ -1035,7 +1035,7 @@ function handlePokedexUpdate({ name, index, src, no, capture, dex }) {
             pokemon.index = index
             if (isShiny) pokemon.classList.add('shiny')
         }
-        setTimeout(() => { isActive && setActive(pokemon); isAutoScrolling = false }, 1500)
+        setTimeout(() => { isActive && setActive(pokemon); isAutoScrolling = false }, 800)
     }
 }
 let scrollIndexX = 0

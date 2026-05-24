@@ -109,7 +109,7 @@ class PaperCanvas extends HTMLElement {
     constructor() {
         super()
         let c = this.#colorElement = this.querySelector('[data-is="color"]')
-        if (typeof scrollMaxX === 'number' && c) { 
+        if (typeof scrollMaxX === 'number' && c) {
             c.type = 'text'
             c.style.maxWidth = '50%'
             c.style.width = 'fit-content'
@@ -133,7 +133,6 @@ class PaperCanvas extends HTMLElement {
         this.ctx.fillRect(0, 0, width, height)
         this.color = 'black'
         shadow.adoptedStyleSheets = [style]
-            ;[pointermove, pointerdown, pointerup].forEach(addListeners, canvas)
         canvas.addEventListener('contextmenu', norightclick)
         this.addEventListener('input', input)
         this.addEventListener('click', click)
@@ -241,7 +240,11 @@ class PaperCanvas extends HTMLElement {
     get color() {
         return this.ctx.fillStyle
     }
+    disconnectedCallback() {
+        [pointermove, pointerdown, pointerup].forEach(removeListeners, this.canvas)
+    }
     connectedCallback() {
+        [pointermove, pointerdown, pointerup].forEach(addListeners, this.canvas)
         this.role = this.role || 'application'
         let color = this.#colorElement
         if (color) this.color = color.value ?? color.textContent.trim()
@@ -320,7 +323,10 @@ function input(t) {
     }
 }
 function addListeners(o) {
-    this[`on${o.name}`] = o
+    this.addEventListener(o.name, o)
+}
+function removeListeners(o) {
+    this.removeEventListener(o.name, o)
 }
 function scroll(e) {
     let paper = e.target.getRootNode().host

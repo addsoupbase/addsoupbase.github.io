@@ -54,9 +54,10 @@
 
   #background>slide-show {
       offset-path: var(--ltr);
-
   }
-
+#background, #background  * {
+    --user-select: none
+}
   .pkm {
       /* --box-reflect: below -50px linear-gradient(transparent, white); */
       background-repeat: no-repeat;
