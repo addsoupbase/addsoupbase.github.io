@@ -1,62 +1,15 @@
-!function (d) {
-    'use strict'
-    var n = new Set
-    d.addEventListener('submit', function (e) {
-        var t = e.target
-        // just to prevent form spam
-        if (n.has(t)) e.returnValue = !!(e.preventDefault && e.preventDefault())
-        else n.add(t)
-    }, true)
-    var ignore = [
-        "text",
-        "email",
-        "number",
-        "search",
-        "tel",
-        "url",
-        "password"
-    ].map(function (o) { return 'input[type="' + o + '"]' }).join(',')
-    d.addEventListener('keydown', function (e) {
-        if (e.constructor.name !== 'KeyboardEvent') return console.warn('keydown listener fired was not KeyboardEvent. This is a bug I think! (happens when user clicks the autocomplete thingy, just ignore it)', e)
-        var key = e.key.toLowerCase(), target = e.target, parent = target.parentElement
-        if ((target.tagName === 'input' && !target.hasAttribute('type')) || target.matches(ignore)) return
-        var pressable = parent.role === 'tablist' || target.role === 'button'
-            , repeat = e.repeat
-        switch (key) {
-            case 'arrowleft':
-            case 'arrowright': {
-                var children = [].slice.call(parent.children)
-                    , index = children.indexOf(d.activeElement)
-                    , sibling
-                if (key === 'arrowright') sibling = children[(index + 1) % children.length]
-                else sibling = children[(index - 1 + children.length) % children.length]
-                if (pressable) sibling.focus()
-                var all = parent.children.length
-                while (sibling !== d.activeElement && all--) {
-                    sibling = (key === 'arrowright' ? sibling.nextElementSibling : sibling.previousElementSibling) || (key === 'arrowright' ? parent.firstElementChild : parent.lastElementChild)
-                    sibling.focus()
-                }
-                break
-            }
-            case ' ':
-            case 'enter':
-                if (pressable && !repeat) {
-                    e.returnValue = !!(e.preventDefault && e.preventDefault())
-                    target.click()
-                }
-                break
-            case 'home':
-            case 'end': {
-                var all = parent.children.length
-                do {
-                    var toggle = key === 'home' ? (toggle ? toggle.nextElementSibling : parent.firstElementChild) : (toggle ? toggle.previousElementSibling : parent.lastElementChild)
-                    if (pressable && !repeat)
-                        toggle.focus()
-                }
-                while (d.activeElement !== toggle && all--)
-                toggle && toggle.click()
-                break
-            }
-        }
-    }, true)
-}(document)
+"use strict"
+!function(e,t,n){e.addEventListener("submit",function(e){var t=e.target
+n.has(t)?e.returnValue=!(!e.preventDefault||!e.preventDefault()):n.add(t)},!0)
+e.addEventListener("keydown",function(n){if("KeyboardEvent"!==n.constructor.name)return console.warn("keydown listener fired was not KeyboardEvent. This is a bug I think! (happens when user clicks the autocomplete thingy, just ignore it)",n)
+var r=n.key.toLowerCase(),a=n.target,i=a.parentElement
+if(("input"!==a.tagName||a.hasAttribute("type"))&&!a.matches(t)){var l="tablist"===i.role||"button"===a.role,s=n.repeat
+switch(r){case"arrowleft":case"arrowright":var o,c=[].slice.call(i.children),u=c.indexOf(e.activeElement)
+o="arrowright"===r?c[(u+1)%c.length]:c[(u-1+c.length)%c.length],l&&o.focus()
+for(var h=i.children.length;o!==e.activeElement&&h--;)(o=("arrowright"===r?o.nextElementSibling:o.previousElementSibling)||("arrowright"===r?i.firstElementChild:i.lastElementChild)).focus()
+break
+case" ":case"enter":l&&!s&&(n.returnValue=!(!n.preventDefault||!n.preventDefault()),a.click())
+break
+case"home":case"end":h=i.children.length
+do{var d="home"===r?d?d.nextElementSibling:i.firstElementChild:d?d.previousElementSibling:i.lastElementChild
+l&&!s&&d.focus()}while(e.activeElement!==d&&h--)d&&d.click()}}},!0)}(document,["text","email","number","search","tel","url","password"].map(function(e){return'input[type="'+e+'"]'}).join(","),new WeakSet)
