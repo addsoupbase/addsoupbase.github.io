@@ -354,6 +354,7 @@ background: radial-gradient(circle at 35% 35%, #77ff77, #2a7a00);
 :host {
     contain:strict;
     padding: 10px;
+    overflow-y:auto;
     box-sizing: content-box !important;
     padding-top: 6px;
     position: fixed;
@@ -645,7 +646,7 @@ div[role="status"] {
   border-radius: 15px;
       background-attachment: fixed;
     animation: checkers 10s linear infinite;
-    --pixel-size: 7px;
+    --pixel-size: 10px;
     background: repeating-conic-gradient(#8AC2E4 0 25%, #C5DAF6 0 50%) 50% / var(--pixel-size) var(--pixel-size);
   box-shadow: inset 0 0 0 2px #0f140f, 0 2px 6px rgba(0,0,0,0.3);
   overflow: hidden;
@@ -660,7 +661,7 @@ div[role="status"] {
     }
 
     100% {
-        background-position: 35px 35px;
+        background-position: 30px 30px;
     }
 }
 
@@ -758,7 +759,7 @@ filter:drop-shadow(2px 2px 0px #0000004d)
 new FontFace('pokemon', `url(${new URL('./pokemonfont/font.woff2', import.meta.url)})`, { display: 'swap' })
     .load().then(document.fonts.add.bind(document.fonts))
 let DOM = d.createRange().createContextualFragment(/*html*/`
-<div style="position:relative;height:100%;width:100%;">
+<div style="position:relative;height:90%;width:100%;">
   <button id="toggle" aria-label="Toggle" tabindex="0" aria-hidden="true"></button>
   <div part="container">
     <div style="position:absolute;display:flex;gap:14px;top:4px;width:100%;place-content:center" aria-hidden="true">
