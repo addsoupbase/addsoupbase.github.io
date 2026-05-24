@@ -811,8 +811,12 @@ function toggle() {
 function setActive(n) {
     if (n.tagName !== 'SLIDE-SHOW') debugger
     let old = dexElement.screen.querySelector('[data-active="true"]')
-    if (old) old.dataset.active = 'false'
+    if (old) {
+        old.firstChild.pause()
+        old.dataset.active = 'false'
+    } 
     n.parentNode.dataset.active = 'true'
+    n.parentNode.firstChild.resume()
     let discovered = n.classList.contains('discovered')
     dexElement.status.textContent = discovered ? n.dataset.is.split(/[-_]/g).join(' ') : '???'
     let numberDisplay = dexElement.no
@@ -977,6 +981,7 @@ function getShinyIndex(name) {
     switch (name) {
         case 'minior': shiny = 7; break
         case 'mewtwo': shiny = 2; break
+        case 'unown': shiny = -1
     }
     return shiny
 }
