@@ -686,7 +686,6 @@ div[role="status"] {
     place-content:center;
     /*scroll-snap-align:start;
     scroll-snap-stop:always;*/
-     contain: layout paint style;
     text-align:center;
     position:relative;
 }
@@ -799,7 +798,8 @@ class PokeDex extends HTMLElement {
     get screen() { return this.#screen }
     constructor() {
         super()
-        let shadow = this.attachShadow({ mode: 'open', //delegatesFocus: true 
+        let shadow = this.attachShadow({
+            mode: 'open', //delegatesFocus: true 
 
         })
         shadow.adoptedStyleSheets = [dex]
@@ -997,7 +997,9 @@ async function processQueue() {
     while (updateQueue.length) {
         const detail = updateQueue.shift()
         handlePokedexUpdate(detail)
+        isScrolling = true
         await h.wait(2300)
+        isScrolling = false
     }
     isScrolling = queueing = false
 }
@@ -1025,17 +1027,17 @@ function handlePokedexUpdate({ name, index, src, no, capture, dex }) {
     const pokemon = dexElement.screen.querySelector(`[data-is="${name}"]`)
     if (!pokemon) return
     if (!pokemon.classList.contains('discovered') || (caught[0] !== oldCaught[0]) || (caught[1] !== oldCaught[1])) {
-        isAutoScrolling = true
         pokemon.classList.add('discovered')
         pokemon.play()
         let entry = pokemon.closest('.entry')
         let isActive = dexElement.classList.contains('active')
         if (isActive) {
+            isAutoScrolling = true
             pokemon.parentNode.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'center' })
             pokemon.index = index
             if (isShiny) pokemon.classList.add('shiny')
         }
-        setTimeout(() => { isActive && setActive(pokemon); isAutoScrolling = false }, 800)
+        setTimeout(() => { isActive && (setActive(pokemon), pokemon.parentNode.scrollIntoView({ behavior: 'smooth',  block: 'center' })); isAutoScrolling = false }, 800)
     }
 }
 let scrollIndexX = 0
