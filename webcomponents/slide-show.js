@@ -13,6 +13,9 @@ export const SlideShow = function (_) {
         get opaque() {
             return this.hasAttribute('opaque')
         }
+        reverse() {
+            this.#anim.setAttribute('values', this.#anim.getAttribute('values').split(';').reverse().join(';'))
+        }
         static preload(...sources) {
             let out = []
             for (let { framesX = 1, framesY = 1, src, duras, image, reversed } of sources) {
