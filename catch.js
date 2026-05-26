@@ -284,8 +284,7 @@ export async function pokeball() {
     let n = d.createElement('picture').appendChild(new Image)
     n.decoding = 'sync'
     n.setAttribute('fetchpriority', 'high')
-        ;['webp'].forEach(source, n.parentNode)
-    n.src = new URL('./ball.png', import.meta.url || 'https://addsoupbase.github.io')
+    n.src = new URL('./ball.webp', import.meta.url || 'https://addsoupbase.github.io')
     await h.until(n, { resolve: 'load', reject: 'error' })
     let { 0: catc, 1: thro } = await Promise.all([createImageBitmap(n, 0, 0, 320, 320), createImageBitmap(n, 320, 0, 320, 320)])
     let opts = { framesX: 8, framesY: 8 }

@@ -417,7 +417,22 @@
             onerror: onerror,
             correctProp: correctProp,
             insertRule: insertRule,
-            createSheet: createSheet
+            createSheet: createSheet,
+            Picture: function() {
+                var out = new Image
+                var p = D.createElement('picture')
+                p.appendChild(out)
+                for(var i = 0, l = arguments.length; i < l; ++i) {
+                    if (i !== l-1) {
+                        var s = D.createElement('source')
+                        var type = (s.srcset = arguments[i]).split('.')
+                        s.type= 'image/' + type[type.length-1]
+                        p.appendChild(s)
+                    }
+                    else out.src = arguments[i]
+                }
+                return out
+            }
         })
     y[sym] || O.defineProperty(y, sym, { value: css, enumerable: 1 })
     return css
