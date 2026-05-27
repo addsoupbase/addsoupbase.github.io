@@ -773,10 +773,10 @@ let DOM = d.createRange().createContextualFragment(/*html*/`
       <button class="right" aria-label="Right"></button>
     </div>
     <div role="status">
-      <span part="status">...</span>
+      <span part="status">???</span>
     </div>
   </div>
-      <div id="number" ><span style="font-size: 80%;font-weight:bold" aria-label="Number">No.</span> <span part="dexno">???</span></div>
+      <div id="number" ><span style="font-size: 80%;font-weight:bold" aria-label="Number">No.</span> <span part="dexno">000</span></div>
 </div>`)
 class PokeDex extends HTMLElement {
     static observedAttributes = []
