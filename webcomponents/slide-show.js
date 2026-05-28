@@ -246,8 +246,6 @@ ffmpeg -f concat -safe 0 -i list.txt \\
             a.removeEventListener('endEvent', end)
             this.dispatchEvent(new Event('disconnected'))
             this.pause()
-                        console.count('Slide-Show')
-
         }
         connectedCallback() {
             let a = this.#anim
@@ -274,7 +272,6 @@ ffmpeg -f concat -safe 0 -i list.txt \\
             shadow.appendChild(svg.cloneNode(true))
             this.#svg = shadow.querySelector('svg')
             this.#anim = shadow.querySelector('animate')
-            a.register(this.#anim, 'Anim')
             this.#anim.remove()
             let { opaque } = this
             this.#ctx = (this.#sprite = shadow.querySelector('canvas')).getContext(this.#once ? 'bitmaprenderer' : '2d', { alpha: !opaque })
@@ -309,7 +306,6 @@ ffmpeg -f concat -safe 0 -i list.txt \\
             this.#anim.setAttribute('dur', total)
         }
     }
-    let a = new FinalizationRegistry(console.count)
     let d = document
         , svg = d.createRange().createContextualFragment('<div aria-hidden="true" part="sprite" id="sprite"><svg><foreignObject width=100 height=100 id="fe" x=0><canvas></canvas></foreignObject><animate fill="freeze" from="0" begin="0s" href="#fe" calcMode=discrete attributeName=x repeatCount="indefinite"/></svg></div>')
         , bitmaps = new Map
