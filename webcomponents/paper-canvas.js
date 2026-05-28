@@ -149,7 +149,7 @@ class PaperCanvas extends HTMLElement {
         let { width, height } = this.canvas
         switch (this.getAttribute('type')) {
             default: return this.dataURL(1)
-            case 'file': return new Promise(resolve => this.canvas.toBlob(resolve, { type: 'image/png', quality: 1 })).then(blob => new File([blob], `${this.getAttribute('name') || 'untitled'}.png`, { type: 'image/png' }))
+            case 'file': return new Promise(resolve => this.canvas.toBlob(resolve, { type: 'image/webp', quality: 1 })).then(blob => new File([blob], `${this.getAttribute('name') || 'untitled'}.png`, { type: 'image/png' }))
         }
     }
     dataURL(quality = 1) {
