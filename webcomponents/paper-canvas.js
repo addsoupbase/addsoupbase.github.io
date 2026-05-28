@@ -250,6 +250,7 @@ class PaperCanvas extends HTMLElement {
         if (color) this.color = color.value ?? color.textContent.trim()
         let brushsize = this.#brushElement
         if (brushsize) this.brushsize = brushsize.value ?? brushsize.textContent
+        this.hasAttribute('tabindex') || (this.tabIndex = 0)
     }
 }
 function resizeCanvas(n) {

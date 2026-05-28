@@ -1,7 +1,7 @@
 // VERY IMPORTANT:
 // do NOT use the `zoom` or `scale` css property
 // it behaves strangely
-const supportsMod = CSS.supports('width','mod(1px,1px)') 
+const supportsMod = CSS.supports('width', 'mod(1px,1px)')
 export const SlideShow = function (_) {
     if (_) return _
     class SlideShow extends HTMLElement {
@@ -241,10 +241,18 @@ ffmpeg -f concat -safe 0 -i list.txt \\
         #internals = this.attachInternals()
         #displayedFrames = 0
         disconnectedCallback() {
+            let a = this.#anim
+            a.removeEventListener('repeatEvent', repeat)
+            a.removeEventListener('endEvent', end)
             this.dispatchEvent(new Event('disconnected'))
             this.pause()
+                        console.count('Slide-Show')
+
         }
         connectedCallback() {
+            let a = this.#anim
+            a.addEventListener('repeatEvent', repeat)
+            a.addEventListener('endEvent', end)
             this.dispatchEvent(new Event('connected'))
             this.hasAttribute('role') || (this.role = 'img')
             if (this.hasAttribute('autoplay')) {
@@ -266,8 +274,7 @@ ffmpeg -f concat -safe 0 -i list.txt \\
             shadow.appendChild(svg.cloneNode(true))
             this.#svg = shadow.querySelector('svg')
             this.#anim = shadow.querySelector('animate')
-            this.#anim.addEventListener('repeatEvent', repeat)
-            this.#anim.addEventListener('endEvent', end)
+            a.register(this.#anim, 'Anim')
             this.#anim.remove()
             let { opaque } = this
             this.#ctx = (this.#sprite = shadow.querySelector('canvas')).getContext(this.#once ? 'bitmaprenderer' : '2d', { alpha: !opaque })
@@ -302,6 +309,7 @@ ffmpeg -f concat -safe 0 -i list.txt \\
             this.#anim.setAttribute('dur', total)
         }
     }
+    let a = new FinalizationRegistry(console.count)
     let d = document
         , svg = d.createRange().createContextualFragment('<div aria-hidden="true" part="sprite" id="sprite"><svg><foreignObject width=100 height=100 id="fe" x=0><canvas></canvas></foreignObject><animate fill="freeze" from="0" begin="0s" href="#fe" calcMode=discrete attributeName=x repeatCount="indefinite"/></svg></div>')
         , bitmaps = new Map
