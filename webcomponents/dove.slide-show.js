@@ -65,6 +65,7 @@ export const SlideShow = function (_) {
                         h = bottom + 1+Math.abs(padTop)
                         let x = -(left + padLeft)
                         sheet.insertRule(`${selector} canvas {left: ${x}px;}`)
+                        sheet.insertRule(`${selector} foreignObject{transform:translateY(${-top/2}px)}`)
                     }
                     sheet.insertRule(`${selector} div{width:${w}px;height:${h}px;}`, 1)
                     sheet.insertRule(`${selector} {width:${w}px;height:${h}px;}`, 1)

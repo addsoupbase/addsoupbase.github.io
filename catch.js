@@ -682,7 +682,7 @@ div[role="status"] {
     width: 100%;
     height: 100%;
     contain: strict;
-
+    border: 3px solid transparent;
     place-content:center;
     /*scroll-snap-align:start;
     scroll-snap-stop:always;*/
@@ -708,17 +708,12 @@ div[role="status"] {
 [data-is="wishiwashi-school"] {
     top: 80%
 }
-[data-is="hoopa_unbound"] {
-    top: 76%
-}
-
 slide-show {
     transition: filter 1.1s linear 1s;
 }
-
 .entry {
     display: grid;
-        content-visibility: auto;
+    content-visibility: auto;
     contain-intrinsic-size: 160px 120px ;
     grid-auto-rows: 100%;      
     width: 100%;
@@ -728,12 +723,12 @@ slide-show {
     scrollbar-width: none;
     /*scroll-snap-align: start;  */
     height: 100%;
-    box-sizing: border-box;
     color: #b3ffa7;
     font-weight: bold;
     text-shadow: 0 0 2px #2eff00;
 }
-    .entry, .var {
+.entry, .var {
+        box-sizing: border-box;
         overflow: hidden;
     }
 
