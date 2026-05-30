@@ -19,7 +19,7 @@ export const SlideShow = function (_) {
         }
         static preload(...sources) {
             let out = []
-            for (let { framesX = 1, framesY = 1, src, duras, image, reversed, crop = true } of sources) {
+            for (let {padLeft = 0, padTop = 0, framesX = 1, framesY = 1, src, duras, image, reversed, crop = true } of sources) {
                 if (typeof duras === 'string') duras = duras.split(sep).filter(Boolean).map(map)
                 let url = new URL(src, d.baseURI)
                 let s = url.toString()
@@ -49,6 +49,8 @@ export const SlideShow = function (_) {
                         framesX,
                         framesY,
                         frameWidth: width,
+                        padLeft,
+                        padTop,
                         frameHeight: height,
                         values: vals.join(';'),
                         displayedFrames: vals.length
@@ -59,12 +61,13 @@ export const SlideShow = function (_) {
                         h = height
                     if (crop) {
                         let { left, right, bottom, top } = await doWorkerStuffs(await createImageBitmap(o), width, height)
-                        w = right - (left - 1)
-                        h = bottom + 1
-                        sheet.insertRule(`${selector} foreignObject{transform:translate(-${left}px, ${-top / 2}px)}`, 1)
+                        w = (right - (left - 1)) +Math.abs(padLeft)
+                        h = bottom + 1+Math.abs(padTop)
+                        let x = -(left + padLeft)
+                        sheet.insertRule(`${selector} canvas {left: ${x}px;}`)
                     }
-                    sheet.insertRule(`${selector}{width:${w}px;height:${h}px}`, 1)
-                    isSafari && sheet.insertRule(`${selector} div{width:${w}px;height:${h}px}`, 1)
+                    sheet.insertRule(`${selector} div{width:${w}px;height:${h}px;}`, 1)
+                    sheet.insertRule(`${selector} {width:${w}px;height:${h}px;}`, 1)
                     return out
                 }
                 out.push(new Promise((resolve, reject) => {
@@ -90,7 +93,10 @@ export const SlideShow = function (_) {
             this.setAttribute('src', t)
             this.play()
         }
-
+        #padTop = 0
+        #padLeft = 0
+        get padLeft() {return this.#padLeft}
+        get padTop(){return this.#padTop}
         get values() {
             return this.#anim.getAttribute('values').split(sep).map(n => (n && -n) | 0)
         }
@@ -198,7 +204,9 @@ ffmpeg -f concat -safe 0 -i list.txt \\
                         await new Promise(requestAnimationFrame)
                     }
                     this.#internals?.states.delete('--broken')
-                    let { bitmap, framesX, framesY, frameHeight, frameWidth, values, displayedFrames } = bitmaps.get(u)
+                    let {padLeft,padTop, bitmap, framesX, framesY, frameHeight, frameWidth, values, displayedFrames } = bitmaps.get(u)
+                    this.#padLeft = padLeft
+                    this.#padTop = padTop
                     this.#width = frameWidth
                     this.#height = frameHeight
                     this.#framesX = framesX
@@ -319,7 +327,7 @@ ffmpeg -f concat -safe 0 -i list.txt \\
         }
     }
     let d = document
-        , svg = d.createRange().createContextualFragment('<div aria-hidden="true" part="sprite" id="sprite"><svg><foreignObject width=100 height=100 id="fe" x=0><canvas></canvas></foreignObject><animate fill="freeze" from="0" begin="0s" href="#fe" calcMode=discrete attributeName=x repeatCount="indefinite"/></svg></div>')
+        , svg = d.createRange().createContextualFragment('<div aria-hidden="true" part="sprite" id="sprite"><svg><foreignObject width=100 height=100 id="fe" x=0><canvas style="position:absolute"></canvas></foreignObject><animate fill="freeze" from="0" begin="0s" href="#fe" calcMode=discrete attributeName=x repeatCount="indefinite"/></svg></div>')
         , bitmaps = new Map
         , sheet = new CSSStyleSheet
         , isSafari = 'onwebkitmouseforceup' in window

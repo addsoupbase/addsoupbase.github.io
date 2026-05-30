@@ -284,7 +284,7 @@ export async function pokeball() {
     let n = d.createElement('picture').appendChild(new Image)
     n.decoding = 'sync'
     n.setAttribute('fetchpriority', 'high')
-    if ((n.src = new URL('./ball.webp', import.meta.url || 'https://addsoupbase.github.io')).origin !== origin) 
+    if ((n.src = new URL('./ball.webp', import.meta.url || 'https://addsoupbase.github.io')).origin !== origin)
         n.crossOrigin = 'anonymous'
     await h.until(n, { resolve: 'load', reject: 'error' })
     let { 0: catc, 1: thro } = await Promise.all([createImageBitmap(n, 0, 0, 320, 320), createImageBitmap(n, 320, 0, 320, 320)])
@@ -925,7 +925,7 @@ export function catchAnimation(n, delay = 380, duration = 400) {
     let anim = new Animation(new KeyframeEffect(n.valueOf(), [{
         transform: 'scale(1,1)', filter: 'brightness(0%) invert(1) opacity(90%)'
     }, { filter: 'opacity(60%) brightness(0%) invert(1)' }, {
-        transform: 'translateY(calc(min(50%, 40px))) scale(0.25,0.25)', filter: 'opacity(0%) brightness(0%) invert(1)'
+        transform: 'translateY(calc(min(50%, 25px))) scale(0.25,0.25)', filter: 'opacity(0%) brightness(0%) invert(1)'
     }], {
         duration,
         iterations: 1,
@@ -959,7 +959,7 @@ export function setField(bg) {
             pokeball.dur = .05
             t.after(pokeball)
             pokeball.addEventListener('disconnected', update, { once: true })
-            let cy = Math.round(rect.bottom)
+            let cy = Math.round(rect.bottom) - (t.padTop * (rect.height / t.offsetHeight))
             pokeball.caught = t
             t.dispatchEvent(new CustomEvent('catch', {
                 bubbles: true,
