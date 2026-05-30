@@ -1,12 +1,4 @@
-/*::
-let colors = {morning: '#a6b1ef',dawn: '#8a8687',day:'#229df2',dusk:'#6dadc8',night:'#171628',evening:'#ab7ea7'}
-let dirs = {}
-let keys = Object.keys(colors)
-for(let key of keys) {
-dirs[key] = (await dir(`./media/${key}`)).toReversed()
-} 
-*/
-/*:
+/*${
 return keys
 .map(tod => `[data-tod="${tod}"] body {background-color: ${colors[tod] ?? 'transparent'}}
 ${dirs[tod].map((i, n)=>`
@@ -14,8 +6,8 @@ ${dirs[tod].map((i, n)=>`
 background-image: url(media/${tod}/${i});
 background-position-x: ${(n % 2 ? 1 : -1)  + (n * (200 + n * 100))}px
 }`).join('')}`).join('')
-*/
-/*:
+}*/
+/*${
 return [1,2,3,4,5,6]
 .map(o=>`
 @keyframes clouds${o} {
@@ -29,7 +21,7 @@ background-position-x: -${9999 * (o+1)}px;
  }
 
 `).join('')
-*/
+}*/
 #bg {
     --user-select: none;
     will-change: background-position-x;
@@ -144,13 +136,13 @@ cel-runner[index="1"] {
     --scale: 221%
 }
 
-/*:
+/*${
 return[6,5,4,3,2,1].map(o=>
 `.layer_${o} {
 --mult: ${1 / o};
 filter: contrast(${1/o}) brightness(${(1/o)*100}%);
 }`).join('\n')
-*/
+}*/
 .mon_misdreavus,
 .mon_wingull,
 .mon_swablu,

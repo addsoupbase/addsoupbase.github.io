@@ -1,16 +1,12 @@
 <!DOCTYPE html>
 <html lang="en" data-tod="day">
-<!--{{@define
-let title = 'Sky'
-let desc = 'Sky themed page!!'
-}}-->
 
 <head>
     <meta name="theme-color" content="#229df2">
     <noscript>
-        <!--{{
+        <!--${
         return[1,2,3,4].map(o=>`<link fetchpriority="high" blocking="render" rel="preload" as="image" href="./media/day/${o}.png">`).join('')
-        }}-->
+        }-->
     </noscript>
     <script blocking="render">
         !function (hour, d) {
@@ -75,18 +71,18 @@ let desc = 'Sky themed page!!'
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport"
         content="width=device-width, initial-scale=1, user-scalable=yes, viewport-fit=cover, interactive-widget=resizes-visual">
-    <meta name="description" content="<!--{{return desc}}-->">
+    <meta name="description" content="<!--${return desc}-->">
     <meta property="og:image:width" content="IMAGE WIDTH HERE">
     <meta property="og:image:height" content="IMAGE HEIGHT HERE">
     <meta property="og:image:type" content="image/*">
     <meta property="og:type" content="website">
     <meta property="og:image" content="YOUR IMAGE HERE">
     <meta property="og:url" content="https://addsoupbase.github.io/">
-    <meta property="og:description" content="<!--{{return desc}}-->">
-    <meta property="og:title" content="<!--{{return title}}-->">
-    <meta property="og:site_name" content="<!--{{return title}}-->">
-    <meta name="twitter:title" content="<!--{{return title}}-->">
-    <meta name="application-name" content="<!--{{return title}}-->">
+    <meta property="og:description" content="<!--${return desc}-->">
+    <meta property="og:title" content="<!--${return title}-->">
+    <meta property="og:site_name" content="<!--${return title}-->">
+    <meta name="twitter:title" content="<!--${return title}-->">
+    <meta name="application-name" content="<!--${return title}-->">
     <meta name="application-url" content="https://addsoupbase.github.io/">
     <meta name="twitter:url" content="https://addsoupbase.github.io/">
     <meta name="web_author" content="addsoupbase">
@@ -108,8 +104,8 @@ let desc = 'Sky themed page!!'
     <meta name="msapplication-TileImage" content="./apple-touch-icon-180x180.png">
     <meta name="msapplication-starturl" content="https://addsoupbase.github.io/">
     <meta name="origin" content="https://addsoupbase.github.io/">
-    <meta name="msapplication-tooltip" content="<!--{{return title}}-->">
-    <meta name="prism:alternateTitle" content="<!--{{return title}}-->">
+    <meta name="msapplication-tooltip" content="<!--${return title}-->">
+    <meta name="prism:alternateTitle" content="<!--${return title}-->">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="thumbnail" content="YOUR IMAGE HERE">
     <meta property="profile:username" content="addsoupbase">
@@ -121,7 +117,7 @@ let desc = 'Sky themed page!!'
     <meta name="author" content="addsoupbase">
     <link rel="canonical" href="https://addsoupbase.github.io/">
     <script
-        type="application/ld+json">{"@context":"https://schema.org","@type": "WebSite","name":"addsoupbase","url":"https://addsoupbase.github.io/","description":"<!--{{return desc}}-->","author":{"@type": "Person","name":"addsoupbase","sameAs":["https://twitter.com/addsoupbase"]},"mainEntityOfPage":{"@type":"WebPage","@id":"https://addsoupbase.github.io/"},"image":{"@type":"ImageObject","url":"YOUR IMAGE HERE","width":IMAGE WIDTH HERE,"height":IMAGE HEIGHT HERE}}</script>
+        type="application/ld+json">{"@context":"https://schema.org","@type": "WebSite","name":"addsoupbase","url":"https://addsoupbase.github.io/","description":"<!--${return desc}-->","author":{"@type": "Person","name":"addsoupbase","sameAs":["https://twitter.com/addsoupbase"]},"mainEntityOfPage":{"@type":"WebPage","@id":"https://addsoupbase.github.io/"},"image":{"@type":"ImageObject","url":"YOUR IMAGE HERE","width":IMAGE WIDTH HERE,"height":IMAGE HEIGHT HERE}}</script>
     <link rel="apple-touch-icon" sizes="57x57" href="./apple-touch-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="60x60" href="./apple-touch-icon-60x60.png">
     <link rel="apple-touch-icon" sizes="72x72" href="./apple-touch-icon-72x72.png">
@@ -134,20 +130,18 @@ let desc = 'Sky themed page!!'
     <meta name="mobile-web-app-capable" content="no">
     <meta name="apple-mobile-web-app-capable" content="no">
     <!--^ yes if the site has stuff like back buttons-->
-    <meta name="apple-mobile-web-app-title" content="<!--{{return title}}-->">
+    <meta name="apple-mobile-web-app-title" content="<!--${return title}-->">
     <link rel="apple-touch-startup-image" href="favicon.ico">
-    <title><!--{{return title}}--></title>
-    <script type="module" async src="script.js"></script>
+    <title><!--${return title}--></title>
+    <script type="module" async src="./script.js"></script>
     <!--https://wiki.whatwg.org/wiki/MetaExtensions-->
-    <style blocking="render">
-        /*:return(await file('styles.css')).replaceAll('\n','')*/
-    </style>
+    <link rel="inline stylesheet" blocking="render" href="styles.css">
 </head>
 
 <body>
-    <div id="bg" class="background"><!--{{
-    return range(1,7).map(i=>`<div class="background" id="layer${i}"></div>`).reduce(concat)
-    }}--></div>
+    <div id="bg" class="background"><!--${
+    return Array.from({length: 7}, (_,i)=>`<div class="background" id="layer${i}"></div>`).join('')
+    }--></div>
 </body>
 
 </html>

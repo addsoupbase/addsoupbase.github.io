@@ -1,20 +1,23 @@
 import * as v from '../v4.js'
 import preload from '../webcomponents/slide-show.js'
 let timeOfDay = Reflect.get.bind(1, document.documentElement.dataset, 'tod')
-let mons /*:return`= ${uneval(await Array.fromAsync((await dir('./media/sprite')).map(async o=>{
+let mons /*${return`= ${uneval(await Array.fromAsync((await inline('./media/sprite')).map(async o=>{
     let thing = o.split('_')
     let framesX = +thing[1].split('.')[0]
-    let meta = await metadata(`./media/sprite/${o}`)
+    let src = `./media/sprite/${o}`
+    let meta = await(await get(src))
+    meta = await meta.meta()
     return {
     file: o,
     name: thing[0],
     framesX,
     width: meta.width / framesX,
-    height:meta.height / 2
+    height: meta.height / 2
     }
-})))}`*/
+})))}`}*/
 mons.forEach(o => {
     preload({ src: `./media/sprite/${o.file}`, framesX: o.framesX, framesY: 2 })
+
 })
 const { $ } = v
 let { bg } = v.id
