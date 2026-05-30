@@ -31,6 +31,8 @@ export const SlideShow = function (_) {
                 n.setAttribute('fetchpriority', 'high')
                 n.decoding = 'sync'
                 n.src = src
+                if (url.origin !== origin) 
+                    n.crossOrigin = 'anonymous'
                 async function load(o, width, height, isSpecial) {
                     let vals = []
                     if (typeof duras?.[0]?.length === 'number')

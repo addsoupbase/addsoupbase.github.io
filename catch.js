@@ -284,7 +284,8 @@ export async function pokeball() {
     let n = d.createElement('picture').appendChild(new Image)
     n.decoding = 'sync'
     n.setAttribute('fetchpriority', 'high')
-    n.src = new URL('./ball.webp', import.meta.url || 'https://addsoupbase.github.io')
+    if ((n.src = new URL('./ball.webp', import.meta.url || 'https://addsoupbase.github.io')).origin !== origin) 
+        n.crossOrigin = 'anonymous'
     await h.until(n, { resolve: 'load', reject: 'error' })
     let { 0: catc, 1: thro } = await Promise.all([createImageBitmap(n, 0, 0, 320, 320), createImageBitmap(n, 320, 0, 320, 320)])
     let opts = { framesX: 8, framesY: 8 }
@@ -1035,7 +1036,7 @@ function handlePokedexUpdate({ name, index, src, no, capture, dex }) {
             pokemon.index = index
             if (isShiny) pokemon.classList.add('shiny')
         }
-        setTimeout(() => { isActive && (setActive(pokemon), pokemon.parentNode.scrollIntoView({ behavior: 'smooth',  block: 'center' })); isAutoScrolling = false }, 800)
+        setTimeout(() => { isActive && (setActive(pokemon), pokemon.parentNode.scrollIntoView({ behavior: 'smooth', block: 'center' })); isAutoScrolling = false }, 800)
     }
 }
 let scrollIndexX = 0
