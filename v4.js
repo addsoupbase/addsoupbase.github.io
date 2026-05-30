@@ -115,7 +115,6 @@ export function $(strings, ...subs) {
     //$dev console.assert(node instanceof DocumentFragment || node instanceof Element, node.constructor)
     let { map } = replace
     if (replace.toReplace) {
-        _register(o, `Template Comment`)
         for (let o of treeWalker(base(out), 128, commentFilter)) o.replaceWith(map.get(o.textContent))
     }
     // conclusion: TreeWalker > XPath & NodeIterator

@@ -144,6 +144,7 @@ class Node$ extends EventTargetProxy {
         if (me.isConnected) {
             this.getAnimations({subtree:true}).forEach(removeAnim)
             me.remove()
+            me.shadowRoot?.replaceChildren()
         }
         me.empty(deep)
         Proxify.Destroy(me)

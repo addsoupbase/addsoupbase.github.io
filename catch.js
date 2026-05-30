@@ -692,11 +692,14 @@ div[role="status"] {
     margin:auto;
     position:absolute;
     left:50%;
-    top:65%;
+    top:50%;
     transform:scale(1.4)
 }
 [data-is="celesteela"], [data-is="eternatus"], [data-is="rayquaza"],[data-is="palkia"], [data-is="wailord"] {
-    top: 72%;
+    top: 50%;
+}
+[data-is="unown"],[data-is="jirachi"] {
+    top:60%
 }
 [data-is="unown"].shiny {
     filter: hue-rotate(20deg) saturate(5)
@@ -706,9 +709,6 @@ div[role="status"] {
 }
 [data-is="hoopa_unbound"] {
     top: 76%
-}
-[data-is="dialga_origin"] {
-    top:83%
 }
 
 slide-show {
@@ -920,11 +920,11 @@ function keydown(e) {
     e.preventDefault()
 }
 customElements.define('poke-dex', PokeDex)
-export function catchAnimation(n, delay = 640, duration = 400) {
+export function catchAnimation(n, delay = 380, duration = 400) {
     let anim = new Animation(new KeyframeEffect(n.valueOf(), [{
         transform: 'scale(1,1)', filter: 'brightness(0%) invert(1) opacity(90%)'
     }, { filter: 'opacity(60%) brightness(0%) invert(1)' }, {
-        transform: 'scale(0.25,0.25)', filter: 'opacity(0%) brightness(0%) invert(1)'
+        transform: 'translateY(calc(min(50%, 40px))) scale(0.25,0.25)', filter: 'opacity(0%) brightness(0%) invert(1)'
     }], {
         duration,
         iterations: 1,
@@ -958,7 +958,7 @@ export function setField(bg) {
             pokeball.dur = .05
             t.after(pokeball)
             pokeball.addEventListener('disconnected', update, { once: true })
-            let cy = Math.round(rect.y + (height / 2))
+            let cy = Math.round(rect.bottom)
             pokeball.caught = t
             t.dispatchEvent(new CustomEvent('catch', {
                 bubbles: true,
@@ -996,7 +996,6 @@ async function processQueue() {
     while (updateQueue.length) {
         const detail = updateQueue.shift()
         handlePokedexUpdate(detail)
-        isScrolling = true
         await h.wait(2300)
         isScrolling = false
     }
