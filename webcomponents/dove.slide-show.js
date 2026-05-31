@@ -4,6 +4,16 @@
 const supportsMod = CSS.supports('width', 'mod(1px,1px)')
 export const SlideShow = function (_) {
     if (_) return _
+    const subPixel = matchMedia(`(resolution: 0.3125dppx)  or (resolution: 0.9375dppx) or (resolution: 1.5625dppx) or (resolution: 2.1875dppx) or (resolution: 1.1320754716981132dppx) or (resolution: 1.3636363636363635dppx) or (resolution: 2.142857142857143dppx)`)
+    subPixel.addEventListener('change', change)
+    function change(n) {
+        d.dispatchEvent(new CustomEvent('subpixelrenderingchange', {
+            detail: {
+                isSubPixelRendering: n.matches,
+                suggestedZoom: suggestedZooms[devicePixelRatio] || 1
+            }
+        }))
+    }
     class SlideShow extends HTMLElement {
         static #safariID = 0
         static observedAttributes = 'values src dur index repeat imagesmoothing'.split(' ')
@@ -68,8 +78,8 @@ export const SlideShow = function (_) {
                         sheet.insertRule(isSafari ? `${selector} foreignObject {translate:${x}px 0}` : `${selector} canvas {left: ${x}px;}`)
                         // sheet.insertRule(`${selector} foreignObject{transform:translateY(${-top/2}px)}`)
                     }
-                    sheet.insertRule(`${selector} div{width:${w}px;height:${h}px;}`, 1)
-                    sheet.insertRule(`${selector} {width:${w}px;height:${h}px;}`, 1)
+                    sheet.insertRule(`${selector} div{width:${w}px;height:${h}px;}`)
+                    sheet.insertRule(`${selector} {width:${w}px;height:${h}px;}`)
                     return out
                 }
                 out.push(new Promise((resolve, reject) => {
@@ -217,6 +227,8 @@ ffmpeg -f concat -safe 0 -i list.txt \\
                     let fe = this.#fe
                     let width = canvas.width = framesX * frameWidth
                     let height = canvas.height = framesY * frameHeight
+                    this.#ctx.imageSmoothingEnabled = true
+                    this.#ctx.imageSmoothingQuality = 'high'
                     if (isSafari) {
                         let c = this.#ctx.canvas
                         c.width = width
@@ -308,6 +320,7 @@ ffmpeg -f concat -safe 0 -i list.txt \\
                 shadow.querySelector('foreignObject').style.backgroundImage = `-webkit-canvas(sprite_${id})`
             }
             else this.#ctx = this.#sprite.getContext(this.#once ? 'bitmaprenderer' : '2d', { alpha: !opaque })
+            this.#ctx.imageSmoothingEnabled = false
             this.#sprite.toggleAttribute('moz-opaque', opaque)
             this.#fe = shadow.querySelector('foreignObject')
             shadow.adoptedStyleSheets = [sheet]
@@ -338,7 +351,15 @@ ffmpeg -f concat -safe 0 -i list.txt \\
             let total = this.dur * this.#displayedFrames
             this.#anim.setAttribute('dur', total)
         }
+        static #subPixel = subPixel
     }
+    const suggestedZooms = {
+        1.1320754716981132: 1.46,
+        1.3636363636363635: 1.1,
+        2.142857142857143: 1.037
+    }
+    suggestedZooms[0.3125] = suggestedZooms[0.9375] =
+        suggestedZooms[1.5625] = suggestedZooms[2.1875] = 1.2
     let d = document
         , svg = d.createRange().createContextualFragment('<div aria-hidden="true" part="sprite" id="sprite"><svg><foreignObject width=100 height=100 id="fe" x=0 style="background-size:auto;background-repeat:no-repeat"><canvas style="position:relative"></canvas></foreignObject><animate fill="freeze" from="0" begin="0s" href="#fe" calcMode=discrete attributeName=x repeatCount="indefinite"/></svg></div>')
         , bitmaps = new Map
@@ -347,9 +368,17 @@ ffmpeg -f concat -safe 0 -i list.txt \\
     //:host([loading="lazy"]) #sprite{content-visibility:auto}
     // let before = `content: attr(alt);left:-30px;font-size:smaller;position:relative;font-family:monospace`
     let broken = 'background-image:url(data:image/webp;base64,UklGRmQAAABXRUJQVlA4TFgAAAAvH8AHAA8w/xHzHwZHkSTLShU7t4+Dj5OPs2LniASk4OzZiOh/jDHGGtpCR+gEnaELdIWUXJEb8kBO5EwuZCQmq2STHJIpmZMlKeEq3ISH8BG+wk/4jzEG);width:32px;height:32px;image-rendering:auto;'
-    sheet.replaceSync(`#sprite{display:flex}svg,div{width:100%}div{ contain:paint;pointer-events:all;overflow:clip;transform:translate(-50%,-50%);}foreignObject{y:${supportsMod ? 'calc((mod(calc(var(--index,0)*var(--frame-h,0)),var(--height,0))*-1px))' : 'calc(var(--index, 0) * var(--frame-h, 0) * -1px)'}}:host{isolation:isolate;user-select:none;-webkit-user-select:none;-moz-user-select:none;-webkit-tap-highlight-color: transparent;touch-action:pinch-zoom;pointer-events:none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}:host(:--broken){width:32px;height:32px;content:attr(aria-label);background-size:cover;}:host(:state(--broken)){width:32px;height:32px;content:attr(aria-label);background-size:cover;}:host(:--broken) div{${broken}}:host(:state(--broken)) div{${broken}}`)
-    // ^ forgot to comment this when i added it but:
-    // the (transparent) border seems to fix the 1px overlap issue, but the sprite is ever so slightly offset when the zoom is really low, but there's no other FCKING WAY TO FIX IT SO IT WILL HAVE TO DO
+    // let d = devicePixelRatio+"" ;if(d.length > 5 && d.at(-1) === '5')console.log(devicePixelRatio)
+    // ^ this SEEMS to work for detecting if subpixel rendering is happening
+    sheet.replaceSync(
+        // this resolution bit is the subpixel rendering devicePixelRatios
+        `${Object.getOwnPropertyDescriptor(Element.prototype, 'currentCSSZoom').value ? '' :
+        `@property --dpr-zoom{syntax:"<number>";inherits:true;initial-value:1}:host(:not([precise])){zoom:var(--dpr-zoom,1)!important}@media (resolution:0.3125dppx) or (resolution:0.9375dppx) or (resolution:1.5625dppx) or (resolution:2.1875dppx){:host(:not([precise])){--dpr-zoom:1.2}}@media (resolution:1.1320754716981132dppx){:host(:not([precise])){--dpr-zoom:1.46}}@media (resolution:1.3636363636363635dppx){:host(:not([precise])){--dpr-zoom:1.1}}@media (resolution:2.142857142857143dppx){:host(:not([precise])){--dpr-zoom:1.037}}`}
+        #sprite{display:flex}svg,div{width:100%}div{contain:paint;pointer-events:all;overflow:clip;transform:translate(-50%,-50%) scale(calc(1 / var(--dpr-zoom, 1)));}foreignObject{y:${supportsMod ? 'calc((mod(calc(var(--index,0)*var(--frame-h,0)),var(--height,0))*-1px))' : 'calc(var(--index, 0) * var(--frame-h, 0) * -1px)'}}:host{isolation:isolate;user-select:none;-webkit-user-select:none;-moz-user-select:none;-webkit-tap-highlight-color: transparent;touch-action:pinch-zoom;pointer-events:none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}:host(:--broken){width:32px;height:32px;content:attr(aria-label);background-size:cover;}:host(:state(--broken)){width:32px;height:32px;content:attr(aria-label);background-size:cover;}:host(:--broken) div{${broken}}:host(:state(--broken)) div{${broken}}`)
+    // the mass amount of resolution dppx is each individual DPR that causes the subpixel rendering
+    // which causes the sprite to jitter on the x-axis
+    // this zoom + inverse scale seems to fix it!
+    // you can opt out by using the precise attribute (if for example getBoundingClientRect returns inaccurate values, which is what happened)
     let sep = /[^-\d\s]/g
     function compressAll(arr) {
         return arr.reduce(reducer, [])

@@ -1,7 +1,7 @@
 //# allFunctionsCalledOnLoad
 //console.time('css.js');
 //$dev self.css = 
-(function CSSSetup(inModule, sym, defer, D, O, id, y, /*rAF,*/ ads) {
+(function CSSSetup(inModule, sym, defer, D, O, id, y, ads) {
     //$dev'use strict'
     var newish = !!ads
     if (y.propertyIsEnumerable(sym) && newish ? ads.find(function (o) { return o[id] }) : D.getElementById(id) instanceof HTMLStyleElement) {
@@ -10,6 +10,7 @@
         return out
     }
     var u = Element.prototype
+    'currentCSSZoom'in u||Object.defineProperty(u,'currentCSSZoom',{value:1})
     u.matches||O.defineProperty(u,'matches',{value:u.webkitMatchesSelector||u.msMatchesSelector||u.mozMatchesSelector||u.oMatchesSelector})
     try { var S = sessionStorage } // it just throws on read if storage is denied
     catch (e) { //$devconsole.warn(e) 

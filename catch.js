@@ -952,9 +952,11 @@ export function setField(bg) {
             pokeball.style.position = 'absolute'
             pokeball.toggleAttribute('autoplay', true)
             pokeball.dur = .05
+            pokeball.toggleAttribute('precise',true)
             t.after(pokeball)
             pokeball.addEventListener('disconnected', update, { once: true })
-            let cy = Math.round(rect.bottom) - (t.padTop * (rect.height / t.offsetHeight))
+            // let {currentCSSZoom: zoom} = t
+            let cy = Math.round(rect.bottom) - (t.padTop * (rect.height / (t.offsetHeight)))
             pokeball.caught = t
             t.dispatchEvent(new CustomEvent('catch', {
                 bubbles: true,
