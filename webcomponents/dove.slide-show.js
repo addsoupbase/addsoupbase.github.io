@@ -5,6 +5,7 @@ const supportsMod = CSS.supports('width', 'mod(1px,1px)')
 export const SlideShow = function (_) {
     if (_) return _
     class SlideShow extends HTMLElement {
+        static #safariID = 0
         static observedAttributes = 'values src dur index repeat imagesmoothing'.split(' ')
         get imageSmoothing() {
             let n = this.#ctx
@@ -19,7 +20,7 @@ export const SlideShow = function (_) {
         }
         static preload(...sources) {
             let out = []
-            for (let {padLeft = 0, padTop = 0, framesX = 1, framesY = 1, src, duras, image, reversed, crop = true } of sources) {
+            for (let { padLeft = 0, padTop = 0, framesX = 1, framesY = 1, src, duras, image, reversed, crop = true } of sources) {
                 if (typeof duras === 'string') duras = duras.split(sep).filter(Boolean).map(map)
                 let url = new URL(src, d.baseURI)
                 let s = url.toString()
@@ -31,7 +32,7 @@ export const SlideShow = function (_) {
                 n.setAttribute('fetchpriority', 'high')
                 n.decoding = 'sync'
                 n.src = src
-                if (url.origin !== origin) 
+                if (url.origin !== origin)
                     n.crossOrigin = 'anonymous'
                 async function load(o, width, height, isSpecial) {
                     let vals = []
@@ -61,10 +62,10 @@ export const SlideShow = function (_) {
                         h = height
                     if (crop) {
                         let { left, right, bottom, top } = await doWorkerStuffs(await createImageBitmap(o), width, height)
-                        w = (right - (left - 1)) +Math.abs(padLeft)
-                        h = bottom + 1+Math.abs(padTop)
+                        w = (right - (left - 1)) + Math.abs(padLeft)
+                        h = bottom + 1 + Math.abs(padTop)
                         let x = -(left + padLeft)
-                        sheet.insertRule(isSafari ? `${selector} foreignObject {translate:${x}px 0}`:`${selector} canvas {left: ${x}px;}`)
+                        sheet.insertRule(isSafari ? `${selector} foreignObject {translate:${x}px 0}` : `${selector} canvas {left: ${x}px;}`)
                         // sheet.insertRule(`${selector} foreignObject{transform:translateY(${-top/2}px)}`)
                     }
                     sheet.insertRule(`${selector} div{width:${w}px;height:${h}px;}`, 1)
@@ -96,8 +97,8 @@ export const SlideShow = function (_) {
         }
         #padTop = 0
         #padLeft = 0
-        get padLeft() {return this.#padLeft}
-        get padTop(){return this.#padTop}
+        get padLeft() { return this.#padLeft }
+        get padTop() { return this.#padTop }
         get values() {
             return this.#anim.getAttribute('values').split(sep).map(n => (n && -n) | 0)
         }
@@ -205,7 +206,7 @@ ffmpeg -f concat -safe 0 -i list.txt \\
                         await new Promise(requestAnimationFrame)
                     }
                     this.#internals?.states.delete('--broken')
-                    let {padLeft,padTop, bitmap, framesX, framesY, frameHeight, frameWidth, values, displayedFrames } = bitmaps.get(u)
+                    let { padLeft, padTop, bitmap, framesX, framesY, frameHeight, frameWidth, values, displayedFrames } = bitmaps.get(u)
                     this.#padLeft = padLeft
                     this.#padTop = padTop
                     this.#width = frameWidth
@@ -219,7 +220,7 @@ ffmpeg -f concat -safe 0 -i list.txt \\
                     if (isSafari) {
                         let c = this.#ctx.canvas
                         c.width = width
-                        c.height =height
+                        c.height = height
                     }
                     fe.setAttribute('width', width)
                     fe.setAttribute('height', height)
@@ -302,13 +303,11 @@ ffmpeg -f concat -safe 0 -i list.txt \\
             let { opaque } = this
             this.#sprite = shadow.querySelector('canvas')
             if (isSafari) {
-                let id = Math.trunc(performance.now())
+                let id = SlideShow.#safariID++
                 this.#ctx = d.getCSSCanvasContext('2d', `sprite_${id}`, 0, 0)
                 shadow.querySelector('foreignObject').style.backgroundImage = `-webkit-canvas(sprite_${id})`
             }
-            else {
-                this.#ctx = this.#sprite.getContext(this.#once ? 'bitmaprenderer' : '2d', { alpha: !opaque })
-            }
+            else this.#ctx = this.#sprite.getContext(this.#once ? 'bitmaprenderer' : '2d', { alpha: !opaque })
             this.#sprite.toggleAttribute('moz-opaque', opaque)
             this.#fe = shadow.querySelector('foreignObject')
             shadow.adoptedStyleSheets = [sheet]
@@ -348,7 +347,7 @@ ffmpeg -f concat -safe 0 -i list.txt \\
     //:host([loading="lazy"]) #sprite{content-visibility:auto}
     // let before = `content: attr(alt);left:-30px;font-size:smaller;position:relative;font-family:monospace`
     let broken = 'background-image:url(data:image/webp;base64,UklGRmQAAABXRUJQVlA4TFgAAAAvH8AHAA8w/xHzHwZHkSTLShU7t4+Dj5OPs2LniASk4OzZiOh/jDHGGtpCR+gEnaELdIWUXJEb8kBO5EwuZCQmq2STHJIpmZMlKeEq3ISH8BG+wk/4jzEG);width:32px;height:32px;image-rendering:auto;'
-    sheet.replaceSync(`#sprite{display:flex}svg,div{width:100%}div{ contain:paint;pointer-events:all;overflow:clip;transform:translate(-50%,-50%);}foreignObject{y:${supportsMod ? 'calc((mod(calc(var(--index,0)*var(--frame-h,0)),var(--height,0))*-1px))' : 'calc(var(--index, 0) * var(--frame-h, 0) * -1px)'}}:host{isolation:isolate;user-select:none;-webkit-user-select:none;-moz-user-select:none;touch-action:pinch-zoom;pointer-events:none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}:host(:--broken){width:32px;height:32px;content:attr(aria-label);background-size:cover;}:host(:state(--broken)){width:32px;height:32px;content:attr(aria-label);background-size:cover;}:host(:--broken) div{${broken}}:host(:state(--broken)) div{${broken}}`)
+    sheet.replaceSync(`#sprite{display:flex}svg,div{width:100%}div{ contain:paint;pointer-events:all;overflow:clip;transform:translate(-50%,-50%);}foreignObject{y:${supportsMod ? 'calc((mod(calc(var(--index,0)*var(--frame-h,0)),var(--height,0))*-1px))' : 'calc(var(--index, 0) * var(--frame-h, 0) * -1px)'}}:host{isolation:isolate;user-select:none;-webkit-user-select:none;-moz-user-select:none;-webkit-tap-highlight-color: transparent;touch-action:pinch-zoom;pointer-events:none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}:host(:--broken){width:32px;height:32px;content:attr(aria-label);background-size:cover;}:host(:state(--broken)){width:32px;height:32px;content:attr(aria-label);background-size:cover;}:host(:--broken) div{${broken}}:host(:state(--broken)) div{${broken}}`)
     // ^ forgot to comment this when i added it but:
     // the (transparent) border seems to fix the 1px overlap issue, but the sprite is ever so slightly offset when the zoom is really low, but there's no other FCKING WAY TO FIX IT SO IT WILL HAVE TO DO
     let sep = /[^-\d\s]/g

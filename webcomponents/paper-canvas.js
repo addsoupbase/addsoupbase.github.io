@@ -289,9 +289,8 @@ style.replaceSync(`
     #holder {
         ${css.toCSS({ 'user-select': 'none' })}
     }
-        canvas {
+    canvas {
         justify-self:center;
-        -webkit-tap-highlight-color: transparent !important;
         touch-action: none;
         image-rendering: auto;
         outline: 1px solid black;
@@ -299,8 +298,10 @@ style.replaceSync(`
         cursor: pointer;
         -webkit-touch-callout: none;
     }
+        :canvas{-webkit-tap-highlight-color: transparent !important;}
     :host([resizing]){resize:both !important;cursor:revert;outline-style:dashed;outline-width:2px;}
     :host{
+    cursor: unset !important;
     width: max-content;
     height: max-content;
     overflow: visible;
