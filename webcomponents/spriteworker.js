@@ -1,3 +1,4 @@
+'use strict'
 addEventListener('message', msg)
 function msg(e) {
     let port = e.ports[0]

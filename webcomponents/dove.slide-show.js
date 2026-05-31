@@ -64,8 +64,8 @@ export const SlideShow = function (_) {
                         w = (right - (left - 1)) +Math.abs(padLeft)
                         h = bottom + 1+Math.abs(padTop)
                         let x = -(left + padLeft)
-                        sheet.insertRule(`${selector} canvas {left: ${x}px;}`)
-                        sheet.insertRule(`${selector} foreignObject{transform:translateY(${-top/2}px)}`)
+                        sheet.insertRule(isSafari ? `${selector} foreignObject {translate:${x}px 0}`:`${selector} canvas {left: ${x}px;}`)
+                        // sheet.insertRule(`${selector} foreignObject{transform:translateY(${-top/2}px)}`)
                     }
                     sheet.insertRule(`${selector} div{width:${w}px;height:${h}px;}`, 1)
                     sheet.insertRule(`${selector} {width:${w}px;height:${h}px;}`, 1)
@@ -216,6 +216,11 @@ ffmpeg -f concat -safe 0 -i list.txt \\
                     let fe = this.#fe
                     let width = canvas.width = framesX * frameWidth
                     let height = canvas.height = framesY * frameHeight
+                    if (isSafari) {
+                        let c = this.#ctx.canvas
+                        c.width = width
+                        c.height =height
+                    }
                     fe.setAttribute('width', width)
                     fe.setAttribute('height', height)
                     if (this.#once) {
@@ -295,7 +300,15 @@ ffmpeg -f concat -safe 0 -i list.txt \\
             this.#anim = shadow.querySelector('animate')
             this.#anim.remove()
             let { opaque } = this
-            this.#ctx = (this.#sprite = shadow.querySelector('canvas')).getContext(this.#once ? 'bitmaprenderer' : '2d', { alpha: !opaque })
+            this.#sprite = shadow.querySelector('canvas')
+            if (isSafari) {
+                let id = Math.trunc(performance.now())
+                this.#ctx = d.getCSSCanvasContext('2d', `sprite_${id}`, 0, 0)
+                shadow.querySelector('foreignObject').style.backgroundImage = `-webkit-canvas(sprite_${id})`
+            }
+            else {
+                this.#ctx = this.#sprite.getContext(this.#once ? 'bitmaprenderer' : '2d', { alpha: !opaque })
+            }
             this.#sprite.toggleAttribute('moz-opaque', opaque)
             this.#fe = shadow.querySelector('foreignObject')
             shadow.adoptedStyleSheets = [sheet]
@@ -328,14 +341,14 @@ ffmpeg -f concat -safe 0 -i list.txt \\
         }
     }
     let d = document
-        , svg = d.createRange().createContextualFragment('<div aria-hidden="true" part="sprite" id="sprite"><svg><foreignObject width=100 height=100 id="fe" x=0><canvas style="position:absolute"></canvas></foreignObject><animate fill="freeze" from="0" begin="0s" href="#fe" calcMode=discrete attributeName=x repeatCount="indefinite"/></svg></div>')
+        , svg = d.createRange().createContextualFragment('<div aria-hidden="true" part="sprite" id="sprite"><svg><foreignObject width=100 height=100 id="fe" x=0 style="background-size:auto;background-repeat:no-repeat"><canvas style="position:relative"></canvas></foreignObject><animate fill="freeze" from="0" begin="0s" href="#fe" calcMode=discrete attributeName=x repeatCount="indefinite"/></svg></div>')
         , bitmaps = new Map
         , sheet = new CSSStyleSheet
         , isSafari = 'onwebkitmouseforceup' in window
     //:host([loading="lazy"]) #sprite{content-visibility:auto}
     // let before = `content: attr(alt);left:-30px;font-size:smaller;position:relative;font-family:monospace`
     let broken = 'background-image:url(data:image/webp;base64,UklGRmQAAABXRUJQVlA4TFgAAAAvH8AHAA8w/xHzHwZHkSTLShU7t4+Dj5OPs2LniASk4OzZiOh/jDHGGtpCR+gEnaELdIWUXJEb8kBO5EwuZCQmq2STHJIpmZMlKeEq3ISH8BG+wk/4jzEG);width:32px;height:32px;image-rendering:auto;'
-    sheet.replaceSync(`#sprite{display:flex}svg,div{width:100%}div{outline:1px solid transparent;contain:paint;pointer-events:all;overflow:clip;transform:translate(-50%,-50%);}foreignObject{y:${supportsMod ? 'calc((mod(calc(var(--index,0)*var(--frame-h,0)),var(--height,0))*-1px))' : 'calc(var(--index, 0) * var(--frame-h, 0) * -1px)'}}:host{isolation:isolate;user-select:none;-webkit-user-select:none;-moz-user-select:none;touch-action:pinch-zoom;pointer-events:none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}:host(:--broken){width:32px;height:32px;content:attr(aria-label);background-size:cover;}:host(:state(--broken)){width:32px;height:32px;content:attr(aria-label);background-size:cover;}:host(:--broken) div{${broken}}:host(:state(--broken)) div{${broken}}`)
+    sheet.replaceSync(`#sprite{display:flex}svg,div{width:100%}div{ contain:paint;pointer-events:all;overflow:clip;transform:translate(-50%,-50%);}foreignObject{y:${supportsMod ? 'calc((mod(calc(var(--index,0)*var(--frame-h,0)),var(--height,0))*-1px))' : 'calc(var(--index, 0) * var(--frame-h, 0) * -1px)'}}:host{isolation:isolate;user-select:none;-webkit-user-select:none;-moz-user-select:none;touch-action:pinch-zoom;pointer-events:none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}:host(:--broken){width:32px;height:32px;content:attr(aria-label);background-size:cover;}:host(:state(--broken)){width:32px;height:32px;content:attr(aria-label);background-size:cover;}:host(:--broken) div{${broken}}:host(:state(--broken)) div{${broken}}`)
     // ^ forgot to comment this when i added it but:
     // the (transparent) border seems to fix the 1px overlap issue, but the sprite is ever so slightly offset when the zoom is really low, but there's no other FCKING WAY TO FIX IT SO IT WILL HAVE TO DO
     let sep = /[^-\d\s]/g
