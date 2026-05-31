@@ -1,8 +1,8 @@
 // import *as v from './v4.js'
 let d = document
 import './h.js'
-import preload, { SlideShow } from './webcomponents/slide-show.js'
-export { preload as loadSprite, SlideShow }
+import preload, { SlideShow, isLoaded } from './webcomponents/slide-show.js'
+export { preload as loadSprite, SlideShow, isLoaded }
 const h = window[Symbol.for('[[HModule]]')]
 let loaded = null
 const isSafari = 'onwebkitmouseforceup' in window

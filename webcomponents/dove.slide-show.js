@@ -28,6 +28,9 @@ export const SlideShow = function (_) {
         reverse() {
             this.#anim.setAttribute('values', this.#anim.getAttribute('values').split(';').reverse().join(';'))
         }
+        static isLoaded(...srces) {
+            return srces.every(o => bitmaps.has(new URL(o, location)))
+        }
         static preload(...sources) {
             let out = []
             for (let { padLeft = 0, padTop = 0, framesX = 1, framesY = 1, src, duras, image, reversed, crop = true } of sources) {
@@ -284,7 +287,6 @@ ffmpeg -f concat -safe 0 -i list.txt \\
             a.removeEventListener('repeatEvent', repeat)
             a.removeEventListener('endEvent', end)
             this.dispatchEvent(new Event('disconnected'))
-            this.pause()
         }
         connectedCallback() {
             let a = this.#anim
@@ -292,26 +294,33 @@ ffmpeg -f concat -safe 0 -i list.txt \\
             a.addEventListener('endEvent', end)
             this.dispatchEvent(new Event('connected'))
             this.hasAttribute('role') || (this.role = 'img')
-            if (this.hasAttribute('paused')) {
-                this.pause()
-                this.time = 0
-            }
-            else if(this.state === 'paused') this.play()
+            this.hasAttribute('paused') || requestAnimationFrame(this.restart.bind(this))
         }
         #state = 'playing'
         get state() {
             return this.#state
         }
         play() {
-            this.removeAttribute('paused')
             this.#svg.unpauseAnimations()
             if (this.#state === 'ended') this.time = 0
             this.#state = 'playing'
             // needed bc it's broken
         }
+        #disable() {
+            this.#anim.removeEventListener('endEvent', end)
+        }
+        #enable() {
+            this.#anim.addEventListener('beginEvent', addEnd, { once: true })
+        }
         restart() {
+            let t = this.#anim
+            this.#disable()
             this.time = 0
             this.play()
+            let n = t.getAttributeNode('href')
+            t.removeAttributeNode(n)
+            t.setAttributeNode(n)
+            this.#enable()
         }
         #once
         constructor() {
@@ -336,6 +345,7 @@ ffmpeg -f concat -safe 0 -i list.txt \\
             this.#fe = shadow.querySelector('foreignObject')
             shadow.adoptedStyleSheets = [sheet]
             this.#container = shadow.firstChild
+            this.pause()
             // this.#container.addEventListener('contentvisibilityautostatechange', visible)
         }
         get repeatCount() {
@@ -351,11 +361,11 @@ ffmpeg -f concat -safe 0 -i list.txt \\
             let { time, state: playing } = this
             if (isNaN(v) || v < 0) v = 'indefinite'
             let a = this.#anim
-            a.removeEventListener('endEvent', end)
-            this.#anim.setAttribute('repeatCount', v)
+            this.#disable()
+            a.setAttribute('repeatCount', v)
             this.time = time
             playing && this.play()
-            a.addEventListener('endEvent', end)
+            this.#enable()
         }
         pause() {
             if (this.dispatchEvent(new Event('pauseEvent', { bubbles: true, cancelable: true }))) {
@@ -436,6 +446,9 @@ ffmpeg -f concat -safe 0 -i list.txt \\
         SlideShow.setState(t, 'ended')
         t.dispatchEvent(new Event('endEvent', { bubbles: true }))
     }
+    function addEnd() {
+        this.addEventListener('endEvent', end)
+    }
     // function visible(n) {
     //     let t = n.target
     //     let host = t.getRootNode().host
@@ -480,3 +493,4 @@ function doWorkerStuffs(bitmap, width, height) {
         port1.addEventListener('messageerror', err)
     })
 }
+export const {isLoaded} = SlideShow
