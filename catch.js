@@ -145,7 +145,7 @@ async function addDexEntry(data, name, lazy) {
     let caught = registry[2]
     let dexNo = national[normal]
     if (!dexNo) console.error(name)
-    let n = d.createRange().createContextualFragment(esc`<div class="entry" data-dexno="${dexNo}" id="pokedex-${normal}"><div class="var"><slide-show  index="${caught[1] ? getShinyIndex(name) : 0}" data-is="${name}" dur=".02"></slide-show></div></div>`)
+    let n = d.createRange().createContextualFragment(esc`<div class="entry" data-dexno="${dexNo}" id="pokedex-${normal}"><div class="var"><slide-show paused index="${caught[1] ? getShinyIndex(name) : 0}" data-is="${name}" dur=".02"></slide-show></div></div>`)
     let sprite = n.querySelector('slide-show')
     if (caught.some(Boolean)) {
         sprite.classList.add('discovered')
@@ -843,9 +843,10 @@ function setActive(n) {
         old.firstChild.pause()
         old.dataset.active = 'false'
     }
-    n.parentNode.dataset.active = 'true'
-    n.parentNode.firstChild.resume()
+    let me = n.parentNode
+    me.dataset.active = 'true'
     let discovered = n.classList.contains('discovered')
+    discovered && me.firstChild.play()
     dexElement.status.textContent = discovered ? n.dataset.is.split(/[-_]/g).join(' ') : '???'
     let numberDisplay = dexElement.no
     numberDisplay.textContent = n.closest('.entry').dataset.dexno
