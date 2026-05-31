@@ -75,7 +75,7 @@ export const SlideShow = function (_) {
                         w = (right - (left - 1)) + Math.abs(padLeft)
                         h = bottom + 1 + Math.abs(padTop)
                         let x = -(left + padLeft)
-                        sheet.insertRule(isSafari ? `${selector} foreignObject {translate:${x}px 0}` : `${selector} canvas {left: ${x}px;}`)
+                        sheet.insertRule(isSafari ? `${selector} foreignObject {translate:${x}px ${modThing}}` : `${selector} canvas {left: ${x}px;}`)
                         // sheet.insertRule(`${selector} foreignObject{transform:translateY(${-top/2}px)}`)
                     }
                     sheet.insertRule(`${selector} div{width:${w}px;height:${h}px;}`)
@@ -375,7 +375,7 @@ ffmpeg -f concat -safe 0 -i list.txt \\
         // this resolution bit is the subpixel rendering devicePixelRatios
         `${Object.getOwnPropertyDescriptor(Element.prototype, 'currentCSSZoom').value ? '' :
         `@property --dpr-zoom{syntax:"<number>";inherits:true;initial-value:1}:host(:not([precise])){zoom:var(--dpr-zoom,1)!important}@media (resolution:0.3125dppx) or (resolution:0.9375dppx) or (resolution:1.5625dppx) or (resolution:2.1875dppx){:host(:not([precise])){--dpr-zoom:1.2}}@media (resolution:1.1320754716981132dppx){:host(:not([precise])){--dpr-zoom:1.46}}@media (resolution:1.3636363636363635dppx){:host(:not([precise])){--dpr-zoom:1.1}}@media (resolution:2.142857142857143dppx){:host(:not([precise])){--dpr-zoom:1.037}}`}
-        #sprite{display:flex}svg,div{width:100%}div{contain:paint;pointer-events:all;overflow:clip;transform:translate(-50%,-50%) scale(calc(1 / var(--dpr-zoom, 1)));}foreignObject{${isSafari ? `translate:0 ${modThing}` : `y:${modThing}`}}:host{isolation:isolate;user-select:none;-webkit-user-select:none;-moz-user-select:none;-webkit-tap-highlight-color: transparent;touch-action:pinch-zoom;pointer-events:none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}:host(:--broken){width:32px;height:32px;content:attr(aria-label);background-size:cover;}:host(:state(--broken)){width:32px;height:32px;content:attr(aria-label);background-size:cover;}:host(:--broken) div{${broken}}:host(:state(--broken)) div{${broken}}`)
+        #sprite{display:flex}svg,div{width:100%}div{contain:paint;pointer-events:all;overflow:clip;transform:translate(-50%,-50%) scale(calc(1 / var(--dpr-zoom, 1)));}foreignObject{y:${modThing};}:host{isolation:isolate;user-select:none;-webkit-user-select:none;-moz-user-select:none;-webkit-tap-highlight-color: transparent;touch-action:pinch-zoom;pointer-events:none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}:host(:--broken){width:32px;height:32px;content:attr(aria-label);background-size:cover;}:host(:state(--broken)){width:32px;height:32px;content:attr(aria-label);background-size:cover;}:host(:--broken) div{${broken}}:host(:state(--broken)) div{${broken}}`)
     // the mass amount of resolution dppx is each individual DPR that causes the subpixel rendering
     // which causes the sprite to jitter on the x-axis
     // this zoom + inverse scale seems to fix it!

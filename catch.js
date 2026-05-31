@@ -5,6 +5,7 @@ import preload, { SlideShow } from './webcomponents/slide-show.js'
 export { preload as loadSprite, SlideShow }
 const h = window[Symbol.for('[[HModule]]')]
 let loaded = null
+const isSafari = 'onwebkitmouseforceup' in window
 let lastIndex = sessionStorage.lastIndex = sessionStorage.lastIndex || 0
 const national = {
     tentacool: 72,
@@ -330,12 +331,17 @@ slide-show:state(--broken) {
 slide-show:--broken {
     visibility: hidden;
 }
-slide-show:not(.discovered) {
-    filter: drop-shadow(0 0 0 transparent) brightness(0%)
+${isSafari ? '.var:has(' : ''}slide-show:not(.discovered)${isSafari ? ')' : ''} {
+    ${isSafari ? 
+        `background-repeat:no-repeat;
+        background-position:50%;
+        background-image: url(data:image/webp;base64,UklGRiQBAABXRUJQVlA4TBcBAAAvP8APECcgECD8z0mQYkMgQPifkyCFQIDwPydBivkPAPCnqgBSbdt1m6QtgBxbBHxlAD8Ckfijqt6L3htmFtF/BW6jNgd07x484vFdyFGg/SbwxshfxpzGLakFaPdtVgrhBeyS1IFnBNa8xvJNTpZQVkDSdd9VUqT7bfJr/Es12d+0bnKMSApUy8gL1AvafzavjlU6VOlyR5j3SMuY7Faadrxo0sjXc2RSmXWsbPY8YHdZOOcj+wewj4HzkesHcM4HQh2onaZr4ApiK2ONDDB75SCVKHYPcENCC8HewS0U+Rcn7l9C/2p54/41xAtOacXxIsIrC8erPC/zvM77Rdqv8n6Z9ut8XEjHlXxcSse1dFzMx9WvQh4A)` : 
+        'filter: drop-shadow(0 0 0 transparent) brightness(0%)'}
 }
-slide-show.discovered {
+${isSafari ? "slide-show:not(.discovered){visibility:hidden}" :`slide-show.discovered {
     filter:drop-shadow(2px 2px 0px #0000004d) brightness(100%)
-}
+}` }
+
 .decor {
 width:12px;
 height:12px;
@@ -682,6 +688,7 @@ div[role="status"] {
     width: 100%;
     height: 100%;
     contain: strict;
+    image-rendering:pixelated;
     border: 3px solid transparent;
     place-content:center;
     /*scroll-snap-align:start;
