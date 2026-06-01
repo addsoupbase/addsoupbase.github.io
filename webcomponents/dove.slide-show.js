@@ -382,7 +382,7 @@ ffmpeg -f concat -safe 0 -i list.txt \\
             if (isNaN(v) || v < 0) v = 'indefinite'
             let a = this.#anim
             this.#disable()
-            // a.setAttribute('repeatCount', v)
+            a.setAttribute('repeatCount', v)
             this.time = time
             playing && this.play()
             this.#enable()
