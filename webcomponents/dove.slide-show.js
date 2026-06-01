@@ -281,7 +281,6 @@ ffmpeg -f concat -safe 0 -i list.txt \\
         #ctx
         #fe
         #svg
-        #container
         #internals = this.attachInternals()
         #displayedFrames = 0
         disconnectedCallback() {
@@ -289,25 +288,24 @@ ffmpeg -f concat -safe 0 -i list.txt \\
             a.removeEventListener('repeatEvent', repeat)
             a.removeEventListener('endEvent', end)
             this.dispatchEvent(new Event('disconnected'))
+            this.shadowRoot.replaceChildren()
         }
+        #dom
         connectedCallback() {
             let a = this.#anim
-            a.addEventListener('endEvent', end)
-            a.addEventListener('repeatEvent', repeat)
-            this.hasAttribute('paused') || this.restart()
             this.dispatchEvent(new Event('connected'))
             this.hasAttribute('role') || (this.role = 'img')
-            let v = this.shadowRoot
-            let s = v.firstChild
-            v.replaceChildren()
-            requestAnimationFrame(()=>{
-                v.appendChild(s)
-                if (typeof scrollMaxX ==='number') {
+            this.#disable()
+            this.hasAttribute('paused') ? this.restart() : this.#enable()
+            requestAnimationFrame(() => {
+                this.time = 0
+                this.shadowRoot.appendChild(this.#dom)
+                if (typeof scrollMaxX === 'number') {
                     this.#svg.appendChild(this.#anim)
-                    this.#anim.setAttribute('href','#fe')
+                    this.#anim.setAttribute('href', '#fe')
                     this.restart()
                 }
-                if (this.hasAttribute('paused'))this.pause()
+                if (this.hasAttribute('paused')) this.pause()
             })
         }
         #state = 'playing'
@@ -324,7 +322,8 @@ ffmpeg -f concat -safe 0 -i list.txt \\
             this.#anim.removeEventListener('endEvent', end)
         }
         #enable() {
-            this.#anim.addEventListener('beginEvent', addEnd, { once: true })
+            if (!this.shadowRoot.firstChild) requestAnimationFrame(this.addEventListener.bind(this.#anim, 'beginEvent', addEnd, { once: true }))
+            else typeof scrollMaxX === 'number' ? addEnd.call(this.#anim) :this.#anim.addEventListener('beginEvent', addEnd, {once:true})
         }
         restart() {
             let t = this.#anim
@@ -344,11 +343,11 @@ ffmpeg -f concat -safe 0 -i list.txt \\
             this.#svg = shadow.querySelector('svg')
             //<animateTransform attributeName="transform" fill="freeze" calcMode="discrete" type=translate repeatCount="indefinite"/>
             let anim = this.#anim = d.createElementNS("http://www.w3.org/2000/svg", 'animateTransform')
-            anim.setAttribute('attributeName','transform')
-            anim.setAttribute('fill','freeze')
-            anim.setAttribute('calcMode','discrete')
-            anim.setAttribute('type','translate')
-            anim.setAttribute('repeatCount','indefinite')
+            anim.setAttribute('attributeName', 'transform')
+            anim.setAttribute('fill', 'freeze')
+            anim.setAttribute('calcMode', 'discrete')
+            anim.setAttribute('type', 'translate')
+            anim.setAttribute('repeatCount', 'indefinite')
             // this.#anim.remove()
             let { opaque } = this
             this.#sprite = shadow.querySelector('canvas')
@@ -364,9 +363,9 @@ ffmpeg -f concat -safe 0 -i list.txt \\
             this.#sprite.toggleAttribute('moz-opaque', opaque)
             this.#fe = shadow.querySelector('foreignObject')
             shadow.adoptedStyleSheets = [sheet]
-            this.#container = shadow.firstChild
+            this.#dom = shadow.firstChild
+            shadow.replaceChildren()
             // this.pause()
-            // this.#container.addEventListener('contentvisibilityautostatechange', visible)
         }
         get repeatCount() {
             return this.#anim.getAttribute('repeatCount')
@@ -416,6 +415,7 @@ ffmpeg -f concat -safe 0 -i list.txt \\
             if (this.#displayedFrames === 0) return
             let total = this.dur * this.#displayedFrames
             this.#anim.setAttribute('dur', total)
+            this.time = 0
         }
         static setState(p, v) {
             p.#state = v
@@ -470,8 +470,11 @@ ffmpeg -f concat -safe 0 -i list.txt \\
     }
     function end(e) {
         let t = e.target.getRootNode().host
-        SlideShow.setState(t, 'ended')
-        t.dispatchEvent(new Event('endEvent', { bubbles: true }))
+        if (t.shadowRoot.firstChild) {
+            SlideShow.setState(t, 'ended')
+            t.dispatchEvent(new Event('endEvent', { bubbles: true }))
+        }
+        else debugger
     }
     function addEnd() {
         this.addEventListener('endEvent', end)
