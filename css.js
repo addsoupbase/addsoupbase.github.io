@@ -17,7 +17,7 @@
         var e=function(){},x=e.prototype;x.constructor=Storage;var m = O.defineProperty;delete window.sessionStorage;delete window.localStorage;m(x,Symbol.toStringTag||'toStringTag',{value: 'FakeStorage'});m(x,'length',{get:function(){return O.keys(this).length}});m(x,'clear',{value:function(){for(var i in this)delete this[i]}});m(x,'getItem',{value:function(k){var n=O.getOwnPropertyDescriptor(this,k);return n?n.value:null}});m(x,'key',{value:function(i){var o=O.values(this)[i|0];return typeof o=='string'?o:null}});m(x,'removeItem',{value:function(z){delete this[z]}});m(x,'setItem',{value:function(k,v){this[k]=v+''}});if(typeof Proxy=='function')var y=e,e=function(){return new Proxy(new y, {set:function(t,p,v){t[p]=''+v;return 1},get:function(t,p){return t.hasOwnProperty(p)?t[p]+'':t[p]||null}})};window.sessionStorage=new e;window.localStorage=new e
     }
     if (!inModule) {
-        var onerror = function (e) { if (e.filename.endsWith('.js')) { [].forEach.call(D.querySelectorAll('script[nomodule]'), function (s) { D.head.appendChild(D.createElement('script')).src = s.src }); removeEventListener('error', onerror) } }
+        var onerror = function(e){if(e.filename.endsWith('.js')){D.write=function(l){return function(){var z=D.currentScript;z?z.src?z.insertAdjacentHTML('afterend',[].join.call(arguments,'')):l.apply(D,arguments):D.firstElementChild.insertAdjacentHTML('beforeend',[].join.call(arguments,''))}}(D.write);[].forEach.call(D.querySelectorAll('script[nomodule]'), function (s) { D.head.appendChild(D.createElement('script')).src = s.src }); removeEventListener('error', onerror) } }
         addEventListener('error', onerror)
     }
     var sup = CSS.supports,

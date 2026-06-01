@@ -4,7 +4,7 @@
 const supportsMod = CSS.supports('width', 'mod(1px,1px)')
 export const SlideShow = function (_) {
     if (_) return _
-    const subPixel = matchMedia(`(resolution: 0.3125dppx)  or (resolution: 0.9375dppx) or (resolution: 1.5625dppx) or (resolution: 2.1875dppx) or (resolution: 1.1320754716981132dppx) or (resolution: 1.3636363636363635dppx) or (resolution: 2.142857142857143dppx)`)
+    /*const subPixel = matchMedia(`(resolution: 0.3125dppx)  or (resolution: 0.9375dppx) or (resolution: 1.5625dppx) or (resolution: 2.1875dppx) or (resolution: 1.1320754716981132dppx) or (resolution: 1.3636363636363635dppx) or (resolution: 2.142857142857143dppx)`)
     subPixel.addEventListener('change', change)
     function change(n) {
         d.dispatchEvent(new CustomEvent('subpixelrenderingchange', {
@@ -13,7 +13,7 @@ export const SlideShow = function (_) {
                 suggestedZoom: suggestedZooms[devicePixelRatio] || 1
             }
         }))
-    }
+    }*/
     class SlideShow extends HTMLElement {
         static #safariID = 0
         static observedAttributes = 'values src dur index repeat imagesmoothing'.split(' ')
@@ -26,8 +26,7 @@ export const SlideShow = function (_) {
             return this.hasAttribute('opaque')
         }
         reverse() {
-            let x = mapValues(this.values.reverse())
-            this.#anim.setAttribute('values', x)
+            this.#anim.setAttribute('values', mapValues(this.values.reverse()))
         }
         static isLoaded(...srces) {
             return srces.every(o => bitmaps.has(new URL(o, location)))
@@ -39,7 +38,10 @@ export const SlideShow = function (_) {
                 let url = new URL(src, d.baseURI)
                 let s = url.toString()
                 if (image) {
-                    load(image, image.width / framesX, image.height / framesY, true)
+                    function a() {
+                        load(image, image.width / framesX, image.height / framesY, true)
+                    }
+                    image.decode ? image.decode().then(a) : a()
                     continue
                 }
                 let n = new Image
@@ -114,8 +116,7 @@ export const SlideShow = function (_) {
         get padLeft() { return this.#padLeft }
         get padTop() { return this.#padTop }
         get values() {
-            return this.#anim.getAttribute('path').split(/[\s^]?[LM]\s/).filter(Boolean)
-                .map(o => +o.split(',')[0])
+            return this.#anim.getAttribute('values').split(';').map(o => +o.split(',')[0])
         }
         set values(v) {
             let a = this.#anim
@@ -177,6 +178,9 @@ ffmpeg -f concat -safe 0 -i list.txt \\
         get dur() {
             let val = this.getAttribute('dur')
             return val ? parseFloat(val) : (1 / 32)
+        }
+        get totalDur() {
+            return this.#anim.getSimpleDuration()
         }
         #width = 0
         #height = 0
@@ -309,12 +313,16 @@ ffmpeg -f concat -safe 0 -i list.txt \\
             })
         }
         #state = 'playing'
+        get#canPlay() {
+            return this.checkVisibility ? this.checkVisibility() : true
+        }
         get state() {
-            return this.#state
+            return this.#canPlay ? this.#state : 'idle'
         }
         play() {
+            // if (!this.#canPlay) throw new DOMException('Element must be rendered', 'InvalidStateError')
             this.#svg.unpauseAnimations()
-            // if (this.#state === 'ended') this.time = 0
+            if (this.#state === 'ended') this.time = 0
             this.#state = 'playing'
             // needed bc it's broken
         }
@@ -322,8 +330,8 @@ ffmpeg -f concat -safe 0 -i list.txt \\
             this.#anim.removeEventListener('endEvent', end)
         }
         #enable() {
-            if (!this.shadowRoot.firstChild) requestAnimationFrame(this.addEventListener.bind(this.#anim, 'beginEvent', addEnd, { once: true }))
-            else typeof scrollMaxX === 'number' ? addEnd.call(this.#anim) :this.#anim.addEventListener('beginEvent', addEnd, {once:true})
+            if (!this.shadowRoot.firstChild) requestAnimationFrame(this.addEventListener.bind(this.#anim, 'beginEvent', addListeners, { once: true }))
+            else typeof scrollMaxX === 'number' ? addListeners.call(this.#anim) : this.#anim.addEventListener('beginEvent', addListeners, { once: true })
         }
         restart() {
             let t = this.#anim
@@ -368,20 +376,20 @@ ffmpeg -f concat -safe 0 -i list.txt \\
             // this.pause()
         }
         get repeatCount() {
-            return this.#anim.getAttribute('repeatCount')
+            return this.#anim.getAttribute('repeatCount') | 0
         }
         get fill() {
             return this.#anim.getAttribute('fill')
         }
         set fill(fill) {
-            this.#anim.setAttribute('fill', fill)
+            this.#anim.setAttribute('fill', fill === 'remove' ? 'remove' : 'freeze')
         }
         set repeatCount(v) {
             let { time, state: playing } = this
             if (isNaN(v) || v < 0) v = 'indefinite'
             let a = this.#anim
             this.#disable()
-            a.setAttribute('repeatCount', v)
+            a.setAttribute('repeatCount', v|0||'indefinite')
             this.time = time
             playing && this.play()
             this.#enable()
@@ -398,8 +406,14 @@ ffmpeg -f concat -safe 0 -i list.txt \\
             if (this.#state === 'ended') this.#state = 'playing'
         }
         get time() {
-            let dur = this.#anim.getSimpleDuration()
-            return this.#state !== 'ended' ? this.#svg.getCurrentTime() % dur : dur
+            let a = this.#anim
+            try {
+                return a.getStartTime(), a.getCurrentTime() % a.getSimpleDuration()
+            }
+            catch (e) {
+                if (e.name === 'InvalidStateError') return a.getSimpleDuration()
+                throw e
+            }
         }
         end() {
             this.time = this.dur * 100
@@ -420,7 +434,7 @@ ffmpeg -f concat -safe 0 -i list.txt \\
         static setState(p, v) {
             p.#state = v
         }
-        static #subPixel = subPixel
+        // static #subPixel = subPixel
     }
     function mapValues(values) {
         return values.map(doTransform).join(';')
@@ -428,13 +442,13 @@ ffmpeg -f concat -safe 0 -i list.txt \\
     function doTransform(o) {
         return `${o},0`
     }
-    const suggestedZooms = {
+    /*const suggestedZooms = {
         1.1320754716981132: 1.46,
         1.3636363636363635: 1.1,
         2.142857142857143: 1.037
     }
     suggestedZooms[0.3125] = suggestedZooms[0.9375] =
-        suggestedZooms[1.5625] = suggestedZooms[2.1875] = 1.2
+        suggestedZooms[1.5625] = suggestedZooms[2.1875] = 1.2*/
     let d = document
         , svg = d.createRange().createContextualFragment(
             /*html*/`<div aria-hidden="true" part="sprite" id="sprite"><svg><foreignObject width=100 height=100 id="fe" x=0 style="background-size:auto;background-repeat:no-repeat"><canvas style="position:relative"></canvas></foreignObject></svg></div>`)
@@ -448,10 +462,9 @@ ffmpeg -f concat -safe 0 -i list.txt \\
     // ^ this SEEMS to work for detecting if subpixel rendering is happening
     const modThing = supportsMod ? 'calc((mod(calc(var(--index,0)*var(--frame-h,0)),var(--height,0))*-1px))' : 'calc(var(--index, 0) * var(--frame-h, 0) * -1px)'
     sheet.replaceSync(
+        // `@property --dpr-zoom{syntax:"<number>";inherits:true;initial-value:1}:host(:not([precise])){zoom:var(--dpr-zoom,1)!important}@media (resolution:0.3125dppx) or (resolution:0.9375dppx) or (resolution:1.5625dppx) or (resolution:2.1875dppx){:host(:not([precise])){--dpr-zoom:1.2}}@media (resolution:1.1320754716981132dppx){:host(:not([precise])){--dpr-zoom:1.46}}@media (resolution:1.3636363636363635dppx){:host(:not([precise])){--dpr-zoom:1.1}}@media (resolution:2.142857142857143dppx){:host(:not([precise])){--dpr-zoom:1.037}}`+
         // this resolution bit is the subpixel rendering devicePixelRatios
-        `${true ? '' :
-            `@property --dpr-zoom{syntax:"<number>";inherits:true;initial-value:1}:host(:not([precise])){zoom:var(--dpr-zoom,1)!important}@media (resolution:0.3125dppx) or (resolution:0.9375dppx) or (resolution:1.5625dppx) or (resolution:2.1875dppx){:host(:not([precise])){--dpr-zoom:1.2}}@media (resolution:1.1320754716981132dppx){:host(:not([precise])){--dpr-zoom:1.46}}@media (resolution:1.3636363636363635dppx){:host(:not([precise])){--dpr-zoom:1.1}}@media (resolution:2.142857142857143dppx){:host(:not([precise])){--dpr-zoom:1.037}}`}
-        #sprite{display:flex}svg,div{width:100%}foreignObject{y:${modThing}}div{contain:paint;pointer-events:all;overflow:clip;transform:translate(-50%,-50%) scale(calc(1 / var(--dpr-zoom, 1)));}:host{isolation:isolate;user-select:none;-webkit-user-select:none;-moz-user-select:none;-webkit-tap-highlight-color: transparent;touch-action:pinch-zoom;pointer-events:none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}:host(:--broken){width:32px;height:32px;content:attr(aria-label);background-size:cover;}:host(:state(--broken)){width:32px;height:32px;content:attr(aria-label);background-size:cover;}:host(:--broken) div{${broken}}:host(:state(--broken)) div{${broken}}`)
+        `#sprite{display:flex}svg,div{width:100%}foreignObject{y:${modThing}}div{contain:paint;pointer-events:all;overflow:clip;transform:translate(-50%,-50%) scale(calc(1 / var(--dpr-zoom, 1)));}:host{isolation:isolate;user-select:none;-webkit-user-select:none;-moz-user-select:none;-webkit-tap-highlight-color: transparent;touch-action:pinch-zoom;pointer-events:none !important;transform-origin:0 0;display:flex;width:0;height:0;image-rendering:-moz-crisp-edges;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}:host(:--broken){width:32px;height:32px;content:attr(aria-label);background-size:cover;}:host(:state(--broken)){width:32px;height:32px;content:attr(aria-label);background-size:cover;}:host(:--broken) div{${broken}}:host(:state(--broken)) div{${broken}}`)
     // the mass amount of resolution dppx is each individual DPR that causes the subpixel rendering
     // which causes the sprite to jitter on the x-axis
     // this zoom + inverse scale seems to fix it!
@@ -468,16 +481,19 @@ ffmpeg -f concat -safe 0 -i list.txt \\
         let t = e.target.getRootNode().host
         t.dispatchEvent(new Event('repeatEvent', { bubbles: true }))
     }
+    function begin(e) {
+        e.target.getRootNode().host.dispatchEvent(new Event('beginEvent', {bubbles: true}))
+    }
     function end(e) {
         let t = e.target.getRootNode().host
-        if (t.shadowRoot.firstChild) {
+        if (t.shadowRoot.firstChild && t.time === t.totalDur) {
             SlideShow.setState(t, 'ended')
             t.dispatchEvent(new Event('endEvent', { bubbles: true }))
         }
-        else debugger
     }
-    function addEnd() {
+    function addListeners() {
         this.addEventListener('endEvent', end)
+        this.addEventListener('repeatEvent', repeat)
     }
     // function visible(n) {
     //     let t = n.target
