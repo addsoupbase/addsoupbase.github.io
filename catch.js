@@ -193,28 +193,30 @@ export function loadPokemon(...data) {
         }))
 }
 let entries = new Map
-let pad = `;path=${location.pathname};SameSite=None;Secure;max-age=31536000`
+let l = localStorage
 export async function loadDexes(dex, ...sources) {
     let href = `${location.origin}${location.pathname}`
     while (href.endsWith('/')) href = href.slice(0, -1)
     let key = `${href}~0`
-    document.cookie.includes(key) || (document.cookie = `${key}=${localStorage[key] || '0 0'}${pad}`)
-    let [nor, shi] = (await cookieStore.get(key)).value.split(' ').map(o => BigInt(o))
+    l[key] ||= `0 0`
+    let [nor, shi] = l[key].split(' ').map(o => BigInt(o))
     let i = 0n
     for (let name in dex) {
         let thing = dex[name]
         let d = thing.Idle2 || thing.Idle
         entries.set(name, [href, i, globalPokedex[d] = [nor & (1n << i), shi & (1n << i++)].map(Boolean), d])
     }
+    return
     let frame = d.createElement('iframe')
     let src
     d.src = new URL(d.src, href)
+
     frame.ariaHidden =
         frame.inert = true
     for (let i = sources.length; i--;) {
         let s = sources[i]
         src = new URL(s)
-        frame.src = new URL('./sync.html', src) + `#${JSON.stringify([`${src.origin}${src.pathname}`, (await cookieStore.get(key)).value, `${location.origin}${location.pathname}`])}`
+        frame.src = new URL('./sync.html', src) + `#${JSON.stringify([`${src.origin}${src.pathname}`, l[key], `${location.origin}${location.pathname}`])}`
         if (!frame.dataset.ran) {
             frame.dataset.ran = 'true'
             d.body.appendChild(frame)
@@ -236,7 +238,7 @@ export async function loadDexes(dex, ...sources) {
                         if (!Array.isArray(response)) throw TypeError(`Data invalid or missing`)
                         let [storage, otherDex] = response
                         let [normal, shiny] = storage.split(' ').map(BigInt)
-                        document.cookie = `${src.origin}~0=${normal} ${shiny};${pad}`
+                        l[`${src.origin}~0`] = `${normal} ${shiny}`
                         let i = 0n
                         for (let name in otherDex) {
                             let mon = otherDex[name]
@@ -333,13 +335,13 @@ slide-show:--broken {
     visibility: hidden;
 }
 ${isSafari ? '.var:has(' : ''}slide-show:not(.discovered)${isSafari ? ')' : ''} {
-    ${isSafari ?
+    ${isSafari ? 
         `background-repeat:no-repeat;
         background-position:50%;
-        background-image: url(data:image/webp;base64,UklGRiQBAABXRUJQVlA4TBcBAAAvP8APECcgECD8z0mQYkMgQPifkyCFQIDwPydBivkPAPCnqgBSbdt1m6QtgBxbBHxlAD8Ckfijqt6L3htmFtF/BW6jNgd07x484vFdyFGg/SbwxshfxpzGLakFaPdtVgrhBeyS1IFnBNa8xvJNTpZQVkDSdd9VUqT7bfJr/Es12d+0bnKMSApUy8gL1AvafzavjlU6VOlyR5j3SMuY7Faadrxo0sjXc2RSmXWsbPY8YHdZOOcj+wewj4HzkesHcM4HQh2onaZr4ApiK2ONDDB75SCVKHYPcENCC8HewS0U+Rcn7l9C/2p54/41xAtOacXxIsIrC8erPC/zvM77Rdqv8n6Z9ut8XEjHlXxcSse1dFzMx9WvQh4A)` :
+        background-image: url(data:image/webp;base64,UklGRiQBAABXRUJQVlA4TBcBAAAvP8APECcgECD8z0mQYkMgQPifkyCFQIDwPydBivkPAPCnqgBSbdt1m6QtgBxbBHxlAD8Ckfijqt6L3htmFtF/BW6jNgd07x484vFdyFGg/SbwxshfxpzGLakFaPdtVgrhBeyS1IFnBNa8xvJNTpZQVkDSdd9VUqT7bfJr/Es12d+0bnKMSApUy8gL1AvafzavjlU6VOlyR5j3SMuY7Faadrxo0sjXc2RSmXWsbPY8YHdZOOcj+wewj4HzkesHcM4HQh2onaZr4ApiK2ONDDB75SCVKHYPcENCC8HewS0U+Rcn7l9C/2p54/41xAtOacXxIsIrC8erPC/zvM77Rdqv8n6Z9ut8XEjHlXxcSse1dFzMx9WvQh4A)` : 
         'filter: drop-shadow(0 0 0 transparent) brightness(0%)'}
 }
-${isSafari ? "slide-show:not(.discovered){visibility:hidden}" : `slide-show.discovered {
+${isSafari ? "slide-show:not(.discovered){visibility:hidden}" :`slide-show.discovered {
     filter:drop-shadow(2px 2px 0px #0000004d) brightness(100%)
 }` }
 
@@ -961,7 +963,7 @@ export function setField(bg) {
             pokeball.style.position = 'absolute'
             pokeball.toggleAttribute('autoplay', true)
             pokeball.dur = .05
-            pokeball.toggleAttribute('precise', true)
+            pokeball.toggleAttribute('precise',true)
             t.after(pokeball)
             pokeball.addEventListener('disconnected', update, { once: true })
             // let {currentCSSZoom: zoom} = t
@@ -1002,7 +1004,7 @@ async function processQueue() {
     isScrolling = queueing = true
     while (updateQueue.length) {
         const detail = updateQueue.shift()
-        await handlePokedexUpdate(detail)
+        handlePokedexUpdate(detail)
         await h.wait(2300)
         isScrolling = false
     }
@@ -1019,17 +1021,16 @@ function getShinyIndex(name) {
     return shiny
 }
 let isAutoScrolling = false
-async function handlePokedexUpdate({ name, index, src, no, capture, dex }) {
+function handlePokedexUpdate({ name, index, src, no, capture, dex }) {
     let nth = 0
     let shiny = getShinyIndex(name)
     const isShiny = index === shiny
     if (isShiny) nth = 1
     capture[nth] = true
-    let key = `${dex}~0`
-    let caught = (await cookieStore.get(key)).value.split(' ').map(BigInt)
+    let caught = l[`${dex}~0`].split(' ').map(BigInt)
     let oldCaught = caught.slice()
     caught[nth] |= 1n << no
-    document.cookie = `${key}=${caught.join(' ')}${pad}`
+    l.setItem(`${dex}~0`, caught.join(' '))
     const pokemon = dexElement.screen.querySelector(`[data-is="${name}"]`)
     if (!pokemon) return
     if (!pokemon.classList.contains('discovered') || (caught[0] !== oldCaught[0]) || (caught[1] !== oldCaught[1])) {
