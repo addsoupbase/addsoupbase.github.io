@@ -206,7 +206,6 @@ export async function loadDexes(dex, ...sources) {
         let d = thing.Idle2 || thing.Idle
         entries.set(name, [href, i, globalPokedex[d] = [nor & (1n << i), shi & (1n << i++)].map(Boolean), d])
     }
-    return
     let frame = d.createElement('iframe')
     let src
     d.src = new URL(d.src, href)
