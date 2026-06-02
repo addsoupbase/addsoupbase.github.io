@@ -1,0 +1,16 @@
+{
+    "Walk": {
+        "framesY": 2,
+        "values": "8;6;6;6;8;8;6;8;8",
+        "frameWidth": 32,
+        "frameHeight": 48,
+        "src": "new/palafin/palafin-Walk.webp"
+    },
+    "Idle": {
+        "framesY": 2,
+        "values": "10;10;10;10;10;10;10;10;10;10",
+        "frameWidth": 32,
+        "frameHeight": 40,
+        "src": "new/palafin/palafin-Idle.webp"
+    }
+}

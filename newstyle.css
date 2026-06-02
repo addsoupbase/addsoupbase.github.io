@@ -358,7 +358,12 @@
       --scale: 2.32;
       --anim-dura: 22s
   }
-
+.gyarados {
+    --scale: 3
+}
+.palafin,.finizen {
+    --scale: 2
+}
   .remoraid {
       --anim-dura: 30s
   }

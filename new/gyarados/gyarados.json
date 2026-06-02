@@ -1,0 +1,16 @@
+{
+    "Walk": {
+        "framesY": 2,
+        "values": "10;14;10;14",
+        "frameWidth": 88,
+        "frameHeight": 128,
+        "src": "./new/gyarados/gyarados-Walk.webp"
+    },
+    "Idle": {
+        "framesY": 2,
+        "values": "18;8;18;8",
+        "frameWidth": 72,
+        "frameHeight": 128,
+        "src": "./new/gyarados/gyarados-Idle.webp"
+    }
+}

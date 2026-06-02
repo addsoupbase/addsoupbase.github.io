@@ -14,6 +14,7 @@ const national = {
     seadra: 117,
     goldeen: 118,
     seaking: 119,
+    gyarados: 130,
     mewtwo: 150,
     mew: 151,
     lanturn: 171,
@@ -95,6 +96,8 @@ const national = {
     eternatus: 890,
     basculegion: 902,
     overqwil: 904,
+    finizen: 963,
+    palafin: 964,
 }
 function esc(strings, ...subs) {
     let out = ''
