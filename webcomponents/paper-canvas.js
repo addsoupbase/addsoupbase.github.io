@@ -4,6 +4,13 @@ let structure = document.createRange().createContextualFragment('<div><div id="h
 const css = window[Symbol.for('[[CSSModule]]')]
 // import * as h from '../handle.js'
 // let internals = Symbol()
+function offscreen(width, height) {
+    if (typeof OffscreenCanvas === 'function') return new OffscreenCanvas(width, height)
+    let n = document.createElement('canvas')
+    n.width = width
+    n.height = height
+    return n
+}
 function pointerup(p) {
     let paper = this.getRootNode().host
     if (p.button === 2 || paper.resizing) return
@@ -126,12 +133,14 @@ if (Object.getOwnPropertyDescriptor(ShadowRoot.prototype, 'adoptedStyleSheets'))
             let { undoBuffer, ctx } = this
             if (!undoBuffer.length) return
             ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
-            ctx.putImageData(undoBuffer.pop(), 0, 0)
+            ctx.drawImage(undoBuffer.pop(), 0, 0)
             this.internals?.setValidity({ valueMissing: !undoBuffer.length }, 'Draw something')
         }
         snapshot() {
             let { undoBuffer, ctx, canvas } = this
-            undoBuffer.push(ctx.getImageData(0, 0, canvas.width, canvas.height))
+            let n = offscreen(canvas.width, canvas.height)
+            n.getContext('2d').drawImage(canvas, 0, 0)
+            undoBuffer.push(n)
             while (this.undoBuffer.length > this.maxBufferSize) undoBuffer.shift()
         }
         get colorElement() {
@@ -167,7 +176,7 @@ if (Object.getOwnPropertyDescriptor(ShadowRoot.prototype, 'adoptedStyleSheets'))
                 canvas.addEventListener('wheel', scroll, { passive: false })
             canvas.style.width = `${canvas.width = width}px`
             canvas.style.height = `${canvas.height = height}px`
-            this.ctx = Object.assign(canvas.getContext('2d', { willReadFrequently: true }), PaperCanvas.BASE_CONTEXT_ATTRIBUTES)
+            this.ctx = Object.assign(canvas.getContext('2d', { desynchronized: true }), PaperCanvas.BASE_CONTEXT_ATTRIBUTES)
             this.ctx.fillRect(0, 0, width, height)
             this.color = 'black'
             shadow.adoptedStyleSheets = [style]
@@ -221,7 +230,6 @@ if (Object.getOwnPropertyDescriptor(ShadowRoot.prototype, 'adoptedStyleSheets'))
         }
         formResetCallback() {
             this.snapshot()
-            this.undoBuffer.splice(0, this.undoBuffer.length - 1)
             this.brushsize = 1
             let { width, height } = this.canvas
             this.ctx.clearRect(0, 0, width, height)
