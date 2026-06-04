@@ -192,7 +192,7 @@ ffmpeg -f concat -safe 0 -i list.txt \\
             switch (attr) {
                 case 'index': {
                     let mod = val == 0 ? val : val % this.framesY
-                    this.dispatchEvent(new Event('indexEvent', { bubbles: true, cancelable: true })) && this.#fe.style.setProperty('--index', isNaN(mod) ? val : mod)
+                    this.dispatchEvent(new Event('indexEvent', cb)) && this.#fe.style.setProperty('--index', isNaN(mod) ? val : mod)
                 }
                     break
                 case 'src': {
@@ -217,14 +217,14 @@ ffmpeg -f concat -safe 0 -i list.txt \\
                                 break
                             }
                             this.#framesX = this.#framesY = 0
-                            this.#internals?.states.add('--broken')
+                            this.#internals.states.add('--broken')
                             this.#once || ctx.clearRect(0, 0, canvas.width, canvas.height)
                             b = true
                             console.warn(`Sprite not loaded: ${u}`)
                         }
                         await new Promise(requestAnimationFrame)
                     }
-                    this.#internals?.states.delete('--broken')
+                    this.#internals.states.delete('--broken')
                     let { padLeft, padTop, bitmap, framesX, framesY, frameHeight, frameWidth, values, displayedFrames } = bitmaps.get(u)
                     this.#padLeft = padLeft
                     this.#padTop = padTop
@@ -309,11 +309,11 @@ ffmpeg -f concat -safe 0 -i list.txt \\
                     this.#anim.setAttribute('href', '#fe')
                     this.restart()
                 }
-                if (this.hasAttribute('paused')) this.pause()
+                this.hasAttribute('paused')&& this.pause()
             })
         }
         #state = 'playing'
-        get#canPlay() {
+        get #canPlay() {
             return this.checkVisibility ? this.checkVisibility() : true
         }
         get state() {
@@ -324,7 +324,6 @@ ffmpeg -f concat -safe 0 -i list.txt \\
             this.#svg.unpauseAnimations()
             if (this.#state === 'ended') this.time = 0
             this.#state = 'playing'
-            // needed bc it's broken
         }
         #disable() {
             this.#anim.removeEventListener('endEvent', end)
@@ -345,11 +344,10 @@ ffmpeg -f concat -safe 0 -i list.txt \\
         constructor() {
             super()
             this.#once = false//this.hasAttribute('unique')
-            this.#internals?.states.add('--broken')
+            this.#internals.states.add('--broken')
             let shadow = this.attachShadow({ mode: 'open' })
             shadow.appendChild(svg.cloneNode(true))
             this.#svg = shadow.querySelector('svg')
-            //<animateTransform attributeName="transform" fill="freeze" calcMode="discrete" type=translate repeatCount="indefinite"/>
             let anim = this.#anim = d.createElementNS("http://www.w3.org/2000/svg", 'animateTransform')
             anim.setAttribute('attributeName', 'transform')
             anim.setAttribute('fill', 'freeze')
@@ -389,13 +387,13 @@ ffmpeg -f concat -safe 0 -i list.txt \\
             if (isNaN(v) || v < 0) v = 'indefinite'
             let a = this.#anim
             this.#disable()
-            a.setAttribute('repeatCount', v|0||'indefinite')
+            a.setAttribute('repeatCount', v | 0 || 'indefinite')
             this.time = time
             playing && this.play()
             this.#enable()
         }
         pause() {
-            if (this.dispatchEvent(new Event('pauseEvent', { bubbles: true, cancelable: true }))) {
+            if (this.dispatchEvent(new Event('pauseEvent', cb))) {
                 this.#svg.pauseAnimations()
                 this.#state = 'paused'
             }
@@ -423,7 +421,7 @@ ffmpeg -f concat -safe 0 -i list.txt \\
             return Math.floor(this.time / this.dur)
         }
         resume() {
-            this.dispatchEvent(new Event('resumeEvent', { bubbles: true, cancelable: true })) && this.#svg.unpauseAnimations()
+            this.dispatchEvent(new Event('resumeEvent', cb)) && this.#svg.unpauseAnimations()
         }
         #updateTotalDuration() {
             if (this.#displayedFrames === 0) return
@@ -477,18 +475,19 @@ ffmpeg -f concat -safe 0 -i list.txt \\
         idx === 0 || val !== src[idx - 1] ? acc.push({ n: val, count: 1 }) : ++acc[acc.length - 1].count
         return acc
     }
+    let bubbles = { bubbles: true }
+    let cb = { bubbles: true, cancelable: true }
     function repeat(e) {
-        let t = e.target.getRootNode().host
-        t.dispatchEvent(new Event('repeatEvent', { bubbles: true }))
+        e.target.getRootNode().host.dispatchEvent(new Event('repeatEvent', bubbles))
     }
     function begin(e) {
-        e.target.getRootNode().host.dispatchEvent(new Event('beginEvent', {bubbles: true}))
+        e.target.getRootNode().host.dispatchEvent(new Event('beginEvent', bubbles))
     }
     function end(e) {
         let t = e.target.getRootNode().host
         if (t.shadowRoot.firstChild && t.time === t.totalDur) {
             SlideShow.setState(t, 'ended')
-            t.dispatchEvent(new Event('endEvent', { bubbles: true }))
+            t.dispatchEvent(new Event('endEvent', bubbles))
         }
     }
     function addListeners() {
