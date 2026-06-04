@@ -716,7 +716,7 @@ div[role="status"] {
     filter: hue-rotate(20deg) saturate(5)
 }
 [data-is="wishiwashi-school"] {
-    top: 80%
+    top: 49%
 }
 slide-show {
     transition: filter 1.1s linear 1s;
