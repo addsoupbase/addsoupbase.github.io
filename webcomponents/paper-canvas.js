@@ -101,7 +101,7 @@ if (Object.getOwnPropertyDescriptor(ShadowRoot.prototype, 'adoptedStyleSheets'))
         touch-action: none;
         image-rendering: auto;
         outline: 1px solid black;
-        background-color: white;
+        background: repeating-conic-gradient(white 0 25%, lightgrey 0 50%) 50% / 12.5px 12.5px content-box;
         -webkit-touch-callout: none;
         cursor: inherit;
         -webkit-tap-highlight-color: transparent !important
@@ -231,8 +231,11 @@ if (Object.getOwnPropertyDescriptor(ShadowRoot.prototype, 'adoptedStyleSheets'))
         formResetCallback() {
             this.snapshot()
             this.brushsize = 1
-            let { width, height } = this.canvas
-            this.ctx.clearRect(0, 0, width, height)
+            let { width, height } = this.canvas, { ctx } = this
+            let old = ctx.fillStyle
+            ctx.fillStyle = 'white'
+            ctx.fillRect(0, 0, width, height)
+            ctx.fillStyle = old
             this.internals?.setValidity({ valueMissing: true }, 'Draw something')
         }
         #saved = PaperCanvas.BASE_CONTEXT_ATTRIBUTES
