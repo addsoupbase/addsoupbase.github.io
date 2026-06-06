@@ -176,7 +176,7 @@ if (Object.getOwnPropertyDescriptor(ShadowRoot.prototype, 'adoptedStyleSheets'))
                 canvas.addEventListener('wheel', scroll, { passive: false })
             canvas.style.width = `${canvas.width = width}px`
             canvas.style.height = `${canvas.height = height}px`
-            this.ctx = Object.assign(canvas.getContext('2d', { desynchronized: true }), PaperCanvas.BASE_CONTEXT_ATTRIBUTES)
+            this.ctx = Object.assign(canvas.getContext('2d'), PaperCanvas.BASE_CONTEXT_ATTRIBUTES)
             this.ctx.fillRect(0, 0, width, height)
             this.color = 'black'
             shadow.adoptedStyleSheets = [style]
