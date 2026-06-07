@@ -14,6 +14,21 @@ export const SlideShow = function (_) {
             }
         }))
     }*/
+    function addToObserve(n) {
+        observer.observe(n)
+    }
+    let lazies = new Map
+    let lives = new Map
+    {
+        function c(n) {
+            for (let i = n.length; i--;) {
+                let entry = n[i]
+                if (entry.intersectionRatio)
+                    SlideShow.finishLazyLoad(entry.target.src)
+            }
+        }
+        var observer = new IntersectionObserver(c)
+    }
     class SlideShow extends HTMLElement {
         static #safariID = 0
         static observedAttributes = 'values src dur index repeat imagesmoothing'.split(' ')
@@ -31,9 +46,26 @@ export const SlideShow = function (_) {
         static isLoaded(...srces) {
             return srces.every(o => bitmaps.has(new URL(o, location)))
         }
+        static #lazyLoad(s, type) {
+            function a(resolve) {
+                switch (type) {
+                    default:
+                        lazies.set(s, resolve)
+                        break
+                    case 'live':
+                        lives.set(s, resolve)
+                }
+            }
+            switch (type) {
+                case 'lazy':
+                    d.querySelectorAll(`slide-show[src="${CSS.escape(s)}"]`).forEach(addToObserve)
+            }
+            let out = new Promise(a)
+            return out
+        }
         static preload(...sources) {
             let out = []
-            for (let { padLeft = 0, padTop = 0, framesX = 1, framesY = 1, src, duras, image, reversed, crop = true } of sources) {
+            for (let { loading, padLeft = 0, padTop = 0, framesX = 1, framesY = 1, src, duras, image, reversed, crop = true } of sources) {
                 if (typeof duras === 'string') duras = duras.split(sep).filter(Boolean).map(map)
                 let url = new URL(src, d.baseURI)
                 let s = url.toString()
@@ -44,12 +76,23 @@ export const SlideShow = function (_) {
                     image.decode ? image.decode().then(a) : a()
                     continue
                 }
-                let n = new Image
-                n.setAttribute('fetchpriority', 'high')
-                n.decoding = 'sync'
-                n.src = src
-                if (url.origin !== origin)
-                    n.crossOrigin = 'anonymous'
+                let img = new Image
+                switch (loading) {
+                    case 'lazy':
+                        SlideShow.#lazyLoad(s).then(go)
+                        break
+                    case 'live':
+                        SlideShow.#lazyLoad(s, 'live').then(go)
+                        break
+                    default: go()
+                }
+                function go() {
+                    img.setAttribute('fetchpriority', 'high')
+                    img.decoding = 'sync'
+                    img.src = src
+                    if (url.origin !== origin)
+                        img.crossOrigin = 'anonymous'
+                }
                 async function load(o, width, height, isSpecial) {
                     let vals = []
                     if (typeof duras?.[0]?.length === 'number')
@@ -91,15 +134,15 @@ export const SlideShow = function (_) {
                 out.push(new Promise((resolve, reject) => {
                     let controller = new AbortController,
                         { signal } = controller
-                    n.addEventListener('error', e => {
+                    img.addEventListener('error', e => {
                         controller.abort(e)
                         reject(e)
                     }, reject, { signal })
-                    n.addEventListener('load', () => {
+                    img.addEventListener('load', () => {
                         controller.abort()
-                        let width = n.naturalWidth / framesX
-                        let height = n.naturalHeight / framesY
-                        createImageBitmap(n).then(o => load(o, width, height)).then(resolve)
+                        let width = img.naturalWidth / framesX
+                        let height = img.naturalHeight / framesY
+                        createImageBitmap(img).then(o => load(o, width, height)).then(resolve)
                     }, { signal })
                 }))
             }
@@ -187,6 +230,18 @@ ffmpeg -f concat -safe 0 -i list.txt \\
         set dur(val) {
             this.setAttribute('dur', val)
         }
+        static finishLazyLoad(...srces) {
+            for (let i = srces.length; i--;) {
+                let src = new URL(srces[i], location).toString()
+                let isLazy = lazies.has(src)
+                let z = lazies.get(src) || lives.get(src)
+                if (!z) continue
+                z()
+                lazies.delete(src)
+                lives.delete(src)
+                isLazy && d.querySelectorAll(`slide-show[src="${CSS.escape(src)}"]`).forEach(observer.unobserve, observer)
+            }
+        }
         get canvasElement() { return this.#sprite }
         async attributeChangedCallback(attr, oldVal, val) {
             switch (attr) {
@@ -199,6 +254,8 @@ ffmpeg -f concat -safe 0 -i list.txt \\
                     let u = new URL(val, this.baseURI).toString()
                     let isSpecial = val[0] === '$'
                     if (u !== val && !isSpecial) return this.setAttribute('src', u)
+                    observer.unobserve(this)
+                    if (lazies.has(u)) observer.observe(this)
                     // if (this.getAttribute('loading') === 'lazy') return
                     let canvas = this.#sprite
                     canvas.setAttribute('src', isSpecial ? val : u)
@@ -208,6 +265,7 @@ ffmpeg -f concat -safe 0 -i list.txt \\
                         if (!b) {
                             if ((this.hasAttribute('framesx') || this.hasAttribute('framesy'))) {
                                 let n = {
+                                    loading: this.getAttribute('loading'),
                                     framesX: this.getAttribute('framesx') | 0,
                                     framesY: this.getAttribute('framesy') | 0,
                                     src: this.src,
@@ -297,6 +355,7 @@ ffmpeg -f concat -safe 0 -i list.txt \\
         #dom
         connectedCallback() {
             let a = this.#anim
+            if (lives.has(this.src)) finishLazyLoad(this.src)
             this.dispatchEvent(new Event('connected'))
             this.hasAttribute('role') || (this.role = 'img')
             this.#disable()
@@ -309,7 +368,7 @@ ffmpeg -f concat -safe 0 -i list.txt \\
                     this.#anim.setAttribute('href', '#fe')
                     this.restart()
                 }
-                this.hasAttribute('paused')&& this.pause()
+                this.hasAttribute('paused') && this.pause()
             })
         }
         #state = 'playing'
@@ -538,4 +597,4 @@ function doWorkerStuffs(bitmap, width, height) {
         port1.addEventListener('messageerror', err)
     })
 }
-export const { isLoaded } = SlideShow
+export const { isLoaded, finishLazyLoad } = SlideShow

@@ -1,8 +1,8 @@
 // import *as v from './v4.js'
 let d = document
 import './h.js'
-import preload, { SlideShow, isLoaded } from './webcomponents/slide-show.js'
-export { preload as loadSprite, SlideShow, isLoaded }
+import preload, { SlideShow, isLoaded, finishLazyLoad } from './webcomponents/slide-show.js'
+export { preload as loadSprite, SlideShow, isLoaded, finishLazyLoad }
 const h = window[Symbol.for('[[HModule]]')]
 let loaded = null
 const isSafari = 'onwebkitmouseforceup' in window
@@ -112,23 +112,22 @@ const q = /"/g
 let observer = new IntersectionObserver(e => {
     for (let entry of e) if (entry.isIntersecting) {
         let sprite = entry.target
-        if (!sprite.src && !isAutoScrolling) {
-            let dex = entries.get(sprite.dataset.is)
-            let data = dex[3]
-            let caught = dex[2]
-            data.framesX = (data.duras = data.values.split(';').map(Number)).length
-            preload(data)[0]
-                .then(() => {
-                    if (caught[0] || caught[1]) {
-                        sprite.classList.add('discovered')
-                        sprite.play()
-                    }
-                })
-            sprite.setAttribute('src', data.src)
-        }
+        // if (!sprite.src && !isAutoScrolling) {
+        //     let dex = entries.get(sprite.dataset.is)
+        //     let data = dex[3]
+        //     let caught = dex[2]
+        //     data.framesX = (data.duras = data.values.split(';').map(Number)).length
+        //     if (caught[0] || caught[1]) {
+        //         sprite.classList.add('discovered')
+        //         sprite.play()
+        //     }
+        //     finishLazyLoad(data.src)
+        //     sprite.setAttribute('src', data.src)
+        // }
         if (entry.intersectionRatio > .3) {
             setActive(sprite)
             sessionStorage.lastIndex = sprite.closest('.entry').dataset.dexno
+            finishLazyLoad(sprite.src)
         }
     }
 }, {
@@ -188,11 +187,8 @@ async function addDexEntry(data, name, lazy) {
 let globalPokedex = {}
 let dexElement = d.querySelector('poke-dex')
 export function loadPokemon(...data) {
+    data.forEach(o=>addDexEntry(o, o.name))
     return preload(...data)
-        .map((o, i) => o.then(o => {
-            addDexEntry(o, data[i].name)
-            return o
-        }))
 }
 let entries = new Map
 let l = localStorage
@@ -337,13 +333,13 @@ slide-show:--broken {
     visibility: hidden;
 }
 ${isSafari ? '.var:has(' : ''}slide-show:not(.discovered)${isSafari ? ')' : ''} {
-    ${isSafari ? 
+    ${isSafari ?
         `background-repeat:no-repeat;
         background-position:50%;
-        background-image: url(data:image/webp;base64,UklGRiQBAABXRUJQVlA4TBcBAAAvP8APECcgECD8z0mQYkMgQPifkyCFQIDwPydBivkPAPCnqgBSbdt1m6QtgBxbBHxlAD8Ckfijqt6L3htmFtF/BW6jNgd07x484vFdyFGg/SbwxshfxpzGLakFaPdtVgrhBeyS1IFnBNa8xvJNTpZQVkDSdd9VUqT7bfJr/Es12d+0bnKMSApUy8gL1AvafzavjlU6VOlyR5j3SMuY7Faadrxo0sjXc2RSmXWsbPY8YHdZOOcj+wewj4HzkesHcM4HQh2onaZr4ApiK2ONDDB75SCVKHYPcENCC8HewS0U+Rcn7l9C/2p54/41xAtOacXxIsIrC8erPC/zvM77Rdqv8n6Z9ut8XEjHlXxcSse1dFzMx9WvQh4A)` : 
+        background-image: url(data:image/webp;base64,UklGRiQBAABXRUJQVlA4TBcBAAAvP8APECcgECD8z0mQYkMgQPifkyCFQIDwPydBivkPAPCnqgBSbdt1m6QtgBxbBHxlAD8Ckfijqt6L3htmFtF/BW6jNgd07x484vFdyFGg/SbwxshfxpzGLakFaPdtVgrhBeyS1IFnBNa8xvJNTpZQVkDSdd9VUqT7bfJr/Es12d+0bnKMSApUy8gL1AvafzavjlU6VOlyR5j3SMuY7Faadrxo0sjXc2RSmXWsbPY8YHdZOOcj+wewj4HzkesHcM4HQh2onaZr4ApiK2ONDDB75SCVKHYPcENCC8HewS0U+Rcn7l9C/2p54/41xAtOacXxIsIrC8erPC/zvM77Rdqv8n6Z9ut8XEjHlXxcSse1dFzMx9WvQh4A)` :
         'filter: drop-shadow(0 0 0 transparent) brightness(0%)'}
 }
-${isSafari ? "slide-show:not(.discovered){visibility:hidden}" :`slide-show.discovered {
+${isSafari ? "slide-show:not(.discovered){visibility:hidden}" : `slide-show.discovered {
     filter:drop-shadow(2px 2px 0px #0000004d) brightness(100%)
 }` }
 
@@ -965,7 +961,7 @@ export function setField(bg) {
             pokeball.style.position = 'absolute'
             pokeball.toggleAttribute('autoplay', true)
             pokeball.dur = .05
-            pokeball.toggleAttribute('precise',true)
+            pokeball.toggleAttribute('precise', true)
             t.after(pokeball)
             pokeball.addEventListener('disconnected', update, { once: true })
             // let {currentCSSZoom: zoom} = t
