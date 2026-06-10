@@ -1,8 +1,9 @@
 //$dev var h = 
 (function handle(globalThis) {
     'use strict'
-    var MODULE = Symbol.for("[[HModule]]")
-    if (globalThis[MODULE]) return globalThis[MODULE]
+    var MODULE = Symbol.for("[[HModule]]"),
+        h = globalThis[MODULE]
+    if (h) return h
     var h = {},
         sym = Symbol.for("[[Events]]"),
         //  Don't collide, and make sure its usable across realms!!
@@ -38,35 +39,14 @@
             }).showPicker()
         }
     }
-    function emptyFileInput() {
-        f = Object.assign(document.createElement('input'), {
-            type: 'file'
-        })
-    }
-    h.emptyFileInput = emptyFileInput
     h.requestFile = h.reqFile = requestFile
     var test = handle.bind.bind(/ /.test),
         isAnimation = test(/^(animation(?:cancel|remove))$/),
         isFocus = test(/^(?:focus(?:in|out))$/),
         isDOMThing = test(/^(?:DOM(?:Activate|MouseScroll|Focus(?:In|Out)|(?:Attr|CharacterData|Subtree)Modified|NodeInserted(?:IntoDocument)?|NodeRemoved(?:FromDocument)?))$/),
-        isMediaQuery = test(/^(?:\(.+\))$/)
-    // var reqFile = requestFile
-    var isTouch = test(/^(?:touch(?:cancel|end|move|start|forcechange))$/)
+        isMediaQuery = test(/^(?:\(.+\))$/),
+        isTouch = test(/^(?:touch(?:cancel|end|move|start|forcechange))$/)
     // var MSEventSyntax = /((?:(?<a>g)ot|(?<a>l)ost)(?<b>p)ointer(?<c>c)apture)|(?<a>p)ointer(?:(?<b>d)own|(?<b>c)ancel|(?<b>u)p|(?<b>e)nter|(?<b>l)eave|(?<b>m)ove|(?<b>o)(?:ut|ver))/
-    function getIEPointerEvent(name) {
-        var n = name.split('pointer')
-            , prefix = n[0] && (name[0] === 'g' ? 'Got' : 'Lost')
-            , p = n[1]
-        return 'MS' + prefix + 'Pointer' + p[0].toUpperCase() + p.substring(1)
-    }
-    function getIEGestureEvent(name) {
-        var a = name.split('gesture')[1]
-        return 'MSGesture' + a[0].toUpperCase() + a.substring(1)
-    }
-    function pointerToMouse(e, target) {
-        if (e === 'cancel') e = 'out'
-        if ('on' + (e = 'mouse' + e) in target) return e
-    }
     // var vendors = /^(?:webkit|ms|moz)(?!$)/
     function verifyEventName(target, name) {
         var original = name
@@ -84,12 +64,12 @@
             var v
             if ((v = 'onwebkit' + name) in target || (v = 'onmoz' + name) in target || (v = 'onms' + name) in target) return v.substring(2) + original
             if ((v = name.substring(0, 7)) === 'pointer') {
-                var canB = pointerToMouse(name.substring(7), target)
-                if (canB) return canB
+                var pointer = pointerToMouse(name.substring(7), target)
+                if (pointer) return pointer
                 if (IE) return getIEPointerEvent(name)
             }
             if (name === 'wheel') {
-                if ((v = 'onmousewheel') in target) return v.substring(2) // iOS doesn't support 'wheel' events yet
+                if ('on' + (v = 'mousewheel') in target) return v // iOS doesn't support 'wheel' events yet
                 if (typeof MouseScrollEvent === 'function') return 'DOMMouseScroll' // If they don't support the first 2, this one will work ~100% of the time
                 return 'MozMousePixelScroll' // The last resort, since there's no way to detect support with this one
             }
@@ -99,6 +79,7 @@
         }
         return original
     }
+    h.verifyEventName = verifyEventName
     var delayedEvents = new Map
         , giveItSomeTime = function (hold, secondparam) {
             hold === globalThis.requestIdleCallback &&
@@ -271,8 +252,7 @@
                     //once
                     passive: !!passive
                 },
-                flags = once | prevents | passive | capture | stopProp | stopImmediateProp | onlyTrusted | onlyCurrentTarget | autoabort //| wantsUntrusted | onlyOriginalTarget | onlyExplicitOriginalTarget
-                ,
+                flags = once | prevents | passive | capture | stopProp | stopImmediateProp | onlyTrusted | onlyCurrentTarget | autoabort, //| wantsUntrusted | onlyOriginalTarget | onlyExplicitOriginalTarget
                 newTarget = target
             if (flags & FLAG_PASSIVE && flags & FLAG_PREVENTS) {
                 // let {caller} = on, a = []
@@ -331,14 +311,20 @@
         , FIREFOX = h.firefox = typeof scrollMaxX === 'number'
         , IE = h.ie = typeof msAnimationStartTime === 'number'
         , CHROME = h.chrome = typeof chrome === 'object'  // chromium based (opera, edge, brave)
-    function compatOn(variants) {
-        if (CHROME) var data = variants.chrome
-        else if (FIREFOX) data = variants.firefox
-        else if (SAFARI) data = variants.safari
-        else if (IE) data = variants.ie
-        return (data = data || variants.otherwise) && on.apply(null, data)
+    if (IE) {
+        var getIEPointerEvent = function (name) {
+            var n = name.split('pointer')
+                , prefix = n[0] && (name[0] === 'g' ? 'Got' : 'Lost')
+                , p = n[1]
+            return 'MS' + prefix + 'Pointer' + p[0].toUpperCase() + p.substring(1)
+        }, getIEGestureEvent = function (name) {
+            var a = name.split('gesture')[1]
+            return 'MSGesture' + a[0].toUpperCase() + a.substring(1)
+        }, pointerToMouse = function (e, target) {
+            if (e === 'cancel') e = 'out'
+            if ('on' + (e = 'mouse' + e) in target) return e
+        }
     }
-    h.compatOn = compatOn
     if (typeof Proxy === 'function') {
         var rebind = Object.fromEntries(['preventDefault', 'composedPath', 'initEvent', 'stopPropagation', 'stopImmediatePropagation']
             .map(function (name) {
@@ -489,7 +475,7 @@
                         var reason = n.reason
                         reject(reason)
                         controller.abort(reason)
-                    }, {once: true})
+                    }, { once: true })
                 }
                 else {
                     var id = setTimeout(function () {

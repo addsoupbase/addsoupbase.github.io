@@ -44,7 +44,7 @@ export const SlideShow = function (_) {
             this.#anim.setAttribute('values', mapValues(this.values.reverse()))
         }
         static isLoaded(...srces) {
-            return srces.every(o => bitmaps.has(new URL(o, location)))
+            return srces.every(o => datas.has(new URL(o, location)))
         }
         static #lazyLoad(s, type) {
             function a(resolve) {
@@ -115,7 +115,7 @@ export const SlideShow = function (_) {
                         values: vals,
                         displayedFrames: vals.length
                     }
-                    bitmaps.set(s, out)
+                    datas.set(s, out)
                     let selector = `:host([src="${isSpecial ? src : s}"])`
                     let w = width,
                         h = height
@@ -159,7 +159,7 @@ export const SlideShow = function (_) {
         get padLeft() { return this.#padLeft }
         get padTop() { return this.#padTop }
         get values() {
-            return this.#anim.getAttribute('values').split(';').map(o => +o.split(',')[0])
+            return this.#anim.getAttribute('values').split(';').map(o => Math.abs(o.split(',')[0]))
         }
         set values(v) {
             let a = this.#anim
@@ -171,38 +171,40 @@ export const SlideShow = function (_) {
         get height() {
             return this.#height
         }
-        async extract(speed = .048, indexes = [this.index], selector) {
+        async download(name = 'sprite', speed = 120, indexes = Array.from({ length: this.framesY }, (_, i) => i)) {
             let module = await import('https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm')
-                , JSZip = module.default
-                , zip = JSZip()
-                , offsets = this.values
-                , { width, height, canvasElement } = this
-                , frameGroups = compressAll(offsets)
-                , H = height * indexes.length
-                , c = new OffscreenCanvas(width, H)
-                , ctx = c.getContext('2d')
-                , listContent = []
-                , x = 0
-            for (const { n, count } of frameGroups) {
-                for (let i of indexes)
-                    ctx.drawImage(canvasElement, -n, 0)
-                zip.file(`${x}.png`, await c.convertToBlob())
+            , JSZip = module.default
+            , zip = new JSZip()
+            , offsets = this.values
+            , frameGroups = compressAll(offsets)
+            , { width, height, canvasElement } = this
+            , H = height * indexes.length
+            , canvas = new OffscreenCanvas(width, H)
+            , ctx = canvas.getContext('2d')
+            , listContent = []
+            let groupIndex = 0
+            let lastFrame
+            for (let { n, count } of frameGroups) {
+                for (let row of indexes) {
+                    let sy = row * height
+                    let dy = row * height
+                    ctx.drawImage(
+                        canvasElement,
+                        n, sy, width, height,
+                        0, dy, width, height
+                    )
+                }
+                let blob = await canvas.convertToBlob()
+                , fileName = `${groupIndex}.png`
+                zip.file(fileName, blob)
                 ctx.clearRect(0, 0, width, H)
-                listContent.push(`file '${x}.png'`, `duration ${count * speed}`)
-                ++x
+                listContent.push(`${fileName} -d ${lastFrame = count * speed} -q 100 -m 6`)
+                ++groupIndex
             }
-            let lastFrame = x - 1
-            listContent.push(`file '${lastFrame}.png'`, 'duration 0.04')
-            zip.file('list.txt', listContent.join('\n'))
-            let shellScript = `#!/bin/sh
-ffmpeg -f concat -safe 0 -i list.txt \\
-       -vf "split[s0][s1];[s0]palettegen=reserve_transparent=on[p];[s1][p]paletteuse" \\
-       -loop 0 '${selector}.gif'`
-            zip.file('make_gif.sh', shellScript)
-            zip.file('style.css', `width:${width}px;height:${height}px;object-position: 0 calc(-${height}px * var(--SPRITE_INDEX, 0))`)
+            const shellScript = `img2webp -loop 0 ${listContent.join(' ')} -o ${name}.webp && webpmux -duration ${lastFrame},0 ${name}.webp -o ${name}.webp && exit`
+            zip.file('g.sh', shellScript)
+            zip.file('style.txt', `width:${width}px;height:${height}px;object-position: calc(-${width}px * var(--Y, 0)) calc(-${height}px * var(--X, 0));`)
             return await zip.generateAsync({ type: 'blob' })
-            // dont forget to include object-fit: none
-            // or as an alternative, you can use background-image instead
         }
         #framesY = 0
         #framesX = 0
@@ -261,7 +263,7 @@ ffmpeg -f concat -safe 0 -i list.txt \\
                     canvas.setAttribute('src', isSpecial ? val : u)
                     let ctx = this.#ctx
                     let b = false
-                    while (!bitmaps.has(u)) {
+                    while (!datas.has(u)) {
                         if (!b) {
                             if ((this.hasAttribute('framesx') || this.hasAttribute('framesy'))) {
                                 let n = {
@@ -283,7 +285,7 @@ ffmpeg -f concat -safe 0 -i list.txt \\
                         await new Promise(requestAnimationFrame)
                     }
                     this.#internals.states.delete('--broken')
-                    let { padLeft, padTop, bitmap, framesX, framesY, frameHeight, frameWidth, values, displayedFrames } = bitmaps.get(u)
+                    let { padLeft, padTop, bitmap, framesX, framesY, frameHeight, frameWidth, values, displayedFrames } = datas.get(u)
                     this.#padLeft = padLeft
                     this.#padTop = padTop
                     this.#width = frameWidth
@@ -305,7 +307,7 @@ ffmpeg -f concat -safe 0 -i list.txt \\
                     fe.setAttribute('height', height)
                     if (this.#once) {
                         (ctx.transferFromImageBitmap || ctx.transferImageBitmap).call(ctx, bitmap)
-                        bitmaps.delete(this.src)
+                        datas.delete(this.src)
                     }
                     else ctx.drawImage(bitmap, 0, 0)
                     fe.style.setProperty('--height', framesY * frameHeight)
@@ -316,6 +318,7 @@ ffmpeg -f concat -safe 0 -i list.txt \\
                     if (this.hasAttribute('autoplay'))
                         this.play()
                     if (!supportsMod) this.index = this.index
+                    this.dispatchEvent(new Event('load'))
                     break
                 }
                 case 'dur':
@@ -332,6 +335,9 @@ ffmpeg -f concat -safe 0 -i list.txt \\
                         this.#ctx.imageSmoothingEnabled = true
                         this.#ctx.imageSmoothingQuality = val
                     }
+                    break
+                case 'values':
+                    this.#anim.setAttribute('values', val.split(sep).map(o => `${o},0`).join(';'))
                     break
                 default:
                     this.#sprite.setAttribute(attr, val)
@@ -361,15 +367,18 @@ ffmpeg -f concat -safe 0 -i list.txt \\
             this.#disable()
             this.hasAttribute('paused') ? this.restart() : this.#enable()
             requestAnimationFrame(() => {
-                this.time = 0
-                this.shadowRoot.appendChild(this.#dom)
-                if (typeof scrollMaxX === 'number') {
-                    this.#svg.appendChild(this.#anim)
-                    this.#anim.setAttribute('href', '#fe')
-                    this.restart()
-                }
-                this.hasAttribute('paused') && this.pause()
+                this.view()
             })
+        }
+        view() {
+            this.time = 0
+            this.shadowRoot.appendChild(this.#dom)
+            if (typeof scrollMaxX === 'number') {
+                this.#svg.appendChild(this.#anim)
+                this.#anim.setAttribute('href', '#fe')
+                this.restart()
+            }
+            this.hasAttribute('paused') && this.pause()
         }
         #state = 'playing'
         get #canPlay() {
@@ -509,7 +518,7 @@ ffmpeg -f concat -safe 0 -i list.txt \\
     let d = document
         , svg = d.createRange().createContextualFragment(
             /*html*/`<div aria-hidden="true" part="sprite" id="sprite"><svg><foreignObject width=100 height=100 id="fe" x=0 style="background-size:auto;background-repeat:no-repeat"><canvas style="position:relative"></canvas></foreignObject></svg></div>`)
-        , bitmaps = new Map
+        , datas = new Map
         , sheet = new CSSStyleSheet
         , isSafari = 'onwebkitmouseforceup' in window
     //:host([loading="lazy"]) #sprite{content-visibility:auto}

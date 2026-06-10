@@ -999,14 +999,13 @@ addEventListener('updatepokedex', ({ detail }) => {
 let queueing = false
 async function processQueue() {
     if (queueing) return
-    isScrolling = queueing = true
+    queueing = true
     while (updateQueue.length) {
         const detail = updateQueue.shift()
         handlePokedexUpdate(detail)
         await h.wait(2300)
-        isScrolling = false
     }
-    isScrolling = queueing = false
+    queueing = false
 }
 
 function getShinyIndex(name) {
