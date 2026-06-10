@@ -762,7 +762,7 @@ new FontFace('pokemon', `url(${new URL('./pokemonfont/font.woff2', import.meta.u
     .load().then(document.fonts.add.bind(document.fonts))
 let DOM = d.createRange().createContextualFragment(/*html*/`
 <div style="position:relative;height:90%;width:100%;">
-  <button id="toggle" aria-label="Toggle" tabindex="0" aria-hidden="true"></button>
+  <button id="toggle" aria-label="Toggle" tabindex="0"></button>
   <div part="container">
     <div style="position:absolute;display:flex;gap:14px;top:4px;width:100%;place-content:center" aria-hidden="true">
       <div class="decor"></div>

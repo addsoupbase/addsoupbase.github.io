@@ -173,15 +173,15 @@ export const SlideShow = function (_) {
         }
         async download(name = 'sprite', speed = 120, indexes = Array.from({ length: this.framesY }, (_, i) => i)) {
             let module = await import('https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm')
-            , JSZip = module.default
-            , zip = new JSZip()
-            , offsets = this.values
-            , frameGroups = compressAll(offsets)
-            , { width, height, canvasElement } = this
-            , H = height * indexes.length
-            , canvas = new OffscreenCanvas(width, H)
-            , ctx = canvas.getContext('2d')
-            , listContent = []
+                , JSZip = module.default
+                , zip = new JSZip()
+                , offsets = this.values
+                , frameGroups = compressAll(offsets)
+                , { width, height, canvasElement } = this
+                , H = height * indexes.length
+                , canvas = new OffscreenCanvas(width, H)
+                , ctx = canvas.getContext('2d')
+                , listContent = []
             let groupIndex = 0
             let lastFrame
             for (let { n, count } of frameGroups) {
@@ -195,7 +195,7 @@ export const SlideShow = function (_) {
                     )
                 }
                 let blob = await canvas.convertToBlob()
-                , fileName = `${groupIndex}.png`
+                    , fileName = `${groupIndex}.png`
                 zip.file(fileName, blob)
                 ctx.clearRect(0, 0, width, H)
                 listContent.push(`${fileName} -d ${lastFrame = count * speed} -q 100 -m 6`)
@@ -416,12 +416,7 @@ export const SlideShow = function (_) {
             let shadow = this.attachShadow({ mode: 'open' })
             shadow.appendChild(svg.cloneNode(true))
             this.#svg = shadow.querySelector('svg')
-            let anim = this.#anim = d.createElementNS("http://www.w3.org/2000/svg", 'animateTransform')
-            anim.setAttribute('attributeName', 'transform')
-            anim.setAttribute('fill', 'freeze')
-            anim.setAttribute('calcMode', 'discrete')
-            anim.setAttribute('type', 'translate')
-            anim.setAttribute('repeatCount', 'indefinite')
+            let anim = this.#anim = shadow.querySelector('animateTransform')
             // this.#anim.remove()
             let { opaque } = this
             this.#sprite = shadow.querySelector('canvas')
@@ -521,6 +516,15 @@ export const SlideShow = function (_) {
         , datas = new Map
         , sheet = new CSSStyleSheet
         , isSafari = 'onwebkitmouseforceup' in window
+    {
+        let a = d.createElementNS("http://www.w3.org/2000/svg", 'animateTransform')
+        a.setAttribute('attributeName', 'transform')
+        a.setAttribute('fill', 'freeze')
+        a.setAttribute('calcMode', 'discrete')
+        a.setAttribute('type', 'translate')
+        a.setAttribute('repeatCount', 'indefinite')
+        svg.querySelector('foreignObject').appendChild(a)
+    }
     //:host([loading="lazy"]) #sprite{content-visibility:auto}
     // let before = `content: attr(alt);left:-30px;font-size:smaller;position:relative;font-family:monospace`
     let broken = 'background-image:url(data:image/webp;base64,UklGRmQAAABXRUJQVlA4TFgAAAAvH8AHAA8w/xHzHwZHkSTLShU7t4+Dj5OPs2LniASk4OzZiOh/jDHGGtpCR+gEnaELdIWUXJEb8kBO5EwuZCQmq2STHJIpmZMlKeEq3ISH8BG+wk/4jzEG);width:32px;height:32px;image-rendering:auto;'
