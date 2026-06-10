@@ -159,7 +159,7 @@ export const SlideShow = function (_) {
         get padLeft() { return this.#padLeft }
         get padTop() { return this.#padTop }
         get values() {
-            return this.#anim.getAttribute('values').split(';').map(o => Math.abs(o.split(',')[0]))
+            return this.#anim.getAttribute('values').split(';').map(o => o.split(',')[0])
         }
         set values(v) {
             let a = this.#anim
