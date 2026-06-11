@@ -200,11 +200,11 @@ if (Object.getOwnPropertyDescriptor(ShadowRoot.prototype, 'adoptedStyleSheets'))
             }
         }
         dataURL(quality = 1) {
-            return this.canvas.toDataURL('image/png', quality)
+            return this.canvas.toDataURL('image/webp', quality)
         }
-        toBlob() {
+        toBlob(quality) {
             return new Promise(resolve => {
-                this.canvas.toBlob(resolve, 'image/png', 1)
+                this.canvas.toBlob(resolve, 'image/webp', 1)
             })
         }
         async toFile(title = `${crypto.randomUUID()}`) {
