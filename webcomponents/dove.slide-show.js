@@ -296,8 +296,8 @@ export const SlideShow = function (_) {
                     let fe = this.#fe
                     let width = canvas.width = framesX * frameWidth
                     let height = canvas.height = framesY * frameHeight
-                    this.#ctx.imageSmoothingEnabled = true
-                    this.#ctx.imageSmoothingQuality = 'high'
+                    ctx.imageSmoothingEnabled = true
+                    ctx.imageSmoothingQuality = 'high'
                     if (isSafari) {
                         let c = this.#ctx.canvas
                         c.width = width
@@ -319,6 +319,13 @@ export const SlideShow = function (_) {
                         this.play()
                     if (!supportsMod) this.index = this.index
                     this.dispatchEvent(new Event('load'))
+                    // try {
+                        setTimeout(() => {
+                            if (this.#state === 'playing' && this.repeatCount == 1) this.dispatchEvent(new Event('endEvent'))
+                            }, this.#anim.getSimpleDuration() * 1000)
+                        // dude i dont know why events arent firing but this will have to do for now
+                    // }
+                    // catch { }
                     break
                 }
                 case 'dur':
@@ -372,10 +379,13 @@ export const SlideShow = function (_) {
         }
         view() {
             this.time = 0
+            let anim = this.#anim
+            anim.addEventListener('repeatEvent', repeat)
+            anim.addEventListener('endEvent', end)
             this.shadowRoot.appendChild(this.#dom)
             if (typeof scrollMaxX === 'number') {
                 this.#svg.appendChild(this.#anim)
-                this.#anim.setAttribute('href', '#fe')
+                anim.setAttribute('href', '#fe')
                 this.restart()
             }
             this.hasAttribute('paused') && this.pause()
@@ -392,13 +402,17 @@ export const SlideShow = function (_) {
             this.#svg.unpauseAnimations()
             if (this.#state === 'ended') this.time = 0
             this.#state = 'playing'
+
         }
+        static isDisabled(t) { return t.#disabled }
+        static setDisabled(t, tt) { t.#disabled = !!tt }
+        #disabled = false
         #disable() {
-            this.#anim.removeEventListener('endEvent', end)
+            this.#disabled = true
         }
         #enable() {
-            if (!this.shadowRoot.firstChild) requestAnimationFrame(this.addEventListener.bind(this.#anim, 'beginEvent', addListeners, { once: true }))
-            else typeof scrollMaxX === 'number' ? addListeners.call(this.#anim) : this.#anim.addEventListener('beginEvent', addListeners, { once: true })
+            if (!this.shadowRoot.firstChild) requestAnimationFrame(this.addEventListener.bind(this.#anim, 'beginEvent', enable, { once: true }))
+            else typeof scrollMaxX === 'number' ? enable.call(this.#anim) : this.#anim.addEventListener('beginEvent', enable, { once: true })
         }
         restart() {
             let t = this.#anim
@@ -417,6 +431,7 @@ export const SlideShow = function (_) {
             shadow.appendChild(svg.cloneNode(true))
             this.#svg = shadow.querySelector('svg')
             let anim = this.#anim = shadow.querySelector('animateTransform')
+            // anim.addEventListener('/repeatEvent',console.info)
             // this.#anim.remove()
             let { opaque } = this
             this.#sprite = shadow.querySelector('canvas')
@@ -550,21 +565,25 @@ export const SlideShow = function (_) {
     let bubbles = { bubbles: true }
     let cb = { bubbles: true, cancelable: true }
     function repeat(e) {
+        let host = e.target.getRootNode().host
+        if (SlideShow.isDisabled(host)) return
         e.target.getRootNode().host.dispatchEvent(new Event('repeatEvent', bubbles))
     }
     function begin(e) {
+        let host = e.target.getRootNode().host
+        if (SlideShow.isDisabled(host)) return
         e.target.getRootNode().host.dispatchEvent(new Event('beginEvent', bubbles))
     }
     function end(e) {
         let t = e.target.getRootNode().host
+        if (SlideShow.isDisabled(t)) return
         if (t.shadowRoot.firstChild && t.time === t.totalDur) {
             SlideShow.setState(t, 'ended')
             t.dispatchEvent(new Event('endEvent', bubbles))
         }
     }
-    function addListeners() {
-        this.addEventListener('endEvent', end)
-        this.addEventListener('repeatEvent', repeat)
+    function enable() {
+        SlideShow.setDisabled(this.getRootNode().host, false)
     }
     // function visible(n) {
     //     let t = n.target
