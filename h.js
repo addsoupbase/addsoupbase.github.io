@@ -4,7 +4,12 @@
     var MODULE = Symbol.for("[[HModule]]"),
         h = globalThis[MODULE]
     if (h) return h
-    var h = {},
+Object.fromEntries=Object.fromEntries||function(l,o){o={}
+l.forEach(function(e,p){p=e[0]
+o[p]=e[1]})
+return o}
+    var h = {get event() {return currentEvent}},
+        currentEvent = null,
         sym = Symbol.for("[[Events]]"),
         //  Don't collide, and make sure its usable across realms!!
         apply = Reflect.apply,
@@ -21,48 +26,28 @@
         return {}.toString.call(obj).slice(8, -1).trim() || 'Object'
     }
     h.getLabel = getLabel
-    var f
-    function requestFile(accept, multiple) {
-        f = f || Object.assign(document.createElement('input'), {
-            type: 'file'
-        })
-        return new Promise(executor)
-        function executor(resolve, oncancel) {
-            function n() {
-                multiple ? resolve(f.files) : resolve([].at.call(f.files, -1))
-            }
-            return Object.assign(f, {
-                accept: accept,
-                multiple: multiple,
-                oncancel: oncancel,
-                onchange: n
-            }).showPicker()
-        }
-    }
-    h.requestFile = h.reqFile = requestFile
     var test = handle.bind.bind(/ /.test),
         isAnimation = test(/^(animation(?:cancel|remove))$/),
         isFocus = test(/^(?:focus(?:in|out))$/),
         isDOMThing = test(/^(?:DOM(?:Activate|MouseScroll|Focus(?:In|Out)|(?:Attr|CharacterData|Subtree)Modified|NodeInserted(?:IntoDocument)?|NodeRemoved(?:FromDocument)?))$/),
         isMediaQuery = test(/^(?:\(.+\))$/),
-        isTouch = test(/^(?:touch(?:cancel|end|move|start|forcechange))$/)
+        isTouch = test(/^(?:touch(?:cancel|end|move|start|forcechange))$/),
+        vendors = /^(?:webkit|ms|moz)(?!$)/
     // var MSEventSyntax = /((?:(?<a>g)ot|(?<a>l)ost)(?<b>p)ointer(?<c>c)apture)|(?<a>p)ointer(?:(?<b>d)own|(?<b>c)ancel|(?<b>u)p|(?<b>e)nter|(?<b>l)eave|(?<b>m)ove|(?<b>o)(?:ut|ver))/
-    // var vendors = /^(?:webkit|ms|moz)(?!$)/
     function verifyEventName(target, name) {
         var original = name
-        // name = name.toLowerCase()
-        var valid = (name.includes(':') || customEvents.has(name) || 'on' + name in target ||
-            ((original === 'DOMContentLoaded' && target.nodeType === 9)
-                || (isAnimation(original) && 'onremove' in target)
-                || isFocus(original)
-                || isTouch(original)
-                || (isDOMThing(original)))
-            //Some events like the ones above don't have a handler
-            || isMediaQuery(original)
-        )
+            , valid = (name.includes(':') || customEvents.has(name) || 'on' + name in target ||
+                ((original === 'DOMContentLoaded' && target.nodeType === 9)
+                    || (isAnimation(original) && 'onremove' in target)
+                    || isFocus(original)
+                    || isTouch(original)
+                    || (isDOMThing(original)))
+                // Some events like the ones above don't have a handler
+                || isMediaQuery(original)
+            )
         if (!valid) {
             var v
-            if ((v = 'onwebkit' + name) in target || (v = 'onmoz' + name) in target || (v = 'onms' + name) in target) return v.substring(2) + original
+            if ((v = 'onwebkit' + name) in target || (v = 'onmoz' + name) in target || (v = 'onms' + name) in target) return v.substring(2)
             if ((v = name.substring(0, 7)) === 'pointer') {
                 var pointer = pointerToMouse(name.substring(7), target)
                 if (pointer) return pointer
@@ -80,41 +65,7 @@
         return original
     }
     h.verifyEventName = verifyEventName
-    var delayedEvents = new Map
-        , giveItSomeTime = function (hold, secondparam) {
-            hold === globalThis.requestIdleCallback &&
-                (secondparam = { timeout: 1000 })
-            return delay
-            function delay(callback) {
-                return hold(callback, secondparam)
-            }
-        }(globalThis.queueMicrotask || globalThis.requestIdleCallback || globalThis.setImmediate || setTimeout, 100)
-
-    function dispatchAllDelayed(id) {
-        giveItSomeTime(emitPendingEvents.bind(delayedEvents.get(id)))
-    }
-    function emitPendingEvents() {
-        this.forEach(dispatchAndDelete, this)
-    }
-    function dispatchAndDelete(val) {
-        var e = val.event,
-            t = val.target
-        t.dispatchEvent(e)
-        this.delete(val)
-    }
     var invalid = TypeError.bind(1, "🚫 Invalid event target")
-    function delayedDispatch(id, target, event) {
-        debugger
-        if (!isValidET(target)) throw invalid()
-        delayedEvents.has(id) || delayedEvents.set(id, new Set)
-        var set = delayedEvents.get(id)
-        set.size || dispatchAllDelayed(id)
-        set.add({
-            target: target,
-            event: event
-        })
-    }
-    h.delayedDispatch = delayedDispatch
     function wait(ms) {
         return new Promise(resolveWithDelay.bind(void 0, ms))
     }
@@ -213,11 +164,7 @@
     // ,FLAG_WANTS_UNTRUSTED = 512,
     // FLAG_ONLY_ORIGINAL_TARGET = 1024,
     // FLAG_ONLY_EXPLICIT_ORIGINAL_TARGET = 2048
-    function on(target, events, controller, _) {
-        if (typeof _ !== 'undefined' && getLabel(controller) !== 'AbortController') {
-            debugger
-            controller = _
-        }
+    function on(target, events, controller) {
         if (!isValidET(target)) throw invalid()
         var names = ownKeys(events)
         if (!names.length) return target
@@ -252,7 +199,7 @@
                     //once
                     passive: !!passive
                 },
-                flags = once | prevents | passive | capture | stopProp | stopImmediateProp | onlyTrusted | onlyCurrentTarget | autoabort, //| wantsUntrusted | onlyOriginalTarget | onlyExplicitOriginalTarget
+                flags = once|prevents|passive|capture|stopProp|stopImmediateProp|onlyTrusted|onlyCurrentTarget|autoabort, //| wantsUntrusted | onlyOriginalTarget | onlyExplicitOriginalTarget
                 newTarget = target
             if (flags & FLAG_PASSIVE && flags & FLAG_PREVENTS) {
                 // let {caller} = on, a = []
@@ -331,8 +278,7 @@
                 var n = Object.getOwnPropertyDescriptor(this, name).value
                 function bind(a) {
                     //$dev console.assert(event)
-                    // `event` is window.event
-                    return n.call(event, a)
+                    return n.call(currentEvent, a)
                 }
                 return [name, bind]
             }, Event.prototype))
@@ -364,7 +310,7 @@
             once = flags & FLAG_ONCE,
             // originalTarget = flags & FLAG_ONLY_ORIGINAL_TARGET,
             // explicitOriginalTarget = flags & FLAG_ONLY_EXPLICIT_ORIGINAL_TARGET, 
-            event = args[0]
+            event = currentEvent = args[0]
         if (t && event.isTrusted || !t
             // && (!originalTarget || !('originalTarget' in event) || event.originalTarget === currentTarget) && (!explicitOriginalTarget || !('explicitOriginalTarget' in event) || event.explicitOriginalTarget === currentTarget) 
             && (!oct || event.eventPhase === 2)) {
@@ -406,6 +352,7 @@
             sip && event.stopImmediatePropagation()
             aa && abrt()
             if (once || (result && result.propertyIsEnumerable('value') && result.propertyIsEnumerable('done') && result.done === true)) off(currentTarget, name)
+            currentEvent = null
         }
         // return result
     }

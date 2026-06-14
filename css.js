@@ -11,6 +11,7 @@
     }
     var u = Element.prototype
     'currentCSSZoom'in u||Object.defineProperty(u,'currentCSSZoom',{value:1})
+    'currentScript'in HTMLDocument||Object.defineProperty(HTMLDocument.prototype,'currentScript',{get:function(){var z=this.getElementsByTagName('script');return this.readyState==='loading'?z[z.length-1]||null:null}})
     u.matches||O.defineProperty(u,'matches',{value:u.webkitMatchesSelector||u.msMatchesSelector||u.mozMatchesSelector||u.oMatchesSelector})
     try { var S = sessionStorage } // it just throws on read if storage is denied
     catch (e) { //$devconsole.warn(e) 
