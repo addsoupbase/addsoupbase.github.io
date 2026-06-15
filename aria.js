@@ -1,15 +1,1 @@
-"use strict"
-!function(e,t,n){e.addEventListener("submit",function(e){var t=e.target
-n.has(t)?e.returnValue=!(!e.preventDefault||!e.preventDefault()):n.add(t)},!0)
-e.addEventListener("keydown",function(n){if("KeyboardEvent"!==n.constructor.name)return console.warn("keydown listener fired was not KeyboardEvent. This is a bug I think! (happens when user clicks the autocomplete thingy, just ignore it)",n)
-var r=n.key.toLowerCase(),a=n.target,i=a.parentElement
-if(("input"!==a.tagName||a.hasAttribute("type"))&&!a.matches(t)){var l="tablist"===i.role||"button"===a.role,s=n.repeat
-switch(r){case"arrowleft":case"arrowright":var o,c=[].slice.call(i.children),u=c.indexOf(e.activeElement)
-o="arrowright"===r?c[(u+1)%c.length]:c[(u-1+c.length)%c.length],l&&o.focus()
-for(var h=i.children.length;o!==e.activeElement&&h--;)(o=("arrowright"===r?o.nextElementSibling:o.previousElementSibling)||("arrowright"===r?i.firstElementChild:i.lastElementChild)).focus()
-break
-case" ":case"enter":l&&!s&&(n.returnValue=!(!n.preventDefault||!n.preventDefault()),a.click())
-break
-case"home":case"end":h=i.children.length
-do{var d="home"===r?d?d.nextElementSibling:i.firstElementChild:d?d.previousElementSibling:i.lastElementChild
-l&&!s&&d.focus()}while(e.activeElement!==d&&h--)d&&d.click()}}},!0)}(document,["text","email","number","search","tel","url","password"].map(function(e){return'input[type="'+e+'"]'}).join(","),new WeakSet)
+"use strict";!function(e,t,n){var r={cancelable:!0,bubbles:!0};e.addEventListener("submit",function(t){var a=t.target,l=[].slice.call(a.querySelectorAll('button[type="submit"],button:not([type]),input[type="submit"],input[type="image"],input[type="button"]')).concat([].slice.call(a.elements)),i=!0;a.id&&(l=l.concat([].slice.call(e.querySelectorAll('[form="'+a.id+'"]'))));for(var c,o=l.length;o--;)c=new Event("beforesubmit",r),l[o].dispatchEvent(c),i=!c.defaultPrevented;n.has(a)||!i?t.returnValue=!(!t.preventDefault||!t.preventDefault()):(n.add(a),addEventListener("pagereveal",function(){e.head.appendChild(e.createRange().createContextualFragment('<style>:has(form){display:none !important}</style><meta http-equiv="refresh" content="0">'))},{once:!0}))},!0),e.addEventListener("keydown",function(n){if("KeyboardEvent"!==n.constructor.name)return console.warn(n);var r=n.key.toLowerCase(),a=n.target,l=a.parentElement;if(("input"!==a.tagName||a.hasAttribute("type"))&&!a.matches(t)){var i="tablist"===l.role||"button"===a.role,c=n.repeat;switch(r){case"arrowleft":case"arrowright":var o,s=[].slice.call(l.children),u=s.indexOf(e.activeElement);o="arrowright"===r?s[(u+1)%s.length]:s[(u-1+s.length)%s.length],i&&o.focus();for(var m=l.children.length;o!==e.activeElement&&m--;)(o=("arrowright"===r?o.nextElementSibling:o.previousElementSibling)||("arrowright"===r?l.firstElementChild:l.lastElementChild)).focus();break;case" ":case"enter":i&&!c&&(n.returnValue=!(!n.preventDefault||!n.preventDefault()),a.click());break;case"home":case"end":m=l.children.length;do{var d="home"===r?d?d.nextElementSibling:l.firstElementChild:d?d.previousElementSibling:l.lastElementChild;i&&!c&&d.focus()}while(e.activeElement!==d&&m--);d&&d.click()}}},!0)}(document,["text","email","number","search","tel","url","password"].map(function(e){return'input[type="'+e+'"]'}).join(","),new WeakSet);

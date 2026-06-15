@@ -12,9 +12,10 @@
 p {
     text-wrap: pretty
 }
-img {
+img,image,input[type="image"] {
     align-content: center;
     text-align: center;
+    height: auto;
 }
 h1,
 h2,

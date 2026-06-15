@@ -4,32 +4,32 @@
 export const SlideShow = function (_) {
     if (_) return _
     const supportsMod = CSS.supports('width', 'mod(1px,1px)')
-let worker/*${return`= new Worker('data:text/javascript,' + encodeURIComponent(${JSON.stringify(minify({['spriteworker.js']:await inline('./spriteworker.js')}, 'text/javascript').code)}),{name:'slide-show'})`}*/
-function doWorkerStuffs(bitmap, width, height) {
-    let channel = new MessageChannel
-    let { port1, port2 } = channel
-    port2.start()
-    worker.postMessage({ bitmap, width, height }, [bitmap, channel.port2])
-    return new Promise((resolve, reject) => {
-        function finish() {
-            port1.removeEventListener('messageerror', err)
-            port1.removeEventListener('message', msg)
-        }
-        function msg({ data }) {
-            port2.close()
-            port1.close()
-            data.name ? reject(data) : resolve(data)
-            finish()
-        }
-        function err(n) {
-            finish()
-            reject(n.data)
-        }
-        port1.start()
-        port1.addEventListener('message', msg)
-        port1.addEventListener('messageerror', err)
-    })
-}
+    let worker/*${return`= new Worker('data:text/javascript,' + encodeURIComponent(${JSON.stringify(minify({['spriteworker.js']:await inline('./spriteworker.js')}, 'text/javascript').code)}),{name:'slide-show'})`}*/
+    function doWorkerStuffs(bitmap, width, height) {
+        let channel = new MessageChannel
+        let { port1, port2 } = channel
+        port2.start()
+        worker.postMessage({ bitmap, width, height }, [bitmap, channel.port2])
+        return new Promise((resolve, reject) => {
+            function finish() {
+                port1.removeEventListener('messageerror', err)
+                port1.removeEventListener('message', msg)
+            }
+            function msg({ data }) {
+                port2.close()
+                port1.close()
+                data.name ? reject(data) : resolve(data)
+                finish()
+            }
+            function err(n) {
+                finish()
+                reject(n.data)
+            }
+            port1.start()
+            port1.addEventListener('message', msg)
+            port1.addEventListener('messageerror', err)
+        })
+    }
     /*const subPixel = matchMedia(`(resolution: 0.3125dppx)  or (resolution: 0.9375dppx) or (resolution: 1.5625dppx) or (resolution: 2.1875dppx) or (resolution: 1.1320754716981132dppx) or (resolution: 1.3636363636363635dppx) or (resolution: 2.142857142857143dppx)`)
     subPixel.addEventListener('change', change)
     function change(n) {
@@ -346,10 +346,10 @@ function doWorkerStuffs(bitmap, width, height) {
                     if (!supportsMod) this.index = this.index
                     this.dispatchEvent(new Event('load'))
                     // try {
-                        setTimeout(() => {
-                            if (this.#state === 'playing' && this.repeatCount == 1) this.dispatchEvent(new Event('endEvent'))
-                            }, this.#anim.getSimpleDuration() * 1000)
-                        // dude i dont know why events arent firing but this will have to do for now
+                    setTimeout(() => {
+                        if (this.#state === 'playing' && this.repeatCount == 1) this.dispatchEvent(new Event('endEvent'))
+                    }, this.#anim.getSimpleDuration() * 1000)
+                    // dude i dont know why events arent firing but this will have to do for now
                     // }
                     // catch { }
                     break

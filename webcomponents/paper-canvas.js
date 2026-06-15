@@ -4,6 +4,11 @@ let structure = document.createRange().createContextualFragment('<div><div id="h
 const css = window[Symbol.for('[[CSSModule]]')]
 // import * as h from '../handle.js'
 // let internals = Symbol()
+let papers = document.getElementsByTagName('paper-canvas')
+function b4(e) {
+    [].some.call(papers, o => o.matches(':valid')) && e.preventDefault()
+}
+addEventListener('beforeunload', b4)
 function offscreen(width, height) {
     if (typeof OffscreenCanvas === 'function') return new OffscreenCanvas(width, height)
     let n = document.createElement('canvas')
@@ -155,6 +160,7 @@ if (Object.getOwnPropertyDescriptor(ShadowRoot.prototype, 'adoptedStyleSheets'))
         }
         constructor() {
             super()
+            this.addEventListener('beforesubmit', removeEventListener.bind(window,'beforeunload', b4))
             let c = this.#colorElement = this.querySelector('[data-is="color"]')
             if (typeof scrollMaxX === 'number' && c) {
                 c.type = 'text'
@@ -187,7 +193,8 @@ if (Object.getOwnPropertyDescriptor(ShadowRoot.prototype, 'adoptedStyleSheets'))
             //     callback: resizeCanvas
             // })
         }
-        internals = this.closest('form')?.contains(this) ? this.attachInternals() : null
+        #form = this.closest('form')
+        internals = this.#form?.contains(this) ? this.attachInternals() : null
         holding = false
         lastLoc = Float64Array.of(0, 0)
         canvas = null
