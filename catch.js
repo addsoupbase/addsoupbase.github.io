@@ -1042,7 +1042,7 @@ function handlePokedexUpdate({ name, index, src, no, capture, dex }) {
             pokemon.index = index
             if (isShiny) pokemon.classList.add('shiny')
         }
-        setTimeout(() => { isActive && (setActive(pokemon), pokemon.parentNode.scrollIntoView({ behavior: 'smooth', block: 'center' })); isAutoScrolling = false }, 800)
+        setTimeout(() => { isActive && (setActive(pokemon), pokemon.parentNode.scrollIntoView({ behavior: 'smooth', block: 'center' })); isAutoScrolling = false }, 400)
     }
 }
 let scrollIndexX = 0
