@@ -131,6 +131,7 @@ let observer = new IntersectionObserver(e => {
         }
     }
 }, {
+    delay: 400,
     threshold: [0, Number.MIN_VALUE, .3]
 })
 function escapeHTML(s) { (a ??= d.createElement('p')).textContent = s; return a.innerHTML.replace(q, '&quot;').replace(apos, '&#39;') } let a
