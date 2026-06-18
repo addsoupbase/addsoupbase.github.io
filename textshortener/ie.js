@@ -3,9 +3,20 @@
     var h = window[Symbol.for('[[HModule]]')]
     h.on(paste, {
         click: function () {
-            input.focus()
-            input.select()
-            document.execCommand('paste', false, '')
+            function a() {
+                input.focus()
+                input.select()
+                document.execCommand('paste', false, '')
+                input.dispatchEvent(new Event('input'))
+            }
+            try {
+                navigator.clipboard.readText()
+                    .then(function (txt) {
+                        input.value = txt
+                        input.dispatchEvent(new Event('input'))
+                    }, a)
+            }
+            catch (e) { a() }
         }
     })
     h.on(form, {
@@ -33,38 +44,38 @@
     var req = new XMLHttpRequest
     req.open('GET', './subs.json')
     h.on(req, {
-        load:function () {
-        var b = /\\/g
-        var subs = (typeof JSON === 'object' ? JSON.parse : eval)(req.responseText)
-            .map(
-                function (n) {
-                    var a = n[0], b = n[1]
-                    return [RegExp(a, 'g' + (n[2] || '')), b]
+        load: function () {
+            var b = /\\/g
+            var subs = (typeof JSON === 'object' ? JSON.parse : eval)(req.responseText)
+                .map(
+                    function (n) {
+                        var a = n[0], b = n[1]
+                        return [RegExp(a, 'g' + (n[2] || '')), b]
+                    }
+                ).sort(
+                    function (a, b) {
+                        a = a[0]
+                        b = b[0]
+                        return b.source.replace(b, '').length - a.source.replace(b, '').length
+                    })
+            h.on(input, {
+                input: function () {
+                    var txt = input.value
+                    var newtxt = shortenText(txt)
+                    output.value = final = newtxt
+                    savedChars.textContent = 'Saving ' + (txt.length - newtxt.length) + ' characters'
                 }
-            ).sort(
-                function (a, b) {
-                    a = a[0]
-                    b = b[0]
-                    return b.source.replace(b, '').length - a.source.replace(b, '').length
-                })
-        h.on(input, {
-            input: function () {
-                var txt = input.value
-                var newtxt = shortenText(txt)
-                output.value = final = newtxt
-                savedChars.textContent = 'Saving ' + (txt.length - newtxt.length) + ' characters'
+            })
+            function shortenText(og) {
+                var text = og
+                for (var i = 0, len = subs.length; i < len; ++i) {
+                    var n = subs[i]
+                    text = text.replace(n[0], n[1])
+                }
+                return text
             }
-        })
-        function shortenText(og) {
-            var text = og
-            for (var i = 0, len = subs.length; i < len; ++i) {
-                var n = subs[i]
-                text = text.replace(n[0], n[1])
-            }
-            return text
         }
-    }
     })
     req.send()
 }(document.getElementById('saved'), document.getElementById('txt'),
-    document.getElementById('c'),document.getElementById('output'),document.getElementById('paste'))
+    document.getElementById('c'), document.getElementById('output'), document.getElementById('paste'))
