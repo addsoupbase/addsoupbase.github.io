@@ -1,6 +1,13 @@
-!function (savedChars, input, form) {
+!function (savedChars, input, form, output, paste) {
     'use strict'
-    var h = window[typeof Symbol === 'function' ? Symbol.for('[[HModule]]') : '[[HModule]]']
+    var h = window[Symbol.for('[[HModule]]')]
+    h.on(paste, {
+        click: function () {
+            input.focus()
+            input.select()
+            document.execCommand('paste', false, '')
+        }
+    })
     h.on(form, {
         $submit: function (e) {
             try {
@@ -44,7 +51,7 @@
             input: function () {
                 var txt = input.value
                 var newtxt = shortenText(txt)
-                final = newtxt
+                output.value = final = newtxt
                 savedChars.textContent = 'Saving ' + (txt.length - newtxt.length) + ' characters'
             }
         })
@@ -60,4 +67,4 @@
     })
     req.send()
 }(document.getElementById('saved'), document.getElementById('txt'),
-    document.getElementById('c'))
+    document.getElementById('c'),document.getElementById('output'),document.getElementById('paste'))
