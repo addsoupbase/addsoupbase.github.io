@@ -2,18 +2,17 @@
     'use strict'
     // https://web.archive.org/web/20130316042726/https://www.w3.org/TR/file-writer-api/#the-filewriter-interface
     var TypedArray = Object.getPrototypeOf(Uint8Array.prototype).constructor
-    var invalidPath = /[\/]|^\.\.?$/
+        , invalidPath = /[\/]|^\.\.?$/
+    dp(navigator, 'storage', { value: navigator.storage || {} })
+    var storage = navigator.storage
+        , TARGET = Symbol('[[FileOrDirectory]]')
+        , PARENTFOLDER = Symbol("[[ParentFolder]]")
+        , WRITER = Symbol('[[Writer]]')
+        , VERIFY = Symbol()
     if (navigator.userAgent.includes('Windows')) invalidPath = /[\/\\]|^\.\.?$/
     function isInvalidPath(path) {
         return (!path || invalidPath.test(String(path)))
     }
-    dp(navigator, 'storage', { value: navigator.storage || {} })
-    // var type = 0
-    var storage = navigator.storage
-    var TARGET = Symbol('[[FileOrDirectory]]')
-    var PARENTFOLDER = Symbol("[[ParentFolder]]")
-    var WRITER = Symbol('[[Writer]]')
-    var VERIFY = Symbol()
     function FileSystemHandle(name, kind) {
         y(this, {
             name: {
@@ -229,7 +228,7 @@
                             .then(function (entry) {
                                 if (entry.kind === 'directory') {
                                     return new Promise(function (r, n) { entry[TARGET].removeRecursively(r, n) })
-                                } 
+                                }
                                 else return x.removeEntry(entry.name)
                             })
                             .then(y)
@@ -351,54 +350,54 @@
         }
     })
     storage.estimate ||
-    dp(storage, 'estimate', {
-        value: function estimate() {
-            return new Promise(function (resolve, reject) {
-                navigator.webkitTemporaryStorage.queryUsageAndQuota(function (usage, quota) {
-                    resolve({
-                        quota: quota,
-                        usage: usage
-                    })
-                }, reject)
-            })
-        }
-    })
-    storage.getDirectory || 
-    dp(storage, 'getDirectory', {
-        value: function getDirectory() {
-            return new Promise(function (resolve, reject) {
-                storage.estimate()
-                    .then(function (b) {
-                        return new Promise(function (res, rej) {
-                            webkitRequestFileSystem(0, b.quota, res, rej)
+        dp(storage, 'estimate', {
+            value: function estimate() {
+                return new Promise(function (resolve, reject) {
+                    navigator.webkitTemporaryStorage.queryUsageAndQuota(function (usage, quota) {
+                        resolve({
+                            quota: quota,
+                            usage: usage
                         })
-                    })
-                    .then(function (FileSystem) {
-                        resolve(new FileSystemDirectoryHandle(FileSystem, ''))
-                    })
-                    .catch(reject)
-            })
-        }
-    })
+                    }, reject)
+                })
+            }
+        })
+    storage.getDirectory ||
+        dp(storage, 'getDirectory', {
+            value: function getDirectory() {
+                return new Promise(function (resolve, reject) {
+                    storage.estimate()
+                        .then(function (b) {
+                            return new Promise(function (res, rej) {
+                                webkitRequestFileSystem(0, b.quota, res, rej)
+                            })
+                        })
+                        .then(function (FileSystem) {
+                            resolve(new FileSystemDirectoryHandle(FileSystem, ''))
+                        })
+                        .catch(reject)
+                })
+            }
+        })
     storage.persist ||
-    dp(storage, 'persist', {
-        value: function persist() {
-            return new Promise(function (resolve, reject) {
-                storage.estimate()
-                    .then(function (b) {
-                        return new Promise(function (res, rej) {
-                            webkitRequestFileSystem(0, b.quota, res, rej)
+        dp(storage, 'persist', {
+            value: function persist() {
+                return new Promise(function (resolve, reject) {
+                    storage.estimate()
+                        .then(function (b) {
+                            return new Promise(function (res, rej) {
+                                webkitRequestFileSystem(0, b.quota, res, rej)
+                            })
                         })
-                    })
-                    .then(function () {
-                        resolve(false)
-                    })
-                    .catch(reject)
-            })
-        }
-    })
+                        .then(function () {
+                            resolve(false)
+                        })
+                        .catch(reject)
+                })
+            }
+        })
     storage.persisted ||
-    dp(storage, 'persisted', {
-        value: function persisted() { return Promise.resolve(false) }
-    })
+        dp(storage, 'persisted', {
+            value: function persisted() { return Promise.resolve(false) }
+        })
 }(Object.defineProperties, Object.defineProperty)

@@ -17,7 +17,6 @@ let mons /*${return`= ${uneval(await Array.fromAsync((await inline('./media/spri
 })))}`}*/
 mons.forEach(o => {
     preload({ src: `./media/sprite/${o.file}`, framesX: o.framesX, framesY: 2 })
-
 })
 const { $ } = v
 let { bg } = v.id
