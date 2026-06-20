@@ -14,7 +14,7 @@
                     .then(function (txt) {
                         input.value = txt
                         input.dispatchEvent(new Event('input'))
-                    }, a)
+                    }).catch(a)
             }
             catch (e) { a() }
         }
@@ -23,6 +23,7 @@
         $submit: function (e) {
             try {
                 navigator.clipboard.writeText(final)
+.catch(function(){prompt("Your text",final)})
             }
             catch (e) {
                 try {
